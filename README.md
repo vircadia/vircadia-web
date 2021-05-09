@@ -1,4 +1,4 @@
-# Vircadia Web (vircadia-web)
+# Vircadia Web (Codename Aether)
 
 Vircadia Web client for virtual worlds.
 
