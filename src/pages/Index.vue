@@ -1,8 +1,8 @@
 <template>
     <q-page class="flex flex-center">
         <img
-            alt="Quasar logo"
-            src="~assets/quasar-logo-full.svg"
+            alt="Vircadia icon"
+            src="~assets/vircadia-icon.svg"
         >
     </q-page>
 </template>
