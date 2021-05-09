@@ -1,119 +1,81 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
-      <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
-        />
+    <q-layout view="lHh Lpr lFf">
+        <q-header elevated>
+            <div class="row no-wrap">
+                <q-toolbar
+                    class="col-4"
+                >
+                    <q-btn
+                        flat
+                        dense
+                        round
+                        icon="menu"
+                        aria-label="Menu"
+                        @click="mainDrawerOpen = !mainDrawerOpen"
+                    />
 
-        <q-toolbar-title>
-          Quasar App
-        </q-toolbar-title>
+                    <q-toolbar-title>
+                        {{ getLocation }}
+                    </q-toolbar-title>
+                </q-toolbar>
 
-        <div>Quasar v{{ $q.version }}</div>
-      </q-toolbar>
-    </q-header>
+                <q-toolbar
+                    class="col-8"
+                >
+                    <q-input rounded outlined v-model="locationInput" label="Connect to" />
+                    <q-btn-group push>
+                        <q-btn push label="Connect" icon="login" @click="connect" />
+                        <q-btn push label="Disconnect" icon="close" @click="disconnect" />
+                    </q-btn-group>
+                    <q-space />
 
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-      class="bg-grey-1"
-    >
-      <q-list>
-        <q-item-label
-          header
-          class="text-grey-8"
+                    <div>Vircadia Web v{{ $store.state.globalConsts.APP_VERSION }}</div>
+                </q-toolbar>
+            </div>
+        </q-header>
+
+        <q-drawer
+            v-model="mainDrawerOpen"
+            bordered
+            content-class="bg-grey-1"
         >
-          Essential Links
-        </q-item-label>
 
-        <EssentialLink
-          v-for="link in essentialLinks"
-          :key="link.title"
-          v-bind="link"
-        />
-      </q-list>
     </q-drawer>
 
     <q-page-container>
-      <router-view />
+        <router-view />
     </q-page-container>
-  </q-layout>
+</q-layout>
 </template>
 
 <script>
-import EssentialLink from 'components/EssentialLink.vue'
+export default {
+    name: 'MainLayout',
 
-const linksList = [
-  {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev'
-  },
-  {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework'
-  },
-  {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev'
-  },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev'
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
-  }
-]
+    data: () => ({
+        mainDrawerOpen: false,
+        // Menu
+        locationInput: ''
+    }),
 
-import { defineComponent, ref } from 'vue'
+    computed: {
+        getLocation: function () {
+            if (this.$store.state.location.current) {
+                return this.$store.state.location.current;
+            } else {
+                return this.$store.state.location.state;
+            }
+        }
+    },
 
-export default defineComponent({
-  name: 'MainLayout',
+    methods: {
+        connect: function () {
+            console.info('Connecting to...', this.locationInput);
+        },
 
-  components: {
-    EssentialLink
-  },
-
-  setup () {
-    const leftDrawerOpen = ref(false)
-
-    return {
-      essentialLinks: linksList,
-      leftDrawerOpen,
-      toggleLeftDrawer () {
-        leftDrawerOpen.value = !leftDrawerOpen.value
-      }
+        disconnect: function () {
+            console.info('Disconnecting from...', this.$store.state.location.current);
+        }
     }
-  }
-})
+}
 </script>

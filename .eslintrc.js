@@ -71,6 +71,14 @@ module.exports = {
     'import/no-extraneous-dependencies': 'off',
     'prefer-promise-reject-errors': 'off',
 
+    "indent": [
+        "error",
+        4
+    ],
+    "camelcase": "off",
+    "semi": "off",
+    "quote-props": "off",
+    "no-useless-return": "off",
 
     // allow debugger during development only
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off'

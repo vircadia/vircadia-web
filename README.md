@@ -2,6 +2,10 @@
 
 Vircadia Web client for virtual worlds.
 
+## Install Quasar CLI
+
+See [here](https://next.quasar.dev/quasar-cli/installation).
+
 ## Install the dependencies
 ```bash
 yarn
