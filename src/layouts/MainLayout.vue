@@ -121,5 +121,5 @@ export default {
             console.info('Disconnecting from...', this.$store.state.location.current);
         }
     }
-}
+};
 </script>
