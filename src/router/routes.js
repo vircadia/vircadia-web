@@ -1,5 +1,5 @@
 /*
-//  index.js
+//  routes.js
 //
 //  Created by Kalila L. on May 9th, 2021.
 //  Copyright 2021 Vircadia contributors.
