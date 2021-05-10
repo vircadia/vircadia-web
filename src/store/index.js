@@ -30,6 +30,9 @@ export default store(function (/* { ssrContext } */) {
                 // APP_VERSION: process.env.VUE_APP_VERSION
                 APP_VERSION: '0.0.1'
             },
+            renderer: {
+                canvas: null
+            },
             location: {
                 current: '',
                 state: 'Not Connected'
