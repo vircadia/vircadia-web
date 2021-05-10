@@ -2,14 +2,18 @@
 
 Vircadia Web (*codename Aether*) is a web based client for accessing virtual worlds.
 
-## Install Quasar CLI
+## Project Setup
+
+### Install Quasar CLI
 
 See [here](https://next.quasar.dev/quasar-cli/installation). It is recommended that you use Yarn instead of NPM.
 
-## Install the dependencies
+### Install the dependencies
 ```bash
 yarn
 ```
+
+## Run, Compile, and Test
 
 ### Start the app in development mode (hot-code reloading, error reporting, etc.)
 ```bash
@@ -19,6 +23,11 @@ quasar dev
 ### Lint the files
 ```bash
 yarn run lint
+```
+
+### Run tests
+```bash
+yarn test
 ```
 
 ### Build the app for production
