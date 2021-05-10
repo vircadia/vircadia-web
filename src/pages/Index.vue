@@ -1,5 +1,5 @@
 <!--
-//  App.vue
+//  Index.vue
 //
 //  Created by Kalila L. on May 9th, 2021.
 //  Copyright 2021 Vircadia contributors.
@@ -9,12 +9,18 @@
 -->
 
 <template>
-    <router-view />
+    <q-page class="flex flex-center">
+        <img
+            alt="Vircadia icon"
+            src="~assets/vircadia-icon.svg"
+        >
+    </q-page>
 </template>
+
 <script>
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-    name: 'App'
-})
+    name: 'PageIndex'
+});
 </script>

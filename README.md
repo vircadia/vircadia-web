@@ -1,24 +1,60 @@
-# vircadia-web
+# Vircadia Web
 
-## Project setup
+Vircadia Web (*codename Aether*) is a web based client for accessing virtual worlds.
+
+## Project Setup
+
+### Prequisites
+
+We currently use the following:
+
+* Node `14.15.4`
+* NPM `6.14.10`
+
+### Install Quasar CLI
+
+Install Quasar CLI using NPM [here](https://next.quasar.dev/quasar-cli/installation).
+
+### Install the dependencies
+
 ```
-npm install
+npm i
 ```
 
-### Compiles and hot-reloads for development
+## Run, Compile, and Test
+
+### Start the app in development mode
+
+Development mode benefits from features like hot-code reloading, error reporting, etc.
+
 ```
-npm run serve
+quasar dev
 ```
 
-### Compiles and minifies for production
-```
-npm run build
-```
+### Lint the files
 
-### Lints and fixes files
 ```
 npm run lint
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+And fix lint issues automatically with
+
+```
+npm run lint -- --fix
+```
+
+### Run tests
+
+```
+npm run test
+```
+
+### Build the app for production
+
+```
+quasar build
+```
+
+### Customize the configuration
+
+See [Configuring quasar.conf.js](https://v2.quasar.dev/quasar-cli/quasar-conf-js).
