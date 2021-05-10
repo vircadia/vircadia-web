@@ -1,5 +1,3 @@
-import { store } from 'quasar/wrappers';
-import { createStore } from 'vuex';
 /*
 //  index.js
 //
@@ -9,6 +7,9 @@ import { createStore } from 'vuex';
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
+
+import { store } from 'quasar/wrappers';
+import { createStore } from 'vuex';
 
 /*
 * If not building with SSR mode, you can
@@ -30,8 +31,16 @@ export default store(function (/* { ssrContext } */) {
                 // APP_VERSION: process.env.VUE_APP_VERSION
                 APP_VERSION: '0.0.1'
             },
+            debugging: {
+            },
+            notifications: {
+            },
             renderer: {
-                canvas: null
+                canvases: [
+                    {
+                        canvas: null
+                    }
+                ]
             },
             location: {
                 current: '',
