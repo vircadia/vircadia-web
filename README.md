@@ -1,10 +1,10 @@
-# Vircadia Web (Codename Aether)
+# Vircadia Web
 
-Vircadia Web client for virtual worlds.
+Vircadia Web (*codename Aether*) is a web based client for accessing virtual worlds.
 
 ## Install Quasar CLI
 
-See [here](https://next.quasar.dev/quasar-cli/installation).
+See [here](https://next.quasar.dev/quasar-cli/installation). It is recommended that you use Yarn instead of NPM.
 
 ## Install the dependencies
 ```bash

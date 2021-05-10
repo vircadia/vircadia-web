@@ -1,7 +1,14 @@
 import { store } from 'quasar/wrappers'
 import { createStore } from 'vuex'
-
-// import example from './module-example'
+/*
+//  index.js
+//
+//  Created by Kalila L. on May 9th, 2021.
+//  Copyright 2021 Vircadia contributors.
+//
+//  Distributed under the Apache License, Version 2.0.
+//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+*/
 
 /*
 * If not building with SSR mode, you can
@@ -21,7 +28,7 @@ export default store(function (/* { ssrContext } */) {
         state: {
             globalConsts: {
                 // APP_VERSION: process.env.VUE_APP_VERSION
-                APP_VERSION: '0.1.0'
+                APP_VERSION: '0.0.1'
             },
             location: {
                 current: '',
