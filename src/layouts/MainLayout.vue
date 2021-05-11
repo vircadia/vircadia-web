@@ -9,8 +9,8 @@
 -->
 
 <template>
-    <q-layout view="lHh Lpr lFf">
-        <q-header elevated>
+    <q-layout id="mainLayout" view="lHh Lpr lFf">
+        <q-header id="header" elevated>
             <div class="row no-wrap">
                 <q-toolbar
                     class="col-4"
@@ -21,16 +21,7 @@
                         round
                         icon="account_circle"
                         aria-label="User Menu"
-                        @click="toggleUserDrawer"
-                    />
-
-                    <q-btn
-                        flat
-                        dense
-                        round
-                        icon="settings"
-                        aria-label="Settings Menu"
-                        @click="toggleSettingsDrawer"
+                        @click="toggleUserMenu"
                     />
 
                     <q-toolbar-title>
@@ -76,13 +67,6 @@
             </q-scroll-area>
         </q-drawer>
 
-        <q-drawer
-            v-model="settingsMenuOpen"
-            bordered
-        >
-
-        </q-drawer>
-
         <q-page-container>
             <router-view />
         </q-page-container>
@@ -94,15 +78,19 @@ export default {
     name: 'MainLayout',
 
     data: () => ({
-        settingsMenuOpen: false,
         // Toolbar
         locationInput: '',
         // User Menu
         userMenuOpen: false,
         userMenu: [
             {
-                icon: 'inbox',
-                label: 'Inbox',
+                icon: 'account_circle',
+                label: 'Account',
+                separator: true
+            },
+            {
+                icon: 'settings',
+                label: 'Settings',
                 separator: true
             }
         ]
@@ -120,14 +108,8 @@ export default {
 
     methods: {
         // Drawers
-        toggleUserDrawer: function () {
+        toggleUserMenu: function () {
             this.userMenuOpen = !this.userMenuOpen;
-            this.settingsMenuOpen = false;
-        },
-
-        toggleSettingsDrawer: function () {
-            this.settingsMenuOpen = !this.settingsMenuOpen;
-            this.userMenuOpen = false;
         },
 
         // Connections
@@ -139,5 +121,5 @@ export default {
             console.info('Disconnecting from...', this.$store.state.location.current);
         }
     }
-}
+};
 </script>

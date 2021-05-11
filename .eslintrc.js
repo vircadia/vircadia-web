@@ -76,7 +76,9 @@ module.exports = {
         4
     ],
     "camelcase": "off",
-    "semi": "off",
+    "semi": ["error", "always"],
+    "semi-spacing": "error",
+    "semi-style": "error",
     "quote-props": "off",
     "no-useless-return": "off",
 

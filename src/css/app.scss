@@ -1,1 +1,14 @@
 // app global css in SCSS form
+
+#header {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+#mainLayout {
+}
+
+#renderCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+}
