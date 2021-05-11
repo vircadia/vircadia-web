@@ -34,10 +34,8 @@ export default {
 
     methods: {
         resizeCanvas: function (canvas) {
-            var height = window.innerHeight;
-            var width = window.innerWidth;
-            canvas.height = height;
-            canvas.width = width;
+            canvas.height = window.innerHeight;
+            canvas.width = window.innerWidth;
         }
     },
     
