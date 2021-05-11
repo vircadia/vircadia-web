@@ -11,11 +11,14 @@
 import Log from '../../debugging/log.js';
 
 export class AudioInput {
+    inputsList = undefined;
+
+    awaitingCapturePermissions = false;
+    hasInputAccess = false;
+
     stream = undefined;
     currentInputDevice = undefined;
-    awaitingCapturePermissions = false;
-    hasCapturePermissions = false;
-    inputsList = undefined;
+    muted = false;
 
     constructor (store, prop) {
         this.handleRequestInputSuccess = (stream) => {
@@ -27,7 +30,7 @@ export class AudioInput {
                 with: {
                     stream: stream,
                     awaitingCapturePermissions: false,
-                    hasCapturePermissions: true
+                    hasInputAccess: true
                 }
             });
 
@@ -51,8 +54,9 @@ export class AudioInput {
                 property: prop,
                 update: true,
                 with: {
-                    hasCapturePermissions: false,
-                    currentInputDevice: undefined
+                    stream: undefined,
+                    currentInputDevice: undefined,
+                    hasInputAccess: false
                 }
             });
         };
@@ -68,7 +72,7 @@ export class AudioInput {
         };
 
         this.setCurrentInputDevice = (device) => {
-            Log.print('AUDIO', 'INFO', 'Successfully set specific input device', device.label);
+            Log.print('AUDIO', 'INFO', 'Successfully set input device', device.label);
 
             store.commit('mutate', {
                 property: prop,
@@ -131,9 +135,9 @@ export class AudioInput {
             );
 
             return false;
+        } else {
+            this.setAwaitingCapturePermissions(true);
         }
-
-        this.setAwaitingCapturePermissions(true);
 
         Log.print('AUDIO', 'INFO', 'Requesting specific input device ID', requestedDeviceId);
 

@@ -43,42 +43,62 @@
 
             <q-tab-panels v-model="tab" animated>
                 <q-tab-panel name="input">
-                    <q-btn
-                        fab
-                        class="q-mr-sm"
-                        :color="$store.state.audio.input.hasCapturePermissions ? 'primary' : 'red'"
-                        :icon="$store.state.audio.input.hasCapturePermissions ? 'mic' : 'mic_off'"
-                    />
+                    <div class="row">
+                        <div class=".col-4">
+                            <q-btn
+                                fab
+                                class="q-mr-sm"
+                                :color="$store.state.audio.input.hasInputAccess ? 'primary' : 'red'"
+                                :icon="$store.state.audio.input.hasInputAccess ? 'mic' : 'mic_off'"
+                                @click="micToggled"
+                            />
+                        </div>
 
-                    <span
-                        v-if="selectedInputStore"
-                        class="text-subtitle1"
-                    >
-                        Using {{ selectedInputStore.label }}
-                    </span>
+                        <div class=".col-8 row items-center">
+                            <span
+                                v-if="selectedInputStore"
+                                class="text-subtitle1 items-center"
+                            >
+                                Using {{ selectedInputStore.label }}
+                            </span>
 
-                    <span
-                        v-else
-                        class="text-subtitle1"
-                    >
-                        No microphone selected.
-                    </span>
+                            <span
+                                v-else
+                                class="text-subtitle1 items-center"
+                            >
+                                No microphone selected.
+                            </span>
+                        </div>
+                    </div>
 
-                    <audio id="audioInputFeedbackPlayer" controls></audio>
+                    <div class="row q-mt-sm">
+                        <q-btn
+                            flat
+                            dense
+                            round
+                            class="q-mr-sm"
+                            :disabled="!$store.state.audio.input.hasInputAccess"
+                            :color="isListeningToFeedback ? 'primary' : 'red'"
+                            :icon="isListeningToFeedback ? 'hearing' : 'hearing_disabled'"
+                            @click="toggleInputFeedback"
+                        />
 
-                    <q-linear-progress
-                        v-show="$store.state.audio.input.selected"
-                        size="25px"
-                        :value=".5"
-                        color="accent"
-                    />
+                        <span
+                            v-if="isListeningToFeedback"
+                            class="text-caption row items-center"
+                        >
+                            Speak into your microphone.
+                        </span>
+
+                        <audio id="audioInputFeedbackPlayer"></audio>
+                    </div>
 
                     <q-separator
                         class="q-my-md"
                     />
 
                     <div
-                        v-if="!$store.state.audio.input.hasCapturePermissions"
+                        v-if="$store.state.audio.input.hasInputAccess === false"
                         class="text-subtitle1 text-grey text-center"
                     >
                         Please grant mic access to the app in order to speak.
@@ -94,8 +114,9 @@
                             <q-item v-show="input.label" tag="label" v-ripple>
                                 <q-item-section avatar>
                                     <q-radio
+                                        @click="requestSpecificInputAccess(input.deviceId)"
                                         v-model="selectedInputStore"
-                                        :val="input.deviceId"
+                                        :val="input"
                                         color="teal"
                                     />
                                 </q-item-section>
@@ -130,7 +151,9 @@ export default {
     name: 'Audio',
 
     data: () => ({
-        tab: 'input'
+        tab: 'input',
+        isListeningToFeedback: false,
+        feedbackPlayer: null
     }),
 
     computed: {
@@ -138,20 +161,47 @@ export default {
             get () {
                 return this.$store.state.audio.input.currentInputDevice;
             },
-            set (deviceId) {
-                this.$store.state.audio.input.requestSpecificInputAccess(deviceId);
+            set () {
+                // @click will set for us...
             }
         }
     },
 
     methods: {
         setAudioInputStream: function (stream) {
-            const player = document.getElementById('audioInputFeedbackPlayer');
+            if (!this.feedbackPlayer) return;
 
             if (window.URL) {
-                player.srcObject = stream;
+                this.feedbackPlayer.srcObject = stream;
             } else {
-                player.src = stream;
+                this.feedbackPlayer.src = stream;
+            }
+        },
+
+        requestInputAccess: function () {
+            this.$store.state.audio.input.requestInputAccess()
+                .then(this.setAudioInputStream);
+        },
+
+        requestSpecificInputAccess: function (deviceId) {
+            this.$store.state.audio.input.requestSpecificInputAccess(deviceId);
+        },
+
+        micToggled: function () {
+            if (this.$store.state.audio.input.hasInputAccess === true) {
+                // Should mute/unmute
+            } else {
+                this.requestInputAccess();
+            }
+        },
+
+        toggleInputFeedback: function () {
+            this.isListeningToFeedback = !this.isListeningToFeedback;
+
+            if (this.isListeningToFeedback === true) {
+                this.feedbackPlayer.play();
+            } else {
+                this.feedbackPlayer.pause();
             }
         }
     },
@@ -162,8 +212,9 @@ export default {
     mounted: function () {
         vue_this = this;
 
-        this.$store.state.audio.input.requestInputAccess()
-            .then(this.setAudioInputStream);
+        this.feedbackPlayer = document.getElementById('audioInputFeedbackPlayer');
+
+        this.requestInputAccess();
     }
 }
 </script>
