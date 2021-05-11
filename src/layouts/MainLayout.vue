@@ -70,14 +70,28 @@
         <q-page-container>
             <router-view />
         </q-page-container>
+
+        <q-dialog v-model="audioDialog" persistent>
+            <Audio></Audio>
+        </q-dialog>
     </q-layout>
 </template>
 
 <script>
+// Modules
+import AudioInput from '../modules/audio/input/input';
+// Components
+import Audio from '../components/settings/Audio';
+
 export default {
     name: 'MainLayout',
 
+    components: {
+        Audio
+    },
+
     data: () => ({
+        audioDialog: true,
         // Toolbar
         locationInput: '',
         // User Menu
@@ -95,6 +109,18 @@ export default {
             }
         ]
     }),
+
+    mounted: function () {
+        this.$store.commit('mutate', {
+            property: 'audio',
+            update: true,
+            with: {
+                input: {
+                    AudioInput
+                }
+            }
+        });
+    },
 
     computed: {
         getLocation: function () {

@@ -35,6 +35,12 @@ export default store(function (/* { ssrContext } */) {
             },
             notifications: {
             },
+            audio: {
+                input: {
+                    hasCapturePermissions: false,
+                    selected: null // object
+                }
+            },
             renderer: {
                 canvases: [
                     {
@@ -45,6 +51,22 @@ export default store(function (/* { ssrContext } */) {
             location: {
                 current: '',
                 state: 'Not Connected'
+            }
+        },
+
+        mutations: {
+            mutate (state, payload) {
+                if (!payload.update) {
+                    state[payload.property] = payload.with;
+                } else {
+                    for (var item in payload.with) {
+                        if (Object.prototype.hasOwnProperty.call(state[payload.property], item)) {
+                            state[payload.property][item] = payload.with[item];
+                        }
+                    }
+                }
+
+                // if (state.debugging) console.info('Payload:', payload.property, 'with:', payload.with, 'state is now:', this.state);
             }
         },
 
