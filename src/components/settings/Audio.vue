@@ -71,7 +71,10 @@
                         </div>
                     </div>
 
-                    <div class="row q-mt-sm">
+                    <div
+                        v-show="$store.state.audio.input.hasInputAccess"
+                        class="row q-mt-sm"
+                    >
                         <q-btn
                             flat
                             dense
@@ -84,10 +87,17 @@
                         />
 
                         <span
-                            v-if="isListeningToFeedback"
+                            v-if="!isListeningToFeedback"
                             class="text-caption row items-center"
                         >
-                            Speak into your microphone.
+                            Click to test your microphone.
+                        </span>
+
+                        <span
+                            v-else
+                            class="text-caption row items-center"
+                        >
+                            Speak into your microphone to listen.
                         </span>
 
                         <audio id="audioInputFeedbackPlayer"></audio>

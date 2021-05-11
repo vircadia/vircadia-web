@@ -17,7 +17,6 @@
                 >
                     <q-btn
                         flat
-                        dense
                         round
                         icon="account_circle"
                         aria-label="User Menu"
@@ -46,13 +45,46 @@
 
         <q-drawer
             v-model="userMenuOpen"
+            show-if-above
             bordered
         >
-            <q-scroll-area class="fit">
-                <q-list>
 
+            <q-img class="" src="https://cdn.quasar.dev/img/material.png" style="height: 150px">
+                <div class="absolute-bottom bg-transparent">
+                    <q-avatar size="56px" class="q-mb-sm">
+                        <img :src="getProflePicture">
+                    </q-avatar>
+                    <div class="text-weight-bold">{{ $store.state.account.username ? $store.state.account.username : "Guest" }}</div>
+                    <div>{{ getLocation }}</div>
+                </div>
+            </q-img>
+
+            <div class="q-mini-drawer-hide absolute" style="top: 100px; right: -21px">
+                <q-btn
+                    round
+                    unelevated
+                    color="accent"
+                    icon="chevron_left"
+                    @click="userMenuOpen = false"
+                />
+            </div>
+
+            <q-scroll-area
+                style="height: calc(100% - 150px);"
+            >
+                <q-list>
                     <template v-for="(menuItem, index) in userMenu" :key="index">
-                        <q-item clickable v-ripple>
+                        <q-item-label
+                            v-if="menuItem.isCategory"
+                            header
+                        >
+                            {{ menuItem.label }}
+                        </q-item-label>
+                        <q-item
+                            v-else
+                            clickable
+                            v-ripple
+                        >
                             <q-item-section avatar>
                                 <q-icon :name="menuItem.icon" />
                             </q-item-section>
@@ -62,13 +94,13 @@
                         </q-item>
                         <q-separator :key="'sep' + index" v-if="menuItem.separator" />
                     </template>
-
                 </q-list>
             </q-scroll-area>
+
         </q-drawer>
 
         <q-page-container>
-            <router-view />
+            <MainScene></MainScene>
         </q-page-container>
 
         <q-dialog v-model="audioDialog" persistent>
@@ -81,17 +113,19 @@
 // Modules
 import { AudioInput } from '../modules/audio/input/input';
 // Components
+import MainScene from '../components/MainScene';
 import Audio from '../components/settings/Audio';
 
 export default {
     name: 'MainLayout',
 
     components: {
+        MainScene,
         Audio
     },
 
     data: () => ({
-        audioDialog: true,
+        audioDialog: false,
         // Toolbar
         locationInput: '',
         // User Menu
@@ -100,11 +134,29 @@ export default {
             {
                 icon: 'account_circle',
                 label: 'Account',
+                link: '',
+                isCategory: false,
+                separator: true
+            },
+            {
+                icon: 'public',
+                label: 'Explore',
+                link: '',
+                isCategory: false,
                 separator: true
             },
             {
                 icon: 'settings',
                 label: 'Settings',
+                link: '',
+                isCategory: true,
+                separator: false
+            },
+            {
+                icon: 'headphones',
+                label: 'Audio',
+                link: '',
+                isCategory: false,
                 separator: true
             }
         ]
@@ -120,6 +172,13 @@ export default {
                 return this.$store.state.location.current;
             } else {
                 return this.$store.state.location.state;
+            }
+        },
+        getProflePicture: function () {
+            if (this.$store.state.account.profilePicture) {
+                return this.$store.state.account.profilePicture;
+            } else {
+                return '../assets/vircadia-icon.svg';
             }
         }
     },

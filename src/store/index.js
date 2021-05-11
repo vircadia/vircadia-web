@@ -31,6 +31,39 @@ export default store(function (/* { ssrContext } */) {
                 // APP_VERSION: process.env.VUE_APP_VERSION
                 APP_VERSION: '0.0.1'
             },
+            metaverseConfig: { // Prefilled with initial values
+                name: '',
+                nickname: '',
+                server: 'https://metaverse.vircadia.com/live', // This needs to at least be pre-filled in order to get all other config information.
+                iceServer: '',
+                serverVersion: ''
+            },
+            account: {
+                isLoggedIn: false, // bool
+                isAdmin: false, // bool
+                username: null, // string
+                profilePicture: null, // string
+                accountRoles: null, // array
+                accountId: null, // string
+                metaverseServer: null, // string
+                // Token data
+                accessToken: null, // string
+                refreshToken: null, // string
+                tokenType: null, // string
+                createdAt: null, // int
+                expiresIn: null, // int
+                scope: null, // string
+                // Options
+                useAsAdmin: false // bool
+            },
+            error: {
+                title: '',
+                code: '',
+                full: ''
+            },
+            dashboardConfig: {
+                dashboardTheme: 2 // int
+            },
             debugging: {
             },
             notifications: {
