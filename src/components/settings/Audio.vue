@@ -51,10 +51,10 @@
                     />
 
                     <span
-                        v-if="$store.state.audio.input.selected"
+                        v-if="selectedInputStore"
                         class="text-subtitle1"
                     >
-                        Using<br/>{{ $store.state.audio.input.selected }}
+                        Using {{ selectedInputStore.label }}
                     </span>
 
                     <span
@@ -63,6 +63,8 @@
                     >
                         No microphone selected.
                     </span>
+
+                    <audio id="audioInputFeedbackPlayer" controls></audio>
 
                     <q-linear-progress
                         v-show="$store.state.audio.input.selected"
@@ -88,7 +90,7 @@
                             so QRadios will respond to clicks on QItems to
                             change Toggle state.
                         -->
-                        <div v-for="input in foundInputs" :key="input.deviceId">
+                        <div v-for="input in $store.state.audio.input.inputsList" :key="input.deviceId">
                             <q-item v-show="input.label" tag="label" v-ripple>
                                 <q-item-section avatar>
                                     <q-radio
@@ -118,7 +120,6 @@
             <q-btn v-close-popup flat color="primary" round icon="event" />
         </q-card-actions> -->
     </q-card>
-    <audio id="player" controls></audio>
 </template>
 
 <script>
@@ -129,23 +130,20 @@ export default {
     name: 'Audio',
 
     data: () => ({
-        tab: 'input',
-        foundInputs: []
+        tab: 'input'
     }),
 
     computed: {
         selectedInputStore: {
             get () {
-                return this.$store.state.audio.input.selected;
+                return this.$store.state.audio.input.currentInputDevice;
             },
             set (value) {
                 this.$store.commit('mutate', {
                     update: true,
-                    property: 'audio',
+                    property: 'audio.input',
                     with: {
-                        input: {
-                            selected: value
-                        }
+                        currentInputDevice: value
                     }
                 });
             }
@@ -153,23 +151,14 @@ export default {
     },
 
     methods: {
-        getInputs: function () {
-            navigator.mediaDevices.enumerateDevices().then((devices) => {
-                console.info('devices', devices);
-                vue_this.foundInputs = devices.filter((d) => d.kind === 'audioinput');
-            });
-            console.info('vue_this.foundInputs', this.foundInputs);
-        },
-        updateHasCapturePermissions: function (hasCapturePermissions) {
-            this.$store.commit('mutate', {
-                property: 'audio',
-                update: true,
-                with: {
-                    input: {
-                        'hasCapturePermissions': hasCapturePermissions
-                    }
-                }
-            });
+        setAudioInputStream: function (stream) {
+            const player = document.getElementById('audioInputFeedbackPlayer');
+
+            if (window.URL) {
+                player.srcObject = stream;
+            } else {
+                player.src = stream;
+            }
         }
     },
 
@@ -179,21 +168,8 @@ export default {
     mounted: function () {
         vue_this = this;
 
-        this.getInputs();
-
-        const player = document.getElementById('player');
-
-        const handleSuccess = function(stream) {
-            if (window.URL) {
-                player.srcObject = stream;
-            } else {
-                player.src = stream;
-            }
-        };
-
-        navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-            .then(handleSuccess);
-
+        this.$store.state.audio.input.requestInputAccess()
+            .then(this.setAudioInputStream);
     }
 }
 </script>

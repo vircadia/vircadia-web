@@ -79,7 +79,7 @@
 
 <script>
 // Modules
-import AudioInput from '../modules/audio/input/input';
+import { AudioInput } from '../modules/audio/input/input';
 // Components
 import Audio from '../components/settings/Audio';
 
@@ -111,15 +111,7 @@ export default {
     }),
 
     mounted: function () {
-        this.$store.commit('mutate', {
-            property: 'audio',
-            update: true,
-            with: {
-                input: {
-                    AudioInput
-                }
-            }
-        });
+        this.mountAudioInputClass();
     },
 
     computed: {
@@ -133,6 +125,17 @@ export default {
     },
 
     methods: {
+        // Bootstrapping
+        mountAudioInputClass: function () {
+            this.$store.commit('mutate', {
+                property: 'audio',
+                update: true,
+                with: {
+                    input: new AudioInput(this.$store, 'audio.input')
+                }
+            });
+        },
+
         // Drawers
         toggleUserMenu: function () {
             this.userMenuOpen = !this.userMenuOpen;

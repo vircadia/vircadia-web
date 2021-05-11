@@ -36,10 +36,7 @@ export default store(function (/* { ssrContext } */) {
             notifications: {
             },
             audio: {
-                input: {
-                    hasCapturePermissions: false,
-                    selected: null // object
-                }
+                input: null // A class is mounted onto this in MainLayout.vue
             },
             renderer: {
                 canvases: [
@@ -56,12 +53,21 @@ export default store(function (/* { ssrContext } */) {
 
         mutations: {
             mutate (state, payload) {
-                if (!payload.update) {
-                    state[payload.property] = payload.with;
+                const segments = payload.property.split('.');
+                let base = state;
+                while (segments.length > 1) {
+                    const segment = segments.shift();
+                    if (!(segment in base)) base[segment] = {};
+                    base = base[segment];
+                }
+                const prop = segments[0];
+
+                if (!payload.update || !(prop in base)) {
+                    base[prop] = payload.with;
                 } else {
-                    for (var item in payload.with) {
-                        if (Object.prototype.hasOwnProperty.call(state[payload.property], item)) {
-                            state[payload.property][item] = payload.with[item];
+                    for (const item in payload.with) {
+                        if (Object.prototype.hasOwnProperty.call(payload.with, item)) {
+                            base[prop][item] = payload.with[item];
                         }
                     }
                 }
