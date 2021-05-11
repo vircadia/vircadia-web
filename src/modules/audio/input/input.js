@@ -8,19 +8,25 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
+import Log from '../../debugging/log.js';
+
 export class AudioInput {
     stream = undefined;
     currentInputDevice = undefined;
+    awaitingCapturePermissions = false;
     hasCapturePermissions = false;
     inputsList = undefined;
 
     constructor (store, prop) {
         this.handleRequestInputSuccess = (stream) => {
+            Log.print('AUDIO', 'INFO', 'Processing successful input device request.');
+
             store.commit('mutate', {
                 property: prop,
                 update: true,
                 with: {
                     stream: stream,
+                    awaitingCapturePermissions: false,
                     hasCapturePermissions: true
                 }
             });
@@ -45,12 +51,25 @@ export class AudioInput {
                 property: prop,
                 update: true,
                 with: {
-                    hasCapturePermissions: false
+                    hasCapturePermissions: false,
+                    currentInputDevice: undefined
+                }
+            });
+        };
+
+        this.setAwaitingCapturePermissions = (isAwaitingCapturePermissions) => {
+            store.commit('mutate', {
+                property: prop,
+                update: true,
+                with: {
+                    awaitingCapturePermissions: isAwaitingCapturePermissions
                 }
             });
         };
 
         this.setCurrentInputDevice = (device) => {
+            Log.print('AUDIO', 'INFO', 'Successfully set specific input device', device.label);
+
             store.commit('mutate', {
                 property: prop,
                 update: true,
@@ -96,14 +115,33 @@ export class AudioInput {
         this.stream.getTracks().forEach(track => {
             track.stop();
         });
+
+        this.revokeCaptureAccess();
     }
 
     requestSpecificInputAccess (requestedDeviceId) {
-        if (typeof currentStream !== 'undefined') {
+        if (typeof this.stream !== 'undefined') {
             this.stopCurrentInputStream();
         }
 
-        return navigator.mediaDevices.getUserMedia({ audio: { deviceId: requestedDeviceId }, video: false })
-            .then((stream) => this.handleRequestInputSuccess(stream));
+        if (this.awaitingCapturePermissions === true) {
+            Log.print(
+                'AUDIO', 'ERROR', 'Failed to request specific input device ID', requestedDeviceId,
+                'due to an already awaiting request for input capture.'
+            );
+
+            return false;
+        }
+
+        this.setAwaitingCapturePermissions(true);
+
+        Log.print('AUDIO', 'INFO', 'Requesting specific input device ID', requestedDeviceId);
+
+        return navigator.mediaDevices.getUserMedia({ audio: { deviceId: { exact: requestedDeviceId } }, video: false })
+            .then((stream) => this.handleRequestInputSuccess(stream))
+            .catch((error) => {
+                this.setAwaitingCapturePermissions(false);
+                Log.print('AUDIO', 'ERROR', error);
+            });
     }
 }

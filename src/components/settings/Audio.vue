@@ -95,7 +95,7 @@
                                 <q-item-section avatar>
                                     <q-radio
                                         v-model="selectedInputStore"
-                                        val="input.deviceId"
+                                        :val="input.deviceId"
                                         color="teal"
                                     />
                                 </q-item-section>
@@ -138,14 +138,8 @@ export default {
             get () {
                 return this.$store.state.audio.input.currentInputDevice;
             },
-            set (value) {
-                this.$store.commit('mutate', {
-                    update: true,
-                    property: 'audio.input',
-                    with: {
-                        currentInputDevice: value
-                    }
-                });
+            set (deviceId) {
+                this.$store.state.audio.input.requestSpecificInputAccess(deviceId);
             }
         }
     },
