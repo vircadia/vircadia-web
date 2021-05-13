@@ -8,8 +8,21 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 -->
 
+<style lang="scss" scoped>
+</style>
+
 <template>
-    <canvas id="renderCanvas"></canvas>
+    <q-page class="full-height">
+        <q-resize-observer @resize="onResize" />
+        <canvas
+            :height="canvasHeight"
+            :width="canvasWidth"
+            :style="{ width: canvasWidth + 'px', height: canvasHeight + 'px' }"
+            ref="renderCanvas"
+            class="renderCanvas"
+        />
+        <Audio />
+    </q-page>
 </template>
 
 <script>
@@ -17,15 +30,25 @@
 import * as BABYLON from 'babylonjs';
 import 'babylonjs-loaders';
 
+// Modules
 import Entities from '../modules/entities/entities.js';
-
-var vue_this;
+// Components
+import Audio from './settings/Audio'
 
 export default {
     name: 'MainScene',
 
-    data: () => ({
+    components: {
+        Audio
+    },
 
+    data: () => ({
+        // Babylon
+        engine: undefined,
+        scene: undefined,
+        // Canvas
+        canvasHeight: undefined,
+        canvasWidth: undefined
     }),
 
     computed: {
@@ -33,50 +56,47 @@ export default {
     },
 
     methods: {
-        resizeCanvas: function (canvas) {
-            canvas.height = window.innerHeight;
-            canvas.width = window.innerWidth;
+        onResize (newSize) {
+            this.canvasHeight = newSize.height;
+            this.canvasWidth = newSize.width;
+
+            if (this.engine) {
+                this.engine.resize();
+            }
+        },
+
+        buildScene () {
+            this.scene.clearColor = new BABYLON.Color3(0.8, 0.8, 0.8);
+            var camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 0, -10), this.scene);
+            var light = new BABYLON.PointLight("light", new BABYLON.Vector3(10, 10, 0), this.scene);
+
+            var item = BABYLON.Mesh.CreateBox('box', 2, this.scene);
+
+            item.rotation.x = -0.2;
+            item.rotation.y = -0.4;
+
+            const boxMaterial = new BABYLON.StandardMaterial('material', this.scene);
+            boxMaterial.emissiveColor = new BABYLON.Color3(0, 0.58, 0.86);
+            item.material = boxMaterial;
+        },
+
+        renderLoop () {
+            this.scene.render();
         }
     },
-    
-    created: function () {
 
+    created: function () {
     },
 
     mounted: function () {
-        vue_this = this;
+        const canvas = this.$refs.renderCanvas;
 
-        var canvas = document.getElementById("renderCanvas");
-        this.resizeCanvas(canvas);
-        
-        // the canvas/window resize event handler
-        window.addEventListener('resize', function() {
-            vue_this.resizeCanvas(canvas);
+        this.engine = new BABYLON.Engine(canvas);
+        this.scene = new BABYLON.Scene(this.engine);
 
-            if (engine) {
-                engine.resize();
-            }
-        });
+        this.buildScene();
 
-        var engine = new BABYLON.Engine(canvas);
-        var scene = new BABYLON.Scene(engine);
-        scene.clearColor = new BABYLON.Color3(0.8, 0.8, 0.8);
-        var camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 0, -10), scene);
-        var light = new BABYLON.PointLight("light", new BABYLON.Vector3(10, 10, 0), scene);
-        
-        var item = BABYLON.Mesh.CreateBox('box', 2, scene);
-
-        item.rotation.x = -0.2;
-        item.rotation.y = -0.4;
-
-        const boxMaterial = new BABYLON.StandardMaterial('material', scene);
-        boxMaterial.emissiveColor = new BABYLON.Color3(0, 0.58, 0.86);
-        item.material = boxMaterial;
-    
-        var renderLoop = function () {
-            scene.render();
-        };
-        engine.runRenderLoop(renderLoop);
+        this.engine.runRenderLoop(this.renderLoop);
     }
 }
 </script>

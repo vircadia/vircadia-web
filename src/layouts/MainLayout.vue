@@ -9,7 +9,7 @@
 -->
 
 <template>
-    <q-layout id="mainLayout" view="lHh Lpr lFf">
+    <q-layout class="full-height" id="mainLayout" view="lHh Lpr lFf">
         <q-header id="header" elevated>
             <div class="row no-wrap">
                 <q-toolbar
@@ -99,8 +99,8 @@
 
         </q-drawer>
 
-        <q-page-container>
-            <MainScene></MainScene>
+        <q-page-container class="full-height">
+            <MainScene/>
         </q-page-container>
 
         <q-dialog v-model="audioDialog" persistent>
