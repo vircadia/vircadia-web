@@ -33,7 +33,7 @@ import 'babylonjs-loaders';
 // Modules
 import Entities from '../modules/entities/entities.js';
 // Components
-import Audio from './settings/Audio'
+import Audio from './overlays/settings/Audio'
 
 export default {
     name: 'MainScene',

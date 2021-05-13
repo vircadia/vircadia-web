@@ -102,10 +102,6 @@
         <q-page-container class="full-height">
             <MainScene/>
         </q-page-container>
-
-        <q-dialog v-model="audioDialog" persistent>
-            <Audio></Audio>
-        </q-dialog>
     </q-layout>
 </template>
 
@@ -114,18 +110,15 @@
 import { AudioInput } from '../modules/audio/input/input';
 // Components
 import MainScene from '../components/MainScene';
-import Audio from '../components/settings/Audio';
 
 export default {
     name: 'MainLayout',
 
     components: {
-        MainScene,
-        Audio
+        MainScene
     },
 
     data: () => ({
-        audioDialog: false,
         // Toolbar
         locationInput: '',
         // User Menu

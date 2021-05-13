@@ -9,7 +9,7 @@
 -->
 
 <template>
-    <WindowShell
+    <OverlayShell
         icon="headphones"
         title="Audio"
         :defaultHeight="500"
@@ -162,18 +162,18 @@
                 </q-card-actions> -->
             </q-scroll-area>
         </q-card>
-    </WindowShell>
+    </OverlayShell>
 </template>
 
 <script>
 /* eslint-disable */
-import WindowShell from '../WindowShell'
+import OverlayShell from '../OverlayShell'
 
 export default {
     name: 'Audio',
 
     components: {
-        WindowShell
+        OverlayShell
     },
 
     data: () => ({
