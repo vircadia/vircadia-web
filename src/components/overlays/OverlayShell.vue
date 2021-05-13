@@ -25,18 +25,39 @@
 <template>
     <q-card
         class="outer no-wrap items-stretch"
-        :style="{ height: height + 'px', width: width + 'px' }"
+        ref="overlayCard"
+        @mouseover="onHoverStart"
+        @mouseleave="onHoverEnd"
+        :style="{
+            // Dimensions
+            height: overlayHeight + 'px', // Should these two be a string so that we can define vh or whatever at will?
+            width: overlayWidth + 'px',
+            // Positioning
+            position: overlayPosition,
+            top: overlayTop,
+            bottom: overlayBottom,
+            right: overlayRight,
+            left: overlayLeft,
+            // Styling
+            background: overlayBackground,
+            border: overlayBorder,
+            'box-shadow': overlayBoxShadow
+        }"
     >
-        <q-bar>
-            <q-icon :name="icon" />
-            <div class="title">{{ title }}</div>
+        <q-slide-transition>
+            <q-bar
+                v-show="!hoverShowBar || overlayHovered"
+            >
+                <q-icon :name="icon" />
+                <div class="title">{{ title }}</div>
 
-            <q-space />
+                <q-space />
 
-            <q-btn dense flat icon="minimize" />
-            <q-btn dense flat icon="crop_square" />
-            <q-btn dense flat icon="close" />
-        </q-bar>
+                <q-btn dense flat icon="minimize" />
+                <q-btn dense flat icon="crop_square" />
+                <q-btn dense flat icon="close" />
+            </q-bar>
+        </q-slide-transition>
 
         <q-card-section
             class="full-height q-pa-none"
@@ -47,21 +68,59 @@
 </template>
 
 <script>
-/* eslint-ignore */
-
 export default {
     props: {
+        // Primary
         icon: { type: String, required: true },
         title: { type: String, required: true },
+        hoverShowBar: { type: Boolean, default: false },
+        // Dimensions
         defaultHeight: { type: Number, default: 400 },
-        defaultWidth: { type: Number, default: 300 }
+        defaultWidth: { type: Number, default: 300 },
+        // Positioning
+        position: { type: String, default: 'absolute' },
+        top: { type: String, default: '200' },
+        bottom: { type: String },
+        right: { type: String },
+        left: { type: String, default: '400' },
+        // Styling
+        background: { type: String, default: 'unset' },
+        border: { type: String, default: 'unset' },
+        boxShadow: { type: String, default: 'unset' }
     },
 
     data () {
         return {
-            height: this.defaultHeight,
-            width: this.defaultWidth
+            // Settings and Properties
+            overlayHeight: this.defaultHeight,
+            overlayWidth: this.defaultWidth,
+            overlayPosition: this.position,
+            overlayTop: this.top,
+            overlayBottom: this.bottom,
+            overlayRight: this.right,
+            overlayLeft: this.left,
+            overlayBackground: this.background,
+            overlayBorder: this.border,
+            overlayBoxShadow: this.boxShadow,
+            // Internal
+            overlayHovered: false
         };
+    },
+
+    computed: {
+    },
+
+    methods: {
+        onHoverStart () {
+            this.overlayHovered = true;
+        },
+
+        onHoverEnd () {
+            this.overlayHovered = false;
+        }
+    },
+
+    mounted () {
     }
 };
 </script>

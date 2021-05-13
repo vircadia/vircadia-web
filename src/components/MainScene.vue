@@ -21,7 +21,8 @@
             ref="renderCanvas"
             class="renderCanvas"
         />
-        <Audio />
+        <!-- <Audio /> -->
+        <ChatWindow />
     </q-page>
 </template>
 
@@ -34,12 +35,14 @@ import 'babylonjs-loaders';
 import Entities from '../modules/entities/entities.js';
 // Components
 import Audio from './overlays/settings/Audio'
+import ChatWindow from './overlays/chat/ChatWindow'
 
 export default {
     name: 'MainScene',
 
     components: {
-        Audio
+        Audio,
+        ChatWindow
     },
 
     data: () => ({

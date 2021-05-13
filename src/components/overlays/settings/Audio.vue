@@ -1,5 +1,5 @@
 <!--
-//  MainScene.vue
+//  Audio.vue
 //
 //  Created by Kalila L. on May 11th, 2021.
 //  Copyright 2021 Vircadia contributors.
@@ -162,6 +162,10 @@
                 </q-card-actions> -->
             </q-scroll-area>
         </q-card>
+
+        <q-inner-loading :showing="!$store.state.audio.input">
+            <q-spinner-gears size="50px" color="primary" />
+        </q-inner-loading>
     </OverlayShell>
 </template>
 
