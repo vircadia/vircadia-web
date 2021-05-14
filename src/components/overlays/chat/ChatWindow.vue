@@ -8,6 +8,12 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 -->
 
+<style lang="scss" scoped>
+    .q-field {
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+</style>
+
 <template>
     <OverlayShell
         icon="chat"
@@ -24,10 +30,11 @@
         background="transparent"
     >
         <q-card
-            class="column full-height"
+            class="column no-wrap items-stretch full-height"
             style="background: transparent; box-shadow: none;"
         >
             <q-scroll-area
+                class="col"
                 style="height: 100%"
             >
                 <q-card-section class="q-pt-none">
@@ -35,34 +42,27 @@
                         <q-chat-message
                             :text="[ message.message ]"
                             :sent="message.self"
+                            :name="message.displayName"
+                            :stamp="message.timestamp"
+                            :avatar="getProflePicture(message.username)"
                             text-color="white"
                             bg-color="primary"
-                        >
-                            <template v-slot:name>{{ message.displayName }}</template>
-                            <template v-slot:stamp>{{ message.timestamp }}</template>
-                            <template v-slot:avatar>
-                                <img
-                                    class="q-message-avatar q-message-avatar--sent"
-                                    :src="getProflePicture(message.username)"
-                                >
-                            </template>
-                        </q-chat-message>
+                        />
                     </div>
                 </q-card-section>
-
                 <!-- <q-card-actions align="right">
                     <q-btn v-close-popup flat color="primary" label="Reserve" />
                     <q-btn v-close-popup flat color="primary" round icon="event" />
                 </q-card-actions> -->
             </q-scroll-area>
             <q-input
-                style="position: fixed; bottom: 0;"
+                class="inputBox"
+                placeholder="Type a message..."
                 outlined
                 v-model="messageInput"
                 :dense="true"
             />
         </q-card>
-
         <!-- <q-inner-loading :showing="">
             <q-spinner-gears size="50px" color="primary" />
         </q-inner-loading> -->
@@ -90,28 +90,28 @@ export default {
                 displayName: 'Hallo',
                 username: 'nani',
                 self: false,
-                timestamp: Date.now(),
+                timestamp: (new Date()).toString(),
                 message: 'Hi, hru?'
             },
             {
                 displayName: 'Waifu',
                 username: 'testerino',
                 self: true,
-                timestamp: Date.now(),
+                timestamp: (new Date()).toString(),
                 message: 'Sup holmes.'
             },
             {
                 displayName: 'Hallo',
                 username: 'nani',
                 self: false,
-                timestamp: Date.now(),
+                timestamp: (new Date()).toString(),
                 message: 'nammuch you?'
             },
             {
                 displayName: 'Waifu',
                 username: 'testerino',
                 self: true,
-                timestamp: Date.now(),
+                timestamp: (new Date()).toString(),
                 message: 'you know the life.'
             }
         ]

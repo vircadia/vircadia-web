@@ -11,8 +11,6 @@
 <style lang="scss" scoped>
     .outer {
         position: absolute;
-        left: 400px;
-        top: 200px;
     }
 
     div.title {
@@ -24,7 +22,7 @@
 
 <template>
     <q-card
-        class="outer no-wrap items-stretch"
+        class="outer column no-wrap items-stretch"
         ref="overlayCard"
         @mouseover="onHoverStart"
         @mouseleave="onHoverEnd"
@@ -60,7 +58,7 @@
         </q-slide-transition>
 
         <q-card-section
-            class="full-height q-pa-none"
+            class="col q-pa-none"
         >
             <slot />
         </q-card-section>

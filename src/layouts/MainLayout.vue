@@ -132,6 +132,20 @@ export default {
                 separator: true
             },
             {
+                icon: 'people',
+                label: 'People',
+                link: '',
+                isCategory: false,
+                separator: true
+            },
+            {
+                icon: 'chat',
+                label: 'Chat',
+                link: '',
+                isCategory: false,
+                separator: true
+            },
+            {
                 icon: 'public',
                 label: 'Explore',
                 link: '',
