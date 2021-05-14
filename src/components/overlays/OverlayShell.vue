@@ -173,9 +173,6 @@ export default {
         }
     },
 
-    computed: {
-    },
-
     methods: {
         dragBehavior (action) {
             let top = 0;
@@ -288,9 +285,6 @@ export default {
             event.preventDefault();
             event.stopPropagation();
         }
-    },
-
-    mounted () {
     },
 
     unmounted () {

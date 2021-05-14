@@ -48,7 +48,6 @@
             show-if-above
             bordered
         >
-
             <q-img class="" src="https://cdn.quasar.dev/img/material.png" style="height: 150px">
                 <div class="absolute-bottom bg-transparent">
                     <q-avatar size="56px" class="q-mb-sm">
@@ -84,6 +83,7 @@
                             v-else
                             clickable
                             v-ripple
+                            @click="menuItem.action ? menuItem.action() : $refs.WindowManager.openOverlay(menuItem.link || menuItem.label)"
                         >
                             <q-item-section avatar>
                                 <q-icon :name="menuItem.icon" />
@@ -96,11 +96,14 @@
                     </template>
                 </q-list>
             </q-scroll-area>
-
         </q-drawer>
 
         <q-page-container class="full-height">
-            <MainScene/>
+            <MainScene>
+                <template v-slot:manager>
+                    <WindowManager ref="WindowManager" />
+                </template>
+            </MainScene>
         </q-page-container>
     </q-layout>
 </template>
@@ -110,12 +113,14 @@
 import { AudioInput } from '../modules/audio/input/input';
 // Components
 import MainScene from '../components/MainScene';
+import WindowManager from '../components/overlays/WindowManager';
 
 export default {
     name: 'MainLayout',
 
     components: {
-        MainScene
+        MainScene,
+        WindowManager
     },
 
     data: () => ({
@@ -141,7 +146,7 @@ export default {
             {
                 icon: 'chat',
                 label: 'Chat',
-                link: '',
+                link: 'ChatWindow',
                 isCategory: false,
                 separator: true
             },

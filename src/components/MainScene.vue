@@ -21,8 +21,7 @@
             ref="renderCanvas"
             class="renderCanvas"
         />
-        <Audio />
-        <ChatWindow />
+        <slot name="manager" />
     </q-page>
 </template>
 
@@ -33,17 +32,9 @@ import 'babylonjs-loaders';
 
 // Modules
 import Entities from '../modules/entities/entities.js';
-// Components
-import Audio from './overlays/settings/Audio'
-import ChatWindow from './overlays/chat/ChatWindow'
 
 export default {
     name: 'MainScene',
-
-    components: {
-        Audio,
-        ChatWindow
-    },
 
     data: () => ({
         // Babylon
