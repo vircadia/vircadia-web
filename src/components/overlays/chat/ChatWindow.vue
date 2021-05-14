@@ -23,7 +23,6 @@
         :defaultLeft="0"
         :hoverShowBar="true"
         :style="{ 'background': 'transparent', 'box-shadow': 'none', border: 'none' }"
-        @overlay-action="$emit('overlay-action', $event)"
     >
         <q-card
             class="column no-wrap items-stretch full-height"

@@ -29,8 +29,6 @@ export default {
         onAction (overlay, action) {
             const index = this.overlays.indexOf(overlay);
 
-            if (index < 0) return;
-
             switch (action) {
             case 'select':
                 this.overlays.splice(index, 1);
