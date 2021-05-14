@@ -123,56 +123,65 @@ export default {
         WindowManager
     },
 
-    data: () => ({
-        // Toolbar
-        locationInput: '',
-        // User Menu
-        userMenuOpen: false,
-        userMenu: [
-            {
-                icon: 'account_circle',
-                label: 'Account',
-                link: '',
-                isCategory: false,
-                separator: true
-            },
-            {
-                icon: 'people',
-                label: 'People',
-                link: '',
-                isCategory: false,
-                separator: true
-            },
-            {
-                icon: 'chat',
-                label: 'Chat',
-                link: 'ChatWindow',
-                isCategory: false,
-                separator: true
-            },
-            {
-                icon: 'public',
-                label: 'Explore',
-                link: '',
-                isCategory: false,
-                separator: true
-            },
-            {
-                icon: 'settings',
-                label: 'Settings',
-                link: '',
-                isCategory: true,
-                separator: false
-            },
-            {
-                icon: 'headphones',
-                label: 'Audio',
-                link: '',
-                isCategory: false,
-                separator: true
-            }
-        ]
-    }),
+    data () {
+        return {
+            // Toolbar
+            locationInput: '',
+            // User Menu
+            userMenuOpen: false,
+            userMenu: [
+                {
+                    icon: 'account_circle',
+                    label: 'Account',
+                    link: '',
+                    isCategory: false,
+                    separator: true
+                },
+                {
+                    icon: 'people',
+                    label: 'People',
+                    link: '',
+                    isCategory: false,
+                    separator: true
+                },
+                {
+                    icon: 'chat',
+                    label: 'Chat',
+                    link: 'ChatWindow',
+                    isCategory: false,
+                    separator: true
+                },
+                {
+                    icon: 'public',
+                    label: 'Explore',
+                    link: '',
+                    isCategory: false,
+                    separator: true
+                },
+                {
+                    icon: 'settings',
+                    label: 'Settings',
+                    link: '',
+                    isCategory: true,
+                    separator: false
+                },
+                {
+                    icon: 'headphones',
+                    label: 'Audio',
+                    link: '',
+                    isCategory: false,
+                    separator: true
+                },
+                {
+                    icon: 'lightbulb',
+                    label: 'Light / Dark',
+                    action: () => { this.$q.dark.toggle(); },
+                    isCategory: false,
+                    separator: true
+                }
+            ]
+        };
+    },
 
     mounted: function () {
         this.mountAudioInputClass();
