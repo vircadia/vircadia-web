@@ -71,11 +71,11 @@
         @mousedown="$emit('overlay-action', 'select')"
         :style="{
             // Dimensions
-            height: height + 'px', // Should these two be a string so that we can define vh or whatever at will?
+            height: height + 'px', // TODO: Should these two be a string so that we can define vh or whatever at will?
             width: width + 'px',
             // Positioning
             top: top + 'px',
-            left: left + 'px',
+            left: left + 'px'
         }"
     >
         <q-slide-transition>
