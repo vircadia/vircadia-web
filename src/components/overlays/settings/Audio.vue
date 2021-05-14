@@ -14,6 +14,7 @@
         title="Audio"
         :defaultHeight="500"
         :defaultWidth="400"
+        @overlay-action="$emit('overlay-action', $event)"
     >
         <q-card
             class="column full-height"

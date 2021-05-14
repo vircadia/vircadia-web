@@ -20,14 +20,10 @@
         title="Chat"
         :defaultHeight="300"
         :defaultWidth="600"
+        :defaultLeft="0"
         :hoverShowBar="true"
-        top="unset"
-        bottom="0"
-        right="unset"
-        left="0"
-        border="none"
-        boxShadow="none"
-        background="transparent"
+        :style="{ 'background': 'transparent', 'box-shadow': 'none', border: 'none' }"
+        @overlay-action="$emit('overlay-action', $event)"
     >
         <q-card
             class="column no-wrap items-stretch full-height"

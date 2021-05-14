@@ -21,7 +21,7 @@
             ref="renderCanvas"
             class="renderCanvas"
         />
-        <!-- <Audio /> -->
+        <Audio />
         <ChatWindow />
     </q-page>
 </template>
