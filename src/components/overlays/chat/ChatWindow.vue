@@ -45,10 +45,6 @@
                         />
                     </div>
                 </q-card-section>
-                <!-- <q-card-actions align="right">
-                    <q-btn v-close-popup flat color="primary" label="Reserve" />
-                    <q-btn v-close-popup flat color="primary" round icon="event" />
-                </q-card-actions> -->
             </q-scroll-area>
             <q-input
                 class="inputBox"
@@ -65,8 +61,7 @@
 </template>
 
 <script>
-/* eslint-disable */
-import OverlayShell from '../OverlayShell'
+import OverlayShell from '../OverlayShell.vue';
 
 export default {
     name: 'ChatWindow',
@@ -128,5 +123,5 @@ export default {
 
     mounted: function () {
     }
-}
+};
 </script>

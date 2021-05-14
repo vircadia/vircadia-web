@@ -7,8 +7,8 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 // Components
-import Audio from '../components/overlays/settings/Audio';
-import ChatWindow from '../components/overlays/chat/ChatWindow';
+import Audio from '../components/overlays/settings/Audio.vue';
+import ChatWindow from '../components/overlays/chat/ChatWindow.vue';
 
 export default ({
     app, router, store, Vue, ssrContext

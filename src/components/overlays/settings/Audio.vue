@@ -153,13 +153,6 @@
                         </q-tab-panel>
                     </q-tab-panels>
                 </q-card-section>
-
-                <q-separator />
-
-                <!-- <q-card-actions align="right">
-                    <q-btn v-close-popup flat color="primary" label="Reserve" />
-                    <q-btn v-close-popup flat color="primary" round icon="event" />
-                </q-card-actions> -->
             </q-scroll-area>
         </q-card>
 
@@ -170,8 +163,7 @@
 </template>
 
 <script>
-/* eslint-disable */
-import OverlayShell from '../OverlayShell'
+import OverlayShell from '../OverlayShell.vue';
 
 export default {
     name: 'Audio',
@@ -245,5 +237,5 @@ export default {
             this.requestInputAccess();
         });
     }
-}
+};
 </script>

@@ -16,6 +16,9 @@
 
 <script>
 export default {
+    // TODO: Needs to be renamed to OverlayManager
+    name: 'WindowManager',
+
     props: {
         // Primary
         // parentSize: { type: Object, required: true }

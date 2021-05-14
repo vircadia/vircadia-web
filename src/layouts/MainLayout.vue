@@ -110,10 +110,10 @@
 
 <script>
 // Modules
-import { AudioInput } from '../modules/audio/input/input';
+import { AudioInput } from '../modules/audio/input/input.js';
 // Components
-import MainScene from '../components/MainScene';
-import WindowManager from '../components/overlays/WindowManager';
+import MainScene from '../components/MainScene.vue';
+import WindowManager from '../components/overlays/WindowManager.vue';
 
 export default {
     name: 'MainLayout',
