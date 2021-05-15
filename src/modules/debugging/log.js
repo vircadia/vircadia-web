@@ -16,6 +16,10 @@ const Log = (function () {
 
         'ENTITIES': {
             'prefix': '[ENTITIES]'
+        },
+
+        'AUDIO': {
+            'prefix': '[AUDIO]'
         }
     };
 

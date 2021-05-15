@@ -1,14 +1,16 @@
 // app global css in SCSS form
 
-#header {
-    background: rgba(0, 0, 0, 0.2);
+html {
+    overflow: hidden;
+    height: 100%;
 }
 
-#mainLayout {
+body {
+    overflow: hidden;
+    height: 100%;
 }
 
-#renderCanvas {
-    position: fixed;
-    top: 0;
-    left: 0;
+div#q-app {
+    overflow: hidden;
+    height: 100%;
 }

@@ -31,9 +31,45 @@ export default store(function (/* { ssrContext } */) {
                 // APP_VERSION: process.env.VUE_APP_VERSION
                 APP_VERSION: '0.0.1'
             },
+            metaverseConfig: { // Prefilled with initial values
+                name: '',
+                nickname: '',
+                server: 'https://metaverse.vircadia.com/live', // This needs to at least be pre-filled in order to get all other config information.
+                iceServer: '',
+                serverVersion: ''
+            },
+            account: {
+                isLoggedIn: false, // bool
+                isAdmin: false, // bool
+                username: null, // string
+                profilePicture: null, // string
+                accountRoles: null, // array
+                accountId: null, // string
+                metaverseServer: null, // string
+                // Token data
+                accessToken: null, // string
+                refreshToken: null, // string
+                tokenType: null, // string
+                createdAt: null, // int
+                expiresIn: null, // int
+                scope: null, // string
+                // Options
+                useAsAdmin: false // bool
+            },
+            error: {
+                title: '',
+                code: '',
+                full: ''
+            },
+            dashboardConfig: {
+                dashboardTheme: 2 // int
+            },
             debugging: {
             },
             notifications: {
+            },
+            audio: {
+                input: null // A class is mounted onto this in MainLayout.vue
             },
             renderer: {
                 canvases: [
@@ -45,6 +81,31 @@ export default store(function (/* { ssrContext } */) {
             location: {
                 current: '',
                 state: 'Not Connected'
+            }
+        },
+
+        mutations: {
+            mutate (state, payload) {
+                const segments = payload.property.split('.');
+                let base = state;
+                while (segments.length > 1) {
+                    const segment = segments.shift();
+                    if (!(segment in base)) base[segment] = {};
+                    base = base[segment];
+                }
+                const prop = segments[0];
+
+                if (!payload.update || !(prop in base)) {
+                    base[prop] = payload.with;
+                } else {
+                    for (const item in payload.with) {
+                        if (Object.prototype.hasOwnProperty.call(payload.with, item)) {
+                            base[prop][item] = payload.with[item];
+                        }
+                    }
+                }
+
+                // if (state.debugging) console.info('Payload:', payload.property, 'with:', payload.with, 'state is now:', this.state);
             }
         },
 
