@@ -110,7 +110,7 @@
 
 <script>
 // Modules
-import { AudioInput } from '../modules/audio/input/input.js';
+import { AudioInput } from '../modules/audio/input/AudioInput.js';
 // Components
 import MainScene from '../components/MainScene.vue';
 import WindowManager from '../components/overlays/WindowManager.vue';
