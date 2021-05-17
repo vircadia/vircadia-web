@@ -83,7 +83,7 @@
                             v-else
                             clickable
                             v-ripple
-                            @click="menuItem.action ? menuItem.action() : $refs.WindowManager.openOverlay(menuItem.link || menuItem.label)"
+                            @click="menuItem.action ? menuItem.action() : $refs.OverlayManager.openOverlay(menuItem.link || menuItem.label)"
                         >
                             <q-item-section avatar>
                                 <q-icon :name="menuItem.icon" />
@@ -101,7 +101,7 @@
         <q-page-container class="full-height">
             <MainScene>
                 <template v-slot:manager>
-                    <WindowManager ref="WindowManager" />
+                    <OverlayManager ref="OverlayManager" />
                 </template>
             </MainScene>
         </q-page-container>
@@ -113,14 +113,14 @@
 import { AudioInput } from '../modules/audio/input/AudioInput.js';
 // Components
 import MainScene from '../components/MainScene.vue';
-import WindowManager from '../components/overlays/WindowManager.vue';
+import OverlayManager from '../components/overlays/OverlayManager.vue';
 
 export default {
     name: 'MainLayout',
 
     components: {
         MainScene,
-        WindowManager
+        OverlayManager
     },
 
     data () {
