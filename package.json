@@ -16,6 +16,7 @@
         "babylonjs": "^4.2.0",
         "babylonjs-loaders": "^4.2.0",
         "core-js": "^3.6.5",
+        "jquery": "^3.6.0",
         "quasar": "^2.0.0-beta.1"
     },
     "devDependencies": {

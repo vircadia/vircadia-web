@@ -30,7 +30,8 @@ export default store(function (/* { ssrContext } */) {
         state: {
             globalConsts: {
                 APP_NAME: packageInfo.productName,
-                APP_VERSION: packageInfo.version
+                APP_VERSION: packageInfo.version,
+                SAFETY_BEFORE_SESSION_TIMEOUT: 21600 // If a token has 6 or less hours left on its life, refresh it.
             },
             metaverseConfig: { // Prefilled with initial values
                 name: '',
