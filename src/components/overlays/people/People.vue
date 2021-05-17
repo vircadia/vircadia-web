@@ -18,6 +18,7 @@
     <OverlayShell
         icon="people"
         title="People"
+        :propsToPass="propsToPass"
         :defaultHeight="300"
         :defaultWidth="300"
         :defaultLeft="0"
@@ -77,6 +78,9 @@ export default {
     name: 'ChatWindow',
 
     props: {
+        // Primary
+        propsToPass: { type: Object, default: () => ({}) },
+        // Component Specific
         localWorld: { type: Boolean, default: true },
         previewWorld: { type: String, default: undefined },
         friends: { type: Boolean, default: false },

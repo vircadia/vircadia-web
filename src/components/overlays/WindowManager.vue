@@ -9,8 +9,8 @@
 -->
 
 <template>
-    <div v-for="overlay in overlays" :key="overlay">
-        <component :is="overlay" @overlay-action="onAction(overlay, $event)" />
+    <div v-for="overlay in overlays" :key="overlay.name">
+        <component :is="overlay.name" :propsToPass="overlay" @overlay-action="onAction(overlay.name, $event)" />
     </div>
 </template>
 
@@ -29,13 +29,27 @@ export default {
     }),
 
     methods: {
+        getOverlayIndex (overlayName) {
+            for (let i = 0; i < this.overlays.length; i++) {
+                if (this.overlays[i].name === overlayName) {
+                    return i;
+                }
+            };
+
+            return -1;
+        },
+
         onAction (overlay, action) {
-            const index = this.overlays.indexOf(overlay);
+            const index = this.getOverlayIndex(overlay);
 
             switch (action) {
-            case 'select':
-                this.overlays.splice(index, 1);
-                this.overlays.push(overlay);
+            case 'select': {
+                const splice = this.overlays.splice(index, 1)[0];
+                this.overlays.push(splice);
+                break;
+            }
+            case 'minimize':
+                this.overlays[index].overlayStatus = 'minimized';
                 break;
             case 'close':
                 this.overlays.splice(index, 1);
@@ -47,13 +61,18 @@ export default {
         },
 
         openOverlay (overlay) {
-            const index = this.overlays.indexOf(overlay);
+            const index = this.getOverlayIndex(overlay);
 
             if (index >= 0) {
-                this.overlays.splice(index, 1);
+                const splice = this.overlays.splice(index, 1)[0];
+                splice.overlayStatus = 'restored';
+                this.overlays.push(splice);
+            } else {
+                this.overlays.push({
+                    'name': overlay,
+                    'overlayStatus': 'restored'
+                });
             }
-
-            this.overlays.push(overlay);
         }
     }
 };

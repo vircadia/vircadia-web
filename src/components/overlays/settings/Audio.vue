@@ -12,6 +12,7 @@
     <OverlayShell
         icon="headphones"
         title="Audio"
+        :managerProps="propsToPass"
         :defaultHeight="500"
         :defaultWidth="400"
     >
@@ -167,6 +168,10 @@ import OverlayShell from '../OverlayShell.vue';
 
 export default {
     name: 'Audio',
+
+    props: {
+        propsToPass: { type: Object, default: () => ({}), required: false }
+    },
 
     components: {
         OverlayShell

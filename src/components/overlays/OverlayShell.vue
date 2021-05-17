@@ -66,10 +66,12 @@
 <template>
     <q-card
         class="outer column no-wrap items-stretch"
-        @mouseenter="hovered=true"
-        @mouseleave="hovered=false"
+        @mouseenter="hovered = true"
+        @mouseleave="hovered = false"
         @mousedown="$emit('overlay-action', 'select')"
         :style="{
+            // Display
+            display: overlayStatus === 'minimized' ? 'none' : undefined,
             // Dimensions
             height: height + 'px', // TODO: Should these two be a string so that we can define vh or whatever at will?
             width: width + 'px',
@@ -88,8 +90,8 @@
 
                 <div class="col full-height" @mousedown="canMove && beginAction($event, 'move')" />
 
-                <q-btn dense flat :icon="windowStatus=='minimized'?'flip_to_front':'minimize'" @click="$emit('overlay-action', 'minimize')" />
-                <q-btn dense flat :icon="windowStatus=='maximized'?'flip_to_front':'crop_square'" @click="$emit('overlay-action', 'maximize')" />
+                <q-btn dense flat :icon="overlayStatus === 'minimized' ? 'flip_to_front' : 'minimize'" @click="$emit('overlay-action', 'minimize')" />
+                <q-btn dense flat :icon="overlayStatus === 'maximized' ? 'flip_to_front' : 'crop_square'" @click="$emit('overlay-action', 'maximize')" />
                 <q-btn dense flat icon="close" @click="$emit('overlay-action', 'close')" />
             </q-bar>
         </q-slide-transition>
@@ -118,7 +120,6 @@ export default {
         icon: { type: String, required: true },
         title: { type: String, required: true },
         hoverShowBar: { type: Boolean, default: false },
-
         // Dimensions
         defaultHeight: { type: Number, default: 400 },
         defaultWidth: { type: Number, default: 300 },
@@ -126,21 +127,18 @@ export default {
         minimumWidth: { type: Number, default: 50 },
         maximumHeight: { type: Number, default: undefined },
         maximumWidth: { type: Number, default: undefined },
-
         // Positioning
         defaultTop: { type: Number, default: 200 },
         defaultLeft: { type: Number, default: 400 },
         minimumExposure: { type: Number, default: 100 },
-
         // Behavior
         canMove: { type: Boolean, default: true },
         canResize: { type: Boolean, default: true },
         canResizeWidth: { type: Boolean, default: true },
         canResizeHeight: { type: Boolean, default: true },
         dragMoveDebounce: { type: Number, default: 10 },
-
-        // info from parent/manager
-        windowStatus: { type: String, default: 'restored' }
+        // Info from parent/manager
+        managerProps: { type: Object, default: () => ({}) }
         // parentSize: { type: Object, required: true }
     },
 
@@ -151,8 +149,8 @@ export default {
             width: this.defaultWidth,
             top: this.defaultTop,
             left: this.defaultLeft,
-
             // Internal
+            overlayStatus: 'restored',
             hovered: false,
             dragAction: undefined,
             dragStart: undefined,
@@ -170,6 +168,11 @@ export default {
                 document.removeEventListener('mousemove', this.onDragMove, true);
                 document.removeEventListener('mouseup', this.onDragDone, true);
             }
+        },
+
+        'managerProps.overlayStatus' (newVal) {
+            console.info('newVal', newVal);
+            this.overlayStatus = newVal;
         }
     },
 
@@ -179,6 +182,7 @@ export default {
             let left = 0;
             let width = 0;
             let height = 0;
+
             switch (action) {
             case 'move':
                 top = +1;
@@ -219,6 +223,7 @@ export default {
                 width = +1;
                 break;
             }
+
             return { top: top, left: left, width: width, height: height };
         },
 

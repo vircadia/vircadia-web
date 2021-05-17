@@ -18,10 +18,11 @@
     <OverlayShell
         icon="chat"
         title="Chat"
-        :defaultHeight="300"
-        :defaultWidth="600"
-        :defaultLeft="0"
-        :hoverShowBar="true"
+        :propsToPass = "propsToPass"
+        :defaultHeight = "300"
+        :defaultWidth = "600"
+        :defaultLeft = "0"
+        :hoverShowBar = "true"
         :style="{ 'background': 'transparent', 'box-shadow': 'none', border: 'none' }"
     >
         <q-card
@@ -39,10 +40,16 @@
                             :sent="message.self"
                             :name="message.displayName"
                             :stamp="message.timestamp"
-                            :avatar="getProflePicture(message.username)"
                             text-color="white"
                             bg-color="primary"
-                        />
+                        >
+                            <template v-slot:avatar>
+                                <q-avatar color="primary">
+                                    <img v-if="getProflePicture(message.username)" :src="getProflePicture(message.username)">
+                                    <span v-else>{{ message.displayName.charAt(0) }}</span>
+                                </q-avatar>
+                            </template>
+                        </q-chat-message>
                     </div>
                 </q-card-section>
             </q-scroll-area>
@@ -65,6 +72,10 @@ import OverlayShell from '../OverlayShell.vue';
 
 export default {
     name: 'ChatWindow',
+
+    props: {
+        propsToPass: { type: Object, default: () => ({}) }
+    },
 
     components: {
         OverlayShell
@@ -114,7 +125,13 @@ export default {
         getProflePicture (username) {
             // Should store profile pictures after retrieving and then pull each
             // subsequent one from cache instead of hitting metaverse every time.
-            return 'https://cdn.quasar.dev/img/avatar4.jpg';
+
+            // This is filler functionality to enable the UI to be developed more correctly now.
+            if (username === 'testerino') {
+                return 'https://cdn.quasar.dev/img/avatar4.jpg';
+            } else {
+                return false;
+            }
         }
     },
 
