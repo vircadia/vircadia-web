@@ -10,6 +10,7 @@
 
 import { store } from 'quasar/wrappers';
 import { createStore } from 'vuex';
+import packageInfo from '../../package.json';
 
 /*
 * If not building with SSR mode, you can
@@ -28,8 +29,8 @@ export default store(function (/* { ssrContext } */) {
 
         state: {
             globalConsts: {
-                // APP_VERSION: process.env.VUE_APP_VERSION
-                APP_VERSION: '0.0.1'
+                APP_NAME: packageInfo.productName,
+                APP_VERSION: packageInfo.version
             },
             metaverseConfig: { // Prefilled with initial values
                 name: '',

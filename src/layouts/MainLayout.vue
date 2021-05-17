@@ -38,7 +38,7 @@
                     </q-btn-group>
                     <q-space />
 
-                    <div>Vircadia Web v{{ $store.state.globalConsts.APP_VERSION }}</div>
+                    <div>{{ $store.state.globalConsts.APP_NAME }} {{ $store.state.globalConsts.APP_VERSION }}</div>
                 </q-toolbar>
             </div>
         </q-header>
