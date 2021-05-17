@@ -18,11 +18,11 @@
     <OverlayShell
         icon="chat"
         title="Chat"
-        :propsToPass = "propsToPass"
-        :defaultHeight = "300"
-        :defaultWidth = "600"
-        :defaultLeft = "0"
-        :hoverShowBar = "true"
+        :propsToPass="propsToPass"
+        :defaultHeight="300"
+        :defaultWidth="600"
+        :defaultLeft="0"
+        :hoverShowBar="true"
         :style="{ 'background': 'transparent', 'box-shadow': 'none', border: 'none' }"
     >
         <q-card
