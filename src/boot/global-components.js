@@ -9,10 +9,12 @@
 // Components
 import Audio from '../components/overlays/settings/Audio.vue';
 import ChatWindow from '../components/overlays/chat/ChatWindow.vue';
+import People from '../components/overlays/people/People.vue';
 
 export default ({
     app, router, store, Vue, ssrContext
 }) => {
     app.component('Audio', Audio);
     app.component('ChatWindow', ChatWindow);
+    app.component('People', People);
 };
