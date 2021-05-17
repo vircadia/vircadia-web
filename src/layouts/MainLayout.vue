@@ -51,7 +51,7 @@
             <q-img class="" src="https://cdn.quasar.dev/img/material.png" style="height: 150px">
                 <div class="absolute-bottom bg-transparent">
                     <q-avatar size="56px" class="q-mb-sm">
-                        <img :src="getProflePicture">
+                        <img :src="getProfilePicture">
                     </q-avatar>
                     <div class="text-weight-bold">{{ $store.state.account.username ? $store.state.account.username : "Guest" }}</div>
                     <div>{{ getLocation }}</div>
@@ -195,7 +195,7 @@ export default {
                 return this.$store.state.location.state;
             }
         },
-        getProflePicture: function () {
+        getProfilePicture: function () {
             if (this.$store.state.account.profilePicture) {
                 return this.$store.state.account.profilePicture;
             } else {

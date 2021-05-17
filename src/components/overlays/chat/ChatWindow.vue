@@ -45,7 +45,7 @@
                         >
                             <template v-slot:avatar>
                                 <q-avatar color="primary">
-                                    <img v-if="getProflePicture(message.username)" :src="getProflePicture(message.username)">
+                                    <img v-if="getProfilePicture(message.username)" :src="getProfilePicture(message.username)">
                                     <span v-else>{{ message.displayName.charAt(0) }}</span>
                                 </q-avatar>
                             </template>
@@ -122,7 +122,7 @@ export default {
     },
 
     methods: {
-        getProflePicture (username) {
+        getProfilePicture (username) {
             // Should store profile pictures after retrieving and then pull each
             // subsequent one from cache instead of hitting metaverse every time.
 

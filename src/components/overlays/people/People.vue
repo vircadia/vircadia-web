@@ -37,7 +37,7 @@
                     <q-item v-for="person in peopleList" :key="person.sessionUUID" class="q-mb-sm" clickable v-ripple>
                         <q-item-section avatar>
                             <q-avatar color="primary">
-                                <img v-if="getProflePicture(person.username)" :src="getProflePicture(person.username)">
+                                <img v-if="getProfilePicture(person.username)" :src="getProfilePicture(person.username)">
                                 <span v-else>{{ person.displayName.charAt(0) }}</span>
                             </q-avatar>
                         </q-item-section>
@@ -183,7 +183,7 @@ export default {
             }
         },
 
-        getProflePicture (username) {
+        getProfilePicture (username) {
             // Should store profile pictures after retrieving and then pull each
             // subsequent one from cache instead of hitting metaverse every time.
 
