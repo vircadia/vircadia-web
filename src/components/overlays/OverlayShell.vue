@@ -83,6 +83,7 @@
         <q-slide-transition>
             <q-bar
                 class="bar"
+                :style="hoverShowBar ? 'position: absolute; width: 100%;' : ''"
                 v-show="!hoverShowBar || hovered"
             >
                 <q-icon :name="icon" />
@@ -96,8 +97,10 @@
             </q-bar>
         </q-slide-transition>
 
+        <!-- 32px is the height of a q-bar -->
         <q-card-section
             class="col q-pa-none"
+            :style="hoverShowBar ? 'margin-top: 32px;' : ''"
         >
             <slot />
         </q-card-section>

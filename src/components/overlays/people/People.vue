@@ -23,7 +23,7 @@
         :defaultWidth="300"
         :defaultLeft="0"
         :hoverShowBar="true"
-        :style="{ 'background': 'transparent', 'box-shadow': 'none', border: 'none' }"
+        :style="{ 'background': 'rgba(0, 0, 0, 0.3)', 'box-shadow': 'none', border: 'none' }"
     >
         <q-card
             class="column no-wrap items-stretch full-height"
