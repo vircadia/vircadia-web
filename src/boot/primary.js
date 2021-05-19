@@ -8,6 +8,8 @@
 
 import { boot } from 'quasar/wrappers';
 
+import Log from '../modules/debugging/log.js';
+
 // more info on params: https://v2.quasar.dev/quasar-cli/boot-files
 export default boot(({ app, store, router, Vue }) => {
     // MAIN APPLICATION INITIALIZATION
@@ -15,6 +17,8 @@ export default boot(({ app, store, router, Vue }) => {
     window.$ = window.jQuery = require('jquery');
 
     function initializeAjax () {
+        Log.print('OTHER', 'INFO', 'Bootstrapping Ajax.');
+
         window.$.ajaxSetup({
             beforeSend: function (xhr) {
                 xhr.setRequestHeader('x-vircadia-error-handle', 'badrequest');
@@ -192,8 +196,9 @@ export default boot(({ app, store, router, Vue }) => {
 
     router.beforeEach((to, from, next) => {
         // If the store has not yet been initialized...
-        console.info('Is the store initialized?', store.state.initialized);
-        if (store.state.initialized === false) {
+        Log.print('OTHER', 'INFO', 'Is the store initialized? ' + store.state.initialized);
+        if (store.state.initialized !== true) {
+            Log.print('OTHER', 'INFO', 'Initializing store & Ajax.');
             initStore();
             initializeAjax();
         }

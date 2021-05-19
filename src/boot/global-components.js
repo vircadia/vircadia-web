@@ -10,6 +10,8 @@
 import Audio from '../components/overlays/settings/Audio.vue';
 import ChatWindow from '../components/overlays/chat/ChatWindow.vue';
 import People from '../components/overlays/people/People.vue';
+// Components -> Dialogs
+import Login from '../components/dialogs/Login.vue';
 // Components -> Components
 import MetaverseLogin from '../components/components/login/MetaverseLogin.vue';
 import MetaverseRegister from '../components/components/login/MetaverseRegister.vue';
@@ -21,6 +23,8 @@ export default ({
     app.component('Audio', Audio);
     app.component('ChatWindow', ChatWindow);
     app.component('People', People);
+    // Components -> Dialogs
+    app.component('Login', Login);
     // Components -> Components
     app.component('MetaverseLogin', MetaverseLogin);
     app.component('MetaverseRegister', MetaverseRegister);

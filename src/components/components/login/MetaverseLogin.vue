@@ -59,11 +59,28 @@ export default {
     }),
 
     computed: {
-
     },
 
     methods: {
-        onSubmit () {
+        async onSubmit () {
+            try {
+                const result = await this.$store.state.Metaverse.login(this.$store.state.metaverseConfig.server, this.username, this.password);
+                this.$store.state.Metaverse.commitLogin(this.username, result);
+
+                this.$q.notify({
+                    type: 'positive',
+                    textColor: 'white',
+                    icon: 'cloud_done',
+                    message: 'Welcome ' + this.username + '.'
+                });
+            } catch (result) {
+                this.$q.notify({
+                    type: 'negative',
+                    textColor: 'white',
+                    icon: 'warning',
+                    message: 'Login attempted failed: ' + result.error
+                });
+            }
         },
 
         onReset () {

@@ -105,12 +105,25 @@
                 </template>
             </MainScene>
         </q-page-container>
+
+        <!-- <component @close-dialog="closeDialog" v-if="dialog.show" v-bind:is="dialog.which"></component> -->
+
+        <q-dialog v-model="dialog.show" persistent>
+            <q-card
+                class="column no-wrap items-stretch q-pa-md"
+                style="background: rgba(0, 0, 0, 0.8);"
+            >
+                <Login></Login>
+            </q-card>
+        </q-dialog>
+
     </q-layout>
 </template>
 
 <script>
 // Modules
-import { AudioInput } from '../modules/audio/input/AudioInput.js';
+import { AudioInput } from '../modules/audio/input/audioInput.js';
+import { Metaverse } from '../modules/metaverse/metaverse.js';
 // Components
 import MainScene from '../components/MainScene.vue';
 import OverlayManager from '../components/overlays/OverlayManager.vue';
@@ -179,12 +192,15 @@ export default {
                     isCategory: false,
                     separator: true
                 }
-            ]
+            ],
+            dialog: {
+                show: true
+            }
         };
     },
 
     mounted: function () {
-        this.mountAudioInputClass();
+        this.mountClasses();
     },
 
     computed: {
@@ -206,13 +222,19 @@ export default {
 
     methods: {
         // Bootstrapping
-        mountAudioInputClass: function () {
+        mountClasses: function () {
             this.$store.commit('mutate', {
-                property: 'audio',
+                property: 'Audio',
                 update: true,
                 with: {
-                    input: new AudioInput(this.$store, 'audio.input')
+                    input: new AudioInput(this.$store, 'Audio.input')
                 }
+            });
+
+            this.$store.commit('mutate', {
+                property: 'Metaverse',
+                update: false,
+                with: new Metaverse(this.$store, 'Metaverse')
             });
         },
 
@@ -228,6 +250,20 @@ export default {
 
         disconnect: function () {
             console.info('Disconnecting from...', this.$store.state.location.current);
+        },
+
+        // Dialog Handling
+        openDialog: function (which, shouldShow) {
+            // We want to reset the element first.
+            this.dialog.which = '';
+            this.dialog.show = false;
+
+            this.dialog.which = which;
+            this.dialog.show = shouldShow;
+        },
+
+        closeDialog: function () {
+            this.dialog.show = false;
         }
     }
 };

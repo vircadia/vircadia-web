@@ -93,7 +93,38 @@ export default {
     },
 
     methods: {
-        onSubmit () {
+        async onSubmit () {
+            try {
+                const result = await this.$store.state.Metaverse.register(this.$store.state.metaverseConfig.server, this.username, this.email, this.password);
+                this.$emit('register-success');
+
+                if (result.data.accountWaitingVerification === true) {
+                    this.$q.notify({
+                        type: 'info',
+                        textColor: 'white',
+                        icon: 'email',
+                        timeout: 0,
+                        message: 'Check your email ' + this.email + ' to complete registration.',
+                        actions: [
+                            { label: 'Dismiss', color: 'white', handler: () => { /* ... */ } }
+                        ]
+                    });
+                } else {
+                    this.$q.notify({
+                        type: 'positive',
+                        textColor: 'white',
+                        icon: 'cloud_done',
+                        message: 'Successfully registered ' + this.username + '.'
+                    });
+                }
+            } catch (result) {
+                this.$q.notify({
+                    type: 'negative',
+                    textColor: 'white',
+                    icon: 'warning',
+                    message: 'Failed to register: ' + result.error
+                });
+            }
         },
 
         onReset () {

@@ -58,6 +58,12 @@ export default store(function (/* { ssrContext } */) {
                 // Options
                 useAsAdmin: false // bool
             },
+            dialog: {
+                notice: {
+                    title: '',
+                    message: ''
+                }
+            },
             error: {
                 title: '',
                 code: '',
@@ -70,9 +76,6 @@ export default store(function (/* { ssrContext } */) {
             },
             notifications: {
             },
-            audio: {
-                input: null // A class is mounted onto this in MainLayout.vue
-            },
             renderer: {
                 canvases: [
                     {
@@ -83,7 +86,12 @@ export default store(function (/* { ssrContext } */) {
             location: {
                 current: '',
                 state: 'Not Connected'
-            }
+            },
+            // Mounted Classes - mounted from MainLayout.vue
+            Audio: {
+                input: null
+            },
+            Metaverse: null
         },
 
         mutations: {
