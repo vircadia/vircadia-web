@@ -33,8 +33,4 @@ export class People {
             });
         };
     }
-
-    retrieveAccount (metaverse, userIdentifier) {
-        this.retrieveAccount(metaverse, userIdentifier);
-    };
 }

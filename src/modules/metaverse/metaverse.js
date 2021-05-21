@@ -80,15 +80,7 @@ export class Metaverse {
         });
     };
 
-    commitLogin (username, result) {
-        this.commitLogin(username, result);
-    };
-
-    logout () {
-        this.logout();
-    };
-
-    async register (metaverse, username, email, password) {
+    register (metaverse, username, email, password) {
         Log.print('METAVERSE', 'INFO', 'Attempting to register as ' + username + '.');
 
         const objectToPost = {

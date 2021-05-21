@@ -48,39 +48,41 @@ export default boot(({ app, store, router, Vue }) => {
     }
 
     function attemptRefreshToken () {
-        window.$.ajax({
-            type: 'POST',
-            url: store.state.metaverseConfig.server + '/oauth/token',
-            contentType: 'application/x-www-form-urlencoded;charset=UTF-8',
-            data: {
-                grant_type: 'refresh_token',
-                scope: store.state.account.scope,
-                refresh_token: store.state.account.refreshToken
-            }
-        })
-            .done(function (result) {
-                store.commit('mutate', {
-                    update: true,
-                    property: 'account',
-                    with: {
-                        isLoggedIn: true,
-                        accessToken: result.access_token,
-                        tokenType: result.token_type,
-                        createdAt: result.created_at,
-                        expiresIn: result.expires_in,
-                        refreshToken: result.refresh_token,
-                        scope: result.scope
-                    }
-                });
-                Log.print('METAVERSE', 'INFO', 'Token refresh successful.');
-                return true;
+        return new Promise(function (resolve, reject) {
+            window.$.ajax({
+                type: 'POST',
+                url: store.state.metaverseConfig.server + '/oauth/token',
+                contentType: 'application/x-www-form-urlencoded;charset=UTF-8',
+                data: {
+                    grant_type: 'refresh_token',
+                    scope: store.state.account.scope,
+                    refresh_token: store.state.account.refreshToken
+                }
             })
-            .fail(function (result) {
-                // If this fails for any reason, the user must log back in.
-                Log.print('METAVERSE', 'WARN', 'Refresh failed.');
-                store.state.Metaverse.logout();
-                return false;
-            });
+                .done(function (result) {
+                    store.commit('mutate', {
+                        update: true,
+                        property: 'account',
+                        with: {
+                            isLoggedIn: true,
+                            accessToken: result.access_token,
+                            tokenType: result.token_type,
+                            createdAt: result.created_at,
+                            expiresIn: result.expires_in,
+                            refreshToken: result.refresh_token,
+                            scope: result.scope
+                        }
+                    });
+                    Log.print('METAVERSE', 'INFO', 'Token refresh successful.');
+                    resolve(true);
+                })
+                .fail(function (result) {
+                    // If this fails for any reason, the user must log back in.
+                    Log.print('METAVERSE', 'WARN', 'Refresh failed.');
+                    store.state.Metaverse.logout();
+                    reject(false);
+                });
+        });
     }
 
     function parseFromStorage (item) {

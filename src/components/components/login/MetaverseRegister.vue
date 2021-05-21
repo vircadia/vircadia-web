@@ -133,12 +133,6 @@ export default {
             this.password = '';
             this.confirmPassword = '';
         }
-    },
-
-    created: function () {
-    },
-
-    mounted: function () {
     }
 };
 </script>

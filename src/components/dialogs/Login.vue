@@ -55,9 +55,6 @@ export default {
 
     emits: ['closeDialog'],
 
-    props: {
-    },
-
     components: {
         MetaverseLogin,
         MetaverseRegister
@@ -67,19 +64,10 @@ export default {
         tab: 'metaverseLogin'
     }),
 
-    computed: {
-    },
-
     methods: {
         onMetaverseRegister () {
             this.tab = 'metaverseLogin';
         }
-    },
-
-    created: function () {
-    },
-
-    mounted: function () {
     }
 };
 </script>

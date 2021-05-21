@@ -89,26 +89,22 @@ export default defineComponent({
         //         this.setDashboardTheme();
         //     }
         // },
-        updateAccessToken: {
-            handler: function () {
-                console.info('Setting new access token header...');
-                window.$.ajaxSetup({
-                    beforeSend: (xhr) => {
-                        xhr.setRequestHeader('x-vircadia-error-handle', 'badrequest');
-                        xhr.setRequestHeader('Authorization', 'Bearer ' + this.$store.state.account.accessToken);
-                    }
-                });
-            }
-        },
-        metaverseServerChanged: {
-            handler: function (newMetaverseServer) {
-                localStorage.setItem('metaverseConfig.server', newMetaverseServer);
-
-                this.retrieveMetaverseConfig(newMetaverseServer);
-
-                if (this.isLoggedIn && newMetaverseServer !== this.$store.state.account.metaverseServer) {
-                    this.logout();
+        updateAccessToken () {
+            console.info('Setting new access token header...');
+            window.$.ajaxSetup({
+                beforeSend: (xhr) => {
+                    xhr.setRequestHeader('x-vircadia-error-handle', 'badrequest');
+                    xhr.setRequestHeader('Authorization', 'Bearer ' + this.$store.state.account.accessToken);
                 }
+            });
+        },
+        metaverseServerChanged (newMetaverseServer) {
+            localStorage.setItem('metaverseConfig.server', newMetaverseServer);
+
+            this.retrieveMetaverseConfig(newMetaverseServer);
+
+            if (this.isLoggedIn && newMetaverseServer !== this.$store.state.account.metaverseServer) {
+                this.logout();
             }
         }
         // isLoggedIn: {
@@ -118,12 +114,6 @@ export default defineComponent({
         //         }
         //     }
         // }
-    },
-
-    methods: {
-    },
-
-    created () {
     }
 });
 </script>

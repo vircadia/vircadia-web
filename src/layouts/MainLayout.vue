@@ -58,7 +58,7 @@
                 </div>
             </q-img>
 
-            <div class="absolute" style="top: 20px; right: 5px">
+            <div v-show="$store.state.account.isLoggedIn" class="absolute" style="top: 20px; right: 5px">
                 <q-btn
                     style="font-size: 10px;"
                     round

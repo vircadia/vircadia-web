@@ -52,16 +52,13 @@
 export default {
     name: 'MetaverseLogin',
 
+    emits: ['closeDialog'],
+
     data: () => ({
         username: '',
         password: '',
         showPassword: false
     }),
-
-    emits: ['closeDialog'],
-
-    computed: {
-    },
 
     methods: {
         async onSubmit () {
@@ -91,12 +88,6 @@ export default {
             this.username = '';
             this.password = '';
         }
-    },
-
-    created: function () {
-    },
-
-    mounted: function () {
     }
 };
 </script>
