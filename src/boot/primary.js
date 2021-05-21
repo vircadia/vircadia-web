@@ -74,13 +74,13 @@ export default boot(({ app, store, router, Vue }) => {
                         }
                     });
                     Log.print('METAVERSE', 'INFO', 'Token refresh successful.');
-                    resolve(true);
+                    resolve();
                 })
                 .fail(function (result) {
                     // If this fails for any reason, the user must log back in.
                     Log.print('METAVERSE', 'WARN', 'Refresh failed.');
                     store.state.Metaverse.logout();
-                    reject(false);
+                    reject(result.responseJSON || result.responseText);
                 });
         });
     }
