@@ -58,6 +58,8 @@ export default {
         showPassword: false
     }),
 
+    emits: ['closeDialog'],
+
     computed: {
     },
 
@@ -73,6 +75,8 @@ export default {
                     icon: 'cloud_done',
                     message: 'Welcome ' + this.username + '.'
                 });
+
+                this.$emit('closeDialog');
             } catch (result) {
                 this.$q.notify({
                     type: 'negative',

@@ -8,6 +8,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
+// General Modules
 import Log from '../debugging/log.js';
 
 export class Metaverse {
@@ -35,6 +36,20 @@ export class Metaverse {
                     createdAt: result.created_at,
                     expiresIn: result.expires_in,
                     scope: result.scope
+                }
+            });
+        };
+
+        this.logout = () => {
+            store.commit('mutate', {
+                update: true,
+                property: 'account',
+                with: {
+                    username: null,
+                    isLoggedIn: false,
+                    isAdmin: false,
+                    accessToken: null,
+                    refreshToken: null
                 }
             });
         };
@@ -67,6 +82,10 @@ export class Metaverse {
 
     commitLogin (username, result) {
         this.commitLogin(username, result);
+    };
+
+    logout () {
+        this.logout();
     };
 
     async register (metaverse, username, email, password) {

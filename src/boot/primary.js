@@ -72,13 +72,13 @@ export default boot(({ app, store, router, Vue }) => {
                         scope: result.scope
                     }
                 });
-                console.info('Token refresh successful.');
+                Log.print('METAVERSE', 'INFO', 'Token refresh successful.');
                 return true;
             })
             .fail(function (result) {
                 // If this fails for any reason, the user must log back in.
-                console.info('Refresh failed.');
-                logout();
+                Log.print('METAVERSE', 'WARN', 'Refresh failed.');
+                store.state.Metaverse.logout();
                 return false;
             });
     }
@@ -100,25 +100,11 @@ export default boot(({ app, store, router, Vue }) => {
         return itemToSendBack;
     }
 
-    function logout () {
-        store.commit('mutate', {
-            update: true,
-            property: 'account',
-            with: {
-                isLoggedIn: false,
-                isAdmin: false,
-                accessToken: null,
-                refreshToken: null
-            }
-        });
-    }
-
     app.mixin({
         methods: {
             checkNeedsTokenRefresh: checkNeedsTokenRefresh,
             attemptRefreshToken: attemptRefreshToken,
-            parseFromStorage: parseFromStorage,
-            logout: logout
+            parseFromStorage: parseFromStorage
         }
     });
 

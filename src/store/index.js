@@ -58,7 +58,12 @@ export default store(function (/* { ssrContext } */) {
                 // Options
                 useAsAdmin: false // bool
             },
+            profile: {
+                displayName: ''
+            },
             dialog: {
+                show: false,
+                which: '',
                 notice: {
                     title: '',
                     message: ''

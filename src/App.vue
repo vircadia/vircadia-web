@@ -14,8 +14,6 @@
 <script>
 import { defineComponent } from 'vue';
 
-let vue_this = this;
-
 export default defineComponent({
     name: 'App',
 
@@ -95,9 +93,9 @@ export default defineComponent({
             handler: function () {
                 console.info('Setting new access token header...');
                 window.$.ajaxSetup({
-                    beforeSend: function (xhr) {
+                    beforeSend: (xhr) => {
                         xhr.setRequestHeader('x-vircadia-error-handle', 'badrequest');
-                        xhr.setRequestHeader('Authorization', 'Bearer ' + vue_this.$store.state.account.accessToken);
+                        xhr.setRequestHeader('Authorization', 'Bearer ' + this.$store.state.account.accessToken);
                     }
                 });
             }
@@ -126,7 +124,6 @@ export default defineComponent({
     },
 
     created () {
-        vue_this = this;
     }
 });
 </script>

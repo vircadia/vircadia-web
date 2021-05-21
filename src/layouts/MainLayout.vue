@@ -53,10 +53,21 @@
                     <q-avatar size="56px" class="q-mb-sm">
                         <img :src="getProfilePicture">
                     </q-avatar>
-                    <div class="text-weight-bold">{{ $store.state.account.username ? $store.state.account.username : "Guest" }}</div>
+                    <div class="text-weight-bold">{{ $store.state.account.isLoggedIn ? $store.state.account.username : "Guest" }}</div>
                     <div>{{ getLocation }}</div>
                 </div>
             </q-img>
+
+            <div class="absolute" style="top: 20px; right: 5px">
+                <q-btn
+                    style="font-size: 10px;"
+                    round
+                    unelevated
+                    color="primary"
+                    icon="logout"
+                    @click="logout"
+                />
+            </div>
 
             <div class="q-mini-drawer-hide absolute" style="top: 100px; right: -21px">
                 <q-btn
@@ -72,6 +83,36 @@
                 style="height: calc(100% - 150px);"
             >
                 <q-list>
+                    <!-- Custom menu item for account / login logic -->
+                    <q-item
+                        v-if="!$store.state.account.isLoggedIn"
+                        clickable
+                        v-ripple
+                        @click="openDialog('Login', true)"
+                    >
+                        <q-item-section avatar>
+                            <q-icon name="login" />
+                        </q-item-section>
+                        <q-item-section>
+                            Login
+                        </q-item-section>
+                    </q-item>
+
+                    <q-item
+                        v-else
+                        clickable
+                        v-ripple
+                        @click="$refs.OverlayManager.openOverlay('Account')"
+                    >
+                        <q-item-section avatar>
+                            <q-icon name="account_circle" />
+                        </q-item-section>
+                        <q-item-section>
+                            Account
+                        </q-item-section>
+                    </q-item>
+                    <!-- End custom menu item for account / login logic -->
+
                     <template v-for="(menuItem, index) in userMenu" :key="index">
                         <q-item-label
                             v-if="menuItem.isCategory"
@@ -83,7 +124,7 @@
                             v-else
                             clickable
                             v-ripple
-                            @click="menuItem.action ? menuItem.action() : $refs.OverlayManager.openOverlay(menuItem.link || menuItem.label)"
+                            @click="menuItem.action ? menuItem.action : $refs.OverlayManager.openOverlay(menuItem.link || menuItem.label)"
                         >
                             <q-item-section avatar>
                                 <q-icon :name="menuItem.icon" />
@@ -108,12 +149,12 @@
 
         <!-- <component @close-dialog="closeDialog" v-if="dialog.show" v-bind:is="dialog.which"></component> -->
 
-        <q-dialog v-model="dialog.show" persistent>
+        <q-dialog v-model="dialogState">
             <q-card
                 class="column no-wrap items-stretch q-pa-md"
                 style="background: rgba(0, 0, 0, 0.8);"
             >
-                <Login></Login>
+                <component @closeDialog='closeDialog' v-bind:is="$store.state.dialog.which"></component>
             </q-card>
         </q-dialog>
 
@@ -124,6 +165,7 @@
 // Modules
 import { AudioInput } from '../modules/audio/input/audioInput.js';
 import { Metaverse } from '../modules/metaverse/metaverse.js';
+import { People } from '../modules/people/people.js';
 // Components
 import MainScene from '../components/MainScene.vue';
 import OverlayManager from '../components/overlays/OverlayManager.vue';
@@ -143,13 +185,6 @@ export default {
             // User Menu
             userMenuOpen: false,
             userMenu: [
-                {
-                    icon: 'account_circle',
-                    label: 'Account',
-                    link: '',
-                    isCategory: false,
-                    separator: true
-                },
                 {
                     icon: 'people',
                     label: 'People',
@@ -192,10 +227,7 @@ export default {
                     isCategory: false,
                     separator: true
                 }
-            ],
-            dialog: {
-                show: true
-            }
+            ]
         };
     },
 
@@ -204,6 +236,21 @@ export default {
     },
 
     computed: {
+        dialogState: {
+            get () {
+                return this.$store.state.dialog.show;
+            },
+            set (newValue) {
+                this.$store.commit('mutate', {
+                    property: 'dialog',
+                    update: true,
+                    with: {
+                        show: newValue
+                    }
+                });
+            }
+        },
+
         getLocation: function () {
             if (this.$store.state.location.current) {
                 return this.$store.state.location.current;
@@ -211,6 +258,7 @@ export default {
                 return this.$store.state.location.state;
             }
         },
+
         getProfilePicture: function () {
             if (this.$store.state.account.profilePicture) {
                 return this.$store.state.account.profilePicture;
@@ -236,6 +284,12 @@ export default {
                 update: false,
                 with: new Metaverse(this.$store, 'Metaverse')
             });
+
+            this.$store.commit('mutate', {
+                property: 'People',
+                update: false,
+                with: new People(this.$store, 'People')
+            });
         },
 
         // Drawers
@@ -252,18 +306,43 @@ export default {
             console.info('Disconnecting from...', this.$store.state.location.current);
         },
 
+        // Metaverse
+
+        logout: function () {
+            this.$store.state.Metaverse.logout();
+        },
+
         // Dialog Handling
         openDialog: function (which, shouldShow) {
             // We want to reset the element first.
-            this.dialog.which = '';
-            this.dialog.show = false;
+            this.$store.commit('mutate', {
+                property: 'dialog',
+                update: true,
+                with: {
+                    'show': false,
+                    'which': ''
+                }
+            });
 
-            this.dialog.which = which;
-            this.dialog.show = shouldShow;
+            this.$store.commit('mutate', {
+                property: 'dialog',
+                update: true,
+                with: {
+                    'show': shouldShow,
+                    'which': which
+                }
+            });
         },
 
         closeDialog: function () {
-            this.dialog.show = false;
+            this.$store.commit('mutate', {
+                property: 'dialog',
+                update: true,
+                with: {
+                    'show': false,
+                    'which': ''
+                }
+            });
         }
     }
 };
