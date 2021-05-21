@@ -88,10 +88,6 @@ export default {
         showConfirmPassword: false
     }),
 
-    computed: {
-
-    },
-
     methods: {
         async onSubmit () {
             try {
