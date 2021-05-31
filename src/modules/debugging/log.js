@@ -24,6 +24,10 @@ const Log = (function () {
 
         'METAVERSE': {
             'prefix': '[METAVERSE]'
+        },
+
+        'PEOPLE': {
+            'prefix': '[PEOPLE]'
         }
     };
 

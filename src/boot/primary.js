@@ -37,12 +37,7 @@ export default boot(({ app, store, router, Vue }) => {
         // console.info('currentTimestamp', currentTimestamp, Object.prototype.toString.call(currentTimestamp))
         // console.info('sessionExpirationTime', sessionExpirationTime, Object.prototype.toString.call(sessionExpirationTime))
 
-        if (currentTimestamp > sessionExpirationTime ||
-            (currentTimestamp - store.state.globalConsts.SAFETY_BEFORE_SESSION_TIMEOUT) > sessionExpirationTime) {
-            return true;
-        } else {
-            return false;
-        }
+        return (currentTimestamp > sessionExpirationTime || (currentTimestamp - store.state.globalConsts.SAFETY_BEFORE_SESSION_TIMEOUT) > sessionExpirationTime);
     }
 
     function attemptRefreshToken () {
@@ -116,10 +111,9 @@ export default boot(({ app, store, router, Vue }) => {
             server: localStorage.getItem('metaverseConfig.server') // string
         };
 
-        console.info('Initing metaverseConfig.server', metaverseConfigItems.server);
-
         if (metaverseConfigItems.server !== null) {
-            console.info('metaverseConfigItems.server !== null');
+            Log.print('OTHER', 'INFO', 'Initializing metaverse configuration with: ' + JSON.stringify(metaverseConfigItems.server));
+
             store.commit('mutate', {
                 update: true,
                 property: 'metaverseConfig',

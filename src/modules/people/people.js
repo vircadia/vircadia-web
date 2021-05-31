@@ -26,10 +26,10 @@ export class People {
             return new Promise(function (resolve, reject) {
                 axios.get(metaverse + '/api/v1/' + apiToRequest + '/' + userIdentifier + parameters)
                     .then((response) => {
-                        Log.print('PEOPLE', 'DEBUG', 'Retrieved info for ' + userIdentifier + '.');
+                        Log.print('PEOPLE', 'INFO', 'Retrieved info for ' + userIdentifier + '.');
                         resolve(response.data);
                     }, (error) => {
-                        Log.print('PEOPLE', 'DEBUG', 'Failed to retrieve info for ' + userIdentifier + '.');
+                        Log.print('PEOPLE', 'INFO', 'Failed to retrieve info for ' + userIdentifier + '.');
                         if (error.response && error.response.data) {
                             reject(error.response.data);
                         } else {
