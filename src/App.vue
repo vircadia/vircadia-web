@@ -91,12 +91,7 @@ export default defineComponent({
         // },
         updateAccessToken () {
             console.info('Setting new access token header...');
-            window.$.ajaxSetup({
-                beforeSend: (xhr) => {
-                    xhr.setRequestHeader('x-vircadia-error-handle', 'badrequest');
-                    xhr.setRequestHeader('Authorization', 'Bearer ' + this.$store.state.account.accessToken);
-                }
-            });
+            this.initializeAxios();
         },
         metaverseServerChanged (newMetaverseServer) {
             localStorage.setItem('metaverseConfig.server', newMetaverseServer);

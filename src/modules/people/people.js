@@ -8,6 +8,11 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
+// System Modules
+const axios = require('axios');
+// General Modules
+import Log from '../debugging/log.js';
+
 export class People {
     constructor (store, prop) {
         this.retrieveAccount = (metaverse, userIdentifier) => {
@@ -19,16 +24,17 @@ export class People {
             const apiToRequest = (store.account.isLoggedIn ? 'account' : 'profile');
 
             return new Promise(function (resolve, reject) {
-                window.$.ajax({
-                    type: 'GET',
-                    url: metaverse + '/api/v1/' + apiToRequest + '/' + userIdentifier + parameters
-                })
-                    .done(function (data, status, xhr) {
-                        resolve(data);
-                    })
-                    .fail(function (xhr, status, errorThrown) {
-                        console.info('Failed to retrieve', apiToRequest, xhr.responseJSON);
-                        reject(xhr.responseJSON);
+                axios.get(metaverse + '/api/v1/' + apiToRequest + '/' + userIdentifier + parameters)
+                    .then((response) => {
+                        Log.print('PEOPLE', 'DEBUG', 'Retrieved info for ' + userIdentifier + '.');
+                        resolve(response.data);
+                    }, (error) => {
+                        Log.print('PEOPLE', 'DEBUG', 'Failed to retrieve info for ' + userIdentifier + '.');
+                        if (error.response && error.response.data) {
+                            reject(error.response.data);
+                        } else {
+                            reject('Unknown reason.');
+                        }
                     });
             });
         };

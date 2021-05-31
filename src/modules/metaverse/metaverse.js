@@ -8,6 +8,8 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
+// System Modules
+const axios = require('axios');
 // General Modules
 import Log from '../debugging/log.js';
 
@@ -57,25 +59,24 @@ export class Metaverse {
 
     login (metaverse, username, password) {
         Log.print('METAVERSE', 'INFO', 'Attempting to login as ' + username + '.');
+
         return new Promise(function (resolve, reject) {
-            window.$.ajax({
-                type: 'POST',
-                url: metaverse + '/oauth/token',
-                contentType: 'application/x-www-form-urlencoded;charset=UTF-8',
-                data: {
-                    grant_type: 'password',
-                    scope: 'owner', // as opposed to 'domain', we're asking for a user token
-                    username: username,
-                    password: password
-                }
+            axios.post(metaverse + '/oauth/token', {
+                grant_type: 'password',
+                scope: 'owner', // as opposed to 'domain', we're asking for a user token
+                username: username,
+                password: password
             })
-                .done(function (data, status, xhr) {
+                .then((response) => {
                     Log.print('METAVERSE', 'INFO', 'Successfully got key and details for ' + username + ' from the Metaverse.');
-                    resolve(data);
-                })
-                .fail(function (xhr, status, errorThrown) {
-                    Log.print('METAVERSE', 'INFO', 'Failed to login as ' + username + ': ' + JSON.stringify(xhr.responseJSON));
-                    reject(xhr.responseJSON);
+                    resolve(response.data);
+                }, (error) => {
+                    Log.print('METAVERSE', 'INFO', 'Failed to login as ' + username + ': ' + JSON.stringify(error.response.data));
+                    if (error.response && error.response.data) {
+                        reject(error.response.data);
+                    } else {
+                        reject('Unknown reason.');
+                    }
                 });
         });
     };
@@ -83,28 +84,24 @@ export class Metaverse {
     register (metaverse, username, email, password) {
         Log.print('METAVERSE', 'INFO', 'Attempting to register as ' + username + '.');
 
-        const objectToPost = {
-            'user': {
-                'username': username,
-                'email': email,
-                'password': password
-            }
-        };
-
         return new Promise(function (resolve, reject) {
-            window.$.ajax({
-                type: 'POST',
-                url: metaverse + '/api/v1/users',
-                contentType: 'application/json',
-                data: JSON.stringify(objectToPost)
+            axios.post(metaverse + '/api/v1/users', {
+                user: {
+                    'username': username,
+                    'email': email,
+                    'password': password
+                }
             })
-                .done(function (data, status, xhr) {
+                .then((response) => {
                     Log.print('METAVERSE', 'INFO', 'Registered successfully as ' + username + '.');
-                    resolve(data);
-                })
-                .fail(function (xhr, status, errorThrown) {
-                    Log.print('METAVERSE', 'INFO', 'Registration as ' + username + ' failed: ' + JSON.stringify(xhr.responseJSON));
-                    reject(xhr.responseJSON);
+                    resolve(response.data);
+                }, (error) => {
+                    Log.print('METAVERSE', 'INFO', 'Registration as ' + username + ' failed: ' + JSON.stringify(error.response.data));
+                    if (error.response && error.response.data) {
+                        reject(error.response.data);
+                    } else {
+                        reject('Unknown reason.');
+                    }
                 });
         });
     };

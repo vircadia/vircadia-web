@@ -14,17 +14,15 @@ import Log from '../modules/debugging/log.js';
 export default boot(({ app, store, router, Vue }) => {
     // MAIN APPLICATION INITIALIZATION
 
-    window.$ = window.jQuery = require('jquery');
+    const axios = require('axios');
 
-    function initializeAjax () {
-        Log.print('OTHER', 'INFO', 'Bootstrapping Ajax.');
+    function initializeAxios () {
+        Log.print('OTHER', 'INFO', 'Bootstrapping Axios.');
 
-        window.$.ajaxSetup({
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader('x-vircadia-error-handle', 'badrequest');
-                xhr.setRequestHeader('Authorization', 'Bearer ' + store.state.account.accessToken);
-            }
-        });
+        axios.defaults.headers.common = {
+            'x-vircadia-error-handle': 'badrequest',
+            'Authorization': 'Bearer ' + store.state.account.accessToken
+        };
     }
 
     // END MAIN APPLICATION INITIALIZATION
@@ -49,38 +47,37 @@ export default boot(({ app, store, router, Vue }) => {
 
     function attemptRefreshToken () {
         return new Promise(function (resolve, reject) {
-            window.$.ajax({
-                type: 'POST',
-                url: store.state.metaverseConfig.server + '/oauth/token',
-                contentType: 'application/x-www-form-urlencoded;charset=UTF-8',
-                data: {
-                    grant_type: 'refresh_token',
-                    scope: store.state.account.scope,
-                    refresh_token: store.state.account.refreshToken
-                }
+            axios.post(store.state.metaverseConfig.server + '/oauth/token', {
+                grant_type: 'refresh_token',
+                scope: store.state.account.scope,
+                refresh_token: store.state.account.refreshToken
             })
-                .done(function (result) {
+                .then((response) => {
                     store.commit('mutate', {
                         update: true,
                         property: 'account',
                         with: {
                             isLoggedIn: true,
-                            accessToken: result.access_token,
-                            tokenType: result.token_type,
-                            createdAt: result.created_at,
-                            expiresIn: result.expires_in,
-                            refreshToken: result.refresh_token,
-                            scope: result.scope
+                            accessToken: response.access_token,
+                            tokenType: response.token_type,
+                            createdAt: response.created_at,
+                            expiresIn: response.expires_in,
+                            refreshToken: response.refresh_token,
+                            scope: response.scope
                         }
                     });
                     Log.print('METAVERSE', 'INFO', 'Token refresh successful.');
                     resolve();
-                })
-                .fail(function (result) {
+                }, (error) => {
                     // If this fails for any reason, the user must log back in.
                     Log.print('METAVERSE', 'WARN', 'Refresh failed.');
                     store.state.Metaverse.logout();
-                    reject(result.responseJSON || result.responseText);
+
+                    if (error.response && error.response.data) {
+                        reject(error.response.data);
+                    } else {
+                        reject('Unknown reason.');
+                    }
                 });
         });
     }
@@ -106,7 +103,8 @@ export default boot(({ app, store, router, Vue }) => {
         methods: {
             checkNeedsTokenRefresh: checkNeedsTokenRefresh,
             attemptRefreshToken: attemptRefreshToken,
-            parseFromStorage: parseFromStorage
+            parseFromStorage: parseFromStorage,
+            initializeAxios: initializeAxios
         }
     });
 
@@ -186,9 +184,9 @@ export default boot(({ app, store, router, Vue }) => {
         // If the store has not yet been initialized...
         Log.print('OTHER', 'INFO', 'Is the store initialized? ' + store.state.initialized);
         if (store.state.initialized !== true) {
-            Log.print('OTHER', 'INFO', 'Initializing store & Ajax.');
+            Log.print('OTHER', 'INFO', 'Initializing store & Axios.');
             initStore();
-            initializeAjax();
+            initializeAxios();
         }
 
         const requestedRoute = to;
