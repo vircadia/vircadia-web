@@ -78,20 +78,21 @@ export default boot(({ app, store, router, Vue }) => {
     }
 
     function parseFromStorage (item) {
-        let itemToSendBack;
         const retrievedItem = localStorage.getItem(item);
 
-        if (!retrievedItem || retrievedItem === 'undefined') {
-            itemToSendBack = undefined;
-        } else {
+        if (retrievedItem !== null) {
             try {
-                itemToSendBack = JSON.parse(retrievedItem);
+                const attemptedParse = JSON.parse(retrievedItem);
+                if (attemptedParse) {
+                    return attemptedParse;
+                }
             } catch (error) {
-                console.info('Error retrieving', item, 'from storage. Parsing error:', error);
+                // console.info('Error retrieving', item, 'from storage. Parsing error:', error);
+                return retrievedItem;
             }
+        } else {
+            return retrievedItem;
         }
-
-        return itemToSendBack;
     }
 
     app.mixin({
