@@ -20,7 +20,8 @@
 const ESLintPlugin = require('eslint-webpack-plugin');
 const { configure } = require('quasar/wrappers');
 
-// process.env.VUE_APP_VERSION = require('./package.json').version
+const { productName } = require('./package.json').productName;
+const { description } = require('./package.json').description;
 
 module.exports = configure(function (ctx) {
     return {
@@ -34,6 +35,7 @@ module.exports = configure(function (ctx) {
         // --> boot files are part of "main.js"
         // https://v2.quasar.dev/quasar-cli/boot-files
         boot: [
+            'primary',
             'global-components'
         ],
 
@@ -108,7 +110,9 @@ module.exports = configure(function (ctx) {
             // directives: [],
 
             // Quasar plugins
-            plugins: []
+            plugins: [
+                'Notify'
+            ]
         },
 
         // animations: 'all', // --- includes all animations
@@ -152,9 +156,9 @@ module.exports = configure(function (ctx) {
             },
 
             manifest: {
-                name: 'Vircadia Web',
-                short_name: 'Vircadia Web',
-                description: 'Vircadia Web client for virtual worlds.',
+                name: productName,
+                short_name: productName,
+                description: description,
                 display: 'standalone',
                 orientation: 'portrait',
                 background_color: '#ffffff',

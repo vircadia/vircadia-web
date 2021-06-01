@@ -10,6 +10,7 @@
 
 import { store } from 'quasar/wrappers';
 import { createStore } from 'vuex';
+import packageInfo from '../../package.json';
 
 /*
 * If not building with SSR mode, you can
@@ -28,8 +29,9 @@ export default store(function (/* { ssrContext } */) {
 
         state: {
             globalConsts: {
-                // APP_VERSION: process.env.VUE_APP_VERSION
-                APP_VERSION: '0.0.1'
+                APP_NAME: packageInfo.productName,
+                APP_VERSION: packageInfo.version,
+                SAFETY_BEFORE_SESSION_TIMEOUT: 21600 // If a token has 6 or less hours left on its life, refresh it.
             },
             metaverseConfig: { // Prefilled with initial values
                 name: '',
@@ -56,6 +58,17 @@ export default store(function (/* { ssrContext } */) {
                 // Options
                 useAsAdmin: false // bool
             },
+            profile: {
+                displayName: ''
+            },
+            dialog: {
+                show: false,
+                which: '',
+                notice: {
+                    title: '',
+                    message: ''
+                }
+            },
             error: {
                 title: '',
                 code: '',
@@ -68,9 +81,6 @@ export default store(function (/* { ssrContext } */) {
             },
             notifications: {
             },
-            audio: {
-                input: null // A class is mounted onto this in MainLayout.vue
-            },
             renderer: {
                 canvases: [
                     {
@@ -81,7 +91,12 @@ export default store(function (/* { ssrContext } */) {
             location: {
                 current: '',
                 state: 'Not Connected'
-            }
+            },
+            // Mounted Classes - mounted from MainLayout.vue
+            Audio: {
+                input: null
+            },
+            Metaverse: null
         },
 
         mutations: {

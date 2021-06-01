@@ -18,7 +18,7 @@
     >
         <q-card
             class="column full-height"
-            v-if="$store.state.audio.input"
+            v-if="$store.state.Audio.input"
         >
             <q-scroll-area
                 style="height: 100%"
@@ -59,8 +59,8 @@
                                     <q-btn
                                         fab
                                         class="q-mr-sm"
-                                        :color="$store.state.audio.input.hasInputAccess ? 'primary' : 'red'"
-                                        :icon="$store.state.audio.input.hasInputAccess ? 'mic' : 'mic_off'"
+                                        :color="$store.state.Audio.input.hasInputAccess ? 'primary' : 'red'"
+                                        :icon="$store.state.Audio.input.hasInputAccess ? 'mic' : 'mic_off'"
                                         @click="micToggled"
                                     />
                                 </div>
@@ -83,7 +83,7 @@
                             </div>
 
                             <div
-                                v-show="$store.state.audio.input.hasInputAccess"
+                                v-show="$store.state.Audio.input.hasInputAccess"
                                 class="row q-mt-sm"
                             >
                                 <q-btn
@@ -91,7 +91,7 @@
                                     dense
                                     round
                                     class="q-mr-sm"
-                                    :disabled="!$store.state.audio.input.hasInputAccess"
+                                    :disabled="!$store.state.Audio.input.hasInputAccess"
                                     :color="isListeningToFeedback ? 'primary' : 'red'"
                                     :icon="isListeningToFeedback ? 'hearing' : 'hearing_disabled'"
                                     @click="toggleInputFeedback"
@@ -119,7 +119,7 @@
                             />
 
                             <div
-                                v-if="$store.state.audio.input.hasInputAccess === false"
+                                v-if="$store.state.Audio.input.hasInputAccess === false"
                                 class="text-subtitle1 text-grey text-center"
                             >
                                 Please grant mic access to the app in order to speak.
@@ -131,7 +131,7 @@
                                     so QRadios will respond to clicks on QItems to
                                     change Toggle state.
                                 -->
-                                <div v-for="input in $store.state.audio.input.inputsList" :key="input.deviceId">
+                                <div v-for="input in $store.state.Audio.input.inputsList" :key="input.deviceId">
                                     <q-item v-show="input.label" tag="label" v-ripple>
                                         <q-item-section avatar>
                                             <q-radio
@@ -157,7 +157,7 @@
             </q-scroll-area>
         </q-card>
 
-        <q-inner-loading :showing="!$store.state.audio.input">
+        <q-inner-loading :showing="!$store.state.Audio.input">
             <q-spinner-gears size="50px" color="primary" />
         </q-inner-loading>
     </OverlayShell>
@@ -185,7 +185,7 @@ export default {
     computed: {
         selectedInputStore: {
             get () {
-                return this.$store.state.audio.input.currentInputDevice;
+                return this.$store.state.Audio.input.currentInputDevice;
             },
             set () {
                 // @click will set for us...
@@ -205,17 +205,17 @@ export default {
         },
 
         requestInputAccess: function () {
-            this.$store.state.audio.input.requestInputAccess()
+            this.$store.state.Audio.input.requestInputAccess()
                 .then(this.setAudioInputStream);
         },
 
         requestSpecificInputAccess: function (deviceId) {
-            this.$store.state.audio.input.requestSpecificInputAccess(deviceId)
+            this.$store.state.Audio.input.requestSpecificInputAccess(deviceId)
                 .then(this.setAudioInputStream);
         },
 
         micToggled: function () {
-            if (this.$store.state.audio.input.hasInputAccess === true) {
+            if (this.$store.state.Audio.input.hasInputAccess === true) {
                 // Should mute/unmute
             } else {
                 this.requestInputAccess();

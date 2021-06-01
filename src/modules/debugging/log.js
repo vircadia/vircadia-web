@@ -20,6 +20,14 @@ const Log = (function () {
 
         'AUDIO': {
             'prefix': '[AUDIO]'
+        },
+
+        'METAVERSE': {
+            'prefix': '[METAVERSE]'
+        },
+
+        'PEOPLE': {
+            'prefix': '[PEOPLE]'
         }
     };
 
