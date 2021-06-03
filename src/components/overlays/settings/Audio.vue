@@ -20,140 +20,117 @@
             class="column full-height"
             v-if="$store.state.Audio.input"
         >
-            <q-scroll-area
-                style="height: 100%"
+
+            <q-tabs
+                v-model="tab"
+                active-color="primary"
+                indicator-color="primary"
+                align="justify"
+                narrow-indicator
             >
-                <q-card-section>
-                    <div class="row no-wrap items-center">
-                        <div class="col text-h2 ellipsis">
-                            Audio
-                        </div>
-                        <!-- <div class="col-auto text-grey text-caption q-pt-md row no-wrap items-center">
-                            <q-icon name="place" />
-                            250 ft
-                        </div> -->
-                    </div>
+                <q-tab name="input" label="Input" />
+                <q-tab name="output" label="Output" />
+            </q-tabs>
 
-                </q-card-section>
+            <q-separator />
 
-                <q-separator />
-
-                <q-card-section class="q-pt-none">
-                    <q-tabs
-                        v-model="tab"
-                        active-color="primary"
-                        indicator-color="primary"
-                        align="justify"
-                        narrow-indicator
-                    >
-                        <q-tab name="input" label="Input" />
-                        <q-tab name="output" label="Output" />
-                    </q-tabs>
-
-                    <q-separator />
-
-                    <q-tab-panels v-model="tab" animated>
-                        <q-tab-panel name="input">
-                            <div class="row">
-                                <div class=".col-4">
-                                    <q-btn
-                                        fab
-                                        class="q-mr-sm"
-                                        :color="$store.state.Audio.input.hasInputAccess ? 'primary' : 'red'"
-                                        :icon="$store.state.Audio.input.hasInputAccess ? 'mic' : 'mic_off'"
-                                        @click="micToggled"
-                                    />
-                                </div>
-
-                                <div class=".col-8 row items-center">
-                                    <span
-                                        v-if="selectedInputStore"
-                                        class="text-subtitle1 items-center"
-                                    >
-                                        Using {{ selectedInputStore.label }}
-                                    </span>
-
-                                    <span
-                                        v-else
-                                        class="text-subtitle1 items-center"
-                                    >
-                                        No microphone selected.
-                                    </span>
-                                </div>
+            <q-scroll-area class="col">
+                <q-tab-panels v-model="tab" animated>
+                    <q-tab-panel name="input">
+                        <div class="row">
+                            <div class=".col-4">
+                                <q-btn
+                                    fab
+                                    class="q-mr-sm"
+                                    :color="$store.state.Audio.input.hasInputAccess ? 'primary' : 'red'"
+                                    :icon="$store.state.Audio.input.hasInputAccess ? 'mic' : 'mic_off'"
+                                    @click="micToggled"
+                                />
                             </div>
 
-                            <div
-                                v-show="$store.state.Audio.input.hasInputAccess"
-                                class="row q-mt-sm"
-                            >
-                                <q-btn
-                                    flat
-                                    dense
-                                    round
-                                    class="q-mr-sm"
-                                    :disabled="!$store.state.Audio.input.hasInputAccess"
-                                    :color="isListeningToFeedback ? 'primary' : 'red'"
-                                    :icon="isListeningToFeedback ? 'hearing' : 'hearing_disabled'"
-                                    @click="toggleInputFeedback"
-                                />
-
+                            <div class=".col-8 row items-center">
                                 <span
-                                    v-if="!isListeningToFeedback"
-                                    class="text-caption row items-center"
+                                    v-if="selectedInputStore"
+                                    class="text-subtitle1 items-center"
                                 >
-                                    Click to test your microphone.
+                                    Using {{ selectedInputStore.label }}
                                 </span>
 
                                 <span
                                     v-else
-                                    class="text-caption row items-center"
+                                    class="text-subtitle1 items-center"
                                 >
-                                    Speak into your microphone to listen.
+                                    No microphone selected.
                                 </span>
-
-                                <audio ref="audioInputFeedbackPlayer"></audio>
                             </div>
+                        </div>
 
-                            <q-separator
-                                class="q-my-md"
+                        <div
+                            v-show="$store.state.Audio.input.hasInputAccess"
+                            class="row q-mt-sm"
+                        >
+                            <q-btn
+                                flat
+                                dense
+                                round
+                                class="q-mr-sm"
+                                :disabled="!$store.state.Audio.input.hasInputAccess"
+                                :color="isListeningToFeedback ? 'primary' : 'red'"
+                                :icon="isListeningToFeedback ? 'hearing' : 'hearing_disabled'"
+                                @click="toggleInputFeedback"
                             />
 
-                            <div
-                                v-if="$store.state.Audio.input.hasInputAccess === false"
-                                class="text-subtitle1 text-grey text-center"
+                            <span
+                                v-if="!isListeningToFeedback"
+                                class="text-caption row items-center"
                             >
-                                Please grant mic access to the app in order to speak.
+                                Click to test your microphone.
+                            </span>
+
+                            <span
+                                v-else
+                                class="text-caption row items-center"
+                            >
+                                Speak into your microphone to listen.
+                            </span>
+
+                            <audio ref="audioInputFeedbackPlayer"></audio>
+                        </div>
+
+                        <q-separator
+                            class="q-my-md"
+                        />
+
+                        <div
+                            v-if="$store.state.Audio.input.hasInputAccess === false"
+                            class="text-subtitle1 text-grey text-center"
+                        >
+                            Please grant mic access to the app in order to speak.
+                        </div>
+
+                        <q-list v-else>
+                            <div v-for="input in $store.state.Audio.input.inputsList" :key="input.deviceId">
+                                <q-item v-show="input.label" tag="label" v-ripple>
+                                    <q-item-section avatar>
+                                        <q-radio
+                                            @click="requestSpecificInputAccess(input.deviceId)"
+                                            v-model="selectedInputStore"
+                                            :val="input"
+                                            color="teal"
+                                        />
+                                    </q-item-section>
+                                    <q-item-section>
+                                        <q-item-label>{{ input.label }}</q-item-label>
+                                    </q-item-section>
+                                </q-item>
                             </div>
+                        </q-list>
+                    </q-tab-panel>
 
-                            <q-list v-else>
-                                <!--
-                                    Rendering a <label> tag (notice tag="label")
-                                    so QRadios will respond to clicks on QItems to
-                                    change Toggle state.
-                                -->
-                                <div v-for="input in $store.state.Audio.input.inputsList" :key="input.deviceId">
-                                    <q-item v-show="input.label" tag="label" v-ripple>
-                                        <q-item-section avatar>
-                                            <q-radio
-                                                @click="requestSpecificInputAccess(input.deviceId)"
-                                                v-model="selectedInputStore"
-                                                :val="input"
-                                                color="teal"
-                                            />
-                                        </q-item-section>
-                                        <q-item-section>
-                                            <q-item-label>{{ input.label }}</q-item-label>
-                                        </q-item-section>
-                                    </q-item>
-                                </div>
-                            </q-list>
-                        </q-tab-panel>
-
-                        <q-tab-panel name="output">
-                            Coming soon!
-                        </q-tab-panel>
-                    </q-tab-panels>
-                </q-card-section>
+                    <q-tab-panel name="output">
+                        Coming soon!
+                    </q-tab-panel>
+                </q-tab-panels>
             </q-scroll-area>
         </q-card>
 
