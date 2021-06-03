@@ -16,42 +16,28 @@
         :defaultHeight="500"
         :defaultWidth="400"
     >
-        <q-card
+        <q-tabs
+            v-model="tab"
+            active-color="primary"
+            indicator-color="primary"
+            align="justify"
+            narrow-indicator
+        >
+            <q-tab name="input" label="Input" />
+            <q-tab name="output" label="Output" />
+        </q-tabs>
+
+        <q-separator />
+
+         <q-card
             class="column full-height"
             v-if="$store.state.Audio.input"
         >
             <q-scroll-area
                 style="height: 100%"
             >
-                <q-card-section>
-                    <div class="row no-wrap items-center">
-                        <div class="col text-h2 ellipsis">
-                            Audio
-                        </div>
-                        <!-- <div class="col-auto text-grey text-caption q-pt-md row no-wrap items-center">
-                            <q-icon name="place" />
-                            250 ft
-                        </div> -->
-                    </div>
-
-                </q-card-section>
-
-                <q-separator />
 
                 <q-card-section class="q-pt-none">
-                    <q-tabs
-                        v-model="tab"
-                        active-color="primary"
-                        indicator-color="primary"
-                        align="justify"
-                        narrow-indicator
-                    >
-                        <q-tab name="input" label="Input" />
-                        <q-tab name="output" label="Output" />
-                    </q-tabs>
-
-                    <q-separator />
-
                     <q-tab-panels v-model="tab" animated>
                         <q-tab-panel name="input">
                             <div class="row">
@@ -155,7 +141,7 @@
                     </q-tab-panels>
                 </q-card-section>
             </q-scroll-area>
-        </q-card>
+         </q-card>
 
         <q-inner-loading :showing="!$store.state.Audio.input">
             <q-spinner-gears size="50px" color="primary" />
