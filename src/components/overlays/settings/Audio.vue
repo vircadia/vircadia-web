@@ -29,7 +29,7 @@
 
         <q-separator />
 
-         <q-card
+        <q-card
             class="column full-height"
             v-if="$store.state.Audio.input"
         >
@@ -141,7 +141,7 @@
                     </q-tab-panels>
                 </q-card-section>
             </q-scroll-area>
-         </q-card>
+        </q-card>
 
         <q-inner-loading :showing="!$store.state.Audio.input">
             <q-spinner-gears size="50px" color="primary" />
