@@ -28,6 +28,10 @@ const Log = (function () {
 
         'PEOPLE': {
             'prefix': '[PEOPLE]'
+        },
+
+        'EXPLORE': {
+            'prefix': '[EXPLORE]'
         }
     };
 

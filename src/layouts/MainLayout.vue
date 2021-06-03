@@ -166,6 +166,8 @@
 import { AudioInput } from '../modules/audio/input/audioInput.js';
 import { Metaverse } from '../modules/metaverse/metaverse.js';
 import { People } from '../modules/people/people.js';
+import { Explore } from '../modules/explore/explore.js';
+
 // Components
 import MainScene from '../components/MainScene.vue';
 import OverlayManager from '../components/overlays/OverlayManager.vue';
@@ -289,6 +291,12 @@ export default {
                 property: 'People',
                 update: false,
                 with: new People(this.$store, 'People')
+            });
+
+            this.$store.commit('mutate', {
+                property: 'Explore',
+                update: false,
+                with: new Explore(this.$store, 'Explore')
             });
         },
 
