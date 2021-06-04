@@ -14,8 +14,31 @@
 <script>
 import { defineComponent } from 'vue';
 
+// Modules
+import { AudioInput } from './modules/audio/input/audioInput.js';
+import { Metaverse } from './modules/metaverse/metaverse.js';
+
 export default defineComponent({
     name: 'App',
+
+    methods: {
+        // Bootstrapping
+        mountClasses: function () {
+            this.$store.commit('mutate', {
+                property: 'Audio',
+                update: true,
+                with: {
+                    input: new AudioInput(this.$store, 'Audio.input')
+                }
+            });
+
+            this.$store.commit('mutate', {
+                property: 'Metaverse',
+                update: false,
+                with: new Metaverse(this.$store, 'Metaverse')
+            });
+        }
+    },
 
     computed: {
         updateAccountSession () {
@@ -102,13 +125,10 @@ export default defineComponent({
                 this.logout();
             }
         }
-        // isLoggedIn: {
-        //     handler: function (newValue) {
-        //         if (newValue === true && store.router.awaitingRouteOnLogin) {
-        //             this.$router.push(store.router.routeOnLogin);
-        //         }
-        //     }
-        // }
+    },
+
+    mounted: function () {
+        this.mountClasses();
     }
 });
 </script>

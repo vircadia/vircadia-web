@@ -162,10 +162,6 @@
 </template>
 
 <script>
-// Modules
-import { AudioInput } from '../modules/audio/input/audioInput.js';
-import { Metaverse } from '../modules/metaverse/metaverse.js';
-import { People } from '../modules/people/people.js';
 // Components
 import MainScene from '../components/MainScene.vue';
 import OverlayManager from '../components/overlays/OverlayManager.vue';
@@ -231,10 +227,6 @@ export default {
         };
     },
 
-    mounted: function () {
-        this.mountClasses();
-    },
-
     computed: {
         dialogState: {
             get () {
@@ -260,8 +252,8 @@ export default {
         },
 
         getProfilePicture: function () {
-            if (this.$store.state.account.profilePicture) {
-                return this.$store.state.account.profilePicture;
+            if (this.$store.state.account.images && this.$store.state.account.images.thumbnail) {
+                return this.$store.state.account.images.thumbnail;
             } else {
                 return '../assets/vircadia-icon.svg';
             }
@@ -269,29 +261,6 @@ export default {
     },
 
     methods: {
-        // Bootstrapping
-        mountClasses: function () {
-            this.$store.commit('mutate', {
-                property: 'Audio',
-                update: true,
-                with: {
-                    input: new AudioInput(this.$store, 'Audio.input')
-                }
-            });
-
-            this.$store.commit('mutate', {
-                property: 'Metaverse',
-                update: false,
-                with: new Metaverse(this.$store, 'Metaverse')
-            });
-
-            this.$store.commit('mutate', {
-                property: 'People',
-                update: false,
-                with: new People(this.$store, 'People')
-            });
-        },
-
         // Drawers
         toggleUserMenu: function () {
             this.userMenuOpen = !this.userMenuOpen;

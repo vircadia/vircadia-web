@@ -17,9 +17,13 @@ export class Metaverse {
     constructor (store, prop) {
         console.info('constructed', store, prop);
 
+        // ////////////////////////////////////
+        // Login & Registration
+        // ////////////////////////////////////
+
         this.commitLogin = (username, result) => {
             Log.print('METAVERSE', 'INFO', 'Committing login.');
-            console.info('result', result);
+
             const checkIsAdmin = result.account_roles.includes('admin');
 
             store.commit('mutate', {
@@ -51,11 +55,55 @@ export class Metaverse {
                     isLoggedIn: false,
                     isAdmin: false,
                     accessToken: null,
-                    refreshToken: null
+                    refreshToken: null,
+                    // Profile
+                    images: {
+                        hero: null,
+                        tiny: null,
+                        thumbnail: null
+                    }
                 }
             });
         };
+
+        // ////////////////////////////////////
+        // People
+        // ////////////////////////////////////
+
+        this.People = {
+            retrieveAccount: (metaverse, userIdentifier) => {
+                const apiToRequest = (store.state.account.isLoggedIn ? 'account' : 'profile');
+
+                return new Promise(function (resolve, reject) {
+                    axios.get(metaverse + '/api/v1/' + apiToRequest + '/' + userIdentifier, {
+                        headers: {
+                            // This function is called immediately after login, the accessToken is not applied to the headers yet.
+                            // So, we wil do it manually.
+                            Authorization: 'Bearer ' + store.state.account.accessToken
+                        },
+                        params: {
+                            'asAdmin': store.state.account.useAsAdmin
+                        }
+                    })
+                        .then((response) => {
+                            Log.print('PEOPLE', 'INFO', 'Retrieved info for ' + userIdentifier + '.');
+                            resolve(response.data);
+                        }, (error) => {
+                            Log.print('PEOPLE', 'INFO', 'Failed to retrieve info for ' + userIdentifier + '.');
+                            if (error.response && error.response.data) {
+                                reject(error.response.data);
+                            } else {
+                                reject('Unknown reason.');
+                            }
+                        });
+                });
+            }
+        };
     };
+
+    // ////////////////////////////////////
+    // Login & Registration
+    // ////////////////////////////////////
 
     login (metaverse, username, password) {
         Log.print('METAVERSE', 'INFO', 'Attempting to login as ' + username + '.');

@@ -44,7 +44,6 @@ export default store(function (/* { ssrContext } */) {
                 isLoggedIn: false, // bool
                 isAdmin: false, // bool
                 username: null, // string
-                profilePicture: null, // string
                 accountRoles: null, // array
                 accountId: null, // string
                 metaverseServer: null, // string
@@ -56,7 +55,13 @@ export default store(function (/* { ssrContext } */) {
                 expiresIn: null, // int
                 scope: null, // string
                 // Options
-                useAsAdmin: false // bool
+                useAsAdmin: false, // bool
+                // Profile
+                images: {
+                    hero: null, // string
+                    tiny: null, // string
+                    thumbnail: null // string
+                }
             },
             profile: {
                 displayName: ''
