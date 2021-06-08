@@ -17,7 +17,8 @@
         "babylonjs": "^4.2.0",
         "babylonjs-loaders": "^4.2.0",
         "core-js": "^3.14.0",
-        "quasar": "^2.0.0-rc.1"
+        "quasar": "^2.0.0-rc.1",
+        "vuex": "^4.0.1"
     },
     "devDependencies": {
         "@babel/eslint-parser": "^7.14.4",
