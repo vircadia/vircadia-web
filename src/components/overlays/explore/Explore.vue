@@ -130,8 +130,8 @@ export default {
     methods: {
         async loadPlacesList () {
             this.loading = true;
-            const placesResult = await this.$store.state.Explore.retrievePlaces(this.$store.state.metaverseConfig.server);
-            this.placesList = placesResult.data.places;
+            const placesResult = await this.$store.state.Explore.retrievePlaces();
+            this.placesList = placesResult;
             this.loading = false;
         }
     },
