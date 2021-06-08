@@ -66,23 +66,6 @@ export default {
                 const result = await this.$store.state.Metaverse.login(this.$store.state.metaverseConfig.server, this.username, this.password);
                 this.$store.state.Metaverse.commitLogin(this.username, result);
 
-                this.$store.state.Metaverse.People.retrieveAccount(
-                    this.$store.state.account.metaverseServer,
-                    this.$store.state.account.username
-                ).then(result => {
-                    this.$store.commit('mutate', {
-                        update: true,
-                        property: 'account',
-                        with: {
-                            'images': {
-                                'hero': result.data.account.images.hero,
-                                'tiny': result.data.account.images.tiny,
-                                'thumbnail': result.data.account.images.thumbnail
-                            }
-                        }
-                    });
-                });
-
                 this.$q.notify({
                     type: 'positive',
                     textColor: 'white',

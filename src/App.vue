@@ -107,15 +107,12 @@ export default defineComponent({
             },
             deep: true
         },
-        // getDashboardTheme: {
-        //     handler: function () {
-        //         this.setDashboardTheme();
-        //     }
-        // },
+
         updateAccessToken () {
             console.info('Setting new access token header...');
             this.initializeAxios();
         },
+
         metaverseServerChanged (newMetaverseServer) {
             localStorage.setItem('metaverseConfig.server', newMetaverseServer);
 
@@ -123,6 +120,27 @@ export default defineComponent({
 
             if (this.isLoggedIn && newMetaverseServer !== this.$store.state.account.metaverseServer) {
                 this.logout();
+            }
+        },
+
+        isLoggedIn (newValue) {
+            if (newValue === true) {
+                this.$store.state.Metaverse.People.retrieveAccount(
+                    this.$store.state.account.metaverseServer,
+                    this.$store.state.account.username
+                ).then(result => {
+                    this.$store.commit('mutate', {
+                        update: true,
+                        property: 'account',
+                        with: {
+                            'images': {
+                                'hero': result.data.account.images.hero,
+                                'tiny': result.data.account.images.tiny,
+                                'thumbnail': result.data.account.images.thumbnail
+                            }
+                        }
+                    });
+                });
             }
         }
     },

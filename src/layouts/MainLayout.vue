@@ -196,7 +196,7 @@ export default {
                     separator: true
                 },
                 {
-                    icon: 'public',
+                    icon: 'travel_explore',
                     label: 'Explore',
                     link: '',
                     isCategory: false,
