@@ -48,9 +48,9 @@
                 class="col"
             >
                 <q-list style="max-Width: 400px;" :showing="!loading">
-                    <q-item v-for="place in filteredAndSortedData" :key="place.placeId" clickable v-ripple>
+                    <q-item v-for="place in filteredAndSortedData" :key="place.placeId" clickable v-ripple @click="openLocation(place.address)">
                         <q-item-section side top>
-                            <q-icon name="info" color="white" />
+                            <q-btn round color="white" icon="fas fa-info"  clickable @click.stop="openDetails(place)" class="text-purple" size="10px"/>
                         </q-item-section>
 
                         <q-item-section top>
@@ -133,6 +133,14 @@ export default {
             const placesResult = await this.$store.state.Explore.retrievePlaces();
             this.placesList = placesResult;
             this.loading = false;
+        },
+
+        openLocation (path) {
+            alert('Not currently implemented: Open location - ' + path);
+        },
+
+        openDetails (place) {
+            alert('Not currently implemented: Show details - ' + place.name);
         }
     },
 
