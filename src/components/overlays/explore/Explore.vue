@@ -29,7 +29,17 @@
             class="column no-wrap items-stretch full-height"
             style="background: transparent; box-shadow: none;"
         >
-testing
+            <q-scroll-area
+                class="col"
+            >
+                <q-list>
+                    <q-item v-for="place in placesList" :key="place.placeId" class="q-mb-sm" clickable v-ripple>
+                        <q-item-section>
+                            <q-item-label>{{ place.name }}</q-item-label>
+                        </q-item-section>
+                    </q-item>
+                </q-list>
+            </q-scroll-area>
         </q-card>
     </OverlayShell>
 </template>
@@ -58,23 +68,13 @@ export default {
     },
 
     methods: {
-        loadPlacesList () {
-            // if (this.localWorld === true) {
-            //     this.peopleList = this.testLocal;
-            // } else if (this.previewWorld) {
-            //     this.peopleList = this.testPreview;
-            // } else if (this.friends === true) {
-            //     this.peopleList = this.testFriends;
-            // } else if (this.connections === true) {
-            //     this.peopleList = this.testConnections;
-            // }
+        async loadPlacesList () {
+            const placesResult = await this.$store.state.Explore.retrievePlaces(this.$store.state.metaverseConfig.server);
+            this.placesList = placesResult.data.places;
         }
     },
 
     created: function () {
-        // By default, the people list will load a list of people in your world.
-        // However, in the future the list can and should be reused to load lists
-        // of friends, previews of users in worlds, etc.
         this.loadPlacesList();
     },
 

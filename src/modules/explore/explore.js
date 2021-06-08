@@ -15,21 +15,14 @@ import Log from '../debugging/log.js';
 
 export class Explore {
     constructor (store, prop) {
-        this.retrievePlaces = (metaverse, userIdentifier) => {
-            let parameters = window.$.param({
-                'asAdmin': store.account.useAsAdmin
-            });
-            parameters = '?' + parameters;
-
-            const apiToRequest = (store.account.isLoggedIn ? 'account' : 'profile');
-
+        this.retrievePlaces = (metaverse) => {
             return new Promise(function (resolve, reject) {
-                axios.get(metaverse + '/api/v1/' + apiToRequest + '/' + userIdentifier + parameters)
+                axios.get(metaverse + '/api/v1/places/')
                     .then((response) => {
-                        Log.print('EXPLORE', 'INFO', 'Retrieved info for ' + userIdentifier + '.');
+                        Log.print('EXPLORE', 'INFO', 'Retrieved places.');
                         resolve(response.data);
                     }, (error) => {
-                        Log.print('EXPLORE', 'INFO', 'Failed to retrieve info for ' + userIdentifier + '.');
+                        Log.print('EXPLORE', 'INFO', 'Failed to retrieve places.');
                         if (error.response && error.response.data) {
                             reject(error.response.data);
                         } else {
