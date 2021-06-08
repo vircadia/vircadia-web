@@ -75,7 +75,7 @@
 import OverlayShell from '../OverlayShell.vue';
 
 export default {
-    name: 'ChatWindow',
+    name: 'People',
 
     props: {
         // Primary

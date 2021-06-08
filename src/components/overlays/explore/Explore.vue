@@ -1,7 +1,7 @@
 <!--
-//  People.vue
+//  Explore.vue
 //
-//  Created by Kalila L. on May 16th, 2021.
+//  Created by Kalila L. on June 8th, 2021.
 //  Copyright 2021 Vircadia contributors.
 //
 //  Distributed under the Apache License, Version 2.0.
@@ -16,13 +16,13 @@
 
 <template>
     <OverlayShell
-        icon="public"
+        icon="travel_explore"
         title="Explore"
         :propsToPass="propsToPass"
-        :defaultHeight="500"
-        :defaultWidth="500"
-        :defaultLeft="200"
-        :hoverShowBar="false"
+        :defaultHeight="300"
+        :defaultWidth="300"
+        :defaultLeft="0"
+        :hoverShowBar="true"
         :style="{ 'background': 'rgba(0, 0, 0, 0.3)', 'box-shadow': 'none', border: 'none' }"
     >
         <q-card
@@ -41,6 +41,9 @@
                 </q-list>
             </q-scroll-area>
         </q-card>
+        <!-- <q-inner-loading :showing="">
+            <q-spinner-gears size="50px" color="primary" />
+        </q-inner-loading> -->
     </OverlayShell>
 </template>
 
@@ -61,7 +64,6 @@ export default {
 
     data: () => ({
         placesList: []
-
     }),
 
     computed: {

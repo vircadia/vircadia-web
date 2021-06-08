@@ -162,12 +162,6 @@
 </template>
 
 <script>
-// Modules
-import { AudioInput } from '../modules/audio/input/audioInput.js';
-import { Metaverse } from '../modules/metaverse/metaverse.js';
-import { People } from '../modules/people/people.js';
-import { Explore } from '../modules/explore/explore.js';
-
 // Components
 import MainScene from '../components/MainScene.vue';
 import OverlayManager from '../components/overlays/OverlayManager.vue';
@@ -202,7 +196,7 @@ export default {
                     separator: true
                 },
                 {
-                    icon: 'public',
+                    icon: 'travel_explore',
                     label: 'Explore',
                     link: '',
                     isCategory: false,
@@ -233,10 +227,6 @@ export default {
         };
     },
 
-    mounted: function () {
-        this.mountClasses();
-    },
-
     computed: {
         dialogState: {
             get () {
@@ -262,8 +252,8 @@ export default {
         },
 
         getProfilePicture: function () {
-            if (this.$store.state.account.profilePicture) {
-                return this.$store.state.account.profilePicture;
+            if (this.$store.state.account.images && this.$store.state.account.images.thumbnail) {
+                return this.$store.state.account.images.thumbnail;
             } else {
                 return '../assets/vircadia-icon.svg';
             }
@@ -271,35 +261,6 @@ export default {
     },
 
     methods: {
-        // Bootstrapping
-        mountClasses: function () {
-            this.$store.commit('mutate', {
-                property: 'Audio',
-                update: true,
-                with: {
-                    input: new AudioInput(this.$store, 'Audio.input')
-                }
-            });
-
-            this.$store.commit('mutate', {
-                property: 'Metaverse',
-                update: false,
-                with: new Metaverse(this.$store, 'Metaverse')
-            });
-
-            this.$store.commit('mutate', {
-                property: 'People',
-                update: false,
-                with: new People(this.$store, 'People')
-            });
-
-            this.$store.commit('mutate', {
-                property: 'Explore',
-                update: false,
-                with: new Explore(this.$store, 'Explore')
-            });
-        },
-
         // Drawers
         toggleUserMenu: function () {
             this.userMenuOpen = !this.userMenuOpen;

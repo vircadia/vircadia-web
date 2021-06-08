@@ -9,6 +9,7 @@
 // Components -> Overlays
 import Audio from '../components/overlays/settings/Audio.vue';
 import ChatWindow from '../components/overlays/chat/ChatWindow.vue';
+import Explore from '../components/overlays/explore/Explore.vue';
 import People from '../components/overlays/people/People.vue';
 import Explore from '../components/overlays/explore/Explore.vue';
 // Components -> Dialogs
@@ -23,6 +24,7 @@ export default ({
     // Components -> Overlays
     app.component('Audio', Audio);
     app.component('ChatWindow', ChatWindow);
+    app.component('Explore', Explore);
     app.component('People', People);
     app.component('Explore', Explore);
     // Components -> Dialogs

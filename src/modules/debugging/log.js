@@ -30,6 +30,7 @@ const Log = (function () {
             'prefix': '[PEOPLE]'
         },
 
+
         'EXPLORE': {
             'prefix': '[EXPLORE]'
         }
