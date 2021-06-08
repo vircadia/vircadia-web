@@ -11,7 +11,6 @@ import Audio from '../components/overlays/settings/Audio.vue';
 import ChatWindow from '../components/overlays/chat/ChatWindow.vue';
 import Explore from '../components/overlays/explore/Explore.vue';
 import People from '../components/overlays/people/People.vue';
-import Explore from '../components/overlays/explore/Explore.vue';
 // Components -> Dialogs
 import Login from '../components/dialogs/Login.vue';
 // Components -> Components
