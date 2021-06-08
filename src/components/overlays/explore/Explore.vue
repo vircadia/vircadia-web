@@ -68,7 +68,11 @@ export default {
     },
 
     created: function () {
-
+        this.$store.state.Metaverse.Places.retrievePlaces(
+            this.$store.state.account.metaverseServer
+        ).then(result => {
+            console.info(result);
+        });
     },
 
     mounted: function () {
