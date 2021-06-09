@@ -5,6 +5,9 @@
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+//
+//  This file defines global Vue components.
+//
 
 // Components -> Overlays
 import Audio from '../components/overlays/settings/Audio.vue';
@@ -25,7 +28,6 @@ export default ({
     app.component('ChatWindow', ChatWindow);
     app.component('Explore', Explore);
     app.component('People', People);
-    app.component('Explore', Explore);
     // Components -> Dialogs
     app.component('Login', Login);
     // Components -> Components

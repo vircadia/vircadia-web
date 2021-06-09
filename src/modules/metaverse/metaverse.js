@@ -15,8 +15,6 @@ import Log from '../debugging/log.js';
 
 export class Metaverse {
     constructor (store, prop) {
-        console.info('constructed', store, prop);
-
         // ////////////////////////////////////
         // Login & Registration
         // ////////////////////////////////////
@@ -177,4 +175,26 @@ export class Metaverse {
                 });
         });
     };
+
+    // ////////////////////////////////////
+    // Helpers
+    // ////////////////////////////////////
+
+    getError (error, stringify) {
+        let toReturn;
+
+        if (error.response && error.response.data) {
+            toReturn = error.response.data;
+        } else if (error.response) {
+            toReturn = error.response;
+        } else {
+            toReturn = error;
+        }
+
+        if (stringify === true) {
+            return JSON.stringify(toReturn);
+        } else {
+            return toReturn;
+        }
+    }
 }
