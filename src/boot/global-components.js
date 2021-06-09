@@ -25,6 +25,7 @@ export default ({
     app.component('ChatWindow', ChatWindow);
     app.component('Explore', Explore);
     app.component('People', People);
+    app.component('Explore', Explore);
     // Components -> Dialogs
     app.component('Login', Login);
     // Components -> Components

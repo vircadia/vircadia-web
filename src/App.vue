@@ -17,6 +17,7 @@ import { defineComponent } from 'vue';
 // Modules
 import { AudioInput } from './modules/audio/input/audioInput.js';
 import { Metaverse } from './modules/metaverse/metaverse.js';
+import { Explore } from './modules/explore/explore.js';
 
 export default defineComponent({
     name: 'App',
@@ -36,6 +37,12 @@ export default defineComponent({
                 property: 'Metaverse',
                 update: false,
                 with: new Metaverse(this.$store, 'Metaverse')
+            });
+
+            this.$store.commit('mutate', {
+                property: 'Explore',
+                update: false,
+                with: new Explore(this.$store, 'Explore')
             });
         }
     },
