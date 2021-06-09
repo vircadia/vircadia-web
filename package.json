@@ -18,6 +18,7 @@
         "babylonjs-loaders": "^4.2.0",
         "core-js": "^3.14.0",
         "quasar": "^2.0.0-rc.1",
+        "uuid": "^8.3.2",
         "vuex": "^4.0.1"
     },
     "devDependencies": {

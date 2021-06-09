@@ -30,9 +30,6 @@
 import * as BABYLON from 'babylonjs';
 import 'babylonjs-loaders';
 
-// Modules
-import Entities from '../modules/entities/entities.js';
-
 export default {
     name: 'MainScene',
 
@@ -61,17 +58,69 @@ export default {
 
         buildScene () {
             this.scene.clearColor = new BABYLON.Color3(0.8, 0.8, 0.8);
-            var camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 0, -10), this.scene);
-            var light = new BABYLON.PointLight("light", new BABYLON.Vector3(10, 10, 0), this.scene);
+            this.scene.createDefaultCameraOrLight(true, true, true);
+            this.scene.createDefaultEnvironment();
 
-            var item = BABYLON.Mesh.CreateBox('box', 2, this.scene);
+            this.$store.state.Entities.addEntity({
+                'name': 'box',
+                'type': 'Shape',
+                'shape': 'box',
+                'position': { 'x': -5, 'y': 0, 'z': 0 },
+                'rotation': { 'x': -0.2, 'y': -0.4, 'z': 0 },
+                'dimensions': { 'x': 3, 'y': 3, 'z': 3 },
+                'color': { 'r': 1, 'g': 0, 'b': 0 }
+            }, {}, this.scene);
 
-            item.rotation.x = -0.2;
-            item.rotation.y = -0.4;
+            this.$store.state.Entities.addEntity({
+                'name': 'sphere',
+                'type': 'Shape',
+                'shape': 'sphere',
+                'position': { 'x': -3, 'y': 0, 'z': 0 },
+                'rotation': { 'x': 0, 'y': -0.5, 'z': 0 },
+                'dimensions': { 'x': 3, 'y': 3, 'z': 3 },
+                'color': { 'r': 0, 'g': 0.58, 'b': 0.86 }
+            }, {}, this.scene);
 
-            const boxMaterial = new BABYLON.StandardMaterial('material', this.scene);
-            boxMaterial.emissiveColor = new BABYLON.Color3(0, 0.58, 0.86);
-            item.material = boxMaterial;
+            this.$store.state.Entities.addEntity({
+                'name': 'cone',
+                'type': 'Shape',
+                'shape': 'cone',
+                'position': { 'x': -1, 'y': 0, 'z': 0 },
+                'rotation': { 'x': 0, 'y': -0.5, 'z': 0 },
+                'dimensions': { 'x': 1, 'y': 1, 'z': 1 },
+                'color': { 'r': 1, 'g': 0.58, 'b': 0.86 }
+            }, {}, this.scene);
+
+            this.$store.state.Entities.addEntity({
+                'name': 'cylinder',
+                'type': 'Shape',
+                'shape': 'cylinder',
+                'position': { 'x': 1, 'y': 0, 'z': 0 },
+                'rotation': { 'x': 0, 'y': -0.5, 'z': 0 },
+                'dimensions': { 'x': 1, 'y': 1, 'z': 1 },
+                'color': { 'r': 1, 'g': 0.58, 'b': 0.86 }
+            }, {}, this.scene);
+
+            this.$store.state.Entities.addEntity({
+                'name': 'triangle',
+                'type': 'Shape',
+                'shape': 'triangle',
+                'position': { 'x': 3, 'y': 0, 'z': 0 },
+                'rotation': { 'x': 0, 'y': -0.5, 'z': 0 },
+                'dimensions': { 'x': 1, 'y': 1, 'z': 1 },
+                'color': { 'r': 1, 'g': 0.58, 'b': 0.86 }
+            }, {}, this.scene);
+
+            this.$store.state.Entities.addEntity({
+                'name': 'fox',
+                'type': 'Model',
+                'modelUrl': 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Fox/glTF/Fox.gltf',
+                'position': { 'x': 5, 'y': 0, 'z': 0 },
+                'rotation': { 'x': 0, 'y': -0.5, 'z': 0 },
+                'dimensions': { 'x': 0.05, 'y': 0.05, 'z': 0.05 }
+            }, {}, this.scene).then((result) => {
+                console.info(this.scene.rootNodes);
+            });
         },
 
         renderLoop () {

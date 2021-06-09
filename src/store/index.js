@@ -97,11 +97,12 @@ export default store(function (/* { ssrContext } */) {
                 current: '',
                 state: 'Not Connected'
             },
-            // Mounted Classes - mounted from MainLayout.vue
+            // Mounted Classes - mounted from App.vue
             Audio: {
                 input: null
             },
-            Metaverse: null
+            Metaverse: null,
+            Entities: null
         },
 
         mutations: {
