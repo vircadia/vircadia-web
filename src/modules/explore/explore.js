@@ -14,7 +14,7 @@ export class Explore {
             return new Promise(function (resolve, reject) {
                 store.state.Metaverse.Places.retrievePlaces(
                     store.state.account.metaverseServer
-                ).then(result => {
+                ).then((result) => {
                     resolve(result.data.places);
                 });
             });
