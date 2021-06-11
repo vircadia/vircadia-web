@@ -30,7 +30,7 @@ export class Entities {
         };
     }
 
-    async addEntity (properties, entityHostType, scene) {
+    async addEntity (scene, properties, entityHostType) {
         if (!properties.type) {
             Log.print('ENTITIES', 'ERROR', 'Failed to specify entity type.');
             return false;
@@ -91,6 +91,30 @@ export class Entities {
             return entity.id;
         } else {
             Log.print('ENTITIES', 'ERROR', 'Failed to create entity.');
+        }
+    };
+
+    // Scripting would look like:
+    // Entities.deleteById
+    async deleteEntityById (scene, id) {
+        const entityToDelete = scene.getNodeByID(id);
+
+        if (entityToDelete) {
+            entityToDelete.dispose();
+        } else {
+            Log.print('ENTITIES', 'ERROR', 'Failed to delete entity by ID: ' + id);
+        }
+    };
+
+    // Scripting would look like:
+    // Entities.deleteByName
+    async deleteEntityByName (scene, name) {
+        const entityToDelete = scene.getNodeByName(name);
+
+        if (entityToDelete) {
+            entityToDelete.dispose();
+        } else {
+            Log.print('ENTITIES', 'ERROR', 'Failed to delete entity by name: ' + name);
         }
     };
 };
