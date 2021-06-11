@@ -10,9 +10,10 @@
 
 import * as BABYLON from 'babylonjs';
 import 'babylonjs-loaders';
-
+// General Modules
+import Debug from '../debugging/debug.js';
 import Log from '../debugging/log.js';
-
+// System Modules
 import { v4 as uuidv4 } from 'uuid';
 
 export class Entities {
@@ -32,7 +33,7 @@ export class Entities {
 
     async addEntity (scene, properties, entityHostType) {
         if (!properties.type) {
-            Log.print('ENTITIES', 'ERROR', 'Failed to specify entity type.');
+            Debug.error('ENTITIES', 'Failed to specify entity type.');
             return false;
         }
 
@@ -57,7 +58,7 @@ export class Entities {
             } else if (properties.shape.toLowerCase() === 'triangle') {
                 entity = BABYLON.MeshBuilder.CreateCylinder(properties.name, { tessellation: 3 }, scene);
             } else {
-                Log.print('ENTITIES', 'ERROR', 'Failed to create shape entity, unknown/unsupported shape type: ' + properties.shape);
+                Debug.error('ENTITIES', 'Failed to create shape entity, unknown/unsupported shape type: ' + properties.shape);
                 return;
             }
             break;
@@ -90,7 +91,7 @@ export class Entities {
             Log.print('ENTITIES', 'INFO', 'Successfully created entity: ' + entity.id);
             return entity.id;
         } else {
-            Log.print('ENTITIES', 'ERROR', 'Failed to create entity.');
+            Debug.error('ENTITIES', 'Failed to create entity.');
         }
     };
 
@@ -102,7 +103,7 @@ export class Entities {
         if (entityToDelete) {
             entityToDelete.dispose();
         } else {
-            Log.print('ENTITIES', 'ERROR', 'Failed to delete entity by ID: ' + id);
+            Debug.error('ENTITIES', 'Failed to delete entity by ID: ' + id);
         }
     };
 
@@ -114,7 +115,7 @@ export class Entities {
         if (entityToDelete) {
             entityToDelete.dispose();
         } else {
-            Log.print('ENTITIES', 'ERROR', 'Failed to delete entity by name: ' + name);
+            Debug.error('ENTITIES', 'Failed to delete entity by name: ' + name);
         }
     };
 };
