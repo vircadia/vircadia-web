@@ -10,11 +10,11 @@ import { boot } from 'quasar/wrappers';
 
 import Log from '../modules/debugging/log.js';
 
+const axios = require('axios');
+
 // more info on params: https://v2.quasar.dev/quasar-cli/boot-files
 export default boot(({ app, store, router, Vue }) => {
     // MAIN APPLICATION INITIALIZATION
-
-    const axios = require('axios');
 
     function initializeAxios () {
         Log.print('OTHER', 'INFO', 'Bootstrapping Axios.');

@@ -17,9 +17,11 @@ export class Metaverse {
     constructor (store, prop) {
         console.info('constructed', store, prop);
 
+        // #region Login & Registration
+
         this.commitLogin = (username, result) => {
             Log.print('METAVERSE', 'INFO', 'Committing login.');
-            console.info('result', result);
+
             const checkIsAdmin = result.account_roles.includes('admin');
 
             store.commit('mutate', {
@@ -51,11 +53,79 @@ export class Metaverse {
                     isLoggedIn: false,
                     isAdmin: false,
                     accessToken: null,
-                    refreshToken: null
+                    refreshToken: null,
+                    // Profile
+                    images: {
+                        hero: null,
+                        tiny: null,
+                        thumbnail: null
+                    }
                 }
             });
         };
+
+        // #endregion Login & Registration
+
+        // #region People
+
+        this.People = {
+            retrieveAccount: (metaverse, userIdentifier) => {
+                const apiToRequest = (store.state.account.isLoggedIn ? 'account' : 'profile');
+
+                return new Promise(function (resolve, reject) {
+                    axios.get(metaverse + '/api/v1/' + apiToRequest + '/' + userIdentifier, {
+                        headers: {
+                            // This function is called immediately after login, the accessToken is not applied to the headers yet.
+                            // So, we wil do it manually.
+                            Authorization: 'Bearer ' + store.state.account.accessToken
+                        },
+                        params: {
+                            'asAdmin': store.state.account.useAsAdmin
+                        }
+                    })
+                        .then((response) => {
+                            Log.print('PEOPLE', 'INFO', 'Retrieved info for ' + userIdentifier + '.');
+                            resolve(response.data);
+                        }, (error) => {
+                            Log.print('PEOPLE', 'ERROR', 'Failed to retrieve info for ' + userIdentifier + '.');
+                            if (error.response && error.response.data) {
+                                reject(error.response.data);
+                            } else {
+                                reject('Unknown reason.');
+                            }
+                        });
+                });
+            }
+        };
+
+        // #endregion People
+
+        // #region Places
+
+        this.Places = {
+            retrievePlaces: (metaverse) => {
+                return new Promise(function (resolve, reject) {
+                    // TODO: Add query to params.
+                    axios.get(metaverse + '/api/v1/places')
+                        .then((response) => {
+                            Log.print('PLACES', 'INFO', 'Retrieved list of places.');
+                            resolve(response.data);
+                        }, (error) => {
+                            Log.print('PLACES', 'ERROR', 'Failed to retrieve list of places.');
+                            if (error.response && error.response.data) {
+                                reject(error.response.data);
+                            } else {
+                                reject('Unknown reason.');
+                            }
+                        });
+                });
+            }
+        };
+        
+        // #endregion Places
     };
+
+    // #region Login & Registration
 
     login (metaverse, username, password) {
         Log.print('METAVERSE', 'INFO', 'Attempting to login as ' + username + '.');
@@ -71,7 +141,7 @@ export class Metaverse {
                     Log.print('METAVERSE', 'INFO', 'Successfully got key and details for ' + username + ' from the Metaverse.');
                     resolve(response.data);
                 }, (error) => {
-                    Log.print('METAVERSE', 'INFO', 'Failed to login as ' + username + ': ' + JSON.stringify(error.response.data));
+                    Log.print('METAVERSE', 'ERROR', 'Failed to login as ' + username + ': ' + JSON.stringify(error.response.data));
                     if (error.response && error.response.data) {
                         reject(error.response.data);
                     } else {
@@ -96,7 +166,7 @@ export class Metaverse {
                     Log.print('METAVERSE', 'INFO', 'Registered successfully as ' + username + '.');
                     resolve(response.data);
                 }, (error) => {
-                    Log.print('METAVERSE', 'INFO', 'Registration as ' + username + ' failed: ' + JSON.stringify(error.response.data));
+                    Log.print('METAVERSE', 'ERROR', 'Registration as ' + username + ' failed: ' + JSON.stringify(error.response.data));
                     if (error.response && error.response.data) {
                         reject(error.response.data);
                     } else {
@@ -105,4 +175,6 @@ export class Metaverse {
                 });
         });
     };
+    
+    // #endregion Login & Registration
 }
