@@ -138,7 +138,7 @@ export default defineComponent({
         },
 
         isLoggedIn (newValue) {
-            if (newValue === true) {
+            if (newValue) {
                 this.$store.state.Metaverse.People.retrieveAccount(
                     this.$store.state.account.metaverseServer,
                     this.$store.state.account.username
