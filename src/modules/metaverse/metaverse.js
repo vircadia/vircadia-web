@@ -17,9 +17,7 @@ export class Metaverse {
     constructor (store, prop) {
         console.info('constructed', store, prop);
 
-        // ////////////////////////////////////
-        // Login & Registration
-        // ////////////////////////////////////
+        // #region Login & Registration
 
         this.commitLogin = (username, result) => {
             Log.print('METAVERSE', 'INFO', 'Committing login.');
@@ -66,9 +64,9 @@ export class Metaverse {
             });
         };
 
-        // ////////////////////////////////////
-        // People
-        // ////////////////////////////////////
+        // #endregion Login & Registration
+
+        // #region People
 
         this.People = {
             retrieveAccount: (metaverse, userIdentifier) => {
@@ -100,9 +98,9 @@ export class Metaverse {
             }
         };
 
-        // ////////////////////////////////////
-        // Places
-        // ////////////////////////////////////
+        // #endregion People
+
+        // #region Places
 
         this.Places = {
             retrievePlaces: (metaverse) => {
@@ -123,11 +121,11 @@ export class Metaverse {
                 });
             }
         };
+        
+        // #endregion Places
     };
 
-    // ////////////////////////////////////
-    // Login & Registration
-    // ////////////////////////////////////
+    // #region Login & Registration
 
     login (metaverse, username, password) {
         Log.print('METAVERSE', 'INFO', 'Attempting to login as ' + username + '.');
@@ -177,4 +175,6 @@ export class Metaverse {
                 });
         });
     };
+    
+    // #endregion Login & Registration
 }
