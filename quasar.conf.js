@@ -26,11 +26,7 @@ const { description } = require('./package.json').description;
 module.exports = configure(function (ctx) {
     return {
         // https://v2.quasar.dev/quasar-cli/supporting-ts
-        supportTS: {
-            tsCheckerConfig: {
-                eslint: true
-            }
-        },
+        supportTS: false,
 
         // https://v2.quasar.dev/quasar-cli/prefetch-feature
         // preFetch: true,
