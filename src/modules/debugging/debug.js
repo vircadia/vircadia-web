@@ -11,7 +11,7 @@
 import Log from './log.js';
 
 const Debug = (function () {
-    function error (type, string) {
+    function error(type, string) {
         Log.print(type, 'ERROR', string);
     };
 

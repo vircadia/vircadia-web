@@ -63,13 +63,13 @@ export default {
             this.scene.createDefaultEnvironment();
 
             this.$store.state.Entities.addEntity(this.scene, {
-                'name': 'box',
-                'type': 'Shape',
-                'shape': 'box',
-                'position': { 'x': -5, 'y': 0, 'z': 0 },
-                'rotation': { 'x': -0.2, 'y': -0.4, 'z': 0 },
-                'dimensions': { 'x': 3, 'y': 3, 'z': 3 },
-                'color': { 'r': 1, 'g': 0, 'b': 0 }
+                name: 'box',
+                type: 'Shape',
+                shape: 'box',
+                position: { x: -5, y: 0, z: 0 },
+                rotation: { x: -0.2, y: -0.4, z: 0 },
+                dimensions: { x: 3, y: 3, z: 3 },
+                color: { r: 1, g: 0, b: 0 }
             }, {});
 
             this.$store.state.Entities.addEntity(this.scene, {

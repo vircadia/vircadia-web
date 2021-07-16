@@ -179,7 +179,7 @@ export class Metaverse {
 
     // #region Helpers
 
-    getError (error, stringify) {
+    getError(error, stringify) {
         let toReturn;
 
         if (error.response && error.response.data) {
@@ -190,7 +190,7 @@ export class Metaverse {
             toReturn = error;
         }
 
-        if (stringify === true) {
+        if (stringify) {
             return JSON.stringify(toReturn);
         } else {
             return toReturn;

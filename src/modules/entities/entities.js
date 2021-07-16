@@ -31,7 +31,7 @@ export class Entities {
         };
     }
 
-    async addEntity (scene, properties, entityHostType) {
+    async addEntity(scene, properties, entityHostType) {
         if (!properties.type) {
             Debug.error('ENTITIES', 'Failed to specify entity type.');
             return false;
@@ -97,7 +97,7 @@ export class Entities {
 
     // Scripting would look like:
     // Entities.deleteById
-    async deleteEntityById (scene, id) {
+    async deleteEntityById(scene, id) {
         const entityToDelete = scene.getNodeByID(id);
 
         if (entityToDelete) {
@@ -109,7 +109,7 @@ export class Entities {
 
     // Scripting would look like:
     // Entities.deleteByName
-    async deleteEntityByName (scene, name) {
+    async deleteEntityByName(scene, name) {
         const entityToDelete = scene.getNodeByName(name);
 
         if (entityToDelete) {
