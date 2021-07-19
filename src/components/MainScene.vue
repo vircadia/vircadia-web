@@ -73,79 +73,79 @@ export default {
             }, {});
 
             this.$store.state.Entities.addEntity(this.scene, {
-                'name': 'sphere',
-                'type': 'Shape',
-                'shape': 'sphere',
-                'position': { 'x': -3, 'y': 0, 'z': 0 },
-                'rotation': { 'x': 0, 'y': -0.5, 'z': 0 },
-                'dimensions': { 'x': 3, 'y': 3, 'z': 3 },
-                'color': { 'r': 0, 'g': 0.58, 'b': 0.86 }
+                name: 'sphere',
+                type: 'Shape',
+                shape: 'sphere',
+                position: { x: -3, y: 0, z: 0 },
+                rotation: { x: 0, y: -0.5, z: 0 },
+                dimensions: { x: 3, y: 3, z: 3 },
+                color: { r: 0, g: 0.58, b: 0.86 }
             }, {});
 
             this.$store.state.Entities.addEntity(this.scene, {
-                'name': 'cone',
-                'type': 'Shape',
-                'shape': 'cone',
-                'position': { 'x': -1, 'y': 0, 'z': 0 },
-                'rotation': { 'x': 0, 'y': -0.5, 'z': 0 },
-                'dimensions': { 'x': 1, 'y': 1, 'z': 1 },
-                'color': { 'r': 1, 'g': 0.58, 'b': 0.86 }
+                name: 'cone',
+                type: 'Shape',
+                shape: 'cone',
+                position: { x: -1, y: 0, z: 0 },
+                rotation: { x: 0, y: -0.5, z: 0 },
+                dimensions: { x: 1, y: 1, z: 1 },
+                color: { r: 1, g: 0.58, b: 0.86 }
             }, {});
 
             this.$store.state.Entities.addEntity(this.scene, {
-                'name': 'cylinder',
-                'type': 'Shape',
-                'shape': 'cylinder',
-                'position': { 'x': 1, 'y': 0, 'z': 0 },
-                'rotation': { 'x': 0, 'y': -0.5, 'z': 0 },
-                'dimensions': { 'x': 1, 'y': 1, 'z': 1 },
-                'color': { 'r': 1, 'g': 0.58, 'b': 0.86 }
+                name: 'cylinder',
+                type: 'Shape',
+                shape: 'cylinder',
+                position: { x: 1, y: 0, z: 0 },
+                rotation: { x: 0, y: -0.5, z: 0 },
+                dimensions: { x: 1, y: 1, z: 1 },
+                color: { r: 1, g: 0.58, b: 0.86 }
             }, {});
 
             this.$store.state.Entities.addEntity(this.scene, {
-                'name': 'triangle',
-                'type': 'Shape',
-                'shape': 'triangle',
-                'position': { 'x': 3, 'y': 0, 'z': 0 },
-                'rotation': { 'x': 0, 'y': -0.5, 'z': 0 },
-                'dimensions': { 'x': 1, 'y': 1, 'z': 1 },
-                'color': { 'r': 1, 'g': 0.58, 'b': 0.86 }
+                name: 'triangle',
+                type: 'Shape',
+                shape: 'triangle',
+                position: { x: 3, y: 0, z: 0 },
+                rotation: { x: 0, y: -0.5, z: 0 },
+                dimensions: { x: 1, y: 1, z: 1 },
+                color: { r: 1, g: 0.58, b: 0.86 }
             }, {});
 
             var entityToDeleteID = uuidv4();
 
             this.$store.state.Entities.addEntity(this.scene, {
-                'name': 'entityToDeleteByID',
-                'id': entityToDeleteID,
-                'type': 'Shape',
-                'shape': 'triangle',
-                'position': { 'x': 3, 'y': -2, 'z': 0 },
-                'rotation': { 'x': 0, 'y': -0.5, 'z': 0 },
-                'dimensions': { 'x': 1, 'y': 1, 'z': 1 },
-                'color': { 'r': 1, 'g': 0.58, 'b': 0.86 }
+                name: 'entityToDeleteByID',
+                id: entityToDeleteID,
+                type: 'Shape',
+                shape: 'triangle',
+                position: { x: 3, y: -2, z: 0 },
+                rotation: { x: 0, y: -0.5, z: 0 },
+                dimensions: { x: 1, y: 1, z: 1 },
+                color: { r: 1, g: 0.58, b: 0.86 }
             }, {}).then((result) => {
                 this.$store.state.Entities.deleteEntityById(this.scene, entityToDeleteID);
             });
 
             this.$store.state.Entities.addEntity(this.scene, {
-                'name': 'entityToDeleteByName',
-                'type': 'Shape',
-                'shape': 'triangle',
-                'position': { 'x': 3, 'y': 2, 'z': 0 },
-                'rotation': { 'x': 0, 'y': -0.5, 'z': 0 },
-                'dimensions': { 'x': 1, 'y': 1, 'z': 1 },
-                'color': { 'r': 1, 'g': 0.58, 'b': 0.86 }
+                name: 'entityToDeleteByName',
+                type: 'Shape',
+                shape: 'triangle',
+                position: { x: 3, y: 2, z: 0 },
+                rotation: { x: 0, y: -0.5, z: 0 },
+                dimensions: { x: 1, y: 1, z: 1 },
+                color: { r: 1, g: 0.58, b: 0.86 }
             }, {}).then((result) => {
                 this.$store.state.Entities.deleteEntityByName(this.scene, 'entityToDeleteByName');
             });
 
             this.$store.state.Entities.addEntity(this.scene, {
-                'name': 'fox',
-                'type': 'Model',
-                'modelUrl': 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Fox/glTF/Fox.gltf',
-                'position': { 'x': 5, 'y': 0, 'z': 0 },
-                'rotation': { 'x': 0, 'y': -0.5, 'z': 0 },
-                'dimensions': { 'x': 0.05, 'y': 0.05, 'z': 0.05 }
+                name: 'fox',
+                type: 'Model',
+                modelUrl: 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Fox/glTF/Fox.gltf',
+                position: { x: 5, y: 0, z: 0 },
+                rotation: { x: 0, y: -0.5, z: 0 },
+                dimensions: { x: 0.05, y: 0.05, z: 0.05 }
             }, {}).then((result) => {
                 console.info(this.scene.rootNodes);
             });
