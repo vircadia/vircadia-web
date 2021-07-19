@@ -11,12 +11,11 @@
 // System Modules
 const axios = require('axios');
 // General Modules
+import Debug from '../debugging/debug.js';
 import Log from '../debugging/log.js';
 
 export class Metaverse {
     constructor (store, prop) {
-        console.info('constructed', store, prop);
-
         // #region Login & Registration
 
         this.commitLogin = (username, result) => {
@@ -87,7 +86,7 @@ export class Metaverse {
                             Log.print('PEOPLE', 'INFO', 'Retrieved info for ' + userIdentifier + '.');
                             resolve(response.data);
                         }, (error) => {
-                            Log.print('PEOPLE', 'ERROR', 'Failed to retrieve info for ' + userIdentifier + '.');
+                            Debug.error('PEOPLE', 'Failed to retrieve info for ' + userIdentifier + '.');
                             if (error.response && error.response.data) {
                                 reject(error.response.data);
                             } else {
@@ -111,7 +110,7 @@ export class Metaverse {
                             Log.print('PLACES', 'INFO', 'Retrieved list of places.');
                             resolve(response.data);
                         }, (error) => {
-                            Log.print('PLACES', 'ERROR', 'Failed to retrieve list of places.');
+                            Debug.error('PLACES', 'Failed to retrieve list of places.');
                             if (error.response && error.response.data) {
                                 reject(error.response.data);
                             } else {
@@ -121,7 +120,7 @@ export class Metaverse {
                 });
             }
         };
-        
+
         // #endregion Places
     };
 
@@ -141,7 +140,7 @@ export class Metaverse {
                     Log.print('METAVERSE', 'INFO', 'Successfully got key and details for ' + username + ' from the Metaverse.');
                     resolve(response.data);
                 }, (error) => {
-                    Log.print('METAVERSE', 'ERROR', 'Failed to login as ' + username + ': ' + JSON.stringify(error.response.data));
+                    Debug.error('METAVERSE', 'Failed to login as ' + username + ': ' + JSON.stringify(error.response.data));
                     if (error.response && error.response.data) {
                         reject(error.response.data);
                     } else {
@@ -166,7 +165,7 @@ export class Metaverse {
                     Log.print('METAVERSE', 'INFO', 'Registered successfully as ' + username + '.');
                     resolve(response.data);
                 }, (error) => {
-                    Log.print('METAVERSE', 'ERROR', 'Registration as ' + username + ' failed: ' + JSON.stringify(error.response.data));
+                    Debug.error('METAVERSE', 'Registration as ' + username + ' failed: ' + JSON.stringify(error.response.data));
                     if (error.response && error.response.data) {
                         reject(error.response.data);
                     } else {
@@ -175,6 +174,28 @@ export class Metaverse {
                 });
         });
     };
-    
+
     // #endregion Login & Registration
+
+    // #region Helpers
+
+    getError(error, stringify) {
+        let toReturn;
+
+        if (error.response && error.response.data) {
+            toReturn = error.response.data;
+        } else if (error.response) {
+            toReturn = error.response;
+        } else {
+            toReturn = error;
+        }
+
+        if (stringify) {
+            return JSON.stringify(toReturn);
+        } else {
+            return toReturn;
+        }
+    }
+
+    // #endregion Helpers
 }
