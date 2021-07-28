@@ -15,7 +15,7 @@
 import { defineComponent } from 'vue';
 
 // Modules
-import { AudioInput } from './modules/audio/input/audioInput.js';
+import { AudioInput } from './modules/audio/input/AudioInput.js';
 import { Metaverse } from './modules/metaverse/metaverse.js';
 import { Entities } from './modules/entities/entities.js';
 import { Explore } from './modules/explore/explore.js';
