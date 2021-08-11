@@ -13,11 +13,18 @@
 * the ES6 features that are supported by your Node version. https://node.green/
 */
 
+// Fetch package.json info for use in the manifest
+const { productName } = require('./package.json').productName;
+const { productShortName } = require('./package.json').name;
+const { productDescription } = require('./package.json').description;
+
 // Configuration for your app
 // https://v2.quasar.dev/quasar-cli/quasar-conf-js
 
 /* eslint-env node */
 /* eslint-disable @typescript-eslint/no-var-requires */
+const ESLintPlugin = require('eslint-webpack-plugin');
+
 const { configure } = require('quasar/wrappers');
 
 module.exports = configure(function (ctx) {
@@ -57,8 +64,9 @@ module.exports = configure(function (ctx) {
             // 'line-awesome',
             // 'roboto-font-latin-ext', // this or either 'roboto-font', NEVER both!
 
+            'fontawesome-v5',
             'roboto-font', // optional, you are not bound to it
-            'material-icons', // optional, you are not bound to it
+            'material-icons' // optional, you are not bound to it
         ],
 
         // Full list of options: https://v2.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-build
@@ -83,9 +91,10 @@ module.exports = configure(function (ctx) {
 
             // https://v2.quasar.dev/quasar-cli/handling-webpack
             // "chain" is a webpack-chain object https://github.com/neutrinojs/webpack-chain
-            chainWebpack (/* chain */) {
-                //
-            },
+            chainWebpack (chain) {
+                chain.plugin('eslint-webpack-plugin')
+                    .use(ESLintPlugin, [{ extensions: ['js', 'vue'] }]);
+            }
         },
 
         // Full list of options: https://v2.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-devServer
@@ -97,7 +106,9 @@ module.exports = configure(function (ctx) {
 
         // https://v2.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework
         framework: {
-            config: {},
+            config: {
+                dark: 'auto'
+            },
 
             // iconSet: 'material-icons', // Quasar icon set
             // lang: 'en-US', // Quasar language pack
@@ -110,7 +121,9 @@ module.exports = configure(function (ctx) {
             // directives: [],
 
             // Quasar plugins
-            plugins: []
+            plugins: [
+                'Notify'
+            ]
         },
 
         // animations: 'all', // --- includes all animations
@@ -130,8 +143,9 @@ module.exports = configure(function (ctx) {
             maxAge: 1000 * 60 * 60 * 24 * 30,
             // Tell browser when a file from the server should expire from cache (in ms)
 
-            chainWebpackWebserver (/* chain */) {
-                //
+            chainWebpackWebserver (chain) {
+                chain.plugin('eslint-webpack-plugin')
+                    .use(ESLintPlugin, [{ extensions: ['js'] }]);
             },
 
             middlewares: [
@@ -147,14 +161,15 @@ module.exports = configure(function (ctx) {
 
             // for the custom service worker ONLY (/src-pwa/custom-service-worker.[js|ts])
             // if using workbox in InjectManifest mode
-            chainWebpackCustomSW (/* chain */) {
-                //
+            chainWebpackCustomSW (chain) {
+                chain.plugin('eslint-webpack-plugin')
+                    .use(ESLintPlugin, [{ extensions: ['js'] }]);
             },
 
             manifest: {
-                name: 'Vircadia Web',
-                short_name: 'Vircadia Web',
-                description: 'Vircadia Web Interface for virtual worlds.',
+                name: productName,
+                short_name: productShortName,
+                description: productDescription,
                 display: 'standalone',
                 orientation: 'portrait',
                 background_color: '#ffffff',
@@ -223,13 +238,17 @@ module.exports = configure(function (ctx) {
             },
 
             // "chain" is a webpack-chain object https://github.com/neutrinojs/webpack-chain
-            chainWebpack (/* chain */) {
+            chainWebpack (chain) {
+                chain.plugin('eslint-webpack-plugin')
+                    .use(ESLintPlugin, [{ extensions: ['js'] }]);
                 // do something with the Electron main process Webpack cfg
                 // extendWebpackMain also available besides this chainWebpackMain
             },
 
             // "chain" is a webpack-chain object https://github.com/neutrinojs/webpack-chain
-            chainWebpackPreload (/* chain */) {
+            chainWebpackPreload (chain) {
+                chain.plugin('eslint-webpack-plugin')
+                    .use(ESLintPlugin, [{ extensions: ['js'] }]);
                 // do something with the Electron main process Webpack cfg
                 // extendWebpackPreload also available besides this chainWebpackPreload
             },
