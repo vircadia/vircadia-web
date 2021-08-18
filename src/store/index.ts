@@ -1,10 +1,15 @@
 import { store } from "quasar/wrappers";
-import { InjectionKey } from "vue";
-import {
+import Vue, { InjectionKey } from "vue";
+import Vuex, {
     createStore,
+    StoreOptions,
     Store as VuexStore,
     useStore as vuexUseStore
 } from "vuex";
+
+import packageInfo from "../../package.json";
+
+import AccountState from "./account";
 
 // import example from "./module-example"
 // import { ExampleStateInterface } from "./module-example/state";
@@ -18,29 +23,71 @@ import {
  * with the Store instance.
  */
 
-export interface StateInterface {
-    // Define your own store structure, using submodules if needed
-    // example: ExampleStateInterface;
-    // Declared as unknown to avoid linting issue. Best to strongly type as per the line above.
-    example: unknown
-}
-
+/* declaration moved to store.d.ts so TypeScript finds it properly
 // provide typings for `this.$store`
 declare module "@vue/runtime-core" {
     interface ComponentCustomProperties {
         $store: VuexStore<StateInterface>
     }
 }
+*/
 
-// provide typings for `useStore` helper
-export const storeKey: InjectionKey<VuexStore<StateInterface>> = Symbol("vuex-key");
+export interface IRootState {
+    globalConsts: {
+        APP_NAME: string,
+        APP_VERSION: string,
+        SAFETY_BEFORE_SESSION_TIMEOUT: number // If a token has 6 or less hours left on its life, refresh it.
+    },
+    debugging: KeyedCollection,
+    notifications: KeyedCollection,
+    renderer: {
+        canvases: [
+            {
+                canvas: string
+            }
+        ]
+    },
+    error: {
+        title: string,
+        code: string,
+        full: string
+    },
+    location: {
+        current: string,
+        state: string
+    }
+}
 
 export default store(function (/* { ssrContext } */) {
-    const Store = createStore<StateInterface>({
+    const Store = createStore<IRootState>({
+        state: () => ({
+            globalConsts: {
+                APP_NAME: packageInfo.productName,
+                APP_VERSION: packageInfo.version,
+                SAFETY_BEFORE_SESSION_TIMEOUT: 21600 // If a token has 6 or less hours left on its life, refresh it.
+            },
+            debugging: {},
+            notifications: {},
+            renderer: {
+                canvases: [
+                    {
+                        canvas: ""
+                    }
+                ]
+            },
+            error: {
+                title: "",
+                code: "",
+                full: ""
+            },
+            location: {
+                current: "",
+                state: "Not Connected"
+            }
+        }),
         modules: {
-            // example
+            account: AccountState
         },
-
         // enable strict mode (adds overhead!)
         // for dev mode and --debug builds only
         strict: Boolean(process.env.DEBUGGING)
@@ -49,6 +96,9 @@ export default store(function (/* { ssrContext } */) {
     return Store;
 });
 
-export function useStore() {
+// provide typings for `useStore` helper
+export const storeKey: InjectionKey<VuexStore<IRootState>> = Symbol("vuex-key");
+
+export function useStore(): VuexStore<IRootState> {
     return vuexUseStore(storeKey);
 }

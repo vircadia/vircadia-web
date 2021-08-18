@@ -37,7 +37,7 @@ module.exports = {
     // Rules order is important, please avoid shuffling them
     extends: [
         // Base ESLint recommended rules
-        // 'eslint:recommended',
+        'eslint:recommended',
 
         // https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin#usage
         // ESLint typescript rules
@@ -52,10 +52,18 @@ module.exports = {
         // 'plugin:vue/vue3-strongly-recommended', // Priority B: Strongly Recommended (Improving Readability)
         // 'plugin:vue/vue3-recommended', // Priority C: Recommended (Minimizing Arbitrary Choices and Cognitive Overhead)
 
+        'plugin:jest/style',
+
         // https://github.com/prettier/eslint-config-prettier#installation
         // usage with Prettier, provided by 'eslint-config-prettier'.
         'prettier'
     ],
+
+    settings: {
+        'jest': {
+            'version': 27
+        }
+    },
 
     plugins: [
         // required to apply rules which need type information
@@ -68,6 +76,8 @@ module.exports = {
         // https://github.com/typescript-eslint/typescript-eslint/issues/389#issuecomment-509292674
         // Prettier has not been included as plugin to avoid performance impact
         // add it as an extension for your IDE
+
+        'eslint-plugin-jest'
     ],
 
     globals: {
@@ -85,12 +95,11 @@ module.exports = {
 
     // add your custom rules here
     rules: {
-        'prefer-promise-reject-errors': 'off',
 
         // TypeScript
-        quotes: ['warn', 'single', { avoidEscape: true }],
-        '@typescript-eslint/explicit-function-return-type': 'off',
-        '@typescript-eslint/explicit-module-boundary-types': 'off',
+        // quotes: ['warn', 'single', { avoidEscape: true }],
+        // '@typescript-eslint/explicit-function-return-type': 'off',
+        // '@typescript-eslint/explicit-module-boundary-types': 'off',
 
         // allow debugger during development only
         'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
@@ -390,6 +399,7 @@ module.exports = {
         // BEGIN DEBUG DEBUG
         /*
         // Turn off 'any' errors in process of doing JS to TS conversion
+        "prefer-promise-reject-errors": "off",
         "@typescript-eslint/no-unsafe-call": "off",
         "@typescript-eslint/no-unused-vars": "off",
         "@typescript-eslint/no-unsafe-member-access": "off",
