@@ -17,7 +17,7 @@
         <canvas
             :height="canvasHeight"
             :width="canvasWidth"
-            :style="{ width: canvasWidth+"px", height: canvasHeight + "px" }"
+            :style="{ width: canvasWidth+'px', height: canvasHeight + 'px' }"
             ref="renderCanvas"
             class="renderCanvas"
         />
@@ -63,13 +63,14 @@ export default defineComponent({
             }
         },
 
-        buildScene() {
+        async buildScene() {
+            const aScene = <BABYLON.Scene> this.scene;
             // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-            this.scene.clearColor = new BABYLON.Color4(0.8, 0.8, 0.8, 0.0);
-            this.scene.createDefaultCameraOrLight(true, true, true);
-            this.scene.createDefaultEnvironment();
+            aScene.clearColor = new BABYLON.Color4(0.8, 0.8, 0.8, 0.0);
+            aScene.createDefaultCameraOrLight(true, true, true);
+            aScene.createDefaultEnvironment();
 
-            this.$store.state.Entities.addEntity(this.scene, {
+            await this.$store.state.entities.addEntity(aScene, {
                 name: "box",
                 type: "Shape",
                 shape: "box",
@@ -77,9 +78,9 @@ export default defineComponent({
                 rotation: { x: -0.2, y: -0.4, z: 0 },
                 dimensions: { x: 3, y: 3, z: 3 },
                 color: { r: 1, g: 0, b: 0 }
-            }, {});
+            });
 
-            this.$store.state.Entities.addEntity(this.scene, {
+            await this.$store.state.entities.addEntity(aScene, {
                 name: "sphere",
                 type: "Shape",
                 shape: "sphere",
@@ -87,9 +88,9 @@ export default defineComponent({
                 rotation: { x: 0, y: -0.5, z: 0 },
                 dimensions: { x: 3, y: 3, z: 3 },
                 color: { r: 0, g: 0.58, b: 0.86 }
-            }, {});
+            });
 
-            this.$store.state.Entities.addEntity(this.scene, {
+            await this.$store.state.entities.addEntity(aScene, {
                 name: "cone",
                 type: "Shape",
                 shape: "cone",
@@ -97,9 +98,9 @@ export default defineComponent({
                 rotation: { x: 0, y: -0.5, z: 0 },
                 dimensions: { x: 1, y: 1, z: 1 },
                 color: { r: 1, g: 0.58, b: 0.86 }
-            }, {});
+            });
 
-            this.$store.state.Entities.addEntity(this.scene, {
+            await this.$store.state.entities.addEntity(aScene, {
                 name: "cylinder",
                 type: "Shape",
                 shape: "cylinder",
@@ -107,9 +108,9 @@ export default defineComponent({
                 rotation: { x: 0, y: -0.5, z: 0 },
                 dimensions: { x: 1, y: 1, z: 1 },
                 color: { r: 1, g: 0.58, b: 0.86 }
-            }, {});
+            });
 
-            this.$store.state.Entities.addEntity(this.scene, {
+            await this.$store.state.entities.addEntity(aScene, {
                 name: "triangle",
                 type: "Shape",
                 shape: "triangle",
@@ -117,11 +118,11 @@ export default defineComponent({
                 rotation: { x: 0, y: -0.5, z: 0 },
                 dimensions: { x: 1, y: 1, z: 1 },
                 color: { r: 1, g: 0.58, b: 0.86 }
-            }, {});
+            });
 
-            var entityToDeleteID = uuidv4();
+            const entityToDeleteID = uuidv4();
 
-            this.$store.state.Entities.addEntity(this.scene, {
+            await this.$store.state.entities.addEntity(aScene, {
                 name: "entityToDeleteByID",
                 id: entityToDeleteID,
                 type: "Shape",
@@ -130,11 +131,10 @@ export default defineComponent({
                 rotation: { x: 0, y: -0.5, z: 0 },
                 dimensions: { x: 1, y: 1, z: 1 },
                 color: { r: 1, g: 0.58, b: 0.86 }
-            }, {}).then((result) => {
-                this.$store.state.Entities.deleteEntityById(this.scene, entityToDeleteID);
             });
+            this.$store.state.entities.deleteEntityById(aScene, entityToDeleteID);
 
-            this.$store.state.Entities.addEntity(this.scene, {
+            await this.$store.state.entities.addEntity(aScene, {
                 name: "entityToDeleteByName",
                 type: "Shape",
                 shape: "triangle",
@@ -142,20 +142,18 @@ export default defineComponent({
                 rotation: { x: 0, y: -0.5, z: 0 },
                 dimensions: { x: 1, y: 1, z: 1 },
                 color: { r: 1, g: 0.58, b: 0.86 }
-            }, {}).then((result) => {
-                this.$store.state.Entities.deleteEntityByName(this.scene, "entityToDeleteByName");
             });
+            this.$store.state.entities.deleteEntityByName(aScene, "entityToDeleteByName");
 
-            this.$store.state.Entities.addEntity(this.scene, {
+            await this.$store.state.entities.addEntity(aScene, {
                 name: "fox",
                 type: "Model",
                 modelUrl: "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Fox/glTF/Fox.gltf",
                 position: { x: 5, y: 0, z: 0 },
                 rotation: { x: 0, y: -0.5, z: 0 },
                 dimensions: { x: 0.05, y: 0.05, z: 0.05 }
-            }, {}).then((result) => {
-                console.info(this.scene.rootNodes);
             });
+            console.info(this.scene.rootNodes);
         },
 
         renderLoop() {
@@ -163,18 +161,19 @@ export default defineComponent({
         }
     },
 
-    created: function (): boolean {
-        return (typeof this.scene !== "undefined");
+    created: function(): boolean {
+        return Boolean(this.scene);
     },
 
-    mounted: function () {
-        const canvas = this.$refs.renderCanvas;
+    mounted: async function() {
+        const canvas = this.$refs.renderCanvas as HTMLCanvasElement;
 
         this.engine = new BABYLON.Engine(canvas);
-        this.scene = new BABYLON.Scene(this.engine);
+        this.scene = new BABYLON.Scene(this.engine as BABYLON.Engine);
 
-        this.buildScene();
+        await this.buildScene();
 
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         this.engine.runRenderLoop(this.renderLoop);
     }
 });

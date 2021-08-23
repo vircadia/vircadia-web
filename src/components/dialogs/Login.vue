@@ -46,14 +46,16 @@
     </q-card-section>
 </template>
 
-<script>
-import MetaverseLogin from '../components/login/MetaverseLogin.vue';
-import MetaverseRegister from '../components/login/MetaverseRegister.vue';
+<script lang="ts">
+import { defineComponent } from "vue";
 
-export default {
-    name: 'Login',
+import MetaverseLogin from "../components/login/MetaverseLogin.vue";
+import MetaverseRegister from "../components/login/MetaverseRegister.vue";
 
-    emits: ['closeDialog'],
+export default defineComponent({
+    name: "Login",
+
+    emits: ["closeDialog"],
 
     components: {
         MetaverseLogin,
@@ -61,13 +63,13 @@ export default {
     },
 
     data: () => ({
-        tab: 'metaverseLogin'
+        tab: "metaverseLogin"
     }),
 
     methods: {
-        onMetaverseRegister () {
-            this.tab = 'metaverseLogin';
+        onMetaverseRegister() {
+            this.tab = "metaverseLogin";
         }
     }
-};
+});
 </script>

@@ -3,18 +3,18 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
-import { StateInterface } from "../index";
+import { IRootState } from "../index";
 import { Module, ActionTree, GetterTree, MutationTree } from "vuex";
 
 // Base state
-export interface MetaverseStateInterface {
+export interface IMetaverseState {
     name: string;
     nickname: string;
     server: string;
     iceServer: string | undefined ;
     serverVersion: string | undefined ;
 }
-function state(): MetaverseStateInterface {
+function state(): IMetaverseState {
     return {
         name: "",
         nickname: "",
@@ -25,27 +25,27 @@ function state(): MetaverseStateInterface {
 }
 
 // Getters
-const getters: GetterTree<MetaverseStateInterface, StateInterface> = {
+const getters: GetterTree<IMetaverseState, IRootState> = {
     someGetter(/* context */) {
         // your code
     }
 };
 
 // Actions
-const actions: ActionTree<MetaverseStateInterface, StateInterface> = {
+const actions: ActionTree<IMetaverseState, IRootState> = {
     someAction(/* context */) {
         // your code
     }
 };
 
 // Mutations
-const mutations: MutationTree<MetaverseStateInterface> = {
-    someMutation(/* state: MetaverseStateInterface */) {
+const mutations: MutationTree<IMetaverseState> = {
+    someMutation(/* state: IMetaverseState */) {
         // your code
     }
 };
 
-const MetaverseModule: Module<MetaverseStateInterface, StateInterface> = {
+export const MetaverseModule: Module<IMetaverseState, IRootState> = {
     namespaced: true,
     state,
     actions,

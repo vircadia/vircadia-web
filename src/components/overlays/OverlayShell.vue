@@ -152,7 +152,7 @@ export default defineComponent({
         canResizeHeight: { type: Boolean, default: true },
         dragMoveDebounce: { type: Number, default: 10 },
         // Info from parent/manager
-        managerProps: { type: Object, default: () => ({}) },
+        managerProps: { type: Object, default: () => ({}) }
         // parentSize: { type: Object, required: true }
     },
 
@@ -165,8 +165,8 @@ export default defineComponent({
         // Internal
         overlayStatus: "restored",
         hovered: false,
-        dragAction: undefined,
-        dragStart: undefined,
+        dragAction: "UNKNOWN",
+        dragStart: { x: 0, y: 0 },
         mouseCaptured: false,
         onDragMoveReady: true
     }),
@@ -174,10 +174,15 @@ export default defineComponent({
     watch: {
         mouseCaptured(newVal: string) {
             if (newVal) {
+                // TODO: what is 'newVal' telling us that all settings are to 'true'?
+                // eslint-disable-next-line @typescript-eslint/unbound-method
                 document.addEventListener("mousemove", this.onDragMove, true);
+                // eslint-disable-next-line @typescript-eslint/unbound-method
                 document.addEventListener("mouseup", this.onDragDone, true);
             } else {
+                // eslint-disable-next-line @typescript-eslint/unbound-method
                 document.removeEventListener("mousemove", this.onDragMove, true);
+                // eslint-disable-next-line @typescript-eslint/unbound-method
                 document.removeEventListener("mouseup", this.onDragDone, true);
             }
         },
@@ -241,7 +246,7 @@ export default defineComponent({
             return { top, left, width, height };
         },
 
-        beginAction(event, action: string) {
+        beginAction(event: MouseEvent, action: string) {
             if (this.dragAction) {
                 return;
             }
@@ -250,8 +255,12 @@ export default defineComponent({
             this.mouseCaptured = true;
         },
 
-        applyDrag(pageX: number, pageY: number) {
-            if (!this.dragAction || !this.dragStart) return; // shouldn't be here, get out now
+        applyDrag(pageX: number, pageY: number): void {
+            // TODO: the logic if 'dragAction' needs work. Value is string?
+            if (!this.dragAction || !this.dragStart) {
+                // shouldn't be here, get out now
+                return;
+            }
             const behavior = this.dragBehavior(this.dragAction);
             let offsetX = pageX - this.dragStart.x;
             let offsetY = pageY - this.dragStart.y;
@@ -284,7 +293,7 @@ export default defineComponent({
             this.dragStart = { x: pageX, y: pageY };
         },
 
-        onDragMove (event) {
+        onDragMove(event: MouseEvent) {
             if (this.onDragMoveReady) {
                 this.applyDrag(event.screenX, event.screenY);
                 this.onDragMoveReady = false;
@@ -297,22 +306,24 @@ export default defineComponent({
             event.stopPropagation();
         },
 
-        onDragDone (event) {
+        onDragDone(event: MouseEvent) {
             this.applyDrag(event.screenX, event.screenY);
             this.mouseCaptured = false;
-            this.dragAction = undefined;
-            this.dragStart = undefined;
+            this.dragAction = "UNKNOWN";
+            this.dragStart = { x: 0, y: 0 };
 
             event.preventDefault();
             event.stopPropagation();
         }
     },
 
-    unmounted () {
+    unmounted() {
         if (this.mouseCaptured) {
-            document.removeEventListener('mousemove', this.onDragMove, true);
-            document.removeEventListener('mouseup', this.onDragDone, true);
+            // eslint-disable-next-line @typescript-eslint/unbound-method
+            document.removeEventListener("mousemove", this.onDragMove, true);
+            // eslint-disable-next-line @typescript-eslint/unbound-method
+            document.removeEventListener("mouseup", this.onDragDone, true);
         }
     }
-};
+});
 </script>

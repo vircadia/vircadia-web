@@ -49,45 +49,52 @@
 </template>
 
 <script lang="ts">
-export default {
-    name: 'MetaverseLogin',
+import { defineComponent } from "vue";
+export default defineComponent({
+    name: "MetaverseLogin",
 
-    emits: ['closeDialog'],
+    emits: ["closeDialog"],
 
     data: () => ({
-        username: '',
-        password: '',
+        username: "",
+        password: "",
         showPassword: false
     }),
 
     methods: {
-        async onSubmit () {
+        // the following 'disable' is here because of the commented await. Remove when implemented.
+        // eslint-disable-next-line @typescript-eslint/require-await
+        async onSubmit() {
             try {
-                const result = await this.$store.state.Metaverse.login(this.$store.state.metaverseConfig.server, this.username, this.password);
-                this.$store.state.Metaverse.commitLogin(this.username, result);
+                // TODO: implement Metaverse class/component/instance
+                // const result = await this.$store.state.Metaverse.login(
+                //     this.$store.state.metaverseConfig.server, this.username, this.password);
+                // this.$store.state.Metaverse.commitLogin(this.username, result);
 
                 this.$q.notify({
-                    type: 'positive',
-                    textColor: 'white',
-                    icon: 'cloud_done',
-                    message: 'Welcome ' + this.username + '.'
+                    type: "positive",
+                    textColor: "white",
+                    icon: "cloud_done",
+                    message: "Welcome " + this.username + "."
                 });
 
-                this.$emit('closeDialog');
+                this.$emit("closeDialog");
             } catch (result) {
+                // TODO: what is the type of "result"? Define the fields
                 this.$q.notify({
-                    type: 'negative',
-                    textColor: 'white',
-                    icon: 'warning',
-                    message: 'Login attempted failed: ' + result.error
+                    type: "negative",
+                    textColor: "white",
+                    icon: "warning",
+                    // message: "Login attempted failed: " + result.error
+                    message: "Login attempted failed: " + (result as string)
                 });
             }
         },
 
-        onReset () {
-            this.username = '';
-            this.password = '';
+        onReset() {
+            this.username = "";
+            this.password = "";
         }
     }
-};
+});
 </script>

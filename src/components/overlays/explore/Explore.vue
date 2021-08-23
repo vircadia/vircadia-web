@@ -48,9 +48,19 @@
                 class="col"
             >
                 <q-list style="max-Width: 400px;" :showing="!loading">
-                    <q-item v-for="place in filteredAndSortedData" :key="place.placeId" clickable v-ripple @click="openLocation(place.address)">
+                    <q-item v-for="place in filteredAndSortedData"
+                            :key="place.placeId"
+                            clickable
+                            v-ripple
+                            @click="openLocation(place.address)">
                         <q-item-section side top>
-                            <q-btn round color="white" icon="fas fa-info"  clickable @click.stop="openDetails(place)" class="text-purple" size="10px"/>
+                            <q-btn round
+                                color="white"
+                                icon="fas fa-info"
+                                clickable
+                                @click.stop="openDetails(place)"
+                                class="text-purple"
+                                size="10px"/>
                         </q-item-section>
 
                         <q-item-section top>
@@ -60,7 +70,7 @@
 
                         <q-item-section side top>
                             <q-badge color="white" text-color="black">
-                                {{ place.current_attendance }}
+                                {{ place.currentAttendance }}
                                 <q-icon
                                 name="people"
                                 size="14px"
@@ -78,11 +88,21 @@
     </OverlayShell>
 </template>
 
-<script>
-import OverlayShell from '../OverlayShell.vue';
+<script lang="ts">
+import { defineComponent } from "vue";
 
-export default {
-    name: 'Explore',
+import OverlayShell from "../OverlayShell.vue";
+
+export interface PlaceEntry {
+    name: string;
+    placeId: string;
+    address: string;
+    description: string;
+    currentAttendance: number;
+}
+
+export default defineComponent({
+    name: "Explore",
 
     props: {
         // Primary
@@ -93,25 +113,25 @@ export default {
         OverlayShell
     },
 
-    data: () => ({
-        placesList: [],
-        loading: false,
-        filterText: ''
-    }),
+    data() {
+        return {
+            placesList: [] as PlaceEntry[],
+            loading: false,
+            filterText: ""
+        };
+    },
 
     computed: {
-        filteredAndSortedData: function () {
+        filteredAndSortedData: function(): PlaceEntry[] {
             let returnData = this.placesList;
 
-            returnData = returnData.filter((item) => {
-                return (!item.name.toLowerCase().indexOf(this.filterText.toLowerCase()));
-            });
+            returnData = returnData.filter((item) => !item.name.toLowerCase().indexOf(this.filterText.toLowerCase()));
 
             returnData = returnData.sort((a, b) => {
-                if (a.current_attendance > b.current_attendance) {
+                if (a.currentAttendance > b.currentAttendance) {
                     return -1;
                 }
-                if (a.current_attendance < b.current_attendance) {
+                if (a.currentAttendance < b.currentAttendance) {
                     return 1;
                 }
                 if (a.name.toLowerCase() < b.name.toLowerCase()) {
@@ -128,27 +148,31 @@ export default {
     },
 
     methods: {
-        async loadPlacesList () {
+        // This next 'disable' is because of the commented out call to Explore. Remove when coded.
+        // eslint-disable-next-line @typescript-eslint/require-await
+        async loadPlacesList(): Promise<void> {
             this.loading = true;
-            const placesResult = await this.$store.state.Explore.retrievePlaces();
+            // TODO: figure out Explore updates and class instance
+            // const placesResult = await this.$store.state.Explore.retrievePlaces();
+            const placesResult = new Array<PlaceEntry>();
             this.placesList = placesResult;
             this.loading = false;
         },
 
-        openLocation (path) {
-            alert('Not currently implemented: Open location - ' + path);
+        openLocation(path: string): void {
+            alert("Not currently implemented: Open location - " + path);
         },
 
-        openDetails (place) {
-            alert('Not currently implemented: Show details - ' + place.name);
+        openDetails(place: PlaceEntry): void {
+            alert("Not currently implemented: Show details - " + place.name);
         }
     },
 
-    created: function () {
-        this.loadPlacesList();
-    },
-
-    mounted: function () {
+    created: async function(): Promise<void> {
+        await this.loadPlacesList();
     }
-};
+
+    // mounted: function () {
+    // }
+});
 </script>

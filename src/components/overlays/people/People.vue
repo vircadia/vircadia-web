@@ -71,11 +71,22 @@
     </OverlayShell>
 </template>
 
-<script>
-import OverlayShell from '../OverlayShell.vue';
+<script lang="ts">
+import { defineComponent } from "vue";
 
-export default {
-    name: 'People',
+import OverlayShell from "../OverlayShell.vue";
+
+export interface PeopleEntry {
+    displayName: string;
+    username: string;
+    sessionUUID: string;
+    volume: number;
+    muted: boolean;
+    admin: boolean;
+}
+
+export default defineComponent({
+    name: "People",
 
     props: {
         // Primary
@@ -92,20 +103,20 @@ export default {
     },
 
     data: () => ({
-        peopleList: [],
+        peopleList: [] as PeopleEntry[],
         testLocal: [
             {
-                displayName: 'Hallo',
-                username: 'nani',
-                sessionUUID: '{123e4567-e89b-12d3-a456-426614174000}',
+                displayName: "Hallo",
+                username: "nani",
+                sessionUUID: "{123e4567-e89b-12d3-a456-426614174000}",
                 volume: 100,
                 muted: true,
                 admin: false
             },
             {
-                displayName: 'Waifu',
-                username: 'testerino',
-                sessionUUID: '{56556655-12d3-12d3-a456-426614174000}',
+                displayName: "Waifu",
+                username: "testerino",
+                sessionUUID: "{56556655-12d3-12d3-a456-426614174000}",
                 volume: 90,
                 muted: false,
                 admin: true
@@ -113,17 +124,17 @@ export default {
         ],
         testPreview: [
             {
-                displayName: 'World',
-                username: 'preview',
-                sessionUUID: '{65464565-12d3-12d3-a456-426614174000}',
+                displayName: "World",
+                username: "preview",
+                sessionUUID: "{65464565-12d3-12d3-a456-426614174000}",
                 volume: 100,
                 muted: true,
                 admin: false
             },
             {
-                displayName: 'Preview',
-                username: 'world',
-                sessionUUID: '{76566666-12d3-12d3-a456-426614174000}',
+                displayName: "Preview",
+                username: "world",
+                sessionUUID: "{76566666-12d3-12d3-a456-426614174000}",
                 volume: 90,
                 muted: false,
                 admin: true
@@ -131,17 +142,17 @@ export default {
         ],
         testFriends: [
             {
-                displayName: 'We',
-                username: 'wut',
-                sessionUUID: '{96666687-12d3-12d3-a456-426614174000}',
+                displayName: "We",
+                username: "wut",
+                sessionUUID: "{96666687-12d3-12d3-a456-426614174000}",
                 volume: 100,
                 muted: true,
                 admin: false
             },
             {
-                displayName: 'RFriends',
-                username: 'hay',
-                sessionUUID: '{43999992-12d3-12d3-a456-426614174000}',
+                displayName: "RFriends",
+                username: "hay",
+                sessionUUID: "{43999992-12d3-12d3-a456-426614174000}",
                 volume: 90,
                 muted: false,
                 admin: true
@@ -149,17 +160,17 @@ export default {
         ],
         testConnections: [
             {
-                displayName: 'Nice',
-                username: 'to',
-                sessionUUID: '{654-12d3-12d3-a456-426614174000}',
+                displayName: "Nice",
+                username: "to",
+                sessionUUID: "{654-12d3-12d3-a456-426614174000}",
                 volume: 100,
                 muted: true,
                 admin: false
             },
             {
-                displayName: 'Meet',
-                username: 'you',
-                sessionUUID: '{321-12d3-12d3-a456-426614174000}',
+                displayName: "Meet",
+                username: "you",
+                sessionUUID: "{321-12d3-12d3-a456-426614174000}",
                 volume: 90,
                 muted: false,
                 admin: true
@@ -171,7 +182,7 @@ export default {
     },
 
     methods: {
-        loadPeopleList () {
+        loadPeopleList() {
             if (this.localWorld === true) {
                 this.peopleList = this.testLocal;
             } else if (this.previewWorld) {
@@ -183,27 +194,26 @@ export default {
             }
         },
 
-        getProfilePicture (username) {
+        getProfilePicture(username: string): string | null {
             // Should store profile pictures after retrieving and then pull each
             // subsequent one from cache instead of hitting metaverse every time.
 
             // This is filler functionality to enable the UI to be developed more correctly now.
-            if (username === 'testerino') {
-                return 'https://cdn.quasar.dev/img/avatar4.jpg';
-            } else {
-                return false;
+            if (username === "testerino") {
+                return "https://cdn.quasar.dev/img/avatar4.jpg";
             }
+            return null;
         }
     },
 
-    created: function () {
+    created: function() {
         // By default, the people list will load a list of people in your world.
         // However, in the future the list can and should be reused to load lists
         // of friends, previews of users in worlds, etc.
         this.loadPeopleList();
-    },
-
-    mounted: function () {
     }
-};
+
+    // mounted: function () {
+    // }
+});
 </script>

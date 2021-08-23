@@ -18,7 +18,7 @@
     >
         <q-card
             class="column full-height"
-            v-if="$store.state.Audio.input"
+            v-if="$store.state.audio.input"
         >
 
             <q-tabs
@@ -42,8 +42,8 @@
                                 <q-btn
                                     fab
                                     class="q-mr-sm"
-                                    :color="$store.state.Audio.input.hasInputAccess ? 'primary' : 'red'"
-                                    :icon="$store.state.Audio.input.hasInputAccess ? 'mic' : 'mic_off'"
+                                    :color="$store.state.audio.input.hasInputAccess ? 'primary' : 'red'"
+                                    :icon="$store.state.audio.input.hasInputAccess ? 'mic' : 'mic_off'"
                                     @click="micToggled"
                                 />
                             </div>
@@ -53,7 +53,7 @@
                                     v-if="selectedInputStore"
                                     class="text-subtitle1 items-center"
                                 >
-                                    Using {{ selectedInputStore.label }}
+                                    Using {{ selectedInputStore }}
                                 </span>
 
                                 <span
@@ -66,7 +66,7 @@
                         </div>
 
                         <div
-                            v-show="$store.state.Audio.input.hasInputAccess"
+                            v-show="$store.state.audio.input.hasInputAccess"
                             class="row q-mt-sm"
                         >
                             <q-btn
@@ -74,7 +74,7 @@
                                 dense
                                 round
                                 class="q-mr-sm"
-                                :disabled="!$store.state.Audio.input.hasInputAccess"
+                                :disabled="!$store.state.audio.input.hasInputAccess"
                                 :color="isListeningToFeedback ? 'primary' : 'red'"
                                 :icon="isListeningToFeedback ? 'hearing' : 'hearing_disabled'"
                                 @click="toggleInputFeedback"
@@ -102,14 +102,14 @@
                         />
 
                         <div
-                            v-if="$store.state.Audio.input.hasInputAccess === false"
+                            v-if="$store.state.audio.input.hasInputAccess === false"
                             class="text-subtitle1 text-grey text-center"
                         >
                             Please grant mic access to the app in order to speak.
                         </div>
 
                         <q-list v-else>
-                            <div v-for="input in $store.state.Audio.input.inputsList" :key="input.deviceId">
+                            <div v-for="input in $store.state.audio.input.inputsList" :key="input.deviceId">
                                 <q-item v-show="input.label" tag="label" v-ripple>
                                     <q-item-section avatar>
                                         <q-radio
@@ -134,17 +134,24 @@
             </q-scroll-area>
         </q-card>
 
-        <q-inner-loading :showing="!$store.state.Audio.input">
+        <q-inner-loading :showing="!$store.state.audio.input">
             <q-spinner-gears size="50px" color="primary" />
         </q-inner-loading>
     </OverlayShell>
 </template>
 
-<script>
-import OverlayShell from '../OverlayShell.vue';
+<script lang="ts">
+import { defineComponent } from "vue";
 
-export default {
-    name: 'Audio',
+import OverlayShell from "../OverlayShell.vue";
+
+export default defineComponent({
+    name: "Audio",
+
+    // This is a solution mentioned on the net but it doesn't seem to work. More research needed.
+    $refs!: {   // definition to make this.$ref work with TypeScript
+        audioInputFeedbackPlayer: HTMLMediaElement
+    },
 
     props: {
         propsToPass: { type: Object, default: () => ({}), required: false }
@@ -155,69 +162,76 @@ export default {
     },
 
     data: () => ({
-        tab: 'input',
+        tab: "input",
         isListeningToFeedback: false
     }),
 
     computed: {
         selectedInputStore: {
-            get () {
-                return this.$store.state.Audio.input.currentInputDevice;
+            get: function(): string {
+                // TODO: Fix when Audio is added to $store
+                return this.$store.state.audio.input.currentInputDevice;
             },
-            set () {
+            set: function() {
                 // @click will set for us...
             }
         }
     },
 
     methods: {
-        setAudioInputStream: function (stream) {
-            if (!this.$refs.audioInputFeedbackPlayer) return;
+        setAudioInputStream: function(pStream: string | MediaStream): void {
+            if (!this.$refs.audioInputFeedbackPlayer) {
+                return;
+            }
 
-            if (window.URL) {
-                this.$refs.audioInputFeedbackPlayer.srcObject = stream;
+            // if (window.URL) {
+            if (typeof pStream === "string") {
+                (this.$refs.audioInputFeedbackPlayer as HTMLMediaElement).src = pStream;
             } else {
-                this.$refs.audioInputFeedbackPlayer.src = stream;
+                (this.$refs.audioInputFeedbackPlayer as HTMLMediaElement).srcObject = pStream;
             }
         },
 
-        requestInputAccess: function () {
-            this.$store.state.Audio.input.requestInputAccess()
-                .then(this.setAudioInputStream);
+        requestInputAccess: function() {
+            const inputStream = this.$store.state.audio.input.requestInputAccess();
+            this.setAudioInputStream(inputStream);
         },
 
-        requestSpecificInputAccess: function (deviceId) {
-            this.$store.state.Audio.input.requestSpecificInputAccess(deviceId)
-                .then(this.setAudioInputStream);
+        requestSpecificInputAccess: function(deviceId: string) {
+            const inputStream = this.$store.state.audio.input.requestSpecificInputAccess(deviceId);
+            this.setAudioInputStream(inputStream);
         },
 
-        micToggled: function () {
-            if (this.$store.state.Audio.input.hasInputAccess === true) {
+        micToggled: function() {
+            if (this.$store.state.audio.input.hasInputAccess === true) {
                 // Should mute/unmute
             } else {
                 this.requestInputAccess();
             }
         },
 
-        toggleInputFeedback: function () {
+        toggleInputFeedback: function() {
             this.isListeningToFeedback = !this.isListeningToFeedback;
 
             if (this.isListeningToFeedback === true) {
-                this.$refs.audioInputFeedbackPlayer.muted = false;
-                this.$refs.audioInputFeedbackPlayer.play();
+                (this.$refs.audioInputFeedbackPlayer as HTMLMediaElement).muted = false;
+                // eslint-disable-next-line no-void
+                void (this.$refs.audioInputFeedbackPlayer as HTMLMediaElement).play();
             } else {
-                this.$refs.audioInputFeedbackPlayer.pause();
+                (this.$refs.audioInputFeedbackPlayer as HTMLMediaElement).pause();
             }
         }
     },
 
-    created: function () {
-    },
+    // created: function () {
+    // },
 
-    mounted: function () {
+    mounted: function(): void {
+        /* commented out to wait for implementation
         this.$nextTick(() => {
             this.requestInputAccess();
         });
+        */
     }
-};
+});
 </script>

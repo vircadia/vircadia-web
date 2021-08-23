@@ -104,7 +104,7 @@
                         v-else
                         clickable
                         v-ripple
-                        @click="$refs.OverlayManager.openOverlay('Account')"
+                        @click="onClickOpenOverlay('Account')"
                     >
                         <q-item-section avatar>
                             <q-icon name="account_circle" />
@@ -126,7 +126,8 @@
                             v-else
                             clickable
                             v-ripple
-                            @click="menuItem.action ? menuItem.action : $refs.OverlayManager.openOverlay(menuItem.link || menuItem.label)"
+                            @click="menuItem.action ? menuItem.action
+                                : onClickOpenOverlay(menuItem.link || menuItem.label)"
                         >
                             <q-item-section avatar>
                                 <q-icon :name="menuItem.icon" />
@@ -151,7 +152,7 @@
 
         <!-- <component @close-dialog="closeDialog" v-if="dialog.show" v-bind:is="dialog.which"></component> -->
 
-        <q-dialog v-model="dialogState">
+        <q-dialog v-model="getDialogState">
             <q-card
                 class="column no-wrap items-stretch q-pa-md"
                 style="background: rgba(0, 0, 0, 0.8);"
@@ -164,6 +165,7 @@
 </template>
 
 <script lang="ts">
+
 import { defineComponent } from "vue";
 
 // Components
@@ -172,6 +174,11 @@ import OverlayManager from "../components/overlays/OverlayManager.vue";
 
 export default defineComponent({
     name: "MainLayout",
+
+    $refs!: {   // definition to make this.$ref work with TypeScript
+        MainScene: HTMLFormElement,
+        OverlayManager: HTMLFormElement
+    },
 
     components: {
         MainScene,
@@ -234,39 +241,35 @@ export default defineComponent({
     },
 
     computed: {
-        dialogState: {
-            get():boolean {
-                return this.$store.state.dialog.show;
-            },
-            set(newValue: boolean) {
-                this.$store.commit("mutate", {
-                    property: "dialog",
-                    update: true,
-                    with: {
-                        show: newValue
-                    }
-                });
-            }
+        getDialogState: function(): boolean {
+            return this.$store.state.dialog.show;
         },
 
-        getLocation: function() {
+        getLocation: function(): string {
             if (this.$store.state.location.current) {
                 return this.$store.state.location.current;
-            } else {
-                return this.$store.state.location.state;
             }
+            return this.$store.state.location.state;
         },
 
         getProfilePicture: function() {
             if (this.$store.state.account.images && this.$store.state.account.images.thumbnail) {
                 return this.$store.state.account.images.thumbnail;
-            } else {
-                return "../assets/vircadia-icon.svg";
             }
+            return "../assets/vircadia-icon.svg";
         }
     },
 
     methods: {
+        setDialogState: function(newValue: boolean) {
+            this.$store.commit("mutate", {
+                property: "dialog",
+                update: true,
+                with: {
+                    show: newValue
+                }
+            });
+        },
         // Drawers
         toggleUserMenu: function(): void {
             this.userMenuOpen = !this.userMenuOpen;
@@ -284,7 +287,8 @@ export default defineComponent({
         // Metaverse
 
         logout: function() {
-            this.$store.state.Metaverse.logout();
+            // TODO: figure out how Metaverse class instance is initialized
+            // this.$store.state.Metaverse.logout();
         },
 
         // Dialog Handling
@@ -304,7 +308,7 @@ export default defineComponent({
                 update: true,
                 with: {
                     "show": shouldShow,
-                    "which": which
+                    "which": ""
                 }
             });
         },
@@ -318,6 +322,12 @@ export default defineComponent({
                     "which": ""
                 }
             });
+        },
+        // Next 'disable' is to remove error from commented "this.$refs...". Remove when recoded
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        onClickOpenOverlay: function(pOverlay: string) {
+            // TODO: figure out how to access the OverlayManager component
+            // this.$refs.OverlayManager.openOverlay(pOverlay);
         }
     }
 });

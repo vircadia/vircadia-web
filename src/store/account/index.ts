@@ -8,13 +8,44 @@ import { Module, ActionTree, GetterTree, MutationTree } from "vuex";
 
 // Base state
 export interface IAccountState {
+    username: string;
     connected: boolean;
-    input: string | undefined ;
+    isLoggedIn: boolean;
+    input: Nullable<string>;
+    // Token data
+    accessToken: string;
+    refreshToken: string;
+    tokenType: string;
+    createdAt: number;
+    expiresIn: number;
+    scope: string;
+    // Options
+    isAdmin: boolean;
+    useAsAdmin: boolean;
+    // Profile
+    images: {
+        hero?: string;
+        tiny?: string;
+        thumbnail?: string;
+    }
 }
 function state(): IAccountState {
     return {
+        username: "UNKNOWN",
         connected: false,
-        input: undefined
+        isLoggedIn: false,
+        input: undefined,
+        accessToken: "UNKNOWN",
+        refreshToken: "UNKNOWN",
+        tokenType: "bearer",
+        createdAt: 0,
+        expiresIn: 0,
+        scope: "UNKNOWN",
+
+        isAdmin: false,
+        useAsAdmin: false,
+
+        images: {}
     };
 }
 
@@ -39,12 +70,10 @@ const mutations: MutationTree<IAccountState> = {
     }
 };
 
-const AccountState: Module<IAccountState, IRootState> = {
+export const AccountModule: Module<IAccountState, IRootState> = {
     namespaced: true,
     state,
     actions,
     getters,
     mutations
 };
-
-export default AccountState;

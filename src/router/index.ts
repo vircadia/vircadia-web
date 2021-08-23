@@ -5,7 +5,7 @@ import {
     createWebHashHistory,
     createWebHistory
 } from "vue-router";
-import { StateInterface } from "../store";
+import { IRootState } from "../store";
 import routes from "./routes";
 
 /*
@@ -17,7 +17,7 @@ import routes from "./routes";
  * with the Router instance.
  */
 
-export default route<StateInterface>(function (/* { store, ssrContext } */) {
+export default route<IRootState>(function(/* { store, ssrContext } */) {
     // eslint-disable-next-line no-nested-ternary
     const createHistory = process.env.SERVER
         ? createMemoryHistory

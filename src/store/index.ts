@@ -1,15 +1,17 @@
 import { store } from "quasar/wrappers";
-import Vue, { InjectionKey } from "vue";
-import Vuex, {
+import { Entities } from "src/modules/entities/entities";
+import { InjectionKey } from "vue";
+import {
     createStore,
-    StoreOptions,
     Store as VuexStore,
     useStore as vuexUseStore
 } from "vuex";
 
 import packageInfo from "../../package.json";
 
-import AccountState from "./account";
+import { AccountModule, IAccountState } from "./account";
+import { AudioModule, IAudioState } from "./audio";
+import { MetaverseModule, IMetaverseState } from "./metaverse";
 
 // import example from "./module-example"
 // import { ExampleStateInterface } from "./module-example/state";
@@ -47,6 +49,10 @@ export interface IRootState {
             }
         ]
     },
+    dialog: {
+        which: string;
+        show: boolean;
+    },
     error: {
         title: string,
         code: string,
@@ -55,10 +61,14 @@ export interface IRootState {
     location: {
         current: string,
         state: string
-    }
+    },
+    audio: IAudioState,
+    metaverse: IMetaverseState,
+    entities: Entities,
+    account: IAccountState
 }
 
-export default store(function (/* { ssrContext } */) {
+export default store(function(/* { ssrContext } */) {
     const Store = createStore<IRootState>({
         state: () => ({
             globalConsts: {
@@ -80,13 +90,25 @@ export default store(function (/* { ssrContext } */) {
                 code: "",
                 full: ""
             },
+            dialog: {
+                which: "NONE",
+                show: false
+            },
             location: {
                 current: "",
                 state: "Not Connected"
-            }
+            },
+            audio: {} as IAudioState,
+            entities: new Entities(),
+            metaverse: {} as IMetaverseState,
+            account: {} as IAccountState
         }),
+        // by adding the modules here, Vuex will initalize them, link them
+        //     into the event tree, and load the module name variable.
         modules: {
-            account: AccountState
+            account: AccountModule,
+            metaverse: MetaverseModule,
+            audio: AudioModule
         },
         // enable strict mode (adds overhead!)
         // for dev mode and --debug builds only

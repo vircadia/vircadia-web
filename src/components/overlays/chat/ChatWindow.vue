@@ -67,11 +67,14 @@
     </OverlayShell>
 </template>
 
-<script>
-import OverlayShell from '../OverlayShell.vue';
+<script lang="ts">
 
-export default {
-    name: 'ChatWindow',
+import { defineComponent } from "vue";
+
+import OverlayShell from "../OverlayShell.vue";
+
+export default defineComponent({
+    name: "ChatWindow",
 
     props: {
         propsToPass: { type: Object, default: () => ({}) }
@@ -82,38 +85,38 @@ export default {
     },
 
     data: () => ({
-        messageInput: '',
+        messageInput: "",
         // The reason for using "self" instead of checking if the username matches our own
         // is because a user may write chat messages as a guest. Checking "displayName"
-        // won't help much either as anyone can choose any display name and cause confusion.
+        // won"t help much either as anyone can choose any display name and cause confusion.
         worldChatHistory: [
             {
-                displayName: 'Hallo',
-                username: 'nani',
+                displayName: "Hallo",
+                username: "nani",
                 self: false,
-                timestamp: (new Date()).toString(),
-                message: 'Hi, hru?'
+                timestamp: new Date().toString(),
+                message: "Hi, hru?"
             },
             {
-                displayName: 'Waifu',
-                username: 'testerino',
+                displayName: "Waifu",
+                username: "testerino",
                 self: true,
-                timestamp: (new Date()).toString(),
-                message: 'Sup holmes.'
+                timestamp: new Date().toString(),
+                message: "Sup holmes."
             },
             {
-                displayName: 'Hallo',
-                username: 'nani',
+                displayName: "Hallo",
+                username: "nani",
                 self: false,
-                timestamp: (new Date()).toString(),
-                message: 'nammuch you?'
+                timestamp: new Date().toString(),
+                message: "nammuch you?"
             },
             {
-                displayName: 'Waifu',
-                username: 'testerino',
+                displayName: "Waifu",
+                username: "testerino",
                 self: true,
-                timestamp: (new Date()).toString(),
-                message: 'you know the life.'
+                timestamp: new Date().toString(),
+                message: "you know the life."
             }
         ]
     }),
@@ -122,23 +125,22 @@ export default {
     },
 
     methods: {
-        getProfilePicture (username) {
+        getProfilePicture(username: string): string | null {
             // Should store profile pictures after retrieving and then pull each
             // subsequent one from cache instead of hitting metaverse every time.
 
             // This is filler functionality to enable the UI to be developed more correctly now.
-            if (username === 'testerino') {
-                return 'https://cdn.quasar.dev/img/avatar4.jpg';
-            } else {
-                return false;
+            if (username === "testerino") {
+                return "https://cdn.quasar.dev/img/avatar4.jpg";
             }
+            return null;
         }
-    },
-
-    created: function () {
-    },
-
-    mounted: function () {
     }
-};
+
+    // created: function () {
+    // },
+
+    // mounted: function () {
+    // }
+});
 </script>
