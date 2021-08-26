@@ -8,51 +8,43 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
-type prefixMap = { [key: string]: { prefix: string } };
-
 const Log = (function() {
-    const types: prefixMap = {
-        "OTHER": {
-            "prefix": "[OTHER]"
-        },
 
-        "ENTITIES": {
-            "prefix": "[ENTITIES]"
-        },
+    enum types {
+        OTHER = "[OTHER]",
+        ENTITIES = "[ENTITIES]",
+        AUDIO = "[AUDIO]",
+        METAVERSE = "[METAVERSE]",
+        PEOPLE = "[PEOPLE]",
+        PLACES = "[PLACES]"
+    }
 
-        "AUDIO": {
-            "prefix": "[AUDIO]"
-        },
+    enum levels {
+        ERROR = "[ERROR]",
+        DEBUG = "[DEBUG]",
+        WARN = "[WARN]",
+        INFO = "[INFO]"
+    }
 
-        "METAVERSE": {
-            "prefix": "[METAVERSE]"
-        },
+    function print(pType: types, pLevel: levels, pMsg: string): void {
+        console.info(pType, pLevel, pMsg);
+    }
 
-        "PEOPLE": {
-            "prefix": "[PEOPLE]"
-        },
+    // Print out message if debugging
+    function debug(pType: types, pMsg: string) {
+        print(pType, levels.DEBUG, pMsg);
+    }
 
-        "PLACES": {
-            "prefix": "[PLACES]"
-        }
-    };
+    function error(pType: types, pMsg: string) {
+        print(pType, levels.ERROR, pMsg);
+    }
 
-    const levels: prefixMap = {
-        "ERROR": {
-            "prefix": "[ERROR]"
-        },
+    function warn(pType: types, pMsg: string) {
+        print(pType, levels.WARN, pMsg);
+    }
 
-        "WARN": {
-            "prefix": "[WARN]"
-        },
-
-        "INFO": {
-            "prefix": "[INFO]"
-        }
-    };
-
-    function print(type:string, level:string, pMsg: string): void {
-        console.info(types[type].prefix, levels[level].prefix, pMsg);
+    function info(pType: types, pMsg: string) {
+        print(pType, levels.INFO, pMsg);
     }
 
     return {
@@ -60,7 +52,11 @@ const Log = (function() {
         types,
         levels,
         // Functions
-        print
+        print,
+        debug,
+        error,
+        warn,
+        info
     };
 }());
 

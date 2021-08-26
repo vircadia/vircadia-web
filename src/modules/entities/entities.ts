@@ -14,7 +14,6 @@
 import * as BABYLON from "babylonjs";
 import "babylonjs-loaders";
 // General Modules
-import Debug from "../debugging/debug";
 import Log from "../debugging/log";
 // System Modules
 import { v4 as uuidv4 } from "uuid";
@@ -50,7 +49,7 @@ export class Entities {
 
     async addEntity(scene: BABYLON.Scene, properties: entityProps): Promise<Nullable<string>> {
         if (!properties.type) {
-            Debug.error("ENTITIES", "Failed to specify entity type.");
+            Log.error(Log.types.ENTITIES, "Failed to specify entity type.");
             return null;
         }
 
@@ -76,12 +75,12 @@ export class Entities {
                     } else if (properties.shape.toLowerCase() === "triangle") {
                         entity = BABYLON.MeshBuilder.CreateCylinder(properties.name, { tessellation: 3 }, scene);
                     } else {
-                        Debug.error("ENTITIES", "Failed to create shape entity, unknown/unsupported shape type: "
+                        Log.error(Log.types.ENTITIES, "Failed to create shape entity, unknown/unsupported shape type: "
                                     + properties.shape);
                         return null;
                     }
                 } else {
-                    Debug.error("ENTITIES", "Attempted to create type Shape with no shape specified");
+                    Log.error(Log.types.ENTITIES, "Attempted to create type Shape with no shape specified");
                     return null;
                 }
                 break;
@@ -89,7 +88,7 @@ export class Entities {
                 if (properties.modelUrl) {
                     entity = await Entities.importModel(properties.name, properties.modelUrl, scene);
                 } else {
-                    Debug.error("ENTITIES", "Attempted to create type Model with no modelUrl specified");
+                    Log.error(Log.types.ENTITIES, "Attempted to create type Model with no modelUrl specified");
                     return null;
                 }
                 break;
@@ -116,13 +115,13 @@ export class Entities {
                 entity.material = colorMaterial;
             }
 
-            Log.print("ENTITIES", "INFO", "Successfully created entity: " + entity.id);
+            Log.info(Log.types.ENTITIES, "Successfully created entity: " + entity.id);
 
             this._entities.set(entity.id, entity);
 
             return entity.id;
         }
-        Debug.error("ENTITIES", "Failed to create entity.");
+        Log.error(Log.types.ENTITIES, "Failed to create entity.");
         return null;
     }
 
@@ -136,7 +135,7 @@ export class Entities {
             // eslint-disable-next-line @typescript-eslint/dot-notation
             this._entities.delete(id);
         } else {
-            Debug.error("ENTITIES", "Failed to delete entity by ID: " + id);
+            Log.error(Log.types.ENTITIES, "Failed to delete entity by ID: " + id);
         }
     }
 
@@ -150,7 +149,7 @@ export class Entities {
             this._entities.delete(entityToDelete.id);
             entityToDelete.dispose();
         } else {
-            Debug.error("ENTITIES", "Failed to delete entity by name: " + name);
+            Log.error(Log.types.ENTITIES, "Failed to delete entity by name: " + name);
         }
     }
 }

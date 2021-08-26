@@ -32,6 +32,8 @@ import { v4 as uuidv4 } from "uuid";
 import * as BABYLON from "babylonjs";
 import "babylonjs-loaders";
 
+// import Log from "../modules/debugging/log";
+
 export interface ResizeShape {
     height: number,
     width: number
