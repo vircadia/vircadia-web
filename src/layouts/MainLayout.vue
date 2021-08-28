@@ -7,7 +7,13 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 -->
-
+<!--
+    Display of the main page.
+    The page is a usual Vue page with a hidding menu bar on the left controlled by
+    an "account_circle" in the top menu bar.
+    The page top bar contains connected information.
+    Overlay dialogs are controlled by $store.state.dialog settings.
+-->
 <template>
     <q-layout class="full-height" id="mainLayout" view="lHh Lpr lFf">
         <q-header id="header" elevated>

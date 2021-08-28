@@ -4,7 +4,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 import { store } from "quasar/wrappers";
-import { Entities } from "src/modules/entities/entities";
 import { InjectionKey } from "vue";
 import {
     createStore,
@@ -17,6 +16,7 @@ import packageInfo from "../../package.json";
 import { AccountModule, IAccountState } from "./account";
 import { AudioModule, IAudioState } from "./audio";
 import { MetaverseModule, IMetaverseState } from "./metaverse";
+import { RendererModule, IRendererState } from "./renderer";
 
 // import example from "./module-example"
 // import { ExampleStateInterface } from "./module-example/state";
@@ -47,13 +47,6 @@ export interface IRootState {
     },
     debugging: KeyedCollection,
     notifications: KeyedCollection,
-    renderer: {
-        canvases: [
-            {
-                canvas: string
-            }
-        ]
-    },
     dialog: {
         which: string;
         show: boolean;
@@ -67,9 +60,10 @@ export interface IRootState {
         current: string,
         state: string
     },
+    // These fields are marked optional although Vuex fills them when modules are initialized
     audio: IAudioState,
     metaverse: IMetaverseState,
-    entities: Entities,
+    renderer: IRendererState,
     account: IAccountState
 }
 
@@ -83,13 +77,6 @@ export default store(function(/* { ssrContext } */) {
             },
             debugging: {},
             notifications: {},
-            renderer: {
-                canvases: [
-                    {
-                        canvas: ""
-                    }
-                ]
-            },
             error: {
                 title: "",
                 code: "",
@@ -104,14 +91,15 @@ export default store(function(/* { ssrContext } */) {
                 state: "Not Connected"
             },
             audio: {} as IAudioState,
-            entities: new Entities(),
             metaverse: {} as IMetaverseState,
+            renderer: {} as IRendererState,
             account: {} as IAccountState
         }),
         // by adding the modules here, Vuex will initalize them, link them
         //     into the event tree, and load the module name variable.
         modules: {
             account: AccountModule,
+            renderer: RendererModule,
             metaverse: MetaverseModule,
             audio: AudioModule
         },
