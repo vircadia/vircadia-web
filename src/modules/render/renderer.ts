@@ -32,19 +32,13 @@ export const Renderer = {
         setInterval(() => {
             if (Renderer._engine) {
                 if (Renderer._renderingScenes.length > 0 && Renderer._renderingScenes[0]) {
-                    const fps = Renderer._engine.getFps(),
-                    const cameraLocation = Renderer._renderingScenes[0]._scene.activeCamera?.globalPosition,
-                    const cameraRotation = Renderer._renderingScenes[0]._scene.activeCamera?.absoluteRotation
                     Store.commit(Mutations.MUTATE, {
                         property: "renderer",
                         update: true,
                         with: {
-                            // fps: Renderer._engine.getFps(),
-                            // cameraLocation: Renderer._renderingScenes[0]._scene.activeCamera?.globalPosition,
-                            // cameraRotation: Renderer._renderingScenes[0]._scene.activeCamera?.absoluteRotation
-                            fps,
-                            cameraLocation,
-                            cameraRotation
+                            fps: Renderer._engine.getFps(),
+                            cameraLocation: Renderer._renderingScenes[0]._scene.activeCamera?.globalPosition,
+                            cameraRotation: Renderer._renderingScenes[0]._scene.activeCamera?.absoluteRotation
                         }
                     });
                 }
