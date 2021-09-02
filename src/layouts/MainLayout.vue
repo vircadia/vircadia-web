@@ -63,6 +63,8 @@
                         {{ $store.state.account.isLoggedIn ? $store.state.account.username : "Guest" }}
                     </div>
                     <div>{{ getLocation }}</div>
+                    <div>{{ $store.state.renderer.fps }}</div>
+                    <div>{{ $store.state.renderer.cameraLocation?.toString() }}</div>
                 </div>
             </q-img>
 
@@ -178,6 +180,9 @@ import { defineComponent } from "vue";
 import MainScene from "../components/MainScene.vue";
 import OverlayManager from "../components/overlays/OverlayManager.vue";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import Log from "src/modules/debugging/log";
+
 export default defineComponent({
     name: "MainLayout",
 
@@ -257,7 +262,6 @@ export default defineComponent({
             }
             return this.$store.state.location.state;
         },
-
         getProfilePicture: function() {
             if (this.$store.state.account.images && this.$store.state.account.images.thumbnail) {
                 return this.$store.state.account.images.thumbnail;

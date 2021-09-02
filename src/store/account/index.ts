@@ -29,25 +29,6 @@ export interface IAccountState {
         thumbnail?: string;
     }
 }
-function state(): IAccountState {
-    return {
-        username: "UNKNOWN",
-        connected: false,
-        isLoggedIn: false,
-        input: undefined,
-        accessToken: "UNKNOWN",
-        refreshToken: "UNKNOWN",
-        tokenType: "bearer",
-        createdAt: 0,
-        expiresIn: 0,
-        scope: "UNKNOWN",
-
-        isAdmin: false,
-        useAsAdmin: false,
-
-        images: {}
-    };
-}
 
 // Getters
 const getters: GetterTree<IAccountState, IRootState> = {
@@ -72,7 +53,23 @@ const mutations: MutationTree<IAccountState> = {
 
 export const AccountModule: Module<IAccountState, IRootState> = {
     namespaced: true,
-    state,
+    state: () => ({
+        username: "UNKNOWN",
+        connected: false,
+        isLoggedIn: false,
+        input: undefined,
+        accessToken: "UNKNOWN",
+        refreshToken: "UNKNOWN",
+        tokenType: "bearer",
+        createdAt: 0,
+        expiresIn: 0,
+        scope: "UNKNOWN",
+
+        isAdmin: false,
+        useAsAdmin: false,
+
+        images: {}
+    }),
     actions,
     getters,
     mutations

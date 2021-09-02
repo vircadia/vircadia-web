@@ -42,9 +42,8 @@ export default defineComponent({
     name: "MainScene",
 
     data: () => ({
-        // Babylon
+        // Rendering
         scene: <VScene><unknown>undefined,
-        // Canvas
         canvasHeight: 200,
         canvasWidth: 200
     }),
@@ -74,6 +73,8 @@ export default defineComponent({
 
         await this.scene.buildTestScene();
 
+        // At the moment there is one scene. Someday there can be many.
+        this.$store.commit("renderer/setFocusSceneId", 0);
         Renderer.startRenderLoop([this.scene as VScene]);
     }
 });

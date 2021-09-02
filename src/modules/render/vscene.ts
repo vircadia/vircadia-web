@@ -14,6 +14,7 @@ import "babylonjs-loaders";
 import Log from "../debugging/log";
 // System Modules
 import { v4 as uuidv4 } from "uuid";
+import { VVector3 } from ".";
 
 interface entityProps {
     id?: string;
@@ -28,12 +29,27 @@ interface entityProps {
 }
 
 export class VScene {
+    _sceneId: number;
     _scene: BABYLON.Scene;
     _entities: Map<string, BABYLON.Mesh>;
 
-    constructor(pEngine: BABYLON.Engine) {
+    constructor(pEngine: BABYLON.Engine, pSceneId = 0) {
         this._entities = new Map<string, BABYLON.Mesh>();
         this._scene = new BABYLON.Scene(pEngine);
+        this._sceneId = pSceneId;
+    }
+
+    getSceneId(): number {
+        return this._sceneId;
+    }
+
+    getCameraLocation(pCameraId = 0): BABYLON.Vector3 {
+        return this._scene.cameras[pCameraId].position;
+    }
+
+    setCameraLocation(pLoc: VVector3, pCameraId = 0): void {
+        this._scene.cameras[pCameraId].position.set(pLoc.x, pLoc.y, pLoc.z);
+        this._scene.cameras[pCameraId].position = pLoc;
     }
 
     async importModel(name: string, modelUrl: string): Promise<BABYLON.Mesh> {

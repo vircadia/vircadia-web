@@ -6,28 +6,28 @@
 import { IRootState } from "../index";
 import { Module, ActionTree, GetterTree, MutationTree } from "vuex";
 
+import { VVector3, VVector4 } from "../../modules/render";
+import { Renderer } from "src/modules/render/renderer";
+
+import Log from "src/modules/debugging/log";
+
 // Base state
 export interface IRendererState {
-    name: string;
-    nickname: string;
-    server: string;
-    iceServer: string | undefined ;
-    serverVersion: string | undefined ;
-}
-function state(): IRendererState {
-    return {
-        name: "",
-        nickname: "",
-        server: "https://metaverse.vircadia.com/live",
-        iceServer: undefined,
-        serverVersion: undefined
-    };
+    focusSceneId: number,
+    fps: number,
+    cameraLocation: Nullable<VVector3>,
+    cameraRotation: Nullable<VVector4>
 }
 
 // Getters
-const getters: GetterTree<IRendererState, IRootState> = {
-    someGetter(/* context */) {
-        // your code
+export type Getters = {
+    cameraLocation(pState?: IRendererState, pRootState?: IRootState): VVector3;
+};
+
+const getters: GetterTree<IRendererState, IRootState> & Getters = {
+    cameraLocation(): VVector3 {
+        Log.debug(Log.types.OTHER, "Renderer.getters.cameraLocation: Fetching camera location");
+        return Renderer.getScene().getCameraLocation();
     }
 };
 
@@ -40,14 +40,20 @@ const actions: ActionTree<IRendererState, IRootState> = {
 
 // Mutations
 const mutations: MutationTree<IRendererState> = {
-    someMutation(/* state: IRendererState */) {
-        // your code
+    setFocusSceneId(pState: IRendererState, pSceneId: number) {
+        Log.debug(Log.types.OTHER, `Renderer.mut.setFocusSceneId: Setting id to ${pSceneId}`);
+        pState.focusSceneId = pSceneId;
     }
 };
 
 export const RendererModule: Module<IRendererState, IRootState> = {
     namespaced: true,
-    state,
+    state: () => ({
+        focusSceneId: 0,
+        fps: 1,
+        cameraLocation: undefined,
+        cameraRotation: undefined
+    }),
     actions,
     getters,
     mutations

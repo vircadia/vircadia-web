@@ -10,10 +10,14 @@
 
 import * as BABYLON from "babylonjs";
 
+import { Store, Mutations } from "src/store";
+import { Config } from "src/config";
+
 // General Modules
 import { VScene } from "./vscene";
 
-// import Log from "../debugging/log";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import Log from "../debugging/log";
 
 export const Renderer = {
     _engine: <BABYLON.Engine><unknown>undefined,
@@ -22,9 +26,38 @@ export const Renderer = {
     // eslint-disable-next-line @typescript-eslint/require-await
     async initialize(pCanvas: HTMLCanvasElement): Promise<void> {
         Renderer._engine = new BABYLON.Engine(pCanvas);
+        this._renderingScenes = new Array<VScene>();
+
+        // Update renderer statistics for Vue
+        setInterval(() => {
+            if (Renderer._engine) {
+                if (Renderer._renderingScenes.length > 0 && Renderer._renderingScenes[0]) {
+                    const fps = Renderer._engine.getFps(),
+                    const cameraLocation = Renderer._renderingScenes[0]._scene.activeCamera?.globalPosition,
+                    const cameraRotation = Renderer._renderingScenes[0]._scene.activeCamera?.absoluteRotation
+                    Store.commit(Mutations.MUTATE, {
+                        property: "renderer",
+                        update: true,
+                        with: {
+                            // fps: Renderer._engine.getFps(),
+                            // cameraLocation: Renderer._renderingScenes[0]._scene.activeCamera?.globalPosition,
+                            // cameraRotation: Renderer._renderingScenes[0]._scene.activeCamera?.absoluteRotation
+                            fps,
+                            cameraLocation,
+                            cameraRotation
+                        }
+                    });
+                }
+            }
+        }, Number(Config.getItem("Renderer.StatUpdateSeconds", "1000")));
     },
-    createScene(): VScene {
-        return new VScene(Renderer._engine);
+    createScene(pSceneIndex = 0): VScene {
+        const scene = new VScene(Renderer._engine, pSceneIndex);
+        this._renderingScenes[pSceneIndex] = scene;
+        return scene;
+    },
+    getScene(pSceneIndex = 0): VScene {
+        return this._renderingScenes[pSceneIndex];
     },
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     resize(pHeight: number, pWidth: number): void {
