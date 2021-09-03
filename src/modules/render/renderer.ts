@@ -5,7 +5,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
-// This is disabled because TS complains about BABYLON's use of cap'ed function names
+// The following disable is because TS complains about BABYLON's use of cap'ed function names
 /* eslint-disable new-cap */
 
 import * as BABYLON from "babylonjs";
@@ -34,11 +34,10 @@ export const Renderer = {
                 if (Renderer._renderingScenes.length > 0 && Renderer._renderingScenes[0]) {
                     Store.commit(Mutations.MUTATE, {
                         property: "renderer",
-                        update: true,
                         with: {
                             fps: Renderer._engine.getFps(),
-                            cameraLocation: Renderer._renderingScenes[0]._scene.activeCamera?.globalPosition,
-                            cameraRotation: Renderer._renderingScenes[0]._scene.activeCamera?.absoluteRotation
+                            cameraLocation: Renderer._renderingScenes[0]._scene.activeCamera?.globalPosition.clone(),
+                            cameraRotation: Renderer._renderingScenes[0]._scene.activeCamera?.absoluteRotation.clone()
                         }
                     });
                 }
