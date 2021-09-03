@@ -6,7 +6,8 @@
 import { IRootState } from "../index";
 import { Module, ActionTree, GetterTree, MutationTree } from "vuex";
 
-// Base state
+// Place holder module for presenting audio interface and control to the UI
+
 export interface IAudioState {
     connected: boolean;
     input: {

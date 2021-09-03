@@ -21,29 +21,43 @@ import { RendererModule, IRendererState } from "./renderer";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "src/modules/debugging/log";
 
-// import example from "./module-example"
-// import { ExampleStateInterface } from "./module-example/state";
-
-/*
- * If not building with SSR mode, you can
- * directly export the Store instantiation;
+/**
+ * $store of shared state used by the Vue components. The Store that is created
+ * here is available to the components as "$store" and to the scripts in the
+ * components as "this.$store".
  *
- * The function below can be async too; either use
- * async/await or return a Promise which resolves
- * with the Store instance.
+ * All the primitive data variables made available in the "state:" section are
+ * reactive in that they will cause update to the viewed DOM elements when
+ * their values change. This means the values can be read but they MUST
+ * be changed ONLY via a "mutations:" defined function.
  */
 
+/**
+ * Names of mutations to be used by callers
+ */
 export enum Mutations {
     MUTATE = "STATE_MUTATE"
 }
 
-// Payload passed to MUTATE
+/**
+ * Payload passed to MUTATE
+ * Either value is given for a property or a set of sub-values is specified to set
+ * so either "value" or "with" is specified in a single call.
+ * @typedef {Object} MutatePayload
+ * @property {string} target property to mutate. May contain dots to specify sub-properties
+ * @property {?(number|string|KeyedCollection)} value to set in property
+ * @property {?KeyedCollection} with a collection of sub-properties to set in the target property
+ */
 export interface MutatePayload {
     property: string,
-    update: boolean,
-    with: number | string | KeyedCollection
+    value?: number | string | KeyedCollection,
+    with?: KeyedCollection
 }
 
+/**
+ * Properties in the root storage object
+ * TODO: Eventually move these into modules
+ */
 export interface IRootState {
     globalConsts: {
         APP_NAME: string,
@@ -65,6 +79,7 @@ export interface IRootState {
         current: string,
         state: string
     },
+    // This makes TypeScript happy and is filled by Vuex when modules are initialized
     account: IAccountState,
     renderer: IRendererState,
     metaverse: IMetaverseState,
@@ -115,11 +130,35 @@ export const Store = createStore<IRootState>({
     },
     mutations: {
         /**
-         * Changes the value of state variable.
-         * This is completely type unsafe and will create new properties
-         * if there are any misspellings in the passed information.
-         * TODO: figure out if this properly generates Vue update events.
-         * @param state - the state block being updated
+         * Changes the value of state variables.
+         * @description
+         * This expects the target state to be "well formed" in that it is
+         * a tree of KeyedCollection's.
+         *
+         * This is completely type unsafe and expects the values passed to
+         * be the correct type. The destination parameter must exist or an
+         * error message is output.
+         *
+         * There are two forms: one that sets one parameter to a value and
+         * another that sets several sub-parameters to values.
+         * @example
+         *       $store.commit(Mutation.MUTATE, {
+         *          property: renderer.focusSceneId,
+         *          value: 3
+         *       });
+         * @example
+         *       $store.commit(Mutation.MUTATE, {
+         *          property: renderer,
+         *          with: {
+         *              focusSceneId: 2,
+         *              fps: 20
+         *          }
+         *       });
+         *
+         * As shown in the above example, the passed property name can contain dots
+         * to allow sub-objects to be addressed.
+         *
+         * @param state - the state block being updated (supplied by Vuex)
          * @param {MutatePlayload} - specification of the property to update. See
          *     MutatePayload for explanation of the fields.
          */
@@ -130,29 +169,34 @@ export const Store = createStore<IRootState>({
             // If there are multiple property parts, walk down until final one found
             while (segments.length > 1) {
                 const seg = segments.shift();
-                if (typeof seg === "string" && seg in target) {
-                    if (!(seg in target)) {
-                        // Assume that value is a KeyedCollection if it doesn't yet exist
-                        target[seg] = {};
+                if (seg) {
+                    if (seg in target) {
+                        // recast target as a collection the next level down
+                        target = target[seg] as KeyedCollection;
+                    } else {
+                        // The property is not in the target. Someone referenced something that does not exist
+                        Log.error(Log.types.OTHER, `State.MUTATE: non-existant target segment "${seg}"`);
+                        Log.error(Log.types.OTHER, `State.MUTATE:     payload=${JSON.stringify(payload)}`);
                     }
-                    target = target[seg] as KeyedCollection;
                 }
             }
             const prop = segments[0];
             // At this point, "target[prop]" addresses the value to be mutated
 
             if (target && prop) {
-                // 'update' says to set with the fields in payload.with
-                if (payload.update) {
-                    if (payload["with"]) {
-                        const propertiesToSet = payload["with"] as KeyedCollection;
-                        Object.keys(propertiesToSet).forEach((withprop) => {
-                            (target[prop] as KeyedCollection)[withprop] = propertiesToSet[withprop];
-                        });
-                    }
-                } else {
-                    // if not 'update', just set the value into the state target
-                    target[prop] = payload["with"];
+                // if given a "with", there are multiple sub-properties to set
+                if (payload["with"]) {
+                    const propertiesToSet = payload["with"];
+                    Object.keys(propertiesToSet).forEach((withprop) => {
+                        // Note that this does a straight assignment so the source type
+                        //     had better be the type the destination wants.
+                        // TODO: consider type checking if in development mode
+                        (target[prop] as KeyedCollection)[withprop] = propertiesToSet[withprop];
+                    });
+                } else if (payload.value) {
+                    // If a single value is given, just set that.
+                    // Same note as above about type assignment and potential checking
+                    target[prop] = payload.value;
                 }
             }
 
@@ -194,13 +238,7 @@ export default store(function(/* { ssrContext } */) {
 declare module "@vue/runtime-core" {
     // provide typings for this.$store
     interface ComponentCustomProperties {
-        $store: VStore,
-
-        // mixins added by primary.ts
-        checkNeedsTokenRefresh: () => boolean,
-        attemptRefreshToken: () => Promise<void>,
-        parseFromStorage: (arg0: string) => KeyedCollection,
-        initializeAxios: () => void
+        $store: VStore
     }
 }
 

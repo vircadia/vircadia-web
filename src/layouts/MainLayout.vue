@@ -63,8 +63,6 @@
                         {{ $store.state.account.isLoggedIn ? $store.state.account.username : "Guest" }}
                     </div>
                     <div>{{ getLocation }}</div>
-                    <div>{{ $store.state.renderer.fps }}</div>
-                    <div>{{ $store.state.renderer.cameraLocation?.toString() }}</div>
                 </div>
             </q-img>
 
@@ -274,7 +272,6 @@ export default defineComponent({
         setDialogState: function(newValue: boolean) {
             this.$store.commit("mutate", {
                 property: "dialog",
-                update: true,
                 with: {
                     show: newValue
                 }
@@ -306,7 +303,6 @@ export default defineComponent({
             // We want to reset the element first.
             this.$store.commit("mutate", {
                 property: "dialog",
-                update: true,
                 with: {
                     "show": false,
                     "which": ""
@@ -315,7 +311,6 @@ export default defineComponent({
 
             this.$store.commit("mutate", {
                 property: "dialog",
-                update: true,
                 with: {
                     "show": shouldShow,
                     "which": ""
@@ -326,7 +321,6 @@ export default defineComponent({
         closeDialog: function() {
             this.$store.commit("mutate", {
                 property: "dialog",
-                update: true,
                 with: {
                     "show": false,
                     "which": ""

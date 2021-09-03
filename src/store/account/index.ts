@@ -6,7 +6,8 @@
 import { IRootState } from "../index";
 import { Module, ActionTree, GetterTree, MutationTree } from "vuex";
 
-// Base state
+// Placeholder module for presenting Metaverse state and operations to the interface
+
 export interface IAccountState {
     username: string;
     connected: boolean;

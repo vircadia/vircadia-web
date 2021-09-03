@@ -7,7 +7,6 @@ import { IRootState } from "../index";
 import { Module, ActionTree, GetterTree, MutationTree } from "vuex";
 
 import { VVector3, VVector4 } from "../../modules/render";
-import { Renderer } from "src/modules/render/renderer";
 
 import Log from "src/modules/debugging/log";
 
@@ -25,9 +24,10 @@ export type Getters = {
 };
 
 const getters: GetterTree<IRendererState, IRootState> & Getters = {
-    cameraLocation(): VVector3 {
+    // Created for testing of getter definitions. Not used by anyone.
+    cameraLocation(pContext: IRendererState): VVector3 {
         Log.debug(Log.types.OTHER, "Renderer.getters.cameraLocation: Fetching camera location");
-        return Renderer.getScene().getCameraLocation();
+        return pContext.cameraLocation as VVector3;
     }
 };
 

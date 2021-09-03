@@ -11,8 +11,19 @@
 // Define a variable to be potentially nullable/undefined.
 type Nullable<T> = T | null | undefined;
 
-// Definition of simple collections
+/**
+ * An object that contains named entries of unknown contents
+ * @typedef {Object.<string,unknown>} KeyedCollection
+ */
 type KeyedCollection = { [ key: string ] : unknown };
+/**
+ * An object that contains string keys to string values
+ * @typedef {Object.<string,string>} KeyValue
+ */
 type KeyValue = { [ key: string ] : string };
 
+/**
+ * A value that can have any value
+ * @typedef ({KeyedCollection|string|number|unknown}) AnyValue
+ */
 type AnyValue = KeyedCollection | string | number | unknown;

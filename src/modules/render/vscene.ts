@@ -16,18 +16,27 @@ import Log from "../debugging/log";
 import { v4 as uuidv4 } from "uuid";
 import { VVector3 } from ".";
 
-interface entityProps {
-    id?: string;
-    type: string;
-    shape?: string;
+/**
+ * this.addEntity() takes parameters describing the entity to create and add to
+ * the scene. This interface defines the parameters in the definition object
+ * passed to addEntity()
+ * @typedef Object EntityProps
+ */
+interface EntityProps {
+    id?: string;        // lookup identifier. One is generated if no specified
     name: string;
-    modelUrl?: string;
+    type: "Shape" | "Model";
+    shape?: "box" | "sphere" | "cylinder" | "cone" | "triangle" ; // if type=="Shape"
+    modelUrl?: string;  // if type=="Model"
     position: { x: number; y: number; z: number };
     rotation: { x: number; y: number; z: number; w?: number };
-    dimensions: { x: number; y: number; z: number; };
+    dimensions: { x: number; y: number; z: number; };   // scaling
     color?: { r: number; g: number; b: number; a?: number };
 }
 
+/**
+ * VScene is the interface to a single scene's state, entities, and operations.
+ */
 export class VScene {
     _sceneId: number;
     _scene: BABYLON.Scene;
@@ -44,12 +53,11 @@ export class VScene {
     }
 
     getCameraLocation(pCameraId = 0): BABYLON.Vector3 {
-        return this._scene.cameras[pCameraId].position;
+        return this._scene.cameras[pCameraId].position.clone();
     }
 
     setCameraLocation(pLoc: VVector3, pCameraId = 0): void {
         this._scene.cameras[pCameraId].position.set(pLoc.x, pLoc.y, pLoc.z);
-        this._scene.cameras[pCameraId].position = pLoc;
     }
 
     async importModel(name: string, modelUrl: string): Promise<BABYLON.Mesh> {
@@ -62,7 +70,16 @@ export class VScene {
         return meshes.meshes[0] as BABYLON.Mesh;
     }
 
-    async addEntity(pProperties: entityProps): Promise<Nullable<string>> {
+    /**
+     * Add an entity to the scene.
+     *
+     * The properties block passed specifies whether to create a primitive object (box,
+     * sphere, ...) or to load a model from an URL. The created entity is added to the
+     * world at the location/rotation described in the properties
+     * @param {EntityProps} pProperties object describing entity to create (see EntityProps)
+     * @returns {Promise<string>} Id of the created entity or 'null' if failure.
+     */
+    async addEntity(pProperties: EntityProps): Promise<Nullable<string>> {
         if (!pProperties.type) {
             Log.error(Log.types.ENTITIES, "Failed to specify entity type.");
             return null;
@@ -79,20 +96,26 @@ export class VScene {
         switch (pProperties.type) {
             case "Shape":
                 if (pProperties.shape) {
-                    if (pProperties.shape.toLowerCase() === "box") {
-                        entity = BABYLON.MeshBuilder.CreateBox(pProperties.name, {}, this._scene);
-                    } else if (pProperties.shape.toLowerCase() === "sphere") {
-                        entity = BABYLON.MeshBuilder.CreateSphere(pProperties.name, {}, this._scene);
-                    } else if (pProperties.shape.toLowerCase() === "cylinder") {
-                        entity = BABYLON.MeshBuilder.CreateCylinder(pProperties.name, {}, this._scene);
-                    } else if (pProperties.shape.toLowerCase() === "cone") {
-                        entity = BABYLON.MeshBuilder.CreateCylinder(pProperties.name, { diameterTop: 0 }, this._scene);
-                    } else if (pProperties.shape.toLowerCase() === "triangle") {
-                        entity = BABYLON.MeshBuilder.CreateCylinder(pProperties.name, { tessellation: 3 }, this._scene);
-                    } else {
-                        Log.error(Log.types.ENTITIES, "Failed to create shape entity, unknown/unsupported shape type: "
+                    switch (pProperties.shape.toLowerCase()) {
+                        case "box":
+                            entity = BABYLON.MeshBuilder.CreateBox(pProperties.name, {}, this._scene);
+                            break;
+                        case "sphere":
+                            entity = BABYLON.MeshBuilder.CreateSphere(pProperties.name, {}, this._scene);
+                            break;
+                        case "cylinder":
+                            entity = BABYLON.MeshBuilder.CreateCylinder(pProperties.name, {}, this._scene);
+                            break;
+                        case "cone":
+                            entity = BABYLON.MeshBuilder.CreateCylinder(pProperties.name, { diameterTop: 0 }, this._scene);
+                            break;
+                        case "triangle":
+                            entity = BABYLON.MeshBuilder.CreateCylinder(pProperties.name, { tessellation: 3 }, this._scene);
+                            break;
+                        default:
+                            Log.error(Log.types.ENTITIES, "Failed to create shape entity, unknown/unsupported shape type: "
                                     + pProperties.shape);
-                        return null;
+                            return null;
                     }
                 } else {
                     Log.error(Log.types.ENTITIES, "Attempted to create type Shape with no shape specified");
@@ -108,6 +131,7 @@ export class VScene {
                 }
                 break;
             default:
+                Log.error(Log.types.ENTITIES, `Unspecified entity type. props=${JSON.stringify(pProperties)}`);
                 entity = BABYLON.MeshBuilder.CreateBox(pProperties.name, {}, this._scene);
                 break;
         }
@@ -141,7 +165,7 @@ export class VScene {
     }
 
     // Scripting would look like:
-    // Entities.deleteById
+    // sceneInstance.deleteById
     deleteEntityById(id: string): void {
         const entityToDelete = this._scene.getNodeByID(id);
 
@@ -150,12 +174,12 @@ export class VScene {
             // eslint-disable-next-line @typescript-eslint/dot-notation
             this._entities.delete(id);
         } else {
-            Log.error(Log.types.ENTITIES, "Failed to delete entity by ID: " + id);
+            Log.error(Log.types.ENTITIES, `Failed to delete entity by ID: ${id}`);
         }
     }
 
     // Scripting would look like:
-    // Entities.deleteByName
+    // sceneInstance.deleteByName
     deleteEntityByName(name: string): void {
         const entityToDelete = this._scene.getNodeByName(name);
 
@@ -164,10 +188,14 @@ export class VScene {
             this._entities.delete(entityToDelete.id);
             entityToDelete.dispose();
         } else {
-            Log.error(Log.types.ENTITIES, "Failed to delete entity by name: " + name);
+            Log.error(Log.types.ENTITIES, `Failed to delete entity by name: ${name}`);
         }
     }
 
+    /**
+     * Build a simple test collection of entities in this scene. Also includes some testing operations.
+     * @returns {Promise<void>} when completed
+     */
     async buildTestScene(): Promise<void> {
         const aScene = this._scene;
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers

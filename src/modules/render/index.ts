@@ -5,9 +5,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
-// This is disabled because TS complains about BABYLON's use of cap'ed function names
-/* eslint-disable new-cap */
-
 import * as BABYLON from "babylonjs";
 
 // Vircadia "types" defined so  the BABYLON definitions don't pollute the UI
