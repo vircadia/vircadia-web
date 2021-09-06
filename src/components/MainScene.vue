@@ -28,10 +28,10 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 
-import { Renderer } from "../modules/render/renderer";
-import { VScene } from "../modules/render/vscene";
+import { Renderer } from "@Modules/render/renderer";
+import { VScene } from "@Modules/render/vscene";
 
-// import Log from "../modules/debugging/log";
+// import Log from "@Modules/debugging/log";
 
 export interface ResizeShape {
     height: number,

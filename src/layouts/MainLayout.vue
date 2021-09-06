@@ -175,11 +175,11 @@
 import { defineComponent } from "vue";
 
 // Components
-import MainScene from "../components/MainScene.vue";
-import OverlayManager from "../components/overlays/OverlayManager.vue";
+import MainScene from "@Components/MainScene.vue";
+import OverlayManager from "@Components/overlays/OverlayManager.vue";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import Log from "src/modules/debugging/log";
+import Log from "@Modules/debugging/log";
 
 export default defineComponent({
     name: "MainLayout",

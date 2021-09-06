@@ -6,9 +6,9 @@
 import { IRootState } from "../index";
 import { Module, ActionTree, GetterTree, MutationTree } from "vuex";
 
-import { VVector3, VVector4 } from "../../modules/render";
+import { VVector3, VVector4 } from "@Modules/render";
 
-import Log from "src/modules/debugging/log";
+import Log from "@Modules/debugging/log";
 
 // Base state
 export interface IRendererState {

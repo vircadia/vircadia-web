@@ -1,7 +1,15 @@
 {
     "extends": "@quasar/app/tsconfig-preset",
     "compilerOptions": {
-        "baseUrl": "."
+        "baseUrl": ".",
+        "paths": {
+            // Path aliases to reduce number of dot-dot relative paths.
+            // Need to add here and in quasar.conf.js
+            "@Base/*": ["./src/*"],
+            "@Components/*": ["./src/components/*"],
+            "@Modules/*": ["./src/modules/*"],
+            "@Store/*": ["./src/store/*"]
+        }
     }
 
 }

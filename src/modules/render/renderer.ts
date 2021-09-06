@@ -10,14 +10,14 @@
 
 import * as BABYLON from "babylonjs";
 
-import { Store, Mutations } from "src/store";
-import { Config } from "src/config";
+import { Store, Mutations } from "@Store/index";
+import { Config } from "@Base/config";
 
 // General Modules
-import { VScene } from "./vscene";
+import { VScene } from "@Modules/render/vscene";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import Log from "../debugging/log";
+import Log from "@Modules/debugging/log";
 
 export const Renderer = {
     _engine: <BABYLON.Engine><unknown>undefined,

@@ -49,8 +49,8 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 
-import MetaverseLogin from "../components/login/MetaverseLogin.vue";
-import MetaverseRegister from "../components/login/MetaverseRegister.vue";
+import MetaverseLogin from "@Components/login/MetaverseLogin.vue";
+import MetaverseRegister from "@Components/login/MetaverseRegister.vue";
 
 export default defineComponent({
     name: "Login",
