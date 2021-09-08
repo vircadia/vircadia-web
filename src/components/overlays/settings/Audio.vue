@@ -18,7 +18,7 @@
     >
         <q-card
             class="column full-height"
-            v-if="$store.state.audio.input"
+            v-if="$store.state.audio.inputsList.length > 0"
         >
 
             <q-tabs
@@ -42,8 +42,8 @@
                                 <q-btn
                                     fab
                                     class="q-mr-sm"
-                                    :color="$store.state.audio.input.hasInputAccess ? 'primary' : 'red'"
-                                    :icon="$store.state.audio.input.hasInputAccess ? 'mic' : 'mic_off'"
+                                    :color="$store.state.audio.hasInputAccess ? 'primary' : 'red'"
+                                    :icon="$store.state.audio.hasInputAccess ? 'mic' : 'mic_off'"
                                     @click="micToggled"
                                 />
                             </div>
@@ -66,7 +66,7 @@
                         </div>
 
                         <div
-                            v-show="$store.state.audio.input.hasInputAccess"
+                            v-show="$store.state.audio.hasInputAccess"
                             class="row q-mt-sm"
                         >
                             <q-btn
@@ -74,7 +74,7 @@
                                 dense
                                 round
                                 class="q-mr-sm"
-                                :disabled="!$store.state.audio.input.hasInputAccess"
+                                :disabled="!$store.state.audio.hasInputAccess"
                                 :color="isListeningToFeedback ? 'primary' : 'red'"
                                 :icon="isListeningToFeedback ? 'hearing' : 'hearing_disabled'"
                                 @click="toggleInputFeedback"
@@ -102,14 +102,14 @@
                         />
 
                         <div
-                            v-if="$store.state.audio.input.hasInputAccess === false"
+                            v-if="$store.state.audio.hasInputAccess === false"
                             class="text-subtitle1 text-grey text-center"
                         >
                             Please grant mic access to the app in order to speak.
                         </div>
 
                         <q-list v-else>
-                            <div v-for="input in $store.state.audio.input.inputsList" :key="input.deviceId">
+                            <div v-for="input in $store.state.audio.inputsList" :key="input.deviceId">
                                 <q-item v-show="input.label" tag="label" v-ripple>
                                     <q-item-section avatar>
                                         <q-radio
@@ -134,7 +134,7 @@
             </q-scroll-area>
         </q-card>
 
-        <q-inner-loading :showing="!$store.state.audio.input">
+        <q-inner-loading :showing="$store.state.audio.inputsList.length === 0">
             <q-spinner-gears size="50px" color="primary" />
         </q-inner-loading>
     </OverlayShell>
@@ -143,7 +143,9 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 
-import OverlayShell from "../OverlayShell.vue";
+import OverlayShell from "@Components/overlays/OverlayShell.vue";
+
+import { Audio } from "@Modules/audio";
 
 export default defineComponent({
     name: "Audio",
@@ -170,7 +172,7 @@ export default defineComponent({
         selectedInputStore: {
             get: function(): string {
                 // TODO: Fix when Audio is added to $store
-                return this.$store.state.audio.input.currentInputDevice;
+                return this.$store.state.audio.currentInputDevice;
             },
             set: function() {
                 // @click will set for us...
@@ -192,21 +194,26 @@ export default defineComponent({
             }
         },
 
-        requestInputAccess: function() {
-            const inputStream = this.$store.state.audio.input.requestInputAccess();
-            this.setAudioInputStream(inputStream);
+        requestInputAccess: async function(): Promise<void> {
+            const inputStream = await Audio.requestInputAccess();
+            if (inputStream) {
+                this.setAudioInputStream(inputStream);
+            }
         },
 
-        requestSpecificInputAccess: function(deviceId: string) {
-            const inputStream = this.$store.state.audio.input.requestSpecificInputAccess(deviceId);
-            this.setAudioInputStream(inputStream);
+        requestSpecificInputAccess: async function(deviceId: string) {
+            const inputStream = await Audio.requestSpecificInputAccess(deviceId);
+            if (inputStream) {
+                this.setAudioInputStream(inputStream);
+            }
         },
 
         micToggled: function() {
-            if (this.$store.state.audio.input.hasInputAccess === true) {
+            if (this.$store.state.audio.hasInputAccess === true) {
                 // Should mute/unmute
             } else {
-                this.requestInputAccess();
+                // eslint-disable-next-line no-void
+                void this.requestInputAccess();
             }
         },
 

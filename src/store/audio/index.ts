@@ -10,30 +10,19 @@ import { Module, ActionTree, GetterTree, MutationTree } from "vuex";
 
 export interface IAudioState {
     connected: boolean;
-    input: {
-        hasInputAccess: boolean;
-        requestInputAccess: () => MediaStream;
-        requestSpecificInputAccess: (pDevice:string) => MediaStream;
-        currentInputDevice: string;
-        inputsList: MediaDeviceInfo[];
-    },
+    hasInputAccess: boolean;
+    awaitingCapturePermissions: boolean;
+    currentInputDevice: string;
+    inputsList: MediaDeviceInfo[];
 }
 
 function state(): IAudioState {
     return {
         connected: false,
-        input: {
-            // TODO: stubs to make compile work. Replace with Audio module class
-            hasInputAccess: false,
-            requestInputAccess: function() {
-                return null as unknown as MediaStream;
-            },
-            requestSpecificInputAccess: function() {
-                return null as unknown as MediaStream;
-            },
-            currentInputDevice: "UNKNOWN",
-            inputsList: []
-        }
+        hasInputAccess: false,
+        awaitingCapturePermissions: false,
+        currentInputDevice: "UNKNOWN",
+        inputsList: []
     };
 }
 

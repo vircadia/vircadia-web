@@ -178,6 +178,8 @@ import { defineComponent } from "vue";
 import MainScene from "@Components/MainScene.vue";
 import OverlayManager from "@Components/overlays/OverlayManager.vue";
 
+import { Mutations as StoreMutations } from "@Store/index";
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
 
@@ -241,6 +243,7 @@ export default defineComponent({
                     label: "Light / Dark",
                     action: () => {
                         this.$q.dark.toggle();
+                        console.info("Toggle Dark");
                     },
                     isCategory: false,
                     separator: true
@@ -250,8 +253,17 @@ export default defineComponent({
     },
 
     computed: {
-        getDialogState: function(): boolean {
-            return this.$store.state.dialog.show;
+        getDialogState: {
+            get(): boolean {
+                // ESLint doesn't seem to know about 'this' inside a 'get' function
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
+                return this.$store.state.dialog.show;
+            },
+            set(newValue: boolean) {
+                // ESLint doesn't seem to know about 'this' inside a 'set' function
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                this.setDialogState(newValue);
+            }
         },
 
         getLocation: function(): string {
@@ -270,11 +282,9 @@ export default defineComponent({
 
     methods: {
         setDialogState: function(newValue: boolean) {
-            this.$store.commit("mutate", {
-                property: "dialog",
-                with: {
-                    show: newValue
-                }
+            this.$store.commit(StoreMutations.MUTATE, {
+                property: "dialog.show",
+                value: newValue
             });
         },
         // Drawers
@@ -299,9 +309,9 @@ export default defineComponent({
         },
 
         // Dialog Handling
-        openDialog: function(which: string, shouldShow: boolean) {
+        openDialog: function(pWhich: string, shouldShow: boolean) {
             // We want to reset the element first.
-            this.$store.commit("mutate", {
+            this.$store.commit(StoreMutations.MUTATE, {
                 property: "dialog",
                 with: {
                     "show": false,
@@ -309,17 +319,17 @@ export default defineComponent({
                 }
             });
 
-            this.$store.commit("mutate", {
+            this.$store.commit(StoreMutations.MUTATE, {
                 property: "dialog",
                 with: {
                     "show": shouldShow,
-                    "which": ""
+                    "which": pWhich
                 }
             });
         },
 
         closeDialog: function() {
-            this.$store.commit("mutate", {
+            this.$store.commit(StoreMutations.MUTATE, {
                 property: "dialog",
                 with: {
                     "show": false,
@@ -327,11 +337,10 @@ export default defineComponent({
                 }
             });
         },
-        // Next 'disable' is to remove error from commented "this.$refs...". Remove when recoded
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         onClickOpenOverlay: function(pOverlay: string) {
-            // TODO: figure out how to access the OverlayManager component
-            // this.$refs.OverlayManager.openOverlay(pOverlay);
+            // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            (this.$refs.OverlayManager as typeof OverlayManager).openOverlay(pOverlay);
         }
     }
 });
