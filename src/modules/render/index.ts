@@ -7,6 +7,6 @@
 
 import * as BABYLON from "babylonjs";
 
-// Vircadia "types" defined so  the BABYLON definitions don't pollute the UI
+// Vircadia "types" defined so the BABYLON definitions don't pollute the UI
 export type VVector3 = BABYLON.Vector3;
 export type VVector4 = BABYLON.Vector4;

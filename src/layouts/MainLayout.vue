@@ -9,7 +9,7 @@
 -->
 <!--
     Display of the main page.
-    The page is a usual Vue page with a hidding menu bar on the left controlled by
+    The page is a usual Vue page with a hidden menu bar on the left controlled by
     an "account_circle" in the top menu bar.
     The page top bar contains connected information.
     Overlay dialogs are controlled by $store.state.dialog settings.
