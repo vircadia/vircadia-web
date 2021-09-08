@@ -17,7 +17,7 @@
         <canvas
             :height="canvasHeight"
             :width="canvasWidth"
-            :style="{ width: canvasWidth+'px', height: canvasHeight + 'px' }"
+            :style="{ width: canvasWidth + 'px', height: canvasHeight + 'px' }"
             ref="renderCanvas"
             class="renderCanvas"
         />

@@ -83,15 +83,3 @@ export default defineComponent({
     }
 });
 </script>
-
-function defineComponent(
-    arg0: {
-        name: string; props: {};
-        data: () => { overlays: never[]; };
-        methods: {
-            getOverlayIndex(overlayName: any): number;
-            onAction(overlay: any, action: any):void;
-            openOverlay(overlay: any): void; };
-    }) {
-    throw new Error("Function not implemented.");
-}
