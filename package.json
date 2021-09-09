@@ -1,38 +1,39 @@
 {
     "name": "vircadia-web",
     "version": "0.0.1",
-    "description": "Vircadia Web client for virtual worlds.",
+    "description": "Vircadia Web Interface for virtual worlds.",
     "productName": "Vircadia Web",
     "author": "Kalila L. <somnilibertas@gmail.com>",
-    "private": true,
     "license": "Apache-2.0",
     "scripts": {
-        "lint": "eslint --ext .js,.vue ./",
-        "test": "jest",
-        "test-watch": "jest --watch"
+        "build": "quasar build",
+        "lint": "eslint --ext .js,.ts,.vue ./",
+        "test": "echo \"No test specified\" && exit 0"
     },
     "dependencies": {
-        "@quasar/extras": "^1.10.7",
+        "@quasar/extras": "^1.10.10",
         "axios": "^0.21.1",
         "babylonjs": "^4.2.0",
         "babylonjs-loaders": "^4.2.0",
-        "core-js": "^3.15.0",
-        "quasar": "^2.0.0",
-        "uuid": "^8.3.2",
-        "vuex": "^4.0.2"
+        "core-js": "^3.16.1",
+        "quasar": "^2.0.3",
+        "vuex": "^4.0.1"
     },
     "devDependencies": {
-        "@babel/eslint-parser": "^7.14.5",
-        "@quasar/app": "^3.0.0",
-        "@vue/test-utils": "^2.0.0-rc.8",
-        "eslint": "^7.29.0",
-        "eslint-config-standard": "^16.0.3",
-        "eslint-plugin-import": "^2.23.4",
-        "eslint-plugin-node": "^11.0.0",
-        "eslint-plugin-promise": "^5.1.0",
-        "eslint-plugin-vue": "^7.11.1",
+        "@babel/eslint-parser": "^7.15.0",
+        "@quasar/app": "^3.0.4",
+        "@quasar/cli": "^1.2.1",
+        "@types/node": "^10.17.15",
+        "@types/uuid": "^8.3.1",
+        "@typescript-eslint/eslint-plugin": "^4.29.1",
+        "@typescript-eslint/parser": "^4.29.1",
+        "@vue/test-utils": "^1.2.2",
+        "eslint": "^7.32.0",
+        "eslint-config-prettier": "^8.1.0",
+        "eslint-plugin-jest": "^24.4.0",
+        "eslint-plugin-vue": "^7.16.0",
         "eslint-webpack-plugin": "^2.4.0",
-        "jest": "^26.6.3"
+        "jest": "^27.0.6"
     },
     "browserslist": [
         "last 10 Chrome versions",

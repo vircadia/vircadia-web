@@ -75,60 +75,70 @@
     </q-form>
 </template>
 
-<script>
-export default {
-    name: 'MetaverseRegister',
+<script lang="ts">
+import { defineComponent } from "vue";
+export default defineComponent({
+    name: "MetaverseRegister",
 
     data: () => ({
-        username: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
+        username: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
         showPassword: false,
         showConfirmPassword: false
     }),
 
     methods: {
-        async onSubmit () {
+        // TODO: the following 'disable' is because of commented await. Remove when implemented.
+        // eslint-disable-next-line @typescript-eslint/require-await
+        async onSubmit() {
             try {
-                const result = await this.$store.state.Metaverse.register(this.$store.state.metaverseConfig.server, this.username, this.email, this.password);
-                this.$emit('register-success');
+                // TODO: implement Metaverse class/instance/component
+                // const result = await this.$store.state.Metaverse.register(
+                //             this.$store.state.metaverseConfig.server, this.username, this.email, this.password);
+                const result = {        // TODO: temp to replace code above
+                    data: {
+                        accountWaitingVerification: false
+                    }
+                };
+                this.$emit("register-success");
 
                 if (result.data.accountWaitingVerification === true) {
                     this.$q.notify({
-                        type: 'info',
-                        textColor: 'white',
-                        icon: 'email',
+                        type: "info",
+                        textColor: "white",
+                        icon: "email",
                         timeout: 0,
-                        message: 'Check your email ' + this.email + ' to complete registration.',
-                        actions: [
-                            { label: 'Dismiss', color: 'white', handler: () => { /* ... */ } }
-                        ]
+                        message: "Check your email " + this.email + " to complete registration.",
+                        actions: [{ label: "Dismiss", color: "white", handler: () => { /* ... */ } }]
                     });
                 } else {
                     this.$q.notify({
-                        type: 'positive',
-                        textColor: 'white',
-                        icon: 'cloud_done',
-                        message: 'Successfully registered ' + this.username + '.'
+                        type: "positive",
+                        textColor: "white",
+                        icon: "cloud_done",
+                        message: "Successfully registered " + this.username + "."
                     });
                 }
             } catch (result) {
+                // TODO: what is the type of "result"?
                 this.$q.notify({
-                    type: 'negative',
-                    textColor: 'white',
-                    icon: 'warning',
-                    message: 'Failed to register: ' + result.error
+                    type: "negative",
+                    textColor: "white",
+                    icon: "warning",
+                    // message: "Failed to register: " + result.error
+                    message: "Failed to register: " + (result as string)
                 });
             }
         },
 
-        onReset () {
-            this.username = '';
-            this.email = '';
-            this.password = '';
-            this.confirmPassword = '';
+        onReset() {
+            this.username = "";
+            this.email = "";
+            this.password = "";
+            this.confirmPassword = "";
         }
     }
-};
+});
 </script>

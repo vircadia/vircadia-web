@@ -7,7 +7,13 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 -->
-
+<!--
+    Display of the main page.
+    The page is a usual Vue page with a hidden menu bar on the left controlled by
+    an "account_circle" in the top menu bar.
+    The page top bar contains connected information.
+    Overlay dialogs are controlled by $store.state.dialog settings.
+-->
 <template>
     <q-layout class="full-height" id="mainLayout" view="lHh Lpr lFf">
         <q-header id="header" elevated>
@@ -53,7 +59,9 @@
                     <q-avatar size="56px" class="q-mb-sm">
                         <img :src="getProfilePicture">
                     </q-avatar>
-                    <div class="text-weight-bold">{{ $store.state.account.isLoggedIn ? $store.state.account.username : "Guest" }}</div>
+                    <div class="text-weight-bold">
+                        {{ $store.state.account.isLoggedIn ? $store.state.account.username : "Guest" }}
+                    </div>
                     <div>{{ getLocation }}</div>
                 </div>
             </q-img>
@@ -102,7 +110,7 @@
                         v-else
                         clickable
                         v-ripple
-                        @click="$refs.OverlayManager.openOverlay('Account')"
+                        @click="onClickOpenOverlay('Account')"
                     >
                         <q-item-section avatar>
                             <q-icon name="account_circle" />
@@ -124,7 +132,8 @@
                             v-else
                             clickable
                             v-ripple
-                            @click="menuItem.action ? menuItem.action : $refs.OverlayManager.openOverlay(menuItem.link || menuItem.label)"
+                            @click="menuItem.action ? menuItem.action
+                                : onClickOpenOverlay(menuItem.link || menuItem.label)"
                         >
                             <q-item-section avatar>
                                 <q-icon :name="menuItem.icon" />
@@ -149,7 +158,7 @@
 
         <!-- <component @close-dialog="closeDialog" v-if="dialog.show" v-bind:is="dialog.which"></component> -->
 
-        <q-dialog v-model="dialogState">
+        <q-dialog v-model="getDialogState">
             <q-card
                 class="column no-wrap items-stretch q-pa-md"
                 style="background: rgba(0, 0, 0, 0.8);"
@@ -161,65 +170,78 @@
     </q-layout>
 </template>
 
-<script>
-// Components
-import MainScene from '../components/MainScene.vue';
-import OverlayManager from '../components/overlays/OverlayManager.vue';
+<script lang="ts">
 
-export default {
-    name: 'MainLayout',
+import { defineComponent } from "vue";
+
+// Components
+import MainScene from "../components/MainScene.vue";
+import OverlayManager from "../components/overlays/OverlayManager.vue";
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import Log from "src/modules/debugging/log";
+
+export default defineComponent({
+    name: "MainLayout",
+
+    $refs!: {   // definition to make this.$ref work with TypeScript
+        MainScene: HTMLFormElement,
+        OverlayManager: HTMLFormElement
+    },
 
     components: {
         MainScene,
         OverlayManager
     },
 
-    data () {
+    data() {
         return {
             // Toolbar
-            locationInput: '',
+            locationInput: "",
             // User Menu
             userMenuOpen: false,
             userMenu: [
                 {
-                    icon: 'people',
-                    label: 'People',
-                    link: '',
+                    icon: "people",
+                    label: "People",
+                    link: "",
                     isCategory: false,
                     separator: true
                 },
                 {
-                    icon: 'chat',
-                    label: 'Chat',
-                    link: 'ChatWindow',
+                    icon: "chat",
+                    label: "Chat",
+                    link: "ChatWindow",
                     isCategory: false,
                     separator: true
                 },
                 {
-                    icon: 'travel_explore',
-                    label: 'Explore',
-                    link: '',
+                    icon: "travel_explore",
+                    label: "Explore",
+                    link: "",
                     isCategory: false,
                     separator: true
                 },
                 {
-                    icon: 'settings',
-                    label: 'Settings',
-                    link: '',
+                    icon: "settings",
+                    label: "Settings",
+                    link: "",
                     isCategory: true,
                     separator: false
                 },
                 {
-                    icon: 'headphones',
-                    label: 'Audio',
-                    link: '',
+                    icon: "headphones",
+                    label: "Audio",
+                    link: "",
                     isCategory: false,
                     separator: true
                 },
                 {
-                    icon: 'lightbulb',
-                    label: 'Light / Dark',
-                    action: () => { this.$q.dark.toggle(); },
+                    icon: "lightbulb",
+                    label: "Light / Dark",
+                    action: () => {
+                        this.$q.dark.toggle();
+                    },
                     isCategory: false,
                     separator: true
                 }
@@ -228,91 +250,89 @@ export default {
     },
 
     computed: {
-        dialogState: {
-            get () {
-                return this.$store.state.dialog.show;
-            },
-            set (newValue) {
-                this.$store.commit('mutate', {
-                    property: 'dialog',
-                    update: true,
-                    with: {
-                        show: newValue
-                    }
-                });
-            }
+        getDialogState: function(): boolean {
+            return this.$store.state.dialog.show;
         },
 
-        getLocation: function () {
+        getLocation: function(): string {
             if (this.$store.state.location.current) {
                 return this.$store.state.location.current;
-            } else {
-                return this.$store.state.location.state;
             }
+            return this.$store.state.location.state;
         },
-
-        getProfilePicture: function () {
+        getProfilePicture: function() {
             if (this.$store.state.account.images && this.$store.state.account.images.thumbnail) {
                 return this.$store.state.account.images.thumbnail;
-            } else {
-                return '../assets/vircadia-icon.svg';
             }
+            return "../assets/vircadia-icon.svg";
         }
     },
 
     methods: {
+        setDialogState: function(newValue: boolean) {
+            this.$store.commit("mutate", {
+                property: "dialog",
+                with: {
+                    show: newValue
+                }
+            });
+        },
         // Drawers
-        toggleUserMenu: function () {
+        toggleUserMenu: function(): void {
             this.userMenuOpen = !this.userMenuOpen;
         },
 
         // Connections
-        connect: function () {
-            console.info('Connecting to...', this.locationInput);
+        connect: function() {
+            console.info("Connecting to...", this.locationInput);
         },
 
-        disconnect: function () {
-            console.info('Disconnecting from...', this.$store.state.location.current);
+        disconnect: function() {
+            console.info("Disconnecting from...", this.$store.state.location.current);
         },
 
         // Metaverse
 
-        logout: function () {
-            this.$store.state.Metaverse.logout();
+        logout: function() {
+            // TODO: figure out how Metaverse class instance is initialized
+            // this.$store.state.Metaverse.logout();
         },
 
         // Dialog Handling
-        openDialog: function (which, shouldShow) {
+        openDialog: function(which: string, shouldShow: boolean) {
             // We want to reset the element first.
-            this.$store.commit('mutate', {
-                property: 'dialog',
-                update: true,
+            this.$store.commit("mutate", {
+                property: "dialog",
                 with: {
-                    'show': false,
-                    'which': ''
+                    "show": false,
+                    "which": ""
                 }
             });
 
-            this.$store.commit('mutate', {
-                property: 'dialog',
-                update: true,
+            this.$store.commit("mutate", {
+                property: "dialog",
                 with: {
-                    'show': shouldShow,
-                    'which': which
+                    "show": shouldShow,
+                    "which": ""
                 }
             });
         },
 
-        closeDialog: function () {
-            this.$store.commit('mutate', {
-                property: 'dialog',
-                update: true,
+        closeDialog: function() {
+            this.$store.commit("mutate", {
+                property: "dialog",
                 with: {
-                    'show': false,
-                    'which': ''
+                    "show": false,
+                    "which": ""
                 }
             });
+        },
+        // Next 'disable' is to remove error from commented "this.$refs...". Remove when recoded
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        onClickOpenOverlay: function(pOverlay: string) {
+            // TODO: figure out how to access the OverlayManager component
+            // this.$refs.OverlayManager.openOverlay(pOverlay);
         }
     }
-};
+});
 </script>

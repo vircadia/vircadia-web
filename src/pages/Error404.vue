@@ -1,13 +1,9 @@
 <!--
-//  Error404.vue
-//
-//  Created by Kalila L. on May 9th, 2021.
 //  Copyright 2021 Vircadia contributors.
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 -->
-
 <template>
     <div class="fullscreen bg-blue text-white text-center q-pa-md flex flex-center">
         <div>
@@ -32,10 +28,10 @@
     </div>
 </template>
 
-<script>
-import { defineComponent } from 'vue';
+<script lang="ts">
+import { defineComponent } from "vue";
 
 export default defineComponent({
-    name: 'Error404'
+    name: "Error404"
 });
 </script>
