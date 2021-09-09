@@ -163,7 +163,7 @@
                 class="column no-wrap items-stretch q-pa-md"
                 style="background: rgba(0, 0, 0, 0.8);"
             >
-                <component @closeDialog='closeDialog' v-bind:is="$store.state.dialog.which"></component>
+                <component @closeDialog='closeDialog' :is="$store.state.dialog.which"></component>
             </q-card>
         </q-dialog>
 
