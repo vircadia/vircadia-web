@@ -49,8 +49,11 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 
-import MetaverseLogin from "@Components/login/MetaverseLogin.vue";
-import MetaverseRegister from "@Components/login/MetaverseRegister.vue";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import Log from "@Modules/debugging/log";
+
+import MetaverseLogin from "@Components/components/login/MetaverseLogin.vue";
+import MetaverseRegister from "@Components/components/login/MetaverseRegister.vue";
 
 export default defineComponent({
     name: "Login",
@@ -70,6 +73,15 @@ export default defineComponent({
         onMetaverseRegister() {
             this.tab = "metaverseLogin";
         }
+    },
+
+    // DEBUG DEBUG DEBUG
+    created() {
+        Log.debug(Log.types.OTHER, `Dialog.Login: created`);
+    },
+    mounted() {
+        Log.debug(Log.types.OTHER, `Dialog.Login: mounted`);
     }
+    // END DEBUG DEBUG DEBUG
 });
 </script>

@@ -163,6 +163,11 @@ export const Store = createStore<IRootState>({
          *     MutatePayload for explanation of the fields.
          */
         [Mutations.MUTATE](state: IRootState, payload: MutatePayload) {
+            // DEBUG DEBUG DEBUG
+            if (payload && payload.property && payload.property !== "renderer") {
+                Log.debug(Log.types.OTHER, `MUTATE: ${JSON.stringify(payload)}`);
+            }
+            // END DEBUG DEBUG DEBUG
             // Create the target location to store the mutation
             let target = state as unknown as KeyedCollection;
             const segments = payload.property.split(".");
