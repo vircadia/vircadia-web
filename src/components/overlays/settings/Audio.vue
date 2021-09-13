@@ -171,7 +171,6 @@ export default defineComponent({
     computed: {
         selectedInputStore: {
             get: function(): string {
-                // TODO: Fix when Audio is added to $store
                 return this.$store.state.audio.currentInputDevice;
             },
             set: function() {

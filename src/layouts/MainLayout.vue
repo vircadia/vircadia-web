@@ -179,6 +179,7 @@ import MainScene from "@Components/MainScene.vue";
 import OverlayManager from "@Components/overlays/OverlayManager.vue";
 
 import { Mutations as StoreMutations } from "@Store/index";
+import { Account } from "@Modules/account";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
@@ -304,8 +305,8 @@ export default defineComponent({
         // Metaverse
 
         logout: function() {
-            // TODO: figure out how Metaverse class instance is initialized
-            // this.$store.state.Metaverse.logout();
+            // eslint-disable-next-line no-void
+            void Account.logout();
         },
 
         // Dialog Handling

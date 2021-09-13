@@ -73,15 +73,6 @@ export default defineComponent({
         onMetaverseRegister() {
             this.tab = "metaverseLogin";
         }
-    },
-
-    // DEBUG DEBUG DEBUG
-    created() {
-        Log.debug(Log.types.OTHER, `Dialog.Login: created`);
-    },
-    mounted() {
-        Log.debug(Log.types.OTHER, `Dialog.Login: mounted`);
     }
-    // END DEBUG DEBUG DEBUG
 });
 </script>

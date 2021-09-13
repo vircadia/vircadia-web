@@ -50,6 +50,8 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { Account } from "@Modules/account";
+
 export default defineComponent({
     name: "MetaverseLogin",
 
@@ -66,10 +68,7 @@ export default defineComponent({
         // eslint-disable-next-line @typescript-eslint/require-await
         async onSubmit() {
             try {
-                // TODO: implement Metaverse class/component/instance
-                // const result = await this.$store.state.Metaverse.login(
-                //     this.$store.state.metaverseConfig.server, this.username, this.password);
-                // this.$store.state.Metaverse.commitLogin(this.username, result);
+                await Account.login(this.username, this.password);
 
                 this.$q.notify({
                     type: "positive",

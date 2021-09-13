@@ -77,6 +77,9 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+
+import { Account } from "@Modules/account";
+
 export default defineComponent({
     name: "MetaverseRegister",
 
@@ -90,16 +93,12 @@ export default defineComponent({
     }),
 
     methods: {
-        // TODO: the following 'disable' is because of commented await. Remove when implemented.
-        // eslint-disable-next-line @typescript-eslint/require-await
         async onSubmit() {
             try {
-                // TODO: implement Metaverse class/instance/component
-                // const result = await this.$store.state.Metaverse.register(
-                //             this.$store.state.metaverseConfig.server, this.username, this.email, this.password);
+                const awaiting = await Account.createAccount(this.username, this.password, this.email);
                 const result = {        // TODO: temp to replace code above
                     data: {
-                        accountWaitingVerification: false
+                        accountWaitingVerification: awaiting
                     }
                 };
                 this.$emit("register-success");
