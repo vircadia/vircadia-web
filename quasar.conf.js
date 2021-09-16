@@ -102,7 +102,8 @@ module.exports = configure(function (ctx) {
                     .set("@Base", path.resolve(__dirname, "./src"))
                     .set("@Components", path.resolve(__dirname, "./src/components"))
                     .set("@Modules", path.resolve(__dirname, "./src/modules"))
-                    .set("@Store", path.resolve(__dirname, "./src/store"));
+                    .set("@Store", path.resolve(__dirname, "./src/store"))
+                    .set("@Libs", path.resolve(__dirname, "./src/libs"));
             }
         },
 

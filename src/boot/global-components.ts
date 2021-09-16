@@ -12,15 +12,15 @@
 import { boot } from "quasar/wrappers";
 
 // Components -> Overlays
-import Audio from "../components/overlays/settings/Audio.vue";
-import ChatWindow from "../components/overlays/chat/ChatWindow.vue";
-import Explore from "../components/overlays/explore/Explore.vue";
-import People from "../components/overlays/people/People.vue";
+import Audio from "@Components/overlays/settings/Audio.vue";
+import ChatWindow from "@Components/overlays/chat/ChatWindow.vue";
+import Explore from "@Components/overlays/explore/Explore.vue";
+import People from "@Components/overlays/people/People.vue";
 // Components -> Dialogs
-import Login from "../components/dialogs/Login.vue";
+import Login from "@Components/dialogs/Login.vue";
 // Components -> Components
-import MetaverseLogin from "../components/components/login/MetaverseLogin.vue";
-import MetaverseRegister from "../components/components/login/MetaverseRegister.vue";
+import MetaverseLogin from "@Components/components/login/MetaverseLogin.vue";
+import MetaverseRegister from "@Components/components/login/MetaverseRegister.vue";
 
 export default boot(({ app }) => {
     // Components -> Overlays

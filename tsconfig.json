@@ -8,7 +8,8 @@
             "@Base/*": ["./src/*"],
             "@Components/*": ["./src/components/*"],
             "@Modules/*": ["./src/modules/*"],
-            "@Store/*": ["./src/store/*"]
+            "@Store/*": ["./src/store/*"],
+            "@Libs/*": ["./src/libs/*"]
         }
     }
 
