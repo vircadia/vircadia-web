@@ -10,7 +10,20 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 
+import { Utility } from "@Modules/utility";
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import Log from "@Modules/debugging/log";
+
 export default defineComponent({
-    name: "App"
+    name: "App",
+    setup: function() {
+        // Fetch and initialize configuration info
+        Utility.initializeConfig();
+    },
+    mounted: function() {
+        // Start connections if we are restoring the session
+        Utility.initialConnectionSetup();
+    }
 });
 </script>

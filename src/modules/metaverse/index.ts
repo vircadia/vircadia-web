@@ -10,7 +10,6 @@ import { MetaverseInfoResp, MetaverseInfoAPI } from "@Modules/metaverse/APIAccou
 
 import { Store, Mutations as StoreMutations } from "@Base/store";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Config } from "@Base/config";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
@@ -19,20 +18,37 @@ import Log from "@Modules/debugging/log";
 /* eslint-disable require-atomic-updates */
 
 /** Connection states for talking to the metaverse-server */
-export const MetaverseState = {
-    UNITIALIZED: "Uninitialized",
-    CONNECTING: "Connecting",
-    CONNECTED: "Connected",
-    ERROR: "Error"
+export enum MetaverseState {
+    UNITIALIZED = "Uninitialized",
+    CONNECTING = "Connecting",
+    CONNECTED = "Connected",
+    ERROR = "Error"
+}
+
+/** Names of configuration variables used for persistant storage in Config */
+export const MetaversePersist = {
+    "METAVERSE_URL": "Metaverse.Url",
+    "METAVERSE_NAME": "Metaverse.Name",
+    "METAVERSE_NICK_NAME": "Metaverse.NickName"
 };
 
 export const Metaverse = {
     metaverseUrl: "https://metaverse.vircadia.com/live",
-    connectionState: MetaverseState.UNITIALIZED,
+    connectionState: "",
     metaverseName: "UNKNOWN",
     metaverseNickname: "UNKN",
     iceServer: undefined as Nullable<string>,
     serverVersion: undefined as Nullable<string>,
+
+    initialize(): void {
+        Metaverse.restorePersistentVariables();
+        Metaverse.connectionState = MetaverseState.UNITIALIZED;
+    },
+
+    /** Return 'true' if the communication with the metaverse is active */
+    get isConnected(): boolean {
+        return Metaverse.connectionState === MetaverseState.CONNECTED;
+    },
 
     /**
      * Update the URL to the metaverse.
@@ -77,11 +93,32 @@ export const Metaverse = {
     /**
      * Set the metaverse state. Updates the UI knowledge of the state
      */
-    setMetaverseConnectionState(pNewState: string): void {
+    setMetaverseConnectionState(pNewState: MetaverseState): void {
         Metaverse.connectionState = pNewState;
         Store.commit(StoreMutations.MUTATE, {
             property: "metaverse/connectionState",
             value: pNewState
         });
+    },
+    /**
+     * Store values that are remembered across sessions.
+     *
+     * Some values persist across sessions so, the next time the user opens the app, the
+     * previous known values are restored and connection is automatically made.
+     */
+    storePersistentVariables(): void {
+        Config.setItem(MetaversePersist.METAVERSE_URL, Metaverse.metaverseUrl);
+        Config.setItem(MetaversePersist.METAVERSE_NAME, Metaverse.metaverseName);
+        Config.setItem(MetaversePersist.METAVERSE_NICK_NAME, Metaverse.metaverseNickname);
+    },
+    /**
+     * Fetch and set persistantly stored variables.
+     *
+     * Note that this does not do any reactive pushing so this is best used to initialize.
+     */
+    restorePersistentVariables(): void {
+        Metaverse.metaverseUrl = Config.getItem(MetaversePersist.METAVERSE_URL, "https://metaverse.vircadia.com/live");
+        Metaverse.metaverseName = Config.getItem(MetaversePersist.METAVERSE_NAME, "UNKNOWN");
+        Metaverse.metaverseNickname = Config.getItem(MetaversePersist.METAVERSE_NICK_NAME, "UNKN");
     }
 };

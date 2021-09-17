@@ -7,7 +7,7 @@ import { IRootState } from "../index";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Module, ActionTree, ActionContext, GetterTree, MutationTree, Payload } from "vuex";
 
-import { Metaverse, MetaverseState } from "@Base/modules/metaverse";
+import { Metaverse } from "@Base/modules/metaverse";
 
 // Placeholder module for presenting Metaverse state and operations to the interface
 
@@ -24,7 +24,7 @@ function state(): IMetaverseState {
         name: "",
         nickname: "",
         server: "https://metaverse.vircadia.com/live",
-        connectionState: MetaverseState.UNITIALIZED,
+        connectionState: "Uninitialized",
         iceServer: undefined,
         serverVersion: undefined
     };

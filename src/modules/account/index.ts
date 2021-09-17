@@ -58,7 +58,7 @@ export const Account = {
             "password": pPassword
         } as OAuthTokenReq;
 
-        if (Metaverse.connected && !Account.isLoggedIn) {
+        if (Metaverse.isConnected && !Account.isLoggedIn) {
             try {
                 const resp = await axios.post(OAuthTokenAPI, req);
                 if (resp.data) {

@@ -9,10 +9,33 @@
  * eventually be kept on in the cloud (some per-user storage). This interface
  * hides this detail from the application code.
  */
+
+/**
+ * Default configuration values.
+ */
+export const RECONNECT_ON_STARTUP = "ReconnectOnStartup";
+
+export const TrueValue = "true";
+export const FalseValue = "false";
+
+export const DefaultConfig: { [key: string]: string } = {
+    "ReconnectOnStartup": FalseValue
+};
+
 export const Config = {
     // Entries can be prefixed with a qualifier.
     // This is often the account name to allow multiple accounts on one computer
     _qualify: "",
+
+    /**
+     * Initialize the configuration system.
+     *
+     * While there is not much to be done today, someday the configuration infomation
+     * might be stored in the cloud so some setup will be needed.
+     */
+    initialize(): void {
+        Config._setDefaultValues();
+    },
 
     /** Fetch a configuration value from configuration storage.
      *
@@ -57,5 +80,14 @@ export const Config = {
         } else {
             Config._qualify = pQualifier + ".";
         }
+    },
+
+    _setDefaultValues(): void {
+        // If a value is not set, put in the default
+        Object.keys(DefaultConfig).forEach((key) => {
+            if (typeof localStorage.getItem(key) !== "string") {
+                localStorage.setItem(key, DefaultConfig[key]);
+            }
+        });
     }
 };

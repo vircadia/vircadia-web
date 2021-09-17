@@ -25,13 +25,12 @@ which would give name and thumbnail information.
 
 The domain-server states will be:
 
-* uninitialized
-* unavailable (sub-service is not available)
 * disconnected
-* connecting (requires connection URL)
+* connecting
 * connected
 * disconnecting
 * error
+* unavailable (sub-service is not available)
 
 The same states will be used for the sub-services with the sub-services
 could potentially be "unavailable". Additionally, if the domain-server
