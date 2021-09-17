@@ -10,14 +10,19 @@
  * hides this detail from the application code.
  */
 export const Config = {
+    // Entries can be prefixed with a qualifier.
+    // This is often the account name to allow multiple accounts on one computer
+    _qualify: "",
+
     /** Fetch a configuration value from configuration storage.
      *
      * @param Name of the configuration parameter to fetch
      * @param Default optional default value to return if parameter is not in config storage
+     * @param {boolean} pGlobal if 'true', parameter name is not qualified (considered global)
      * @throws Error if parameter does not exist and a default was not given
      */
-    getItem(pParamName: string, pDefault?: string): string {
-        const val = localStorage.getItem(pParamName);
+    getItem(pParamName: string, pDefault?: string, pGlobal = false): string {
+        const val = localStorage.getItem(pGlobal ? "" : Config._qualify + pParamName);
         if (typeof val !== "string") {
             if (pDefault) {
                 return pDefault;
@@ -26,12 +31,31 @@ export const Config = {
         }
         return val;
     },
+
     /** Set the value of a configuration parameter
      *
      * @param Name parameter to set
      * @param Value string value to set
+     * @param {boolean} pGlobal if 'true', parameter name is not qualified (considered global)
      */
-    setItem(pParamName: string, pParamValue: string): void {
-        localStorage.setItem(pParamName, pParamValue);
+    setItem(pParamName: string, pParamValue: string, pGlobal = false): void {
+        localStorage.setItem(pGlobal ? "" : Config._qualify + pParamName, pParamValue);
+    },
+
+    /**
+     * Set a qualifier to be added to each configuration name entry. This is often
+     * the account name so multiple accounts can be on the same compter.
+     *
+     * Note that a separator "." is added to the qualifier string to make
+     * the construction of the qualified configuration name easier.
+     *
+     * @param pQualifier string to be added to beginning of config entries
+     */
+    setQualifier(pQualifier: string): void {
+        if (pQualifier.endsWith(".")) {
+            Config._qualify = pQualifier;
+        } else {
+            Config._qualify = pQualifier + ".";
+        }
     }
 };
