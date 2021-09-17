@@ -25,22 +25,35 @@ which would give name and thumbnail information.
 
 The domain-server states will be:
 
+* uninitialized
+* unavailable (sub-service is not available)
 * disconnected
 * connecting (requires connection URL)
 * connected
 * disconnecting
 * error
 
-The same states will be used for the sub-services. Additionally, if the domain-server
+The same states will be used for the sub-services with the sub-services
+could potentially be "unavailable". Additionally, if the domain-server
 connection goes into the states "disconnected", "disconnecting", or "error", all of
 the associated sub-services will also be disconnected.
 
 # metaverse-server Connection
 
-The connection to the metaverse-server is via a REST API and the only state
-associated with the requests is the optional account access token. This token
-and the account name is stored in persistant storage and used in any restored
-session. 
+The metaverse-server URL is fetched from the domain-server (to make sure
+vircadia-web and the domain-server are in sync) therefore, the metaverse-server
+connection cannot be initialized until the domain-server is connected.
+
+The metaverse-server states will be:
+
+* uninitialized (until domain-server is connected and URL has been fetched)
+* connecting (requesting metaverse-server info from metaverse-server)
+* connected
+* error
+
+The other metaverse-server related information is the account access token.
+If the user had previously logged in, the account name and account access token
+is saved in persistant storage and is re-used in the new session.
 
 # Session Persistance
 

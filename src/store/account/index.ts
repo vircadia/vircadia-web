@@ -51,11 +51,11 @@ const mutations: MutationTree<IAccountState> = {
 export const AccountModule: Module<IAccountState, IRootState> = {
     namespaced: true,
     state: () => ({
-        username: "UNKNOWN",
+        username: "ANON",
         isLoggedIn: false,
         input: undefined,
         accessToken: "UNKNOWN",
-        tokenType: "bearer",
+        tokenType: "Bearer",
         scope: "UNKNOWN",
 
         isAdmin: false,

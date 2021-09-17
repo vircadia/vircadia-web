@@ -6,6 +6,7 @@
 import { store } from "quasar/wrappers";
 import { InjectionKey } from "vue";
 import {
+    ActionContext,
     createStore,
     Store as VuexStore,
     useStore as vuexUseStore
@@ -17,6 +18,8 @@ import { AccountModule, IAccountState } from "@Store/account";
 import { AudioModule, IAudioState } from "@Store/audio";
 import { MetaverseModule, IMetaverseState } from "@Store/metaverse";
 import { RendererModule, IRendererState } from "@Store/renderer";
+
+import { Metaverse } from "@Modules/metaverse";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
@@ -37,6 +40,10 @@ import Log from "@Modules/debugging/log";
  */
 export enum Mutations {
     MUTATE = "STATE_MUTATE"
+}
+export enum Actions {
+    SET_METAVERSE_URL = "SET_METAVERSE_URL",
+    SET_DOMAIN_URL = "SET_DOMAIN_URL"
 }
 
 /**
@@ -164,9 +171,9 @@ export const Store = createStore<IRootState>({
          */
         [Mutations.MUTATE](state: IRootState, payload: MutatePayload) {
             // DEBUG DEBUG DEBUG
-            // if (payload && payload.property && payload.property !== "renderer") {
-            //     Log.debug(Log.types.OTHER, `MUTATE: ${JSON.stringify(payload)}`);
-            // }
+            if (payload && payload.property && payload.property !== "renderer") {
+                Log.debug(Log.types.OTHER, `MUTATE: ${JSON.stringify(payload)}`);
+            }
             // END DEBUG DEBUG DEBUG
             // Create the target location to store the mutation
             let target = state as unknown as KeyedCollection;
@@ -229,6 +236,12 @@ export const Store = createStore<IRootState>({
             */
         }
 
+    },
+    actions: {
+        // Example action. Any script should be calling the Metavsere component directly
+        async [Actions.SET_METAVERSE_URL](pContext: ActionContext<IRootState, IRootState>, pUrl: string): Promise<void> {
+            await Metaverse.setMetaverseUrl(pUrl);
+        }
     },
     // enable strict mode (adds overhead!)
     // for dev mode and --debug builds only

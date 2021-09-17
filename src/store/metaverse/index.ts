@@ -5,7 +5,9 @@
 
 import { IRootState } from "../index";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Module, ActionTree, ActionContext, GetterTree, MutationTree } from "vuex";
+import { Module, ActionTree, ActionContext, GetterTree, MutationTree, Payload } from "vuex";
+
+import { Metaverse, MetaverseState } from "@Base/modules/metaverse";
 
 // Placeholder module for presenting Metaverse state and operations to the interface
 
@@ -13,6 +15,7 @@ export interface IMetaverseState {
     name: string;
     nickname: string;
     server: string;
+    connectionState: string;
     iceServer: string | undefined ;
     serverVersion: string | undefined ;
 }
@@ -21,6 +24,7 @@ function state(): IMetaverseState {
         name: "",
         nickname: "",
         server: "https://metaverse.vircadia.com/live",
+        connectionState: MetaverseState.UNITIALIZED,
         iceServer: undefined,
         serverVersion: undefined
     };
@@ -35,9 +39,8 @@ const getters: GetterTree<IMetaverseState, IRootState> = {
 
 // Actions
 const actions: ActionTree<IMetaverseState, IRootState> = {
-    someAction(/* context */) {
-    // someAction(context: ActionContext<IMetaverseState, IRootState>) {
-        // your code
+    async setMetaverseUrl(context: ActionContext<IMetaverseState, IRootState>, pUrl: string): Promise<void> {
+        await Metaverse.setMetaverseUrl(pUrl);
     }
 };
 
