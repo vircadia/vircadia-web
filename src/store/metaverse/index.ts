@@ -7,7 +7,7 @@ import { IRootState } from "../index";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Module, ActionTree, ActionContext, GetterTree, MutationTree, Payload } from "vuex";
 
-import { Metaverse } from "@Base/modules/metaverse";
+import { MetaverseMgr } from "@Modules/metaverse";
 
 // Placeholder module for presenting Metaverse state and operations to the interface
 
@@ -38,9 +38,10 @@ const getters: GetterTree<IMetaverseState, IRootState> = {
 };
 
 // Actions
+// Example action. Any script should call Metaverse directly
 const actions: ActionTree<IMetaverseState, IRootState> = {
     async setMetaverseUrl(context: ActionContext<IMetaverseState, IRootState>, pUrl: string): Promise<void> {
-        await Metaverse.setMetaverseUrl(pUrl);
+        await MetaverseMgr.ActiveMetaverse.setMetaverseUrl(pUrl);
     }
 };
 

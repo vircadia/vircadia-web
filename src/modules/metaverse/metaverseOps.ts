@@ -7,7 +7,7 @@
 
 import axios from "axios";
 
-import { Metaverse } from "@Modules/metaverse";
+import { MetaverseMgr } from "@Modules/metaverse";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Config } from "@Base/config";
@@ -46,7 +46,7 @@ export function cleanMetaverseUrl(pNewUrl: string): string {
  * @returns constructed URL to access the metaverser-server REST function
  */
 export function buildUrl(pAPIUrl: string, pMetaverseUrl?: string): string {
-    return (pMetaverseUrl ?? Metaverse.metaverseUrl) + pAPIUrl;
+    return (pMetaverseUrl ?? MetaverseMgr.ActiveMetaverse.MetaverseUrl) + pAPIUrl;
 }
 
 /**

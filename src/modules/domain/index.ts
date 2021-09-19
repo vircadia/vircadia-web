@@ -6,34 +6,29 @@
 */
 
 import { Config } from "@Base/config";
+import { Domain, DomainPersist } from "@Modules/domain/domain";
 
-/** Names of configuration variables used for persistant storage in Config */
-export const DomainPersist = {
-    "DOMAIN_URL": "Domain.Url"
-};
+import { Slot } from "@Modules/utility/Signal";
 
-export const Domain = {
-    domainUrl: "UNKNOWN",
+// Allow 'get' statements to be compact
+/* eslint-disable @typescript-eslint/brace-style */
 
-    initialize(): void {
-        this.restorePersistentVariables();
+export const DomainMgr = {
+    _activeDomain: undefined as unknown as Domain,
+
+    get ActiveDomain(): Domain { return DomainMgr._activeDomain; },
+    set ActiveDomain(pDomain: Domain) { DomainMgr._activeDomain = pDomain; },
+
+    get DefaultDomainUrl(): Nullable<string> {
+        return Config.getItem(DomainPersist.DOMAIN_URL, undefined);
     },
 
-    /**
-     * Store values that are remembered across sessions.
-     *
-     * Some values persist across sessions so, the next time the user opens the app, the
-     * previous known values are restored and connection is automatically made.
-     */
-    storePersistentVariables(): void {
-        Config.setItem(DomainPersist.DOMAIN_URL, Domain.domainUrl);
-    },
-    /**
-     * Fetch and set persistantly stored variables.
-     *
-     * Note that this does not do any reactive pushing so this is best used to initialize.
-     */
-    restorePersistentVariables(): void {
-        Domain.domainUrl = Config.getItem(DomainPersist.DOMAIN_URL, "UNKNOWN");
+    async domainFactory(pUrl: string, pDomainOps?: Slot): Promise<Domain> {
+        const aDomain = new Domain();
+        if (pDomainOps) {
+            aDomain.onStateChange.connect(pDomainOps);
+        }
+        await aDomain.connect(pUrl);
+        return aDomain;
     }
 };

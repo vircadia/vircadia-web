@@ -7,7 +7,7 @@
 
 import axios from "axios";
 
-import { Metaverse } from "@Modules/metaverse";
+import { MetaverseMgr } from "@Modules/metaverse";
 import { doAPIGet, doAPIPost } from "../metaverse/metaverseOps";
 import { OAuthTokenAPI, OAuthTokenReq, OAuthTokenResp, OAuthTokenError } from "@Modules/metaverse/APIToken";
 import { GetAccountByIdAPI, GetAccountByIdResp,
@@ -58,7 +58,7 @@ export const Account = {
             "password": pPassword
         } as OAuthTokenReq;
 
-        if (Metaverse.isConnected && !Account.isLoggedIn) {
+        if (MetaverseMgr.ActiveMetaverse.isConnected && !Account.isLoggedIn) {
             try {
                 const resp = await axios.post(OAuthTokenAPI, req);
                 if (resp.data) {

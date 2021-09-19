@@ -19,7 +19,7 @@ import { AudioModule, IAudioState } from "@Store/audio";
 import { MetaverseModule, IMetaverseState } from "@Store/metaverse";
 import { RendererModule, IRendererState } from "@Store/renderer";
 
-import { Metaverse } from "@Modules/metaverse";
+import { MetaverseMgr } from "@Modules/metaverse";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
@@ -240,7 +240,7 @@ export const Store = createStore<IRootState>({
     actions: {
         // Example action. Any script should be calling the Metavsere component directly
         async [Actions.SET_METAVERSE_URL](pContext: ActionContext<IRootState, IRootState>, pUrl: string): Promise<void> {
-            await Metaverse.setMetaverseUrl(pUrl);
+            await MetaverseMgr.ActiveMetaverse.setMetaverseUrl(pUrl);
         }
     },
     // enable strict mode (adds overhead!)
