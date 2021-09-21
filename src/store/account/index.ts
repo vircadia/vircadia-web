@@ -6,8 +6,6 @@
 import { IRootState } from "../index";
 import { Module, ActionTree, GetterTree, MutationTree } from "vuex";
 
-// Placeholder module for presenting Metaverse state and operations to the interface
-
 export interface IAccountState {
     username: string;
     isLoggedIn: boolean;
@@ -51,7 +49,7 @@ const mutations: MutationTree<IAccountState> = {
 export const AccountModule: Module<IAccountState, IRootState> = {
     namespaced: true,
     state: () => ({
-        username: "ANON",
+        username: "Guest",
         isLoggedIn: false,
         input: undefined,
         accessToken: "UNKNOWN",

@@ -7,9 +7,10 @@
 
 import axios from "axios";
 
+import { Store, Mutations as StoreMutations } from "@Base/store";
 import { MetaverseMgr } from "@Modules/metaverse";
-import { doAPIGet, doAPIPost } from "../metaverse/metaverseOps";
-import { OAuthTokenAPI, OAuthTokenReq, OAuthTokenResp, OAuthTokenError } from "@Modules/metaverse/APIToken";
+import { doAPIGet, doAPIPost, buildUrl } from "@Modules/metaverse/metaverseOps";
+import { OAuthTokenAPI, OAuthTokenResp, OAuthTokenError } from "@Modules/metaverse/APIToken";
 import { GetAccountByIdAPI, GetAccountByIdResp,
     PostUsersAPI, PostUsersReq, PostUsersResp } from "@Modules/metaverse/APIAccount";
 import { AccountInfo } from "@Modules/metaverse/APIInfo";
@@ -19,7 +20,6 @@ import { Config } from "@Base/config";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
-import { Store, Mutations as StoreMutations } from "@Base/store";
 
 // ESLint thinks there are race conditions which don't exist (:fingers-crossed:)
 /* eslint-disable require-atomic-updates */
@@ -44,7 +44,7 @@ export const Account = {
      * Login the account and update the account profile information.
      *
      * If the metaverse is connected and the user is not logged in already,
-     * do the metaverser-server request to fetch an access token for the account.
+     * do the metaverse-server request to fetch an access token for the account.
      * This also fetches the account information and updates the Vuex store.
      *
      * @param {string} pUsername Username to login
@@ -52,15 +52,15 @@ export const Account = {
      * @returns 'true' if login succeeded.
      */
     async login(pUsername: string, pPassword: string): Promise<boolean> {
-        const req = {
-            "grant_type": "password",
-            "username": pUsername,
-            "password": pPassword
-        } as OAuthTokenReq;
-
-        if (MetaverseMgr.ActiveMetaverse.isConnected && !Account.isLoggedIn) {
+        if (MetaverseMgr.ActiveMetaverse?.isConnected && !Account.isLoggedIn) {
             try {
-                const resp = await axios.post(OAuthTokenAPI, req);
+                const params = new URLSearchParams();
+                params.append("grant_type", "password");
+                params.append("username", pUsername);
+                params.append("password", pPassword);
+
+                const loginUrl = buildUrl(OAuthTokenAPI);
+                const resp = await axios.post(loginUrl, params);
                 if (resp.data) {
                     const maybeError = resp.data as unknown as OAuthTokenError;
                     if (maybeError.error) {
@@ -81,9 +81,10 @@ export const Account = {
 
                     // Fetch and update all the visible account info
                     await Account.updateAccountInfo();
+                    return true;
                 }
             } catch (err) {
-                Log.error(Log.types.ACCOUNT, `Exception while login. User ${pUsername}`);
+                Log.error(Log.types.ACCOUNT, `Exception while attempting to login user ${pUsername}`);
                 return false;
             }
         }

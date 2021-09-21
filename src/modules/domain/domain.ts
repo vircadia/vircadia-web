@@ -12,7 +12,7 @@ import { DomainServer, ConnectionState } from "@Libs/vircadia-web-sdk";
 
 import Signal from "@Modules/utility/Signal";
 
-import { Config } from "@Base/config";
+import { Config, DEFAULT_METAVERSE_URL } from "@Base/config";
 import Log from "../debugging/log";
 
 /** Names of configuration variables used for persistant storage in Config */
@@ -20,6 +20,22 @@ export const DomainPersist = {
     "DOMAIN_URL": "Domain.Url"
 };
 
+/**
+ * Class instance for a connection to the domain-server.
+ *
+ * The creation of this class is two step in that an instance is created,
+ * watchers are added to the Signal places, and then the URL is set.
+ * This latter operation causes communication with the domain-server
+ * and will generate state changes.
+ *
+ * ```
+ *      aDomain = new Domain();
+ *      aDomain.onStateChange.connect((pDomain: Domain, pNewState: ConnectionState, pInfo: string) => {
+ *          // do stuff
+ *      });
+ *      await aDomain.connect(theUrl);
+ * ```
+ */
 export class Domain {
     #_domainUrl = "UNKNOWN";
     public get DomainUrl(): string { return this.#_domainUrl; }
@@ -27,6 +43,14 @@ export class Domain {
     #_domain: Nullable<DomainServer>;
 
     public onStateChange: Signal;
+
+    public get DomainState(): ConnectionState { return this.#_domain?.state ?? ConnectionState.DISCONNECTED; }
+    public get DomainStateAsString(): string {
+        if (this.#_domain) {
+            return DomainServer.stateToString(this.#_domain.state);
+        }
+        return DomainServer.stateToString(ConnectionState.DISCONNECTED);
+    }
 
     constructor() {
         this.onStateChange = new Signal();
@@ -36,18 +60,25 @@ export class Domain {
     // eslint-disable-next-line @typescript-eslint/require-await
     async connect(pUrl: string): Promise<Domain> {
         if (this.#_domain) {
-            Log.error(Log.types.OTHER, `Attempt to connect to domain when already connected`);
-            throw new Error(`Attent to connect to domain when already connected`);
+            Log.error(Log.types.COMM, `Attempt to connect to domain when already connected`);
+            throw new Error(`Attempt to connect to domain when already connected`);
         }
+        this.#_domainUrl = pUrl;
         this.#_domain = new DomainServer();
         // this.#_domain.onStateChanged(Domain._onDomainStateChange.bind(this));
-        this.#_domain.onStateChanged = Domain._onDomainStateChange.bind(this);
+        this.#_domain.onStateChanged = this._onDomainStateChange.bind(this);
         this.#_domain.connect(pUrl);
         return this;
     }
 
-    private static _onDomainStateChange(pState: ConnectionState, pInfo: string): void {
-        Log.debug(Log.types.OTHER, `DomainStateChange: new state ${pState}, ${pInfo}`);
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async disconnect(): Promise<void> {
+        Log.info(Log.types.COMM, `Domain: disconnect of domain ${this.DomainUrl}`);
+    }
+
+    private _onDomainStateChange(pState: ConnectionState, pInfo: string): void {
+        Log.debug(Log.types.COMM, `DomainStateChange: new state ${pState}, ${pInfo}`);
+        this.onStateChange.emit(this, pState, pInfo);
     }
 
     /** Return 'true' if the communication with the metaverse is active */
@@ -58,7 +89,7 @@ export class Domain {
     // eslint-disable-next-line class-methods-use-this,@typescript-eslint/require-await
     async getMetaverseUrl(): Promise<string> {
         // Eventually need to talk to the domain-server to get the URL
-        return "https://metaverse.vircadia.com/live";
+        return Config.getItem(DEFAULT_METAVERSE_URL);
     }
 
     /**

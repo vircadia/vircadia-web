@@ -16,13 +16,14 @@ import packageInfo from "@Base/../package.json";
 
 import { AccountModule, IAccountState } from "@Store/account";
 import { AudioModule, IAudioState } from "@Store/audio";
-import { MetaverseModule, IMetaverseState } from "@Store/metaverse";
 import { RendererModule, IRendererState } from "@Store/renderer";
 
 import { MetaverseMgr } from "@Modules/metaverse";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
+import { Metaverse } from "@Base/modules/metaverse/metaverse";
+import { Domain } from "@Modules/domain/domain";
 
 /**
  * $store of shared state used by the Vue components. The Store that is created
@@ -41,11 +42,6 @@ import Log from "@Modules/debugging/log";
 export enum Mutations {
     MUTATE = "STATE_MUTATE"
 }
-export enum Actions {
-    SET_METAVERSE_URL = "SET_METAVERSE_URL",
-    SET_DOMAIN_URL = "SET_DOMAIN_URL"
-}
-
 /**
  * Payload passed to MUTATE
  * Either value is given for a property or a set of sub-values is specified to set
@@ -59,6 +55,24 @@ export interface MutatePayload {
     property: string,
     value?: number | string | KeyedCollection,
     with?: KeyedCollection
+}
+
+export enum Actions {
+    SET_METAVERSE_URL = "SET_METAVERSE_URL",
+    SET_DOMAIN_URL = "SET_DOMAIN_URL",
+    UPDATE_METAVERSE = "UPDATE_METAVERSE",
+    UPDATE_DOMAIN = "UPDATE_DOMAIN"
+}
+export type SetMetaverseUrlPayload = string;
+export type SetDomainUrlPayload = string;
+export interface UpdateMetaversePayload {
+    metaverse: Metaverse,
+    newState: string
+}
+export interface UpdateDomainPayload {
+    domain: Domain,
+    newState: string,
+    info: string
 }
 
 /**
@@ -86,10 +100,21 @@ export interface IRootState {
         current: string,
         state: string
     },
+    domain: {
+        connectionState: string,
+        url: string
+    },
+    metaverse: {
+        name: string;
+        nickname: string;
+        server: string;
+        connectionState: string;
+        iceServer: string | undefined ;
+        serverVersion: string | undefined ;
+    },
     // This makes TypeScript happy and is filled by Vuex when modules are initialized
     account: IAccountState,
     renderer: IRendererState,
-    metaverse: IMetaverseState,
     audio: IAudioState
 }
 
@@ -121,10 +146,21 @@ export const Store = createStore<IRootState>({
             current: "",
             state: "Not Connected"
         },
+        domain: {
+            connectionState: "Disconnected",
+            url: ""
+        },
+        metaverse: {
+            name: "",
+            nickname: "",
+            server: "",
+            connectionState: "",
+            iceServer: undefined,
+            serverVersion: undefined
+        },
         // This makes TypeScript happy and is filled by Vuex when modules are initialized
         account: {} as IAccountState,
         renderer: {} as IRendererState,
-        metaverse: {} as IMetaverseState,
         audio: {} as IAudioState
     }),
     // by adding the modules here, Vuex will initalize them, link them
@@ -132,7 +168,6 @@ export const Store = createStore<IRootState>({
     modules: {
         account: AccountModule,
         renderer: RendererModule,
-        metaverse: MetaverseModule,
         audio: AudioModule
     },
     mutations: {
@@ -171,6 +206,7 @@ export const Store = createStore<IRootState>({
          */
         [Mutations.MUTATE](state: IRootState, payload: MutatePayload) {
             // DEBUG DEBUG DEBUG
+            // This supresses the periodic renderer stat update from being output on the console
             if (payload && payload.property && payload.property !== "renderer") {
                 Log.debug(Log.types.OTHER, `MUTATE: ${JSON.stringify(payload)}`);
             }
@@ -235,9 +271,36 @@ export const Store = createStore<IRootState>({
             }
             */
         }
-
     },
     actions: {
+        // eslint-disable-next-line @typescript-eslint/require-await
+        async [Actions.UPDATE_METAVERSE](pContext: ActionContext<IRootState, IRootState>,
+            pPayload: UpdateMetaversePayload): Promise<void> {
+            const metaverse = pPayload.metaverse;
+            pContext.commit(Mutations.MUTATE, {
+                property: "metaverse",
+                with: {
+                    name: metaverse.MetaverseName,
+                    nickname: metaverse.MetaverseNickname,
+                    connectionState: pPayload.newState,
+                    server: metaverse.MetaverseUrl,
+                    iceServer: metaverse.IceServer,
+                    serverVersion: metaverse.ServerVersion
+                }
+            });
+        },
+        // eslint-disable-next-line @typescript-eslint/require-await
+        async [Actions.UPDATE_DOMAIN](pContext: ActionContext<IRootState, IRootState>,
+            pPayload: UpdateDomainPayload): Promise<void> {
+            const domain = pPayload.domain;
+            pContext.commit(Mutations.MUTATE, {
+                property: "domain",
+                with: {
+                    connectionState: pPayload.newState,
+                    url: domain.DomainUrl
+                }
+            });
+        },
         // Example action. Any script should be calling the Metavsere component directly
         async [Actions.SET_METAVERSE_URL](pContext: ActionContext<IRootState, IRootState>, pUrl: string): Promise<void> {
             await MetaverseMgr.ActiveMetaverse.setMetaverseUrl(pUrl);

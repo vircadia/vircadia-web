@@ -12,7 +12,7 @@ import { MetaverseInfoResp, MetaverseInfoAPI } from "@Modules/metaverse/APIAccou
 
 import Signal from "@Modules/utility/Signal";
 
-import { Config } from "@Base/config";
+import { Config, DEFAULT_METAVERSE_URL } from "@Base/config";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
 
@@ -51,7 +51,7 @@ export const MetaversePersist = {
  * ```
  */
 export class Metaverse {
-    #_metaverseUrl = "https://metaverse.vircadia.com/live";
+    #_metaverseUrl = Config.getItem(DEFAULT_METAVERSE_URL);
     public get MetaverseUrl(): string { return this.#_metaverseUrl; }
 
     #_connectionState: MetaverseState = MetaverseState.UNITIALIZED;
@@ -98,7 +98,7 @@ export class Metaverse {
         // Remove any trailing slash as the API requests always have them
         const newUrl = cleanMetaverseUrl(pNewUrl);
 
-        // Access the metaverser-server and get its configuration info
+        // Access the metaverse-server and get its configuration info
         const data = await doAPIGet(MetaverseInfoAPI, newUrl) as MetaverseInfoResp;
         this.#_metaverseUrl = cleanMetaverseUrl(data.metavserse_url);
         this.#_metaverseName = data.metaverse_name;
@@ -110,18 +110,6 @@ export class Metaverse {
 
         Log.info(Log.types.METAVERSE, `Set new metaverse URL=${this.#_metaverseUrl}, name=${this.#_metaverseName}`);
 
-        // REMOVE code when Signal handler added to caller
-        // Store.commit(StoreMutations.MUTATE, {
-        //     property: "metaverse",
-        //     with: {
-        //         name: Metaverse.metaverseName,
-        //         nickname: Metaverse.metaverseNickname,
-        //         server: Metaverse.metaverseUrl,
-        //         iceServer: Metaverse.iceServer,
-        //         serverVersion: Metaverse.serverVersion
-        //     }
-        // });
-
         this._setMetaverseConnectionState(MetaverseState.CONNECTED);
     }
 
@@ -131,11 +119,7 @@ export class Metaverse {
     _setMetaverseConnectionState(pNewState: MetaverseState): void {
         this.#_connectionState = pNewState;
         this.onStateChange.emit(this, pNewState);
-        // REMOVE code when Signal handler added to caller
-        // Store.commit(StoreMutations.MUTATE, {
-        //     property: "metaverse/connectionState",
-        //     value: pNewState
-        // });
+        // Hint: App.vue has code that listens for this
     }
 
     /**

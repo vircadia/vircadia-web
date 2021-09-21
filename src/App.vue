@@ -10,8 +10,10 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 
+import { Store, Actions as StoreActions } from "@Store/index";
 import { Utility } from "@Modules/utility";
 import { Metaverse } from "@Modules/metaverse/metaverse";
+import { Domain } from "@Modules/domain/domain";
 import { ConnectionState } from "@Libs/vircadia-web-sdk";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -21,16 +23,28 @@ export default defineComponent({
     name: "App",
     setup: function() {
         // Fetch and initialize configuration info
+        Log.debug(Log.types.OTHER, `APP: Initialize config`);
         Utility.initializeConfig();
     },
     mounted: async function() {
         // Start connections if we are restoring the session
         await Utility.initialConnectionSetup(
-            function(pConnState: ConnectionState, pInfo: string) {
+            function(pDomain: Domain, pConnState: ConnectionState, pInfo: string) {
                 Log.debug(Log.types.OTHER, `APP: new domain state: ${pConnState}/${pInfo}`);
+                // eslint-disable-next-line no-void
+                void Store.dispatch(StoreActions.UPDATE_DOMAIN, {
+                    domain: pDomain,
+                    newState: pDomain.DomainStateAsString,
+                    info: pInfo
+                });
             },
             function(pMV: Metaverse, pNewState: string) {
                 Log.debug(Log.types.OTHER, `APP: new metaverse state: ${pNewState}`);
+                // eslint-disable-next-line no-void
+                void Store.dispatch(StoreActions.UPDATE_METAVERSE, {
+                    metaverse: pMV,
+                    newState: pNewState
+                });
             }
         );
     }

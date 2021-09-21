@@ -5,30 +5,53 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
-import { Config } from "@Base/config";
-import { Domain, DomainPersist } from "@Modules/domain/domain";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { Config, LAST_DOMAIN_SERVER } from "@Base/config";
+
+import { Domain } from "@Modules/domain/domain";
 
 import { Slot } from "@Modules/utility/Signal";
+import Log from "../debugging/log";
 
 // Allow 'get' statements to be compact
 /* eslint-disable @typescript-eslint/brace-style */
 
 export const DomainMgr = {
     _activeDomain: undefined as unknown as Domain,
+    // Collection of the domain-server connections
+    _domains: new Map<string, Domain>(),
 
+    // There is one main domain we're working with
     get ActiveDomain(): Domain { return DomainMgr._activeDomain; },
     set ActiveDomain(pDomain: Domain) { DomainMgr._activeDomain = pDomain; },
 
-    get DefaultDomainUrl(): Nullable<string> {
-        return Config.getItem(DomainPersist.DOMAIN_URL, undefined);
-    },
-
+    /**
+     * Create connection to a domain-server and return a Domain object with the connection.
+     *
+     * @param pUrl network address of domain
+     * @param pDomainOps optional stateChange event receiver
+     * @returns Domain object with the connection initialized
+     * @throws if there are connection errors
+     */
     async domainFactory(pUrl: string, pDomainOps?: Slot): Promise<Domain> {
         const aDomain = new Domain();
         if (pDomainOps) {
             aDomain.onStateChange.connect(pDomainOps);
         }
-        await aDomain.connect(pUrl);
+        try {
+            await aDomain.connect(pUrl);
+            DomainMgr._domains.set(aDomain.DomainUrl, aDomain);
+            // Remember the last connected domain for potential restarts
+            Config.setItem(LAST_DOMAIN_SERVER, aDomain.DomainUrl);
+        } catch (err) {
+            Log.error(Log.types.COMM, `Exception connecting to domain ${pUrl}`);
+            throw err;
+        }
         return aDomain;
+    },
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async shutdown(): Promise<void> {
+        Log.info(Log.types.COMM, `DomainMgr: shutdown`);
     }
 };

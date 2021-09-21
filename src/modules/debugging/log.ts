@@ -17,7 +17,9 @@ const Log = (function() {
         METAVERSE = "[METAVERSE]",
         ACCOUNT = "[ACCOUNT]",
         PEOPLE = "[PEOPLE]",
-        PLACES = "[PLACES]"
+        PLACES = "[PLACES]",
+        UI = "[UI]",
+        COMM = "[COMM]"
     }
 
     enum levels {

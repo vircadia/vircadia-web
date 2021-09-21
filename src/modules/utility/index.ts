@@ -11,7 +11,7 @@ import { DomainMgr } from "@Modules/domain";
 
 import { Slot } from "@Modules/utility/Signal";
 
-import { Config, TrueValue, RECONNECT_ON_STARTUP } from "@Base/config";
+import { Config, TrueValue, RECONNECT_ON_STARTUP, LAST_DOMAIN_SERVER } from "@Base/config";
 
 /* eslint-disable require-atomic-updates */
 
@@ -35,20 +35,31 @@ export const Utility = {
      */
     async initialConnectionSetup(pDomainOps?: Slot, pMetaverseOps?: Slot): Promise<void> {
         if (Config.getItem(RECONNECT_ON_STARTUP) === TrueValue) {
-            const domainUrl = DomainMgr.DefaultDomainUrl;
-            if (domainUrl) {
-                try {
-                    const domain = await DomainMgr.domainFactory(domainUrl, pDomainOps);
-                    DomainMgr.ActiveDomain = domain;
-                    const metaverseUrl = await domain.getMetaverseUrl();
-                    if (metaverseUrl) {
-                        const metaverse = await MetaverseMgr.metaverseFactory(metaverseUrl, pMetaverseOps);
-                        MetaverseMgr.ActiveMetaverse = metaverse;
-                    }
-                } catch (err) {
-                    const errr = <Error>err;
-                    Log.error(Log.types.METAVERSE, `Exception connecting: ${errr.message}`);
+            Log.info(Log.types.METAVERSE, `Doing Reconnect on Startup`);
+            const lastDomainServer = Config.getItem(LAST_DOMAIN_SERVER, undefined);
+            if (lastDomainServer) {
+                await Utility.connectionSetup(lastDomainServer, pDomainOps, pMetaverseOps);
+            }
+        } else {
+            Log.info(Log.types.METAVERSE, `Not performing Reconnect on Startup. See "config"`);
+        }
+    },
+
+    async connectionSetup(pDomainUrl: string, pDomainOps?: Slot, pMetaverseOps?: Slot): Promise<void> {
+        if (pDomainUrl) {
+            try {
+                Log.debug(Log.types.COMM, `connectionSetup: connecting to domain ${pDomainUrl}`);
+                const domain = await DomainMgr.domainFactory(pDomainUrl, pDomainOps);
+                DomainMgr.ActiveDomain = domain;
+                const metaverseUrl = await domain.getMetaverseUrl();
+                if (metaverseUrl) {
+                    Log.debug(Log.types.COMM, `connectionSetup: connecting to metaverse ${metaverseUrl}`);
+                    const metaverse = await MetaverseMgr.metaverseFactory(metaverseUrl, pMetaverseOps);
+                    MetaverseMgr.ActiveMetaverse = metaverse;
                 }
+            } catch (err) {
+                const errr = <Error>err;
+                Log.error(Log.types.METAVERSE, `Exception connecting: ${errr.message}`);
             }
         }
     }

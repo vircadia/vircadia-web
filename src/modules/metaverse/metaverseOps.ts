@@ -22,7 +22,29 @@ export interface APIResponse {
 }
 
 /**
- * Return cleaned up URL to the metaverser-server.
+ * Extract the error string from a thrown error.
+ *
+ * A "catch" can get anything that is thrown. We want the error message for display
+ * so this routine looks at the error object and, if a string, presumes that is the
+ * error message and, if an object with the property "message", presumes that is
+ * the error message. Otherwise a JSON.stringified version of the object is returned.
+ *
+ * @param pErr error object caught by "catch"
+ * @returns the extracted error message string
+ */
+export function findErrorMsg(pErr: unknown): string {
+    if (typeof pErr === "string") {
+        return pErr;
+    }
+    const errr = <Error>pErr;
+    if ("message" in errr) {
+        return errr.message;
+    }
+    return `Error: ${JSON.stringify(pErr)}`;
+}
+
+/**
+ * Return cleaned up URL to the metaverse-server.
  *
  * Mostly makes sure there is no trailing slash so, when added to the REST access
  * point, there are not two slashes.
@@ -39,11 +61,11 @@ export function cleanMetaverseUrl(pNewUrl: string): string {
 }
 
 /**
- * Construct a complete URL from a metaverser-server REST access portion.
+ * Construct a complete URL from a metaverse-server REST access portion.
  *
  * @param pAPIUrl API URL portion (e.g., "/api/v1/users")
  * @param pMetaverseUrl optional URL to the metaverse. Current metaverse if not passed
- * @returns constructed URL to access the metaverser-server REST function
+ * @returns constructed URL to access the metaverse-server REST function
  */
 export function buildUrl(pAPIUrl: string, pMetaverseUrl?: string): string {
     return (pMetaverseUrl ?? MetaverseMgr.ActiveMetaverse.MetaverseUrl) + pAPIUrl;
@@ -57,7 +79,7 @@ export function buildUrl(pAPIUrl: string, pMetaverseUrl?: string): string {
  * and the object returned in the "data" property is what is returned.
  *
  * @param pAPIUrl Complete URL to do fetch from
- * @param PMetaverseUrl optional URL to use for accessing the metaverser-server
+ * @param PMetaverseUrl optional URL to use for accessing the metaverse-server
  * @returns the "data" section of the returned response as an "unknown"
  * @throws {Error} if there are any problems
  */
@@ -71,8 +93,9 @@ export async function doAPIGet(pAPIUrl: string, pMetaverseUrl?: string): Promise
         }
         throw new Error(`Error return on ${pAPIUrl}: ${response.error ?? "??"}`);
     } catch (err) {
-        Log.error(Log.types.OTHER, `Exception on GET ${pAPIUrl}: ${(err as Error).message}`);
-        throw new Error(`Exception on GET ${pAPIUrl}: ${(err as Error).message}`);
+        const errMsg = findErrorMsg(err);
+        Log.error(Log.types.OTHER, `Exception on GET ${pAPIUrl}: ${errMsg}`);
+        throw new Error(`Exception on GET ${pAPIUrl}: ${errMsg}`);
     }
 }
 

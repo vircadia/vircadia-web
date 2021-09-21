@@ -13,13 +13,19 @@
 /**
  * Default configuration values.
  */
-export const RECONNECT_ON_STARTUP = "ReconnectOnStartup";
+// TrueValue or FalseValue on whether to do reconnect when the browser is opened
+export const RECONNECT_ON_STARTUP = "Reconnect_On_Startup";
+// If no metaverse is remembered, use this one
+export const DEFAULT_METAVERSE_URL = "Default_Metaverse_Url";
+// The URL of the last domain-server connected to
+export const LAST_DOMAIN_SERVER = "Last_Domain_Server";
 
 export const TrueValue = "true";
 export const FalseValue = "false";
 
 export const DefaultConfig: { [key: string]: string } = {
-    "ReconnectOnStartup": FalseValue
+    "Reconnect_On_Startup": FalseValue,
+    "Default_Metaverse_Url": "https://metaverse.vircadia.com/live"
 };
 
 export const Config = {

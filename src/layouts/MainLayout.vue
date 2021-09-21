@@ -62,7 +62,8 @@
                     <div class="text-weight-bold">
                         {{ $store.state.account.isLoggedIn ? $store.state.account.username : "Guest" }}
                     </div>
-                    <div>{{ getLocation }}</div>
+                    <div>{{ getDomainServerState }}</div>
+                    <div>{{ getMetaverseServerState }}</div>
                 </div>
             </q-img>
 
@@ -178,8 +179,12 @@ import { defineComponent } from "vue";
 import MainScene from "@Components/MainScene.vue";
 import OverlayManager from "@Components/overlays/OverlayManager.vue";
 
-import { Mutations as StoreMutations } from "@Store/index";
+import { Store, Mutations as StoreMutations, Actions as StoreActions } from "@Store/index";
+import { Utility } from "@Modules/utility";
 import { Account } from "@Modules/account";
+import { Metaverse } from "@Modules/metaverse/metaverse";
+import { Domain } from "@Modules/domain/domain";
+import { ConnectionState } from "@Libs/vircadia-web-sdk";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
@@ -244,7 +249,7 @@ export default defineComponent({
                     label: "Light / Dark",
                     action: () => {
                         this.$q.dark.toggle();
-                        console.info("Toggle Dark");
+                        Log.info(Log.types.OTHER, "Toggle Dark");
                     },
                     isCategory: false,
                     separator: true
@@ -273,6 +278,13 @@ export default defineComponent({
             }
             return this.$store.state.location.state;
         },
+        // Displays the state of the domain server on the user interface
+        getDomainServerState: function(): string {
+            return `${this.$store.state.domain.connectionState} (${this.$store.state.domain.url})`;
+        },
+        getMetaverseServerState: function(): string {
+            return `${this.$store.state.metaverse.connectionState} (${this.$store.state.metaverse.server})`;
+        },
         getProfilePicture: function() {
             if (this.$store.state.account.images && this.$store.state.account.images.thumbnail) {
                 return this.$store.state.account.images.thumbnail;
@@ -293,13 +305,36 @@ export default defineComponent({
             this.userMenuOpen = !this.userMenuOpen;
         },
 
-        // Connections
-        connect: function() {
-            console.info("Connecting to...", this.locationInput);
+        // Pressed "connect"
+        // Connect to the specified domain-server and the associated metaverse-server
+        // Also add state update links to keep the Vuex state variables up to date.
+        connect: async function() {
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            Log.info(Log.types.UI, `Connecting to...${this.locationInput}`);
+            await Utility.connectionSetup(this.locationInput,
+                // function called when domain-server connection state changes
+                (pDomain: Domain, pNewState: ConnectionState, pInfo: string) => {
+                    Log.info(Log.types.COMM, `MainLayout: domain-server state change: ${pNewState}: ${pInfo}`);
+                    // eslint-disable-next-line no-void
+                    void Store.dispatch(StoreActions.UPDATE_DOMAIN, {
+                        domain: pDomain,
+                        newState: pDomain.DomainStateAsString,
+                        info: pInfo
+                    });
+                },
+                // function called when metaverse-server connection state changes
+                (pMetaverse: Metaverse, pNewState: string) => {
+                    Log.info(Log.types.COMM, `MainLayout: metaverse-server state change: ${pNewState}`);
+                    // eslint-disable-next-line no-void
+                    void Store.dispatch(StoreActions.UPDATE_METAVERSE, {
+                        metaverse: pMetaverse,
+                        newState: pNewState
+                    });
+                });
         },
 
         disconnect: function() {
-            console.info("Disconnecting from...", this.$store.state.location.current);
+            Log.info(Log.types.UI, `Disconnecting from to...${this.$store.state.location.current}`);
         },
 
         // Metaverse
