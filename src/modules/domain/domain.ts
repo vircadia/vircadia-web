@@ -12,8 +12,8 @@ import { DomainServer, ConnectionState } from "@Libs/vircadia-web-sdk";
 
 import Signal from "@Modules/utility/Signal";
 
-import { Config, DEFAULT_METAVERSE_URL } from "@Base/config";
-import Log from "../debugging/log";
+import { Config, DEFAULT_METAVERSE_URL, DEFAULT_DOMAIN_PROTOCOL, DEFAULT_DOMAIN_PORT } from "@Base/config";
+import Log from "@Modules/debugging/log";
 
 /** Names of configuration variables used for persistant storage in Config */
 export const DomainPersist = {
@@ -63,11 +63,11 @@ export class Domain {
             Log.error(Log.types.COMM, `Attempt to connect to domain when already connected`);
             throw new Error(`Attempt to connect to domain when already connected`);
         }
-        this.#_domainUrl = pUrl;
+        this.#_domainUrl = Domain.cleanDomainUrl(pUrl);
         this.#_domain = new DomainServer();
         // this.#_domain.onStateChanged(Domain._onDomainStateChange.bind(this));
         this.#_domain.onStateChanged = this._onDomainStateChange.bind(this);
-        this.#_domain.connect(pUrl);
+        this.#_domain.connect(this.#_domainUrl);
         return this;
     }
 
@@ -90,6 +90,34 @@ export class Domain {
     async getMetaverseUrl(): Promise<string> {
         // Eventually need to talk to the domain-server to get the URL
         return Config.getItem(DEFAULT_METAVERSE_URL);
+    }
+
+    /**
+     * Checkout the passed URL and make sure it has the "ws:" at the beginning
+     * and the port number at the end.
+     *
+     * @param pUrl the url passed by the user
+     */
+    static cleanDomainUrl(pUrl: string): string {
+        let url = pUrl.toLowerCase();
+        // Strip off any http headers
+        if (url.startsWith("http://")) {
+            // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+            url = url.substring(7);
+        }
+        if (url.startsWith("https://")) {
+            // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+            url = url.substring(8);
+        }
+        if (!url.startsWith("ws://")) {
+            url = Config.getItem(DEFAULT_DOMAIN_PROTOCOL) + "//" + url;
+        }
+        // See if there is a :port on the end
+        const ifPort = (/:\d*$/u).exec(url);
+        if (!Array.isArray(ifPort)) {
+            url = url + ":" + Config.getItem(DEFAULT_DOMAIN_PORT);
+        }
+        return url;
     }
 
     /**
