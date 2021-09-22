@@ -19,13 +19,16 @@ export const RECONNECT_ON_STARTUP = "Reconnect_On_Startup";
 export const DEFAULT_METAVERSE_URL = "Default_Metaverse_Url";
 // The URL of the last domain-server connected to
 export const LAST_DOMAIN_SERVER = "Last_Domain_Server";
+// Log level to begin with
+export const LOG_LEVEL = "Log_Level";
 
 export const TrueValue = "true";
 export const FalseValue = "false";
 
 export const DefaultConfig: { [key: string]: string } = {
     "Reconnect_On_Startup": FalseValue,
-    "Default_Metaverse_Url": "https://metaverse.vircadia.com/live"
+    "Default_Metaverse_Url": "https://metaverse.vircadia.com/live",
+    "Log_Level": "debug"      // one of "debug", "warn", "info", "none"
 };
 
 export const Config = {

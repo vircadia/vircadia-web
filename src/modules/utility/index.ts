@@ -11,7 +11,7 @@ import { DomainMgr } from "@Modules/domain";
 
 import { Slot } from "@Modules/utility/Signal";
 
-import { Config, TrueValue, RECONNECT_ON_STARTUP, LAST_DOMAIN_SERVER } from "@Base/config";
+import { Config, TrueValue, RECONNECT_ON_STARTUP, LAST_DOMAIN_SERVER, LOG_LEVEL } from "@Base/config";
 
 /* eslint-disable require-atomic-updates */
 
@@ -25,6 +25,7 @@ export const Utility = {
      */
     initializeConfig(): void {
         Config.initialize();
+        Log.setLogLevel(Config.getItem(LOG_LEVEL));
     },
 
     /**
