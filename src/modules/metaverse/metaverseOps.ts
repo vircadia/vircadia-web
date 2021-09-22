@@ -85,18 +85,24 @@ export function buildUrl(pAPIUrl: string, pMetaverseUrl?: string): string {
  */
 export async function doAPIGet(pAPIUrl: string, pMetaverseUrl?: string): Promise<unknown> {
     const accessUrl = buildUrl(pAPIUrl, pMetaverseUrl);
+    // Log.debug(Log.types.COMM, `doAPIGet: url=${pAPIUrl}`);
+    let errorString = "";
     try {
         const resp = await axios.get(accessUrl);
         const response = resp.data as unknown as APIResponse;
-        if (response.status && response.status === "success") {
-            return response.data;
+        if (response && response.status) {
+            if (response.status === "success") {
+                return response.data;
+            }
+            errorString = `${response.error ?? "unspecified"}`;
         }
-        throw new Error(`Error return on ${pAPIUrl}: ${response.error ?? "??"}`);
+        errorString = `Poorly formed response to GET ${pAPIUrl}: ${JSON.stringify(resp)}`;
     } catch (err) {
         const errMsg = findErrorMsg(err);
         Log.error(Log.types.OTHER, `Exception on GET ${pAPIUrl}: ${errMsg}`);
-        throw new Error(`Exception on GET ${pAPIUrl}: ${errMsg}`);
+        errorString = `Exception on GET ${pAPIUrl}: ${errMsg}`;
     }
+    throw new Error(errorString);
 }
 
 export async function doAPIPost(pAPIUrl: string, pBody: KeyedCollection): Promise<unknown> {

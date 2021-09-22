@@ -5,7 +5,9 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
-import { doAPIGet, cleanMetaverseUrl } from "@Modules/metaverse/metaverseOps";
+import axios from "axios";
+
+import { buildUrl, cleanMetaverseUrl, findErrorMsg } from "@Modules/metaverse/metaverseOps";
 import { MetaverseInfoResp, MetaverseInfoAPI } from "@Modules/metaverse/APIAccount";
 
 // import { Store, Mutations as StoreMutations } from "@Base/store";
@@ -99,18 +101,27 @@ export class Metaverse {
         const newUrl = cleanMetaverseUrl(pNewUrl);
 
         // Access the metaverse-server and get its configuration info
-        const data = await doAPIGet(MetaverseInfoAPI, newUrl) as MetaverseInfoResp;
-        this.#_metaverseUrl = cleanMetaverseUrl(data.metavserse_url);
-        this.#_metaverseName = data.metaverse_name;
-        this.#_metaverseNickname = data.metaverse_nick_name ?? data.metaverse_name;
-        this.#_iceServer = data.ice_server_url;
-        this.#_serverVersion = data.metaverse_server_version["version-tag"];
+        const accessUrl = buildUrl(MetaverseInfoAPI, newUrl);
+        try {
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+            const resp = await axios.get(accessUrl);
+            const data = resp.data as MetaverseInfoResp;
+            this.#_metaverseUrl = cleanMetaverseUrl(data.metaverse_url);
+            this.#_metaverseName = data.metaverse_name;
+            this.#_metaverseNickname = data.metaverse_nick_name ?? data.metaverse_name;
+            this.#_iceServer = data.ice_server_url;
+            this.#_serverVersion = data.metaverse_server_version["version-tag"];
 
-        this.#_connectionState = MetaverseState.CONNECTED;
+            this.#_connectionState = MetaverseState.CONNECTED;
 
-        Log.info(Log.types.METAVERSE, `Set new metaverse URL=${this.#_metaverseUrl}, name=${this.#_metaverseName}`);
+            Log.info(Log.types.METAVERSE, `Set new metaverse URL=${this.#_metaverseUrl}, name=${this.#_metaverseName}`);
 
-        this._setMetaverseConnectionState(MetaverseState.CONNECTED);
+            this._setMetaverseConnectionState(MetaverseState.CONNECTED);
+        } catch (err) {
+            const errr = findErrorMsg(err);
+            Log.error(Log.types.COMM, `setMetaverseUrl: Exception fetching metaverseInfo: ${errr}`);
+            this._setMetaverseConnectionState(MetaverseState.ERROR);
+        }
     }
 
     /**
