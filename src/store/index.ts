@@ -15,7 +15,8 @@ import {
 import packageInfo from "@Base/../package.json";
 
 import { AudioModule, IAudioState } from "@Store/audio";
-import { RendererModule, IRendererState } from "@Store/renderer";
+
+import { VVector3, VVector4 } from "@Modules/render";
 
 import { MetaverseMgr } from "@Modules/metaverse";
 
@@ -135,8 +136,13 @@ export interface IRootState {
             thumbnail?: string;
         }
     },
+    renderer: {
+        focusSceneId: number,
+        fps: number,
+        cameraLocation: Nullable<VVector3>,
+        cameraRotation: Nullable<VVector4>
+    },
     // This makes TypeScript happy and is filled by Vuex when modules are initialized
-    renderer: IRendererState,
     audio: IAudioState
 }
 
@@ -190,14 +196,18 @@ export const Store = createStore<IRootState>({
             useAsAdmin: false,
             images: {}
         },
+        renderer: {
+            focusSceneId: 0,
+            fps: 1,
+            cameraLocation: undefined,
+            cameraRotation: undefined
+        },
         // This makes TypeScript happy and is filled by Vuex when modules are initialized
-        renderer: {} as IRendererState,
         audio: {} as IAudioState
     }),
     // by adding the modules here, Vuex will initalize them, link them
     //     into the event tree, and load the module name variable.
     modules: {
-        renderer: RendererModule,
         audio: AudioModule
     },
     mutations: {
