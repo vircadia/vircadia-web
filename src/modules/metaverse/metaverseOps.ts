@@ -5,7 +5,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 
 import { MetaverseMgr } from "@Modules/metaverse";
 
@@ -13,6 +13,7 @@ import { MetaverseMgr } from "@Modules/metaverse";
 import { Config } from "@Base/config";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
+import { Account } from "../account";
 
 // Standard response from metavers-server API requests
 export interface APIResponse {
@@ -72,6 +73,26 @@ export function buildUrl(pAPIUrl: string, pMetaverseUrl?: string): string {
 }
 
 /**
+ * Build configuration parameters for sending with REST requests to the metaverse-server.
+ *
+ * Mostly add the Authentication: header.
+ *
+ * @returns a configuration object for an Axios GET or POST request
+ */
+function buildRequestConfig(): AxiosRequestConfig | undefined {
+    const config: KeyedCollection = {};
+    if (Account.accessToken) {
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        if (Account.accessToken.length > 10) {
+            config.headers = {
+                "Authorization": (Account.accessTokenType ?? "Bearer") + " " + Account.accessToken
+            };
+        }
+    }
+    return config;
+}
+
+/**
  * Do REST GET Vircadia API request at the passed API address.
  *
  * The API address is added to the metaverse address and the request is made.
@@ -88,15 +109,16 @@ export async function doAPIGet(pAPIUrl: string, pMetaverseUrl?: string): Promise
     // Log.debug(Log.types.COMM, `doAPIGet: url=${pAPIUrl}`);
     let errorString = "";
     try {
-        const resp = await axios.get(accessUrl);
+        const resp = await axios.get(accessUrl, buildRequestConfig());
         const response = resp.data as unknown as APIResponse;
         if (response && response.status) {
             if (response.status === "success") {
                 return response.data;
             }
             errorString = `${response.error ?? "unspecified"}`;
+        } else {
+            errorString = `Poorly formed response to GET ${pAPIUrl}: ${JSON.stringify(resp)}`;
         }
-        errorString = `Poorly formed response to GET ${pAPIUrl}: ${JSON.stringify(resp)}`;
     } catch (err) {
         const errMsg = findErrorMsg(err);
         Log.error(Log.types.OTHER, `Exception on GET ${pAPIUrl}: ${errMsg}`);
@@ -108,7 +130,7 @@ export async function doAPIGet(pAPIUrl: string, pMetaverseUrl?: string): Promise
 export async function doAPIPost(pAPIUrl: string, pBody: KeyedCollection): Promise<unknown> {
     const accessUrl = buildUrl(pAPIUrl);
     try {
-        const resp = await axios.post(accessUrl, pBody);
+        const resp = await axios.post(accessUrl, pBody, buildRequestConfig());
         const response = resp.data as unknown as APIResponse;
         if (response.status && response.status === "success") {
             return response.data;

@@ -14,16 +14,17 @@ import {
 
 import packageInfo from "@Base/../package.json";
 
-import { AccountModule, IAccountState } from "@Store/account";
 import { AudioModule, IAudioState } from "@Store/audio";
 import { RendererModule, IRendererState } from "@Store/renderer";
 
 import { MetaverseMgr } from "@Modules/metaverse";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import Log from "@Modules/debugging/log";
 import { Metaverse } from "@Base/modules/metaverse/metaverse";
 import { Domain } from "@Modules/domain/domain";
+import { onAccessTokenChangePayload, onAttributeChangePayload } from "@Modules/account";
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import Log from "@Modules/debugging/log";
 
 /**
  * $store of shared state used by the Vue components. The Store that is created
@@ -61,7 +62,9 @@ export enum Actions {
     SET_METAVERSE_URL = "SET_METAVERSE_URL",
     SET_DOMAIN_URL = "SET_DOMAIN_URL",
     UPDATE_METAVERSE = "UPDATE_METAVERSE",
-    UPDATE_DOMAIN = "UPDATE_DOMAIN"
+    UPDATE_DOMAIN = "UPDATE_DOMAIN",
+    UPDATE_ACCOUNT_TOKEN = "UPDATE_ACCOUNT_TOKEN",
+    UPDATE_ACCOUNT_INFO = "UPDATE_ACCOUNT_INFO"
 }
 export type SetMetaverseUrlPayload = string;
 export type SetDomainUrlPayload = string;
@@ -74,6 +77,9 @@ export interface UpdateDomainPayload {
     newState: string,
     info: string
 }
+// For convience, the payloads are the same
+export type UpdateAccountTokenPayload = onAccessTokenChangePayload;
+export type UpdateAccountInfoPayload = onAttributeChangePayload;
 
 /**
  * Properties in the root storage object
@@ -112,8 +118,24 @@ export interface IRootState {
         iceServer: string | undefined ;
         serverVersion: string | undefined ;
     },
+    account: {
+        username: string;
+        isLoggedIn: boolean;
+        // Token data
+        accessToken: string;
+        tokenType: string;
+        scope: string;
+        // Options
+        isAdmin: boolean;
+        useAsAdmin: boolean;
+        // Profile
+        images: {
+            hero?: string;
+            tiny?: string;
+            thumbnail?: string;
+        }
+    },
     // This makes TypeScript happy and is filled by Vuex when modules are initialized
-    account: IAccountState,
     renderer: IRendererState,
     audio: IAudioState
 }
@@ -158,15 +180,23 @@ export const Store = createStore<IRootState>({
             iceServer: undefined,
             serverVersion: undefined
         },
+        account: {
+            username: "Guest",
+            isLoggedIn: false,
+            accessToken: "UNKNOWN",
+            tokenType: "Bearer",
+            scope: "UNKNOWN",
+            isAdmin: false,
+            useAsAdmin: false,
+            images: {}
+        },
         // This makes TypeScript happy and is filled by Vuex when modules are initialized
-        account: {} as IAccountState,
         renderer: {} as IRendererState,
         audio: {} as IAudioState
     }),
     // by adding the modules here, Vuex will initalize them, link them
     //     into the event tree, and load the module name variable.
     modules: {
-        account: AccountModule,
         renderer: RendererModule,
         audio: AudioModule
     },
@@ -300,6 +330,36 @@ export const Store = createStore<IRootState>({
                     url: domain.DomainUrl
                 }
             });
+        },
+        // Handle any state processing when account attributes change
+        // eslint-disable-next-line @typescript-eslint/require-await
+        async [Actions.UPDATE_ACCOUNT_INFO](pContext: ActionContext<IRootState, IRootState>,
+            pPayload: UpdateAccountInfoPayload): Promise<void> {
+
+            Log.debug(Log.types.OTHER, `StoreAction.UpdateAccountInfo`);
+            const info = pPayload.accountInfo;
+            pContext.commit(Mutations.MUTATE, {
+                property: "account",
+                with: {
+                    username: info.username,
+                    isLoggedIn: pPayload.isLoggedIn,
+                    accessToken: pPayload.accessToken,
+                    tokenType: pPayload.accessTokenType,
+                    scope: pPayload.scope,
+                    isAdmin: pPayload.isAdmin
+                }
+            });
+            if (info.images) {
+                Store.commit(Mutations.MUTATE, {
+                    property: "account.images",
+                    value: info.images
+                });
+            } else {
+                Store.commit(Mutations.MUTATE, {
+                    property: "account.images",
+                    value: {}
+                });
+            }
         },
         // Example action. Any script should be calling the Metavsere component directly
         async [Actions.SET_METAVERSE_URL](pContext: ActionContext<IRootState, IRootState>, pUrl: string): Promise<void> {

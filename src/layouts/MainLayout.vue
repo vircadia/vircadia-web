@@ -330,7 +330,8 @@ export default defineComponent({
                         metaverse: pMetaverse,
                         newState: pNewState
                     });
-                });
+                }
+            );
         },
 
         disconnect: function() {
@@ -378,6 +379,12 @@ export default defineComponent({
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             (this.$refs.OverlayManager as typeof OverlayManager).openOverlay(pOverlay);
         }
+    },
+    mounted: function() {
+        Account.onAttributeChange.connect(function(pPayload: { [key: string]: unknown }) {
+            // eslint-disable-next-line no-void
+            void Store.dispatch(StoreActions.UPDATE_ACCOUNT_INFO, pPayload);
+        });
     }
 });
 </script>

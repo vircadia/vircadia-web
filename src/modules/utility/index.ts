@@ -25,7 +25,7 @@ export const Utility = {
      */
     initializeConfig(): void {
         Config.initialize();
-        Log.setLogLevel(Config.getItem(LOG_LEVEL));
+        Log.setLogLevel(Config.getItem(LOG_LEVEL, "debug"));
     },
 
     /**

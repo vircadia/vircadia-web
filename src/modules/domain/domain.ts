@@ -74,6 +74,10 @@ export class Domain {
     // eslint-disable-next-line @typescript-eslint/require-await
     async disconnect(): Promise<void> {
         Log.info(Log.types.COMM, `Domain: disconnect of domain ${this.DomainUrl}`);
+        if (this.#_domain) {
+            this.#_domain.disconnect();
+            this.#_domain = undefined;
+        }
     }
 
     private _onDomainStateChange(pState: ConnectionState, pInfo: string): void {
