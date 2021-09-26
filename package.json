@@ -34,8 +34,7 @@
         "eslint-plugin-vue": "^7.17.0",
         "eslint-webpack-plugin": "^2.4.0",
         "jest": "^27.2.0",
-        "jsdoc": "^3.6.7",
-        "rimraf": "^3.0.4"
+        "jsdoc": "^3.6.7"
     },
     "browserslist": [
         "last 10 Chrome versions",
