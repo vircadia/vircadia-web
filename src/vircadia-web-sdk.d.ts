@@ -38,4 +38,30 @@ declare module "@Libs/vircadia-web-sdk" {
         connect(location: string): void;
         disconnect(): void;
     }
+
+    export enum AssignmentClientState {
+        UNAVAILABLE = 0,
+        DISCONNECTED,
+        CONNECTED
+    }
+
+    export type OnStateChangedCallback = (state: AssignmentClientState) => void;
+
+    export class AssignmentClient {
+        static get UNAVAILABLE(): AssignmentClientState;
+        static get DISCONNECTED(): AssignmentClientState;
+        static get CONNECTED(): AssignmentClientState;
+        static stateToString(state: AssignmentClientState): string;
+        constructor();
+        get state(): AssignmentClientState;
+        // eslint-disable-next-line accessor-pairs
+        set onStateChanged(callback: OnStateChangedCallback);
+    }
+
+    export class AudioMixer extends AssignmentClient {
+        constructor(pContextId: number);
+        get AudioOutput(): MediaStream;
+        play():void;
+        pause(): void;
+    }
 }

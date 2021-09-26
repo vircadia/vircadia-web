@@ -14,8 +14,6 @@ import {
 
 import packageInfo from "@Base/../package.json";
 
-import { AudioModule, IAudioState } from "@Store/audio";
-
 import { VVector3, VVector4 } from "@Modules/render";
 
 import { MetaverseMgr } from "@Modules/metaverse";
@@ -142,8 +140,16 @@ export interface IRootState {
         cameraLocation: Nullable<VVector3>,
         cameraRotation: Nullable<VVector4>
     },
-    // This makes TypeScript happy and is filled by Vuex when modules are initialized
-    audio: IAudioState
+    audio: {
+        user: {
+            connected: boolean;             // 'true' if have audio input device
+            hasInputAccess: boolean;        // mic toggle, 'true' if input is on
+            awaitingCapturePermissions: boolean;    // waiting for user to allow access to input device
+            currentInputDevice: Nullable<MediaDeviceInfo>;  // info on current selected device
+            stream: Nullable<MediaStream>,  // the input stream
+            inputsList: MediaDeviceInfo[];  // a list of the input devices from the browser
+        }
+    }
 }
 
 // This store interface wrapper exists to add TS definitions of getters and mutators
@@ -176,8 +182,12 @@ export const Store = createStore<IRootState>({
         },
         domain: {
             connectionState: "Disconnected",
-            url: ""
+            url: "",
+            audio: {
+
+            }
         },
+        // Information about the metaverse-server we're connected to
         metaverse: {
             name: "",
             nickname: "",
@@ -186,6 +196,7 @@ export const Store = createStore<IRootState>({
             iceServer: undefined,
             serverVersion: undefined
         },
+        // Information about the logged in account. Refer to Account module
         account: {
             username: "Guest",
             isLoggedIn: false,
@@ -196,20 +207,25 @@ export const Store = createStore<IRootState>({
             useAsAdmin: false,
             images: {}
         },
+        // Information about the rendering system
         renderer: {
             focusSceneId: 0,
             fps: 1,
             cameraLocation: undefined,
             cameraRotation: undefined
         },
-        // This makes TypeScript happy and is filled by Vuex when modules are initialized
-        audio: {} as IAudioState
+        // Information about the audio system
+        audio: {
+            user: {
+                connected: false,
+                hasInputAccess: false,
+                awaitingCapturePermissions: false,
+                currentInputDevice: undefined,
+                stream: undefined,
+                inputsList: []
+            }
+        }
     }),
-    // by adding the modules here, Vuex will initalize them, link them
-    //     into the event tree, and load the module name variable.
-    modules: {
-        audio: AudioModule
-    },
     mutations: {
         /**
          * Changes the value of state variables.
@@ -313,6 +329,11 @@ export const Store = createStore<IRootState>({
         }
     },
     actions: {
+        /**
+         * Called when metaverse-server information changes and the UI should be updated
+         * @param {ActionContext} pContext
+         * @param {UpdateMetaversePayload} pPayload metaverse-server attributes to update
+         */
         // eslint-disable-next-line @typescript-eslint/require-await
         async [Actions.UPDATE_METAVERSE](pContext: ActionContext<IRootState, IRootState>,
             pPayload: UpdateMetaversePayload): Promise<void> {

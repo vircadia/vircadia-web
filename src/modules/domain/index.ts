@@ -7,10 +7,11 @@
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Config, LAST_DOMAIN_SERVER } from "@Base/config";
+import { ConnectionState } from "@Libs/vircadia-web-sdk";
 
 import { Domain } from "@Modules/domain/domain";
 
-import { Slot } from "@Modules/utility/Signal";
+import Signal, { Slot } from "@Modules/utility/Signal";
 import Log from "../debugging/log";
 
 // Allow 'get' statements to be compact
@@ -23,7 +24,20 @@ export const DomainMgr = {
 
     // There is one main domain we're working with
     get ActiveDomain(): Domain { return DomainMgr._activeDomain; },
-    set ActiveDomain(pDomain: Domain) { DomainMgr._activeDomain = pDomain; },
+    set ActiveDomain(pDomain: Domain) {
+        if (DomainMgr._activeDomain) {
+            // If already have an active domain, disconnect from the state change event
+            // eslint-disable-next-line @typescript-eslint/unbound-method
+            DomainMgr._activeDomain.onStateChange.disconnect(DomainMgr._handleActiveDomainStateChange);
+        }
+        DomainMgr._activeDomain = pDomain;
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        pDomain.onStateChange.connect(DomainMgr._handleActiveDomainStateChange);
+    },
+
+    // Event fired when the active domain state changes.
+    // This is used by subsystems to know when to setup connection to the domain.
+    onActiveDomainStateChange: new Signal(),
 
     /**
      * Create connection to a domain-server and return a Domain object with the connection.
@@ -34,6 +48,7 @@ export const DomainMgr = {
      * @throws if there are connection errors
      */
     async domainFactory(pUrl: string, pDomainOps?: Slot): Promise<Domain> {
+        Log.debug(Log.types.COMM, `DomainMgr.domainFactory: creating domain ${pUrl}`);
         const aDomain = new Domain();
         if (pDomainOps) {
             aDomain.onStateChange.connect(pDomainOps);
@@ -48,6 +63,11 @@ export const DomainMgr = {
             throw err;
         }
         return aDomain;
+    },
+
+    // Pass the state change event from the active domain
+    _handleActiveDomainStateChange(pDomain: Domain, pState: ConnectionState, pInfo: string): void {
+        DomainMgr.onActiveDomainStateChange.emit(pDomain, pState, pInfo);
     },
 
     // eslint-disable-next-line @typescript-eslint/require-await

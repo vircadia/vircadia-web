@@ -29,6 +29,9 @@ export enum MetaverseState {
     ERROR = "Error"
 }
 
+// Routines connected to the onMetaverseStateChange Signal, get calls of this format:
+export type OnMetaverseStateChangeCallback = (m: Metaverse, newState: MetaverseState) => void;
+
 /** Names of configuration variables used for persistant storage in Config */
 export const MetaversePersist = {
     "METAVERSE_URL": "Metaverse.Url",

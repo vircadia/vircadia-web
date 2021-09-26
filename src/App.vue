@@ -23,10 +23,11 @@ export default defineComponent({
     name: "App",
     setup: function() {
         // Fetch and initialize configuration info
-        Log.debug(Log.types.OTHER, `APP: Initialize config`);
+        Log.debug(Log.types.OTHER, `APP: Initialize`);
         Utility.initializeConfig();
     },
     mounted: async function() {
+        // Called after the APP is visible. This starts the engines doing things.
         // Start connections if we are restoring the session
         await Utility.initialConnectionSetup(
             function(pDomain: Domain, pConnState: ConnectionState, pInfo: string) {
