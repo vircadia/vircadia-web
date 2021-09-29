@@ -22,7 +22,7 @@ export interface APIResponse {
 }
 
 /**
- * Return cleaned up URL to the metaverser-server.
+ * Return cleaned up URL to the Metaverse server.
  *
  * Mostly makes sure there is no trailing slash so, when added to the REST access
  * point, there are not two slashes.
