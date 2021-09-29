@@ -83,7 +83,7 @@ export const Account = {
                     await Account.updateAccountInfo();
                 }
             } catch (err) {
-                Log.error(Log.types.ACCOUNT, `Exception while login. User ${pUsername}`);
+                Log.error(Log.types.ACCOUNT, `Exception while attempting to log in as user ${pUsername}`);
                 return false;
             }
         }
