@@ -12,6 +12,7 @@
 * This file runs in a Node context (it's NOT transpiled by Babel), so use only
 * the ES6 features that are supported by your Node version. https://node.green/
 */
+const path = require("path");
 
 // Fetch package.json info for use in the manifest
 const { productName } = require("./package.json").productName;
@@ -47,6 +48,7 @@ module.exports = configure(function (ctx) {
         // https://v2.quasar.dev/quasar-cli/boot-files
         boot: [
             "axios",
+            "global-components"
         ],
 
         // https://v2.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
@@ -94,6 +96,13 @@ module.exports = configure(function (ctx) {
             chainWebpack (chain) {
                 chain.plugin("eslint-webpack-plugin")
                     .use(ESLintPlugin, [{ extensions: ["js", "vue"] }]);
+                // Path aliases to reduce number of dot-dot relative paths.
+                // Need to add here and in tsconfig.json
+                chain.resolve.alias
+                    .set("@Base", path.resolve(__dirname, "./src"))
+                    .set("@Components", path.resolve(__dirname, "./src/components"))
+                    .set("@Modules", path.resolve(__dirname, "./src/modules"))
+                    .set("@Store", path.resolve(__dirname, "./src/store"));
             }
         },
 

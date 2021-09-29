@@ -49,8 +49,11 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 
-import MetaverseLogin from "../components/login/MetaverseLogin.vue";
-import MetaverseRegister from "../components/login/MetaverseRegister.vue";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import Log from "@Modules/debugging/log";
+
+import MetaverseLogin from "@Components/components/login/MetaverseLogin.vue";
+import MetaverseRegister from "@Components/components/login/MetaverseRegister.vue";
 
 export default defineComponent({
     name: "Login",

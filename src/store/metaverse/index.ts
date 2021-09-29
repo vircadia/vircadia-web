@@ -4,7 +4,8 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 import { IRootState } from "../index";
-import { Module, ActionTree, GetterTree, MutationTree } from "vuex";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { Module, ActionTree, ActionContext, GetterTree, MutationTree } from "vuex";
 
 // Placeholder module for presenting Metaverse state and operations to the interface
 
@@ -35,6 +36,7 @@ const getters: GetterTree<IMetaverseState, IRootState> = {
 // Actions
 const actions: ActionTree<IMetaverseState, IRootState> = {
     someAction(/* context */) {
+    // someAction(context: ActionContext<IMetaverseState, IRootState>) {
         // your code
     }
 };

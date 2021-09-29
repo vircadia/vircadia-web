@@ -10,15 +10,11 @@ import { Module, ActionTree, GetterTree, MutationTree } from "vuex";
 
 export interface IAccountState {
     username: string;
-    connected: boolean;
     isLoggedIn: boolean;
     input: Nullable<string>;
     // Token data
     accessToken: string;
-    refreshToken: string;
     tokenType: string;
-    createdAt: number;
-    expiresIn: number;
     scope: string;
     // Options
     isAdmin: boolean;
@@ -56,14 +52,10 @@ export const AccountModule: Module<IAccountState, IRootState> = {
     namespaced: true,
     state: () => ({
         username: "UNKNOWN",
-        connected: false,
         isLoggedIn: false,
         input: undefined,
         accessToken: "UNKNOWN",
-        refreshToken: "UNKNOWN",
         tokenType: "bearer",
-        createdAt: 0,
-        expiresIn: 0,
         scope: "UNKNOWN",
 
         isAdmin: false,

@@ -17,6 +17,9 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import Log from "@Modules/debugging/log";
+
 export interface Overlay {
     name: string;
     overlayStatus: string;
@@ -46,6 +49,7 @@ export default defineComponent({
         },
 
         onAction(overlay: string, action: string) {
+            Log.debug(Log.types.OTHER, `OverlayManager.onAction: ${overlay}: ${action}`);
             const index = this.getOverlayIndex(overlay);
 
             switch (action) {
@@ -67,6 +71,7 @@ export default defineComponent({
         },
 
         openOverlay(overlay: string) {
+            Log.debug(Log.types.OTHER, `OverlayManager.openOverlay: ${overlay}`);
             const index = this.getOverlayIndex(overlay);
 
             if (index >= 0) {

@@ -11,15 +11,15 @@ import {
     useStore as vuexUseStore
 } from "vuex";
 
-import packageInfo from "../../package.json";
+import packageInfo from "@Base/../package.json";
 
-import { AccountModule, IAccountState } from "./account";
-import { AudioModule, IAudioState } from "./audio";
-import { MetaverseModule, IMetaverseState } from "./metaverse";
-import { RendererModule, IRendererState } from "./renderer";
+import { AccountModule, IAccountState } from "@Store/account";
+import { AudioModule, IAudioState } from "@Store/audio";
+import { MetaverseModule, IMetaverseState } from "@Store/metaverse";
+import { RendererModule, IRendererState } from "@Store/renderer";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import Log from "src/modules/debugging/log";
+import Log from "@Modules/debugging/log";
 
 /**
  * $store of shared state used by the Vue components. The Store that is created
@@ -163,6 +163,11 @@ export const Store = createStore<IRootState>({
          *     MutatePayload for explanation of the fields.
          */
         [Mutations.MUTATE](state: IRootState, payload: MutatePayload) {
+            // DEBUG DEBUG DEBUG
+            // if (payload && payload.property && payload.property !== "renderer") {
+            //     Log.debug(Log.types.OTHER, `MUTATE: ${JSON.stringify(payload)}`);
+            // }
+            // END DEBUG DEBUG DEBUG
             // Create the target location to store the mutation
             let target = state as unknown as KeyedCollection;
             const segments = payload.property.split(".");

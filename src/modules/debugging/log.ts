@@ -15,6 +15,7 @@ const Log = (function() {
         ENTITIES = "[ENTITIES]",
         AUDIO = "[AUDIO]",
         METAVERSE = "[METAVERSE]",
+        ACCOUNT = "[ACCOUNT]",
         PEOPLE = "[PEOPLE]",
         PLACES = "[PLACES]"
     }

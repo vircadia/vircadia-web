@@ -11,7 +11,7 @@
 import * as BABYLON from "babylonjs";
 import "babylonjs-loaders";
 // General Modules
-import Log from "../debugging/log";
+import Log from "@Modules/debugging/log";
 // System Modules
 import { v4 as uuidv4 } from "uuid";
 import { VVector3 } from ".";
