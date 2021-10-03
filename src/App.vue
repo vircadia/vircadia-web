@@ -14,7 +14,7 @@ import { Store, Actions as StoreActions } from "@Store/index";
 import { Utility } from "@Modules/utility";
 import { Metaverse } from "@Modules/metaverse/metaverse";
 import { Domain } from "@Modules/domain/domain";
-import { ConnectionState } from "@Libs/vircadia-web-sdk";
+import { ConnectionState } from "@Libs/Vircadia";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";

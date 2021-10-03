@@ -229,7 +229,7 @@ module.exports = {
         "require-atomic-updates": "error",
 
         // Best practices.
-        "accessor-pairs": "error",
+        // "accessor-pairs": "error",
         "array-callback-return": "error",
         "block-scoped-var": "error",
         "class-methods-use-this": "error",

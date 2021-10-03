@@ -7,7 +7,7 @@
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Config, LAST_DOMAIN_SERVER } from "@Base/config";
-import { ConnectionState } from "@Libs/vircadia-web-sdk";
+import { ConnectionState } from "@Libs/Vircadia";
 
 import { Domain } from "@Modules/domain/domain";
 

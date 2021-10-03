@@ -7,20 +7,18 @@
 
 // TEMPORARY definitions for the interface to vircadia-web-sdk
 // This will be replaced with an official definition.
-declare module "@Libs/vircadia-web-sdk" {
+declare module "@Libs/Vircadia" {
 
-    // TEMPORARY: will eventurally use defn in the library but is not yet exported
     export enum ConnectionState {
         DISCONNECTED = 0,
-        CONNECTING,
-        CONNECTED,
-        REFUSED,
-        ERROR
+        CONNECTING = 1,
+        CONNECTED = 2,
+        REFUSED = 3,
+        ERROR = 4
     }
-
-    type OnStateChanged = (state: ConnectionState, info: string) => void;
-
+    export type OnDomainStateChanged = (state: ConnectionState, info: string) => void;
     export class DomainServer {
+        #private;
         static get DISCONNECTED(): ConnectionState;
         static get CONNECTING(): ConnectionState;
         static get CONNECTED(): ConnectionState;
@@ -32,36 +30,91 @@ declare module "@Libs/vircadia-web-sdk" {
         get state(): ConnectionState;
         get refusalInfo(): string;
         get errorInfo(): string;
-        // eslint-disable-next-line accessor-pairs
-        set onStateChanged(callback: OnStateChanged);
+        set onStateChanged(callback: OnDomainStateChanged);
         get contextID(): number;
         connect(location: string): void;
         disconnect(): void;
     }
 
+    // ============================
     export enum AssignmentClientState {
         UNAVAILABLE = 0,
-        DISCONNECTED,
-        CONNECTED
+        DISCONNECTED = 1,
+        CONNECTED = 2
     }
-
-    export type OnStateChangedCallback = (state: AssignmentClientState) => void;
-
+    export type OnAssignmentClientStateChanged = (state: AssignmentClientState) => void;
     export class AssignmentClient {
+        #private;
         static get UNAVAILABLE(): AssignmentClientState;
         static get DISCONNECTED(): AssignmentClientState;
         static get CONNECTED(): AssignmentClientState;
         static stateToString(state: AssignmentClientState): string;
-        constructor();
+        constructor(contextID: number, nodeType: NodeTypeValue);
         get state(): AssignmentClientState;
-        // eslint-disable-next-line accessor-pairs
-        set onStateChanged(callback: OnStateChangedCallback);
+        set onStateChanged(callback: OnAssignmentClientStateChanged);
     }
 
-    export class AudioMixer extends AssignmentClient {
-        constructor(pContextId: number);
-        get AudioOutput(): MediaStream;
-        play():void;
-        pause(): void;
+    // ====================================================
+    export const enum NodeTypeValue {
+        // eslint-disable-next-line @typescript-eslint/no-shadow
+        DomainServer = "D",
+        EntityServer = "o",
+        Agent = "I",
+        AudioMixer = "M",
+        AvatarMixer = "W",
+        AssetServer = "A",
+        MessagesMixer = "m",
+        EntityScriptServer = "S",
+        UpstreamAudioMixer = "B",
+        UpstreamAvatarMixer = "C",
+        DownstreamAudioMixer = "a",
+        DownstreamAvatarMixer = "w",
+        Unassigned = "\u0001"
     }
+    // eslint-disable-next-line @typescript-eslint/init-declarations
+    export const NodeType: {
+        readonly DomainServer: NodeTypeValue.DomainServer;
+        readonly EntityServer: NodeTypeValue.EntityServer;
+        readonly Agent: NodeTypeValue.Agent;
+        readonly AudioMixer: NodeTypeValue.AudioMixer;
+        readonly AvatarMixer: NodeTypeValue.AvatarMixer;
+        readonly AssetServer: NodeTypeValue.AssetServer;
+        readonly MessagesMixer: NodeTypeValue.MessagesMixer;
+        readonly EntityScriptServer: NodeTypeValue.EntityScriptServer;
+        readonly UpstreamAudioMixer: NodeTypeValue.UpstreamAudioMixer;
+        readonly UpstreamAvatarMixer: NodeTypeValue.UpstreamAvatarMixer;
+        readonly DownstreamAudioMixer: NodeTypeValue.DownstreamAudioMixer;
+        readonly DownstreamAvatarMixer: NodeTypeValue.DownstreamAvatarMixer;
+        readonly Unassigned: NodeTypeValue.Unassigned;
+        readonly "__#39@#NODE_TYPE_NAMES": {
+            D: string;
+            o: string;
+            I: string;
+            M: string;
+            W: string;
+            m: string;
+            A: string;
+            S: string;
+            B: string;
+            C: string;
+            a: string;
+            w: string;
+            "\u0001": string;
+        };
+        getNodeTypeName(nodeType: NodeTypeValue): string;
+        isUpstream(nodeType: NodeTypeValue): boolean;
+    };
+
+    // ============================
+    export class AudioMixer extends AssignmentClient {
+        #private;
+        constructor(contextID: number);
+        get audioOuput(): MediaStream;
+        set audioInput(audioInput: MediaStream | null);
+        get inputMuted(): boolean;
+        set inputMuted(inputMuted: boolean);
+        play(): Promise<void>;
+        pause(): Promise<void>;
+    }
+
 }

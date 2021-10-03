@@ -5,7 +5,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
-import { AssignmentClientState, AudioMixer } from "@Libs/vircadia-web-sdk";
+import { AssignmentClientState, AudioMixer } from "@Libs/Vircadia";
 import Signal from "@Modules/utility/Signal";
 
 // Allow 'get' lines to be compact
@@ -31,7 +31,7 @@ export class DomainAudio {
 
     getDomainAudioStream(): Nullable<MediaStream> {
         if (this.#_audioMixer) {
-            return this.#_audioMixer.AudioOutput;
+            return this.#_audioMixer.audioOuput;
         }
         return undefined;
     }

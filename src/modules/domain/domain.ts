@@ -8,7 +8,7 @@
 // Allow 'get' lines to be compact
 /* eslint-disable @typescript-eslint/brace-style */
 
-import { DomainServer, ConnectionState } from "@Libs/vircadia-web-sdk";
+import { DomainServer, ConnectionState } from "@Libs/Vircadia";
 
 import { DomainAudio } from "@Modules/domain/audio";
 
