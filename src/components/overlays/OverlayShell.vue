@@ -203,7 +203,6 @@ export default defineComponent({
         },
 
         "managerProps.overlayStatus"(newVal: string) {
-            console.info("newVal", newVal);
             this.overlayStatus = newVal;
         }
     },
