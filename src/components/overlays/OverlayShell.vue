@@ -172,7 +172,7 @@ export default defineComponent({
     }),
 
     watch: {
-        mouseCaptured(newVal: string) {
+        mouseCaptured(newVal: boolean) {
             if (newVal) {
                 // TODO: what is 'newVal' telling us that all settings are to 'true'?
                 // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -247,7 +247,7 @@ export default defineComponent({
         },
 
         beginAction(event: MouseEvent, action: string) {
-            if (this.dragAction) {
+            if (this.dragAction && this.dragAction !== "UNKNOWN") {
                 return;
             }
             this.dragAction = action;
