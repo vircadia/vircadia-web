@@ -8,12 +8,12 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
-import Log from './log.js';
+import Log from "./log.js";
 
-const Debug = (function () {
+const Debug = (function() {
     function error(type, string) {
-        Log.print(type, 'ERROR', string);
-    };
+        Log.print(type, "ERROR", string);
+    }
 
     return {
         error
