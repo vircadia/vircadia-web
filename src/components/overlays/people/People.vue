@@ -18,7 +18,7 @@
     <OverlayShell
         icon="people"
         title="People"
-        :propsToPass="propsToPass"
+        :managerProps="propsToPass"
         :defaultHeight="300"
         :defaultWidth="300"
         :defaultLeft="0"

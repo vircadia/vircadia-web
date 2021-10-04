@@ -18,7 +18,7 @@
     <OverlayShell
         icon="travel_explore"
         title="Explore"
-        :propsToPass="propsToPass"
+        :managerProps="propsToPass"
         :defaultHeight="500"
         :defaultWidth="400"
         :defaultLeft="50"
