@@ -18,7 +18,7 @@
     <OverlayShell
         icon="chat"
         title="Chat"
-        :propsToPass="propsToPass"
+        :managerProps="propsToPass"
         :defaultHeight="300"
         :defaultWidth="600"
         :defaultLeft="0"

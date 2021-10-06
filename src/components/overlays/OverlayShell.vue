@@ -70,21 +70,20 @@
         @mouseleave="hovered = false"
         @mousedown="$emit('overlay-action', 'select')"
         :style="{
-            // Display
-            display: overlayStatus === 'minimized' ? 'none' : undefined,
             // Dimensions
-            height: height + 'px', // TODO: Should these two be a string so that we can define vh or whatever at will?
-            width: width + 'px',
+            // TODO: Should these two be a string so that we can define vh or whatever at will?
+            height: isMaximized ? '100%' : (showWindowContent ? height : 32) + 'px',
+            width: isMaximized ? '100%' : width + 'px',
             // Positioning
-            top: top + 'px',
-            left: left + 'px'
+            top: isMaximized ? '0px' : top + 'px',
+            left: isMaximized ? '0px' : left + 'px'
         }"
     >
         <q-slide-transition>
             <q-bar
                 class="bar"
                 :style="hoverShowBar ? 'position: absolute; width: 100%;' : ''"
-                v-show="!hoverShowBar || hovered"
+                v-show="showWindowTitleBar"
             >
                 <q-icon :name="icon" />
                 <div class="title" @mousedown="canMove && beginAction($event, 'move')">{{ title }}</div>
@@ -103,25 +102,26 @@
         <q-card-section
             class="col q-pa-none"
             :style="hoverShowBar ? 'margin-top: 32px;' : ''"
+            v-show="showWindowContent"
         >
             <slot />
         </q-card-section>
 
-        <div v-if="canResize && canResizeHeight"
+        <div v-if="canResize && canResizeHeight && !isMinimized && !isMaximized"
             class="resize resize-top" @mousedown="beginAction($event, 'resize-top')" />
-        <div v-if="canResize && canResizeHeight"
+        <div v-if="canResize && canResizeHeight && !isMinimized && !isMaximized"
             class="resize resize-bottom" @mousedown="beginAction($event, 'resize-bottom')" />
-        <div v-if="canResize && canResizeWidth"
+        <div v-if="canResize && canResizeWidth && !isMaximized"
             class="resize resize-left" @mousedown="beginAction($event, 'resize-left')" />
-        <div v-if="canResize && canResizeWidth"
+        <div v-if="canResize && canResizeWidth && !isMaximized"
             class="resize resize-right" @mousedown="beginAction($event, 'resize-right')" />
-        <div v-if="canResize && canResizeWidth && canResizeWidth"
+        <div v-if="canResize && canResizeHeight && canResizeWidth && !isMinimized && !isMaximized"
             class="resize resize-nw" @mousedown="beginAction($event, 'resize-nw')" />
-        <div v-if="canResize && canResizeWidth && canResizeWidth"
+        <div v-if="canResize && canResizeHeight && canResizeWidth && !isMinimized && !isMaximized"
             class="resize resize-ne" @mousedown="beginAction($event, 'resize-ne')" />
-        <div v-if="canResize && canResizeWidth && canResizeWidth"
+        <div v-if="canResize && canResizeHeight && canResizeWidth && !isMinimized && !isMaximized"
             class="resize resize-sw" @mousedown="beginAction($event, 'resize-sw')" />
-        <div v-if="canResize && canResizeWidth && canResizeWidth"
+        <div v-if="canResize && canResizeHeight && canResizeWidth && !isMinimized && !isMaximized"
             class="resize resize-se" @mousedown="beginAction($event, 'resize-se')" />
     </q-card>
 </template>
@@ -171,8 +171,23 @@ export default defineComponent({
         onDragMoveReady: true
     }),
 
+    computed: {
+        isMaximized(): boolean {
+            return this.overlayStatus === "maximized";
+        },
+        isMinimized(): boolean {
+            return this.overlayStatus === "minimized";
+        },
+        showWindowTitleBar(): boolean {
+            return !this.hoverShowBar || this.hovered || this.isMinimized || this.isMaximized;
+        },
+        showWindowContent(): boolean {
+            return !this.isMinimized;
+        }
+    },
+
     watch: {
-        mouseCaptured(newVal: string) {
+        mouseCaptured(newVal: boolean) {
             if (newVal) {
                 // TODO: what is 'newVal' telling us that all settings are to 'true'?
                 // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -188,7 +203,6 @@ export default defineComponent({
         },
 
         "managerProps.overlayStatus"(newVal: string) {
-            console.info("newVal", newVal);
             this.overlayStatus = newVal;
         }
     },
@@ -247,7 +261,7 @@ export default defineComponent({
         },
 
         beginAction(event: MouseEvent, action: string) {
-            if (this.dragAction) {
+            if (this.dragAction && this.dragAction !== "UNKNOWN") {
                 return;
             }
             this.dragAction = action;

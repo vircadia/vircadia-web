@@ -59,7 +59,18 @@ export default defineComponent({
                     break;
                 }
                 case "minimize":
-                    this.overlays[index].overlayStatus = "minimized";
+                    if (this.overlays[index].overlayStatus === "minimized") {
+                        this.overlays[index].overlayStatus = "restored";
+                    } else {
+                        this.overlays[index].overlayStatus = "minimized";
+                    }
+                    break;
+                case "maximize":
+                    if (this.overlays[index].overlayStatus === "maximized") {
+                        this.overlays[index].overlayStatus = "restored";
+                    } else {
+                        this.overlays[index].overlayStatus = "maximized";
+                    }
                     break;
                 case "close":
                     this.overlays.splice(index, 1);
