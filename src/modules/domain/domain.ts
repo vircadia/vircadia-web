@@ -135,7 +135,7 @@ export class Domain {
             // eslint-disable-next-line @typescript-eslint/no-magic-numbers
             url = url.substring(8);
         }
-        if (!url.startsWith("ws://")) {
+        if (!(url.startsWith("ws://") || url.startsWith("wss://"))) {
             url = Config.getItem(DEFAULT_DOMAIN_PROTOCOL) + "//" + url;
         }
         // See if there is a :port on the end
