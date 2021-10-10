@@ -5,7 +5,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
-import { AssignmentClientState, AudioMixer } from "@Libs/Vircadia";
+import { AssignmentClientState, AudioMixer } from "@vircadia/web-sdk";
 import Signal from "@Modules/utility/Signal";
 
 // Allow 'get' lines to be compact

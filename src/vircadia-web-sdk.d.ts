@@ -7,7 +7,7 @@
 
 // TEMPORARY definitions for the interface to vircadia-web-sdk
 // This will be replaced with an official definition.
-declare module "@Libs/Vircadia" {
+declare module "@vircadia/web-sdk" {
 
     export enum ConnectionState {
         DISCONNECTED = 0,
