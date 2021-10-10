@@ -44,7 +44,7 @@
                     </q-btn-group>
                     <q-space />
 
-                    <div>{{ $store.state.globalConsts.APP_NAME }} {{ $store.state.globalConsts.APP_VERSION }}</div>
+                    <div>{{ $store.state.globalConsts.APP_NAME }} {{ $store.state.globalConsts.APP_VERSION_TAG }}</div>
                 </q-toolbar>
             </div>
         </q-header>
@@ -174,6 +174,7 @@
 <script lang="ts">
 
 import { defineComponent } from "vue";
+import { useQuasar } from "quasar";
 
 // Components
 import MainScene from "@Components/MainScene.vue";
@@ -203,6 +204,7 @@ export default defineComponent({
     },
 
     data() {
+        const $q = useQuasar();
         return {
             // Toolbar
             locationInput: "",
@@ -248,7 +250,7 @@ export default defineComponent({
                     icon: "lightbulb",
                     label: "Light / Dark",
                     action: () => {
-                        this.$q.dark.toggle();
+                        $q.dark.toggle();
                         Log.info(Log.types.OTHER, "Toggle Dark");
                     },
                     isCategory: false,

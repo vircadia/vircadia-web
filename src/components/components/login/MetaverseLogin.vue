@@ -51,6 +51,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { Account } from "@Modules/account";
+import { useQuasar } from "quasar";
 
 export default defineComponent({
     name: "MetaverseLogin",
@@ -64,13 +65,12 @@ export default defineComponent({
     }),
 
     methods: {
-        // the following 'disable' is here because of the commented await. Remove when implemented.
-        // eslint-disable-next-line @typescript-eslint/require-await
         async onSubmit() {
+            const $q = useQuasar();
             try {
                 await Account.login(this.username, this.password);
 
-                this.$q.notify({
+                $q.notify({
                     type: "positive",
                     textColor: "white",
                     icon: "cloud_done",
@@ -80,7 +80,7 @@ export default defineComponent({
                 this.$emit("closeDialog");
             } catch (result) {
                 // TODO: what is the type of "result"? Define the fields
-                this.$q.notify({
+                $q.notify({
                     type: "negative",
                     textColor: "white",
                     icon: "warning",

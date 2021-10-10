@@ -13,6 +13,7 @@ import {
 } from "vuex";
 
 import packageInfo from "@Base/../package.json";
+import versionInfo from "@Base/../VERSION.json";
 
 import { VVector3, VVector4 } from "@Modules/render";
 
@@ -88,6 +89,7 @@ export interface IRootState {
     globalConsts: {
         APP_NAME: string,
         APP_VERSION: string,
+        APP_VERSION_TAG: string,
         SAFETY_BEFORE_SESSION_TIMEOUT: number // If a token has 6 or less hours left on its life, refresh it.
     },
     debugging: KeyedCollection,
@@ -163,6 +165,7 @@ export const Store = createStore<IRootState>({
         globalConsts: {
             APP_NAME: packageInfo.productName,
             APP_VERSION: packageInfo.version,
+            APP_VERSION_TAG: versionInfo["version-tag"],
             SAFETY_BEFORE_SESSION_TIMEOUT: 21600 // If a token has 6 or less hours left on its life, refresh it.
         },
         debugging: {},

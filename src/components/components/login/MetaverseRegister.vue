@@ -77,6 +77,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { useQuasar } from "quasar";
 
 import { Account } from "@Modules/account";
 
@@ -94,6 +95,7 @@ export default defineComponent({
 
     methods: {
         async onSubmit() {
+            const $q = useQuasar();
             try {
                 const awaiting = await Account.createAccount(this.username, this.password, this.email);
                 const result = {        // TODO: temp to replace code above
@@ -122,7 +124,7 @@ export default defineComponent({
                 }
             } catch (result) {
                 // TODO: what is the type of "result"?
-                this.$q.notify({
+                $q.notify({
                     type: "negative",
                     textColor: "white",
                     icon: "warning",
