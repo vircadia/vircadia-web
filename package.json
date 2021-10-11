@@ -7,7 +7,9 @@
     "license": "Apache-2.0",
     "scripts": {
         "build": "npm-run-all -s \"create-version\" \"build-quasar\"",
+        "dev": "npm-run-all -s \"create-version\" \"build-quasar-dev\"",
         "build-quasar": "quasar build",
+        "build-quasar-dev": "quasar dev",
         "lint": "eslint --ext .js,.ts,.vue ./",
         "create-version": "node build_scripts/createVersion.js",
         "test": "echo \"No test specified\" && exit 0"
