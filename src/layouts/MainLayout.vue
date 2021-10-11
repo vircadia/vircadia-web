@@ -44,7 +44,10 @@
                     </q-btn-group>
                     <q-space />
 
-                    <div>{{ $store.state.globalConsts.APP_NAME }} {{ $store.state.globalConsts.APP_VERSION_TAG }}</div>
+                    <div>
+                        <div>{{ $store.state.globalConsts.APP_NAME }}</div>
+                        <div>{{ $store.state.globalConsts.APP_VERSION_TAG }}</div>
+                    </div>
                 </q-toolbar>
             </div>
         </q-header>
