@@ -8,11 +8,9 @@
 // Allow 'get' lines to be compact
 /* eslint-disable @typescript-eslint/brace-style */
 
-import { DomainServer, ConnectionState } from "@vircadia/web-sdk";
+import { DomainServer, ConnectionState, Signal } from "@vircadia/web-sdk";
 
 import { DomainAudio } from "@Modules/domain/audio";
-
-import Signal from "@Modules/utility/Signal";
 
 import { Config, DEFAULT_METAVERSE_URL, DEFAULT_DOMAIN_PROTOCOL, DEFAULT_DOMAIN_PORT } from "@Base/config";
 import Log from "@Modules/debugging/log";

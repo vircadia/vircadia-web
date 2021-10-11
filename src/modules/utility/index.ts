@@ -9,7 +9,7 @@ import { MetaverseMgr } from "@Modules/metaverse";
 
 import { DomainMgr } from "@Modules/domain";
 
-import { Slot } from "@Modules/utility/Signal";
+import { Slot } from "@vircadia/web-sdk";
 
 import { Config, TrueValue, FalseValue, RECONNECT_ON_STARTUP, LAST_DOMAIN_SERVER, LOG_LEVEL } from "@Base/config";
 

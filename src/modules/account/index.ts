@@ -13,7 +13,7 @@ import { OAuthTokenAPI, OAuthTokenResp, OAuthTokenError } from "@Modules/metaver
 import { GetAccountByIdAPI, GetAccountByIdResp,
     PostUsersAPI, PostUsersReq, PostUsersResp } from "@Modules/metaverse/APIAccount";
 import { AccountInfo } from "@Modules/metaverse/APIInfo";
-import Signal from "@Modules/utility/Signal";
+import { Signal } from "@vircadia/web-sdk";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Config } from "@Base/config";

@@ -12,7 +12,7 @@ import { MetaverseInfoResp, MetaverseInfoAPI } from "@Modules/metaverse/APIAccou
 
 // import { Store, Mutations as StoreMutations } from "@Base/store";
 
-import Signal from "@Modules/utility/Signal";
+import { Signal } from "@vircadia/web-sdk";
 
 import { Config, DEFAULT_METAVERSE_URL } from "@Base/config";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

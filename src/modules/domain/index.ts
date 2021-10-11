@@ -7,11 +7,10 @@
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Config, LAST_DOMAIN_SERVER } from "@Base/config";
-import { ConnectionState } from "@vircadia/web-sdk";
+import { ConnectionState, Signal, Slot } from "@vircadia/web-sdk";
 
 import { Domain } from "@Modules/domain/domain";
 
-import Signal, { Slot } from "@Modules/utility/Signal";
 import Log from "../debugging/log";
 
 // Allow 'get' statements to be compact

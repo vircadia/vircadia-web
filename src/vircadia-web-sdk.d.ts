@@ -18,7 +18,6 @@ declare module "@vircadia/web-sdk" {
     }
     export type OnDomainStateChanged = (state: ConnectionState, info: string) => void;
     export class DomainServer {
-        #private;
         static get DISCONNECTED(): ConnectionState;
         static get CONNECTING(): ConnectionState;
         static get CONNECTED(): ConnectionState;
@@ -44,7 +43,6 @@ declare module "@vircadia/web-sdk" {
     }
     export type OnAssignmentClientStateChanged = (state: AssignmentClientState) => void;
     export class AssignmentClient {
-        #private;
         static get UNAVAILABLE(): AssignmentClientState;
         static get DISCONNECTED(): AssignmentClientState;
         static get CONNECTED(): AssignmentClientState;
@@ -107,7 +105,6 @@ declare module "@vircadia/web-sdk" {
 
     // ============================
     export class AudioMixer extends AssignmentClient {
-        #private;
         constructor(contextID: number);
         get audioOuput(): MediaStream;
         set audioInput(audioInput: MediaStream | null);
@@ -117,4 +114,12 @@ declare module "@vircadia/web-sdk" {
         pause(): Promise<void>;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    export type Slot = (...args: any[]) => void;
+    export class Signal {
+        connect(slot: Slot): void;
+        disconnect(slot: Slot): void;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        emit(...params: any[]): void;
+    }
 }
