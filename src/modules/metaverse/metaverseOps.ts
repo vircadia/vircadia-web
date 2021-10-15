@@ -45,7 +45,7 @@ export function findErrorMsg(pErr: unknown): string {
 }
 
 /**
- * Return cleaned up URL to the metaverse-server.
+ * Return cleaned up URL to the Metaverse server.
  *
  * Mostly makes sure there is no trailing slash so, when added to the REST access
  * point, there are not two slashes.

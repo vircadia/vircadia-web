@@ -5,7 +5,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 -->
 <template>
-  <router-view />
+    <router-view />
 </template>
 <script lang="ts">
 import { defineComponent } from "vue";
