@@ -152,8 +152,9 @@ import OverlayShell from "@Components/overlays/OverlayShell.vue";
 
 import { Mutations as StoreMutations } from "@Store/index";
 
-type Nullable<T> = T | null | undefined;    // for some reason, global defns aren't in Vue files
 import Log from "@Modules/debugging/log";
+
+type Nullable<T> = T | null | undefined;    // for some reason, global defns aren't in Vue files
 
 export default defineComponent({
     name: "Audio",
@@ -263,6 +264,7 @@ export default defineComponent({
                 this.saveInputsList(inputsList);
                 return inputsList;
             }
+            Log.error(Log.types.AUDIO, `requestInputsList: mediaDevices not available`);
             this.saveInputsList([]);
             return [];
         },
@@ -403,11 +405,11 @@ export default defineComponent({
     // },
 
     mounted: function(): void {
-        /* commented out to wait for implementation
-        this.$nextTick(() => {
-            this.requestInputAccess();
+        // eslint-disable-next-line no-void, @typescript-eslint/no-misused-promises
+        void this.$nextTick(async () => {
+            await this.requestInputAccess();
+            return undefined;
         });
-        */
         // eslint-disable-next-line no-void
         void this.requestInputsList();
     }
