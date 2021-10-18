@@ -9,8 +9,7 @@
 -->
 
 <template>
-    <q-bar class="bar"
-    >
+    <q-bar class="bar">
         <div class="title" >Metaverse Login</div>
         <q-space />
         <q-btn dense flat icon="close" @click="$emit('closeDialog', 'close')" />
@@ -32,7 +31,7 @@
 
         <q-tab-panels v-model="tab" animated>
             <q-tab-panel name="metaverseLogin">
-                <MetaverseLogin @closeDialog="$emit('closeDialog')"></MetaverseLogin>
+                <MetaverseLogin @closeDialog="$emit('closeDialog', 'close')"></MetaverseLogin>
             </q-tab-panel>
 
             <q-tab-panel name="metaverseRegister">

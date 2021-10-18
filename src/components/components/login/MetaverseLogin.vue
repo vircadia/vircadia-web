@@ -51,7 +51,6 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { Account } from "@Modules/account";
-import { useQuasar } from "quasar";
 
 export default defineComponent({
     name: "MetaverseLogin",
@@ -66,21 +65,29 @@ export default defineComponent({
 
     methods: {
         async onSubmit() {
-            const $q = useQuasar();
             try {
-                await Account.login(this.username, this.password);
+                const logonResponse = await Account.login(this.username, this.password);
 
-                $q.notify({
-                    type: "positive",
-                    textColor: "white",
-                    icon: "cloud_done",
-                    message: "Welcome " + this.username + "."
-                });
+                if (logonResponse) {
+                    this.$q.notify({
+                        type: "positive",
+                        textColor: "white",
+                        icon: "cloud_done",
+                        message: "Welcome " + this.username + "."
+                    });
 
-                this.$emit("closeDialog");
+                    this.$emit("closeDialog");
+                } else {
+                    this.$q.notify({
+                        type: "negative",
+                        textColor: "white",
+                        icon: "warning",
+                        message: "Login attempted failed"
+                    });
+                }
             } catch (result) {
                 // TODO: what is the type of "result"? Define the fields
-                $q.notify({
+                this.$q.notify({
                     type: "negative",
                     textColor: "white",
                     icon: "warning",
