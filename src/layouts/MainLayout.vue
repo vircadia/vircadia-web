@@ -164,7 +164,7 @@
 
         <q-dialog v-model="getDialogState">
             <q-card
-                class="column no-wrap items-stretch q-pa-md"
+                class="column no-wrap items-stretch"
                 style="background: rgba(0, 0, 0, 0.8);"
             >
                 <component @closeDialog='closeDialog' :is="$store.state.dialog.which"></component>
