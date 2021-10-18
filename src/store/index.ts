@@ -6,17 +6,22 @@
 import { store } from "quasar/wrappers";
 import { InjectionKey } from "vue";
 import {
+    ActionContext,
     createStore,
     Store as VuexStore,
     useStore as vuexUseStore
 } from "vuex";
 
 import packageInfo from "@Base/../package.json";
+import versionInfo from "@Base/../VERSION.json";
 
-import { AccountModule, IAccountState } from "@Store/account";
-import { AudioModule, IAudioState } from "@Store/audio";
-import { MetaverseModule, IMetaverseState } from "@Store/metaverse";
-import { RendererModule, IRendererState } from "@Store/renderer";
+import { VVector3, VVector4 } from "@Modules/render";
+
+import { MetaverseMgr } from "@Modules/metaverse";
+
+import { Metaverse } from "@Base/modules/metaverse/metaverse";
+import { Domain } from "@Modules/domain/domain";
+import { onAccessTokenChangePayload, onAttributeChangePayload } from "@Modules/account";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
@@ -38,7 +43,6 @@ import Log from "@Modules/debugging/log";
 export enum Mutations {
     MUTATE = "STATE_MUTATE"
 }
-
 /**
  * Payload passed to MUTATE
  * Either value is given for a property or a set of sub-values is specified to set
@@ -54,6 +58,29 @@ export interface MutatePayload {
     with?: KeyedCollection
 }
 
+export enum Actions {
+    SET_METAVERSE_URL = "SET_METAVERSE_URL",
+    SET_DOMAIN_URL = "SET_DOMAIN_URL",
+    UPDATE_METAVERSE = "UPDATE_METAVERSE",
+    UPDATE_DOMAIN = "UPDATE_DOMAIN",
+    UPDATE_ACCOUNT_TOKEN = "UPDATE_ACCOUNT_TOKEN",
+    UPDATE_ACCOUNT_INFO = "UPDATE_ACCOUNT_INFO"
+}
+export type SetMetaverseUrlPayload = string;
+export type SetDomainUrlPayload = string;
+export interface UpdateMetaversePayload {
+    metaverse: Metaverse,
+    newState: string
+}
+export interface UpdateDomainPayload {
+    domain: Domain,
+    newState: string,
+    info: string
+}
+// For convience, the payloads are the same
+export type UpdateAccountTokenPayload = onAccessTokenChangePayload;
+export type UpdateAccountInfoPayload = onAttributeChangePayload;
+
 /**
  * Properties in the root storage object
  * TODO: Eventually move these into modules
@@ -62,6 +89,7 @@ export interface IRootState {
     globalConsts: {
         APP_NAME: string,
         APP_VERSION: string,
+        APP_VERSION_TAG: string,
         SAFETY_BEFORE_SESSION_TIMEOUT: number // If a token has 6 or less hours left on its life, refresh it.
     },
     debugging: KeyedCollection,
@@ -79,11 +107,51 @@ export interface IRootState {
         current: string,
         state: string
     },
-    // This makes TypeScript happy and is filled by Vuex when modules are initialized
-    account: IAccountState,
-    renderer: IRendererState,
-    metaverse: IMetaverseState,
-    audio: IAudioState
+    domain: {
+        connectionState: string,
+        url: string
+    },
+    metaverse: {
+        name: string;
+        nickname: string;
+        server: string;
+        connectionState: string;
+        iceServer: string | undefined ;
+        serverVersion: string | undefined ;
+    },
+    account: {
+        username: string;
+        isLoggedIn: boolean;
+        // Token data
+        accessToken: string;
+        tokenType: string;
+        scope: string;
+        // Options
+        isAdmin: boolean;
+        useAsAdmin: boolean;
+        // Profile
+        images: {
+            hero?: string;
+            tiny?: string;
+            thumbnail?: string;
+        }
+    },
+    renderer: {
+        focusSceneId: number,
+        fps: number,
+        cameraLocation: Nullable<VVector3>,
+        cameraRotation: Nullable<VVector4>
+    },
+    audio: {
+        user: {
+            connected: boolean;             // 'true' if have audio input device
+            hasInputAccess: boolean;        // mic toggle, 'true' if input is on
+            awaitingCapturePermissions: boolean;    // waiting for user to allow access to input device
+            currentInputDevice: Nullable<MediaDeviceInfo>;  // info on current selected device
+            stream: Nullable<MediaStream>,  // the input stream
+            inputsList: MediaDeviceInfo[];  // a list of the input devices from the browser
+        }
+    }
 }
 
 // This store interface wrapper exists to add TS definitions of getters and mutators
@@ -97,6 +165,7 @@ export const Store = createStore<IRootState>({
         globalConsts: {
             APP_NAME: packageInfo.productName,
             APP_VERSION: packageInfo.version,
+            APP_VERSION_TAG: versionInfo["version-tag"],
             SAFETY_BEFORE_SESSION_TIMEOUT: 21600 // If a token has 6 or less hours left on its life, refresh it.
         },
         debugging: {},
@@ -114,20 +183,52 @@ export const Store = createStore<IRootState>({
             current: "",
             state: "Not Connected"
         },
-        // This makes TypeScript happy and is filled by Vuex when modules are initialized
-        account: {} as IAccountState,
-        renderer: {} as IRendererState,
-        metaverse: {} as IMetaverseState,
-        audio: {} as IAudioState
+        domain: {
+            connectionState: "Disconnected",
+            url: "",
+            audio: {
+
+            }
+        },
+        // Information about the metaverse-server we're connected to
+        metaverse: {
+            name: "",
+            nickname: "",
+            server: "",
+            connectionState: "",
+            iceServer: undefined,
+            serverVersion: undefined
+        },
+        // Information about the logged in account. Refer to Account module
+        account: {
+            username: "Guest",
+            isLoggedIn: false,
+            accessToken: "UNKNOWN",
+            tokenType: "Bearer",
+            scope: "UNKNOWN",
+            isAdmin: false,
+            useAsAdmin: false,
+            images: {}
+        },
+        // Information about the rendering system
+        renderer: {
+            focusSceneId: 0,
+            fps: 1,
+            cameraLocation: undefined,
+            cameraRotation: undefined
+        },
+        // Information about the audio system
+        audio: {
+            user: {
+                connected: false,
+                hasInputAccess: false,
+                awaitingCapturePermissions: false,
+                currentInputDevice: undefined,
+                stream: undefined,
+                inputsList: []
+            }
+        }
     }),
-    // by adding the modules here, Vuex will initalize them, link them
-    //     into the event tree, and load the module name variable.
-    modules: {
-        account: AccountModule,
-        renderer: RendererModule,
-        metaverse: MetaverseModule,
-        audio: AudioModule
-    },
     mutations: {
         /**
          * Changes the value of state variables.
@@ -164,9 +265,10 @@ export const Store = createStore<IRootState>({
          */
         [Mutations.MUTATE](state: IRootState, payload: MutatePayload) {
             // DEBUG DEBUG DEBUG
-            // if (payload && payload.property && payload.property !== "renderer") {
-            //     Log.debug(Log.types.OTHER, `MUTATE: ${JSON.stringify(payload)}`);
-            // }
+            // This supresses the periodic renderer stat update from being output on the console
+            if (payload && payload.property && payload.property !== "renderer") {
+                Log.debug(Log.types.OTHER, `MUTATE: ${JSON.stringify(payload)}`);
+            }
             // END DEBUG DEBUG DEBUG
             // Create the target location to store the mutation
             let target = state as unknown as KeyedCollection;
@@ -228,7 +330,75 @@ export const Store = createStore<IRootState>({
             }
             */
         }
+    },
+    actions: {
+        /**
+         * Called when metaverse-server information changes and the UI should be updated
+         * @param {ActionContext} pContext
+         * @param {UpdateMetaversePayload} pPayload metaverse-server attributes to update
+         */
+        // eslint-disable-next-line @typescript-eslint/require-await
+        async [Actions.UPDATE_METAVERSE](pContext: ActionContext<IRootState, IRootState>,
+            pPayload: UpdateMetaversePayload): Promise<void> {
+            const metaverse = pPayload.metaverse;
+            pContext.commit(Mutations.MUTATE, {
+                property: "metaverse",
+                with: {
+                    name: metaverse.MetaverseName,
+                    nickname: metaverse.MetaverseNickname,
+                    connectionState: pPayload.newState,
+                    server: metaverse.MetaverseUrl,
+                    iceServer: metaverse.IceServer,
+                    serverVersion: metaverse.ServerVersion
+                }
+            });
+        },
+        // eslint-disable-next-line @typescript-eslint/require-await
+        async [Actions.UPDATE_DOMAIN](pContext: ActionContext<IRootState, IRootState>,
+            pPayload: UpdateDomainPayload): Promise<void> {
+            const domain = pPayload.domain;
+            pContext.commit(Mutations.MUTATE, {
+                property: "domain",
+                with: {
+                    connectionState: pPayload.newState,
+                    url: domain.DomainUrl
+                }
+            });
+        },
+        // Handle any state processing when account attributes change
+        // eslint-disable-next-line @typescript-eslint/require-await
+        async [Actions.UPDATE_ACCOUNT_INFO](pContext: ActionContext<IRootState, IRootState>,
+            pPayload: UpdateAccountInfoPayload): Promise<void> {
 
+            Log.debug(Log.types.OTHER, `StoreAction.UpdateAccountInfo`);
+            const info = pPayload.accountInfo;
+            pContext.commit(Mutations.MUTATE, {
+                property: "account",
+                with: {
+                    username: info.username,
+                    isLoggedIn: pPayload.isLoggedIn,
+                    accessToken: pPayload.accessToken,
+                    tokenType: pPayload.accessTokenType,
+                    scope: pPayload.scope,
+                    isAdmin: pPayload.isAdmin
+                }
+            });
+            if (info.images) {
+                Store.commit(Mutations.MUTATE, {
+                    property: "account.images",
+                    value: info.images
+                });
+            } else {
+                Store.commit(Mutations.MUTATE, {
+                    property: "account.images",
+                    value: {}
+                });
+            }
+        },
+        // Example action. Any script should be calling the Metavsere component directly
+        async [Actions.SET_METAVERSE_URL](pContext: ActionContext<IRootState, IRootState>, pUrl: string): Promise<void> {
+            await MetaverseMgr.ActiveMetaverse.setMetaverseUrl(pUrl);
+        }
     },
     // enable strict mode (adds overhead!)
     // for dev mode and --debug builds only

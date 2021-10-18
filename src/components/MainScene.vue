@@ -28,6 +28,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 
+import { Mutations as StoreMutations } from "@Store/index";
 import { Renderer } from "@Modules/render/renderer";
 import { VScene } from "@Modules/render/vscene";
 
@@ -70,7 +71,10 @@ export default defineComponent({
         // Initialize the graphics display
         const canvas = this.$refs.renderCanvas as HTMLCanvasElement;
         await Renderer.initialize(canvas);
-        this.$store.commit("renderer/setFocusSceneId", 0);
+        this.$store.commit(StoreMutations.MUTATE, {
+            property: "renderer/focusSceneId",
+            value: 0
+        });
 
         // Create one scene for the moment
         this.scene = Renderer.createScene();

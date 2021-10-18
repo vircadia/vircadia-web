@@ -16,9 +16,14 @@
         :defaultHeight="500"
         :defaultWidth="400"
     >
+        <!--
         <q-card
             class="column full-height"
-            v-if="$store.state.audio.inputsList.length > 0"
+            v-if="$store.state.audio.user.inputsList.length > 0"
+        >
+        -->
+        <q-card
+            class="column full-height"
         >
 
             <q-tabs
@@ -42,8 +47,8 @@
                                 <q-btn
                                     fab
                                     class="q-mr-sm"
-                                    :color="$store.state.audio.hasInputAccess ? 'primary' : 'red'"
-                                    :icon="$store.state.audio.hasInputAccess ? 'mic' : 'mic_off'"
+                                    :color="$store.state.audio.user.hasInputAccess ? 'primary' : 'red'"
+                                    :icon="$store.state.audio.user.hasInputAccess ? 'mic' : 'mic_off'"
                                     @click="micToggled"
                                 />
                             </div>
@@ -66,7 +71,7 @@
                         </div>
 
                         <div
-                            v-show="$store.state.audio.hasInputAccess"
+                            v-show="$store.state.audio.user.hasInputAccess"
                             class="row q-mt-sm"
                         >
                             <q-btn
@@ -74,7 +79,7 @@
                                 dense
                                 round
                                 class="q-mr-sm"
-                                :disabled="!$store.state.audio.hasInputAccess"
+                                :disabled="!$store.state.audio.user.hasInputAccess"
                                 :color="isListeningToFeedback ? 'primary' : 'red'"
                                 :icon="isListeningToFeedback ? 'hearing' : 'hearing_disabled'"
                                 @click="toggleInputFeedback"
@@ -102,14 +107,14 @@
                         />
 
                         <div
-                            v-if="$store.state.audio.hasInputAccess === false"
+                            v-if="$store.state.audio.user.hasInputAccess === false"
                             class="text-subtitle1 text-grey text-center"
                         >
                             Please grant mic access to the app in order to speak.
                         </div>
 
                         <q-list v-else>
-                            <div v-for="input in $store.state.audio.inputsList" :key="input.deviceId">
+                            <div v-for="input in $store.state.audio.user.inputsList" :key="input.deviceId">
                                 <q-item v-show="input.label" tag="label" v-ripple>
                                     <q-item-section avatar>
                                         <q-radio
@@ -134,7 +139,7 @@
             </q-scroll-area>
         </q-card>
 
-        <q-inner-loading :showing="$store.state.audio.inputsList.length === 0">
+        <q-inner-loading :showing="$store.state.audio.user.inputsList.length === 0">
             <q-spinner-gears size="50px" color="primary" />
         </q-inner-loading>
     </OverlayShell>
@@ -145,7 +150,11 @@ import { defineComponent } from "vue";
 
 import OverlayShell from "@Components/overlays/OverlayShell.vue";
 
-import { Audio } from "@Modules/audio";
+import { Mutations as StoreMutations } from "@Store/index";
+
+import Log from "@Modules/debugging/log";
+
+type Nullable<T> = T | null | undefined;    // for some reason, global defns aren't in Vue files
 
 export default defineComponent({
     name: "Audio",
@@ -171,7 +180,10 @@ export default defineComponent({
     computed: {
         selectedInputStore: {
             get: function(): string {
-                return this.$store.state.audio.currentInputDevice;
+                if (this.$store.state.audio.user.currentInputDevice) {
+                    return this.$store.state.audio.user.currentInputDevice.label;
+                }
+                return "None selected";
             },
             set: function() {
                 // @click will set for us...
@@ -180,6 +192,7 @@ export default defineComponent({
     },
 
     methods: {
+        /** Set the passed output stream to an audio element so the user hears things */
         setAudioInputStream: function(pStream: string | MediaStream): void {
             if (!this.$refs.audioInputFeedbackPlayer) {
                 return;
@@ -194,21 +207,180 @@ export default defineComponent({
         },
 
         requestInputAccess: async function(): Promise<void> {
-            const inputStream = await Audio.requestInputAccess();
+            const inputStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            if (inputStream) {
+                await this.handleRequestInputSuccess(inputStream);
+                this.setAudioInputStream(inputStream);
+            }
+        },
+
+        /** Request for access to MediaStream is a success so set up the connection.
+         *
+         * This remembers the stream locally and also updates the Vuex state with
+         * connection information.
+         *
+         * @param {MediaStream} pStream the stream we have access to
+         * @returns {Promise<MediaStream>} the stream that was passed in
+         */
+        handleRequestInputSuccess: async function(pStream: MediaStream): Promise<MediaStream> {
+            Log.info(Log.types.AUDIO, "Processing successful input device request.");
+
+            this.$store.commit(StoreMutations.MUTATE, {
+                property: "audio.user",
+                with: {
+                    connected: true,
+                    awaitingCapturePermissions: false,
+                    hasInputAccess: true,
+                    inputStream: pStream
+                }
+            });
+
+            // Audio inputs do not have labels if the permission has not been received.
+            // Therefore, we update the list after success.
+            const inputsList = await this.requestInputsList();
+
+            const tracks = pStream.getTracks();
+            for (let i = 0; i < tracks.length; i++) {
+                inputsList.forEach((device) => {
+                    if (device.deviceId === tracks[i].getSettings().deviceId) {
+                        this.setCurrentInputDevice(device);
+                    }
+                });
+            }
+
+            return pStream;
+        },
+
+        /**
+         * Fetch, save, and return the list of media devices of the specified kind.
+         * Fetches "audioinput" devices if no alternative specified.
+         *
+         * @returns {Promise<MediaDeviceInfo>[]} list of "audioinput" media devices
+         */
+        async requestInputsList(pKind = "audioinput"): Promise<MediaDeviceInfo[]> {
+            if (navigator.mediaDevices) {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const inputsList = devices.filter((d) => d.kind === pKind);
+                this.saveInputsList(inputsList);
+                return inputsList;
+            }
+            Log.error(Log.types.AUDIO, `requestInputsList: mediaDevices not available`);
+            this.saveInputsList([]);
+            return [];
+        },
+
+        /**
+         * Set the list of known audio input devices. This remembers the list locally and
+         * also updates the Vuex store with the new information.
+         *
+         * @param {MediaDeviceInfo[]} pAudioInputs The list of audioinput devices to remember
+         */
+        saveInputsList(pAudioInputs: MediaDeviceInfo[]): void {
+            this.$store.commit(StoreMutations.MUTATE, {
+                property: "audio.user.inputsList",
+                value: pAudioInputs
+            });
+        },
+
+        setCurrentInputDevice(pDeviceInfo: MediaDeviceInfo): void {
+            Log.info(Log.types.AUDIO, `Successfully set input device ${pDeviceInfo.label}`);
+
+            this.$store.commit(StoreMutations.MUTATE, {
+                property: "audio.user.currentInputDevice",
+                value: pDeviceInfo
+            });
+        },
+
+        setAwaitingCapturePermissions(isAwaitingCapturePermissions: boolean): void {
+            this.$store.commit(StoreMutations.MUTATE, {
+                property: "audio.user.awaitingCapturePermissions",
+                value: isAwaitingCapturePermissions
+            });
+        },
+
+
+        XrequestSpecificInputAccess: async function(deviceId: string) {
+            const inputStream = await this.requestSpecificInputAccess(deviceId);
             if (inputStream) {
                 this.setAudioInputStream(inputStream);
             }
         },
 
-        requestSpecificInputAccess: async function(deviceId: string) {
-            const inputStream = await Audio.requestSpecificInputAccess(deviceId);
-            if (inputStream) {
-                this.setAudioInputStream(inputStream);
+        /**
+         * Request access to a specific media device.
+         *
+         * This requests the media device from the browser and, if connected, updates the
+         * Vuex state and sets up the device for operation.
+         *
+         * If a stream is already connected, this function first disconnects it before requesting.
+         * the new device.
+         *
+         * There is some protection from being called twice while already waiting for a device.
+         *
+         * @param requestedDeviceId the deviceId from the MediaDeviceInfo structure of device to request access
+         * @returns {Promise<Nullable<MediaStream>>} the connected media stream or "null" if access refused
+         */
+        async requestSpecificInputAccess(requestedDeviceId: string): Promise<Nullable<MediaStream>> {
+            if (this.$store.state.audio.user.stream) {
+                this.stopCurrentInputStream();
             }
+
+            if (this.$store.state.audio.user.awaitingCapturePermissions === true) {
+                Log.error(
+                    Log.types.AUDIO,
+                    `Failed to request specific input device ID ${requestedDeviceId}`
+                    + ` due to an already awaiting request for input capture.`
+                );
+                return null;
+            }
+
+            this.setAwaitingCapturePermissions(true);
+            Log.info(Log.types.AUDIO, `Requesting specific input device ID ${requestedDeviceId}`);
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia(
+                    { audio: { deviceId: { exact: requestedDeviceId } }, video: false });
+                if (stream) {
+                    await this.handleRequestInputSuccess(stream);
+                    return stream;
+                }
+            } catch (err) {
+                const errr = <MediaError>err;
+                this.setAwaitingCapturePermissions(false);
+                Log.error(Log.types.AUDIO, `Error getting capture permissions: ${errr.message}`);
+            }
+            return null;
+        },
+
+        /**
+         * Stop all audio activities on the stream.
+         */
+        stopCurrentInputStream(): void {
+            if (this.$store.state.audio.user.stream) {
+                this.$store.state.audio.user.stream.getTracks().forEach((track) => {
+                    track.stop();
+                });
+            }
+            this.revokeCaptureAccess();
+        },
+
+        /**
+         * Set the state of the audio device to disconnected and unallocated.
+         */
+        revokeCaptureAccess(): void {
+            this.$store.commit(StoreMutations.MUTATE, {
+                property: "audio.user",
+                with: {
+                    connected: false,
+                    currentInputDevice: undefined,
+                    stream: undefined,
+                    hasInputAccess: false
+                }
+            });
         },
 
         micToggled: function() {
-            if (this.$store.state.audio.hasInputAccess === true) {
+            if (this.$store.state.audio.user.hasInputAccess === true) {
                 // Should mute/unmute
             } else {
                 // eslint-disable-next-line no-void
@@ -233,11 +405,13 @@ export default defineComponent({
     // },
 
     mounted: function(): void {
-        /* commented out to wait for implementation
-        this.$nextTick(() => {
-            this.requestInputAccess();
+        // eslint-disable-next-line no-void, @typescript-eslint/no-misused-promises
+        void this.$nextTick(async () => {
+            await this.requestInputAccess();
+            return undefined;
         });
-        */
+        // eslint-disable-next-line no-void
+        void this.requestInputsList();
     }
 });
 </script>

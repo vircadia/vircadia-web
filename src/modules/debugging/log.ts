@@ -17,7 +17,9 @@ const Log = (function() {
         METAVERSE = "[METAVERSE]",
         ACCOUNT = "[ACCOUNT]",
         PEOPLE = "[PEOPLE]",
-        PLACES = "[PLACES]"
+        PLACES = "[PLACES]",
+        UI = "[UI]",
+        COMM = "[COMM]"
     }
 
     enum levels {
@@ -27,33 +29,59 @@ const Log = (function() {
         INFO = "[INFO]"
     }
 
+    let logLevel = levels.DEBUG;
+
     function print(pType: types, pLevel: levels, pMsg: string): void {
         console.info(pType, pLevel, pMsg);
     }
 
-    // Print out message if debugging
+    // debug log message. Output if level is set to DEBUG
     function debug(pType: types, pMsg: string) {
-        print(pType, levels.DEBUG, pMsg);
+        if (logLevel === levels.DEBUG) {
+            print(pType, levels.DEBUG, pMsg);
+        }
     }
 
+    // error log message. Always output
     function error(pType: types, pMsg: string) {
         print(pType, levels.ERROR, pMsg);
     }
 
+    // warn log message. output if level is warn or above
     function warn(pType: types, pMsg: string) {
-        print(pType, levels.WARN, pMsg);
+        if (logLevel in [levels.WARN, levels.DEBUG, levels.ERROR]) {
+            print(pType, levels.WARN, pMsg);
+        }
     }
 
+    // Info log messages -- always output
     function info(pType: types, pMsg: string) {
         print(pType, levels.INFO, pMsg);
+    }
+
+    // Set the log level to the passed string
+    function setLogLevel(pLevel: string): void {
+        switch (pLevel) {
+            case "none": logLevel = levels.INFO; break;
+            case "info": logLevel = levels.INFO; break;
+            case "[INFO]": logLevel = levels.INFO; break;
+            case "warn": logLevel = levels.WARN; break;
+            case "[WARN]": logLevel = levels.WARN; break;
+            case "debug": logLevel = levels.DEBUG; break;
+            case "[DEBUG]": logLevel = levels.DEBUG; break;
+            default: logLevel = levels.DEBUG;
+        }
+        info(types.OTHER, `Logging level set to ${logLevel}`);
     }
 
     return {
         // Tables
         types,
         levels,
+        logLevel,
         // Functions
         print,
+        setLogLevel,
         debug,
         error,
         warn,

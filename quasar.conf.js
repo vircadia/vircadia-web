@@ -103,6 +103,13 @@ module.exports = configure(function (ctx) {
                     .set("@Components", path.resolve(__dirname, "./src/components"))
                     .set("@Modules", path.resolve(__dirname, "./src/modules"))
                     .set("@Store", path.resolve(__dirname, "./src/store"));
+                    /*
+                chain.entries( [ "vircadia-sdk", "./src/libs/Vircadia.js" ]);
+                chain.module.rule('vircadia-sdk')
+                    .test(/.*\/libs\/.*\.js$/)
+                    .use("file-loader")
+                        .loader("file-loader");
+                        */
             }
         },
 

@@ -286,6 +286,5 @@ export class VScene {
             rotation: { x: 0, y: -0.5, z: 0 },
             dimensions: { x: 0.05, y: 0.05, z: 0.05 }
         });
-        console.info(this._scene.rootNodes);
     }
 }

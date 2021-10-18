@@ -14,7 +14,7 @@ export const MetaverseInfoAPI = "/api/metaverse_info";
 export interface MetaverseInfoResp {
     "metaverse_name": string,
     "metaverse_nick_name": string,
-    "metavserse_url": string,
+    "metaverse_url": string,
     "ice_server_url": string,
     "metaverse_server_version": {
         "npm-package-version": string,
