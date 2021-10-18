@@ -297,7 +297,10 @@ export default defineComponent({
             return "../assets/vircadia-icon.svg";
         }
     },
-
+    watch: {
+        // call again the method if the route changes
+        "$route": "parseRouteParams"
+    },
     methods: {
         setDialogState: function(newValue: boolean) {
             this.$store.commit(StoreMutations.MUTATE, {
@@ -314,9 +317,13 @@ export default defineComponent({
         // Connect to the specified domain-server and the associated metaverse-server
         // Also add state update links to keep the Vuex state variables up to date.
         connect: async function() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            await this.connectToAddress(this.locationInput);
+        },
+        connectToAddress: async function(locationAddress: string) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            Log.info(Log.types.UI, `Connecting to...${this.locationInput}`);
-            await Utility.connectionSetup(this.locationInput,
+            Log.info(Log.types.UI, `Connecting to...${locationAddress}`);
+            await Utility.connectionSetup(locationAddress,
                 // function called when domain-server connection state changes
                 (pDomain: Domain, pNewState: ConnectionState, pInfo: string) => {
                     Log.info(Log.types.COMM, `MainLayout: domain-server state change: ${pNewState}: ${pInfo}`);
@@ -383,13 +390,26 @@ export default defineComponent({
             // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             (this.$refs.OverlayManager as typeof OverlayManager).openOverlay(pOverlay);
+        },
+        parseRouteParams: async function() {
+            Log.info(Log.types.UI, "Parse Route params");
+            const addressParam = this.$route.params.address as string;
+            if (addressParam && addressParam.length > 0) {
+                Log.info(Log.types.UI, `Connect to...${addressParam}`);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                await this.connectToAddress(addressParam);
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                this.$router.push({ path: "/" });
+            }
         }
     },
-    mounted: function() {
+    mounted: async function() {
         Account.onAttributeChange.connect(function(pPayload: { [key: string]: unknown }) {
             // eslint-disable-next-line no-void
             void Store.dispatch(StoreActions.UPDATE_ACCOUNT_INFO, pPayload);
         });
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        await this.parseRouteParams();
     }
 });
 </script>
