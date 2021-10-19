@@ -18,22 +18,7 @@
     <q-layout class="full-height" id="mainLayout" view="lHh Lpr lFf">
         <q-header id="header" elevated>
             <div class="row no-wrap">
-<!--                 <q-toolbar
-                    class="col-4"
-                >
-                    <q-btn
-                        flat
-                        round
-                        icon="account_circle"
-                        aria-label="User Menu"
-                        @click="toggleUserMenu"
-                    />
-
-                    <q-toolbar-title>
-                        {{ getLocation }}
-                    </q-toolbar-title>
-                </q-toolbar>
-
+<!--
                 <q-toolbar
                     class="col-8"
                 >
@@ -49,7 +34,7 @@
                         <div>{{ $store.state.globalConsts.APP_VERSION_TAG }}</div>
                     </div>
                 </q-toolbar> -->
-                <q-toolbar class="bg-primary glossy text-white">
+                <q-toolbar class="bg-dark text-white">
                     <q-btn
                         flat
                         round
@@ -66,9 +51,10 @@
 
                     <q-space />
 
-                    <q-item clickable v-ripple>
+                    <q-item clickable v-ripple
+                        @click="$store.state.account.isLoggedIn ? onClickOpenOverlay('Account') : openDialog('Login', true)">
                         <q-item-section side>
-                            <q-avatar rounded size="48px">
+                            <q-avatar size="48px">
                                 <img :src="getProfilePicture">
                             </q-avatar>
                         </q-item-section>
@@ -76,13 +62,67 @@
                             <q-item-label>
                                 {{ $store.state.account.isLoggedIn ? $store.state.account.username : "Guest" }}
                             </q-item-label>
-                            <q-item-label caption>{{ getMetaverseServerState }}</q-item-label>
+                            <q-item-label caption>
+                                {{ $store.state.account.isLoggedIn ? "Logged in" : "Click to login to metaverse" }}
+                            </q-item-label>
                         </q-item-section>
                     </q-item>
 
-                    <q-separator dark vertical />
+                    <q-btn
+                        v-show="$store.state.account.isLoggedIn"
+                        flat
+                        round
+                        dense
+                        icon="logout"
+                        aria-label="Logout"
+                        @click="logout"
+                        class="q-mr-sm q-ml-sm"
+                    />
 
-                    <q-btn-dropdown stretch flat icon="help_center">
+                    <q-separator dark vertical/>
+                    <q-btn
+                        flat
+                        stretch
+                        icon="settings"
+                        aria-label="Settings Menu"
+                    >
+                        <q-menu>
+                            <q-list>
+                                <template v-for="(menuItem, index) in settingsMenu" :key="index">
+                                    <q-item-label
+                                        v-if="menuItem.isCategory"
+                                        header
+                                    >
+                                        {{ menuItem.label }}
+                                    </q-item-label>
+                                    <q-item
+                                        v-else
+                                        clickable
+                                        v-ripple
+                                        @click="menuItem.action ? menuItem.action
+                                            : onClickOpenOverlay(menuItem.link || menuItem.label)"
+                                    >
+                                        <q-item-section avatar>
+                                            <q-icon :name="menuItem.icon" />
+                                        </q-item-section>
+                                        <q-item-section>
+                                            {{ menuItem.label }}
+                                        </q-item-section>
+                                    </q-item>
+                                    <q-separator :key="'sep' + index" v-if="menuItem.separator" />
+                                </template>
+                            </q-list>
+                        </q-menu>
+                    </q-btn>
+
+                    <q-separator dark vertical inset />
+
+                    <q-btn-dropdown stretch flat>
+                        <template v-slot:label>
+                            <q-avatar rounded size="48px">
+                                <img :src="defaultProductLogo">
+                            </q-avatar>
+                        </template>
                         <q-list>
                             <q-item-label header>Help</q-item-label>
                             <q-item v-for="(menuItem, index) in helpMenu" :key="index"
@@ -131,30 +171,6 @@
             show-if-above
             bordered
         >
-<!--             <q-img class="" src="https://cdn.quasar.dev/img/material.png" style="height: 150px">
-                <div class="absolute-bottom bg-transparent">
-                    <q-avatar size="56px" class="q-mb-sm">
-                        <img :src="getProfilePicture">
-                    </q-avatar>
-                    <div class="text-weight-bold">
-                        {{ $store.state.account.isLoggedIn ? $store.state.account.username : "Guest" }}
-                    </div>
-                    <div>{{ getDomainServerState }}</div>
-                    <div>{{ getMetaverseServerState }}</div>
-                </div>
-            </q-img> -->
-
-            <div v-show="$store.state.account.isLoggedIn" class="absolute" style="top: 20px; right: 5px">
-                <q-btn
-                    style="font-size: 10px;"
-                    round
-                    unelevated
-                    color="primary"
-                    icon="logout"
-                    @click="logout"
-                />
-            </div>
-
             <div class="q-mini-drawer-hide absolute" style="top: 100px; right: -21px">
                 <q-btn
                     round
@@ -169,36 +185,6 @@
                 style="height: calc(100% - 150px);"
             >
                 <q-list>
-                    <!-- Custom menu item for account / login logic -->
-                    <q-item
-                        v-if="!$store.state.account.isLoggedIn"
-                        clickable
-                        v-ripple
-                        @click="openDialog('Login', true)"
-                    >
-                        <q-item-section avatar>
-                            <q-icon name="login" />
-                        </q-item-section>
-                        <q-item-section>
-                            Login
-                        </q-item-section>
-                    </q-item>
-
-                    <q-item
-                        v-else
-                        clickable
-                        v-ripple
-                        @click="onClickOpenOverlay('Account')"
-                    >
-                        <q-item-section avatar>
-                            <q-icon name="account_circle" />
-                        </q-item-section>
-                        <q-item-section>
-                            Account
-                        </q-item-section>
-                    </q-item>
-                    <!-- End custom menu item for account / login logic -->
-
                     <template v-for="(menuItem, index) in userMenu" :key="index">
                         <q-item-label
                             v-if="menuItem.isCategory"
@@ -251,7 +237,7 @@
 <script lang="ts">
 
 import { defineComponent } from "vue";
-import { useQuasar, openURL } from "quasar";
+import { openURL } from "quasar";
 
 // Components
 import MainScene from "@Components/MainScene.vue";
@@ -281,7 +267,6 @@ export default defineComponent({
     },
 
     data() {
-        const $q = useQuasar();
         return {
             // Toolbar
             locationInput: "",
@@ -308,14 +293,9 @@ export default defineComponent({
                     link: "",
                     isCategory: false,
                     separator: true
-                },
-                {
-                    icon: "settings",
-                    label: "Settings",
-                    link: "",
-                    isCategory: true,
-                    separator: false
-                },
+                }
+            ],
+            settingsMenu: [
                 {
                     icon: "headphones",
                     label: "Audio",
@@ -327,7 +307,7 @@ export default defineComponent({
                     icon: "lightbulb",
                     label: "Light / Dark",
                     action: () => {
-                        $q.dark.toggle();
+                        this.$q.dark.toggle();
                         Log.info(Log.types.OTHER, "Toggle Dark");
                     },
                     isCategory: false,
@@ -350,7 +330,8 @@ export default defineComponent({
                     label: "User Documentation",
                     link: "https://docs.vircadia.com/"
                 }
-            ]
+            ],
+            defaultProductLogo: "../assets/vircadia-icon.svg"
         };
     },
 
@@ -385,7 +366,7 @@ export default defineComponent({
             if (this.$store.state.account.images && this.$store.state.account.images.thumbnail) {
                 return this.$store.state.account.images.thumbnail;
             }
-            return "../assets/vircadia-icon.svg";
+            return "../assets/defaultProfile.svg";
         }
     },
     watch: {
