@@ -45,9 +45,20 @@
                         class="q-mr-sm"
                     />
                     <q-separator dark vertical inset />
+
+                    <q-btn
+                        flat
+                        round
+                        dense
+                        icon="travel_explore"
+                        aria-label="Explore"
+                        @click="onClickOpenOverlay('Explore')"
+                        class="q-mr-sm q-ml-sm"
+                    />
+
                     <q-toolbar-title>
                         <q-item-section>
-                            <q-item-label clickable @click="onClickOpenOverlay('Explore')" class="cursor-pointer">
+                            <q-item-label>
                                 {{ getLocation }}
                             </q-item-label>
                             <q-item-label caption  class="text-grey">
