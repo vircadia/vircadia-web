@@ -46,7 +46,14 @@
                     />
                     <q-separator dark vertical inset />
                     <q-toolbar-title>
-                        {{ getLocation }}
+                        <q-item-section>
+                            <q-item-label clickable @click="onClickOpenOverlay('Explore')" class="cursor-pointer">
+                                {{ getLocation }}
+                            </q-item-label>
+                            <q-item-label caption  class="text-grey">
+                                {{ getDomainServerState }}
+                            </q-item-label>
+                        </q-item-section>
                     </q-toolbar-title>
 
                     <q-space />
@@ -305,14 +312,21 @@ export default defineComponent({
             if (this.$store.state.location.current) {
                 return this.$store.state.location.current;
             }
-            return this.$store.state.location.state;
+            return "Not currently connected to a domain";
         },
+
         // Displays the state of the domain server on the user interface
         getDomainServerState: function(): string {
-            return `${this.$store.state.domain.connectionState} (${this.$store.state.domain.url})`;
+            if (this.$store.state.domain.url && this.$store.state.domain.url.length > 0) {
+                return `${this.$store.state.domain.connectionState} (${this.$store.state.domain.url})`;
+            }
+            return this.$store.state.domain.connectionState;
         },
         getMetaverseServerState: function(): string {
-            return `${this.$store.state.metaverse.connectionState} (${this.$store.state.metaverse.server})`;
+            if (this.$store.state.metaverse.server && this.$store.state.metaverse.server.length > 0) {
+                return `${this.$store.state.metaverse.connectionState} (${this.$store.state.metaverse.server})`;
+            }
+            return this.$store.state.metaverse.connectionState;
         },
         getProfilePicture: function() {
             if (this.$store.state.account.images && this.$store.state.account.images.thumbnail) {

@@ -21,7 +21,8 @@
         :managerProps="propsToPass"
         :defaultHeight="500"
         :defaultWidth="400"
-        :defaultLeft="50"
+        :defaultLeft="250"
+        :defaultTop="10"
         :hoverShowBar="true"
         :style="{ 'background': 'rgba(0, 0, 0, 0.3)', 'box-shadow': 'none', border: 'none' }"
     >
@@ -36,11 +37,14 @@
                     filled
                     debounce="300"
                     v-model="filterText"
-                    placeholder="Search"
+                    placeholder="Search or enter location"
                     class="col"
+                    append-icon="mdi-location-enter"
+                    v-on:keyup.enter="visitIconCallback"
                 >
                     <template v-slot:append>
                         <q-icon name="search" />
+                        <q-icon name="launch" @click="visitIconCallback" clickable v-ripple/>
                     </template>
                 </q-input>
             </div>
@@ -165,6 +169,12 @@ export default defineComponent({
 
         openDetails(place: PlaceEntry): void {
             alert("Not currently implemented: Show details - " + place.name);
+        },
+
+        visitIconCallback() {
+            if (this.filterText !== "") {
+                this.openLocation(this.filterText);
+            }
         }
     },
 
