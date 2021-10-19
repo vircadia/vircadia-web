@@ -166,52 +166,6 @@
             </div>
         </q-header>
 
-        <q-drawer
-            v-model="userMenuOpen"
-            show-if-above
-            bordered
-        >
-            <div class="q-mini-drawer-hide absolute" style="top: 100px; right: -21px">
-                <q-btn
-                    round
-                    unelevated
-                    color="accent"
-                    icon="chevron_left"
-                    @click="userMenuOpen = false"
-                />
-            </div>
-
-            <q-scroll-area
-                style="height: calc(100% - 150px);"
-            >
-                <q-list>
-                    <template v-for="(menuItem, index) in userMenu" :key="index">
-                        <q-item-label
-                            v-if="menuItem.isCategory"
-                            header
-                        >
-                            {{ menuItem.label }}
-                        </q-item-label>
-                        <q-item
-                            v-else
-                            clickable
-                            v-ripple
-                            @click="menuItem.action ? menuItem.action
-                                : onClickOpenOverlay(menuItem.link || menuItem.label)"
-                        >
-                            <q-item-section avatar>
-                                <q-icon :name="menuItem.icon" />
-                            </q-item-section>
-                            <q-item-section>
-                                {{ menuItem.label }}
-                            </q-item-section>
-                        </q-item>
-                        <q-separator :key="'sep' + index" v-if="menuItem.separator" />
-                    </template>
-                </q-list>
-            </q-scroll-area>
-        </q-drawer>
-
         <q-page-container class="full-height">
             <MainScene>
                 <template v-slot:manager>
@@ -219,8 +173,6 @@
                 </template>
             </MainScene>
         </q-page-container>
-
-        <!-- <component @close-dialog="closeDialog" v-if="dialog.show" v-bind:is="dialog.which"></component> -->
 
         <q-dialog v-model="getDialogState">
             <q-card
@@ -382,7 +334,10 @@ export default defineComponent({
         },
         // Drawers
         toggleUserMenu: function(): void {
-            this.userMenuOpen = !this.userMenuOpen;
+            // this.userMenuOpen = !this.userMenuOpen;
+            // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            (this.$refs.OverlayManager as typeof OverlayManager).toggleOverlay("menu");
         },
 
         // Pressed "connect"
@@ -485,6 +440,10 @@ export default defineComponent({
         });
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         await this.parseRouteParams();
+
+        // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+        (this.$refs.OverlayManager as typeof OverlayManager).openOverlay("menu");
     }
 });
 </script>

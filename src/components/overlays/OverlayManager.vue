@@ -10,7 +10,7 @@
 
 <template>
     <div v-for="overlay in overlays" :key="overlay.name">
-        <component :is="overlay.name" :propsToPass="overlay" @overlay-action="onAction(overlay.name, $event)" />
+        <component :is="overlay.name" :propsToPass="overlay" @overlay-action="onAction(overlay.name, $event)"/>
     </div>
 </template>
 
@@ -48,9 +48,17 @@ export default defineComponent({
             return -1;
         },
 
-        onAction(overlay: string, action: string) {
+        onAction(overlay: string, eventAction: string) {
+            let parameter = "";
+            let action = eventAction;
             Log.debug(Log.types.OTHER, `OverlayManager.onAction: ${overlay}: ${action}`);
             const index = this.getOverlayIndex(overlay);
+
+            // check if the action is in the format command:parameter
+            if (action.indexOf(":") > -1) {
+                parameter = action.split(":")[1];
+                action = action.split(":")[0];
+            }
 
             switch (action) {
                 case "select": {
@@ -75,6 +83,9 @@ export default defineComponent({
                 case "close":
                     this.overlays.splice(index, 1);
                     break;
+                case "openOverlay":
+                    this.openOverlay(parameter);
+                    break;
                 default:
                     window.alert("Action not supported: " + action);
                     break;
@@ -89,6 +100,20 @@ export default defineComponent({
                 const splice = this.overlays.splice(index, 1)[0];
                 splice.overlayStatus = "restored";
                 this.overlays.push(splice);
+            } else {
+                this.overlays.push({
+                    "name": overlay,
+                    "overlayStatus": "restored"
+                });
+            }
+        },
+
+        toggleOverlay(overlay: string) {
+            Log.debug(Log.types.OTHER, `OverlayManager.openOverlay: ${overlay}`);
+            const index = this.getOverlayIndex(overlay);
+
+            if (index >= 0) {
+                this.overlays.splice(index, 1);
             } else {
                 this.overlays.push({
                     "name": overlay,
