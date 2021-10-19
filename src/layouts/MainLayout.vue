@@ -18,7 +18,7 @@
     <q-layout class="full-height" id="mainLayout" view="lHh Lpr lFf">
         <q-header id="header" elevated>
             <div class="row no-wrap">
-                <q-toolbar
+<!--                 <q-toolbar
                     class="col-4"
                 >
                     <q-btn
@@ -48,6 +48,80 @@
                         <div>{{ $store.state.globalConsts.APP_NAME }}</div>
                         <div>{{ $store.state.globalConsts.APP_VERSION_TAG }}</div>
                     </div>
+                </q-toolbar> -->
+                <q-toolbar class="bg-primary glossy text-white">
+                    <q-btn
+                        flat
+                        round
+                        dense
+                        icon="menu"
+                        aria-label="User Menu"
+                        @click="toggleUserMenu"
+                        class="q-mr-sm"
+                    />
+                    <q-separator dark vertical inset />
+                    <q-toolbar-title>
+                        {{ getLocation }}
+                    </q-toolbar-title>
+
+                    <q-space />
+
+                    <q-item clickable v-ripple>
+                        <q-item-section side>
+                            <q-avatar rounded size="48px">
+                                <img :src="getProfilePicture">
+                            </q-avatar>
+                        </q-item-section>
+                        <q-item-section>
+                            <q-item-label>
+                                {{ $store.state.account.isLoggedIn ? $store.state.account.username : "Guest" }}
+                            </q-item-label>
+                            <q-item-label caption>{{ getMetaverseServerState }}</q-item-label>
+                        </q-item-section>
+                    </q-item>
+
+                    <q-separator dark vertical />
+
+                    <q-btn-dropdown stretch flat icon="help_center">
+                        <q-list>
+                            <q-item-label header>Help</q-item-label>
+                            <q-item v-for="(menuItem, index) in helpMenu" :key="index"
+                                clickable
+                                v-ripple
+                                @click="openUrl(menuItem.link)"
+                            >
+                                <q-item-section avatar dense>
+                                    <q-icon :name="menuItem.icon" />
+                                </q-item-section>
+                                <q-item-section>
+                                    {{ menuItem.label }}
+                                </q-item-section>
+                            </q-item>
+                            <q-separator inset spaced />
+                            <q-item-label header>Status</q-item-label>
+                            <q-item>
+                                <q-item-section>
+                                    <q-item-label>Domain</q-item-label>
+                                    <q-item-label caption>{{ getDomainServerState }}</q-item-label>
+                                </q-item-section>
+                            </q-item>
+                            <q-item>
+                                <q-item-section>
+                                    <q-item-label>Metaverse</q-item-label>
+                                    <q-item-label caption>{{ getMetaverseServerState }}</q-item-label>
+                                </q-item-section>
+                            </q-item>
+                            <q-separator inset spaced />
+                            <q-item-label header>About</q-item-label>
+                            <q-item-label></q-item-label>
+                            <q-item>
+                                <q-item-section>
+                                    <q-item-label>{{ $store.state.globalConsts.APP_NAME }}</q-item-label>
+                                    <q-item-label caption>{{ $store.state.globalConsts.APP_VERSION_TAG }}</q-item-label>
+                                </q-item-section>
+                            </q-item>
+                        </q-list>
+                    </q-btn-dropdown>
                 </q-toolbar>
             </div>
         </q-header>
@@ -57,7 +131,7 @@
             show-if-above
             bordered
         >
-            <q-img class="" src="https://cdn.quasar.dev/img/material.png" style="height: 150px">
+<!--             <q-img class="" src="https://cdn.quasar.dev/img/material.png" style="height: 150px">
                 <div class="absolute-bottom bg-transparent">
                     <q-avatar size="56px" class="q-mb-sm">
                         <img :src="getProfilePicture">
@@ -68,7 +142,7 @@
                     <div>{{ getDomainServerState }}</div>
                     <div>{{ getMetaverseServerState }}</div>
                 </div>
-            </q-img>
+            </q-img> -->
 
             <div v-show="$store.state.account.isLoggedIn" class="absolute" style="top: 20px; right: 5px">
                 <q-btn
@@ -177,7 +251,7 @@
 <script lang="ts">
 
 import { defineComponent } from "vue";
-import { useQuasar } from "quasar";
+import { useQuasar, openURL } from "quasar";
 
 // Components
 import MainScene from "@Components/MainScene.vue";
@@ -258,6 +332,23 @@ export default defineComponent({
                     },
                     isCategory: false,
                     separator: true
+                }
+            ],
+            helpMenu: [
+                {
+                    icon: "chat",
+                    label: "Discord",
+                    link: "https://discord.com/invite/Pvx2vke"
+                },
+                {
+                    icon: "forum",
+                    label: "Forum",
+                    link: "https://forum.vircadia.com/"
+                },
+                {
+                    icon: "support",
+                    label: "User Documentation",
+                    link: "https://docs.vircadia.com/"
                 }
             ]
         };
@@ -390,6 +481,9 @@ export default defineComponent({
             // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             (this.$refs.OverlayManager as typeof OverlayManager).openOverlay(pOverlay);
+        },
+        openUrl: function(pUrl: string) {
+            openURL(pUrl);
         },
         parseRouteParams: async function() {
             Log.info(Log.types.UI, "Parse Route params");
