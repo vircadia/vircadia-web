@@ -66,9 +66,9 @@ export default defineComponent({
     methods: {
         async onSubmit() {
             try {
-                const logonResponse = await Account.login(this.username, this.password);
+                const loginResponse = await Account.login(this.username, this.password);
 
-                if (logonResponse) {
+                if (loginResponse) {
                     this.$q.notify({
                         type: "positive",
                         textColor: "white",

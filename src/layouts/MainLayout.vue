@@ -81,11 +81,11 @@
                                 {{ $store.state.account.isLoggedIn ? $store.state.account.username : "Guest" }}
                             </q-item-label>
                             <q-item-label caption>
-                                {{ $store.state.account.isLoggedIn ? "Logged in" : "Click to login to metaverse" }}
+                                {{ $store.state.account.isLoggedIn ? "Logged in" : "Click to log in to metaverse" }}
                             </q-item-label>
                         </q-item-section>
                     </q-item>
-
+d
                     <q-btn
                         v-show="$store.state.account.isLoggedIn"
                         flat
