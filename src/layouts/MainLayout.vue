@@ -216,9 +216,6 @@ import OverlayManager from "@Components/overlays/OverlayManager.vue";
 import { Store, Mutations as StoreMutations, Actions as StoreActions } from "@Store/index";
 import { Utility } from "@Modules/utility";
 import { Account } from "@Modules/account";
-import { Metaverse } from "@Modules/metaverse/metaverse";
-import { Domain } from "@Modules/domain/domain";
-import { ConnectionState } from "@vircadia/web-sdk";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
@@ -375,27 +372,7 @@ export default defineComponent({
         connectToAddress: async function(locationAddress: string) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             Log.info(Log.types.UI, `Connecting to...${locationAddress}`);
-            await Utility.connectionSetup(locationAddress,
-                // function called when domain-server connection state changes
-                (pDomain: Domain, pNewState: ConnectionState, pInfo: string) => {
-                    Log.info(Log.types.COMM, `MainLayout: domain-server state change: ${pNewState}: ${pInfo}`);
-                    // eslint-disable-next-line no-void
-                    void Store.dispatch(StoreActions.UPDATE_DOMAIN, {
-                        domain: pDomain,
-                        newState: pDomain.DomainStateAsString,
-                        info: pInfo
-                    });
-                },
-                // function called when metaverse-server connection state changes
-                (pMetaverse: Metaverse, pNewState: string) => {
-                    Log.info(Log.types.COMM, `MainLayout: metaverse-server state change: ${pNewState}`);
-                    // eslint-disable-next-line no-void
-                    void Store.dispatch(StoreActions.UPDATE_METAVERSE, {
-                        metaverse: pMetaverse,
-                        newState: pNewState
-                    });
-                }
-            );
+            await Utility.connectionSetup(locationAddress);
         },
 
         disconnect: function() {

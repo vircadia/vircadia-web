@@ -94,6 +94,8 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { Utility } from "@Modules/utility";
+import Log from "@Modules/debugging/log";
 
 import OverlayShell from "../OverlayShell.vue";
 
@@ -163,17 +165,19 @@ export default defineComponent({
             this.loading = false;
         },
 
-        openLocation(path: string): void {
-            alert("Not currently implemented: Open location - " + path);
+        async openLocation(path: string): Promise<void> {
+            Log.info(Log.types.UI, `Connecting to...${path}`);
+            // eslint-disable-next-line @typescript-eslint/unbound-method
+            await Utility.connectionSetup(path, Utility.defaultDomainOps, Utility.defaultMetaverseOps);
         },
 
         openDetails(place: PlaceEntry): void {
             alert("Not currently implemented: Show details - " + place.name);
         },
 
-        visitIconCallback() {
+        async visitIconCallback() {
             if (this.filterText !== "") {
-                this.openLocation(this.filterText);
+                await this.openLocation(this.filterText);
             }
         }
     },
