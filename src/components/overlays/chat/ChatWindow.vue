@@ -22,6 +22,7 @@
         :defaultHeight="300"
         :defaultWidth="600"
         :defaultLeft="0"
+        :defaultTop="400"
         :hoverShowBar="true"
         :style="{ 'background': 'transparent', 'box-shadow': 'none', border: 'none' }"
     >

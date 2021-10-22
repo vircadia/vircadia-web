@@ -26,6 +26,7 @@ import Log from "@Modules/debugging/log";
 
 // number of milliseconds in a second
 const msinsec = 1000;
+const guestAccountName = "Guest";
 
 export interface onAttributeChangePayload {
     isLoggedIn: boolean,
@@ -49,7 +50,7 @@ export interface onAccessTokenChangePayload {
 export const Account = {
     // Account information related to login and access
     isLoggedIn: false,
-    accountName: "Guest",
+    accountName: guestAccountName,
     id: "UNKNOWN",
     accessToken: undefined as Nullable<string>,
     accessTokenType: undefined as Nullable<string>,
@@ -182,6 +183,8 @@ export const Account = {
 
     // eslint-disable-next-line @typescript-eslint/require-await
     async logout(): Promise<void> {
+        Account.accountName = guestAccountName;
+        Account.accountInfo = {} as AccountInfo;
         Account.isLoggedIn = false;
         Account.accessToken = "UNKNOWN";
         Account._emitAttributeChange();

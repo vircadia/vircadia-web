@@ -9,16 +9,11 @@
 -->
 
 <template>
-    <q-card-section>
-        <div class="row no-wrap items-center">
-            <div class="col text-h4 ellipsis">
-                Metaverse
-            </div>
-        </div>
-
-    </q-card-section>
-
-    <q-separator />
+    <q-bar class="bar">
+        <div class="title" >Metaverse Login</div>
+        <q-space />
+        <q-btn dense flat icon="close" @click="$emit('closeDialog', 'close')" />
+    </q-bar>
 
     <q-card-section class="q-pt-none">
         <q-tabs
@@ -36,7 +31,7 @@
 
         <q-tab-panels v-model="tab" animated>
             <q-tab-panel name="metaverseLogin">
-                <MetaverseLogin @closeDialog="$emit('closeDialog')"></MetaverseLogin>
+                <MetaverseLogin @closeDialog="$emit('closeDialog', 'close')"></MetaverseLogin>
             </q-tab-panel>
 
             <q-tab-panel name="metaverseRegister">
