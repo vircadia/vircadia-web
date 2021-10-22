@@ -85,7 +85,7 @@
                             </q-item-label>
                         </q-item-section>
                     </q-item>
-d
+
                     <q-btn
                         v-show="$store.state.account.isLoggedIn"
                         flat
