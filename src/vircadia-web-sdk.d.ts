@@ -103,7 +103,7 @@ declare module "@vircadia/web-sdk" {
         isUpstream(nodeType: NodeTypeValue): boolean;
     };
 
-    // ============================
+    // AudioMixer ============================
     export class AudioMixer extends AssignmentClient {
         constructor(contextID: number);
         get audioOuput(): MediaStream;
@@ -114,12 +114,37 @@ declare module "@vircadia/web-sdk" {
         pause(): Promise<void>;
     }
 
+    // MessageMixer ============================
+    export class MessageMixer extends AssignmentClient {
+        #private;
+        constructor(contextID: number);
+        subscribe(channel: string): void;
+        unsubscribe(channel: string): void;
+        sendMessage(channel: string, message: string, localOnly?: boolean): void;
+        sendData(channel: string, data: ArrayBuffer, localOnly?: boolean): void;
+        get messageReceived(): Signal;
+        get dataReceived(): Signal;
+    }
+
+    // AvatarMixer ============================
+    export class AvatarMixer extends AssignmentClient {
+        #private;
+        constructor(contextID: number);
+    }
+
+    // ============================
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     export type Slot = (...args: any[]) => void;
-    export class Signal {
+    export type Signal = {
+        connect: (slot: Slot) => void;
+        disconnect: (slot: Slot) => void;
+    };
+    export class SignalEmitter implements Signal {
+        #private;
         connect(slot: Slot): void;
         disconnect(slot: Slot): void;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         emit(...params: any[]): void;
+        signal(): Signal;
     }
 }

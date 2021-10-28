@@ -5,21 +5,21 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
-import { AssignmentClientState, AudioMixer, Signal } from "@vircadia/web-sdk";
+import { AssignmentClientState, AudioMixer, SignalEmitter } from "@vircadia/web-sdk";
 
 // Allow 'get' lines to be compact
 /* eslint-disable @typescript-eslint/brace-style */
 
 export class DomainAudio {
 
-    public onDomainAudioChange: Signal;
+    public onDomainAudioChange: SignalEmitter;
 
     #_contextId: number;
     #_audioMixer: Nullable<AudioMixer>;
 
     constructor(pContextId: number) {
         this.#_contextId = pContextId;
-        this.onDomainAudioChange = new Signal();
+        this.onDomainAudioChange = new SignalEmitter();
         this.#_audioMixer = new AudioMixer(pContextId);
         this.#_audioMixer.onStateChanged = this._handleOnStateChanged.bind(this);
     }

@@ -8,7 +8,7 @@
 // Allow 'get' lines to be compact
 /* eslint-disable @typescript-eslint/brace-style */
 
-import { DomainServer, ConnectionState, Signal } from "@vircadia/web-sdk";
+import { DomainServer, ConnectionState, SignalEmitter } from "@vircadia/web-sdk";
 
 import { DomainAudio } from "@Modules/domain/audio";
 
@@ -46,7 +46,7 @@ export class Domain {
     #_domain: Nullable<DomainServer>;
     #_audioClient: Nullable<DomainAudio>;
 
-    public onStateChange: Signal;
+    public onStateChange: SignalEmitter;
 
     public get DomainState(): ConnectionState { return this.#_domain?.state ?? DomainServer.DISCONNECTED; }
     public get DomainStateAsString(): string {
@@ -57,7 +57,7 @@ export class Domain {
     }
 
     constructor() {
-        this.onStateChange = new Signal();
+        this.onStateChange = new SignalEmitter();
         this.restorePersistentVariables();
     }
 

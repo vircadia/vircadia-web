@@ -12,7 +12,7 @@ import { MetaverseInfoResp, MetaverseInfoAPI } from "@Modules/metaverse/APIAccou
 
 // import { Store, Mutations as StoreMutations } from "@Base/store";
 
-import { Signal } from "@vircadia/web-sdk";
+import { SignalEmitter } from "@vircadia/web-sdk";
 
 import { Config, DEFAULT_METAVERSE_URL } from "@Base/config";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -74,11 +74,11 @@ export class Metaverse {
     #_serverVersion = "V0.0.0";
     public get ServerVersion(): string { return this.#_serverVersion; }
 
-    public onStateChange: Signal;
+    public onStateChange: SignalEmitter;
 
     constructor() {
         this.#_connectionState = MetaverseState.UNITIALIZED;
-        this.onStateChange = new Signal();
+        this.onStateChange = new SignalEmitter();
 
         this._restorePersistentVariables();
     }
