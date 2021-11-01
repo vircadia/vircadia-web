@@ -14,7 +14,7 @@ import { Store, Mutations } from "@Store/index";
 import { Config } from "@Base/config";
 
 // General Modules
-import { VScene } from "@Modules/render/vscene";
+import { VScene } from "@Modules/scene/vscene";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
