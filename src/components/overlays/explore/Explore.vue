@@ -152,7 +152,6 @@ export default defineComponent({
         async loadPlacesList(): Promise<void> {
             this.loading = true;
             // TODO: figure out Explore updates and class instance
-            // const placesResult = await this.$store.state.Explore.retrievePlaces();
             const placesResult = await Places.getActiveList();
             this.placesList = placesResult;
             this.loading = false;
