@@ -95,17 +95,10 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { Utility } from "@Modules/utility";
+import { Places, PlaceEntry } from "@Modules/places";
 import Log from "@Modules/debugging/log";
 
 import OverlayShell from "../OverlayShell.vue";
-
-export interface PlaceEntry {
-    name: string;
-    placeId: string;
-    address: string;
-    description: string;
-    currentAttendance: number;
-}
 
 export default defineComponent({
     name: "Explore",
@@ -160,7 +153,7 @@ export default defineComponent({
             this.loading = true;
             // TODO: figure out Explore updates and class instance
             // const placesResult = await this.$store.state.Explore.retrievePlaces();
-            const placesResult = new Array<PlaceEntry>();
+            const placesResult = await Places.getActiveList();
             this.placesList = placesResult;
             this.loading = false;
         },

@@ -372,7 +372,8 @@ export default defineComponent({
         connectToAddress: async function(locationAddress: string) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             Log.info(Log.types.UI, `Connecting to...${locationAddress}`);
-            await Utility.connectionSetup(locationAddress);
+            // eslint-disable-next-line @typescript-eslint/unbound-method
+            await Utility.connectionSetup(locationAddress, Utility.defaultDomainOps, Utility.defaultMetaverseOps);
         },
 
         disconnect: function() {
