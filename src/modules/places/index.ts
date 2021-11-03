@@ -18,6 +18,7 @@ export interface PlaceEntry {
     placeId: string;
     address: string;
     description: string;
+    thumbnail: string;
     currentAttendance: number;
 }
 
@@ -36,6 +37,7 @@ export const Places = {
                         placeId: place.placeId,
                         address: place.address,
                         description: place.description,
+                        thumbnail: place.thumbnail,
                         currentAttendance: place.current_attendance === undefined ? 0 : place.current_attendance
                     } as PlaceEntry);
                 });
