@@ -7,7 +7,7 @@
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Config, LAST_DOMAIN_SERVER } from "@Base/config";
-import { ConnectionState, Signal, Slot } from "@vircadia/web-sdk";
+import { ConnectionState, SignalEmitter, Slot } from "@vircadia/web-sdk";
 
 import { Domain } from "@Modules/domain/domain";
 
@@ -36,7 +36,7 @@ export const DomainMgr = {
 
     // Event fired when the active domain state changes.
     // This is used by subsystems to know when to setup connection to the domain.
-    onActiveDomainStateChange: new Signal(),
+    onActiveDomainStateChange: new SignalEmitter(),
 
     /**
      * Create connection to a domain-server and return a Domain object with the connection.
