@@ -109,7 +109,7 @@ export const Utility = {
     },
 
     /**
-     * Start a connection to a metaverse server-server.
+     * Start a connection to a metaverse-server.
      *
      * The state change routines are usually used to start interaction operations.
      *
