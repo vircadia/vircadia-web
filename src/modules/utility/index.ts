@@ -41,7 +41,12 @@ export const Utility = {
             info: pInfo
         });
     },
-
+/**
+ * Default processing for metaverse-server state change.
+ *
+ * This routine is the default Signal processor added to a metaverse-server's changed state Signal. 
+ * It updates the metaverse-server's state in Vue's Store which will update the UI.
+ */
     defaultMetaverseOps(pMV: Metaverse, pNewState: string): void {
         Log.debug(Log.types.OTHER, `UTILITY: new metaverse state: ${pNewState}`);
         // eslint-disable-next-line no-void
