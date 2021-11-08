@@ -29,8 +29,8 @@
 import { defineComponent } from "vue";
 
 import { Mutations as StoreMutations } from "@Store/index";
-import { Renderer } from "@Modules/render/renderer";
-import { VScene } from "@Modules/render/vscene";
+import { Renderer } from "@Modules/scene/renderer";
+import { VScene } from "@Modules/scene/vscene";
 
 // import Log from "@Modules/debugging/log";
 

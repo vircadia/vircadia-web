@@ -15,7 +15,7 @@ import {
 import packageInfo from "@Base/../package.json";
 import versionInfo from "@Base/../VERSION.json";
 
-import { VVector3, VVector4 } from "@Modules/render";
+import { VVector3, VVector4 } from "@Modules/scene";
 
 import { MetaverseMgr } from "@Modules/metaverse";
 
