@@ -298,7 +298,7 @@ export default defineComponent({
                     link: "https://docs.vircadia.com/"
                 }
             ],
-            defaultProductLogo: "../assets/vircadia-icon.svg"
+            defaultProductLogo: "assets/vircadia-icon.svg"
         };
     },
 
@@ -340,7 +340,7 @@ export default defineComponent({
             if (this.$store.state.account.images && this.$store.state.account.images.thumbnail) {
                 return this.$store.state.account.images.thumbnail;
             }
-            return "../assets/defaultProfile.svg";
+            return "assets/defaultProfile.svg";
         }
     },
     watch: {
