@@ -26,12 +26,12 @@ import {
 import Log from "@Modules/debugging/log";
 
 export const Utility = {
-/**
- * Default processing for domain-server state change.
- *
- * This routine is the default Signal processor added to a domain-server's changed state Signal.
- * It updates the domain-server's state in Vue's Store which will update the UI.
- */
+    /**
+     * Default processing for domain-server state change.
+     *
+     * This routine is the default Signal processor added to a domain-server's changed state Signal.
+     * It updates the domain-server's state in Vue's Store which will update the UI.
+     */
     defaultDomainOps(pDomain: Domain, pConnState: ConnectionState, pInfo: string): void {
         Log.debug(Log.types.OTHER, `UTILITY: new domain state: ${pConnState}/${pInfo}`);
         // eslint-disable-next-line no-void
