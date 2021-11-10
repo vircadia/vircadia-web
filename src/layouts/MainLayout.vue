@@ -176,6 +176,8 @@
                                 <q-item-section>
                                     <q-item-label>{{ $store.state.globalConsts.APP_NAME }}</q-item-label>
                                     <q-item-label caption>{{ $store.state.globalConsts.APP_VERSION_TAG }}</q-item-label>
+                                    <q-item-label>Vircadia-web-sdk</q-item-label>
+                                    <q-item-label caption>{{ $store.state.globalConsts.SDK_VERSION_TAG }}</q-item-label>
                                 </q-item-section>
                             </q-item>
                         </q-list>
