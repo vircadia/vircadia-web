@@ -63,6 +63,17 @@
                             </q-item-label>
                             <q-item-label caption  class="text-grey">
                                 {{ getDomainServerState }}
+
+                                <q-btn
+                                    v-show="getShowDisconnect"
+                                    dense
+                                    color="purple"
+                                    size="sm"
+                                    class="q-ml-sm absolute"
+                                    style="margin-top: -4px;"
+                                    @click="disconnect()"
+                                    :label="getDisconnectLabel"
+                                />
                             </q-item-label>
                         </q-item-section>
                     </q-toolbar-title>
@@ -341,6 +352,22 @@ export default defineComponent({
                 return this.$store.state.account.images.thumbnail;
             }
             return "assets/defaultProfile.svg";
+        },
+        getShowDisconnect: function() : boolean {
+            if (this.$store.state.domain.url && this.$store.state.domain.url.length > 0
+                    && this.$store.state.domain.connectionState.startsWith("CONNECT")) {
+                return true;
+            }
+            return false;
+        },
+        getDisconnectLabel: function() : string {
+            if (this.$store.state.domain.connectionState === "CONNECTING") {
+                return "Cancel";
+            }
+            if (this.$store.state.domain.connectionState === "CONNECTED") {
+                return "Disconnect";
+            }
+            return "false";
         }
     },
     watch: {
@@ -376,8 +403,10 @@ export default defineComponent({
             await Utility.connectionSetup(locationAddress, Utility.defaultDomainOps, Utility.defaultMetaverseOps);
         },
 
-        disconnect: function() {
+        disconnect: async function() {
             Log.info(Log.types.UI, `Disconnecting from to...${this.$store.state.location.current}`);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            await Utility.disconnectActiveDomain();
         },
 
         // Metaverse

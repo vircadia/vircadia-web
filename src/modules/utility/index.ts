@@ -105,6 +105,9 @@ export const Utility = {
     async connectionSetup(pDomainUrl: string, pDomainOps?: Slot, pMetaverseOps?: Slot): Promise<void> {
         if (pDomainUrl) {
             try {
+                // First ensure we disconnect from any currently active domain.
+                await this.disconnectActiveDomain();
+
                 Log.debug(Log.types.COMM, `connectionSetup: connecting to domain ${pDomainUrl}`);
                 const domain = await DomainMgr.domainFactory(pDomainUrl, pDomainOps);
                 DomainMgr.ActiveDomain = domain;
@@ -136,6 +139,17 @@ export const Utility = {
         } catch (err) {
             const errr = <Error>err;
             Log.error(Log.types.COMM, `Exception connecting to metaverse: ${errr.message}`);
+        }
+    },
+
+    /**
+     * End a connection to a domain-server.
+     *
+     * If there is currently an active domain setup, this fires the disconnect method on that domain.
+     */
+    async disconnectActiveDomain(): Promise<void> {
+        if (DomainMgr.ActiveDomain) {
+            await DomainMgr.ActiveDomain.disconnect();
         }
     }
 };
