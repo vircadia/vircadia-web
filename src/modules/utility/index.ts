@@ -9,7 +9,11 @@ import { MetaverseMgr } from "@Modules/metaverse";
 
 import { DomainMgr } from "@Modules/domain";
 
-import { Slot } from "@vircadia/web-sdk";
+import { Slot, ConnectionState } from "@vircadia/web-sdk";
+
+import { Store, Actions as StoreActions } from "@Store/index";
+import { Metaverse } from "@Modules/metaverse/metaverse";
+import { Domain } from "@Modules/domain/domain";
 
 import {
     Config, TrueValue, FalseValue, RECONNECT_ON_STARTUP, LAST_DOMAIN_SERVER,
@@ -22,6 +26,36 @@ import {
 import Log from "@Modules/debugging/log";
 
 export const Utility = {
+    /**
+     * Default processing for domain-server state change.
+     *
+     * This routine is the default Signal processor added to a domain-server's changed state Signal.
+     * It updates the domain-server's state in Vue's Store which will update the UI.
+     */
+    defaultDomainOps(pDomain: Domain, pConnState: ConnectionState, pInfo: string): void {
+        Log.debug(Log.types.OTHER, `UTILITY: new domain state: ${pConnState}/${pInfo}`);
+        // eslint-disable-next-line no-void
+        void Store.dispatch(StoreActions.UPDATE_DOMAIN, {
+            domain: pDomain,
+            newState: pDomain.DomainStateAsString,
+            info: pInfo
+        });
+    },
+    /**
+     * Default processing for metaverse-server state change.
+     *
+     * This routine is the default Signal processor added to a metaverse-server's changed state Signal.
+     * It updates the metaverse-server's state in Vue's Store which will update the UI.
+     */
+    defaultMetaverseOps(pMV: Metaverse, pNewState: string): void {
+        Log.debug(Log.types.OTHER, `UTILITY: new metaverse state: ${pNewState}`);
+        // eslint-disable-next-line no-void
+        void Store.dispatch(StoreActions.UPDATE_METAVERSE, {
+            metaverse: pMV,
+            newState: pNewState
+        });
+    },
+
     /**
      * Configuration information is persisted so restore what information
      * we can.
@@ -71,6 +105,9 @@ export const Utility = {
     async connectionSetup(pDomainUrl: string, pDomainOps?: Slot, pMetaverseOps?: Slot): Promise<void> {
         if (pDomainUrl) {
             try {
+                // First ensure we disconnect from any currently active domain.
+                await this.disconnectActiveDomain();
+
                 Log.debug(Log.types.COMM, `connectionSetup: connecting to domain ${pDomainUrl}`);
                 const domain = await DomainMgr.domainFactory(pDomainUrl, pDomainOps);
                 DomainMgr.ActiveDomain = domain;
@@ -84,16 +121,35 @@ export const Utility = {
         }
     },
 
-    async metaverseConnectionSetup(metaverseUrl: string, pMetaverseOps?: Slot): Promise<void> {
+    /**
+     * Start a connection to a metaverse-server.
+     *
+     * The state change routines are usually used to start interaction operations.
+     *
+     * @param pMetaverseUrl either just the hostname (default protocol and ports are added) or a fully qualified URL
+     * @param {OnMetaverseStateChangeCallback} pMetaverseOps routine to be called when metaverse connection state changes
+     */
+    async metaverseConnectionSetup(pMetaverseUrl: string, pMetaverseOps?: Slot): Promise<void> {
         try {
-            if (metaverseUrl) {
-                Log.debug(Log.types.COMM, `metaverseConnectionSetup: connecting to metaverse ${metaverseUrl}`);
-                const metaverse = await MetaverseMgr.metaverseFactory(metaverseUrl, pMetaverseOps);
+            if (pMetaverseUrl) {
+                Log.debug(Log.types.COMM, `metaverseConnectionSetup: connecting to metaverse ${pMetaverseUrl}`);
+                const metaverse = await MetaverseMgr.metaverseFactory(pMetaverseUrl, pMetaverseOps);
                 MetaverseMgr.ActiveMetaverse = metaverse;
             }
         } catch (err) {
             const errr = <Error>err;
             Log.error(Log.types.COMM, `Exception connecting to metaverse: ${errr.message}`);
+        }
+    },
+
+    /**
+     * End a connection to a domain-server.
+     *
+     * If there is currently an active domain setup, this fires the disconnect method on that domain.
+     */
+    async disconnectActiveDomain(): Promise<void> {
+        if (DomainMgr.ActiveDomain) {
+            await DomainMgr.ActiveDomain.disconnect();
         }
     }
 };

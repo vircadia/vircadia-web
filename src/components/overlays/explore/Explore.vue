@@ -12,8 +12,34 @@
     .q-field {
         background-color: rgba(0, 0, 0, 0.4);
     }
+    .exploreItem {
+        background-size: cover; background-position: center;
+    }
 </style>
-
+<style lang="scss">
+    .exploreScrollContainer .q-scrollarea__content{
+        width: 100%;
+    }
+    .exploreItem{
+        background-size: cover; background-position: center;
+    }
+    .exploreItem .textShadow {
+        text-shadow: 1px 1px 2px black, 0 0 25px black, 0 0 5px black;
+    }
+    .exploreItem .q-item__section {
+        z-index: 1;
+    }
+    .exploreItemBackground{
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(3px);
+        z-index: 0;
+    }
+</style>
 <template>
     <OverlayShell
         icon="travel_explore"
@@ -49,14 +75,18 @@
                 </q-input>
             </div>
             <q-scroll-area
-                class="col"
+                class="col exploreScrollContainer"
             >
-                <q-list style="max-Width: 400px;" :showing="!loading">
+                <q-list :showing="!loading">
                     <q-item v-for="place in filteredAndSortedData"
                             :key="place.placeId"
                             clickable
                             v-ripple
-                            @click="openLocation(place.address)">
+                            @click="openLocation(place.address)"
+                            :style="place.thumbnail ? 'background-image: url(' + place.thumbnail +');' : '' "
+                            class="exploreItem"
+                            >
+                        <div class="exploreItemBackground"></div>
                         <q-item-section side top>
                             <q-btn round
                                 color="white"
@@ -68,8 +98,8 @@
                         </q-item-section>
 
                         <q-item-section top>
-                            <q-item-label lines="1">{{ place.name }}</q-item-label>
-                            <q-item-label caption lines="1">{{ place.description }}</q-item-label>
+                            <q-item-label lines="1" class="textShadow">{{ place.name }}</q-item-label>
+                            <q-item-label caption lines="1" class="textShadow">{{ place.description }}</q-item-label>
                         </q-item-section>
 
                         <q-item-section side top>
@@ -94,16 +124,11 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { Utility } from "@Modules/utility";
+import { Places, PlaceEntry } from "@Modules/places";
+import Log from "@Modules/debugging/log";
 
 import OverlayShell from "../OverlayShell.vue";
-
-export interface PlaceEntry {
-    name: string;
-    placeId: string;
-    address: string;
-    description: string;
-    currentAttendance: number;
-}
 
 export default defineComponent({
     name: "Explore",
@@ -152,28 +177,26 @@ export default defineComponent({
     },
 
     methods: {
-        // This next 'disable' is because of the commented out call to Explore. Remove when coded.
-        // eslint-disable-next-line @typescript-eslint/require-await
         async loadPlacesList(): Promise<void> {
             this.loading = true;
-            // TODO: figure out Explore updates and class instance
-            // const placesResult = await this.$store.state.Explore.retrievePlaces();
-            const placesResult = new Array<PlaceEntry>();
+            const placesResult = await Places.getActiveList();
             this.placesList = placesResult;
             this.loading = false;
         },
 
-        openLocation(path: string): void {
-            alert("Not currently implemented: Open location - " + path);
+        async openLocation(path: string): Promise<void> {
+            Log.info(Log.types.UI, `Connecting to...${path}`);
+            // eslint-disable-next-line @typescript-eslint/unbound-method
+            await Utility.connectionSetup(path, Utility.defaultDomainOps, Utility.defaultMetaverseOps);
         },
 
         openDetails(place: PlaceEntry): void {
             alert("Not currently implemented: Show details - " + place.name);
         },
 
-        visitIconCallback() {
+        async visitIconCallback() {
             if (this.filterText !== "") {
-                this.openLocation(this.filterText);
+                await this.openLocation(this.filterText);
             }
         }
     },

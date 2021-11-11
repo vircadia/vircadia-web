@@ -28,7 +28,7 @@ npm i
 Development mode benefits from features like hot-code reloading, error reporting, etc.
 
 ```
-quasar dev
+npm run dev
 ```
 
 ### Lint the files
@@ -52,7 +52,7 @@ npm run test
 ### Build the app for production
 
 ```
-quasar build
+npm run build
 ```
 
 ### Customize the configuration
