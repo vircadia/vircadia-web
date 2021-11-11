@@ -63,6 +63,17 @@
                             </q-item-label>
                             <q-item-label caption  class="text-grey">
                                 {{ getDomainServerState }}
+
+                                <q-btn
+                                    v-show="getShowDisconnect"
+                                    dense
+                                    color="purple"
+                                    size="sm"
+                                    class="q-ml-sm absolute"
+                                    style="margin-top: -4px;"
+                                    @click="disconnect()"
+                                    :label="getDisconnectLabel"
+                                />
                             </q-item-label>
                         </q-item-section>
                     </q-toolbar-title>
@@ -218,9 +229,6 @@ import OverlayManager from "@Components/overlays/OverlayManager.vue";
 import { Store, Mutations as StoreMutations, Actions as StoreActions } from "@Store/index";
 import { Utility } from "@Modules/utility";
 import { Account } from "@Modules/account";
-import { Metaverse } from "@Modules/metaverse/metaverse";
-import { Domain } from "@Modules/domain/domain";
-import { ConnectionState } from "@vircadia/web-sdk";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
@@ -303,7 +311,7 @@ export default defineComponent({
                     link: "https://docs.vircadia.com/"
                 }
             ],
-            defaultProductLogo: "../assets/vircadia-icon.svg"
+            defaultProductLogo: "assets/vircadia-icon.svg"
         };
     },
 
@@ -345,7 +353,23 @@ export default defineComponent({
             if (this.$store.state.account.images && this.$store.state.account.images.thumbnail) {
                 return this.$store.state.account.images.thumbnail;
             }
-            return "../assets/defaultProfile.svg";
+            return "assets/defaultProfile.svg";
+        },
+        getShowDisconnect: function() : boolean {
+            if (this.$store.state.domain.url && this.$store.state.domain.url.length > 0
+                    && this.$store.state.domain.connectionState.startsWith("CONNECT")) {
+                return true;
+            }
+            return false;
+        },
+        getDisconnectLabel: function() : string {
+            if (this.$store.state.domain.connectionState === "CONNECTING") {
+                return "Cancel";
+            }
+            if (this.$store.state.domain.connectionState === "CONNECTED") {
+                return "Disconnect";
+            }
+            return "false";
         }
     },
     watch: {
@@ -377,31 +401,14 @@ export default defineComponent({
         connectToAddress: async function(locationAddress: string) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             Log.info(Log.types.UI, `Connecting to...${locationAddress}`);
-            await Utility.connectionSetup(locationAddress,
-                // function called when domain-server connection state changes
-                (pDomain: Domain, pNewState: ConnectionState, pInfo: string) => {
-                    Log.info(Log.types.COMM, `MainLayout: domain-server state change: ${pNewState}: ${pInfo}`);
-                    // eslint-disable-next-line no-void
-                    void Store.dispatch(StoreActions.UPDATE_DOMAIN, {
-                        domain: pDomain,
-                        newState: pDomain.DomainStateAsString,
-                        info: pInfo
-                    });
-                },
-                // function called when metaverse-server connection state changes
-                (pMetaverse: Metaverse, pNewState: string) => {
-                    Log.info(Log.types.COMM, `MainLayout: metaverse-server state change: ${pNewState}`);
-                    // eslint-disable-next-line no-void
-                    void Store.dispatch(StoreActions.UPDATE_METAVERSE, {
-                        metaverse: pMetaverse,
-                        newState: pNewState
-                    });
-                }
-            );
+            // eslint-disable-next-line @typescript-eslint/unbound-method
+            await Utility.connectionSetup(locationAddress, Utility.defaultDomainOps, Utility.defaultMetaverseOps);
         },
 
-        disconnect: function() {
+        disconnect: async function() {
             Log.info(Log.types.UI, `Disconnecting from to...${this.$store.state.location.current}`);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            await Utility.disconnectActiveDomain();
         },
 
         // Metaverse
