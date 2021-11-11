@@ -9,6 +9,59 @@
 // This will be replaced with an official definition.
 declare module "@vircadia/web-sdk" {
 
+    // eslint-disable-next-line @typescript-eslint/init-declarations
+    export const Vircadia: {
+        version: string;
+        verboseVersion: string;
+    };
+
+    // Vec3 and Quant ==========================
+    export type vec3 = {
+        x: number;
+        y: number;
+        z: number;
+    };
+    // eslint-disable-next-line @typescript-eslint/init-declarations
+    export const Vec3: {
+        readonly ZERO: vec3;
+        equal(v1: vec3, v2: vec3): boolean;
+    };
+    export type quat = {
+        x: number;
+        y: number;
+        z: number;
+        w: number;
+    };
+    // eslint-disable-next-line @typescript-eslint/init-declarations
+    export const Quat: {
+        readonly IDENTITY: quat;
+        equal(q1: quat, q2: quat): boolean;
+    };
+    // Uuid ============================
+    export class Uuid {
+        static readonly NUM_BYTES_RFC4122_UUID = 16;
+        static readonly NULL: bigint;
+        static readonly AVATAR_SELF_ID: bigint;
+        // constructor(value?: bigint);
+        value(): bigint;
+        stringify(): string;
+    }
+    // Signal ============================
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    export type Slot = (...args: any[]) => void;
+    export type Signal = {
+        connect: (slot: Slot) => void;
+        disconnect: (slot: Slot) => void;
+    };
+    export class SignalEmitter implements Signal {
+        #private;
+        connect(slot: Slot): void;
+        disconnect(slot: Slot): void;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        emit(...params: any[]): void;
+        signal(): Signal;
+    }
+    // ============================
     export enum ConnectionState {
         DISCONNECTED = 0,
         CONNECTING = 1,
@@ -16,6 +69,7 @@ declare module "@vircadia/web-sdk" {
         REFUSED = 3,
         ERROR = 4
     }
+    // ============================
     export type OnDomainStateChanged = (state: ConnectionState, info: string) => void;
     export class DomainServer {
         static get DISCONNECTED(): ConnectionState;
@@ -31,6 +85,8 @@ declare module "@vircadia/web-sdk" {
         get errorInfo(): string;
         set onStateChanged(callback: OnDomainStateChanged);
         get contextID(): number;
+        get sessionUUID(): Uuid;
+        get SessionUUIDChanged(): Signal;
         connect(location: string): void;
         disconnect(): void;
     }
@@ -104,19 +160,20 @@ declare module "@vircadia/web-sdk" {
     };
 
     // AudioMixer ============================
+    type AudioPositionGetter = () => vec3;
     export class AudioMixer extends AssignmentClient {
         constructor(contextID: number);
         get audioOuput(): MediaStream;
         set audioInput(audioInput: MediaStream | null);
         get inputMuted(): boolean;
         set inputMuted(inputMuted: boolean);
+        set positionGetter(positionGetter: AudioPositionGetter);
         play(): Promise<void>;
         pause(): Promise<void>;
     }
 
     // MessageMixer ============================
     export class MessageMixer extends AssignmentClient {
-        #private;
         constructor(contextID: number);
         subscribe(channel: string): void;
         unsubscribe(channel: string): void;
@@ -126,25 +183,34 @@ declare module "@vircadia/web-sdk" {
         get dataReceived(): Signal;
     }
 
-    // AvatarMixer ============================
-    export class AvatarMixer extends AssignmentClient {
-        #private;
+    // MyAvatarInterface ============================
+    export class MyAvatarInterface {
         constructor(contextID: number);
+        get displayName(): string;
+        set displayName(displayName: string);
+        get displayNameChanged(): Signal;
+        get sessionDisplayName(): string;
+        get sessionDisplayNameChanged(): Signal;
+        get position(): vec3;
+        set position(position: vec3);
     }
 
-    // ============================
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    export type Slot = (...args: any[]) => void;
-    export type Signal = {
-        connect: (slot: Slot) => void;
-        disconnect: (slot: Slot) => void;
-    };
-    export class SignalEmitter implements Signal {
-        #private;
-        connect(slot: Slot): void;
-        disconnect(slot: Slot): void;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        emit(...params: any[]): void;
-        signal(): Signal;
+    // AvatarListInterface ============================
+    export class AvatarListInterface {
+        constructor(contextID: number);
+        get count(): number;
+        getAvatarIDs(): Array<Uuid>;
+        get avatarAdded(): Signal;
+        get avatarRemoved(): Signal;
     }
+
+    // AvatarMixer ============================
+    export class AvatarMixer extends AssignmentClient {
+        constructor(contextID: number);
+        get myAvatar(): MyAvatarInterface;
+        get avatarList(): AvatarListInterface;
+        update(): void;
+
+    }
+
 }
