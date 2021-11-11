@@ -10,11 +10,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 
-import { Store, Actions as StoreActions } from "@Store/index";
 import { Utility } from "@Modules/utility";
-import { Metaverse } from "@Modules/metaverse/metaverse";
-import { Domain } from "@Modules/domain/domain";
-import { ConnectionState } from "@vircadia/web-sdk";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
@@ -29,25 +25,8 @@ export default defineComponent({
     mounted: async function() {
         // Called after the APP is visible. This starts the engines doing things.
         // Start connections if we are restoring the session
-        await Utility.initialConnectionSetup(
-            function(pDomain: Domain, pConnState: ConnectionState, pInfo: string) {
-                Log.debug(Log.types.OTHER, `APP: new domain state: ${pConnState}/${pInfo}`);
-                // eslint-disable-next-line no-void
-                void Store.dispatch(StoreActions.UPDATE_DOMAIN, {
-                    domain: pDomain,
-                    newState: pDomain.DomainStateAsString,
-                    info: pInfo
-                });
-            },
-            function(pMV: Metaverse, pNewState: string) {
-                Log.debug(Log.types.OTHER, `APP: new metaverse state: ${pNewState}`);
-                // eslint-disable-next-line no-void
-                void Store.dispatch(StoreActions.UPDATE_METAVERSE, {
-                    metaverse: pMV,
-                    newState: pNewState
-                });
-            }
-        );
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        await Utility.initialConnectionSetup(Utility.defaultDomainOps, Utility.defaultMetaverseOps);
     }
 });
 </script>
