@@ -5,27 +5,45 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
+import { Domain } from "@Modules/domain/domain";
+
 import { AssignmentClientState, AudioMixer, SignalEmitter } from "@vircadia/web-sdk";
+
+import Log from "@Modules/debugging/log";
 
 // Allow 'get' lines to be compact
 /* eslint-disable @typescript-eslint/brace-style */
 
+// Function signature called for state changing
+export type DomainAudioStateChangeCallback = (pD: Domain, pA: DomainAudio, pS: AssignmentClientState) => void;
+
 export class DomainAudio {
 
-    public onDomainAudioChange: SignalEmitter;
+    public onStateChange: SignalEmitter;
 
-    #_contextId: number;
+    #_domain: Domain;
     #_audioMixer: Nullable<AudioMixer>;
+    public get Mixer(): Nullable<AudioMixer> { return this.#_audioMixer; }
 
-    constructor(pContextId: number) {
-        this.#_contextId = pContextId;
-        this.onDomainAudioChange = new SignalEmitter();
-        this.#_audioMixer = new AudioMixer(pContextId);
+    constructor(pD: Domain) {
+        this.#_domain = pD;
+        this.onStateChange = new SignalEmitter();
+        this.#_audioMixer = new AudioMixer(pD.ContextId);
         this.#_audioMixer.onStateChanged = this._handleOnStateChanged.bind(this);
     }
 
     private _handleOnStateChanged(pNewState: AssignmentClientState): void {
-        this.onDomainAudioChange.emit(this, pNewState);
+        if (this.#_audioMixer) {
+            Log.debug(Log.types.AUDIO,
+                `DomainAudio: AudioMixer state=${AudioMixer.stateToString(this.#_audioMixer.state)}`);
+            this.#_audioMixer.onStateChanged = function(pAState: AssignmentClientState): void {
+                Log.debug(Log.types.COMM,
+                    `DomainAudio: AudioMixer state change: ${AudioMixer.stateToString(pAState)}`);
+            };
+        } else {
+            Log.error(Log.types.COMM, `DomainAudio: no AudioMixer`);
+        }
+        this.onStateChange.emit(this.#_domain, this, pNewState);
     }
 
     getDomainAudioStream(): Nullable<MediaStream> {

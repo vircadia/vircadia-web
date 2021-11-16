@@ -402,7 +402,7 @@ export default defineComponent({
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             Log.info(Log.types.UI, `Connecting to...${locationAddress}`);
             // eslint-disable-next-line @typescript-eslint/unbound-method
-            await Utility.connectionSetup(locationAddress, Utility.defaultDomainOps, Utility.defaultMetaverseOps);
+            await Utility.connectionSetup(locationAddress);
         },
 
         disconnect: async function() {

@@ -9,8 +9,11 @@
 /* eslint-disable @typescript-eslint/brace-style */
 
 import { DomainServer, ConnectionState, SignalEmitter } from "@vircadia/web-sdk";
-
 import { DomainAudio } from "@Modules/domain/audio";
+import { DomainMessage } from "@Modules/domain/message";
+import { DomainAvatar } from "@Modules/domain/avatar";
+
+import { Store, Actions as StoreActions } from "@Store/index";
 
 import { Config, DEFAULT_METAVERSE_URL, DEFAULT_DOMAIN_PROTOCOL, DEFAULT_DOMAIN_PORT } from "@Base/config";
 import Log from "@Modules/debugging/log";
@@ -45,6 +48,15 @@ export class Domain {
 
     #_domain: Nullable<DomainServer>;
     #_audioClient: Nullable<DomainAudio>;
+    #_messageClient: Nullable<DomainMessage>;
+    #_avatarClient: Nullable<DomainAvatar>;
+
+    public get AudioClient(): Nullable<DomainAudio> { return this.#_audioClient; }
+    public get MessageClient(): Nullable<DomainMessage> { return this.#_messageClient; }
+    public get AvatarClient(): Nullable<DomainAvatar> { return this.#_avatarClient; }
+
+    // Return domain's contextID or zero
+    public get ContextId(): number { return this.#_domain ? this.#_domain.contextID : 0; }
 
     public onStateChange: SignalEmitter;
 
@@ -98,11 +110,41 @@ export class Domain {
         Log.debug(Log.types.COMM, `DomainStateChange: new state ${pState}, ${pInfo}`);
         // If conneted, setup the connections to the assignment clients
         if (pState === DomainServer.CONNECTED) {
-            if (this.#_domain && !this.#_audioClient) {
-                this.#_audioClient = new DomainAudio(this.#_domain.contextID);
+            if (this.#_domain) {
+                if (!this.#_avatarClient) {
+                    this.#_avatarClient = new DomainAvatar(this);
+                }
+                if (!this.#_messageClient) {
+                    this.#_messageClient = new DomainMessage(this);
+                }
+                if (!this.#_audioClient) {
+                    this.#_audioClient = new DomainAudio(this);
+                }
             }
         }
-        this.onStateChange.emit(this, DomainServer.stateToString(pState), pInfo);
+        else {
+            // Must be disconnected. If we have services setup, close them
+            // eslint-disable-next-line no-lonely-if
+            if (this.#_domain) {
+                if (this.#_audioClient) {
+                    this.#_audioClient = undefined;
+                }
+                if (this.#_messageClient) {
+                    this.#_messageClient = undefined;
+                }
+                if (this.#_avatarClient) {
+                    this.#_avatarClient = undefined;
+                }
+            }
+        }
+        this.onStateChange.emit(this, this.DomainStateAsString, pInfo);
+
+        // eslint-disable-next-line no-void
+        void Store.dispatch(StoreActions.UPDATE_DOMAIN, {
+            domain: this,
+            newState: this.DomainStateAsString,
+            info: pInfo
+        });
     }
 
     /** Return 'true' if the communication with the metaverse is active */

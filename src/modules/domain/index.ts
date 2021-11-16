@@ -7,7 +7,7 @@
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Config, LAST_DOMAIN_SERVER } from "@Base/config";
-import { ConnectionState, SignalEmitter, Slot } from "@vircadia/web-sdk";
+import { ConnectionState, SignalEmitter } from "@vircadia/web-sdk";
 
 import { Domain } from "@Modules/domain/domain";
 
@@ -22,16 +22,16 @@ export const DomainMgr = {
     _domains: new Map<string, Domain>(),
 
     // There is one main domain we're working with
-    get ActiveDomain(): Domain { return DomainMgr._activeDomain; },
-    set ActiveDomain(pDomain: Domain) {
+    get ActiveDomain(): Nullable<Domain> { return DomainMgr._activeDomain; },
+    set ActiveDomain(pDomain: Nullable<Domain>) {
         if (DomainMgr._activeDomain) {
             // If already have an active domain, disconnect from the state change event
             // eslint-disable-next-line @typescript-eslint/unbound-method
             DomainMgr._activeDomain.onStateChange.disconnect(DomainMgr._handleActiveDomainStateChange);
         }
-        DomainMgr._activeDomain = pDomain;
+        DomainMgr._activeDomain = pDomain as Domain;
         // eslint-disable-next-line @typescript-eslint/unbound-method
-        pDomain.onStateChange.connect(DomainMgr._handleActiveDomainStateChange);
+        pDomain?.onStateChange.connect(DomainMgr._handleActiveDomainStateChange);
     },
 
     // Event fired when the active domain state changes.
@@ -42,16 +42,12 @@ export const DomainMgr = {
      * Create connection to a domain-server and return a Domain object with the connection.
      *
      * @param pUrl network address of domain
-     * @param pDomainOps optional stateChange event receiver
      * @returns Domain object with the connection initialized
      * @throws if there are connection errors
      */
-    async domainFactory(pUrl: string, pDomainOps?: Slot): Promise<Domain> {
+    async domainFactory(pUrl: string): Promise<Domain> {
         Log.debug(Log.types.COMM, `DomainMgr.domainFactory: creating domain ${pUrl}`);
         const aDomain = new Domain();
-        if (pDomainOps) {
-            aDomain.onStateChange.connect(pDomainOps);
-        }
         try {
             await aDomain.connect(pUrl);
             DomainMgr._domains.set(aDomain.DomainUrl, aDomain);
@@ -64,7 +60,7 @@ export const DomainMgr = {
         return aDomain;
     },
 
-    // Pass the state change event from the active domain
+    // Pass  the events for the active domain
     _handleActiveDomainStateChange(pDomain: Domain, pState: ConnectionState, pInfo: string): void {
         DomainMgr.onActiveDomainStateChange.emit(pDomain, pState, pInfo);
     },

@@ -10,7 +10,7 @@ import axios from "axios";
 import { buildUrl, cleanMetaverseUrl, findErrorMsg } from "@Modules/metaverse/metaverseOps";
 import { MetaverseInfoResp, MetaverseInfoAPI } from "@Modules/metaverse/APIAccount";
 
-// import { Store, Mutations as StoreMutations } from "@Base/store";
+import { Store, Actions as StoreActions } from "@Store/index";
 
 import { SignalEmitter } from "@vircadia/web-sdk";
 
@@ -133,7 +133,12 @@ export class Metaverse {
     _setMetaverseConnectionState(pNewState: MetaverseState): void {
         this.#_connectionState = pNewState;
         this.onStateChange.emit(this, pNewState);
-        // Hint: App.vue has code that listens for this
+
+        // eslint-disable-next-line no-void
+        void Store.dispatch(StoreActions.UPDATE_METAVERSE, {
+            metaverse: this,
+            newState: pNewState
+        });
     }
 
     /**
