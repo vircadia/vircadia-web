@@ -35,6 +35,8 @@ declare module "@vircadia/web-sdk" {
     // eslint-disable-next-line @typescript-eslint/init-declarations
     export const Quat: {
         readonly IDENTITY: quat;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        valid(value: any): boolean;
         equal(q1: quat, q2: quat): boolean;
     };
     // Uuid ============================
@@ -54,7 +56,6 @@ declare module "@vircadia/web-sdk" {
         disconnect: (slot: Slot) => void;
     };
     export class SignalEmitter implements Signal {
-        #private;
         connect(slot: Slot): void;
         disconnect(slot: Slot): void;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -97,7 +98,7 @@ declare module "@vircadia/web-sdk" {
         DISCONNECTED = 1,
         CONNECTED = 2
     }
-    export type OnAssignmentClientStateChanged = (state: AssignmentClientState) => void;
+    export type OnAssignmentClientStateChanged = Nullable<(state: AssignmentClientState) => void>;
     export class AssignmentClient {
         static get UNAVAILABLE(): AssignmentClientState;
         static get DISCONNECTED(): AssignmentClientState;
@@ -173,6 +174,8 @@ declare module "@vircadia/web-sdk" {
     }
 
     // MessageMixer ============================
+    type MessageReceivedSlot = (pChannel: string, pMsg: string, pSenderId: string, pLocalOnly: boolean) => void;
+    type DataReceivedSlot = (pChannel: string, pMsg: ArrayBuffer, pSenderId: string, pLocalOnly: boolean) => void;
     export class MessageMixer extends AssignmentClient {
         constructor(contextID: number);
         subscribe(channel: string): void;
@@ -184,6 +187,8 @@ declare module "@vircadia/web-sdk" {
     }
 
     // MyAvatarInterface ============================
+    type DisplayNameChangedSlot = () => void;
+    type SessionDisplayNameChangedSlot = () => void;
     export class MyAvatarInterface {
         constructor(contextID: number);
         get displayName(): string;
@@ -196,6 +201,15 @@ declare module "@vircadia/web-sdk" {
     }
 
     // AvatarListInterface ============================
+    export enum KillAvatarReason {
+        NoReason = 0,
+        AvatarDisconnected,
+        AvatarIgnored,
+        TheirAvatarEnteredYourBubble,
+        YourAvatarEnteredTheirBubble
+    }
+    type AvatarAddedSlot = (pSessionUUID: Uuid) => void;
+    type AvatarRemovedSlot = (pSessionUUID: Uuid, pRemovalReason: KillAvatarReason) => void;
     export class AvatarListInterface {
         constructor(contextID: number);
         get count(): number;
@@ -210,7 +224,6 @@ declare module "@vircadia/web-sdk" {
         get myAvatar(): MyAvatarInterface;
         get avatarList(): AvatarListInterface;
         update(): void;
-
     }
 
 }
