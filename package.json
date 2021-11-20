@@ -16,7 +16,7 @@
     },
     "dependencies": {
         "@quasar/extras": "^1.11.2",
-        "@vircadia/web-sdk": "^0.0.4",
+        "@vircadia/web-sdk": "0.0.5",
         "axios": "^0.21.4",
         "babylonjs": "^4.2.0",
         "babylonjs-loaders": "^4.2.0",
