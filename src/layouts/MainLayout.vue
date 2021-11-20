@@ -330,10 +330,7 @@ export default defineComponent({
         },
 
         getLocation: function(): string {
-            if (this.$store.state.location.current) {
-                return this.$store.state.location.current;
-            }
-            return "Not currently connected to a domain";
+            return this.$store.state.avatar.location ?? "Not currently connected to a domain";
         },
 
         // Displays the state of the domain server on the user interface
@@ -406,7 +403,7 @@ export default defineComponent({
         },
 
         disconnect: async function() {
-            Log.info(Log.types.UI, `Disconnecting from to...${this.$store.state.location.current}`);
+            Log.info(Log.types.UI, `Disconnecting from to...${this.$store.state.avatar.location}`);
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             await Utility.disconnectActiveDomain();
         },

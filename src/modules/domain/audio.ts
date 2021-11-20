@@ -7,7 +7,8 @@
 
 import { Domain } from "@Modules/domain/domain";
 
-import { AssignmentClientState, AudioMixer, SignalEmitter } from "@vircadia/web-sdk";
+import { AudioMixer, SignalEmitter } from "@vircadia/web-sdk";
+import { AssignmentClientState } from "@Modules/domain/client";
 
 import Log from "@Modules/debugging/log";
 

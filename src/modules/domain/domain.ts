@@ -8,7 +8,7 @@
 // Allow 'get' lines to be compact
 /* eslint-disable @typescript-eslint/brace-style */
 
-import { DomainServer, ConnectionState, SignalEmitter } from "@vircadia/web-sdk";
+import { DomainServer, SignalEmitter } from "@vircadia/web-sdk";
 import { DomainAudio } from "@Modules/domain/audio";
 import { DomainMessage } from "@Modules/domain/message";
 import { DomainAvatar } from "@Modules/domain/avatar";
@@ -25,6 +25,15 @@ export type OnDomainStateChangeCallback = (d: Domain, newState: string, info: st
 export const DomainPersist = {
     "DOMAIN_URL": "Domain.Url"
 };
+
+// Duplicated here because of problems importing into SDK from Quasar environment
+export enum ConnectionState {
+    DISCONNECTED = 0,
+    CONNECTING,
+    CONNECTED,
+    REFUSED,
+    ERROR
+}
 
 /**
  * Class instance for a connection to the domain-server.
@@ -51,6 +60,7 @@ export class Domain {
     #_messageClient: Nullable<DomainMessage>;
     #_avatarClient: Nullable<DomainAvatar>;
 
+    public get DomainClient(): Nullable<DomainServer> { return this.#_domain; }
     public get AudioClient(): Nullable<DomainAudio> { return this.#_audioClient; }
     public get MessageClient(): Nullable<DomainMessage> { return this.#_messageClient; }
     public get AvatarClient(): Nullable<DomainAvatar> { return this.#_avatarClient; }
@@ -78,6 +88,10 @@ export class Domain {
     public static get CONNECTED(): string { return DomainServer.stateToString(DomainServer.CONNECTED); }
     public static get REFUSED(): string { return DomainServer.stateToString(DomainServer.REFUSED); }
     public static get ERROR(): string { return DomainServer.stateToString(DomainServer.ERROR); }
+
+    public static stateToString(pState: ConnectionState): string {
+        return DomainServer.stateToString(pState);
+    }
 
     // eslint-disable-next-line @typescript-eslint/require-await
     async connect(pUrl: string): Promise<Domain> {
@@ -142,7 +156,7 @@ export class Domain {
         // eslint-disable-next-line no-void
         void Store.dispatch(StoreActions.UPDATE_DOMAIN, {
             domain: this,
-            newState: this.DomainStateAsString,
+            newState: this.#_domain?.state,
             info: pInfo
         });
     }

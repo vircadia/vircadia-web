@@ -14,18 +14,22 @@ import {
 
 import packageInfo from "@Base/../package.json";
 import versionInfo from "@Base/../VERSION.json";
-import { Vircadia } from "@vircadia/web-sdk";
+import { MyAvatarInterface, AvatarListInterface, Vec3, vec3, Vircadia, Uuid, DomainServer } from "@vircadia/web-sdk";
 
 import { VVector3, VVector4 } from "@Modules/scene";
 
 import { MetaverseMgr } from "@Modules/metaverse";
 
-import { Metaverse } from "@Base/modules/metaverse/metaverse";
-import { Domain } from "@Modules/domain/domain";
+import { Metaverse, MetaverseState } from "@Base/modules/metaverse/metaverse";
+import { Domain, ConnectionState } from "@Modules/domain/domain";
+import { AssignmentClientState } from "@Modules/domain/client";
+import { DomainAvatar } from "@Modules/domain/avatar";
+import { DomainMessage } from "@Modules/domain/message";
 import { onAccessTokenChangePayload, onAttributeChangePayload } from "@Modules/account";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
+import { Client } from "@Base/modules/domain/client";
 
 /**
  * $store of shared state used by the Vue components. The Store that is created
@@ -65,22 +69,29 @@ export enum Actions {
     UPDATE_METAVERSE = "UPDATE_METAVERSE",
     UPDATE_DOMAIN = "UPDATE_DOMAIN",
     UPDATE_ACCOUNT_TOKEN = "UPDATE_ACCOUNT_TOKEN",
-    UPDATE_ACCOUNT_INFO = "UPDATE_ACCOUNT_INFO"
+    UPDATE_ACCOUNT_INFO = "UPDATE_ACCOUNT_INFO",
+    UPDATE_AVATAR_INFO = "UPDATE_AVATAR_INFO"
 }
 export type SetMetaverseUrlPayload = string;
 export type SetDomainUrlPayload = string;
 export interface UpdateMetaversePayload {
     metaverse: Metaverse,
-    newState: string
+    newState: MetaverseState
 }
 export interface UpdateDomainPayload {
     domain: Domain,
-    newState: string,
+    newState: ConnectionState,
     info: string
 }
 // For convience, the payloads are the same
 export type UpdateAccountTokenPayload = onAccessTokenChangePayload;
 export type UpdateAccountInfoPayload = onAttributeChangePayload;
+
+export interface UpdateMyAvatarInfoPayload {
+    domain: Domain,
+    domainAvatar: Nullable<DomainAvatar>,
+    avatarList: Nullable<AvatarListInterface>
+}
 
 /**
  * Properties in the root storage object
@@ -105,22 +116,54 @@ export interface IRootState {
         code: string,
         full: string
     },
-    location: {
-        current: string,
-        state: string
-    },
+    // Domain info. Updated when the Domain connection state changes
     domain: {
         connectionState: string,
+        domain: Nullable<DomainServer>,
         url: string
     },
+    // Avatars in the domain info. Updated when collection of avatars changes
+    avatars: {
+        connectionState: string,
+        avatarList: Nullable<AvatarListInterface>,
+        count: number,
+        avatars: Uuid[]
+    },
+    // Information about my avatar. Updated when avatar attributes change
+    avatar: {
+        avatarInfo: Nullable<MyAvatarInterface>,  // link to internal structure
+        domainAvatar: Nullable<DomainAvatar>,
+        displayName: string,
+        sessionDisplayName: string,
+        position: vec3,
+        location: string    // displayable, string form of position coordinates
+    },
+    // Chat information. Updated when the MessageClient connection state changes
+    messages: {
+        domainMessage: Nullable<DomainMessage>
+        // TODO: what does a dialog want? This is currently just a pointer to the SDK class wrapper
+    },
+    // The audio connection
+    audio: {
+        user: {
+            connected: boolean;             // 'true' if have audio input device
+            hasInputAccess: boolean;        // mic toggle, 'true' if input is on
+            awaitingCapturePermissions: boolean;    // waiting for user to allow access to input device
+            currentInputDevice: Nullable<MediaDeviceInfo>;  // info on current selected device
+            stream: Nullable<MediaStream>,  // the input stream
+            inputsList: MediaDeviceInfo[];  // a list of the input devices from the browser
+        }
+    },
+    // Information about the metaverse-server. Updated when connection state changes
     metaverse: {
+        connectionState: string;
         name: string;
         nickname: string;
         server: string;
-        connectionState: string;
-        iceServer: string | undefined ;
-        serverVersion: string | undefined ;
+        iceServer: Nullable<string>;
+        serverVersion: Nullable<string>;
     },
+    // Information about metaverse account that is logged in.
     account: {
         username: string;
         isLoggedIn: boolean;
@@ -138,21 +181,12 @@ export interface IRootState {
             thumbnail?: string;
         }
     },
+    // Information from the underlying rendering system
     renderer: {
         focusSceneId: number,
         fps: number,
         cameraLocation: Nullable<VVector3>,
         cameraRotation: Nullable<VVector4>
-    },
-    audio: {
-        user: {
-            connected: boolean;             // 'true' if have audio input device
-            hasInputAccess: boolean;        // mic toggle, 'true' if input is on
-            awaitingCapturePermissions: boolean;    // waiting for user to allow access to input device
-            currentInputDevice: Nullable<MediaDeviceInfo>;  // info on current selected device
-            stream: Nullable<MediaStream>,  // the input stream
-            inputsList: MediaDeviceInfo[];  // a list of the input devices from the browser
-        }
     }
 }
 
@@ -182,23 +216,48 @@ export const Store = createStore<IRootState>({
             which: "NONE",
             show: false
         },
-        location: {
-            current: "",
-            state: "Not Connected"
-        },
         domain: {
-            connectionState: "Disconnected",
+            domain: undefined,
+            connectionState: Domain.stateToString(ConnectionState.DISCONNECTED),
             url: "",
             audio: {
 
             }
         },
+        avatars: {
+            connectionState: DomainAvatar.stateToString(AssignmentClientState.DISCONNECTED),
+            avatarList: undefined,
+            count: 0,
+            avatars: []
+        },
+        avatar: {
+            avatarInfo: undefined,
+            domainAvatar: undefined,
+            displayName: "",
+            sessionDisplayName: "",
+            position: Vec3.ZERO,
+            location: "0,0,0"
+        },
+        messages: {
+            domainMessage: undefined
+        },
+        // Information about the audio system
+        audio: {
+            user: {
+                connected: false,
+                hasInputAccess: false,
+                awaitingCapturePermissions: false,
+                currentInputDevice: undefined,
+                stream: undefined,
+                inputsList: []
+            }
+        },
         // Information about the metaverse-server we're connected to
         metaverse: {
+            connectionState: "",
             name: "",
             nickname: "",
             server: "",
-            connectionState: "",
             iceServer: undefined,
             serverVersion: undefined
         },
@@ -219,17 +278,6 @@ export const Store = createStore<IRootState>({
             fps: 1,
             cameraLocation: undefined,
             cameraRotation: undefined
-        },
-        // Information about the audio system
-        audio: {
-            user: {
-                connected: false,
-                hasInputAccess: false,
-                awaitingCapturePermissions: false,
-                currentInputDevice: undefined,
-                stream: undefined,
-                inputsList: []
-            }
         }
     }),
     mutations: {
@@ -270,7 +318,13 @@ export const Store = createStore<IRootState>({
             // DEBUG DEBUG DEBUG
             // This supresses the periodic renderer stat update from being output on the console
             if (payload && payload.property && payload.property !== "renderer") {
-                Log.debug(Log.types.OTHER, `MUTATE: ${JSON.stringify(payload)}`);
+                Log.debug(Log.types.OTHER, `MUTATE: ${JSON.stringify(payload, (k, v) => {
+                    if (v instanceof BigInt) {
+                        return "BitInt";    // there is no serializer for BigInt
+                    }
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                    return typeof v === "undefined" ? "undef" : v;
+                })}`);
             }
             // END DEBUG DEBUG DEBUG
             // Create the target location to store the mutation
@@ -359,12 +413,12 @@ export const Store = createStore<IRootState>({
         // eslint-disable-next-line @typescript-eslint/require-await
         async [Actions.UPDATE_DOMAIN](pContext: ActionContext<IRootState, IRootState>,
             pPayload: UpdateDomainPayload): Promise<void> {
-            const domain = pPayload.domain;
             pContext.commit(Mutations.MUTATE, {
                 property: "domain",
                 with: {
-                    connectionState: pPayload.newState,
-                    url: domain.DomainUrl
+                    connectionState: Domain.stateToString(pPayload.newState),
+                    domain: pPayload.domain,
+                    url: pPayload.domain.DomainUrl
                 }
             });
         },
@@ -397,6 +451,62 @@ export const Store = createStore<IRootState>({
                     value: {}
                 });
             }
+        },
+        // eslint-disable-next-line @typescript-eslint/require-await
+        async [Actions.UPDATE_AVATAR_INFO](pContext: ActionContext<IRootState, IRootState>,
+            pPayload: UpdateMyAvatarInfoPayload): Promise<void> {
+            const myAvaInfo = pPayload.domainAvatar?.MyAvatar;
+            const domainLoc = pPayload.domain.DomainClient?.location ?? "Unconnected";
+            if (myAvaInfo) {
+                pContext.commit(Mutations.MUTATE, {
+                    property: "avatar",
+                    with: {
+                        avatarInfo: myAvaInfo,
+                        domainAvatar: pPayload.domainAvatar,
+                        displayName: myAvaInfo?.displayName,
+                        sessionDisplayName: myAvaInfo?.sessionDisplayName,
+                        position: myAvaInfo?.position,
+                        location: `${domainLoc}/${DomainAvatar.positionAsString(myAvaInfo?.position)}`
+                    }
+                });
+
+            } else {
+                pContext.commit(Mutations.MUTATE, {
+                    property: "avatar",
+                    with: {
+                        avatarInfo: undefined,
+                        domainAvatar: pPayload.domainAvatar,
+                        displayName: "none",
+                        sessionDisplayName: "none",
+                        position: Vec3.ZERO,
+                        location: `${domainLoc}/${DomainAvatar.positionAsString(Vec3.ZERO)}`
+                    }
+                });
+            }
+            if (pPayload.avatarList) {
+                pContext.commit(Mutations.MUTATE, {
+                    property: "avatars",
+                    with: {
+                        connectionState: pPayload.domainAvatar?.Mixer?.state,
+                        avatarList: pPayload.avatarList,
+                        count: pPayload.avatarList?.count,
+                        avatars: pPayload.avatarList.getAvatarIDs()
+                    }
+                });
+            } else {
+                pContext.commit(Mutations.MUTATE, {
+                    property: "avatars",
+                    with: {
+                        connectionState: Client.stateToString(AssignmentClientState.DISCONNECTED),
+                        avatarList: undefined,
+                        count: 0,
+                        avatars: new Array<Uuid>()
+                    }
+                });
+            }
+
+            Log.debug(Log.types.OTHER, `StoreAction.UpdateMyAvatarInfo`);
+
         },
         // Example action. Any script should be calling the Metavsere component directly
         async [Actions.SET_METAVERSE_URL](pContext: ActionContext<IRootState, IRootState>, pUrl: string): Promise<void> {
