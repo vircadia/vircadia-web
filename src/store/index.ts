@@ -24,11 +24,12 @@ import { Metaverse, MetaverseState } from "@Base/modules/metaverse/metaverse";
 import { Domain, ConnectionState } from "@Modules/domain/domain";
 import { AssignmentClientState } from "@Modules/domain/client";
 import { DomainAvatar } from "@Modules/domain/avatar";
-import { DomainMessage } from "@Modules/domain/message";
+import { DomainMessage, AMessage } from "@Modules/domain/message";
 import { onAccessTokenChangePayload, onAttributeChangePayload } from "@Modules/account";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
+import { toJSON } from "@Modules/debugging";
 import { Client } from "@Base/modules/domain/client";
 
 /**
@@ -46,7 +47,8 @@ import { Client } from "@Base/modules/domain/client";
  * Names of mutations to be used by callers
  */
 export enum Mutations {
-    MUTATE = "STATE_MUTATE"
+    MUTATE = "STATE_MUTATE",
+    ADD_MESSAGE = "ADD_MESSAGE"
 }
 /**
  * Payload passed to MUTATE
@@ -62,6 +64,16 @@ export interface MutatePayload {
     value?: number | string | KeyedCollection,
     with?: KeyedCollection
 }
+/**
+ * Payload passed to ADD_MESSAGE
+ * @typedef {Object} AddMessagePayload
+ * @property {AMessage} the message to be added to the message list
+ * @property {?number} the maximum messages to keep in the list. If zero, list cleared otherwise oldest removed
+ */
+export interface AddMessagePayload {
+    message: AMessage,
+    maxMessages?: number
+}
 
 export enum Actions {
     SET_METAVERSE_URL = "SET_METAVERSE_URL",
@@ -70,7 +82,8 @@ export enum Actions {
     UPDATE_DOMAIN = "UPDATE_DOMAIN",
     UPDATE_ACCOUNT_TOKEN = "UPDATE_ACCOUNT_TOKEN",
     UPDATE_ACCOUNT_INFO = "UPDATE_ACCOUNT_INFO",
-    UPDATE_AVATAR_INFO = "UPDATE_AVATAR_INFO"
+    UPDATE_AVATAR_INFO = "UPDATE_AVATAR_INFO",
+    RECEIVE_CHAT_MESSAGE = "RECEIVE_CHAT_MESSAGE"
 }
 export type SetMetaverseUrlPayload = string;
 export type SetDomainUrlPayload = string;
@@ -87,7 +100,7 @@ export interface UpdateDomainPayload {
 export type UpdateAccountTokenPayload = onAccessTokenChangePayload;
 export type UpdateAccountInfoPayload = onAttributeChangePayload;
 
-export interface UpdateMyAvatarInfoPayload {
+export interface UpdateAvatarInfoPayload {
     domain: Domain,
     domainAvatar: Nullable<DomainAvatar>,
     avatarList: Nullable<AvatarListInterface>
@@ -124,7 +137,7 @@ export interface IRootState {
     },
     // Avatars in the domain info. Updated when collection of avatars changes
     avatars: {
-        connectionState: string,
+        connectionState: AssignmentClientState,
         avatarList: Nullable<AvatarListInterface>,
         count: number,
         avatars: Uuid[]
@@ -140,8 +153,12 @@ export interface IRootState {
     },
     // Chat information. Updated when the MessageClient connection state changes
     messages: {
-        domainMessage: Nullable<DomainMessage>
+        domainMessage: Nullable<DomainMessage>,
         // TODO: what does a dialog want? This is currently just a pointer to the SDK class wrapper
+        messages: AMessage[],
+        messageChannel: string,
+        nextMessageId: number,
+        currentChannel: string
     },
     // The audio connection
     audio: {
@@ -219,13 +236,10 @@ export const Store = createStore<IRootState>({
         domain: {
             domain: undefined,
             connectionState: Domain.stateToString(ConnectionState.DISCONNECTED),
-            url: "",
-            audio: {
-
-            }
+            url: ""
         },
         avatars: {
-            connectionState: DomainAvatar.stateToString(AssignmentClientState.DISCONNECTED),
+            connectionState: AssignmentClientState.DISCONNECTED,
             avatarList: undefined,
             count: 0,
             avatars: []
@@ -239,7 +253,11 @@ export const Store = createStore<IRootState>({
             location: "0,0,0"
         },
         messages: {
-            domainMessage: undefined
+            domainMessage: undefined,
+            messages: [],
+            messageChannel: "xxx",
+            nextMessageId: 22,
+            currentChannel: "Chat"
         },
         // Information about the audio system
         audio: {
@@ -318,13 +336,8 @@ export const Store = createStore<IRootState>({
             // DEBUG DEBUG DEBUG
             // This supresses the periodic renderer stat update from being output on the console
             if (payload && payload.property && payload.property !== "renderer") {
-                Log.debug(Log.types.OTHER, `MUTATE: ${JSON.stringify(payload, (k, v) => {
-                    if (v instanceof BigInt) {
-                        return "BitInt";    // there is no serializer for BigInt
-                    }
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                    return typeof v === "undefined" ? "undef" : v;
-                })}`);
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                Log.debug(Log.types.OTHER, `MUTATE: ${toJSON(payload)}`);
             }
             // END DEBUG DEBUG DEBUG
             // Create the target location to store the mutation
@@ -386,6 +399,22 @@ export const Store = createStore<IRootState>({
                 }
             }
             */
+        },
+        // Add a message to the list of messages.
+        // Remove old messages of a limit is passed.
+        [Mutations.ADD_MESSAGE](state: IRootState, payload: AddMessagePayload) {
+            const msg = payload.message;
+            if (typeof msg.id === "undefined") {
+                msg.id = state.messages.nextMessageId;
+                state.messages.nextMessageId += 1;
+            }
+            state.messages.messages.push(payload.message);
+            // If a maximum is specified, remove the old from the list
+            if (typeof payload.maxMessages === "number") {
+                while (state.messages.messages.length > payload.maxMessages) {
+                    state.messages.messages.pop();
+                }
+            }
         }
     },
     actions: {
@@ -454,7 +483,10 @@ export const Store = createStore<IRootState>({
         },
         // eslint-disable-next-line @typescript-eslint/require-await
         async [Actions.UPDATE_AVATAR_INFO](pContext: ActionContext<IRootState, IRootState>,
-            pPayload: UpdateMyAvatarInfoPayload): Promise<void> {
+            pPayload: UpdateAvatarInfoPayload): Promise<void> {
+
+            Log.debug(Log.types.OTHER, `StoreAction.UpdateAvatarInfo`);
+
             const myAvaInfo = pPayload.domainAvatar?.MyAvatar;
             const domainLoc = pPayload.domain.DomainClient?.location ?? "Unconnected";
             if (myAvaInfo) {
@@ -504,9 +536,13 @@ export const Store = createStore<IRootState>({
                     }
                 });
             }
-
-            Log.debug(Log.types.OTHER, `StoreAction.UpdateMyAvatarInfo`);
-
+        },
+        // A message was received. Link it into the list of messages
+        [Actions.RECEIVE_CHAT_MESSAGE](pContext: ActionContext<IRootState, IRootState>, pMsg: AMessage): void {
+            pContext.commit(Mutations.ADD_MESSAGE, {
+                message: pMsg,
+                maxMessages: 100
+            });
         },
         // Example action. Any script should be calling the Metavsere component directly
         async [Actions.SET_METAVERSE_URL](pContext: ActionContext<IRootState, IRootState>, pUrl: string): Promise<void> {

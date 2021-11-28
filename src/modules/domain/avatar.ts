@@ -41,6 +41,9 @@ export class DomainAvatar extends Client {
         this.#_avaMixer.onStateChanged = this._handleOnStateChanged.bind(this);
     }
 
+    // Return the state of the underlying assignment client
+    public get clientState(): AssignmentClientState { return this.#_avaMixer?.state ?? AssignmentClientState.DISCONNECTED; }
+
     /**
      * Handle the changing state of the AvatarMixer.
      *

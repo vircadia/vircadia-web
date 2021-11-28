@@ -12,7 +12,7 @@ export enum AssignmentClientState {
     CONNECTED
 }
 /** Parant class for all AssignmentClients  */
-export class Client {
+export abstract class Client {
 
     /** Return string name of AssignmentClientState.
      * This is needed since the SDK does not export AssignmentClient
@@ -34,5 +34,49 @@ export class Client {
                 break;
         }
         return ret;
+    }
+
+    // Returns the state of the underlying client
+    // Must be implemented by each decendent of this parent class.
+    public abstract clientState: AssignmentClientState;
+
+    /** Return a Promise that is resolved in a certain number of milliseconds
+     */
+    public static async waitABit(ms: number): Promise<void> {
+        return new Promise((resolve) => {
+            setTimeout(resolve, ms);
+        });
+    }
+
+    /**
+     * Return a Promise that is resolved when the underlying client is CONNECTED.
+     *
+     * This is a kludge that does polling while waiting for the connected state.
+     * A better implmentation would be to save the (resolve,reject) in a list and
+     * call them when the onStateChanged event happens.
+     *
+     * @param pTimeoutMS optional number of MS to wait. Default is to 5 minutes.
+     * @returns the Client being waited on
+     * @throws exception if waited more than the timeout interval
+     */
+    public async waitUntilConnected(pTimeoutMS?: number): Promise<Client> {
+        const waitTimeMS = 100;
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        return new Promise<Client>((resolve, reject) => {
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+            (async () => {
+                // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+                let maxTime = pTimeoutMS ?? 5 * 60 * 1000; // 5 minutes
+                while (this.clientState !== AssignmentClientState.CONNECTED) {
+                    // eslint-disable-next-line no-await-in-loop
+                    await Client.waitABit(waitTimeMS);
+                    maxTime -= waitTimeMS;
+                    if (maxTime < 0) {
+                        reject(new Error("timeout"));
+                    }
+                }
+                resolve(this);
+            })();
+        });
     }
 }

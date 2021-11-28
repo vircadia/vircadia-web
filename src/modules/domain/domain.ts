@@ -17,6 +17,7 @@ import { Store, Actions as StoreActions } from "@Store/index";
 
 import { Config, DEFAULT_METAVERSE_URL, DEFAULT_DOMAIN_PROTOCOL, DEFAULT_DOMAIN_PORT } from "@Base/config";
 import Log from "@Modules/debugging/log";
+import { Client } from "./client";
 
 // Routines connected to the onStateChange Signal, receive calls of this format:
 export type OnDomainStateChangeCallback = (d: Domain, newState: string, info: string) => void;
@@ -56,6 +57,7 @@ export class Domain {
     public get DomainUrl(): string { return this.#_domainUrl; }
 
     #_domain: Nullable<DomainServer>;
+    #_contextID: number;
     #_audioClient: Nullable<DomainAudio>;
     #_messageClient: Nullable<DomainMessage>;
     #_avatarClient: Nullable<DomainAvatar>;
@@ -66,7 +68,7 @@ export class Domain {
     public get AvatarClient(): Nullable<DomainAvatar> { return this.#_avatarClient; }
 
     // Return domain's contextID or zero
-    public get ContextId(): number { return this.#_domain ? this.#_domain.contextID : 0; }
+    public get ContextId(): number { return this.#_domain ? this.#_contextID : 0; }
 
     public onStateChange: SignalEmitter;
 
@@ -80,6 +82,7 @@ export class Domain {
 
     constructor() {
         this.onStateChange = new SignalEmitter();
+        this.#_contextID = 0;
         this.restorePersistentVariables();
     }
 
@@ -103,6 +106,12 @@ export class Domain {
         this.#_domainUrl = Domain.cleanDomainUrl(pUrl);
         Log.debug(Log.types.COMM, `Creating a new DomainServer`);
         this.#_domain = new DomainServer();
+        this.#_contextID = this.#_domain.contextID;
+
+        // Get instances of all the possible clients
+        this.#_avatarClient = new DomainAvatar(this);
+        this.#_messageClient = new DomainMessage(this);
+        this.#_audioClient = new DomainAudio(this);
 
         // connect to the domain. The 'connected' event will say if the connection as made.
         Log.debug(Log.types.COMM, `Connecting to domain at ${this.#_domainUrl}`);
@@ -122,35 +131,6 @@ export class Domain {
 
     private _handleOnDomainStateChange(pState: ConnectionState, pInfo: string): void {
         Log.debug(Log.types.COMM, `DomainStateChange: new state ${pState}, ${pInfo}`);
-        // If conneted, setup the connections to the assignment clients
-        if (pState === DomainServer.CONNECTED) {
-            if (this.#_domain) {
-                if (!this.#_avatarClient) {
-                    this.#_avatarClient = new DomainAvatar(this);
-                }
-                if (!this.#_messageClient) {
-                    this.#_messageClient = new DomainMessage(this);
-                }
-                if (!this.#_audioClient) {
-                    this.#_audioClient = new DomainAudio(this);
-                }
-            }
-        }
-        else {
-            // Must be disconnected. If we have services setup, close them
-            // eslint-disable-next-line no-lonely-if
-            if (this.#_domain) {
-                if (this.#_audioClient) {
-                    this.#_audioClient = undefined;
-                }
-                if (this.#_messageClient) {
-                    this.#_messageClient = undefined;
-                }
-                if (this.#_avatarClient) {
-                    this.#_avatarClient = undefined;
-                }
-            }
-        }
         this.onStateChange.emit(this, this.DomainStateAsString, pInfo);
 
         // eslint-disable-next-line no-void
@@ -159,6 +139,20 @@ export class Domain {
             newState: this.#_domain?.state,
             info: pInfo
         });
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+    private waitForConnectedMS = 200;
+    public async waitForConnected(): Promise<Domain> {
+        while (typeof this.#_domain === "undefined") {
+            // eslint-disable-next-line no-await-in-loop
+            await Client.waitABit(this.waitForConnectedMS);
+        }
+        while (this.#_domain?.state !== ConnectionState.CONNECTED) {
+            // eslint-disable-next-line no-await-in-loop
+            await Client.waitABit(this.waitForConnectedMS);
+        }
+        return this;
     }
 
     /** Return 'true' if the communication with the metaverse is active */

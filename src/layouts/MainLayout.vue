@@ -250,31 +250,6 @@ export default defineComponent({
         return {
             // Toolbar
             locationInput: "",
-            // User Menu
-            userMenuOpen: false,
-            userMenu: [
-                {
-                    icon: "people",
-                    label: "People",
-                    link: "",
-                    isCategory: false,
-                    separator: true
-                },
-                {
-                    icon: "chat",
-                    label: "Chat",
-                    link: "ChatWindow",
-                    isCategory: false,
-                    separator: true
-                },
-                {
-                    icon: "travel_explore",
-                    label: "Explore",
-                    link: "",
-                    isCategory: false,
-                    separator: true
-                }
-            ],
             settingsMenu: [
                 {
                     icon: "headphones",

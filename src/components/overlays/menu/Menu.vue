@@ -36,26 +36,28 @@
             >
                 <q-list>
                     <template v-for="(menuItem, index) in userMenu" :key="index">
-                        <q-item-label
-                            v-if="menuItem.isCategory"
-                            header
-                        >
-                            {{ menuItem.label }}
-                        </q-item-label>
-                        <q-item
-                            v-else
-                            clickable
-                            v-ripple
-                            @click="menuItem.action ? menuItem.action
-                                : $emit('overlay-action', 'openOverlay:' + (menuItem.link || menuItem.label))"
-                        >
-                            <q-item-section avatar>
-                                <q-icon :name="menuItem.icon" />
-                            </q-item-section>
-                            <q-item-section>
+                        <span v-if="!menuItem.devonly || buildMode == 'development'">
+                            <q-item-label
+                                v-if="menuItem.isCategory"
+                                header
+                            >
                                 {{ menuItem.label }}
-                            </q-item-section>
-                        </q-item>
+                            </q-item-label>
+                            <q-item
+                                v-else
+                                clickable
+                                v-ripple
+                                @click="menuItem.action ? menuItem.action
+                                    : $emit('overlay-action', 'openOverlay:' + (menuItem.link || menuItem.label))"
+                            >
+                                <q-item-section avatar>
+                                    <q-icon :name="menuItem.icon" />
+                                </q-item-section>
+                                <q-item-section>
+                                    {{ menuItem.label }}
+                                </q-item-section>
+                            </q-item>
+                        </span>
                         <q-separator :key="'sep' + index" v-if="menuItem.separator" />
                     </template>
                 </q-list>
@@ -77,7 +79,8 @@ export default defineComponent({
 
     props: {
         // Primary
-        propsToPass: { type: Object, default: () => ({}) }
+        propsToPass: { type: Object, default: () => ({}) },
+        buildMode: { type: String, default: () => process.env.NODE_ENV }
     },
 
     components: {
@@ -91,21 +94,33 @@ export default defineComponent({
                 label: "People",
                 link: "",
                 isCategory: false,
-                separator: true
+                separator: true,
+                action: undefined
             },
             {
                 icon: "chat",
                 label: "Chat",
                 link: "ChatWindow",
                 isCategory: false,
-                separator: true
+                separator: true,
+                action: undefined
             },
             {
                 icon: "travel_explore",
                 label: "Explore",
                 link: "",
                 isCategory: false,
-                separator: true
+                separator: true,
+                action: undefined
+            },
+            {
+                icon: "directions_bus",
+                label: "Debug",
+                link: "DebugWindow",
+                isCategory: false,
+                separator: true,
+                action: undefined,
+                devonly: true
             }
         ]
     }),

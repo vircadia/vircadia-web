@@ -174,8 +174,8 @@ declare module "@vircadia/web-sdk" {
     }
 
     // MessageMixer ============================
-    type MessageReceivedSlot = (pChannel: string, pMsg: string, pSenderId: string, pLocalOnly: boolean) => void;
-    type DataReceivedSlot = (pChannel: string, pMsg: ArrayBuffer, pSenderId: string, pLocalOnly: boolean) => void;
+    type MessageReceivedSlot = (pChannel: string, pMsg: string, pSenderId: Uuid, pLocalOnly: boolean) => void;
+    type DataReceivedSlot = (pChannel: string, pMsg: ArrayBuffer, pSenderId: Uuid, pLocalOnly: boolean) => void;
     export class MessageMixer extends AssignmentClient {
         constructor(contextID: number);
         subscribe(channel: string): void;
