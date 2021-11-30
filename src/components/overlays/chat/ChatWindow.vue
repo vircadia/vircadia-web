@@ -73,11 +73,9 @@
 import { defineComponent } from "vue";
 import OverlayShell from "../OverlayShell.vue";
 
-import { DomainMgr } from "@Modules/domain";
-import { Domain, ConnectionState } from "@Modules/domain/domain";
 import { AMessage, FloofChatMessage } from "@Modules/domain/message";
 
-import Log from "@Modules/debugging/log";
+// import Log from "@Modules/debugging/log";
 
 export default defineComponent({
     name: "ChatWindow",
@@ -177,49 +175,10 @@ export default defineComponent({
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return pMsg.self ?? false;
         }
-    },
-
-    // When the ChatWindow is created, this sets it up to listen for active domains coming
-    //    and going. When a domain is CONNECTED, this subscribes to the chat channel and
-    //    sets up to receive text messsages and push them into the $store for display.
-    created: function() {
-        Log.debug(Log.types.OTHER, `DebugWindow: create`);
-        // Register for domain connection state change so we known when domains are changed
-
-        // eslint-disable-next-line consistent-this,@typescript-eslint/no-this-alias
-        const tthis = this; // creates context variable for following function (TS fakeout of 'this')
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const handleActiveDomainStateChange = (pDomain: Domain, pState: ConnectionState, pInfo: string): void => {
-            if (pState === ConnectionState.CONNECTED) {
-                // Domain is connected. Are we subscribed to messages?
-                if (!tthis.subscribed) {
-                    tthis.subscribed = true;
-                    // an async operation that waits for the MessageClient and then subscribe to the channel
-                    (async () => {
-                        if (DomainMgr.ActiveDomain && DomainMgr.ActiveDomain.MessageClient) {
-                            await DomainMgr.ActiveDomain.MessageClient.waitUntilConnected();
-                            DomainMgr.ActiveDomain.MessageClient.subscribeToChannel(tthis.$store.state.messages.currentChannel);
-                        }
-                    })();
-                }
-            } else {
-                // The active domain is disconnected. We must revert to disconnected state
-                // eslint-disable-next-line no-lonely-if
-                if (tthis.subscribed) {
-                    if (DomainMgr.ActiveDomain && DomainMgr.ActiveDomain.MessageClient) {
-                        Log.debug(Log.types.METAVERSE, `Domain disconnected`);
-                    }
-                    tthis.subscribed = false;
-                }
-            }
-        };
-        DomainMgr.onActiveDomainStateChange.connect(handleActiveDomainStateChange);
-
-        // If the domain is already there, fake a state change call to start things up
-        if (DomainMgr.ActiveDomain) {
-            handleActiveDomainStateChange(DomainMgr.ActiveDomain, DomainMgr.ActiveDomain.DomainState, "init");
-        }
     }
+
+    // created: function() {
+    // }
 
     // mounted: function () {
     // }

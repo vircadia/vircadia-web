@@ -10,7 +10,7 @@ import { Client, AssignmentClientState } from "@Modules/domain/client";
 
 import { Store, Actions as StoreActions } from "@Store/index";
 
-import { MessageMixer, MessageReceivedSlot, SignalEmitter, Uuid } from "@vircadia/web-sdk";
+import { MessageMixer, SignalEmitter, Uuid } from "@vircadia/web-sdk";
 
 import Log from "@Modules/debugging/log";
 import { toJSON } from "@Modules/debugging";
@@ -47,10 +47,12 @@ export class DomainMessage extends Client {
 
     public onStateChange: SignalEmitter;
 
+    public static DefaultChatChannel = "Chat";
+    public static DefaultSystemNotificationChannel = "System-Notifications";
+
     #_domain: Domain;
     #_msgMixer: Nullable<MessageMixer>;
-    #_subscribedChannel: string;
-    #_msgReceivedHandler: Nullable<MessageReceivedSlot>;
+    #_subscribedToDefaultChannels: boolean;
     public get Mixer(): Nullable<MessageMixer> { return this.#_msgMixer; }
 
     constructor(pD: Domain) {
@@ -59,29 +61,27 @@ export class DomainMessage extends Client {
         this.onStateChange = new SignalEmitter();
         this.#_msgMixer = new MessageMixer(pD.ContextId);
         this.#_msgMixer.onStateChanged = this._handleOnStateChanged.bind(this);
-        this.#_subscribedChannel = "";
+        this.#_msgMixer.messageReceived.connect(this._handleOnMessageReceived.bind(this));
+        this.#_subscribedToDefaultChannels = false;
     }
 
     /**
      * Subscribe to a channel and set text message receiving routine.
      * @param pChannel name of channel to subscribe to
-     * @param pOnReceived function to call when text message received
      * @returns 'true' if the subscription was successful
      */
-    public subscribeToChannel(pChannel: string): boolean {
-        if (this.#_msgMixer) {
-            if (this.#_msgReceivedHandler) {
-                this.#_msgMixer.unsubscribe(this.#_subscribedChannel);
-                this.#_msgMixer.messageReceived.disconnect(this.#_msgReceivedHandler);
-            }
-            this.#_subscribedChannel = pChannel;
-            this.#_msgMixer.subscribe(this.#_subscribedChannel);
-            // eslint-disable-next-line @typescript-eslint/unbound-method
-            this.#_msgReceivedHandler = this._handleOnMessageReceived.bind(this);
-            this.#_msgMixer.messageReceived.connect(this.#_msgReceivedHandler);
+    public subscribeChannel(pChannel: string): boolean {
+        if (this.#_msgMixer && this.#_msgMixer.state === AssignmentClientState.CONNECTED) {
+            this.#_msgMixer.subscribe(pChannel);
             return true;
         }
         return false;
+    }
+
+    public unsubscribeChannel(pChannel: string): void {
+        if (this.#_msgMixer) {
+            this.#_msgMixer.unsubscribe(pChannel);
+        }
     }
 
     public sendMessage(pChannel: string, pMsg: string, pLocalOnly = false): void {
@@ -97,6 +97,17 @@ export class DomainMessage extends Client {
         if (this.#_msgMixer) {
             Log.debug(Log.types.COMM,
                 `DomainMessage: MessageMixer state=${MessageMixer.stateToString(this.#_msgMixer.state)}`);
+            // If connected, see that we're subscribed to the default message/chat channels
+            if (this.#_msgMixer.state === AssignmentClientState.CONNECTED) {
+                if (!this.#_subscribedToDefaultChannels) {
+                    this.subscribeChannel(DomainMessage.DefaultChatChannel);
+                    this.subscribeChannel(DomainMessage.DefaultSystemNotificationChannel);
+                    this.#_subscribedToDefaultChannels = true;
+                }
+            }
+            else {
+                this.#_subscribedToDefaultChannels = false;
+            }
             this._updateMessageInfo();
         } else {
             Log.error(Log.types.COMM, `DomainMessage: no MessageMixer`);
@@ -114,7 +125,6 @@ export class DomainMessage extends Client {
     private _updateMessageInfo() {
         // eslint-disable-next-line no-void
         // void Store.dispatch(StoreActions.RECEIVE_CHAT_MESSAGE, {
-        //     domainMessage: this
         // });
     }
 

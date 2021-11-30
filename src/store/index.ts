@@ -14,8 +14,7 @@ import {
 
 import packageInfo from "@Base/../package.json";
 import versionInfo from "@Base/../VERSION.json";
-import { MyAvatarInterface, AvatarListInterface, ScriptAvatar,
-    Vec3, vec3, Vircadia, Uuid, DomainServer } from "@vircadia/web-sdk";
+import { ScriptAvatar, Vec3, vec3, Vircadia, Uuid } from "@vircadia/web-sdk";
 
 import { VVector3, VVector4 } from "@Modules/scene";
 
@@ -25,7 +24,7 @@ import { Metaverse, MetaverseState } from "@Base/modules/metaverse/metaverse";
 import { Domain, ConnectionState } from "@Modules/domain/domain";
 import { AssignmentClientState } from "@Modules/domain/client";
 import { DomainAvatar } from "@Modules/domain/avatar";
-import { DomainMessage, AMessage } from "@Modules/domain/message";
+import { AMessage } from "@Modules/domain/message";
 import { onAccessTokenChangePayload, onAttributeChangePayload } from "@Modules/account";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -160,20 +159,16 @@ export interface IRootState {
     // Domain info. Updated when the Domain connection state changes
     domain: {
         connectionState: string,
-        domain: Nullable<DomainServer>,
         url: string
     },
     // Avatars in the domain info. Updated when collection of avatars changes
     avatars: {
         connectionState: string,
-        avatarList: Nullable<AvatarListInterface>,
         count: number,
         avatarsInfo: Map<Uuid, AvatarInfo>
     },
     // Information about my avatar. Updated when avatar attributes change
     avatar: {
-        avatarInfo: Nullable<MyAvatarInterface>,  // link to internal structure
-        domainAvatar: Nullable<DomainAvatar>,
         displayName: string,
         sessionDisplayName: string,
         position: vec3,
@@ -181,12 +176,8 @@ export interface IRootState {
     },
     // Chat information. Updated when the MessageClient connection state changes
     messages: {
-        domainMessage: Nullable<DomainMessage>,
-        // TODO: what does a dialog want? This is currently just a pointer to the SDK class wrapper
         messages: AMessage[],
-        messageChannel: string,
         nextMessageId: number,
-        currentChannel: string
     },
     // The audio connection
     audio: {
@@ -262,30 +253,23 @@ export const Store = createStore<IRootState>({
             show: false
         },
         domain: {
-            domain: undefined,
             connectionState: Domain.stateToString(ConnectionState.DISCONNECTED),
             url: ""
         },
         avatars: {
             connectionState: DomainAvatar.stateToString(AssignmentClientState.DISCONNECTED),
-            avatarList: undefined,
             count: 0,
             avatarsInfo: new Map<Uuid, AvatarInfo>()
         },
         avatar: {
-            avatarInfo: undefined,
-            domainAvatar: undefined,
             displayName: "",
             sessionDisplayName: "",
             position: Vec3.ZERO,
             location: "0,0,0"
         },
         messages: {
-            domainMessage: undefined,
             messages: [],
-            messageChannel: "xxx",
-            nextMessageId: 22,
-            currentChannel: "Chat"
+            nextMessageId: 22
         },
         // Information about the audio system
         audio: {
@@ -428,15 +412,19 @@ export const Store = createStore<IRootState>({
             }
             */
         },
+
         // Add a message to the list of messages.
         // Remove old messages of a limit is passed.
         [Mutations.ADD_MESSAGE](state: IRootState, payload: AddMessagePayload) {
             const msg = payload.message;
+            // If the message doesn't have some unique identification, add it
             if (typeof msg.id === "undefined") {
                 msg.id = state.messages.nextMessageId;
                 state.messages.nextMessageId += 1;
             }
+
             state.messages.messages.push(payload.message);
+
             // If a maximum is specified, remove the old from the list
             if (typeof payload.maxMessages === "number") {
                 while (state.messages.messages.length > payload.maxMessages) {
@@ -444,6 +432,7 @@ export const Store = createStore<IRootState>({
                 }
             }
         },
+
         // Update an individual value for an individual avatar in the avatars.avatarsInfo array.
         // This is done this way since any modification to $store has to happen in mutations.
         // Note that this does presume that AvatarInfo is a simple KeyedCollection.
@@ -489,7 +478,6 @@ export const Store = createStore<IRootState>({
                 property: "domain",
                 with: {
                     connectionState: Domain.stateToString(pPayload.newState),
-                    domain: pPayload.domain,
                     url: pPayload.domain.DomainUrl
                 }
             });
@@ -545,8 +533,6 @@ export const Store = createStore<IRootState>({
                     pContext.commit(Mutations.MUTATE, {
                         property: "avatar",
                         with: {
-                            avatarInfo: myAvaInfo,
-                            domainAvatar: pPayload.domainAvatar,
                             displayName: myAvaInfo.displayName,
                             sessionDisplayName: myAvaInfo?.sessionDisplayName,
                             position: myAvaInfo?.position,
@@ -559,8 +545,6 @@ export const Store = createStore<IRootState>({
                     pContext.commit(Mutations.MUTATE, {
                         property: "avatar",
                         with: {
-                            avatarInfo: undefined,
-                            domainAvatar: pPayload.domainAvatar,
                             displayName: "none",
                             sessionDisplayName: "none",
                             position: Vec3.ZERO,
