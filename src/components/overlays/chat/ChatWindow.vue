@@ -60,6 +60,7 @@
                 outlined
                 v-model="messageInput"
                 :dense="true"
+                @keydown.enter.prevent="submitMessage"
             />
         </q-card>
         <!-- <q-inner-loading :showing="">
@@ -73,7 +74,8 @@
 import { defineComponent } from "vue";
 import OverlayShell from "../OverlayShell.vue";
 
-import { AMessage, FloofChatMessage } from "@Modules/domain/message";
+import { AMessage, DomainMessage, FloofChatMessage } from "@Modules/domain/message";
+import { DomainMgr } from "@Modules/domain";
 
 // import Log from "@Modules/debugging/log";
 
@@ -131,6 +133,28 @@ export default defineComponent({
     computed: {
     },
 
+    watch: {
+        /*
+        // When the message input changes, send the message
+        messageInput: function(val: string): void {
+            if (DomainMgr.ActiveDomain) {
+                const msger = DomainMgr.ActiveDomain.MessageClient;
+                if (msger) {
+                    const msg: FloofChatMessage = {
+                        type: "TransmitChatMessage",
+                        channel: DomainMessage.DefaultChatChannel,
+                        message: val,
+                        colour: { red: 255, blue: 255, green: 255 },
+                        displayName: this.$store.state.avatar.displayName,
+                        position: this.$store.state.avatar.position
+                    };
+                    msger.sendMessage(DomainMessage.DefaultChatChannel, JSON.stringify(msg));
+                }
+            }
+        }
+        */
+    },
+
     methods: {
         getProfilePicture(username: string): string | null {
             // Should store profile pictures after retrieving and then pull each
@@ -174,6 +198,24 @@ export default defineComponent({
         msgSentBySelf(pMsg: AMessage): boolean {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return pMsg.self ?? false;
+        },
+        submitMessage(): void {
+            if (DomainMgr.ActiveDomain) {
+                const msger = DomainMgr.ActiveDomain.MessageClient;
+                if (msger) {
+                    const msg: FloofChatMessage = {
+                        type: "TransmitChatMessage",
+                        channel: DomainMessage.DefaultChatChannel,
+                        message: this.messageInput,
+                        colour: { red: 255, blue: 255, green: 255 },
+                        displayName: this.$store.state.avatar.displayName,
+                        position: this.$store.state.avatar.position
+                    };
+                    msger.sendMessage(DomainMessage.DefaultChatChannel, JSON.stringify(msg));
+                    // clear the input field
+                    this.messageInput = "";
+                }
+            }
         }
     }
 
