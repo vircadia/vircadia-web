@@ -14,7 +14,8 @@ import {
 
 import packageInfo from "@Base/../package.json";
 import versionInfo from "@Base/../VERSION.json";
-import { MyAvatarInterface, AvatarListInterface, Vec3, vec3, Vircadia, Uuid, DomainServer } from "@vircadia/web-sdk";
+import { MyAvatarInterface, AvatarListInterface, ScriptAvatar,
+    Vec3, vec3, Vircadia, Uuid, DomainServer } from "@vircadia/web-sdk";
 
 import { VVector3, VVector4 } from "@Modules/scene";
 
@@ -30,7 +31,6 @@ import { onAccessTokenChangePayload, onAttributeChangePayload } from "@Modules/a
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
 import { toJSON } from "@Modules/debugging";
-import { Client } from "@Base/modules/domain/client";
 
 /**
  * $store of shared state used by the Vue components. The Store that is created
@@ -48,7 +48,8 @@ import { Client } from "@Base/modules/domain/client";
  */
 export enum Mutations {
     MUTATE = "STATE_MUTATE",
-    ADD_MESSAGE = "ADD_MESSAGE"
+    ADD_MESSAGE = "ADD_MESSAGE",
+    UPDATE_AVATAR_VALUE = "UPDATE_AVATAR_VALUE"
 }
 /**
  * Payload passed to MUTATE
@@ -73,6 +74,20 @@ export interface MutatePayload {
 export interface AddMessagePayload {
     message: AMessage,
     maxMessages?: number
+}
+
+/**
+ * Payload passed to UPDATE_AVATAR_VALUE
+ * @typedef {Object} UpdateAvatarValuePayload
+ * @property {Uuid} Id of the avatar to update
+ * @property {string} name of the field to update
+ * @property {string} string value to use if the destination is a string
+ * @property {number} numeric value to use if the destination is numeric
+ */
+export interface UpdateAvatarValuePayload {
+    sessionId: Uuid,
+    field: string,
+    value: number | string | boolean
 }
 
 export enum Actions {
@@ -101,9 +116,22 @@ export type UpdateAccountTokenPayload = onAccessTokenChangePayload;
 export type UpdateAccountInfoPayload = onAttributeChangePayload;
 
 export interface UpdateAvatarInfoPayload {
-    domain: Domain,
-    domainAvatar: Nullable<DomainAvatar>,
-    avatarList: Nullable<AvatarListInterface>
+    domain: Domain,                         // the containing domain
+    domainAvatar?: Nullable<DomainAvatar>,  // handle to avatar client
+    avatarsInfo?: Map<Uuid, ScriptAvatar>,  // list of other avatar info
+    position?: vec3                         // optional update of our ava pos
+}
+
+// Infomation kept about avatars also include information about our control of that representation
+export interface AvatarInfo {
+    sessionId: Uuid,        // session Id
+    volume: number,         // audio volume setting (0..100)
+    muted: boolean,         // whether audio from this avatar is muted
+    isAdmin: boolean,       // whether this avatar is an admin in this context
+    // information from ScriptAvatar
+    isValid: boolean,
+    displayName: string,
+    position: vec3
 }
 
 /**
@@ -137,10 +165,10 @@ export interface IRootState {
     },
     // Avatars in the domain info. Updated when collection of avatars changes
     avatars: {
-        connectionState: AssignmentClientState,
+        connectionState: string,
         avatarList: Nullable<AvatarListInterface>,
         count: number,
-        avatars: Uuid[]
+        avatarsInfo: Map<Uuid, AvatarInfo>
     },
     // Information about my avatar. Updated when avatar attributes change
     avatar: {
@@ -167,7 +195,7 @@ export interface IRootState {
             hasInputAccess: boolean;        // mic toggle, 'true' if input is on
             awaitingCapturePermissions: boolean;    // waiting for user to allow access to input device
             currentInputDevice: Nullable<MediaDeviceInfo>;  // info on current selected device
-            stream: Nullable<MediaStream>,  // the input stream
+            stream: Nullable<MediaStream>,  // the user audio input stream
             inputsList: MediaDeviceInfo[];  // a list of the input devices from the browser
         }
     },
@@ -239,10 +267,10 @@ export const Store = createStore<IRootState>({
             url: ""
         },
         avatars: {
-            connectionState: AssignmentClientState.DISCONNECTED,
+            connectionState: DomainAvatar.stateToString(AssignmentClientState.DISCONNECTED),
             avatarList: undefined,
             count: 0,
-            avatars: []
+            avatarsInfo: new Map<Uuid, AvatarInfo>()
         },
         avatar: {
             avatarInfo: undefined,
@@ -415,7 +443,22 @@ export const Store = createStore<IRootState>({
                     state.messages.messages.pop();
                 }
             }
+        },
+        // Update an individual value for an individual avatar in the avatars.avatarsInfo array.
+        // This is done this way since any modification to $store has to happen in mutations.
+        // Note that this does presume that AvatarInfo is a simple KeyedCollection.
+        [Mutations.UPDATE_AVATAR_VALUE](state: IRootState, payload: UpdateAvatarValuePayload) {
+            const avaInfo = state.avatars.avatarsInfo.get(payload.sessionId);
+            if (avaInfo) {
+                const conv = avaInfo as unknown as KeyedCollection;
+                if (typeof conv[payload.field] !== typeof payload.value) {
+                    Log.error(Log.types.OTHER, `UPDATE_AVATAR_VALUE: types don't match.`);
+                    Log.error(Log.types.OTHER, `     id=${avaInfo.sessionId.stringify()}, field=${payload.field}`);
+                }
+                conv[payload.field] = payload.value;
+            }
         }
+
     },
     actions: {
         /**
@@ -481,58 +524,94 @@ export const Store = createStore<IRootState>({
                 });
             }
         },
+        // Update the information about the avatars in the scene.
+        // This is passed a map of all the avatars and their information and this
+        //     code updates the list if avatars in $store.
+        // The payload can contain several optional pieces:
+        //   domainAvatar: info about my avatar so update position, names, etc
+        //   position: just update the position of my avatar
+        //   avatarsInfo: information about all the avatars so update the list of avatars and their info
         // eslint-disable-next-line @typescript-eslint/require-await
         async [Actions.UPDATE_AVATAR_INFO](pContext: ActionContext<IRootState, IRootState>,
             pPayload: UpdateAvatarInfoPayload): Promise<void> {
 
             Log.debug(Log.types.OTHER, `StoreAction.UpdateAvatarInfo`);
 
-            const myAvaInfo = pPayload.domainAvatar?.MyAvatar;
             const domainLoc = pPayload.domain.DomainClient?.location ?? "Unconnected";
-            if (myAvaInfo) {
-                pContext.commit(Mutations.MUTATE, {
-                    property: "avatar",
-                    with: {
-                        avatarInfo: myAvaInfo,
-                        domainAvatar: pPayload.domainAvatar,
-                        displayName: myAvaInfo?.displayName,
-                        sessionDisplayName: myAvaInfo?.sessionDisplayName,
-                        position: myAvaInfo?.position,
-                        location: `${domainLoc}/${DomainAvatar.positionAsString(myAvaInfo?.position)}`
-                    }
-                });
+            // If we have information on my avatar, update same
+            if (pPayload.domainAvatar) {
+                const myAvaInfo = pPayload.domainAvatar.MyAvatar;
+                if (myAvaInfo) {
+                    pContext.commit(Mutations.MUTATE, {
+                        property: "avatar",
+                        with: {
+                            avatarInfo: myAvaInfo,
+                            domainAvatar: pPayload.domainAvatar,
+                            displayName: myAvaInfo.displayName,
+                            sessionDisplayName: myAvaInfo?.sessionDisplayName,
+                            position: myAvaInfo?.position,
+                            location: `${domainLoc}/${DomainAvatar.positionAsString(myAvaInfo?.position)}`
+                        }
+                    });
 
-            } else {
+                } else {
+                    // If no information on my avatar, display defaults
+                    pContext.commit(Mutations.MUTATE, {
+                        property: "avatar",
+                        with: {
+                            avatarInfo: undefined,
+                            domainAvatar: pPayload.domainAvatar,
+                            displayName: "none",
+                            sessionDisplayName: "none",
+                            position: Vec3.ZERO,
+                            location: `${domainLoc}/${DomainAvatar.positionAsString(Vec3.ZERO)}`
+                        }
+                    });
+                }
+            }
+            // An optional update to just the avatar's position
+            if (pPayload.position) {
                 pContext.commit(Mutations.MUTATE, {
                     property: "avatar",
                     with: {
-                        avatarInfo: undefined,
-                        domainAvatar: pPayload.domainAvatar,
-                        displayName: "none",
-                        sessionDisplayName: "none",
-                        position: Vec3.ZERO,
-                        location: `${domainLoc}/${DomainAvatar.positionAsString(Vec3.ZERO)}`
+                        position: pPayload.position,
+                        location: `${domainLoc}/${DomainAvatar.positionAsString(pPayload.position)}`
                     }
                 });
             }
-            if (pPayload.avatarList) {
-                pContext.commit(Mutations.MUTATE, {
-                    property: "avatars",
-                    with: {
-                        connectionState: pPayload.domainAvatar?.Mixer?.state,
-                        avatarList: pPayload.avatarList,
-                        count: pPayload.avatarList?.count,
-                        avatars: pPayload.avatarList.getAvatarIDs()
+            // If information on all avatars, update info on the others.
+            // This rebuilds the map of avatars to make sure the list is correct
+            if (pPayload.avatarsInfo) {
+                const prevList = this.state.avatars.avatarsInfo;
+                const newList = new Map<Uuid, AvatarInfo>();
+                pPayload.avatarsInfo.forEach((v, k) => {
+                    const inPrev = prevList.get(k);
+                    if (inPrev) {
+                        // clone previous entry so setting pos and displayName isn't changing $store
+                        const inPrevC = { ...inPrev };
+                        // Update previous values since they might have changed
+                        inPrevC.position = v.position;
+                        inPrevC.displayName = v.displayName;
+                        newList.set(k, inPrevC);
+                    } else {
+                        newList.set(k, {
+                            sessionId: k,
+                            volume: 50,
+                            muted: false,
+                            isAdmin: false,
+                            isValid: v.isValid,
+                            displayName: v.displayName,
+                            position: v.position
+                        });
                     }
                 });
-            } else {
                 pContext.commit(Mutations.MUTATE, {
                     property: "avatars",
                     with: {
-                        connectionState: Client.stateToString(AssignmentClientState.DISCONNECTED),
-                        avatarList: undefined,
-                        count: 0,
-                        avatars: new Array<Uuid>()
+                        connectionState: DomainAvatar.stateToString(
+                            pPayload.domainAvatar?.Mixer?.state ?? AssignmentClientState.DISCONNECTED),
+                        avatarsInfo: newList,
+                        count: newList.size
                     }
                 });
             }

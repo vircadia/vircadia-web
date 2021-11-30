@@ -8,9 +8,9 @@
 import { Domain } from "@Modules/domain/domain";
 import { Client, AssignmentClientState } from "@Modules/domain/client";
 
-import { Store, Actions as StoreActions } from "@Store/index";
+import { Store, Actions as StoreActions, UpdateAvatarInfoPayload } from "@Store/index";
 
-import { AvatarMixer, SignalEmitter, vec3, Uuid, MyAvatarInterface } from "@vircadia/web-sdk";
+import { AvatarMixer, SignalEmitter, vec3, Uuid, MyAvatarInterface, ScriptAvatar, Vec3 } from "@vircadia/web-sdk";
 
 import Log from "@Modules/debugging/log";
 
@@ -27,7 +27,8 @@ export class DomainAvatar extends Client {
 
     #_domain: Domain;
     #_avaMixer: Nullable<AvatarMixer>;
-    #_signalsConnected: boolean;
+    #_avatarsInfo: Map<Uuid, ScriptAvatar>;
+    #_myAvatarLastPosition: vec3;
 
     public get Mixer(): Nullable<AvatarMixer> { return this.#_avaMixer; }
     public get MyAvatar(): Nullable<MyAvatarInterface> { return this.#_avaMixer?.myAvatar; }
@@ -35,14 +36,41 @@ export class DomainAvatar extends Client {
     constructor(pD: Domain) {
         super();
         this.#_domain = pD;
-        this.onStateChange = new SignalEmitter();
         this.#_avaMixer = new AvatarMixer(pD.ContextId);
-        this.#_signalsConnected = false;
+        this.onStateChange = new SignalEmitter();
         this.#_avaMixer.onStateChanged = this._handleOnStateChanged.bind(this);
+
+        // Info for tracking my avatar
+        this.#_myAvatarLastPosition = Vec3.ZERO;
+        this.#_avaMixer.myAvatar.displayNameChanged.connect(this._handleOnMyAvatarNameChanged.bind(this));
+        this.#_avaMixer.myAvatar.sessionDisplayNameChanged.connect(this._handleOnMyAvatarNameChanged.bind(this));
+
+        // Connections for tracking other avatars
+        this.#_avatarsInfo = new Map<Uuid, ScriptAvatar>();
+        this.#_avaMixer.avatarList.avatarAdded.connect(this._handleOnAvatarAdded.bind(this));
+        this.#_avaMixer.avatarList.avatarRemoved.connect(this._handleOnAvatarRemoved.bind(this));
+
+        // Copy the information into $store for the UI
+        this._updateAllAvatarInfo();
     }
 
     // Return the state of the underlying assignment client
     public get clientState(): AssignmentClientState { return this.#_avaMixer?.state ?? AssignmentClientState.DISCONNECTED; }
+
+    // Called piriodically to update avatar information
+    public update(): void {
+        if (this.#_avaMixer) {
+            this.#_avaMixer.update();
+            if (this.#_avaMixer.myAvatar) {
+                // clone position so object in SDK is not pointed to
+                const pos = { ...this.#_avaMixer.myAvatar.position };
+                if (pos !== this.#_myAvatarLastPosition) {
+                    this.#_myAvatarLastPosition = pos;
+                    this._updateAvatarPosition(pos);
+                }
+            }
+        }
+    }
 
     /**
      * Handle the changing state of the AvatarMixer.
@@ -52,20 +80,15 @@ export class DomainAvatar extends Client {
      * @param pNewState the new state of the AvatarMixer
      */
     private _handleOnStateChanged(pNewState: AssignmentClientState): void {
-        if (this.#_avaMixer) {
-            Log.debug(Log.types.AVATAR,
-                `DomainAvatar: AvatarMixer state=${AvatarMixer.stateToString(this.#_avaMixer.state)}`);
-            if (!this.#_signalsConnected) {
-                this.#_avaMixer.avatarList.avatarAdded.connect(this._handleOnAvatarAdded.bind(this));
-                this.#_avaMixer.avatarList.avatarRemoved.connect(this._handleOnAvatarRemoved.bind(this));
-                this.#_signalsConnected = true; // remember connected so will happen only once
-            }
-            this._updateAvatarInfo();
-            // TODO: need to do one time subscription to displayname changing
-        } else {
-            Log.error(Log.types.AVATAR, `DomainAvatar: no AvatarMixer`);
-        }
+        Log.debug(Log.types.AVATAR,
+            // eslint-disable-next-line max-len
+            `DomainAvatar: AvatarMixer state=${AvatarMixer.stateToString(this.#_avaMixer?.state ?? AssignmentClientState.DISCONNECTED)}`);
+        this._updateAllAvatarInfo();
         this.onStateChange.emit(this.#_domain, this, pNewState);
+    }
+
+    private _handleOnMyAvatarNameChanged(): void {
+        this._updateMyAvatarInfo();
     }
 
     /**
@@ -76,7 +99,23 @@ export class DomainAvatar extends Client {
     // eslint-disable-next-line class-methods-use-this
     private _handleOnAvatarAdded(pAvatarId: Uuid) {
         Log.debug(Log.types.AVATAR, `DomainAvatar: Avatar added: ${pAvatarId.stringify()}`);
-        this._updateAvatarInfo();
+        if (this.#_avaMixer) {
+            const info = this.#_avaMixer.avatarList.getAvatar(pAvatarId);
+            if (info) {
+                if (!this.#_avatarsInfo.has(pAvatarId)) {
+                    // When avatar attributes change, update the global data
+                    info.sessionDisplayNameChanged.connect(this._updateAllAvatarInfo.bind(this));
+                    this.#_avatarsInfo.set(pAvatarId, info);
+                } else {
+                    // eslint-disable-next-line max-len
+                    Log.error(Log.types.AVATAR, `DomainAvatar: attempt to add avatar that is already in list: ${pAvatarId.stringify()}`);
+                }
+            }
+            else {
+                Log.error(Log.types.AVATAR, `DomainAvatar: avatar added but no info: ${pAvatarId.stringify()}`);
+            }
+        }
+        this._updateOtherAvatarInfo();
     }
 
     /**
@@ -89,29 +128,80 @@ export class DomainAvatar extends Client {
     // eslint-disable-next-line class-methods-use-this
     private _handleOnAvatarRemoved(pAvatarId: Uuid) {
         Log.debug(Log.types.AVATAR, `DomainAvatar: Avatar removed: ${pAvatarId.stringify()}`);
-        this._updateAvatarInfo();
+        const info = this.#_avatarsInfo.get(pAvatarId);
+        if (info) {
+            // undo the .connect that happened when added. (Does this method signature work?)
+            info.sessionDisplayNameChanged.disconnect(this._updateAllAvatarInfo.bind(this));
+            // eslint-disable-next-line @typescript-eslint/dot-notation
+            this.#_avatarsInfo.delete(pAvatarId);
+        }
+        this._updateOtherAvatarInfo();
     }
 
     /**
      * Update the avatar info in the Vue store.
      *
-     * This called the Store dispatcher with the structures for domain and avatars.
+     * This calls the Store dispatcher with the structures for domain and avatars.
      * The called dispatcher extracts the information for the Store.
      */
-    private _updateAvatarInfo() {
+    private _updateAllAvatarInfo() {
         // eslint-disable-next-line no-void
-        void Store.dispatch(StoreActions.UPDATE_AVATAR_INFO, {
+        const params: UpdateAvatarInfoPayload = {
             domain: this.#_domain,
             domainAvatar: this,
-            avatarList: this.#_avaMixer?.avatarList
-        });
+            avatarsInfo: this.#_avatarsInfo
+        };
+        // eslint-disable-next-line no-void
+        void Store.dispatch(StoreActions.UPDATE_AVATAR_INFO, params);
+    }
+
+    /**
+     * Update the info for my avatar in the Vue store.
+     *
+     * The called dispatcher extracts the information for the Store.
+     */
+    private _updateMyAvatarInfo() {
+        // eslint-disable-next-line no-void
+        const params: UpdateAvatarInfoPayload = {
+            domain: this.#_domain,
+            domainAvatar: this
+        };
+        // eslint-disable-next-line no-void
+        void Store.dispatch(StoreActions.UPDATE_AVATAR_INFO, params);
+    }
+
+    /**
+     * Update the information for the other avatars in the scene
+     *
+     * The called dispatcher extracts the information for the Store.
+     */
+    private _updateOtherAvatarInfo() {
+        // eslint-disable-next-line no-void
+        const params: UpdateAvatarInfoPayload = {
+            domain: this.#_domain,
+            avatarsInfo: this.#_avatarsInfo
+        };
+        // eslint-disable-next-line no-void
+        void Store.dispatch(StoreActions.UPDATE_AVATAR_INFO, params);
+    }
+
+    // Just update my avatar's position
+    private _updateAvatarPosition(pPos: vec3) {
+        // eslint-disable-next-line no-void
+        const params: UpdateAvatarInfoPayload = {
+            domain: this.#_domain,
+            position: pPos
+        };
+        // eslint-disable-next-line no-void
+        void Store.dispatch(StoreActions.UPDATE_AVATAR_INFO, params);
     }
 
     // Turn a vector position into a displayable string
     static positionAsString(pPos: Nullable<vec3>): string {
+        const posDigits = 2;
         let ret = "0,0,0";
         if (pPos && pPos.x && pPos.y && pPos.z) {
-            ret = `${pPos.x.toFixed(2)},${pPos.y.toFixed(2)},${pPos.z.toFixed(2)}`;
+            ret = `${pPos.x.toFixed(posDigits)},${pPos.y.toFixed(posDigits)},${pPos.z.toFixed(posDigits)}`;
         }
         return ret;
     }

@@ -84,6 +84,12 @@ export class DomainMessage extends Client {
         return false;
     }
 
+    public sendMessage(pChannel: string, pMsg: string, pLocalOnly = false): void {
+        if (this.#_msgMixer) {
+            this.#_msgMixer.sendMessage(pChannel, pMsg, pLocalOnly);
+        }
+    }
+
     // Return the state of the underlying assignment client
     public get clientState(): AssignmentClientState { return this.#_msgMixer?.state ?? AssignmentClientState.DISCONNECTED; }
 

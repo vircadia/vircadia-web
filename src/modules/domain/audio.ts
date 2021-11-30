@@ -7,8 +7,8 @@
 
 import { Domain } from "@Modules/domain/domain";
 
+import { Client, AssignmentClientState } from "@Modules/domain/client";
 import { AudioMixer, SignalEmitter } from "@vircadia/web-sdk";
-import { AssignmentClientState } from "@Modules/domain/client";
 
 import Log from "@Modules/debugging/log";
 
@@ -18,7 +18,7 @@ import Log from "@Modules/debugging/log";
 // Function signature called for state changing
 export type DomainAudioStateChangeCallback = (pD: Domain, pA: DomainAudio, pS: AssignmentClientState) => void;
 
-export class DomainAudio {
+export class DomainAudio extends Client {
 
     public onStateChange: SignalEmitter;
 
@@ -27,11 +27,15 @@ export class DomainAudio {
     public get Mixer(): Nullable<AudioMixer> { return this.#_audioMixer; }
 
     constructor(pD: Domain) {
+        super();
         this.#_domain = pD;
         this.onStateChange = new SignalEmitter();
         this.#_audioMixer = new AudioMixer(pD.ContextId);
         this.#_audioMixer.onStateChanged = this._handleOnStateChanged.bind(this);
     }
+
+    // Return the state of the underlying assignment client
+    public get clientState(): AssignmentClientState { return this.#_audioMixer?.state ?? AssignmentClientState.DISCONNECTED; }
 
     private _handleOnStateChanged(pNewState: AssignmentClientState): void {
         if (this.#_audioMixer) {

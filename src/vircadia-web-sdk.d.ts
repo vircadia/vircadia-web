@@ -200,6 +200,15 @@ declare module "@vircadia/web-sdk" {
         set position(position: vec3);
     }
 
+    // ScriptAvatar ==================================
+    export class ScriptAvatar {
+        get isValid(): boolean;
+        get displayName(): string;
+        get displayNameChanged(): Signal;
+        get sessionDisplayNameChanged(): Signal;
+        get position(): vec3;
+    }
+
     // AvatarListInterface ============================
     export enum KillAvatarReason {
         NoReason = 0,
@@ -211,9 +220,9 @@ declare module "@vircadia/web-sdk" {
     type AvatarAddedSlot = (pSessionUUID: Uuid) => void;
     type AvatarRemovedSlot = (pSessionUUID: Uuid, pRemovalReason: KillAvatarReason) => void;
     export class AvatarListInterface {
-        constructor(contextID: number);
         get count(): number;
         getAvatarIDs(): Array<Uuid>;
+        getAvatar(id: Uuid): ScriptAvatar;
         get avatarAdded(): Signal;
         get avatarRemoved(): Signal;
     }
