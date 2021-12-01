@@ -205,9 +205,9 @@ export default defineComponent({
                 if (msger) {
                     const msg: FloofChatMessage = {
                         type: "TransmitChatMessage",
-                        channel: DomainMessage.DefaultChatChannel,
+                        channel: "Local",
                         message: this.messageInput,
-                        colour: { red: 255, blue: 255, green: 255 },
+                        colour: { red: 255, blue: 204, green: 229 },    // orangish
                         displayName: this.$store.state.avatar.displayName,
                         position: this.$store.state.avatar.position
                     };

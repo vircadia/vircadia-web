@@ -13,7 +13,6 @@ import { Store, Actions as StoreActions } from "@Store/index";
 import { MessageMixer, SignalEmitter, Uuid } from "@vircadia/web-sdk";
 
 import Log from "@Modules/debugging/log";
-import { toJSON } from "@Modules/debugging";
 
 // Allow 'get' lines to be compact
 /* eslint-disable @typescript-eslint/brace-style */
@@ -37,7 +36,7 @@ export interface AMessage {
 export interface FloofChatMessage extends KeyedCollection {
     type: string,           // "TransmitChatMessage", ??
     position: { x: number, y: number, z: number },
-    channel: string,        // "Local", "Grid", ??
+    channel: string,        // "Local", "Domain", "Grid", ??
     colour: { blue: number, green: number, red: number },   // color for the text (0..255)
     message: string,        // the actual message string
     displayName: string     // display name of sender
@@ -86,6 +85,7 @@ export class DomainMessage extends Client {
 
     public sendMessage(pChannel: string, pMsg: string, pLocalOnly = false): void {
         if (this.#_msgMixer) {
+            // Log.debug(Log.types.MESSAGES, `DomainMessage: sending ${pChannel} <= "${pMsg}"`);
             this.#_msgMixer.sendMessage(pChannel, pMsg, pLocalOnly);
         }
     }
@@ -150,7 +150,7 @@ export class DomainMessage extends Client {
             localOnly: pLocalOnly
         };
 
-        Log.debug(Log.types.OTHER, `DebugWindow: MessageClient message received. ${toJSON(msg)}`);
+        // Log.debug(Log.types.OTHER, `DebugWindow: MessageClient message received. ${toJSON(msg)}`);
         // eslint-disable-next-line no-void
         void Store.dispatch(StoreActions.RECEIVE_CHAT_MESSAGE, msg);
     }
