@@ -14,6 +14,7 @@
 <template>
     <q-page class="full-height">
         <q-resize-observer @resize="onResize" />
+        <audio ref="mainSceneAudioElement"></audio>
         <canvas
             :height="canvasHeight"
             :width="canvasWidth"
@@ -29,9 +30,11 @@
 import { defineComponent } from "vue";
 
 import { Mutations as StoreMutations } from "@Store/index";
+import { AudioMgr } from "@Modules/scene/audio";
 import { Renderer } from "@Modules/scene/renderer";
 import { VScene } from "@Modules/scene/vscene";
 
+type Nullable<T> = T | null | undefined;
 // import Log from "@Modules/debugging/log";
 
 export interface ResizeShape {
@@ -41,6 +44,10 @@ export interface ResizeShape {
 
 export default defineComponent({
     name: "MainScene",
+
+    $refs!: {   // definition to make this.$ref work with TypeScript
+        mainSceneAudioElement: HTMLFormElement
+    },
 
     data: () => ({
         // Rendering
@@ -59,6 +66,15 @@ export default defineComponent({
             this.canvasWidth = newSize.width;
 
             Renderer.resize(newSize.height, newSize.width);
+        },
+        setOutputStream(pStream: Nullable<MediaStream>) {
+            if (pStream) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                (this.$refs.mainSceneAudioElement as HTMLMediaElement).srcObject = pStream;
+            } else {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                (this.$refs.mainSceneAudioElement as HTMLMediaElement).srcObject = null;
+            }
         }
     },
 
@@ -75,6 +91,9 @@ export default defineComponent({
             property: "renderer/focusSceneId",
             value: 0
         });
+
+        // Initialize the audio for the scene
+        await AudioMgr.initialize(this.setOutputStream.bind(this));
 
         // Create one scene for the moment
         this.scene = Renderer.createScene();

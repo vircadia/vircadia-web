@@ -164,8 +164,8 @@ declare module "@vircadia/web-sdk" {
     type AudioPositionGetter = () => vec3;
     export class AudioMixer extends AssignmentClient {
         constructor(contextID: number);
-        get audioOuput(): MediaStream;
-        set audioInput(audioInput: MediaStream | null);
+        get audioOuput(): MediaStream;  // out from domain server to go to user
+        set audioInput(audioInput: MediaStream | null); // sound from user to go to domain
         get inputMuted(): boolean;
         set inputMuted(inputMuted: boolean);
         set positionGetter(positionGetter: AudioPositionGetter);

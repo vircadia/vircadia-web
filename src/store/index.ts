@@ -181,13 +181,15 @@ export interface IRootState {
     },
     // The audio connection
     audio: {
+        inputsList: MediaDeviceInfo[],  // a list of the input devices from the browser
+        outputsList: MediaDeviceInfo[]  // a list of the input devices from the browser
         user: {
             connected: boolean;             // 'true' if have audio input device
             hasInputAccess: boolean;        // mic toggle, 'true' if input is on
             awaitingCapturePermissions: boolean;    // waiting for user to allow access to input device
             currentInputDevice: Nullable<MediaDeviceInfo>;  // info on current selected device
-            stream: Nullable<MediaStream>,  // the user audio input stream
-            inputsList: MediaDeviceInfo[];  // a list of the input devices from the browser
+            currentOutputDevice: Nullable<MediaDeviceInfo>;  // info on current selected device
+            userInputStream: Nullable<MediaStream>,  // the user audio input stream
         }
     },
     // Information about the metaverse-server. Updated when connection state changes
@@ -273,13 +275,15 @@ export const Store = createStore<IRootState>({
         },
         // Information about the audio system
         audio: {
+            inputsList: [],
+            outputsList: [],
             user: {
                 connected: false,
                 hasInputAccess: false,
                 awaitingCapturePermissions: false,
                 currentInputDevice: undefined,
-                stream: undefined,
-                inputsList: []
+                currentOutputDevice: undefined,
+                userInputStream: undefined
             }
         },
         // Information about the metaverse-server we're connected to

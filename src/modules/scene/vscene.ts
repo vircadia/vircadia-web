@@ -60,6 +60,13 @@ export class VScene {
         this._scene.cameras[pCameraId].position.set(pLoc.x, pLoc.y, pLoc.z);
     }
 
+    /**
+     * Use the Babylon loader to load a model from an URL and return the Babylon.Mesh
+     * @param name asset name to assign to the loaded mesh
+     * @param modelUrl URL to load model from
+     * @returns Babylon.Mesh
+     * @throws if loading failed
+     */
     async importModel(name: string, modelUrl: string): Promise<BABYLON.Mesh> {
         const parsedUrl = new URL(modelUrl);
         const urlWithoutFilename = modelUrl.substring(0, modelUrl.lastIndexOf("/")) + "/";
@@ -76,6 +83,7 @@ export class VScene {
      * The properties block passed specifies whether to create a primitive object (box,
      * sphere, ...) or to load a model from an URL. The created entity is added to the
      * world at the location/rotation described in the properties
+     *
      * @param {EntityProps} pProperties object describing entity to create (see EntityProps)
      * @returns {Promise<string>} Id of the created entity or 'null' if failure.
      */

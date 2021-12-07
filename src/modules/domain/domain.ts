@@ -130,8 +130,8 @@ export class Domain {
     }
 
     private _handleOnDomainStateChange(pState: ConnectionState, pInfo: string): void {
-        Log.debug(Log.types.COMM, `DomainStateChange: new state ${pState}, ${pInfo}`);
-        this.onStateChange.emit(this, this.DomainStateAsString, pInfo);
+        Log.debug(Log.types.COMM, `DomainStateChange: new state ${Domain.stateToString(pState)}, ${pInfo}`);
+        this.onStateChange.emit(this, pState, pInfo);
 
         // eslint-disable-next-line no-void
         void Store.dispatch(StoreActions.UPDATE_DOMAIN, {
