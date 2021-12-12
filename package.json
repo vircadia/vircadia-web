@@ -1,6 +1,6 @@
 {
     "name": "vircadia-web",
-    "version": "2022.1.11",
+    "version": "2022.1.12",
     "description": "Vircadia Web Interface for virtual worlds.",
     "productName": "Vircadia Web",
     "author": "Kalila L. <somnilibertas@gmail.com>",
@@ -16,7 +16,7 @@
     },
     "dependencies": {
         "@quasar/extras": "^1.12.1",
-        "@vircadia/web-sdk": "0.0.5",
+        "@vircadia/web-sdk": "^2022.1.1",
         "axios": "^0.21.4",
         "babylonjs": "^4.2.0",
         "babylonjs-loaders": "^4.2.0",

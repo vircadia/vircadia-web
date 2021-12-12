@@ -169,6 +169,8 @@ declare module "@vircadia/web-sdk" {
         get inputMuted(): boolean;
         set inputMuted(inputMuted: boolean);
         set positionGetter(positionGetter: AudioPositionGetter);
+        get audioWorkletRelativePath(): string;
+        set audioWorkletRelativePath(pPath: string);
         play(): Promise<void>;
         pause(): Promise<void>;
     }

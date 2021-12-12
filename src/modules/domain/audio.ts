@@ -32,6 +32,7 @@ export class DomainAudio extends Client {
         this.#_domain = pD;
         this.onStateChange = new SignalEmitter();
         this.#_audioMixer = new AudioMixer(pD.ContextId);
+        this.#_audioMixer.audioWorkletRelativePath = "./js/";
         this.#_audioMixer.onStateChanged = this._handleOnStateChanged.bind(this);
     }
 
