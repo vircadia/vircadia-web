@@ -179,6 +179,7 @@ export class DomainAvatar extends Client {
         // eslint-disable-next-line no-void
         const params: UpdateAvatarInfoPayload = {
             domain: this.#_domain,
+            domainAvatar: this,
             avatarsInfo: this.#_avatarsInfo
         };
         // eslint-disable-next-line no-void
@@ -190,6 +191,7 @@ export class DomainAvatar extends Client {
         // eslint-disable-next-line no-void
         const params: UpdateAvatarInfoPayload = {
             domain: this.#_domain,
+            domainAvatar: this,
             position: pPos
         };
         // eslint-disable-next-line no-void
