@@ -197,7 +197,8 @@ export default defineComponent({
     data: () => ({
         tab: "input",
         isListeningToFeedback: false,
-        selectedInputDevice: undefined as unknown as MediaDeviceInfo
+        selectedInputDevice: undefined as unknown as MediaDeviceInfo,
+        selectedOutputDevice: undefined as unknown as MediaDeviceInfo
     }),
 
     computed: {
@@ -229,6 +230,13 @@ export default defineComponent({
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             set: function(pVal: string): void {
                 // @click calls requestOutputAccess() which sets $store, etc
+                const outputInfo = this.$store.state.audio.outputsList.filter((info) => info.label === pVal);
+                if (outputInfo.length === 1) {
+                    Log.debug(Log.types.AUDIO, `Audio.vue: set selectedOutputStore. inputInfo=${toJSON(outputInfo[0])}`);
+                    this.selectedOutputDevice = outputInfo[0];
+                    return;
+                }
+                Log.debug(Log.types.AUDIO, `Audio.vue: set selectedOutputStore. no device selected`);
             }
         }
     },
@@ -306,11 +314,12 @@ export default defineComponent({
         },
 
         // eslint-disable-next-line @typescript-eslint/require-await,@typescript-eslint/no-unused-vars
-        async requestOutputAccess(requestedDeviceId: string): Promise<Nullable<MediaStream>> {
+        requestOutputAccess(pRequestedDeviceId: string): void {
             if (this.$store.state.audio.user.userInputStream) {
                 this.stopCurrentOutputStream();
             }
-            return undefined;
+
+            AudioMgr.setAudioOutputStream(this.selectedOutputDevice);
         },
 
         /**
