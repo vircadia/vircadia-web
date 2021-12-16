@@ -57,7 +57,6 @@ export class Domain {
     public get DomainUrl(): string { return this.#_domainUrl; }
 
     #_domain: Nullable<DomainServer>;
-    #_contextID: number;
     #_audioClient: Nullable<DomainAudio>;
     #_messageClient: Nullable<DomainMessage>;
     #_avatarClient: Nullable<DomainAvatar>;
@@ -68,7 +67,7 @@ export class Domain {
     public get AvatarClient(): Nullable<DomainAvatar> { return this.#_avatarClient; }
 
     // Return domain's contextID or zero
-    public get ContextId(): number { return this.#_domain ? this.#_contextID : 0; }
+    public get ContextId(): number { return this.#_domain?.contextID ?? 0; }
 
     public onStateChange: SignalEmitter;
 
@@ -82,7 +81,6 @@ export class Domain {
 
     constructor() {
         this.onStateChange = new SignalEmitter();
-        this.#_contextID = 0;
         this.restorePersistentVariables();
     }
 
@@ -106,7 +104,6 @@ export class Domain {
         this.#_domainUrl = Domain.cleanDomainUrl(pUrl);
         Log.debug(Log.types.COMM, `Creating a new DomainServer`);
         this.#_domain = new DomainServer();
-        this.#_contextID = this.#_domain.contextID;
 
         // Get instances of all the possible clients
         this.#_avatarClient = new DomainAvatar(this);

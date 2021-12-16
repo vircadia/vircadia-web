@@ -25,6 +25,7 @@ export class DomainAudio extends Client {
 
     #_domain: Domain;
     #_audioMixer: Nullable<AudioMixer>;
+
     public get Mixer(): Nullable<AudioMixer> { return this.#_audioMixer; }
 
     constructor(pD: Domain) {
@@ -32,6 +33,7 @@ export class DomainAudio extends Client {
         this.#_domain = pD;
         this.onStateChange = new SignalEmitter();
         this.#_audioMixer = new AudioMixer(pD.ContextId);
+        // In 'quasar.conf.js' the worklet files from the SDK are copied into the 'js' directory
         this.#_audioMixer.audioWorkletRelativePath = "./js/";
         this.#_audioMixer.onStateChanged = this._handleOnStateChanged.bind(this);
     }
@@ -45,17 +47,18 @@ export class DomainAudio extends Client {
     }
 
     getDomainAudioStream(): Nullable<MediaStream> {
-        if (this.#_audioMixer) {
-            return this.#_audioMixer.audioOuput;
-        }
-        return undefined;
+        return this.#_audioMixer?.audioOutput;
     }
 
-    play(): void {
+    public get mute(): boolean {
+        return this.#_audioMixer?.inputMuted ?? true;
+    }
+
+    public play(): void {
         this.#_audioMixer?.play();
     }
 
-    pause(): void {
+    public pause(): void {
         this.#_audioMixer?.pause();
     }
 }

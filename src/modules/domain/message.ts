@@ -95,8 +95,7 @@ export class DomainMessage extends Client {
 
     private _handleOnStateChanged(pNewState: AssignmentClientState): void {
         if (this.#_msgMixer) {
-            Log.debug(Log.types.COMM,
-                `DomainMessage: MessageMixer state=${MessageMixer.stateToString(this.#_msgMixer.state)}`);
+            Log.debug(Log.types.COMM, `DomainMessage: MessageMixer state=${MessageMixer.stateToString(this.#_msgMixer.state)}`);
             // If connected, see that we're subscribed to the default message/chat channels
             if (this.#_msgMixer.state === AssignmentClientState.CONNECTED) {
                 if (!this.#_subscribedToDefaultChannels) {

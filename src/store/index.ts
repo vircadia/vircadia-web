@@ -186,6 +186,7 @@ export interface IRootState {
         user: {
             connected: boolean;             // 'true' if have audio input device
             hasInputAccess: boolean;        // mic toggle, 'true' if input is on
+            muted: boolean;                 // sound from user to domain is muted
             awaitingCapturePermissions: boolean;    // waiting for user to allow access to input device
             currentInputDevice: Nullable<MediaDeviceInfo>;  // info on current selected device
             currentOutputDevice: Nullable<MediaDeviceInfo>;  // info on current selected device
@@ -280,6 +281,7 @@ export const Store = createStore<IRootState>({
             user: {
                 connected: false,
                 hasInputAccess: false,
+                muted: false,
                 awaitingCapturePermissions: false,
                 currentInputDevice: undefined,
                 currentOutputDevice: undefined,
@@ -386,7 +388,7 @@ export const Store = createStore<IRootState>({
                         // TODO: consider type checking if in development mode
                         (target[prop] as KeyedCollection)[withprop] = propertiesToSet[withprop];
                     });
-                } else if (payload.value) {
+                } else {
                     // If a single value is given, just set that.
                     // Same note as above about type assignment and potential checking
                     target[prop] = payload.value;

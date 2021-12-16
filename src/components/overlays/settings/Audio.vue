@@ -48,7 +48,7 @@
                                     fab
                                     class="q-mr-sm"
                                     :color="$store.state.audio.user.hasInputAccess ? 'primary' : 'red'"
-                                    :icon="$store.state.audio.user.hasInputAccess ? 'mic' : 'mic_off'"
+                                    :icon="$store.state.audio.user.muted ? 'mic_off' : 'mic'"
                                     @click="micToggled"
                                 />
                             </div>
@@ -290,7 +290,7 @@ export default defineComponent({
 
                     // Find the MediaDeviceInfo for the input device
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                    AudioMgr.setUserAudioInputStream(stream, this.selectedInputDevice);
+                    await AudioMgr.setUserAudioInputStream(stream, this.selectedInputDevice);
 
                     this.setAwaitingCapturePermissions(false);
                 }
@@ -299,7 +299,7 @@ export default defineComponent({
                 const errr = <MediaError>err;
                 this.setAwaitingCapturePermissions(false);
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                AudioMgr.setUserAudioInputStream(undefined, undefined);
+                await AudioMgr.setUserAudioInputStream(undefined, undefined);
                 Log.error(Log.types.AUDIO, `Error getting capture permissions: ${errr.message}`);
             }
             return null;
@@ -344,12 +344,10 @@ export default defineComponent({
             });
         },
 
+        // Complement the state of the user's audio input device
         micToggled: function() {
             if (this.$store.state.audio.user.hasInputAccess === true) {
-                // Should mute/unmute
-            } else {
-                // eslint-disable-next-line no-void
-                void this.requestInputAccess();
+                AudioMgr.muteAudio();
             }
         },
 

@@ -6,9 +6,9 @@
 */
 
 /**
- * Convert an object into a JSON string.
+ * Convert an object into a non-standard JSON string.
  *
- * This exists because there is not serializer for BigInt and this allows debugging
+ * This exists because there is no serializer for BigInt and this allows debugging
  * output of general objects that might include the SDK's Uuid type.
  * This also handles "undefined" in that standard JSON.stringify will not output
  * anything for an undefined value because it is non-standard JSON.
