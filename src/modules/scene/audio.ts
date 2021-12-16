@@ -53,15 +53,17 @@ export const AudioMgr = {
         Log.debug(Log.types.AUDIO, `AudioMgr.initialize()`);
         AudioMgr._setAudioOutputFunction = pAudioOuter;
 
-        // Get the available input and output devices and put in $store
-        await AudioMgr.getAvailableInputOutputDevices();
-
         // Listen for the domain to connect and disconnect
         // eslint-disable-next-line @typescript-eslint/unbound-method
         DomainMgr.onActiveDomainStateChange.connect(AudioMgr._handleActiveDomainStateChange.bind(this));
 
         // See if device selection was saved otherwise setup some default audio devices
-        await AudioMgr.setInitialInputAudioDevice();
+        const firstStream = await AudioMgr.getAudioInputAccess();
+
+        // If we are granted input access, get the list of available audio devices
+        await AudioMgr.getAvailableInputOutputDevices();
+
+        await AudioMgr.setInitialInputAudioDevice(firstStream);
         await AudioMgr.setInitialOutputAudioDevice();
     },
 
@@ -329,10 +331,22 @@ export const AudioMgr = {
         return stream;
     },
 
+    async getDeviceInfoForStream(pStream: MediaStream): Promise<Nullable<MediaDeviceInfo>> {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const devInfo = devices.filter((d) => d.deviceId === pStream.id);
+        if (devInfo.length > 0) {
+            Log.debug(Log.types.AUDIO, `AudioMgr.getDeviceInfoForStream: returning ${devInfo[0].label}`);
+            return devInfo[0];
+        }
+        Log.debug(Log.types.AUDIO, `AudioMgr.getDeviceInfoForStream: no device info found`);
+        return undefined;
+    },
+
     // INITIALIZATION ==============================================================
 
     // Ask the system for the available IO devices and put in UI information
     async getAvailableInputOutputDevices(): Promise<void> {
+        Log.debug(Log.types.AUDIO, `AudioMgr.getAvailableInputOutputDevices`);
         let inputsList: MediaDeviceInfo[] = [];
         let outputsList: MediaDeviceInfo[] = [];
         if (navigator.mediaDevices) {
@@ -352,18 +366,42 @@ export const AudioMgr = {
         });
     },
 
+    // Ask the browser for access to the input devices.
+    async getAudioInputAccess(): Promise<MediaStream> {
+        let inputStream = undefined as unknown as MediaStream;
+        if (navigator.mediaDevices) {
+            try {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                inputStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+                Log.debug(Log.types.AUDIO, `AudioMgr.getAudioInputAccess: have user input stream`);
+                // If we get access, say we're connected
+                // eslint-disable-next-line no-void
+                void Store.commit(StoreMutations.MUTATE, {
+                    property: "audio.user.hasInputAccess",
+                    value: true
+                });
+            } catch (e) {
+                Log.error(Log.types.AUDIO, `EXCEPTION getting audio device access`);
+            }
+        }
+        return inputStream;
+    },
+
     /**
      * Set the initial input device.
      * This checks if a deviceId has been saved from the previous session and
      * selects that one. Otherwise, it sets the first device in the list as a default.
      * If we don't have access to the audio devices, we set that info in Store.
      */
-    async setInitialInputAudioDevice(): Promise<void> {
+    async setInitialInputAudioDevice(pInitial: MediaStream): Promise<void> {
+        Log.debug(Log.types.AUDIO, `AudioMgr.getInitialInputAudioDevice`);
         const lastSessionInput = Config.getItem(USER_AUDIO_INPUT, "none");
         try {
             if (lastSessionInput === "none") {
                 Log.debug(Log.types.AUDIO, `AudioMgr: set inital Input audio device`);
-                if (Store.state.audio.inputsList.length > 0) {
+                if (pInitial) {
+                    await AudioMgr.setUserAudioInputStream(pInitial, await AudioMgr.getDeviceInfoForStream(pInitial));
+                } else if (Store.state.audio.inputsList.length > 0) {
                     const firstInput = Store.state.audio.inputsList[0];
                     await AudioMgr.setUserAudioInputStream(await AudioMgr.getStreamForDeviceInfo(firstInput), firstInput);
                 }
@@ -377,17 +415,25 @@ export const AudioMgr = {
                     await AudioMgr.setUserAudioInputStream(await AudioMgr.getStreamForDeviceInfo(devInfo), devInfo);
                 } else {
                     // The device is not found from last session. Default to first one
-                    Log.debug(Log.types.AUDIO, `AudioMgr: Did not found input audio device from last session`);
-                    const firstInput = Store.state.audio.inputsList[0];
-                    await AudioMgr.setUserAudioInputStream(await AudioMgr.getStreamForDeviceInfo(firstInput), firstInput);
+                    // eslint-disable-next-line no-lonely-if
+                    if (pInitial) {
+                        await AudioMgr.setUserAudioInputStream(pInitial, await AudioMgr.getDeviceInfoForStream(pInitial));
+                    } else {
+                        Log.debug(Log.types.AUDIO, `AudioMgr: Did not found input audio device from last session`);
+                        const firstInput = Store.state.audio.inputsList[0];
+                        await AudioMgr.setUserAudioInputStream(await AudioMgr.getStreamForDeviceInfo(firstInput), firstInput);
+                    }
                 }
             }
         } catch (e) {
+            const err = e as Error;
+            Log.error(Log.types.AUDIO, `Exception setting initial audio device: ${err.message}`);
             await AudioMgr.setUserAudioInputStream(undefined, undefined);
         }
     },
     // eslint-disable-next-line @typescript-eslint/require-await
     async setInitialOutputAudioDevice(): Promise<void> {
+        Log.debug(Log.types.AUDIO, `AudioMgr.getInitialOutputAudioDevice`);
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const lastSessionOutput = Config.getItem(USER_AUDIO_OUTPUT, "none");
         try {
