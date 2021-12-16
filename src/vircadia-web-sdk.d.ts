@@ -199,7 +199,9 @@ declare module "@vircadia/web-sdk" {
         get sessionDisplayName(): string;
         get sessionDisplayNameChanged(): Signal;
         get position(): vec3;
-        set position(position: vec3);
+        set position(pos: vec3);
+        get orientation(): quat;
+        set orientation(orient: quat);
     }
 
     // ScriptAvatar ==================================
@@ -207,8 +209,10 @@ declare module "@vircadia/web-sdk" {
         get isValid(): boolean;
         get displayName(): string;
         get displayNameChanged(): Signal;
+        get sessionDisplayName(): string;
         get sessionDisplayNameChanged(): Signal;
         get position(): vec3;
+        get orientation(): quat;
     }
 
     // AvatarListInterface ============================

@@ -219,7 +219,6 @@ export default defineComponent({
 
         // Get the avatar's display name from the info.
         getDisplayName(pAvaInfo: AvatarInfo): string {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return pAvaInfo.displayName ?? "...";
         },
 

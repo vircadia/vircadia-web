@@ -170,7 +170,6 @@ export interface IRootState {
     // Information about my avatar. Updated when avatar attributes change
     avatar: {
         displayName: string,
-        sessionDisplayName: string,
         position: vec3,
         location: string    // displayable, string form of position coordinates
     },
@@ -266,7 +265,6 @@ export const Store = createStore<IRootState>({
         },
         avatar: {
             displayName: "",
-            sessionDisplayName: "",
             position: Vec3.ZERO,
             location: "0,0,0"
         },
@@ -539,8 +537,7 @@ export const Store = createStore<IRootState>({
                     pContext.commit(Mutations.MUTATE, {
                         property: "avatar",
                         with: {
-                            displayName: myAvaInfo.displayName,
-                            sessionDisplayName: myAvaInfo?.sessionDisplayName,
+                            displayName: myAvaInfo.displayName ? myAvaInfo.displayName : myAvaInfo.sessionDisplayName,
                             position: myAvaInfo?.position,
                             location: `${domainLoc}/${DomainAvatar.positionAsString(myAvaInfo?.position)}`
                         }
@@ -552,7 +549,6 @@ export const Store = createStore<IRootState>({
                         property: "avatar",
                         with: {
                             displayName: "none",
-                            sessionDisplayName: "none",
                             position: Vec3.ZERO,
                             location: `${domainLoc}/${DomainAvatar.positionAsString(Vec3.ZERO)}`
                         }
@@ -581,7 +577,7 @@ export const Store = createStore<IRootState>({
                         const inPrevC = { ...inPrev };
                         // Update previous values since they might have changed
                         inPrevC.position = v.position;
-                        inPrevC.displayName = v.displayName;
+                        inPrevC.displayName = v.displayName ? v.displayName : v.sessionDisplayName;
                         newList.set(k, inPrevC);
                     } else {
                         newList.set(k, {
@@ -590,7 +586,7 @@ export const Store = createStore<IRootState>({
                             muted: false,
                             isAdmin: false,
                             isValid: v.isValid,
-                            displayName: v.displayName,
+                            displayName: v.displayName ? v.displayName : v.sessionDisplayName,
                             position: v.position
                         });
                     }
