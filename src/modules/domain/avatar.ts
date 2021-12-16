@@ -29,6 +29,8 @@ export class DomainAvatar extends Client {
     #_avaMixer: Nullable<AvatarMixer>;
     #_avatarsInfo: Map<Uuid, ScriptAvatar>;
     #_myAvatarLastPosition: vec3;
+    #_gameLoopTimer: Nullable<NodeJS.Timeout>;
+    #_gameLoopFunction: Nullable<()=>void>;
 
     public get Mixer(): Nullable<AvatarMixer> { return this.#_avaMixer; }
     public get MyAvatar(): Nullable<MyAvatarInterface> { return this.#_avaMixer?.myAvatar; }
@@ -36,6 +38,9 @@ export class DomainAvatar extends Client {
     constructor(pD: Domain) {
         super();
         this.#_domain = pD;
+        this.#_gameLoopTimer = undefined;
+        this.#_gameLoopFunction = undefined;
+
         this.#_avaMixer = new AvatarMixer(pD.ContextId);
         this.onStateChange = new SignalEmitter();
         this.#_avaMixer.onStateChanged = this._handleOnStateChanged.bind(this);
@@ -51,7 +56,7 @@ export class DomainAvatar extends Client {
         this.#_avaMixer.avatarList.avatarRemoved.connect(this._handleOnAvatarRemoved.bind(this));
 
         // Copy the information into $store for the UI
-        this._updateAllAvatarInfo();
+        this._updateOtherAvatarInfo();
     }
 
     // Return the state of the underlying assignment client
@@ -69,6 +74,7 @@ export class DomainAvatar extends Client {
                     this._updateAvatarPosition(pos);
                 }
             }
+            this._updateOtherAvatarInfo();
         }
     }
 
@@ -83,8 +89,27 @@ export class DomainAvatar extends Client {
         Log.debug(Log.types.AVATAR,
             // eslint-disable-next-line max-len
             `DomainAvatar: AvatarMixer state=${AvatarMixer.stateToString(this.#_avaMixer?.state ?? AssignmentClientState.DISCONNECTED)}`);
-        this._updateAllAvatarInfo();
+        if (pNewState === AssignmentClientState.CONNECTED) {
+            this.startGameLoop();
+        } else {
+            this.stopGameLoop();
+        }
         this.onStateChange.emit(this.#_domain, this, pNewState);
+    }
+
+    public startGameLoop(): void {
+        if (typeof this.#_gameLoopTimer === "undefined") {
+            this.#_gameLoopFunction = this.update.bind(this);
+            // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+            this.#_gameLoopTimer = setTimeout(this.#_gameLoopFunction, 100);
+        }
+    }
+
+    public stopGameLoop(): void {
+        if (this.#_gameLoopTimer && this.#_gameLoopFunction) {
+            setTimeout(this.#_gameLoopFunction, 0);
+            this.#_gameLoopTimer = undefined;
+        }
     }
 
     private _handleOnMyAvatarNameChanged(): void {
@@ -104,7 +129,7 @@ export class DomainAvatar extends Client {
             if (info) {
                 if (!this.#_avatarsInfo.has(pAvatarId)) {
                     // When avatar attributes change, update the global data
-                    info.sessionDisplayNameChanged.connect(this._updateAllAvatarInfo.bind(this));
+                    info.sessionDisplayNameChanged.connect(this._updateOtherAvatarInfo.bind(this));
                     this.#_avatarsInfo.set(pAvatarId, info);
                 } else {
                     // eslint-disable-next-line max-len
@@ -131,28 +156,11 @@ export class DomainAvatar extends Client {
         const info = this.#_avatarsInfo.get(pAvatarId);
         if (info) {
             // undo the .connect that happened when added. (Does this method signature work?)
-            info.sessionDisplayNameChanged.disconnect(this._updateAllAvatarInfo.bind(this));
+            info.sessionDisplayNameChanged.disconnect(this._updateOtherAvatarInfo.bind(this));
             // eslint-disable-next-line @typescript-eslint/dot-notation
             this.#_avatarsInfo.delete(pAvatarId);
         }
         this._updateOtherAvatarInfo();
-    }
-
-    /**
-     * Update the avatar info in the Vue store.
-     *
-     * This calls the Store dispatcher with the structures for domain and avatars.
-     * The called dispatcher extracts the information for the Store.
-     */
-    private _updateAllAvatarInfo() {
-        // eslint-disable-next-line no-void
-        const params: UpdateAvatarInfoPayload = {
-            domain: this.#_domain,
-            domainAvatar: this,
-            avatarsInfo: this.#_avatarsInfo
-        };
-        // eslint-disable-next-line no-void
-        void Store.dispatch(StoreActions.UPDATE_AVATAR_INFO, params);
     }
 
     /**
