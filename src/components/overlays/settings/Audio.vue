@@ -225,7 +225,7 @@ export default defineComponent({
                 if (this.$store.state.audio.user.currentOutputDevice) {
                     return this.$store.state.audio.user.currentOutputDevice.label;
                 }
-                return "None selected";
+                return "Default";
             },
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             set: function(pVal: string): void {

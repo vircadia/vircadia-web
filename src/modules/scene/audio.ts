@@ -371,8 +371,12 @@ export const AudioMgr = {
         let inputStream = undefined as unknown as MediaStream;
         if (navigator.mediaDevices) {
             try {
+                const lastSessionInput = Config.getItem(USER_AUDIO_INPUT, "none");
+                const constraint = lastSessionInput === "none"
+                    ? { video: false, audio: true }
+                    : { audio: { deviceId: { exact: lastSessionInput } }, video: false };
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                inputStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+                inputStream = await navigator.mediaDevices.getUserMedia(constraint);
                 Log.debug(Log.types.AUDIO, `AudioMgr.getAudioInputAccess: have user input stream`);
                 // If we get access, say we're connected
                 // eslint-disable-next-line no-void
@@ -395,35 +399,13 @@ export const AudioMgr = {
      */
     async setInitialInputAudioDevice(pInitial: MediaStream): Promise<void> {
         Log.debug(Log.types.AUDIO, `AudioMgr.getInitialInputAudioDevice`);
-        const lastSessionInput = Config.getItem(USER_AUDIO_INPUT, "none");
         try {
-            if (lastSessionInput === "none") {
-                Log.debug(Log.types.AUDIO, `AudioMgr: set inital Input audio device`);
-                if (pInitial) {
-                    await AudioMgr.setUserAudioInputStream(pInitial, await AudioMgr.getDeviceInfoForStream(pInitial));
-                } else if (Store.state.audio.inputsList.length > 0) {
-                    const firstInput = Store.state.audio.inputsList[0];
-                    await AudioMgr.setUserAudioInputStream(await AudioMgr.getStreamForDeviceInfo(firstInput), firstInput);
-                }
-            } else {
-                // The user is specifying a device. Reselect that one.
-                const userDev = Store.state.audio.inputsList.filter((ii) => ii.deviceId === lastSessionInput);
-                if (userDev.length > 0) {
-                    Log.debug(Log.types.AUDIO, `AudioMgr: Found input audio device from last session`);
-                    // Found the input device from last session.
-                    const devInfo = userDev[0];
-                    await AudioMgr.setUserAudioInputStream(await AudioMgr.getStreamForDeviceInfo(devInfo), devInfo);
-                } else {
-                    // The device is not found from last session. Default to first one
-                    // eslint-disable-next-line no-lonely-if
-                    if (pInitial) {
-                        await AudioMgr.setUserAudioInputStream(pInitial, await AudioMgr.getDeviceInfoForStream(pInitial));
-                    } else {
-                        Log.debug(Log.types.AUDIO, `AudioMgr: Did not found input audio device from last session`);
-                        const firstInput = Store.state.audio.inputsList[0];
-                        await AudioMgr.setUserAudioInputStream(await AudioMgr.getStreamForDeviceInfo(firstInput), firstInput);
-                    }
-                }
+            Log.debug(Log.types.AUDIO, `AudioMgr: set inital Input audio device`);
+            if (pInitial) {
+                await AudioMgr.setUserAudioInputStream(pInitial, await AudioMgr.getDeviceInfoForStream(pInitial));
+            } else if (Store.state.audio.inputsList.length > 0) {
+                const firstInput = Store.state.audio.inputsList[0];
+                await AudioMgr.setUserAudioInputStream(await AudioMgr.getStreamForDeviceInfo(firstInput), firstInput);
             }
         } catch (e) {
             const err = e as Error;

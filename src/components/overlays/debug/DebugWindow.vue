@@ -40,7 +40,6 @@
             </q-tab-panel>
             <q-tab-panel name="Avatars">
                 <div>DisplayName: {{ $store.state.avatar.displayName }}</div>
-                <div>SessionName: {{ $store.state.avatar.sessionDisplayName }}</div>
                 <div>Location: {{ $store.state.avatar.location }}</div>
                 <div></div>
                 <div>Avatars: {{ $store.state.avatars.count }} </div>
