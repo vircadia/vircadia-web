@@ -441,6 +441,9 @@ export const AudioMgr = {
                 if (Store.state.audio.outputsList.length > 0) {
                     const firstOutput = Store.state.audio.outputsList[0];
                     AudioMgr.setAudioOutputStream(firstOutput);
+                } else {
+                    // Some browsers don't have output selection so say none selected
+                    AudioMgr.setAudioOutputStream(undefined);
                 }
             } else {
                 // The user is specifying a device. Reselect that one.
