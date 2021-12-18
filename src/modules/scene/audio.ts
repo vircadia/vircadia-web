@@ -331,10 +331,20 @@ export const AudioMgr = {
         return stream;
     },
 
+    /**
+     * Return the MediaDeviceInfo block for the passed stream.
+     * @param pStream the stream to return the MediaDeviceInfo for
+     * @returns the MediaDeviceInfo for the passed stream or 'undefined' if none found
+     */
     async getDeviceInfoForStream(pStream: MediaStream): Promise<Nullable<MediaDeviceInfo>> {
+        // Get all the deviceId's used by the stream
+        const devicesUsedByStream = pStream.getTracks().map((t) => t.getSettings().deviceId);
+        // Get a list of all the known devices
         const devices = await navigator.mediaDevices.enumerateDevices();
-        const devInfo = devices.filter((d) => d.deviceId === pStream.id);
+        // Extract the device info blocks that contain deviceId's used by the stream
+        const devInfo = devices.filter((d) => devicesUsedByStream.includes(d.deviceId));
         if (devInfo.length > 0) {
+            // Found a matching devices so use the first (and probably only) device
             Log.debug(Log.types.AUDIO, `AudioMgr.getDeviceInfoForStream: returning ${devInfo[0].label}`);
             return devInfo[0];
         }
@@ -366,7 +376,13 @@ export const AudioMgr = {
         });
     },
 
-    // Ask the browser for access to the input devices.
+    /**
+     * Ask the browser for access to the input devices.
+     * This also checks if a default device has been selected previously and it tries to
+     * select that device.
+     * This routine will hang in the Promise waiting for the user to grant audio access.
+     * @returns a mediaStream as the user's audio input device
+     */
     async getAudioInputAccess(): Promise<MediaStream> {
         let inputStream = undefined as unknown as MediaStream;
         if (navigator.mediaDevices) {
@@ -393,11 +409,11 @@ export const AudioMgr = {
 
     /**
      * Set the initial input device.
-     * This checks if a deviceId has been saved from the previous session and
-     * selects that one. Otherwise, it sets the first device in the list as a default.
-     * If we don't have access to the audio devices, we set that info in Store.
+     * Selects the first input device unless a stream is passed. If a stream
+     * is supplied in the call, this attempts to select that device.
+     * @param {MediaStream} pInitial an optional stream to prefer when selecting input device
      */
-    async setInitialInputAudioDevice(pInitial: MediaStream): Promise<void> {
+    async setInitialInputAudioDevice(pInitial?: MediaStream): Promise<void> {
         Log.debug(Log.types.AUDIO, `AudioMgr.getInitialInputAudioDevice`);
         try {
             Log.debug(Log.types.AUDIO, `AudioMgr: set inital Input audio device`);
@@ -413,6 +429,7 @@ export const AudioMgr = {
             await AudioMgr.setUserAudioInputStream(undefined, undefined);
         }
     },
+
     // eslint-disable-next-line @typescript-eslint/require-await
     async setInitialOutputAudioDevice(): Promise<void> {
         Log.debug(Log.types.AUDIO, `AudioMgr.getInitialOutputAudioDevice`);
