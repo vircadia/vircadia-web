@@ -56,6 +56,18 @@
                         class="q-mr-sm q-ml-sm"
                     />
 
+                    <q-btn
+                        flat
+                        round
+                        dense
+                        fab-mini
+                        tooltip="mute/unmute mic"
+                        :icon="$store.state.audio.user.muted ? 'mic_off' : 'mic'"
+                        :color="$store.state.audio.user.hasInputAccess ? 'primary' : 'red'"
+                        @click="micToggled"
+                        class="q-mr-sm q-ml-sm"
+                    />
+
                     <q-toolbar-title>
                         <q-item-section>
                             <q-item-label>
@@ -229,6 +241,7 @@ import OverlayManager from "@Components/overlays/OverlayManager.vue";
 import { Store, Mutations as StoreMutations, Actions as StoreActions } from "@Store/index";
 import { Utility } from "@Modules/utility";
 import { Account } from "@Modules/account";
+import { AudioMgr } from "@Modules/scene/audio";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
@@ -436,6 +449,11 @@ export default defineComponent({
                 await this.connectToAddress(addressParam);
                 // eslint-disable-next-line @typescript-eslint/no-floating-promises
                 this.$router.push({ path: "/" });
+            }
+        },
+        micToggled: function() {
+            if (this.$store.state.audio.user.hasInputAccess === true) {
+                AudioMgr.muteAudio();
             }
         }
     },
