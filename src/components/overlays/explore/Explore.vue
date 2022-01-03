@@ -187,7 +187,7 @@ export default defineComponent({
         async openLocation(path: string): Promise<void> {
             Log.info(Log.types.UI, `Connecting to...${path}`);
             // eslint-disable-next-line @typescript-eslint/unbound-method
-            await Utility.connectionSetup(path, Utility.defaultDomainOps, Utility.defaultMetaverseOps);
+            await Utility.connectionSetup(path);
         },
 
         openDetails(place: PlaceEntry): void {

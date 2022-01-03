@@ -17,6 +17,7 @@ import ChatWindow from "@Components/overlays/chat/ChatWindow.vue";
 import Explore from "@Components/overlays/explore/Explore.vue";
 import People from "@Components/overlays/people/People.vue";
 import Menu from "@Components/overlays/menu/Menu.vue";
+import DebugWindow from "@Components/overlays/debug/DebugWindow.vue";
 // Components -> Dialogs
 import Login from "@Components/dialogs/Login.vue";
 // Components -> Components
@@ -30,6 +31,7 @@ export default boot(({ app }) => {
     app.component("Explore", Explore);
     app.component("People", People);
     app.component("Menu", Menu);
+    app.component("DebugWindow", DebugWindow);
     // Components -> Dialogs
     app.component("Login", Login);
     // Components -> Components

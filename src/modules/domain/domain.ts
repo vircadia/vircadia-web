@@ -8,12 +8,16 @@
 // Allow 'get' lines to be compact
 /* eslint-disable @typescript-eslint/brace-style */
 
-import { DomainServer, ConnectionState, SignalEmitter } from "@vircadia/web-sdk";
-
+import { DomainServer, SignalEmitter } from "@vircadia/web-sdk";
 import { DomainAudio } from "@Modules/domain/audio";
+import { DomainMessage } from "@Modules/domain/message";
+import { DomainAvatar } from "@Modules/domain/avatar";
+
+import { Store, Actions as StoreActions } from "@Store/index";
 
 import { Config, DEFAULT_METAVERSE_URL, DEFAULT_DOMAIN_PROTOCOL, DEFAULT_DOMAIN_PORT } from "@Base/config";
 import Log from "@Modules/debugging/log";
+import { Client } from "./client";
 
 // Routines connected to the onStateChange Signal, receive calls of this format:
 export type OnDomainStateChangeCallback = (d: Domain, newState: string, info: string) => void;
@@ -22,6 +26,15 @@ export type OnDomainStateChangeCallback = (d: Domain, newState: string, info: st
 export const DomainPersist = {
     "DOMAIN_URL": "Domain.Url"
 };
+
+// Duplicated here because of problems importing into SDK from Quasar environment
+export enum ConnectionState {
+    DISCONNECTED = 0,
+    CONNECTING,
+    CONNECTED,
+    REFUSED,
+    ERROR
+}
 
 /**
  * Class instance for a connection to the domain-server.
@@ -45,6 +58,16 @@ export class Domain {
 
     #_domain: Nullable<DomainServer>;
     #_audioClient: Nullable<DomainAudio>;
+    #_messageClient: Nullable<DomainMessage>;
+    #_avatarClient: Nullable<DomainAvatar>;
+
+    public get DomainClient(): Nullable<DomainServer> { return this.#_domain; }
+    public get AudioClient(): Nullable<DomainAudio> { return this.#_audioClient; }
+    public get MessageClient(): Nullable<DomainMessage> { return this.#_messageClient; }
+    public get AvatarClient(): Nullable<DomainAvatar> { return this.#_avatarClient; }
+
+    // Return domain's contextID or zero
+    public get ContextId(): number { return this.#_domain?.contextID ?? 0; }
 
     public onStateChange: SignalEmitter;
 
@@ -67,6 +90,10 @@ export class Domain {
     public static get REFUSED(): string { return DomainServer.stateToString(DomainServer.REFUSED); }
     public static get ERROR(): string { return DomainServer.stateToString(DomainServer.ERROR); }
 
+    public static stateToString(pState: ConnectionState): string {
+        return DomainServer.stateToString(pState);
+    }
+
     // eslint-disable-next-line @typescript-eslint/require-await
     async connect(pUrl: string): Promise<Domain> {
         if (this.#_domain) {
@@ -77,6 +104,11 @@ export class Domain {
         this.#_domainUrl = Domain.cleanDomainUrl(pUrl);
         Log.debug(Log.types.COMM, `Creating a new DomainServer`);
         this.#_domain = new DomainServer();
+
+        // Get instances of all the possible clients
+        this.#_avatarClient = new DomainAvatar(this);
+        this.#_messageClient = new DomainMessage(this);
+        this.#_audioClient = new DomainAudio(this);
 
         // connect to the domain. The 'connected' event will say if the connection as made.
         Log.debug(Log.types.COMM, `Connecting to domain at ${this.#_domainUrl}`);
@@ -95,14 +127,29 @@ export class Domain {
     }
 
     private _handleOnDomainStateChange(pState: ConnectionState, pInfo: string): void {
-        Log.debug(Log.types.COMM, `DomainStateChange: new state ${pState}, ${pInfo}`);
-        // If conneted, setup the connections to the assignment clients
-        if (pState === DomainServer.CONNECTED) {
-            if (this.#_domain && !this.#_audioClient) {
-                this.#_audioClient = new DomainAudio(this.#_domain.contextID);
-            }
+        Log.debug(Log.types.COMM, `DomainStateChange: new state ${Domain.stateToString(pState)}, ${pInfo}`);
+        this.onStateChange.emit(this, pState, pInfo);
+
+        // eslint-disable-next-line no-void
+        void Store.dispatch(StoreActions.UPDATE_DOMAIN, {
+            domain: this,
+            newState: this.#_domain?.state,
+            info: pInfo
+        });
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+    private waitForConnectedMS = 200;
+    public async waitForConnected(): Promise<Domain> {
+        while (typeof this.#_domain === "undefined") {
+            // eslint-disable-next-line no-await-in-loop
+            await Client.waitABit(this.waitForConnectedMS);
         }
-        this.onStateChange.emit(this, DomainServer.stateToString(pState), pInfo);
+        while (this.#_domain?.state !== ConnectionState.CONNECTED) {
+            // eslint-disable-next-line no-await-in-loop
+            await Client.waitABit(this.waitForConnectedMS);
+        }
+        return this;
     }
 
     /** Return 'true' if the communication with the metaverse is active */

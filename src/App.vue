@@ -26,7 +26,7 @@ export default defineComponent({
         // Called after the APP is visible. This starts the engines doing things.
         // Start connections if we are restoring the session
         // eslint-disable-next-line @typescript-eslint/unbound-method
-        await Utility.initialConnectionSetup(Utility.defaultDomainOps, Utility.defaultMetaverseOps);
+        await Utility.initialConnectionSetup();
     }
 });
 </script>

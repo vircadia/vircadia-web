@@ -34,33 +34,37 @@
                 style="height: 100%"
             >
                 <q-list>
-                    <q-item v-for="person in peopleList" :key="person.sessionUUID" class="q-mb-sm" clickable v-ripple>
+                    <q-item v-for="avaInfo in $store.state.avatars.avatarsInfo.values()"
+                        :key="avaInfo.sessionId" class="q-mb-sm" clickable v-ripple>
                         <q-item-section avatar>
                             <q-avatar color="primary">
-                                <img v-if="getProfilePicture(person.username)" :src="getProfilePicture(person.username)">
-                                <span v-else>{{ person.displayName.charAt(0) }}</span>
+                                <img v-if="getProfilePicture(avaInfo)"
+                                    :src="getProfilePicture(avaInfo)">
+                                <span v-else>{{ getDisplayName(avaInfo) }}</span>
                             </q-avatar>
                         </q-item-section>
 
                         <q-item-section>
-                            <q-item-label>{{ person.displayName }}</q-item-label>
-                            <q-item-label v-if="person.admin" caption lines="1">Admin</q-item-label>
+                            <q-item-label>{{ getDisplayName(avaInfo) }}</q-item-label>
+                            <q-item-label v-if="avaInfo.isAdmin" caption lines="1">Admin</q-item-label>
                         </q-item-section>
                         <q-item-section avatar>
                             <q-icon
-                                @click='person.muted = !person.muted'
-                                :color="person.muted ? 'red' : 'primary'"
-                                :name="person.muted ? 'volume_off' : 'volume_up'"
+                                @click='complementMuted(avaInfo)'
+                                :color="avaInfo.muted ? 'red' : 'primary'"
+                                :name="avaInfo.muted ? 'volume_off' : 'volume_up'"
                             />
                         </q-item-section>
+                        <!-- this slider does not work. Now to modify volume? Maybe a child component for slider?
                         <q-item-section>
                             <q-slider
-                                v-model="person.volume"
+                                v-model="avaInfo.volume"
                                 :min="0"
                                 :max="100"
-                                :color="person.muted ? 'red' : 'primary'"
+                                :color="avaInfo.muted ? 'red' : 'primary'"
                             />
                         </q-item-section>
+                        -->
                     </q-item>
                 </q-list>
             </q-scroll-area>
@@ -75,6 +79,7 @@
 import { defineComponent } from "vue";
 
 import OverlayShell from "../OverlayShell.vue";
+import { Store, Mutations as StoreMutations, AvatarInfo } from "@Store/index";
 
 export interface PeopleEntry {
     displayName: string;
@@ -103,6 +108,7 @@ export default defineComponent({
     },
 
     data: () => ({
+        // Following is legacy test code. Can be removed when real stuff is working
         peopleList: [] as PeopleEntry[],
         testLocal: [
             {
@@ -182,6 +188,7 @@ export default defineComponent({
     },
 
     methods: {
+        // Load test data. Can be removed when real code is working
         loadPeopleList() {
             if (this.localWorld === true) {
                 this.peopleList = this.testLocal;
@@ -194,15 +201,36 @@ export default defineComponent({
             }
         },
 
-        getProfilePicture(username: string): string | null {
+        // Get the profile picture for this avatar or 'null' if none
+        // Note: can methods be async since fetching the profile picture is a network op
+        // Note: is this fetched through the domain-server? Here we have sessionID, not accountID.
+        getProfilePicture(pAvaInfo: AvatarInfo): string | null {
             // Should store profile pictures after retrieving and then pull each
             // subsequent one from cache instead of hitting metaverse every time.
 
             // This is filler functionality to enable the UI to be developed more correctly now.
-            if (username === "testerino") {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            const dn = this.getDisplayName(pAvaInfo);
+            if (dn && dn === "testerino") {
                 return "https://cdn.quasar.dev/img/avatar4.jpg";
             }
             return null;
+        },
+
+        // Get the avatar's display name from the info.
+        getDisplayName(pAvaInfo: AvatarInfo): string {
+            return pAvaInfo.displayName ?? "...";
+        },
+
+        // complement the value of the muted data for this particular avatar
+        // Must be done with MUTATE since the value is in $store
+        complementMuted(pAvaInfo: AvatarInfo): void {
+            const newMute = !pAvaInfo.muted;
+            Store.commit(StoreMutations.UPDATE_AVATAR_VALUE, {
+                sessionId: pAvaInfo.sessionId,
+                field: "muted",
+                value: newMute
+            });
         }
     },
 
@@ -210,7 +238,7 @@ export default defineComponent({
         // By default, the people list will load a list of people in your world.
         // However, in the future the list can and should be reused to load lists
         // of friends, previews of users in worlds, etc.
-        this.loadPeopleList();
+        // this.loadPeopleList();
     }
 
     // mounted: function () {

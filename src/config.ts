@@ -22,6 +22,9 @@ export const LAST_DOMAIN_SERVER = "Last_Domain_Server";
 // The default protocol string for connecting to domain
 export const DEFAULT_DOMAIN_PROTOCOL = "Default_Domain_Protocol";
 export const DEFAULT_DOMAIN_PORT = "Default_Domain_Port";
+// The user's saved audio input and output devices
+export const USER_AUDIO_INPUT = "User_Audio_Input_Device";
+export const USER_AUDIO_OUTPUT = "User_Audio_Output_Device";
 // Log level to begin with
 export const LOG_LEVEL = "Log_Level";
 
@@ -30,7 +33,7 @@ export const FalseValue = "false";
 
 export const DefaultConfig: { [key: string]: string } = {
     "Default_Metaverse_Url": "https://metaverse.vircadia.com/live",
-    "Default_Domain_Protocol": "ws:",
+    "Default_Domain_Protocol": "wss:",
     "Default_Domain_Port": "40102"
 };
 

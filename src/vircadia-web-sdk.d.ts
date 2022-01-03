@@ -35,6 +35,8 @@ declare module "@vircadia/web-sdk" {
     // eslint-disable-next-line @typescript-eslint/init-declarations
     export const Quat: {
         readonly IDENTITY: quat;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        valid(value: any): boolean;
         equal(q1: quat, q2: quat): boolean;
     };
     // Uuid ============================
@@ -54,7 +56,6 @@ declare module "@vircadia/web-sdk" {
         disconnect: (slot: Slot) => void;
     };
     export class SignalEmitter implements Signal {
-        #private;
         connect(slot: Slot): void;
         disconnect(slot: Slot): void;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -97,7 +98,7 @@ declare module "@vircadia/web-sdk" {
         DISCONNECTED = 1,
         CONNECTED = 2
     }
-    export type OnAssignmentClientStateChanged = (state: AssignmentClientState) => void;
+    export type OnAssignmentClientStateChanged = Nullable<(state: AssignmentClientState) => void>;
     export class AssignmentClient {
         static get UNAVAILABLE(): AssignmentClientState;
         static get DISCONNECTED(): AssignmentClientState;
@@ -163,16 +164,20 @@ declare module "@vircadia/web-sdk" {
     type AudioPositionGetter = () => vec3;
     export class AudioMixer extends AssignmentClient {
         constructor(contextID: number);
-        get audioOuput(): MediaStream;
-        set audioInput(audioInput: MediaStream | null);
+        get audioOutput(): MediaStream;  // out from domain server to go to user
+        set audioInput(audioInput: MediaStream | null); // sound from user to go to domain
         get inputMuted(): boolean;
         set inputMuted(inputMuted: boolean);
         set positionGetter(positionGetter: AudioPositionGetter);
+        get audioWorkletRelativePath(): string;
+        set audioWorkletRelativePath(pPath: string);
         play(): Promise<void>;
         pause(): Promise<void>;
     }
 
     // MessageMixer ============================
+    type MessageReceivedSlot = (pChannel: string, pMsg: string, pSenderId: Uuid, pLocalOnly: boolean) => void;
+    type DataReceivedSlot = (pChannel: string, pMsg: ArrayBuffer, pSenderId: Uuid, pLocalOnly: boolean) => void;
     export class MessageMixer extends AssignmentClient {
         constructor(contextID: number);
         subscribe(channel: string): void;
@@ -184,6 +189,8 @@ declare module "@vircadia/web-sdk" {
     }
 
     // MyAvatarInterface ============================
+    type DisplayNameChangedSlot = () => void;
+    type SessionDisplayNameChangedSlot = () => void;
     export class MyAvatarInterface {
         constructor(contextID: number);
         get displayName(): string;
@@ -192,14 +199,36 @@ declare module "@vircadia/web-sdk" {
         get sessionDisplayName(): string;
         get sessionDisplayNameChanged(): Signal;
         get position(): vec3;
-        set position(position: vec3);
+        set position(pos: vec3);
+        get orientation(): quat;
+        set orientation(orient: quat);
+    }
+
+    // ScriptAvatar ==================================
+    export class ScriptAvatar {
+        get isValid(): boolean;
+        get displayName(): string;
+        get displayNameChanged(): Signal;
+        get sessionDisplayName(): string;
+        get sessionDisplayNameChanged(): Signal;
+        get position(): vec3;
+        get orientation(): quat;
     }
 
     // AvatarListInterface ============================
+    export enum KillAvatarReason {
+        NoReason = 0,
+        AvatarDisconnected,
+        AvatarIgnored,
+        TheirAvatarEnteredYourBubble,
+        YourAvatarEnteredTheirBubble
+    }
+    type AvatarAddedSlot = (pSessionUUID: Uuid) => void;
+    type AvatarRemovedSlot = (pSessionUUID: Uuid, pRemovalReason: KillAvatarReason) => void;
     export class AvatarListInterface {
-        constructor(contextID: number);
         get count(): number;
         getAvatarIDs(): Array<Uuid>;
+        getAvatar(id: Uuid): ScriptAvatar;
         get avatarAdded(): Signal;
         get avatarRemoved(): Signal;
     }
@@ -210,7 +239,6 @@ declare module "@vircadia/web-sdk" {
         get myAvatar(): MyAvatarInterface;
         get avatarList(): AvatarListInterface;
         update(): void;
-
     }
 
 }

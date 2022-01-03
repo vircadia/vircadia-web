@@ -35,19 +35,19 @@
                 style="height: 100%"
             >
                 <q-card-section class="q-pt-none">
-                    <div v-for="message in worldChatHistory" :key="message.timestamp">
+                    <div v-for="msg in $store.state.messages.messages" :key="msg.whenReceived">
                         <q-chat-message
-                            :text="[ message.message ]"
-                            :sent="message.self"
-                            :name="message.displayName"
-                            :stamp="message.timestamp"
+                            :text="[ msgText(msg) ]"
+                            :sent="msgSentBySelf(msg)"
+                            :name="msgSender(msg)"
+                            :stamp="msgTime(msg)"
                             text-color="white"
                             bg-color="primary"
                         >
                             <template v-slot:avatar>
                                 <q-avatar color="primary">
-                                    <img v-if="getProfilePicture(message.username)" :src="getProfilePicture(message.username)">
-                                    <span v-else>{{ message.displayName.charAt(0) }}</span>
+                                    <img v-if="getProfilePicture(msgSender(msg))" :src="getProfilePicture(msgSender(msg))">
+                                    <span v-else>{{ msgSender(msg).charAt(0) }}</span>
                                 </q-avatar>
                             </template>
                         </q-chat-message>
@@ -60,6 +60,7 @@
                 outlined
                 v-model="messageInput"
                 :dense="true"
+                @keydown.enter.prevent="submitMessage"
             />
         </q-card>
         <!-- <q-inner-loading :showing="">
@@ -71,8 +72,12 @@
 <script lang="ts">
 
 import { defineComponent } from "vue";
-
 import OverlayShell from "../OverlayShell.vue";
+
+import { AMessage, DomainMessage, FloofChatMessage } from "@Modules/domain/message";
+import { DomainMgr } from "@Modules/domain";
+
+// import Log from "@Modules/debugging/log";
 
 export default defineComponent({
     name: "ChatWindow",
@@ -90,6 +95,9 @@ export default defineComponent({
         // The reason for using "self" instead of checking if the username matches our own
         // is because a user may write chat messages as a guest. Checking "displayName"
         // won"t help much either as anyone can choose any display name and cause confusion.
+        subscribed: false,  // 'true' if subscribed for messages
+
+        // Following is legacy test data. Can be removed when chat is working
         worldChatHistory: [
             {
                 displayName: "Hallo",
@@ -125,6 +133,28 @@ export default defineComponent({
     computed: {
     },
 
+    watch: {
+        /*
+        // When the message input changes, send the message
+        messageInput: function(val: string): void {
+            if (DomainMgr.ActiveDomain) {
+                const msger = DomainMgr.ActiveDomain.MessageClient;
+                if (msger) {
+                    const msg: FloofChatMessage = {
+                        type: "TransmitChatMessage",
+                        channel: DomainMessage.DefaultChatChannel,
+                        message: val,
+                        colour: { red: 255, blue: 255, green: 255 },
+                        displayName: this.$store.state.avatar.displayName,
+                        position: this.$store.state.avatar.position
+                    };
+                    msger.sendMessage(DomainMessage.DefaultChatChannel, JSON.stringify(msg));
+                }
+            }
+        }
+        */
+    },
+
     methods: {
         getProfilePicture(username: string): string | null {
             // Should store profile pictures after retrieving and then pull each
@@ -135,11 +165,62 @@ export default defineComponent({
                 return "https://cdn.quasar.dev/img/avatar4.jpg";
             }
             return null;
+        },
+        // Return the sender Id included in the message. Returns the ID string if no displayname
+        msgSender(pMsg: AMessage): string {
+            if (pMsg.messageJSON) {
+                // eslint-disable-next-line max-len
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unnecessary-type-assertion
+                const fMsg = <FloofChatMessage>pMsg.messageJSON;
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
+                return fMsg.displayName;
+            }
+            return pMsg.senderId.stringify();
+        },
+        // Return the text of the messsage.
+        // This is where message format is checked. If FloofChat, use the text in the JSON packet
+        msgText(pMsg: AMessage): string {
+            if (pMsg.messageJSON) {
+                // eslint-disable-next-line max-len
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unnecessary-type-assertion
+                const fMsg = <FloofChatMessage>pMsg.messageJSON;
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
+                return fMsg.message;
+            }
+            return pMsg.message;
+        },
+        // Return the printable time of the message.
+        msgTime(pMsg: AMessage): string {
+            return pMsg.whenReceived.toUTCString();
+        },
+        // Return 'true' if the chat message was sent by this session
+        // Relies of the message queuer to add the "self: true" to the added message
+        msgSentBySelf(pMsg: AMessage): boolean {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            return pMsg.self ?? false;
+        },
+        submitMessage(): void {
+            if (DomainMgr.ActiveDomain) {
+                const msger = DomainMgr.ActiveDomain.MessageClient;
+                if (msger) {
+                    const msg: FloofChatMessage = {
+                        type: "TransmitChatMessage",
+                        channel: "Local",
+                        message: this.messageInput,
+                        colour: { red: 255, blue: 204, green: 229 },    // orangish
+                        displayName: this.$store.state.avatar.displayName,
+                        position: this.$store.state.avatar.position
+                    };
+                    msger.sendMessage(DomainMessage.DefaultChatChannel, JSON.stringify(msg));
+                    // clear the input field
+                    this.messageInput = "";
+                }
+            }
         }
     }
 
-    // created: function () {
-    // },
+    // created: function() {
+    // }
 
     // mounted: function () {
     // }

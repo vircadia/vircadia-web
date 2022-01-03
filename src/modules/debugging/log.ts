@@ -11,15 +11,17 @@
 const Log = (function() {
 
     enum types {
-        OTHER = "[OTHER]",
-        ENTITIES = "[ENTITIES]",
-        AUDIO = "[AUDIO]",
-        METAVERSE = "[METAVERSE]",
         ACCOUNT = "[ACCOUNT]",
+        AUDIO = "[AUDIO]",
+        AVATAR = "[AVATAR]",
+        COMM = "[COMM]",
+        ENTITIES = "[ENTITIES]",
+        METAVERSE = "[METAVERSE]",
+        MESSAGES = "[MESSAGES]",
+        OTHER = "[OTHER]",
         PEOPLE = "[PEOPLE]",
         PLACES = "[PLACES]",
-        UI = "[UI]",
-        COMM = "[COMM]"
+        UI = "[UI]"
     }
 
     enum levels {

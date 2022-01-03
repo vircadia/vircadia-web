@@ -25,6 +25,7 @@ const { productDescription } = require("./package.json").description;
 /* eslint-env node */
 /* eslint-disable @typescript-eslint/no-var-requires */
 const ESLintPlugin = require("eslint-webpack-plugin");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 const { configure } = require("quasar/wrappers");
 
@@ -103,13 +104,23 @@ module.exports = configure(function (ctx) {
                     .set("@Components", path.resolve(__dirname, "./src/components"))
                     .set("@Modules", path.resolve(__dirname, "./src/modules"))
                     .set("@Store", path.resolve(__dirname, "./src/store"));
-                    /*
+                // This copies the audio worklets into the directory to serve them from
+                chain.plugin("copy-webpack-plugin")
+                    .use(CopyWebpackPlugin, [ {
+                        patterns: [
+                            {
+                                from: "node_modules/@vircadia/web-sdk/dist/vircadia-audio-\*.js" ,
+                                to: "js/[name][ext]"
+                            }
+                        ]
+                    } ] );
+                /*
                 chain.entries( [ "vircadia-sdk", "./src/libs/Vircadia.js" ]);
                 chain.module.rule('vircadia-sdk')
                     .test(/.*\/libs\/.*\.js$/)
                     .use("file-loader")
                         .loader("file-loader");
-                        */
+                */
             }
         },
 

@@ -9,10 +9,6 @@ import { MetaverseMgr } from "@Modules/metaverse";
 
 import { DomainMgr } from "@Modules/domain";
 
-import { Slot, ConnectionState } from "@vircadia/web-sdk";
-
-import { Store, Actions as StoreActions } from "@Store/index";
-import { Metaverse } from "@Modules/metaverse/metaverse";
 import { Domain } from "@Modules/domain/domain";
 
 import {
@@ -26,36 +22,6 @@ import {
 import Log from "@Modules/debugging/log";
 
 export const Utility = {
-    /**
-     * Default processing for domain-server state change.
-     *
-     * This routine is the default Signal processor added to a domain-server's changed state Signal.
-     * It updates the domain-server's state in Vue's Store which will update the UI.
-     */
-    defaultDomainOps(pDomain: Domain, pConnState: ConnectionState, pInfo: string): void {
-        Log.debug(Log.types.OTHER, `UTILITY: new domain state: ${pConnState}/${pInfo}`);
-        // eslint-disable-next-line no-void
-        void Store.dispatch(StoreActions.UPDATE_DOMAIN, {
-            domain: pDomain,
-            newState: pDomain.DomainStateAsString,
-            info: pInfo
-        });
-    },
-    /**
-     * Default processing for metaverse-server state change.
-     *
-     * This routine is the default Signal processor added to a metaverse-server's changed state Signal.
-     * It updates the metaverse-server's state in Vue's Store which will update the UI.
-     */
-    defaultMetaverseOps(pMV: Metaverse, pNewState: string): void {
-        Log.debug(Log.types.OTHER, `UTILITY: new metaverse state: ${pNewState}`);
-        // eslint-disable-next-line no-void
-        void Store.dispatch(StoreActions.UPDATE_METAVERSE, {
-            metaverse: pMV,
-            newState: pNewState
-        });
-    },
-
     /**
      * Configuration information is persisted so restore what information
      * we can.
@@ -72,12 +38,12 @@ export const Utility = {
      * If we are supposed to connect at startup, do all the connection
      * setup stuff so the user is online.
      */
-    async initialConnectionSetup(pDomainOps?: Slot, pMetaverseOps?: Slot): Promise<void> {
+    async initialConnectionSetup(): Promise<void> {
         if (Config.getItem(RECONNECT_ON_STARTUP, FalseValue) === TrueValue) {
             Log.info(Log.types.METAVERSE, `Doing Reconnect on Startup`);
             const lastDomainServer = Config.getItem(LAST_DOMAIN_SERVER, undefined);
             if (lastDomainServer) {
-                await Utility.connectionSetup(lastDomainServer, pDomainOps, pMetaverseOps);
+                await Utility.connectionSetup(lastDomainServer);
             }
         } else {
             Log.info(Log.types.COMM, `Not performing Reconnect on Startup. See "config"`);
@@ -86,7 +52,7 @@ export const Utility = {
         // if we haven't connected to a metaverse already from a domain reconnect at startup
         if (!MetaverseMgr.ActiveMetaverse) {
             const metaverseUrl = Config.getItem(DEFAULT_METAVERSE_URL, "");
-            await Utility.metaverseConnectionSetup(metaverseUrl, pMetaverseOps);
+            await Utility.metaverseConnectionSetup(metaverseUrl);
         }
     },
 
@@ -102,18 +68,19 @@ export const Utility = {
      * @param {OnDomainStateChangeCallback} pDomainOps routine to be called when domain connection state changes
      * @param {OnMetaverseStateChangeCallback} pMetaverseOps routine to be called when metaverse connection state changes
      */
-    async connectionSetup(pDomainUrl: string, pDomainOps?: Slot, pMetaverseOps?: Slot): Promise<void> {
+    async connectionSetup(pDomainUrl: string): Promise<void> {
         if (pDomainUrl) {
             try {
                 // First ensure we disconnect from any currently active domain.
                 await this.disconnectActiveDomain();
 
                 Log.debug(Log.types.COMM, `connectionSetup: connecting to domain ${pDomainUrl}`);
-                const domain = await DomainMgr.domainFactory(pDomainUrl, pDomainOps);
-                DomainMgr.ActiveDomain = domain;
+                // eslint-disable-next-line @typescript-eslint/unbound-method
+                const domain = await DomainMgr.domainFactory(pDomainUrl);
+                await this.connectActiveDomain(domain);
 
                 const metaverseUrl = await domain.getMetaverseUrl();
-                await Utility.metaverseConnectionSetup(metaverseUrl, pMetaverseOps);
+                await Utility.metaverseConnectionSetup(metaverseUrl);
             } catch (err) {
                 const errr = <Error>err;
                 Log.error(Log.types.COMM, `Exception connecting: ${errr.message}`);
@@ -129,17 +96,28 @@ export const Utility = {
      * @param pMetaverseUrl either just the hostname (default protocol and ports are added) or a fully qualified URL
      * @param {OnMetaverseStateChangeCallback} pMetaverseOps routine to be called when metaverse connection state changes
      */
-    async metaverseConnectionSetup(pMetaverseUrl: string, pMetaverseOps?: Slot): Promise<void> {
+    async metaverseConnectionSetup(pMetaverseUrl: string): Promise<void> {
         try {
             if (pMetaverseUrl) {
                 Log.debug(Log.types.COMM, `metaverseConnectionSetup: connecting to metaverse ${pMetaverseUrl}`);
-                const metaverse = await MetaverseMgr.metaverseFactory(pMetaverseUrl, pMetaverseOps);
+                // eslint-disable-next-line @typescript-eslint/unbound-method
+                const metaverse = await MetaverseMgr.metaverseFactory(pMetaverseUrl);
                 MetaverseMgr.ActiveMetaverse = metaverse;
             }
         } catch (err) {
             const errr = <Error>err;
             Log.error(Log.types.COMM, `Exception connecting to metaverse: ${errr.message}`);
         }
+    },
+
+    /**
+     * Set the specified domain as the active domain.
+     *
+     * This creates all the Signal subscriptions that will cause state to be updated.
+     */
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async connectActiveDomain(pDomain: Domain): Promise<void> {
+        DomainMgr.ActiveDomain = pDomain;
     },
 
     /**
@@ -150,6 +128,7 @@ export const Utility = {
     async disconnectActiveDomain(): Promise<void> {
         if (DomainMgr.ActiveDomain) {
             await DomainMgr.ActiveDomain.disconnect();
+            DomainMgr.ActiveDomain = undefined;
         }
     }
 };
