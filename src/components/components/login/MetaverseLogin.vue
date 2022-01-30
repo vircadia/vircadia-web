@@ -68,7 +68,7 @@ export default defineComponent({
     methods: {
         async onSubmit() {
             try {
-                const loginResponse = await Account.login(this.username, this.password);
+                const loginResponse = await Account.login(this.username, this.password, this.metaverseUrl);
 
                 if (loginResponse) {
                     this.$q.notify({

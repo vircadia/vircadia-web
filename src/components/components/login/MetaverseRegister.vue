@@ -99,7 +99,7 @@ export default defineComponent({
         async onSubmit() {
             const $q = useQuasar();
             try {
-                const awaiting = await Account.createAccount(this.username, this.password, this.email);
+                const awaiting = await Account.createAccount(this.username, this.password, this.email, this.metaverseUrl);
                 const result = {        // TODO: temp to replace code above
                     data: {
                         accountWaitingVerification: awaiting
