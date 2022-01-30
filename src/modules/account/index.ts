@@ -77,7 +77,7 @@ export const Account = {
      * @param {string} pPassword Password of user to login
      * @returns 'true' if login succeeded.
      */
-    async login(pUsername: string, pPassword: string, pMetaverseUrl: string): Promise<boolean> {
+    async login(pUsername: string, pPassword: string, pMetaverseUrl?: string): Promise<boolean> {
         if (MetaverseMgr.ActiveMetaverse?.isConnected && !Account.isLoggedIn) {
             try {
                 // Log.debug(Log.types.ACCOUNT, `Login: ${pUsername}`);
@@ -162,7 +162,7 @@ export const Account = {
         }
     },
 
-    async createAccount(pUsername: string, pPassword: string, pEmail: string, pMetaverseUrl: string): Promise<boolean> {
+    async createAccount(pUsername: string, pPassword: string, pEmail: string, pMetaverseUrl?: string): Promise<boolean> {
         const req = {
             username: pUsername,
             password: pPassword,
