@@ -55,6 +55,8 @@ import { Account } from "@Modules/account";
 export default defineComponent({
     name: "MetaverseLogin",
 
+    props: ["metaverseUrl"],
+
     emits: ["closeDialog"],
 
     data: () => ({

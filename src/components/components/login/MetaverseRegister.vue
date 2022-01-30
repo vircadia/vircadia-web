@@ -84,6 +84,8 @@ import { Account } from "@Modules/account";
 export default defineComponent({
     name: "MetaverseRegister",
 
+    props: ["metaverseUrl"],
+
     data: () => ({
         username: "",
         email: "",

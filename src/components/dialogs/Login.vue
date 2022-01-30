@@ -31,11 +31,15 @@
 
         <q-tab-panels v-model="tab" animated>
             <q-tab-panel name="metaverseLogin">
-                <MetaverseLogin @closeDialog="$emit('closeDialog', 'close')"></MetaverseLogin>
+                <MetaverseLogin
+                    @closeDialog="$emit('closeDialog', 'close')"
+                    :metaverseUrl="$store.state.metaverse.server"></MetaverseLogin>
             </q-tab-panel>
 
             <q-tab-panel name="metaverseRegister">
-                <MetaverseRegister @register-success="onMetaverseRegister"></MetaverseRegister>
+                <MetaverseRegister
+                    @register-success="onMetaverseRegister"
+                    :metaverseUrl="$store.state.metaverse.server"></MetaverseRegister>
             </q-tab-panel>
         </q-tab-panels>
     </q-card-section>
@@ -43,6 +47,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
