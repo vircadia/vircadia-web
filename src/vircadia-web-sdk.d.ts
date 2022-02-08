@@ -240,5 +240,4 @@ declare module "@vircadia/web-sdk" {
         get avatarList(): AvatarListInterface;
         update(): void;
     }
-
 }

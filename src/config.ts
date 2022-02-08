@@ -33,6 +33,9 @@ export const FalseValue = "false";
 
 export const DefaultConfig: { [key: string]: string } = {
     "Default_Metaverse_Url": "https://metaverse.vircadia.com/live",
+    // docker compose metaverse
+    // "Default_Metaverse_Url": "http://localhost:9400",
+    //////
     "Default_Domain_Protocol": "wss:",
     "Default_Domain_Port": "40102"
 };
