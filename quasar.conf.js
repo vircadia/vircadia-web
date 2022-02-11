@@ -18,7 +18,6 @@ const path = require("path");
 const { productName } = require("./package.json").productName;
 const { productShortName } = require("./package.json").name;
 const { productDescription } = require("./package.json").description;
-
 // Configuration for your app
 // https://v2.quasar.dev/quasar-cli/quasar-conf-js
 

@@ -8,7 +8,7 @@
 // The following disable is because TS complains about BABYLON's use of cap'ed function names
 /* eslint-disable new-cap */
 
-import * as BABYLON from "babylonjs";
+import { Engine } from "@babylonjs/core";
 
 import { Store, Mutations } from "@Store/index";
 import { Config } from "@Base/config";
@@ -20,12 +20,12 @@ import { VScene } from "@Modules/scene/vscene";
 import Log from "@Modules/debugging/log";
 
 export const Renderer = {
-    _engine: <BABYLON.Engine><unknown>undefined,
+    _engine: <Engine><unknown>undefined,
     _renderingScenes: <VScene[]><unknown>undefined,
 
     // eslint-disable-next-line @typescript-eslint/require-await
     async initialize(pCanvas: HTMLCanvasElement): Promise<void> {
-        Renderer._engine = new BABYLON.Engine(pCanvas);
+        Renderer._engine = new Engine(pCanvas);
         this._renderingScenes = new Array<VScene>();
 
         // Update renderer statistics for Vue
