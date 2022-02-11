@@ -32,14 +32,12 @@
         <q-tab-panels v-model="tab" animated>
             <q-tab-panel name="metaverseLogin">
                 <MetaverseLogin
-                    @closeDialog="$emit('closeDialog', 'close')"
-                    :metaverseUrl="$store.state.metaverse.server"></MetaverseLogin>
+                    @closeDialog="$emit('closeDialog', 'close')"></MetaverseLogin>
             </q-tab-panel>
 
             <q-tab-panel name="metaverseRegister">
                 <MetaverseRegister
-                    @register-success="onMetaverseRegister"
-                    :metaverseUrl="$store.state.metaverse.server"></MetaverseRegister>
+                    @register-success="onMetaverseRegister"></MetaverseRegister>
             </q-tab-panel>
         </q-tab-panels>
     </q-card-section>

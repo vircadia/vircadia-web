@@ -611,6 +611,7 @@ export const Store = createStore<IRootState>({
         },
         // Example action. Any script should be calling the Metavsere component directly
         async [Actions.SET_METAVERSE_URL](pContext: ActionContext<IRootState, IRootState>, pUrl: string): Promise<void> {
+            console.log("pUrl", pUrl);
             await MetaverseMgr.ActiveMetaverse.setMetaverseUrl(pUrl);
         }
     },
