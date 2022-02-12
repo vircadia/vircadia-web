@@ -5,8 +5,8 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
-import * as BABYLON from "babylonjs";
+import { Vector3, Vector4 } from "@babylonjs/core/Maths/math";
 
 // Vircadia "types" defined so the BABYLON definitions don't pollute the UI
-export type VVector3 = BABYLON.Vector3;
-export type VVector4 = BABYLON.Vector4;
+export type VVector3 = Vector3;
+export type VVector4 = Vector4;

@@ -8,8 +8,12 @@
 // This is disabled because TS complains about BABYLON's use of cap'ed function names
 /* eslint-disable new-cap */
 
-import * as BABYLON from "babylonjs";
-import "babylonjs-loaders";
+import * as BABYLON from "@babylonjs/core/Legacy/legacy";
+import { Engine, MeshBuilder, Scene, SceneLoader } from "@babylonjs/core";
+import { Color3, Color4, Vector3 } from "@babylonjs/core/Maths/math";
+import { Mesh } from "@babylonjs/core/Meshes/mesh";
+import "@babylonjs/loaders/glTF";
+import "@babylonjs/core/Meshes/meshBuilder";
 // General Modules
 import Log from "@Modules/debugging/log";
 // System Modules
@@ -39,12 +43,12 @@ interface EntityProps {
  */
 export class VScene {
     _sceneId: number;
-    _scene: BABYLON.Scene;
-    _entities: Map<string, BABYLON.Mesh>;
+    _scene: Scene;
+    _entities: Map<string, Mesh>;
 
-    constructor(pEngine: BABYLON.Engine, pSceneId = 0) {
-        this._entities = new Map<string, BABYLON.Mesh>();
-        this._scene = new BABYLON.Scene(pEngine);
+    constructor(pEngine: Engine, pSceneId = 0) {
+        this._entities = new Map<string, Mesh>();
+        this._scene = new Scene(pEngine);
         this._sceneId = pSceneId;
     }
 
@@ -52,7 +56,7 @@ export class VScene {
         return this._sceneId;
     }
 
-    getCameraLocation(pCameraId = 0): BABYLON.Vector3 {
+    getCameraLocation(pCameraId = 0): Vector3 {
         return this._scene.cameras[pCameraId].position.clone();
     }
 
@@ -61,20 +65,20 @@ export class VScene {
     }
 
     /**
-     * Use the Babylon loader to load a model from an URL and return the Babylon.Mesh
+     * Use the Babylon loader to load a model from an URL and return the Mesh
      * @param name asset name to assign to the loaded mesh
      * @param modelUrl URL to load model from
-     * @returns Babylon.Mesh
+     * @returns Mesh
      * @throws if loading failed
      */
-    async importModel(name: string, modelUrl: string): Promise<BABYLON.Mesh> {
+    async importModel(name: string, modelUrl: string): Promise<Mesh> {
         const parsedUrl = new URL(modelUrl);
         const urlWithoutFilename = modelUrl.substring(0, modelUrl.lastIndexOf("/")) + "/";
         const filename = parsedUrl.pathname.split("/").pop();
 
         // eslint-disable-next-line new-cap
-        const meshes = await BABYLON.SceneLoader.ImportMeshAsync(name, urlWithoutFilename, filename, this._scene);
-        return meshes.meshes[0] as BABYLON.Mesh;
+        const meshes = await SceneLoader.ImportMeshAsync(name, urlWithoutFilename, filename, this._scene);
+        return meshes.meshes[0] as Mesh;
     }
 
     /**
@@ -93,7 +97,7 @@ export class VScene {
             return null;
         }
 
-        let entity: Nullable<BABYLON.Mesh> = undefined;
+        let entity: Nullable<Mesh> = undefined;
 
         // If no UUID is given for the entity, we"ll make one now.
         if (!pProperties.id) {
@@ -106,19 +110,19 @@ export class VScene {
                 if (pProperties.shape) {
                     switch (pProperties.shape.toLowerCase()) {
                         case "box":
-                            entity = BABYLON.MeshBuilder.CreateBox(pProperties.name, {}, this._scene);
+                            entity = MeshBuilder.CreateBox(pProperties.name, {}, this._scene);
                             break;
                         case "sphere":
-                            entity = BABYLON.MeshBuilder.CreateSphere(pProperties.name, {}, this._scene);
+                            entity = MeshBuilder.CreateSphere(pProperties.name, {}, this._scene);
                             break;
                         case "cylinder":
-                            entity = BABYLON.MeshBuilder.CreateCylinder(pProperties.name, {}, this._scene);
+                            entity = MeshBuilder.CreateCylinder(pProperties.name, {}, this._scene);
                             break;
                         case "cone":
-                            entity = BABYLON.MeshBuilder.CreateCylinder(pProperties.name, { diameterTop: 0 }, this._scene);
+                            entity = MeshBuilder.CreateCylinder(pProperties.name, { diameterTop: 0 }, this._scene);
                             break;
                         case "triangle":
-                            entity = BABYLON.MeshBuilder.CreateCylinder(pProperties.name, { tessellation: 3 }, this._scene);
+                            entity = MeshBuilder.CreateCylinder(pProperties.name, { tessellation: 3 }, this._scene);
                             break;
                         default:
                             Log.error(Log.types.ENTITIES, "Failed to create shape entity, unknown/unsupported shape type: "
@@ -140,7 +144,7 @@ export class VScene {
                 break;
             default:
                 Log.error(Log.types.ENTITIES, `Unspecified entity type. props=${JSON.stringify(pProperties)}`);
-                entity = BABYLON.MeshBuilder.CreateBox(pProperties.name, {}, this._scene);
+                entity = MeshBuilder.CreateBox(pProperties.name, {}, this._scene);
                 break;
         }
 
@@ -149,16 +153,16 @@ export class VScene {
             entity.id = pProperties.id;
 
             // Rotate and position the entity.
-            entity.position = new BABYLON.Vector3(pProperties.position.x, pProperties.position.y, pProperties.position.z);
-            entity.rotation = new BABYLON.Vector3(pProperties.rotation.x, pProperties.rotation.y, pProperties.rotation.z);
+            entity.position = new Vector3(pProperties.position.x, pProperties.position.y, pProperties.position.z);
+            entity.rotation = new Vector3(pProperties.rotation.x, pProperties.rotation.y, pProperties.rotation.z);
 
             // Scale the entity.
-            entity.scaling = new BABYLON.Vector3(pProperties.dimensions.x, pProperties.dimensions.y, pProperties.dimensions.z);
+            entity.scaling = new Vector3(pProperties.dimensions.x, pProperties.dimensions.y, pProperties.dimensions.z);
 
             // Apply a color if requested.
             if (pProperties.color) {
                 const colorMaterial = new BABYLON.StandardMaterial(pProperties.name + "-material", this._scene);
-                colorMaterial.emissiveColor = new BABYLON.Color3(pProperties.color.r, pProperties.color.g, pProperties.color.b);
+                colorMaterial.emissiveColor = new Color3(pProperties.color.r, pProperties.color.g, pProperties.color.b);
                 entity.material = colorMaterial;
             }
 
@@ -207,7 +211,7 @@ export class VScene {
     async buildTestScene(): Promise<void> {
         const aScene = this._scene;
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        aScene.clearColor = new BABYLON.Color4(0.8, 0.8, 0.8, 0.0);
+        aScene.clearColor = new Color4(0.8, 0.8, 0.8, 0.0);
         aScene.createDefaultCameraOrLight(true, true, true);
         aScene.createDefaultEnvironment();
 

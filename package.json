@@ -15,11 +15,12 @@
         "test": "echo \"No test specified\" && exit 0"
     },
     "dependencies": {
+        "@babylonjs/core": "^4.2.1",
+        "@babylonjs/loaders": "^4.2.1",
+        "@babylonjs/materials": "^4.2.1",
         "@quasar/extras": "^1.12.1",
         "@vircadia/web-sdk": "^2022.1.1",
         "axios": "^0.21.4",
-        "babylonjs": "^4.2.0",
-        "babylonjs-loaders": "^4.2.0",
         "core-js": "^3.19.1",
         "quasar": "^2.3.3",
         "vuex": "^4.0.1"
