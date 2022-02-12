@@ -60,15 +60,15 @@ npm run build
 See [Configuring quasar.conf.js](https://v2.quasar.dev/quasar-cli/quasar-conf-js).
 
 ### To Update Contributors
- Use git-authors-cli
 
- ```
-    sudo  npm install git-authors-cli --global
+Use git-authors-cli:
 
- ```
- Then inside project directory run
+```
+sudo  npm install git-authors-cli --global
+```
 
- ```
-    git-authors-cli
+Then inside the project directory run:
 
- ```
+```
+git-authors-cli
+```
