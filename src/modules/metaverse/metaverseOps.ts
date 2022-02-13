@@ -127,8 +127,8 @@ export async function doAPIGet(pAPIUrl: string, pMetaverseUrl?: string): Promise
     throw new Error(errorString);
 }
 
-export async function doAPIPost(pAPIUrl: string, pBody: KeyedCollection): Promise<unknown> {
-    const accessUrl = buildUrl(pAPIUrl);
+export async function doAPIPost(pAPIUrl: string, pBody: KeyedCollection, pMetaverseUrl?: string): Promise<unknown> {
+    const accessUrl = buildUrl(pAPIUrl, pMetaverseUrl);
     try {
         const resp = await axios.post(accessUrl, pBody, buildRequestConfig());
         const response = resp.data as unknown as APIResponse;

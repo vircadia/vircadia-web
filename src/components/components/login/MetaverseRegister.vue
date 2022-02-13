@@ -73,31 +73,93 @@
             <q-btn label="Register" type="submit" color="primary"/>
         </div>
     </q-form>
+
+    <q-expansion-item
+        v-model="metaverseServerSettingExpansion"
+        expand-icon="language"
+        label="Advanced"
+        expand-icon-class="text-red"
+        header-class="clean-header"
+    >
+        <q-card class="no-padding">
+            <q-card-section class="no-padding">
+                <q-input
+                    v-model="metaverseServerSetting"
+                    label="Metaverse Server"
+                >
+                    <template v-slot:before>
+                        <q-icon name="language" size="18px" color="primary" />
+                    </template>
+
+                    <template v-slot:append>
+                        <q-icon
+                            name="save"
+                            size="18px"
+                            color="primary"
+                            @click="
+                                metaverseServerStore = metaverseServerSetting;
+                                metaverseServerSettingExpansion = false;
+                            "
+                            class="cursor-pointer"
+                        />
+                    </template>
+                </q-input>
+            </q-card-section>
+        </q-card>
+    </q-expansion-item>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import { useQuasar } from "quasar";
+import { Mutations as StoreMutations } from "@Store/index";
+import { Utility } from "@Modules/utility";
 
 import { Account } from "@Modules/account";
 
 export default defineComponent({
     name: "MetaverseRegister",
 
-    data: () => ({
-        username: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-        showPassword: false,
-        showConfirmPassword: false
-    }),
+    data: function() {
+        return {
+            username: "",
+            email: "",
+            password: "",
+            confirmPassword: "",
+            showPassword: false,
+            showConfirmPassword: false,
+            metaverseServerSettingExpansion: false,
+            metaverseServerSetting: this.$store.state.metaverse.server,
+            defaultMetaverseServer: this.$store.state.metaverse.server
+        };
+    },
+
+    computed: {
+        metaverseServerStore: {
+            get() {
+                return this.$store.state.metaverse.server;
+            },
+            async set(newValue: string) {
+                this.$store.commit(StoreMutations.MUTATE, {
+                    property: "metaverse.server",
+                    value: newValue
+                });
+                await Utility.connectionSetup(
+                    this.$store.state.metaverse.server
+                );
+            }
+        }
+    },
 
     methods: {
         async onSubmit() {
             const $q = useQuasar();
             try {
-                const awaiting = await Account.createAccount(this.username, this.password, this.email);
+                await Utility.connectionSetup(
+                    this.$store.state.metaverse.server
+                );
+                const awaiting = await Account.createAccount(this.username, this.password,
+                    this.email, this.$store.state.metaverse.server);
                 const result = {        // TODO: temp to replace code above
                     data: {
                         accountWaitingVerification: awaiting
