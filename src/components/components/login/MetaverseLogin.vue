@@ -91,7 +91,6 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { Account } from "@Modules/account";
-import { Mutations as StoreMutations } from "@Store/index";
 import { Utility } from "@Modules/utility";
 
 export default defineComponent({
@@ -105,8 +104,7 @@ export default defineComponent({
             password: "",
             showPassword: false,
             metaverseServerSettingExpansion: false,
-            metaverseServerSetting: this.$store.state.metaverse.server,
-            defaultMetaverseServer: this.$store.state.metaverse.server
+            metaverseServerSetting: this.$store.state.metaverse.server
         };
     },
     computed: {
@@ -115,12 +113,8 @@ export default defineComponent({
                 return this.$store.state.metaverse.server;
             },
             async set(newValue: string) {
-                this.$store.commit(StoreMutations.MUTATE, {
-                    property: "metaverse.server",
-                    value: newValue
-                });
-                await Utility.connectionSetup(
-                    this.$store.state.metaverse.server
+                await Utility.metaverseConnectionSetup(
+                    newValue
                 );
             }
         }

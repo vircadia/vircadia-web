@@ -73,6 +73,7 @@
             <q-btn label="Register" type="submit" color="primary"/>
         </div>
     </q-form>
+    {{$store.state.metaverse.server}}
 
     <q-expansion-item
         v-model="metaverseServerSettingExpansion"
@@ -112,7 +113,6 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { useQuasar } from "quasar";
-import { Mutations as StoreMutations } from "@Store/index";
 import { Utility } from "@Modules/utility";
 
 import { Account } from "@Modules/account";
@@ -129,8 +129,7 @@ export default defineComponent({
             showPassword: false,
             showConfirmPassword: false,
             metaverseServerSettingExpansion: false,
-            metaverseServerSetting: this.$store.state.metaverse.server,
-            defaultMetaverseServer: this.$store.state.metaverse.server
+            metaverseServerSetting: this.$store.state.metaverse.server
         };
     },
 
@@ -140,12 +139,8 @@ export default defineComponent({
                 return this.$store.state.metaverse.server;
             },
             async set(newValue: string) {
-                this.$store.commit(StoreMutations.MUTATE, {
-                    property: "metaverse.server",
-                    value: newValue
-                });
-                await Utility.connectionSetup(
-                    this.$store.state.metaverse.server
+                await Utility.metaverseConnectionSetup(
+                    newValue
                 );
             }
         }
@@ -155,9 +150,6 @@ export default defineComponent({
         async onSubmit() {
             const $q = useQuasar();
             try {
-                await Utility.connectionSetup(
-                    this.$store.state.metaverse.server
-                );
                 const awaiting = await Account.createAccount(this.username, this.password,
                     this.email, this.$store.state.metaverse.server);
                 const result = {        // TODO: temp to replace code above
