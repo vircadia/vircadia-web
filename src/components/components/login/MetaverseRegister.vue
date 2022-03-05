@@ -151,7 +151,7 @@ export default defineComponent({
             const $q = useQuasar();
             try {
                 const awaiting = await Account.createAccount(this.username, this.password,
-                    this.email, this.$store.state.metaverse.server);
+                    this.email);
                 const result = {        // TODO: temp to replace code above
                     data: {
                         accountWaitingVerification: awaiting

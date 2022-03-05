@@ -77,7 +77,7 @@ export const Account = {
      * @param {string} pPassword Password of user to login
      * @returns 'true' if login succeeded.
      */
-    async login(pUsername: string, pPassword: string, pMetaverseUrl?: string): Promise<boolean> {
+    async login(pUsername: string, pPassword: string): Promise<boolean> {
         if (MetaverseMgr.ActiveMetaverse?.isConnected && !Account.isLoggedIn) {
             try {
                 // Log.debug(Log.types.ACCOUNT, `Login: ${pUsername}`);
@@ -86,7 +86,7 @@ export const Account = {
                 params.append("username", pUsername);
                 params.append("password", pPassword);
 
-                const loginUrl = buildUrl(OAuthTokenAPI, pMetaverseUrl);
+                const loginUrl = buildUrl(OAuthTokenAPI);
                 const resp = await axios.post(loginUrl, params);
                 if (resp.data) {
                     const maybeError = resp.data as unknown as OAuthTokenError;
@@ -162,14 +162,14 @@ export const Account = {
         }
     },
 
-    async createAccount(pUsername: string, pPassword: string, pEmail: string, pMetaverseUrl?: string): Promise<boolean> {
+    async createAccount(pUsername: string, pPassword: string, pEmail: string): Promise<boolean> {
         const req = {
             username: pUsername,
             password: pPassword,
             email: pEmail
         } as PostUsersReq;
         try {
-            const resp = await doAPIPost(PostUsersAPI, req, pMetaverseUrl) as PostUsersResp;
+            const resp = await doAPIPost(PostUsersAPI, req) as PostUsersResp;
             Account.accountName = resp.username;
             Account.id = resp.accountId;
 

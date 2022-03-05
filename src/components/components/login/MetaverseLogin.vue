@@ -125,8 +125,7 @@ export default defineComponent({
             try {
                 const loginResponse = await Account.login(
                     this.username,
-                    this.password,
-                    this.$store.state.metaverse.server
+                    this.password
                 );
 
                 if (loginResponse) {
