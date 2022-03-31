@@ -13,7 +13,7 @@ We currently use the following:
 
 ### Install Quasar CLI
 
-Install Quasar CLI using NPM [here](https://next.quasar.dev/quasar-cli/installation).
+Install Quasar CLI using NPM [here](https://quasar.dev/start/quasar-cli).
 
 ### Install the dependencies
 
