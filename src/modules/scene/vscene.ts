@@ -76,6 +76,7 @@ export class VScene {
         const urlWithoutFilename = modelUrl.substring(0, modelUrl.lastIndexOf("/")) + "/";
         const filename = parsedUrl.pathname.split("/").pop();
 
+        Log.debug(Log.types.ENTITIES, "import model: " + name + " " + urlWithoutFilename + " " + <string>filename);
         // eslint-disable-next-line new-cap
         const meshes = await SceneLoader.ImportMeshAsync(name, urlWithoutFilename, filename, this._scene);
         return meshes.meshes[0] as Mesh;
@@ -136,6 +137,7 @@ export class VScene {
                 break;
             case "Model":
                 if (pProperties.modelUrl) {
+                    // Log.debug(Log.types.ENTITIES, "import model: " + pProperties.modelUrl);
                     entity = await this.importModel(pProperties.name, pProperties.modelUrl);
                 } else {
                     Log.error(Log.types.ENTITIES, "Attempted to create type Model with no modelUrl specified");
@@ -215,6 +217,15 @@ export class VScene {
         aScene.createDefaultCameraOrLight(true, true, true);
         aScene.createDefaultEnvironment();
 
+        await this.addEntity({
+            name: "Armature",
+            type: "Model",
+            modelUrl: "https://digisomni.com/avatars/nolan.glb",
+            position: { x: 0, y: 0, z: 4 },
+            rotation: { x: 0, y: 3, z: 0 },
+            dimensions: { x: 1, y: 1, z: 1 }
+        });
+        /*
         await this.addEntity({
             name: "box",
             type: "Shape",
@@ -298,5 +309,6 @@ export class VScene {
             rotation: { x: 0, y: -0.5, z: 0 },
             dimensions: { x: 0.05, y: 0.05, z: 0.05 }
         });
+*/
     }
 }
