@@ -222,9 +222,10 @@ export class VScene {
             type: "Model",
             modelUrl: "https://digisomni.com/avatars/nolan.glb",
             position: { x: 0, y: 0, z: 4 },
-            rotation: { x: 0, y: 3, z: 0 },
+            rotation: { x: 0, y: Math.PI, z: 0 },
             dimensions: { x: 1, y: 1, z: 1 }
         });
+
         /*
         await this.addEntity({
             name: "box",
