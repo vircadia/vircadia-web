@@ -17,7 +17,7 @@ import "@babylonjs/core/Meshes/meshBuilder";
 // General Modules
 import Log from "@Modules/debugging/log";
 // System Modules
-import { v4 as uuidv4 } from "uuid";
+import { NIL, v4 as uuidv4 } from "uuid";
 import { VVector3 } from ".";
 
 /**
@@ -212,16 +212,35 @@ export class VScene {
         const aScene = this._scene;
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         aScene.clearColor = new Color4(0.8, 0.8, 0.8, 0.0);
-        aScene.createDefaultCameraOrLight(true, true, true);
+        // aScene.createDefaultCameraOrLight(true, true, true);
         aScene.createDefaultEnvironment();
 
-        await this.addEntity({
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        const avatarPos = new Vector3(0, 0, 0);
+
+        // Creates, angles, distances and targets the camera
+        const camera = new BABYLON.ArcRotateCamera(
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+            "Camera", -Math.PI / 2, Math.PI / 2, 5, new BABYLON.Vector3(avatarPos.x, avatarPos.y + 1, avatarPos.z), aScene);
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+
+        // This attaches the camera to the canvas
+        camera.attachControl(NIL, true);
+
+        // load avatar model
+        const id = await this.addEntity({
+        // await this.addEntity({
             name: "",
             type: "Model",
             modelUrl: "https://digisomni.com/avatars/nolan.glb",
-            position: { x: 0, y: 0, z: 4 },
-            rotation: { x: 0, y: Math.PI, z: 0 },
+            position: { x: avatarPos.x, y: avatarPos.y, z: avatarPos.z },
+            rotation: { x: 0, y: 0, z: 0 },
             dimensions: { x: 1, y: 1, z: 1 }
         });
+
+        Log.debug(Log.types.ENTITIES, `entity id: ${<string>id}`);
+
+        const avatar = aScene.getMeshByID(<string>id);
+        camera.parent = avatar;
     }
 }
