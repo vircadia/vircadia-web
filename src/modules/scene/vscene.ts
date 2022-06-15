@@ -76,7 +76,6 @@ export class VScene {
         const urlWithoutFilename = modelUrl.substring(0, modelUrl.lastIndexOf("/")) + "/";
         const filename = parsedUrl.pathname.split("/").pop();
 
-        Log.debug(Log.types.ENTITIES, "import model: " + name + " " + urlWithoutFilename + " " + <string>filename);
         // eslint-disable-next-line new-cap
         const meshes = await SceneLoader.ImportMeshAsync(name, urlWithoutFilename, filename, this._scene);
         return meshes.meshes[0] as Mesh;
@@ -137,7 +136,6 @@ export class VScene {
                 break;
             case "Model":
                 if (pProperties.modelUrl) {
-                    // Log.debug(Log.types.ENTITIES, "import model: " + pProperties.modelUrl);
                     entity = await this.importModel(pProperties.name, pProperties.modelUrl);
                 } else {
                     Log.error(Log.types.ENTITIES, "Attempted to create type Model with no modelUrl specified");
@@ -218,98 +216,12 @@ export class VScene {
         aScene.createDefaultEnvironment();
 
         await this.addEntity({
-            name: "Armature",
+            name: "",
             type: "Model",
             modelUrl: "https://digisomni.com/avatars/nolan.glb",
             position: { x: 0, y: 0, z: 4 },
             rotation: { x: 0, y: Math.PI, z: 0 },
             dimensions: { x: 1, y: 1, z: 1 }
         });
-
-        /*
-        await this.addEntity({
-            name: "box",
-            type: "Shape",
-            shape: "box",
-            position: { x: -5, y: 0, z: 0 },
-            rotation: { x: -0.2, y: -0.4, z: 0 },
-            dimensions: { x: 3, y: 3, z: 3 },
-            color: { r: 1, g: 0, b: 0 }
-        });
-
-        await this.addEntity({
-            name: "sphere",
-            type: "Shape",
-            shape: "sphere",
-            position: { x: -3, y: 0, z: 0 },
-            rotation: { x: 0, y: -0.5, z: 0 },
-            dimensions: { x: 3, y: 3, z: 3 },
-            color: { r: 0, g: 0.58, b: 0.86 }
-        });
-
-        await this.addEntity({
-            name: "cone",
-            type: "Shape",
-            shape: "cone",
-            position: { x: -1, y: 0, z: 0 },
-            rotation: { x: 0, y: -0.5, z: 0 },
-            dimensions: { x: 1, y: 1, z: 1 },
-            color: { r: 1, g: 0.58, b: 0.86 }
-        });
-
-        await this.addEntity({
-            name: "cylinder",
-            type: "Shape",
-            shape: "cylinder",
-            position: { x: 1, y: 0, z: 0 },
-            rotation: { x: 0, y: -0.5, z: 0 },
-            dimensions: { x: 1, y: 1, z: 1 },
-            color: { r: 1, g: 0.58, b: 0.86 }
-        });
-
-        await this.addEntity({
-            name: "triangle",
-            type: "Shape",
-            shape: "triangle",
-            position: { x: 3, y: 0, z: 0 },
-            rotation: { x: 0, y: -0.5, z: 0 },
-            dimensions: { x: 1, y: 1, z: 1 },
-            color: { r: 1, g: 0.58, b: 0.86 }
-        });
-
-        const entityToDeleteID = uuidv4();
-
-        await this.addEntity({
-            name: "entityToDeleteByID",
-            id: entityToDeleteID,
-            type: "Shape",
-            shape: "triangle",
-            position: { x: 3, y: -2, z: 0 },
-            rotation: { x: 0, y: -0.5, z: 0 },
-            dimensions: { x: 1, y: 1, z: 1 },
-            color: { r: 1, g: 0.58, b: 0.86 }
-        });
-        this.deleteEntityById(entityToDeleteID);
-
-        await this.addEntity({
-            name: "entityToDeleteByName",
-            type: "Shape",
-            shape: "triangle",
-            position: { x: 3, y: 2, z: 0 },
-            rotation: { x: 0, y: -0.5, z: 0 },
-            dimensions: { x: 1, y: 1, z: 1 },
-            color: { r: 1, g: 0.58, b: 0.86 }
-        });
-        this.deleteEntityByName("entityToDeleteByName");
-
-        await this.addEntity({
-            name: "fox",
-            type: "Model",
-            modelUrl: "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Fox/glTF/Fox.gltf",
-            position: { x: 5, y: 0, z: 0 },
-            rotation: { x: 0, y: -0.5, z: 0 },
-            dimensions: { x: 0.05, y: 0.05, z: 0.05 }
-        });
-*/
     }
 }
