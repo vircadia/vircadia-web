@@ -19,6 +19,8 @@ import Log from "@Modules/debugging/log";
 // System Modules
 import { NIL, v4 as uuidv4 } from "uuid";
 import { VVector3 } from ".";
+import { Key, KeyState } from "@Modules/input";
+
 
 /**
  * this.addEntity() takes parameters describing the entity to create and add to
@@ -209,19 +211,35 @@ export class VScene {
      * @returns {Promise<void>} when completed
      */
     async buildTestScene(): Promise<void> {
+        /* eslint-disable @typescript-eslint/no-magic-numbers */
         const aScene = this._scene;
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         aScene.clearColor = new Color4(0.8, 0.8, 0.8, 0.0);
         // aScene.createDefaultCameraOrLight(true, true, true);
-        aScene.createDefaultEnvironment();
 
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        const options = {
+            groundColor: BABYLON.Color3.White()
+        };
+
+        aScene.createDefaultEnvironment(options);
+
+        // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
+        // const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), aScene);
+
+        // Default intensity is 1. Let's dim the light a small amount
+        // light.intensity = 0.7;
+
+        // BABYLON.MeshBuilder.CreateGround("ground", { width: 30, height: 30 }, aScene);
+        const box = BABYLON.MeshBuilder.CreateBox("box1", {}, aScene);
+        box.position = new Vector3(5, 0, 5);
+
+
         const avatarPos = new Vector3(0, 0, 0);
 
         // Creates, angles, distances and targets the camera
         const camera = new BABYLON.ArcRotateCamera(
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-            "Camera", -Math.PI / 2, Math.PI / 2, 5, new BABYLON.Vector3(avatarPos.x, avatarPos.y + 1, avatarPos.z), aScene);
+            "Camera", -Math.PI / 2, Math.PI / 2, 6, new BABYLON.Vector3(avatarPos.x, avatarPos.y + 1, avatarPos.z), aScene);
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
 
         // This attaches the camera to the canvas
@@ -242,5 +260,47 @@ export class VScene {
 
         const avatar = aScene.getMeshByID(<string>id);
         camera.parent = avatar;
+
+        // create device manager
+        const dsm = new BABYLON.DeviceSourceManager(aScene.getEngine());
+        aScene.registerBeforeRender(() => {
+            const keyboard = dsm.getDeviceSource(BABYLON.DeviceType.Keyboard);
+
+            const speed = 0.3;
+            const movement = new Vector3();
+
+            if (keyboard !== null) {
+                if (keyboard.getInput(Key.W) === KeyState.KeyDown || keyboard.getInput(Key.UpArrow) === KeyState.KeyDown) {
+                    movement.z = -speed;
+                    // Log.debug(Log.types.AVATAR, "move forward.");
+                    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+                    // avatar?.movePOV(0, 0, -0.1);
+                }
+                if (keyboard.getInput(Key.S) === KeyState.KeyDown || keyboard.getInput(Key.DownArrow) === KeyState.KeyDown) {
+                    movement.z = speed;
+                    // Log.debug(Log.types.AVATAR, "move backward.");
+                    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+                    // avatar?.movePOV(0, 0, 0.1);
+                }
+                if (keyboard.getInput(Key.A) === KeyState.KeyDown || keyboard.getInput(Key.LeftArrow) === KeyState.KeyDown) {
+                    movement.x = speed;
+                    // Log.debug(Log.types.AVATAR, "move left.");
+                    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+                    // avatar?.movePOV(0.1, 0, 0);
+                }
+                if (keyboard.getInput(Key.D) === KeyState.KeyDown || keyboard.getInput(Key.RightArrow) === KeyState.KeyDown) {
+                    movement.x = -speed;
+                    // Log.debug(Log.types.AVATAR, "move right.");
+                    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+                    // avatar?.movePOV(-0.1, 0, 0);
+                }
+                if (keyboard.getInput(Key.Space) === KeyState.KeyDown || keyboard.getInput(Key.PageUp) === KeyState.KeyDown) {
+                    // Log.debug(Log.types.AVATAR, "Jump");
+                }
+
+                avatar?.movePOV(movement.x, movement.y, movement.z);
+            }
+
+        });
     }
 }
