@@ -19,7 +19,7 @@ import Log from "@Modules/debugging/log";
 // System Modules
 import { NIL, v4 as uuidv4 } from "uuid";
 import { VVector3 } from ".";
-import { Key, KeyState } from "@Modules/input";
+import { AvatarController } from "@Modules/avatar";
 
 
 /**
@@ -47,11 +47,13 @@ export class VScene {
     _sceneId: number;
     _scene: Scene;
     _entities: Map<string, Mesh>;
+    _avatar : AvatarController | null;
 
     constructor(pEngine: Engine, pSceneId = 0) {
         this._entities = new Map<string, Mesh>();
         this._scene = new Scene(pEngine);
         this._sceneId = pSceneId;
+        this._avatar = null;
     }
 
     getSceneId(): number {
@@ -231,7 +233,7 @@ export class VScene {
 
         // BABYLON.MeshBuilder.CreateGround("ground", { width: 30, height: 30 }, aScene);
         const box = BABYLON.MeshBuilder.CreateBox("box1", {}, aScene);
-        box.position = new Vector3(5, 0, 5);
+        box.position = new Vector3(5, 0.5, 5);
 
 
         const avatarPos = new Vector3(0, 0, 0);
@@ -261,46 +263,7 @@ export class VScene {
         const avatar = aScene.getMeshByID(<string>id);
         camera.parent = avatar;
 
-        // create device manager
-        const dsm = new BABYLON.DeviceSourceManager(aScene.getEngine());
-        aScene.registerBeforeRender(() => {
-            const keyboard = dsm.getDeviceSource(BABYLON.DeviceType.Keyboard);
-
-            const speed = 0.3;
-            const movement = new Vector3();
-
-            if (keyboard !== null) {
-                if (keyboard.getInput(Key.W) === KeyState.KeyDown || keyboard.getInput(Key.UpArrow) === KeyState.KeyDown) {
-                    movement.z = -speed;
-                    // Log.debug(Log.types.AVATAR, "move forward.");
-                    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-                    // avatar?.movePOV(0, 0, -0.1);
-                }
-                if (keyboard.getInput(Key.S) === KeyState.KeyDown || keyboard.getInput(Key.DownArrow) === KeyState.KeyDown) {
-                    movement.z = speed;
-                    // Log.debug(Log.types.AVATAR, "move backward.");
-                    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-                    // avatar?.movePOV(0, 0, 0.1);
-                }
-                if (keyboard.getInput(Key.A) === KeyState.KeyDown || keyboard.getInput(Key.LeftArrow) === KeyState.KeyDown) {
-                    movement.x = speed;
-                    // Log.debug(Log.types.AVATAR, "move left.");
-                    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-                    // avatar?.movePOV(0.1, 0, 0);
-                }
-                if (keyboard.getInput(Key.D) === KeyState.KeyDown || keyboard.getInput(Key.RightArrow) === KeyState.KeyDown) {
-                    movement.x = -speed;
-                    // Log.debug(Log.types.AVATAR, "move right.");
-                    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-                    // avatar?.movePOV(-0.1, 0, 0);
-                }
-                if (keyboard.getInput(Key.Space) === KeyState.KeyDown || keyboard.getInput(Key.PageUp) === KeyState.KeyDown) {
-                    // Log.debug(Log.types.AVATAR, "Jump");
-                }
-
-                avatar?.movePOV(movement.x, movement.y, movement.z);
-            }
-
-        });
+        this._avatar = new AvatarController(avatar, camera, aScene);
+        this._avatar.start();
     }
 }
