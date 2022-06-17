@@ -7,7 +7,7 @@ import {
     // DeviceSourceManager
 } from "@babylonjs/core";
 
-import Log from "@Modules/debugging/log";
+// import Log from "@Modules/debugging/log";
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 export class AvatarController {
@@ -59,20 +59,19 @@ export class AvatarController {
                 break;
 
             case "w":
-            case "arrowup":
+            // case "arrowup":
                 this._movement.z = -this._walkSpeed;
                 break;
             case "a":
-            case "arrowleft":
+            // case "arrowleft":
                 this._rotation = -this._rotationSpeed;
                 break;
             case "d":
-            case "arrowright":
+            // case "arrowright":
                 this._rotation = this._rotationSpeed;
                 break;
             case "s":
-            case "arrowdown":
-                Log.debug(Log.types.AVATAR, "move backward");
+            // case "arrowdown":
                 this._movement.z = this._walkSpeed;
                 break;
             default:
@@ -91,7 +90,7 @@ export class AvatarController {
 
         switch (e.key.toLowerCase()) {
             case "space":
-                Log.debug(Log.types.AVATAR, "jump");
+                // Log.debug(Log.types.AVATAR, "jump");
                 break;
             case "w":
             case "arrowup":
