@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import * as BABYLON from "@babylonjs/core/Legacy/legacy";
 import {
     Mesh,
@@ -30,13 +31,22 @@ export class AvatarController {
     private _currentAnim: BABYLON.Nullable<AnimationGroup> = null;
     private _prevAnim: BABYLON.Nullable<AnimationGroup> = null;
 
-    constructor(avatar: Mesh, skeleton: Skeleton, camera: ArcRotateCamera, scene: Scene) {
+    constructor(avatar: Mesh, skeleton: Skeleton, camera: ArcRotateCamera, scene: Scene, animGroups: AnimationGroup[]) {
         this._avatar = avatar;
         this._skeleton = skeleton;
         this._camera = camera;
         this._scene = scene;
         this._movement = new BABYLON.Vector3();
         this._inputMap = {};
+
+        animGroups.forEach((animGroup : AnimationGroup) => {
+            if (animGroup.name === "Armature.001|Take 001|BaseLayer") {
+                this._walkAnim = animGroup;
+                this._walkAnim.loopAnimation = true;
+                this._walkAnim.stop();
+            }
+        });
+
     }
 
     public start():void {
@@ -57,13 +67,13 @@ export class AvatarController {
                 (evt) => {
                     this._inputMap[evt.sourceEvent.key] = evt.sourceEvent.type === "keydown";
                 }));
-
+        /*
         this._walkAnim = this._scene.getAnimationGroupByName("Armature.001|Take 001|BaseLayer");
         if (this._walkAnim) {
             this._walkAnim.loopAnimation = true;
             this._walkAnim.stop();
         }
-        /*
+
         const targetedAnimations = this._idleToWalkAni.targetedAnimations;
         // console.log(targetedAnimations);
 
