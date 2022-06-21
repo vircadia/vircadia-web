@@ -242,12 +242,11 @@ export class VScene {
         const camera = new BABYLON.ArcRotateCamera(
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
             "Camera", -Math.PI / 2, Math.PI / 2, 6, new BABYLON.Vector3(avatarPos.x, avatarPos.y + 1, avatarPos.z), aScene);
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
 
         // This attaches the camera to the canvas
         camera.attachControl(aScene.getEngine().getRenderingCanvas(), true);
 
-        // load avatar model
+        // load avatar mesh
         const result = await SceneLoader.ImportMeshAsync("",
             // "http://localhost:8080/assets/avatars/meshes/", "nolan.glb", aScene);
             "http://localhost:8080/assets/avatars/meshes/", "WalkAnimationTest.glb", aScene);
@@ -257,7 +256,8 @@ export class VScene {
         avatar.position = avatarPos;
 
         const skeleton = result.skeletons[0];
-        this._avatarController = new AvatarController(avatar as BABYLON.Mesh, skeleton, camera, aScene);
+        const animationGroups = result.animationGroups;
+        this._avatarController = new AvatarController(avatar as BABYLON.Mesh, skeleton, camera, aScene, animationGroups);
         this._avatarController.start();
 
         camera.parent = avatar;
