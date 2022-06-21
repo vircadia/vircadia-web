@@ -1,37 +1,76 @@
 import * as BABYLON from "@babylonjs/core/Legacy/legacy";
 import {
-    AbstractMesh,
-    // Skeleton,
+    Mesh,
+    Skeleton,
     ArcRotateCamera,
-    Scene
-    // DeviceSourceManager
+    Scene,
+    ActionManager,
+    ExecuteCodeAction
 } from "@babylonjs/core";
 
-// import Log from "@Modules/debugging/log";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import Log from "@Modules/debugging/log";
+
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 export class AvatarController {
-    private _avatar: AbstractMesh;
-    // private _skeleton: Skeleton = null;
+    private _avatar: Mesh;
+    private _skeleton: Skeleton;
     private _camera: ArcRotateCamera;
     private _scene: Scene;
     private _walkSpeed = 2;
     private _movement : BABYLON.Vector3;
-    private _rotationSpeed = 10 * Math.PI / 180;
+    private _rotationSpeed = 20 * Math.PI / 180;
     private _rotation = 0;
+    // private _idleAni : AnimationGroup;
+    // private _idleToWalkAni : AnimationGroup;
 
-    constructor(avatar: BABYLON.Nullable<AbstractMesh>, camera: ArcRotateCamera, scene: Scene) {
-        this._avatar = avatar as AbstractMesh;
+    constructor(avatar: Mesh, skeleton: Skeleton, camera: ArcRotateCamera, scene: Scene) {
+        this._avatar = avatar;
+        this._skeleton = skeleton;
         this._camera = camera;
         this._scene = scene;
         this._movement = new BABYLON.Vector3();
+
+        // this._idleAni = this._scene.getAnimationGroupByName("idle") as AnimationGroup;
+        // this._idleToWalkAni = this._scene.getAnimationGroupByName("idle_to_walk") as AnimationGroup;
     }
 
     public start():void {
         this._scene.registerBeforeRender(this._update.bind(this));
-        const canvas = this._scene.getEngine().getRenderingCanvas() as HTMLCanvasElement;
-        canvas.addEventListener("keyup", this._onKeyUp.bind(this), false);
-        canvas.addEventListener("keydown", this._onKeyDown.bind(this), false);
+
+        // scene action manager to detect inputs
+        this._scene.actionManager = new ActionManager(this._scene);
+
+        this._scene.actionManager.registerAction(
+            new ExecuteCodeAction(ActionManager.OnKeyDownTrigger,
+                this._onKeyDown.bind(this)));
+
+        this._scene.actionManager.registerAction(
+            new ExecuteCodeAction(ActionManager.OnKeyUpTrigger,
+                this._onKeyUp.bind(this)));
+        /*
+        const targetedAnimations = this._idleToWalkAni.targetedAnimations;
+        // console.log(targetedAnimations);
+
+        for (let i = 0; i < targetedAnimations.length; i++) {
+            const targetAni = targetedAnimations[i];
+            const target = targetAni.target as Mesh;
+            // Log.debug(Log.types.AVATAR, "target:" + target.name);
+            this._avatar.getChildren((node) => {
+                if (target.name === node.name) {
+                    Log.debug(Log.types.AVATAR, "apply:" + target.name);
+                    targetAni.target = node;
+                    return true;
+                }
+                return false;
+            }, false);
+
+        }
+
+        // Log.debug(Log.types.AVATAR, `paly idle_to_walk form ${this._idleToWalkAni.from} to ${this._idleToWalkAni.to}`);
+        this._idleToWalkAni.start(true, 1.0, this._idleToWalkAni.from, this._idleToWalkAni.to, false);
+*/
     }
 
 
@@ -46,16 +85,13 @@ export class AvatarController {
         this._avatar.movePOV(movement.x, movement.y, movement.z);
     }
 
-    private _onKeyDown(e: KeyboardEvent) {
-        // Log.debug(Log.types.AVATAR, "key down:" + e.key.toLowerCase());
-        if (!e.key) {
-            return;
-        }
-        if (e.repeat) {
-            return;
-        }
-        switch (e.key.toLowerCase()) {
-            case "space":
+    private _onKeyDown(evt: BABYLON.ActionEvent):void {
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        // Log.debug(Log.types.AVATAR, evt.sourceEvent.key);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        switch (evt.sourceEvent.key) {
+            case " ":
                 break;
 
             case "w":
@@ -79,33 +115,26 @@ export class AvatarController {
         }
     }
 
-    private _onKeyUp(e: KeyboardEvent) {
-        // Log.debug(Log.types.AVATAR, "key up:" + e.key.toLowerCase());
-        if (!e.key) {
-            return;
-        }
-        if (e.repeat) {
-            return;
-        }
-
-        switch (e.key.toLowerCase()) {
-            case "space":
+    private _onKeyUp(evt: BABYLON.ActionEvent):void {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        switch (evt.sourceEvent.key) {
+            case " ":
                 // Log.debug(Log.types.AVATAR, "jump");
                 break;
             case "w":
-            case "arrowup":
+            case "ArrowUp":
                 this._movement.z = 0;
                 break;
             case "a":
-            case "arrowleft":
+            case "ArrowLeft":
                 this._rotation = 0;
                 break;
             case "d":
-            case "arrowright":
+            case "ArrowRight":
                 this._rotation = 0;
                 break;
             case "s":
-            case "arrowdown":
+            case "ArrowDown":
                 this._movement.z = 0;
                 break;
             default:
