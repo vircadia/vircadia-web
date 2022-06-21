@@ -22,6 +22,8 @@ export class AvatarController {
     private _movement : BABYLON.Vector3;
     private _rotationSpeed = 20 * Math.PI / 180;
     private _rotation = 0;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private _inputMap : any;
     // private _idleAni : AnimationGroup;
     // private _idleToWalkAni : AnimationGroup;
 
@@ -31,12 +33,13 @@ export class AvatarController {
         this._camera = camera;
         this._scene = scene;
         this._movement = new BABYLON.Vector3();
-
+        this._inputMap = {};
         // this._idleAni = this._scene.getAnimationGroupByName("idle") as AnimationGroup;
         // this._idleToWalkAni = this._scene.getAnimationGroupByName("idle_to_walk") as AnimationGroup;
     }
 
     public start():void {
+        /* eslint-disable @typescript-eslint/no-unsafe-member-access */
         this._scene.registerBeforeRender(this._update.bind(this));
 
         // scene action manager to detect inputs
@@ -44,11 +47,15 @@ export class AvatarController {
 
         this._scene.actionManager.registerAction(
             new ExecuteCodeAction(ActionManager.OnKeyDownTrigger,
-                this._onKeyDown.bind(this)));
+                (evt) => {
+                    this._inputMap[evt.sourceEvent.key] = evt.sourceEvent.type === "keydown";
+                }));
 
         this._scene.actionManager.registerAction(
             new ExecuteCodeAction(ActionManager.OnKeyUpTrigger,
-                this._onKeyUp.bind(this)));
+                (evt) => {
+                    this._inputMap[evt.sourceEvent.key] = evt.sourceEvent.type === "keydown";
+                }));
         /*
         const targetedAnimations = this._idleToWalkAni.targetedAnimations;
         // console.log(targetedAnimations);
@@ -75,7 +82,27 @@ export class AvatarController {
 
 
     private _update():void {
-        // eslint-disable-next-line new-cap
+        /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+        /* eslint-disable @typescript-eslint/dot-notation */
+        this._movement.z = 0;
+        this._rotation = 0;
+
+        if (this._inputMap["w"]) {
+            this._movement.z = -this._walkSpeed;
+        } else if (this._inputMap["s"]) {
+            this._movement.z = this._walkSpeed;
+        }
+
+        if (this._inputMap["a"]) {
+            this._rotation = -this._rotationSpeed;
+        } else if (this._inputMap["d"]) {
+            this._rotation = this._rotationSpeed;
+        }
+
+        if (this._inputMap[" "]) {
+            Log.debug(Log.types.AVATAR, "space");
+        }
+
         const dt = this._scene.getEngine().getDeltaTime() / 1000;
         const movement = this._movement.scale(dt);
         const rot = this._rotation * dt;
@@ -84,62 +111,4 @@ export class AvatarController {
         this._avatar.rotate(BABYLON.Vector3.Up(), rot);
         this._avatar.movePOV(movement.x, movement.y, movement.z);
     }
-
-    private _onKeyDown(evt: BABYLON.ActionEvent):void {
-
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        // Log.debug(Log.types.AVATAR, evt.sourceEvent.key);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        switch (evt.sourceEvent.key) {
-            case " ":
-                break;
-
-            case "w":
-            // case "arrowup":
-                this._movement.z = -this._walkSpeed;
-                break;
-            case "a":
-            // case "arrowleft":
-                this._rotation = -this._rotationSpeed;
-                break;
-            case "d":
-            // case "arrowright":
-                this._rotation = this._rotationSpeed;
-                break;
-            case "s":
-            // case "arrowdown":
-                this._movement.z = this._walkSpeed;
-                break;
-            default:
-
-        }
-    }
-
-    private _onKeyUp(evt: BABYLON.ActionEvent):void {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        switch (evt.sourceEvent.key) {
-            case " ":
-                // Log.debug(Log.types.AVATAR, "jump");
-                break;
-            case "w":
-            case "ArrowUp":
-                this._movement.z = 0;
-                break;
-            case "a":
-            case "ArrowLeft":
-                this._rotation = 0;
-                break;
-            case "d":
-            case "ArrowRight":
-                this._rotation = 0;
-                break;
-            case "s":
-            case "ArrowDown":
-                this._movement.z = 0;
-                break;
-            default:
-        }
-    }
-
-
 }
