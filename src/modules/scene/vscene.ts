@@ -17,7 +17,7 @@ import "@babylonjs/core/Meshes/meshBuilder";
 // General Modules
 import Log from "@Modules/debugging/log";
 // System Modules
-import { NIL, v4 as uuidv4 } from "uuid";
+import { v4 as uuidv4 } from "uuid";
 import { VVector3 } from ".";
 import { AvatarController } from "@Modules/avatar";
 
@@ -47,13 +47,13 @@ export class VScene {
     _sceneId: number;
     _scene: Scene;
     _entities: Map<string, Mesh>;
-    _avatar : AvatarController | null;
+    _avatarController : AvatarController | null;
 
     constructor(pEngine: Engine, pSceneId = 0) {
         this._entities = new Map<string, Mesh>();
         this._scene = new Scene(pEngine);
         this._sceneId = pSceneId;
-        this._avatar = null;
+        this._avatarController = null;
     }
 
     getSceneId(): number {
@@ -215,7 +215,7 @@ export class VScene {
     async buildTestScene(): Promise<void> {
         /* eslint-disable @typescript-eslint/no-magic-numbers */
         const aScene = this._scene;
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+
         aScene.clearColor = new Color4(0.8, 0.8, 0.8, 0.0);
         // aScene.createDefaultCameraOrLight(true, true, true);
 
@@ -245,25 +245,21 @@ export class VScene {
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
 
         // This attaches the camera to the canvas
-        camera.attachControl(NIL, true);
+        camera.attachControl(aScene.getEngine().getRenderingCanvas(), true);
 
         // load avatar model
-        const id = await this.addEntity({
-        // await this.addEntity({
-            name: "",
-            type: "Model",
-            modelUrl: "https://digisomni.com/avatars/nolan.glb",
-            position: { x: avatarPos.x, y: avatarPos.y, z: avatarPos.z },
-            rotation: { x: 0, y: 0, z: 0 },
-            dimensions: { x: 1, y: 1, z: 1 }
-        });
+        const result = await SceneLoader.ImportMeshAsync("",
+            "http://localhost:8080/assets/avatars/meshes/", "nolan.glb", aScene);
+        const avatar = result.meshes[0];
+        avatar.scaling = new Vector3(1, 1, 1);
+        avatar.position = avatarPos;
 
-        Log.debug(Log.types.ENTITIES, `entity id: ${<string>id}`);
+        const skeleton = result.skeletons[0];
+        this._avatarController = new AvatarController(avatar as BABYLON.Mesh, skeleton, camera, aScene);
+        this._avatarController.start();
 
-        const avatar = aScene.getMeshByID(<string>id);
         camera.parent = avatar;
 
-        this._avatar = new AvatarController(avatar, camera, aScene);
-        this._avatar.start();
+        await this._scene.debugLayer.show();
     }
 }
