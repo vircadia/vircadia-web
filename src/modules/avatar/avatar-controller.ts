@@ -5,7 +5,8 @@ import {
     ArcRotateCamera,
     Scene,
     ActionManager,
-    ExecuteCodeAction
+    ExecuteCodeAction,
+    AnimationGroup
 } from "@babylonjs/core";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -20,12 +21,14 @@ export class AvatarController {
     private _scene: Scene;
     private _walkSpeed = 2;
     private _movement : BABYLON.Vector3;
-    private _rotationSpeed = 20 * Math.PI / 180;
+    private _rotationSpeed = 40 * Math.PI / 180;
     private _rotation = 0;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private _inputMap : any;
-    // private _idleAni : AnimationGroup;
-    // private _idleToWalkAni : AnimationGroup;
+    private _idleAnim : BABYLON.Nullable<AnimationGroup> = null;
+    private _walkAnim : BABYLON.Nullable<AnimationGroup> = null;
+    private _currentAnim: BABYLON.Nullable<AnimationGroup> = null;
+    private _prevAnim: BABYLON.Nullable<AnimationGroup> = null;
 
     constructor(avatar: Mesh, skeleton: Skeleton, camera: ArcRotateCamera, scene: Scene) {
         this._avatar = avatar;
@@ -34,8 +37,6 @@ export class AvatarController {
         this._scene = scene;
         this._movement = new BABYLON.Vector3();
         this._inputMap = {};
-        // this._idleAni = this._scene.getAnimationGroupByName("idle") as AnimationGroup;
-        // this._idleToWalkAni = this._scene.getAnimationGroupByName("idle_to_walk") as AnimationGroup;
     }
 
     public start():void {
@@ -56,6 +57,12 @@ export class AvatarController {
                 (evt) => {
                     this._inputMap[evt.sourceEvent.key] = evt.sourceEvent.type === "keydown";
                 }));
+
+        this._walkAnim = this._scene.getAnimationGroupByName("Armature.001|Take 001|BaseLayer");
+        if (this._walkAnim) {
+            this._walkAnim.loopAnimation = true;
+            this._walkAnim.stop();
+        }
         /*
         const targetedAnimations = this._idleToWalkAni.targetedAnimations;
         // console.log(targetedAnimations);
@@ -110,5 +117,26 @@ export class AvatarController {
         // eslint-disable-next-line new-cap
         this._avatar.rotate(BABYLON.Vector3.Up(), rot);
         this._avatar.movePOV(movement.x, movement.y, movement.z);
+
+        this._animateAvatar();
+    }
+
+    private _animateAvatar() {
+        this._currentAnim = this._idleAnim;
+
+        if (this._inputMap["w"] || this._inputMap["s"] || this._inputMap["a"] || this._inputMap["d"]) {
+            this._currentAnim = this._walkAnim;
+        }
+
+        if (this._currentAnim !== null && this._currentAnim !== this._prevAnim) {
+            this._prevAnim?.stop();
+            this._currentAnim.play(this._currentAnim.loopAnimation);
+            this._prevAnim = this._currentAnim;
+        }
+        // just because of no idle anim
+        if (this._currentAnim === null && this._prevAnim !== null) {
+            this._prevAnim.stop();
+            this._prevAnim = null;
+        }
     }
 }

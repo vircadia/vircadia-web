@@ -249,7 +249,9 @@ export class VScene {
 
         // load avatar model
         const result = await SceneLoader.ImportMeshAsync("",
-            "http://localhost:8080/assets/avatars/meshes/", "nolan.glb", aScene);
+            // "http://localhost:8080/assets/avatars/meshes/", "nolan.glb", aScene);
+            "http://localhost:8080/assets/avatars/meshes/", "WalkAnimationTest.glb", aScene);
+
         const avatar = result.meshes[0];
         avatar.scaling = new Vector3(1, 1, 1);
         avatar.position = avatarPos;
@@ -260,6 +262,6 @@ export class VScene {
 
         camera.parent = avatar;
 
-        await this._scene.debugLayer.show();
+        // await this._scene.debugLayer.show();
     }
 }
