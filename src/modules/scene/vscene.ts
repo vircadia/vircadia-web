@@ -48,14 +48,12 @@ export class VScene {
     _scene: Scene;
     _entities: Map<string, Mesh>;
     _avatarController : Nullable<AvatarController>;
-    _avatarAnimationGroups : AnimationGroup[];
+    _avatarAnimationGroups : AnimationGroup[] = [];
 
     constructor(pEngine: Engine, pSceneId = 0) {
         this._entities = new Map<string, Mesh>();
         this._scene = new Scene(pEngine);
         this._sceneId = pSceneId;
-        this._avatarController = null;
-        this._avatarAnimationGroups = [];
     }
 
     getSceneId(): number {
@@ -87,15 +85,33 @@ export class VScene {
         return meshes.meshes[0] as Mesh;
     }
 
-    async loadAvatarAnimations(modelUrl: string): Promise<BABYLON.ISceneLoaderAsyncResult> {
+    async loadAvatarAnimations(modelUrl: string): Promise<BABYLON.Mesh> {
         const parsedUrl = new URL(modelUrl);
         const urlWithoutFilename = modelUrl.substring(0, modelUrl.lastIndexOf("/")) + "/";
         const filename = parsedUrl.pathname.split("/").pop();
 
         const result = await SceneLoader.ImportMeshAsync("",
             urlWithoutFilename, filename, this._scene);
-        this._avatarAnimationGroups = result.animationGroups;
-        return result;
+
+        result.animationGroups.forEach((sourceAnimGroup) => {
+            const animGroup = new AnimationGroup(sourceAnimGroup.name);
+
+            // trim unnecessary animation data
+            // just keep rotationQuaternion animation
+            sourceAnimGroup.targetedAnimations.forEach((targetAnim) => {
+                if (targetAnim.animation.targetProperty === "rotationQuaternion") {
+                    animGroup.addTargetedAnimation(targetAnim.animation, targetAnim.target);
+                }
+            });
+            this._avatarAnimationGroups.push(animGroup);
+
+            sourceAnimGroup.dispose();
+        });
+
+        const animMesh = result.meshes[0].getChildren()[0] as Mesh;
+        animMesh.parent?.dispose();
+
+        return animMesh;
     }
 
     /**
@@ -231,13 +247,11 @@ export class VScene {
 
         aScene.clearColor = new Color4(0.8, 0.8, 0.8, 0.0);
         // aScene.createDefaultCameraOrLight(true, true, true);
-
         const options = {
             groundColor: BABYLON.Color3.White()
         };
 
         aScene.createDefaultEnvironment(options);
-
         // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
         // const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), aScene);
 
@@ -249,11 +263,8 @@ export class VScene {
         box.position = new Vector3(5, 0.5, 5);
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const animResult = await this.loadAvatarAnimations(
+        const animMesh = await this.loadAvatarAnimations(
             "http://localhost:8080/assets/avatars/animations/AnimationsBasic.glb");
-        // const animMesh = animResult.meshes[0].getChildren()[0] as Mesh;
-        // animMesh.parent?.dispose();
-        // console.log("animation mesh:", animMesh.name);
 
         const avatarPos = new Vector3(0, 0, 0);
 
@@ -266,22 +277,23 @@ export class VScene {
         camera.attachControl(aScene.getEngine().getRenderingCanvas(), true);
 
         // load avatar mesh
-        // const result = await SceneLoader.ImportMeshAsync("",
-        //    "http://localhost:8080/assets/avatars/meshes/", "nolan.glb", aScene);
+        const result = await SceneLoader.ImportMeshAsync("",
+            "http://localhost:8080/assets/avatars/meshes/", "nolan.glb", aScene);
 
-
-        // use the same mesh temporary
-        const result = animResult;
         const avatar = result.meshes[0] as Mesh;
 
         avatar.scaling = new Vector3(1, 1, 1);
         avatar.position = avatarPos;
 
-        const skeleton = result.skeletons[0];
+        const avatarMesh = avatar.getChildren()[0] as Mesh;
+        avatarMesh.position = new Vector3(0, 1, 0);
+        avatarMesh.rotationQuaternion = animMesh.rotationQuaternion;
 
-        this._avatarController = new AvatarController(avatar, skeleton, camera, aScene, this._avatarAnimationGroups);
+        this._avatarController = new AvatarController(avatar, camera, aScene, this._avatarAnimationGroups);
         this._avatarController.start();
 
         camera.parent = avatar;
+
+        // await this._scene.debugLayer.show();
     }
 }
