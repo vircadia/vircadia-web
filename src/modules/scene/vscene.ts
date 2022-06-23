@@ -9,7 +9,7 @@
 /* eslint-disable new-cap */
 
 import * as BABYLON from "@babylonjs/core/Legacy/legacy";
-import { Engine, MeshBuilder, Scene, SceneLoader } from "@babylonjs/core";
+import { AnimationGroup, Engine, MeshBuilder, Scene, SceneLoader } from "@babylonjs/core";
 import { Color3, Color4, Vector3 } from "@babylonjs/core/Maths/math";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import "@babylonjs/loaders/glTF";
@@ -47,13 +47,15 @@ export class VScene {
     _sceneId: number;
     _scene: Scene;
     _entities: Map<string, Mesh>;
-    _avatarController : AvatarController | null;
+    _avatarController : Nullable<AvatarController>;
+    _avatarAnimationGroups : AnimationGroup[];
 
     constructor(pEngine: Engine, pSceneId = 0) {
         this._entities = new Map<string, Mesh>();
         this._scene = new Scene(pEngine);
         this._sceneId = pSceneId;
         this._avatarController = null;
+        this._avatarAnimationGroups = [];
     }
 
     getSceneId(): number {
@@ -83,6 +85,17 @@ export class VScene {
         // eslint-disable-next-line new-cap
         const meshes = await SceneLoader.ImportMeshAsync(name, urlWithoutFilename, filename, this._scene);
         return meshes.meshes[0] as Mesh;
+    }
+
+    async loadAvatarAnimations(modelUrl: string): Promise<BABYLON.ISceneLoaderAsyncResult> {
+        const parsedUrl = new URL(modelUrl);
+        const urlWithoutFilename = modelUrl.substring(0, modelUrl.lastIndexOf("/")) + "/";
+        const filename = parsedUrl.pathname.split("/").pop();
+
+        const result = await SceneLoader.ImportMeshAsync("",
+            urlWithoutFilename, filename, this._scene);
+        this._avatarAnimationGroups = result.animationGroups;
+        return result;
     }
 
     /**
@@ -235,6 +248,12 @@ export class VScene {
         const box = BABYLON.MeshBuilder.CreateBox("box1", {}, aScene);
         box.position = new Vector3(5, 0.5, 5);
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const animResult = await this.loadAvatarAnimations(
+            "http://localhost:8080/assets/avatars/animations/AnimationsBasic.glb");
+        // const animMesh = animResult.meshes[0].getChildren()[0] as Mesh;
+        // animMesh.parent?.dispose();
+        // console.log("animation mesh:", animMesh.name);
 
         const avatarPos = new Vector3(0, 0, 0);
 
@@ -247,21 +266,22 @@ export class VScene {
         camera.attachControl(aScene.getEngine().getRenderingCanvas(), true);
 
         // load avatar mesh
-        const result = await SceneLoader.ImportMeshAsync("",
-            // "http://localhost:8080/assets/avatars/meshes/", "nolan.glb", aScene);
-            "http://localhost:8080/assets/avatars/meshes/", "WalkAnimationTest.glb", aScene);
+        // const result = await SceneLoader.ImportMeshAsync("",
+        //    "http://localhost:8080/assets/avatars/meshes/", "nolan.glb", aScene);
 
-        const avatar = result.meshes[0];
+
+        // use the same mesh temporary
+        const result = animResult;
+        const avatar = result.meshes[0] as Mesh;
+
         avatar.scaling = new Vector3(1, 1, 1);
         avatar.position = avatarPos;
 
         const skeleton = result.skeletons[0];
-        const animationGroups = result.animationGroups;
-        this._avatarController = new AvatarController(avatar as BABYLON.Mesh, skeleton, camera, aScene, animationGroups);
+
+        this._avatarController = new AvatarController(avatar, skeleton, camera, aScene, this._avatarAnimationGroups);
         this._avatarController.start();
 
         camera.parent = avatar;
-
-        // await this._scene.debugLayer.show();
     }
 }
