@@ -32,7 +32,10 @@ export class AvatarController {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private _inputMap : any;
     private _idleAnim : BABYLON.Nullable<AnimationGroup> = null;
-    private _walkAnim : BABYLON.Nullable<AnimationGroup> = null;
+    private _walkFwdAnim : BABYLON.Nullable<AnimationGroup> = null;
+    private _walkbwdAnim : BABYLON.Nullable<AnimationGroup> = null;
+    private _turnLeftAnim : BABYLON.Nullable<AnimationGroup> = null;
+    private _turnRightAnim : BABYLON.Nullable<AnimationGroup> = null;
     private _currentAnim: BABYLON.Nullable<AnimationGroup> = null;
     private _prevAnim: BABYLON.Nullable<AnimationGroup> = null;
 
@@ -44,14 +47,51 @@ export class AvatarController {
         this._movement = new BABYLON.Vector3();
         this._inputMap = {};
 
+        const nodes = new Map<string, BABYLON.Node>();
+        this._avatar.getChildren((node):boolean => {
+            nodes.set(node.name, node);
+            return true;
+        }, false);
+
         animGroups.forEach((animGroup : AnimationGroup) => {
-            if (animGroup.name === "Armature.001|Take 001|BaseLayer") {
-                this._walkAnim = animGroup;
-                this._walkAnim.loopAnimation = true;
-                this._walkAnim.stop();
+            switch (animGroup.name) {
+                case "idle02":
+                    this._idleAnim = AvatarController._cloneAnimGroup(animGroup, nodes);
+                    break;
+                case "walk_fwd":
+                    this._walkFwdAnim = AvatarController._cloneAnimGroup(animGroup, nodes);
+                    break;
+                case "walk_bwd":
+                    this._walkbwdAnim = AvatarController._cloneAnimGroup(animGroup, nodes);
+                    break;
+                case "turn_left":
+                    this._turnLeftAnim = AvatarController._cloneAnimGroup(animGroup, nodes);
+                    break;
+                case "turn_right":
+                    this._turnRightAnim = AvatarController._cloneAnimGroup(animGroup, nodes);
+                    break;
+                default:
+            }
+
+        });
+
+    }
+
+    static _cloneAnimGroup(sourceAnimGroup : AnimationGroup, nodes : Map<string, BABYLON.Node>, loop = true):AnimationGroup {
+        const animGroup = new AnimationGroup(sourceAnimGroup.name);
+        animGroup.loopAnimation = loop;
+
+        sourceAnimGroup.targetedAnimations.forEach((targetAnim) => {
+            const target = targetAnim.target as BABYLON.TransformNode;
+            const node = nodes.get(target.name);
+            if (node) {
+                // console.log(node.name);
+                animGroup.addTargetedAnimation(targetAnim.animation, node);
             }
         });
 
+        sourceAnimGroup.dispose();
+        return animGroup;
     }
 
     public start():void {
@@ -72,34 +112,6 @@ export class AvatarController {
                 (evt) => {
                     this._inputMap[evt.sourceEvent.key] = evt.sourceEvent.type === "keydown";
                 }));
-        /*
-        this._walkAnim = this._scene.getAnimationGroupByName("Armature.001|Take 001|BaseLayer");
-        if (this._walkAnim) {
-            this._walkAnim.loopAnimation = true;
-            this._walkAnim.stop();
-        }
-
-        const targetedAnimations = this._idleToWalkAni.targetedAnimations;
-        // console.log(targetedAnimations);
-
-        for (let i = 0; i < targetedAnimations.length; i++) {
-            const targetAni = targetedAnimations[i];
-            const target = targetAni.target as Mesh;
-            // Log.debug(Log.types.AVATAR, "target:" + target.name);
-            this._avatar.getChildren((node) => {
-                if (target.name === node.name) {
-                    Log.debug(Log.types.AVATAR, "apply:" + target.name);
-                    targetAni.target = node;
-                    return true;
-                }
-                return false;
-            }, false);
-
-        }
-
-        // Log.debug(Log.types.AVATAR, `paly idle_to_walk form ${this._idleToWalkAni.from} to ${this._idleToWalkAni.to}`);
-        this._idleToWalkAni.start(true, 1.0, this._idleToWalkAni.from, this._idleToWalkAni.to, false);
-*/
     }
 
 
@@ -139,16 +151,23 @@ export class AvatarController {
     private _animateAvatar() {
         this._currentAnim = this._idleAnim;
 
-        if (this._inputMap["w"] || this._inputMap["s"] || this._inputMap["a"] || this._inputMap["d"]) {
-            this._currentAnim = this._walkAnim;
+        if (this._inputMap["w"]) {
+            this._currentAnim = this._walkFwdAnim;
+        } else if (this._inputMap["s"]) {
+            this._currentAnim = this._walkbwdAnim;
+        } else if (this._inputMap["a"]) {
+            this._currentAnim = this._turnLeftAnim;
+        } else if (this._inputMap["d"]) {
+            this._currentAnim = this._turnRightAnim;
         }
 
         if (this._currentAnim !== null && this._currentAnim !== this._prevAnim) {
             this._prevAnim?.stop();
-            this._currentAnim.play(this._currentAnim.loopAnimation);
+            this._currentAnim.start(this._currentAnim.loopAnimation, 1.0, 0.05, this._currentAnim.to, false);
             this._prevAnim = this._currentAnim;
+            // console.log("play anim", this._currentAnim.name, this._currentAnim.from, this._currentAnim.to);
         }
-        // just because of no idle anim
+        // just for no idle anim case
         if (this._currentAnim === null && this._prevAnim !== null) {
             this._prevAnim.stop();
             this._prevAnim = null;
