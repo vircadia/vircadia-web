@@ -8,7 +8,6 @@
 import * as BABYLON from "@babylonjs/core/Legacy/legacy";
 import {
     Mesh,
-    Skeleton,
     ArcRotateCamera,
     Scene,
     ActionManager,
@@ -22,7 +21,6 @@ import Log from "@Modules/debugging/log";
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 export class AvatarController {
     private _avatar: Mesh;
-    private _skeleton: Skeleton;
     private _camera: ArcRotateCamera;
     private _scene: Scene;
     private _walkSpeed = 2;
@@ -39,9 +37,8 @@ export class AvatarController {
     private _currentAnim: BABYLON.Nullable<AnimationGroup> = null;
     private _prevAnim: BABYLON.Nullable<AnimationGroup> = null;
 
-    constructor(avatar: Mesh, skeleton: Skeleton, camera: ArcRotateCamera, scene: Scene, animGroups: AnimationGroup[]) {
+    constructor(avatar: Mesh, camera: ArcRotateCamera, scene: Scene, animGroups: AnimationGroup[]) {
         this._avatar = avatar;
-        this._skeleton = skeleton;
         this._camera = camera;
         this._scene = scene;
         this._movement = new BABYLON.Vector3();
@@ -85,12 +82,10 @@ export class AvatarController {
             const target = targetAnim.target as BABYLON.TransformNode;
             const node = nodes.get(target.name);
             if (node) {
-                // console.log(node.name);
                 animGroup.addTargetedAnimation(targetAnim.animation, node);
             }
         });
 
-        sourceAnimGroup.dispose();
         return animGroup;
     }
 
