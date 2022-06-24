@@ -242,27 +242,20 @@ export class VScene {
      * @returns {Promise<void>} when completed
      */
     async buildTestScene(): Promise<void> {
-        /* eslint-disable @typescript-eslint/no-magic-numbers */
         const aScene = this._scene;
 
+        /* eslint-disable @typescript-eslint/no-magic-numbers */
         aScene.clearColor = new Color4(0.8, 0.8, 0.8, 0.0);
-        // aScene.createDefaultCameraOrLight(true, true, true);
+
         const options = {
             groundColor: BABYLON.Color3.White()
         };
 
         aScene.createDefaultEnvironment(options);
-        // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
-        // const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), aScene);
 
-        // Default intensity is 1. Let's dim the light a small amount
-        // light.intensity = 0.7;
-
-        // BABYLON.MeshBuilder.CreateGround("ground", { width: 30, height: 30 }, aScene);
         const box = BABYLON.MeshBuilder.CreateBox("box1", {}, aScene);
         box.position = new Vector3(5, 0.5, 5);
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const animMesh = await this.loadAvatarAnimations(
             "http://localhost:8080/assets/avatars/animations/AnimationsBasic.glb");
 
@@ -270,7 +263,6 @@ export class VScene {
 
         // Creates, angles, distances and targets the camera
         const camera = new BABYLON.ArcRotateCamera(
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
             "Camera", -Math.PI / 2, Math.PI / 2, 6, new BABYLON.Vector3(avatarPos.x, avatarPos.y + 1, avatarPos.z), aScene);
 
         // This attaches the camera to the canvas
@@ -295,5 +287,6 @@ export class VScene {
         camera.parent = avatar;
 
         // await this._scene.debugLayer.show();
+        /* eslint-enable @typescript-eslint/no-magic-numbers */
     }
 }
