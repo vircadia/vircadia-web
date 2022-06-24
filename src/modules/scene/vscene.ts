@@ -9,7 +9,8 @@
 /* eslint-disable new-cap */
 
 import * as BABYLON from "@babylonjs/core/Legacy/legacy";
-import { AnimationGroup, Engine, MeshBuilder, Scene, SceneLoader } from "@babylonjs/core";
+import { AnimationGroup, Engine, MeshBuilder, Scene, SceneLoader,
+    ActionManager, ActionEvent, ExecuteCodeAction } from "@babylonjs/core";
 import { Color3, Color4, Vector3 } from "@babylonjs/core/Maths/math";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import "@babylonjs/loaders/glTF";
@@ -53,6 +54,13 @@ export class VScene {
     constructor(pEngine: Engine, pSceneId = 0) {
         this._entities = new Map<string, Mesh>();
         this._scene = new Scene(pEngine);
+
+        this._scene.actionManager = new ActionManager(this._scene);
+        this._scene.actionManager.registerAction(
+            new ExecuteCodeAction(ActionManager.OnKeyUpTrigger,
+                this._onKeyUp.bind(this))
+        );
+
         this._sceneId = pSceneId;
     }
 
@@ -288,5 +296,25 @@ export class VScene {
 
         // await this._scene.debugLayer.show();
         /* eslint-enable @typescript-eslint/no-magic-numbers */
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    private _onKeyUp(evt: ActionEvent) :void {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        switch (evt.sourceEvent.key) {
+            case "|":
+                if (process.env.NODE_ENV === "development") {
+                    if (this._scene.debugLayer.isVisible()) {
+                        this._scene.debugLayer.hide();
+                    } else {
+                    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                        this._scene.debugLayer.show();
+                    }
+                }
+                break;
+
+            default:
+                break;
+        }
     }
 }
