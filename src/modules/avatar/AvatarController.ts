@@ -4,8 +4,6 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
-
-// import * as BABYLON from "@babylonjs/core/Legacy/legacy";
 import {
     Vector3,
     Mesh,
@@ -115,7 +113,6 @@ export class AvatarController {
 
 
     private _update():void {
-        /* eslint-disable @typescript-eslint/no-unsafe-member-access */
         /* eslint-disable @typescript-eslint/dot-notation */
         this._movement.z = 0;
         this._rotation = 0;
@@ -162,9 +159,9 @@ export class AvatarController {
 
         if (this._currentAnim !== null && this._currentAnim !== this._prevAnim) {
             this._prevAnim?.stop();
-            this._currentAnim.start(this._currentAnim.loopAnimation, 1.0, 0.05, this._currentAnim.to, false);
+            this._currentAnim.start(this._currentAnim.loopAnimation, 1.0, this._currentAnim.from, this._currentAnim.to, false);
+            this._currentAnim.goToFrame(2);
             this._prevAnim = this._currentAnim;
-            // console.log("play anim", this._currentAnim.name, this._currentAnim.from, this._currentAnim.to);
         }
         // just for no idle anim case
         if (this._currentAnim === null && this._prevAnim !== null) {
