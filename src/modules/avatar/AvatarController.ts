@@ -21,6 +21,7 @@ import Log from "@Modules/debugging/log";
 
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 export class AvatarController {
     private _avatar: Mesh;
     private _camera: ArcRotateCamera;
@@ -92,11 +93,12 @@ export class AvatarController {
     }
 
     public start():void {
-        /* eslint-disable @typescript-eslint/no-unsafe-member-access */
         this._scene.registerBeforeRender(this._update.bind(this));
 
         // scene action manager to detect inputs
-        this._scene.actionManager = new ActionManager(this._scene);
+        if (!this._scene.actionManager) {
+            this._scene.actionManager = new ActionManager(this._scene);
+        }
 
         this._scene.actionManager.registerAction(
             new ExecuteCodeAction(ActionManager.OnKeyDownTrigger,
@@ -159,7 +161,7 @@ export class AvatarController {
 
         if (this._currentAnim !== null && this._currentAnim !== this._prevAnim) {
             this._prevAnim?.stop();
-            this._currentAnim.start(this._currentAnim.loopAnimation, 1.0, this._currentAnim.from, this._currentAnim.to, false);
+            this._currentAnim.start(this._currentAnim.loopAnimation, 1.0, 0.05, this._currentAnim.to, false);
             this._currentAnim.goToFrame(2);
             this._prevAnim = this._currentAnim;
         }
