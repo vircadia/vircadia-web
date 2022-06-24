@@ -161,14 +161,8 @@ export class AvatarController {
 
         if (this._currentAnim !== null && this._currentAnim !== this._prevAnim) {
             this._prevAnim?.stop();
-            this._currentAnim.start(this._currentAnim.loopAnimation, 1.0, 0.05, this._currentAnim.to, false);
-            this._currentAnim.goToFrame(2);
+            this._currentAnim.start(this._currentAnim.loopAnimation, 1.0, 2, this._currentAnim.to, false);
             this._prevAnim = this._currentAnim;
-        }
-        // just for no idle anim case
-        if (this._currentAnim === null && this._prevAnim !== null) {
-            this._prevAnim.stop();
-            this._prevAnim = null;
         }
     }
 }
