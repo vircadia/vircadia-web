@@ -101,13 +101,29 @@ export class VScene {
         const result = await SceneLoader.ImportMeshAsync("",
             urlWithoutFilename, filename, this._scene);
 
+        const mesh = result.meshes[0].getChildren()[0] as Mesh;
+
         result.animationGroups.forEach((sourceAnimGroup) => {
+
             const animGroup = new AnimationGroup(sourceAnimGroup.name);
+            // scale of Armature
+            const scale = mesh.scaling;
 
             // trim unnecessary animation data
-            // just keep rotationQuaternion animation
             sourceAnimGroup.targetedAnimations.forEach((targetAnim) => {
-                if (targetAnim.animation.targetProperty === "rotationQuaternion") {
+                // scale postion animation of Hips node
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                if (targetAnim.target.name === "Hips" && targetAnim.animation.targetProperty === "position") {
+                    const anim = targetAnim.animation.clone();
+                    const keys = anim.getKeys();
+                    keys.forEach((keyFrame) => {
+                        const pos = keyFrame.value as Vector3;
+                        keyFrame.value = pos.multiply(scale);
+                    });
+
+                    animGroup.addTargetedAnimation(anim, targetAnim.target);
+                // keep rotationQuaternion animation of all nodes
+                } else if (targetAnim.animation.targetProperty === "rotationQuaternion") {
                     animGroup.addTargetedAnimation(targetAnim.animation, targetAnim.target);
                 }
             });
@@ -116,10 +132,9 @@ export class VScene {
             sourceAnimGroup.dispose();
         });
 
-        const animMesh = result.meshes[0].getChildren()[0] as Mesh;
-        animMesh.parent?.dispose();
+        mesh.parent?.dispose();
 
-        return animMesh;
+        return mesh;
     }
 
     /**
@@ -286,15 +301,12 @@ export class VScene {
         avatar.position = avatarPos;
 
         const avatarMesh = avatar.getChildren()[0] as Mesh;
-        avatarMesh.position = new Vector3(0, 1, 0);
         avatarMesh.rotationQuaternion = animMesh.rotationQuaternion;
 
         this._avatarController = new AvatarController(avatar, camera, aScene, this._avatarAnimationGroups);
         this._avatarController.start();
 
         camera.parent = avatar;
-
-        // await this._scene.debugLayer.show();
         /* eslint-enable @typescript-eslint/no-magic-numbers */
     }
 
