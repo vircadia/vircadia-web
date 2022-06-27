@@ -317,14 +317,15 @@ export class VScene {
 
     // eslint-disable-next-line class-methods-use-this
     private _onKeyUp(evt: ActionEvent) :void {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        switch (evt.sourceEvent.key) {
-            case "|":
-                if (process.env.NODE_ENV === "development") {
+        /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+        switch (evt.sourceEvent.code) {
+            case "Slash":
+                if (process.env.NODE_ENV === "development"
+                && evt.sourceEvent.shiftKey) {
                     if (this._scene.debugLayer.isVisible()) {
                         this._scene.debugLayer.hide();
                     } else {
-                    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                        // eslint-disable-next-line @typescript-eslint/no-floating-promises
                         this._scene.debugLayer.show();
                     }
                 }
@@ -333,5 +334,6 @@ export class VScene {
             default:
                 break;
         }
+        /* eslint-enbale @typescript-eslint/no-unsafe-member-access */
     }
 }
