@@ -52,6 +52,11 @@ export class VScene {
     _avatarAnimationGroups : AnimationGroup[] = [];
 
     constructor(pEngine: Engine, pSceneId = 0) {
+        if (process.env.NODE_ENV === "development") {
+            import("@babylonjs/core/Debug/debugLayer");
+            import("@babylonjs/inspector");
+        }
+
         this._entities = new Map<string, Mesh>();
         this._scene = new Scene(pEngine);
 
