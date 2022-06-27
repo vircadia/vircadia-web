@@ -8,11 +8,10 @@
 // This is disabled because TS complains about BABYLON's use of cap'ed function names
 /* eslint-disable new-cap */
 
-import * as BABYLON from "@babylonjs/core/Legacy/legacy";
 import { AnimationGroup, Engine, MeshBuilder, Scene, SceneLoader,
-    ActionManager, ActionEvent, ExecuteCodeAction } from "@babylonjs/core";
+    ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, StandardMaterial,
+    Mesh } from "@babylonjs/core";
 import { Color3, Color4, Vector3 } from "@babylonjs/core/Maths/math";
-import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import "@babylonjs/loaders/glTF";
 import "@babylonjs/core/Meshes/meshBuilder";
 // General Modules
@@ -98,7 +97,7 @@ export class VScene {
         return meshes.meshes[0] as Mesh;
     }
 
-    async loadAvatarAnimations(modelUrl: string): Promise<BABYLON.Mesh> {
+    async loadAvatarAnimations(modelUrl: string): Promise<Mesh> {
         const parsedUrl = new URL(modelUrl);
         const urlWithoutFilename = modelUrl.substring(0, modelUrl.lastIndexOf("/")) + "/";
         const filename = parsedUrl.pathname.split("/").pop();
@@ -222,7 +221,7 @@ export class VScene {
 
             // Apply a color if requested.
             if (pProperties.color) {
-                const colorMaterial = new BABYLON.StandardMaterial(pProperties.name + "-material", this._scene);
+                const colorMaterial = new StandardMaterial(pProperties.name + "-material", this._scene);
                 colorMaterial.emissiveColor = new Color3(pProperties.color.r, pProperties.color.g, pProperties.color.b);
                 entity.material = colorMaterial;
             }
@@ -276,12 +275,12 @@ export class VScene {
         aScene.clearColor = new Color4(0.8, 0.8, 0.8, 0.0);
 
         const options = {
-            groundColor: BABYLON.Color3.White()
+            groundColor: Color3.White()
         };
 
         aScene.createDefaultEnvironment(options);
 
-        const box = BABYLON.MeshBuilder.CreateBox("box1", {}, aScene);
+        const box = MeshBuilder.CreateBox("box1", {}, aScene);
         box.position = new Vector3(5, 0.5, 5);
 
         const animMesh = await this.loadAvatarAnimations(
@@ -290,8 +289,8 @@ export class VScene {
         const avatarPos = new Vector3(0, 0, 0);
 
         // Creates, angles, distances and targets the camera
-        const camera = new BABYLON.ArcRotateCamera(
-            "Camera", -Math.PI / 2, Math.PI / 2, 6, new BABYLON.Vector3(avatarPos.x, avatarPos.y + 1, avatarPos.z), aScene);
+        const camera = new ArcRotateCamera(
+            "Camera", -Math.PI / 2, Math.PI / 2, 6, new Vector3(avatarPos.x, avatarPos.y + 1, avatarPos.z), aScene);
 
         // This attaches the camera to the canvas
         camera.attachControl(aScene.getEngine().getRenderingCanvas(), true);
