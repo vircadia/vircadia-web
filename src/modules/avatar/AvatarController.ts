@@ -22,8 +22,6 @@ import {
     TransformNode
 } from "@babylonjs/core";
 
-import Log from "@Modules/debugging/log";
-
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
@@ -108,13 +106,13 @@ export class AvatarController {
         this._scene.actionManager.registerAction(
             new ExecuteCodeAction(ActionManager.OnKeyDownTrigger,
                 (evt) => {
-                    this._inputMap[evt.sourceEvent.key] = evt.sourceEvent.type === "keydown";
+                    this._inputMap[evt.sourceEvent.code] = evt.sourceEvent.type === "keydown";
                 }));
 
         this._scene.actionManager.registerAction(
             new ExecuteCodeAction(ActionManager.OnKeyUpTrigger,
                 (evt) => {
-                    this._inputMap[evt.sourceEvent.key] = evt.sourceEvent.type === "keydown";
+                    this._inputMap[evt.sourceEvent.code] = evt.sourceEvent.type === "keydown";
                 }));
     }
 
@@ -124,20 +122,21 @@ export class AvatarController {
         this._movement.z = 0;
         this._rotation = 0;
 
-        if (this._inputMap["w"]) {
+        if (this._inputMap["KeyW"]) {
             this._movement.z = -this._walkSpeed;
-        } else if (this._inputMap["s"]) {
+        } else if (this._inputMap["KeyS"]) {
             this._movement.z = this._walkSpeed;
         }
 
-        if (this._inputMap["a"]) {
+        if (this._inputMap["KeyA"]) {
             this._rotation = -this._rotationSpeed;
-        } else if (this._inputMap["d"]) {
+        } else if (this._inputMap["KeyD"]) {
             this._rotation = this._rotationSpeed;
         }
 
-        if (this._inputMap[" "]) {
-            Log.debug(Log.types.AVATAR, "space");
+        // eslint-disable-next-line no-empty
+        if (this._inputMap["Space"]) {
+
         }
 
         const dt = this._scene.getEngine().getDeltaTime() / 1000;
@@ -154,13 +153,13 @@ export class AvatarController {
     private _animateAvatar() {
         this._currentAnim = this._idleAnim;
 
-        if (this._inputMap["w"]) {
+        if (this._inputMap["KeyW"]) {
             this._currentAnim = this._walkFwdAnim;
-        } else if (this._inputMap["s"]) {
+        } else if (this._inputMap["KeyS"]) {
             this._currentAnim = this._walkbwdAnim;
-        } else if (this._inputMap["a"]) {
+        } else if (this._inputMap["KeyA"]) {
             this._currentAnim = this._turnLeftAnim;
-        } else if (this._inputMap["d"]) {
+        } else if (this._inputMap["KeyD"]) {
             this._currentAnim = this._turnRightAnim;
         }
 
