@@ -35,9 +35,13 @@
         top: 0px;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.4);
         backdrop-filter: blur(3px);
         z-index: 0;
+    }
+    .exploreLabel{
+        width: fit-content;
+        padding: 1px 6px;
+        border-radius: 4px;
     }
 </style>
 <template>
@@ -50,7 +54,7 @@
         :defaultLeft="250"
         :defaultTop="10"
         :hoverShowBar="false"
-        :style="{ 'background': 'rgba(0, 0, 0, 0.3)', 'box-shadow': 'none', border: 'none' }"
+        :style="{ border: 'none' }"
     >
         <q-card
             class="column no-wrap items-stretch full-height"
@@ -98,8 +102,14 @@
                         </q-item-section>
 
                         <q-item-section top>
-                            <q-item-label lines="1" class="textShadow">{{ place.name }}</q-item-label>
-                            <q-item-label caption lines="1" class="textShadow">{{ place.description }}</q-item-label>
+                            <q-item-label lines="1"
+                            :class="$q.dark.isActive ? 'bg-dark' : 'bg-white'" class="exploreLabel">
+                                {{ place.name }}
+                            </q-item-label>
+                            <q-item-label caption lines="1"
+                            :class="$q.dark.isActive ? 'bg-dark' : 'bg-white'" class="exploreLabel">
+                                {{ place.description }}
+                            </q-item-label>
                         </q-item-section>
 
                         <q-item-section side top>
