@@ -35,7 +35,6 @@
         top: 0px;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.4);
         backdrop-filter: blur(3px);
         z-index: 0;
     }
@@ -50,7 +49,7 @@
         :defaultLeft="250"
         :defaultTop="10"
         :hoverShowBar="true"
-        :style="{ 'background': 'rgba(0, 0, 0, 0.3)', 'box-shadow': 'none', border: 'none' }"
+        :style="{ border: 'none' }"
     >
         <q-card
             class="column no-wrap items-stretch full-height"
