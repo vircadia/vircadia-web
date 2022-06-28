@@ -11,6 +11,7 @@
 <style lang="scss" scoped>
     .outer {
         position: absolute;
+        z-index: 0;
     }
 
     div.title {
