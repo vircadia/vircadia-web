@@ -266,7 +266,7 @@ export default defineComponent({
                 return;
             }
             this.dragAction = action;
-            this.dragStart = { x: event.screenX, y: event.screenY };
+            this.dragStart = { x: event.clientX, y: event.clientY };
             this.mouseCaptured = true;
         },
 
@@ -310,7 +310,7 @@ export default defineComponent({
 
         onDragMove(event: MouseEvent) {
             if (this.onDragMoveReady) {
-                this.applyDrag(event.screenX, event.screenY);
+                this.applyDrag(event.clientX, event.clientY);
                 this.onDragMoveReady = false;
                 window.setTimeout(() => {
                     this.onDragMoveReady = true;
@@ -322,7 +322,7 @@ export default defineComponent({
         },
 
         onDragDone(event: MouseEvent) {
-            this.applyDrag(event.screenX, event.screenY);
+            this.applyDrag(event.clientX, event.clientY);
             this.mouseCaptured = false;
             this.dragAction = "UNKNOWN";
             this.dragStart = { x: 0, y: 0 };
