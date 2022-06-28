@@ -15,9 +15,10 @@
         "test": "echo \"No test specified\" && exit 0"
     },
     "dependencies": {
-        "@babylonjs/core": "^4.2.1",
-        "@babylonjs/loaders": "^4.2.1",
-        "@babylonjs/materials": "^4.2.1",
+        "@babylonjs/core": "^5.10.0",
+        "@babylonjs/inspector": "^5.10.0",
+        "@babylonjs/loaders": "^5.10.0",
+        "@babylonjs/materials": "^5.10.0",
         "@quasar/extras": "^1.12.1",
         "@vircadia/web-sdk": "^2022.1.1",
         "axios": "^0.21.4",
