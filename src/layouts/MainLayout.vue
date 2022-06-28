@@ -337,7 +337,7 @@ export default defineComponent({
             if (this.$store.state.account.images && this.$store.state.account.images.thumbnail) {
                 return this.$store.state.account.images.thumbnail;
             }
-            return "assets/defaultProfile.svg";
+            return "account_circle";
         },
         getShowDisconnect: function() : boolean {
             if (this.$store.state.domain.url && this.$store.state.domain.url.length > 0
