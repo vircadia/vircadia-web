@@ -11,7 +11,6 @@
 <template>
     <q-form
         @submit="onSubmit"
-        @reset="onReset"
         class="q-gutter-md"
     >
         <q-input
@@ -69,7 +68,6 @@
         </q-input>
 
         <div align="right">
-            <q-btn label="Reset" type="reset" color="primary" flat class="q-mr-sm" />
             <q-btn label="Register" type="submit" color="primary"/>
         </div>
     </q-form>
@@ -132,13 +130,6 @@ export default defineComponent({
                     message: "Failed to register: " + (result as string)
                 });
             }
-        },
-
-        onReset() {
-            this.username = "";
-            this.email = "";
-            this.password = "";
-            this.confirmPassword = "";
         }
     }
 });
