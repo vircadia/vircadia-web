@@ -8,10 +8,10 @@
 // This is disabled because TS complains about BABYLON's use of cap'ed function names
 /* eslint-disable new-cap */
 
-import * as BABYLON from "@babylonjs/core/Legacy/legacy";
-import { Engine, MeshBuilder, Scene, SceneLoader } from "@babylonjs/core";
+import { AnimationGroup, Engine, MeshBuilder, Scene, SceneLoader,
+    ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, StandardMaterial,
+    Mesh } from "@babylonjs/core";
 import { Color3, Color4, Vector3 } from "@babylonjs/core/Maths/math";
-import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import "@babylonjs/loaders/glTF";
 import "@babylonjs/core/Meshes/meshBuilder";
 // General Modules
@@ -19,6 +19,8 @@ import Log from "@Modules/debugging/log";
 // System Modules
 import { v4 as uuidv4 } from "uuid";
 import { VVector3 } from ".";
+import { AvatarController } from "@Modules/avatar";
+
 
 /**
  * this.addEntity() takes parameters describing the entity to create and add to
@@ -45,10 +47,24 @@ export class VScene {
     _sceneId: number;
     _scene: Scene;
     _entities: Map<string, Mesh>;
+    _avatarController : Nullable<AvatarController>;
+    _avatarAnimationGroups : AnimationGroup[] = [];
 
     constructor(pEngine: Engine, pSceneId = 0) {
+        if (process.env.NODE_ENV === "development") {
+            import("@babylonjs/core/Debug/debugLayer");
+            import("@babylonjs/inspector");
+        }
+
         this._entities = new Map<string, Mesh>();
         this._scene = new Scene(pEngine);
+
+        this._scene.actionManager = new ActionManager(this._scene);
+        this._scene.actionManager.registerAction(
+            new ExecuteCodeAction(ActionManager.OnKeyUpTrigger,
+                this._onKeyUp.bind(this))
+        );
+
         this._sceneId = pSceneId;
     }
 
@@ -79,6 +95,50 @@ export class VScene {
         // eslint-disable-next-line new-cap
         const meshes = await SceneLoader.ImportMeshAsync(name, urlWithoutFilename, filename, this._scene);
         return meshes.meshes[0] as Mesh;
+    }
+
+    async loadAvatarAnimations(modelUrl: string): Promise<Mesh> {
+        const parsedUrl = new URL(modelUrl);
+        const urlWithoutFilename = modelUrl.substring(0, modelUrl.lastIndexOf("/")) + "/";
+        const filename = parsedUrl.pathname.split("/").pop();
+
+        const result = await SceneLoader.ImportMeshAsync("",
+            urlWithoutFilename, filename, this._scene);
+
+        const mesh = result.meshes[0].getChildren()[0] as Mesh;
+
+        result.animationGroups.forEach((sourceAnimGroup) => {
+
+            const animGroup = new AnimationGroup(sourceAnimGroup.name);
+            // scale of Armature
+            const scale = mesh.scaling;
+
+            // trim unnecessary animation data
+            sourceAnimGroup.targetedAnimations.forEach((targetAnim) => {
+                // scale postion animation of Hips node
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                if (targetAnim.target.name === "Hips" && targetAnim.animation.targetProperty === "position") {
+                    const anim = targetAnim.animation.clone();
+                    const keys = anim.getKeys();
+                    keys.forEach((keyFrame) => {
+                        const pos = keyFrame.value as Vector3;
+                        keyFrame.value = pos.multiply(scale);
+                    });
+
+                    animGroup.addTargetedAnimation(anim, targetAnim.target);
+                // keep rotationQuaternion animation of all nodes
+                } else if (targetAnim.animation.targetProperty === "rotationQuaternion") {
+                    animGroup.addTargetedAnimation(targetAnim.animation, targetAnim.target);
+                }
+            });
+            this._avatarAnimationGroups.push(animGroup);
+
+            sourceAnimGroup.dispose();
+        });
+
+        mesh.parent?.dispose();
+
+        return mesh;
     }
 
     /**
@@ -161,7 +221,7 @@ export class VScene {
 
             // Apply a color if requested.
             if (pProperties.color) {
-                const colorMaterial = new BABYLON.StandardMaterial(pProperties.name + "-material", this._scene);
+                const colorMaterial = new StandardMaterial(pProperties.name + "-material", this._scene);
                 colorMaterial.emissiveColor = new Color3(pProperties.color.r, pProperties.color.g, pProperties.color.b);
                 entity.material = colorMaterial;
             }
@@ -210,93 +270,69 @@ export class VScene {
      */
     async buildTestScene(): Promise<void> {
         const aScene = this._scene;
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+
+        /* eslint-disable @typescript-eslint/no-magic-numbers */
         aScene.clearColor = new Color4(0.8, 0.8, 0.8, 0.0);
-        aScene.createDefaultCameraOrLight(true, true, true);
-        aScene.createDefaultEnvironment();
 
-        await this.addEntity({
-            name: "box",
-            type: "Shape",
-            shape: "box",
-            position: { x: -5, y: 0, z: 0 },
-            rotation: { x: -0.2, y: -0.4, z: 0 },
-            dimensions: { x: 3, y: 3, z: 3 },
-            color: { r: 1, g: 0, b: 0 }
-        });
+        const options = {
+            groundColor: Color3.White()
+        };
 
-        await this.addEntity({
-            name: "sphere",
-            type: "Shape",
-            shape: "sphere",
-            position: { x: -3, y: 0, z: 0 },
-            rotation: { x: 0, y: -0.5, z: 0 },
-            dimensions: { x: 3, y: 3, z: 3 },
-            color: { r: 0, g: 0.58, b: 0.86 }
-        });
+        aScene.createDefaultEnvironment(options);
 
-        await this.addEntity({
-            name: "cone",
-            type: "Shape",
-            shape: "cone",
-            position: { x: -1, y: 0, z: 0 },
-            rotation: { x: 0, y: -0.5, z: 0 },
-            dimensions: { x: 1, y: 1, z: 1 },
-            color: { r: 1, g: 0.58, b: 0.86 }
-        });
+        const box = MeshBuilder.CreateBox("box1", {}, aScene);
+        box.position = new Vector3(5, 0.5, 5);
 
-        await this.addEntity({
-            name: "cylinder",
-            type: "Shape",
-            shape: "cylinder",
-            position: { x: 1, y: 0, z: 0 },
-            rotation: { x: 0, y: -0.5, z: 0 },
-            dimensions: { x: 1, y: 1, z: 1 },
-            color: { r: 1, g: 0.58, b: 0.86 }
-        });
+        const animMesh = await this.loadAvatarAnimations(
+            "http://localhost:8080/assets/avatars/animations/AnimationsBasic.glb");
 
-        await this.addEntity({
-            name: "triangle",
-            type: "Shape",
-            shape: "triangle",
-            position: { x: 3, y: 0, z: 0 },
-            rotation: { x: 0, y: -0.5, z: 0 },
-            dimensions: { x: 1, y: 1, z: 1 },
-            color: { r: 1, g: 0.58, b: 0.86 }
-        });
+        const avatarPos = new Vector3(0, 0, 0);
 
-        const entityToDeleteID = uuidv4();
+        // Creates, angles, distances and targets the camera
+        const camera = new ArcRotateCamera(
+            "Camera", -Math.PI / 2, Math.PI / 2, 6, new Vector3(avatarPos.x, avatarPos.y + 1, avatarPos.z), aScene);
 
-        await this.addEntity({
-            name: "entityToDeleteByID",
-            id: entityToDeleteID,
-            type: "Shape",
-            shape: "triangle",
-            position: { x: 3, y: -2, z: 0 },
-            rotation: { x: 0, y: -0.5, z: 0 },
-            dimensions: { x: 1, y: 1, z: 1 },
-            color: { r: 1, g: 0.58, b: 0.86 }
-        });
-        this.deleteEntityById(entityToDeleteID);
+        // This attaches the camera to the canvas
+        camera.attachControl(aScene.getEngine().getRenderingCanvas(), true);
 
-        await this.addEntity({
-            name: "entityToDeleteByName",
-            type: "Shape",
-            shape: "triangle",
-            position: { x: 3, y: 2, z: 0 },
-            rotation: { x: 0, y: -0.5, z: 0 },
-            dimensions: { x: 1, y: 1, z: 1 },
-            color: { r: 1, g: 0.58, b: 0.86 }
-        });
-        this.deleteEntityByName("entityToDeleteByName");
+        // load avatar mesh
+        const result = await SceneLoader.ImportMeshAsync("",
+            "http://localhost:8080/assets/avatars/meshes/", "nolan.glb", aScene);
 
-        await this.addEntity({
-            name: "fox",
-            type: "Model",
-            modelUrl: "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Fox/glTF/Fox.gltf",
-            position: { x: 5, y: 0, z: 0 },
-            rotation: { x: 0, y: -0.5, z: 0 },
-            dimensions: { x: 0.05, y: 0.05, z: 0.05 }
-        });
+        const avatar = result.meshes[0] as Mesh;
+
+        avatar.scaling = new Vector3(1, 1, 1);
+        avatar.position = avatarPos;
+
+        const avatarMesh = avatar.getChildren()[0] as Mesh;
+        avatarMesh.rotationQuaternion = animMesh.rotationQuaternion;
+
+        this._avatarController = new AvatarController(avatar, camera, aScene, this._avatarAnimationGroups);
+        this._avatarController.start();
+
+        camera.parent = avatar;
+        /* eslint-enable @typescript-eslint/no-magic-numbers */
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    private _onKeyUp(evt: ActionEvent) :void {
+        /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+        switch (evt.sourceEvent.code) {
+            case "Slash":
+                if (process.env.NODE_ENV === "development"
+                && evt.sourceEvent.shiftKey) {
+                    if (this._scene.debugLayer.isVisible()) {
+                        this._scene.debugLayer.hide();
+                    } else {
+                        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                        this._scene.debugLayer.show();
+                    }
+                }
+                break;
+
+            default:
+                break;
+        }
+        /* eslint-enbale @typescript-eslint/no-unsafe-member-access */
     }
 }
