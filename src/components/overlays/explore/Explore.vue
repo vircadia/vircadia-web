@@ -49,7 +49,7 @@
         :defaultWidth="400"
         :defaultLeft="250"
         :defaultTop="10"
-        :hoverShowBar="true"
+        :hoverShowBar="false"
         :style="{ 'background': 'rgba(0, 0, 0, 0.3)', 'box-shadow': 'none', border: 'none' }"
     >
         <q-card

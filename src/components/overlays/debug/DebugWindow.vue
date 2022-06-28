@@ -22,7 +22,7 @@
         :defaultWidth="600"
         :defaultLeft="40"
         :defaultTop="400"
-        :hoverShowBar="true"
+        :hoverShowBar="false"
         :style="{ 'background': 'rgba(0, 0, 0, 0.3)', 'box-shadow': 'none', border: 'none' }"
     >
         <q-tabs

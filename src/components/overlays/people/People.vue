@@ -22,7 +22,7 @@
         :defaultHeight="300"
         :defaultWidth="300"
         :defaultLeft="300"
-        :hoverShowBar="true"
+        :hoverShowBar="false"
         :style="{ 'background': 'rgba(0, 0, 0, 0.3)', 'box-shadow': 'none', border: 'none' }"
     >
         <q-card
