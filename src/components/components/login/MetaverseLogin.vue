@@ -11,7 +11,6 @@
 <template>
     <q-form
         @submit="onSubmit"
-        @reset="onReset"
         class="q-gutter-md"
     >
         <q-input
@@ -42,7 +41,6 @@
         </q-input>
 
         <div align="right">
-            <q-btn label="Reset" type="reset" color="primary" flat class="q-mr-sm" />
             <q-btn label="Login" type="submit" color="primary"/>
         </div>
     </q-form>
@@ -95,11 +93,6 @@ export default defineComponent({
                     message: "Login attempted failed: " + (result as string)
                 });
             }
-        },
-
-        onReset() {
-            this.username = "";
-            this.password = "";
         }
     }
 });
