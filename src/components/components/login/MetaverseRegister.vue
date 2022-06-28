@@ -16,6 +16,7 @@
         <q-input
             v-model="username"
             filled
+            dense
             label="Username"
             hint="Enter your username."
             lazy-rules
@@ -25,6 +26,7 @@
         <q-input
             v-model="email"
             filled
+            dense
             label="Email"
             hint="Enter your email."
             lazy-rules
@@ -34,6 +36,7 @@
         <q-input
             v-model="password"
             filled
+            dense
             label="Password"
             :type="showPassword ? 'text' : 'password'"
             hint="Enter your password."
@@ -52,6 +55,7 @@
         <q-input
             v-model="confirmPassword"
             filled
+            dense
             label="Confirm Password"
             :type="showConfirmPassword ? 'text' : 'password'"
             hint="Enter your password again."
