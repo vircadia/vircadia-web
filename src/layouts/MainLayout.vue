@@ -16,7 +16,7 @@
 -->
 <template>
     <q-layout class="full-height" id="mainLayout" view="lHh Lpr lFf">
-        <q-header id="header" elevated>
+        <q-header id="header" elevated style="background-color: unset; color: unset;">
             <div class="row no-wrap">
 <!--
                 <q-toolbar
@@ -34,7 +34,7 @@
                         <div>{{ $store.state.globalConsts.APP_VERSION_TAG }}</div>
                     </div>
                 </q-toolbar> -->
-                <q-toolbar class="bg-dark text-white">
+                <q-toolbar>
                     <q-btn
                         flat
                         round
@@ -96,7 +96,7 @@
                         @click="$store.state.account.isLoggedIn ? onClickOpenOverlay('Account') : openDialog('Login', true)">
                         <q-item-section side>
                             <q-avatar size="48px">
-                                <img :src="getProfilePicture">
+                                <q-icon :name="getProfilePicture" size="xl"/>
                             </q-avatar>
                         </q-item-section>
                         <q-item-section>
@@ -140,7 +140,7 @@
                                         v-else
                                         clickable
                                         v-ripple
-                                        @click="menuItem.action ? menuItem.action
+                                        @click="menuItem.action ? menuItem.action()
                                             : onClickOpenOverlay(menuItem.link || menuItem.label)"
                                     >
                                         <q-item-section avatar>
@@ -220,7 +220,7 @@
         <q-dialog v-model="getDialogState">
             <q-card
                 class="column no-wrap items-stretch"
-                style="background: rgba(0, 0, 0, 0.8); width: 310px;"
+                style="width: 310px;"
             >
                 <component @closeDialog='closeDialog' :is="$store.state.dialog.which"></component>
             </q-card>
@@ -338,7 +338,7 @@ export default defineComponent({
             if (this.$store.state.account.images && this.$store.state.account.images.thumbnail) {
                 return this.$store.state.account.images.thumbnail;
             }
-            return "assets/defaultProfile.svg";
+            return "account_circle";
         },
         getShowDisconnect: function() : boolean {
             if (this.$store.state.domain.url && this.$store.state.domain.url.length > 0
