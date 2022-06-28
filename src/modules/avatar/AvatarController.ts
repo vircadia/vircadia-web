@@ -1,3 +1,4 @@
+/* eslint-disable new-cap */
 //
 //  AvatarController.ts
 //
@@ -19,17 +20,19 @@ import {
     AnimationGroup,
     Nullable,
     Node,
-    TransformNode
+    TransformNode,
+    Scalar
 } from "@babylonjs/core";
 
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/dot-notation */
 export class AvatarController {
     private _avatar: Mesh;
     private _camera: ArcRotateCamera;
     private _scene: Scene;
-    private _walkSpeed = 2;
+    private _walkSpeed = 5;
     private _movement : Vector3;
     private _rotationSpeed = 40 * Math.PI / 180;
     private _rotation = 0;
@@ -38,10 +41,14 @@ export class AvatarController {
     private _idleAnim : Nullable<AnimationGroup> = null;
     private _walkFwdAnim : Nullable<AnimationGroup> = null;
     private _walkbwdAnim : Nullable<AnimationGroup> = null;
+    private _walkLeftAnim : Nullable<AnimationGroup> = null;
+    private _walkRightAnim : Nullable<AnimationGroup> = null;
     private _turnLeftAnim : Nullable<AnimationGroup> = null;
     private _turnRightAnim : Nullable<AnimationGroup> = null;
     private _currentAnim: Nullable<AnimationGroup> = null;
     private _prevAnim: Nullable<AnimationGroup> = null;
+
+    private _shiftKey = false;
 
     constructor(avatar: Mesh, camera: ArcRotateCamera, scene: Scene, animGroups: AnimationGroup[]) {
         this._avatar = avatar;
@@ -66,6 +73,12 @@ export class AvatarController {
                     break;
                 case "walk_bwd":
                     this._walkbwdAnim = AvatarController._cloneAnimGroup(animGroup, nodes);
+                    break;
+                case "walk_left":
+                    this._walkLeftAnim = AvatarController._cloneAnimGroup(animGroup, nodes);
+                    break;
+                case "walk_right":
+                    this._walkRightAnim = AvatarController._cloneAnimGroup(animGroup, nodes);
                     break;
                 case "turn_left":
                     this._turnLeftAnim = AvatarController._cloneAnimGroup(animGroup, nodes);
@@ -107,31 +120,42 @@ export class AvatarController {
             new ExecuteCodeAction(ActionManager.OnKeyDownTrigger,
                 (evt) => {
                     this._inputMap[evt.sourceEvent.code] = evt.sourceEvent.type === "keydown";
+                    this._shiftKey = evt.sourceEvent.shiftKey === true;
                 }));
 
         this._scene.actionManager.registerAction(
             new ExecuteCodeAction(ActionManager.OnKeyUpTrigger,
                 (evt) => {
                     this._inputMap[evt.sourceEvent.code] = evt.sourceEvent.type === "keydown";
+                    this._shiftKey = evt.sourceEvent.shiftKey === true;
                 }));
     }
 
 
     private _update():void {
-        /* eslint-disable @typescript-eslint/dot-notation */
-        this._movement.z = 0;
-        this._rotation = 0;
-
         if (this._inputMap["KeyW"]) {
-            this._movement.z = -this._walkSpeed;
+            this._movement.z = Scalar.Lerp(this._movement.z, -this._walkSpeed, 0.1);
         } else if (this._inputMap["KeyS"]) {
-            this._movement.z = this._walkSpeed;
+            this._movement.z = Scalar.Lerp(this._movement.z, this._walkSpeed, 0.1);
+        } else {
+            this._movement.z = 0;
         }
 
         if (this._inputMap["KeyA"]) {
-            this._rotation = -this._rotationSpeed;
+            if (this._shiftKey) {
+                this._movement.x = Scalar.Lerp(this._movement.x, this._walkSpeed, 0.1);
+            } else {
+                this._rotation = Scalar.Lerp(this._rotation, -this._rotationSpeed, 0.1);
+            }
         } else if (this._inputMap["KeyD"]) {
-            this._rotation = this._rotationSpeed;
+            if (this._shiftKey) {
+                this._movement.x = Scalar.Lerp(this._movement.x, -this._walkSpeed, 0.1);
+            } else {
+                this._rotation = Scalar.Lerp(this._rotation, this._rotationSpeed, 0.1);
+            }
+        } else {
+            this._movement.x = 0;
+            this._rotation = 0;
         }
 
         // eslint-disable-next-line no-empty
@@ -143,7 +167,6 @@ export class AvatarController {
         const movement = this._movement.scale(dt);
         const rot = this._rotation * dt;
 
-        // eslint-disable-next-line new-cap
         this._avatar.rotate(Vector3.Up(), rot);
         this._avatar.movePOV(movement.x, movement.y, movement.z);
 
@@ -158,9 +181,17 @@ export class AvatarController {
         } else if (this._inputMap["KeyS"]) {
             this._currentAnim = this._walkbwdAnim;
         } else if (this._inputMap["KeyA"]) {
-            this._currentAnim = this._turnLeftAnim;
+            if (this._shiftKey) {
+                this._currentAnim = this._walkRightAnim;
+            } else {
+                this._currentAnim = this._turnLeftAnim;
+            }
         } else if (this._inputMap["KeyD"]) {
-            this._currentAnim = this._turnRightAnim;
+            if (this._shiftKey) {
+                this._currentAnim = this._walkLeftAnim;
+            } else {
+                this._currentAnim = this._turnRightAnim;
+            }
         }
 
         if (this._currentAnim !== null && this._currentAnim !== this._prevAnim) {
