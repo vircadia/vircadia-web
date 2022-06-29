@@ -93,11 +93,29 @@
 
                 <div class="col full-height" @mousedown="canMove && beginAction($event, 'move')" />
 
-                <q-btn dense flat :icon="overlayStatus === 'minimized' ? 'flip_to_front' : 'minimize'"
+                <q-btn dense flat
+                    :icon="overlayStatus === 'minimized' ? 'expand_more' : 'minimize'"
                     @click="$emit('overlay-action', 'minimize')" />
-                <q-btn dense flat :icon="overlayStatus === 'maximized' ? 'flip_to_front' : 'crop_square'"
-                    @click="$emit('overlay-action', 'maximize')" />
-                <q-btn dense flat icon="close" @click="$emit('overlay-action', 'close')" />
+                <q-btn dense flat
+                    :icon="overlayStatus === 'maximized' ? undefined : 'crop_square'"
+                    @click="$emit('overlay-action', 'maximize')">
+                    <!--This is a workaround for Quasar's lack of support for custom icons.-->
+                    <!--And Material doesn't have a restore-down icon.-->
+                    <template v-if="overlayStatus === 'maximized'">
+                        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+                        viewBox="0 0 24 24"
+                        style="enable-background:new 0 0 24 24;width: 1.715em;color: inherit;" xml:space="preserve">
+                            <path fill="none" d="M-2,2h24v24H-2V2z"/>
+                            <path fill="currentColor" d="M16,6H4C2.9,6,2,6.9,2,8v12c0,1.1,0.9,2,2,
+                            2h12c1.1,0,2-0.9,2-2V8C18,6.9,17.1,6,16,6z M16,20H4V8h12V20z"/>
+                            <path fill="currentColor" d="M20,18c1.1,0,2-0.9,
+                            2-2V4c0-1.1-0.9-2-2-2H8C6.9,2,6,2.9,6,4v2l2,0V4h12v12h-2l0,2H20z"/>
+                        </svg>
+                    </template>
+                </q-btn>
+                <q-btn dense flat
+                    icon="close"
+                    @click="$emit('overlay-action', 'close')" />
             </q-bar>
         </q-slide-transition>
 
