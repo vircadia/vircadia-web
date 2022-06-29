@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /*
 //  Copyright 2021 Vircadia contributors.
 //
@@ -10,7 +11,8 @@
 
 import { AnimationGroup, Engine, MeshBuilder, Scene, SceneLoader,
     ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, StandardMaterial,
-    Mesh } from "@babylonjs/core";
+    Mesh, HemisphericLight, DefaultRenderingPipeline } from "@babylonjs/core";
+
 import { Color3, Color4, Vector3 } from "@babylonjs/core/Maths/math";
 import "@babylonjs/loaders/glTF";
 import "@babylonjs/core/Meshes/meshBuilder";
@@ -264,36 +266,64 @@ export class VScene {
         }
     }
 
+    async loadScene(): Promise<void> {
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        this._scene.clearColor = new Color4(0.5, 0.5, 0.5, 1.0);
+        this._scene.ambientColor = new Color3(1, 1, 1);
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const light = new HemisphericLight("light", new Vector3(0, 1, 0), this._scene);
+
+        await SceneLoader.ImportMeshAsync("",
+            "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_HDRI.glb", this._scene);
+
+        await SceneLoader.ImportMeshAsync("",
+            "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_Inside_Desk.glb", this._scene);
+
+        await SceneLoader.ImportMeshAsync("",
+            "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_Inside_Floor.glb", this._scene);
+
+        await SceneLoader.ImportMeshAsync("",
+            "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_Inside_Furniture.glb", this._scene);
+
+        await SceneLoader.ImportMeshAsync("",
+            "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_Inside_Light.glb", this._scene);
+
+        await SceneLoader.ImportMeshAsync("",
+            "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_Inside_Tableware.glb", this._scene);
+
+        await SceneLoader.ImportMeshAsync("",
+            "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_Planet_A.glb", this._scene);
+
+        await SceneLoader.ImportMeshAsync("",
+            "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_Planet_B.glb", this._scene);
+
+        await SceneLoader.ImportMeshAsync("",
+            "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_Station_Body_01.glb", this._scene);
+
+        await SceneLoader.ImportMeshAsync("",
+            "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_Station_Body_02.glb", this._scene);
+
+        await SceneLoader.ImportMeshAsync("",
+            "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_Station_Station_Part.glb", this._scene);
+
+        await SceneLoader.ImportMeshAsync("",
+            "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_Stone.glb", this._scene);
+
+    }
+
     /**
      * Build a simple test collection of entities in this scene. Also includes some testing operations.
      * @returns {Promise<void>} when completed
      */
     async buildTestScene(): Promise<void> {
+        /* eslint-disable @typescript-eslint/no-magic-numbers */
         const aScene = this._scene;
 
-        /* eslint-disable @typescript-eslint/no-magic-numbers */
-        aScene.clearColor = new Color4(0.8, 0.8, 0.8, 0.0);
-
-        const options = {
-            groundColor: Color3.White()
-        };
-
-        aScene.createDefaultEnvironment(options);
-
-        const box = MeshBuilder.CreateBox("box1", {}, aScene);
-        box.position = new Vector3(5, 0.5, 5);
+        await this.loadScene();
 
         const animMesh = await this.loadAvatarAnimations(
             "http://localhost:8080/assets/avatars/animations/AnimationsBasic.glb");
-
-        const avatarPos = new Vector3(0, 0, 0);
-
-        // Creates, angles, distances and targets the camera
-        const camera = new ArcRotateCamera(
-            "Camera", -Math.PI / 2, Math.PI / 2, 6, new Vector3(avatarPos.x, avatarPos.y + 1, avatarPos.z), aScene);
-
-        // This attaches the camera to the canvas
-        camera.attachControl(aScene.getEngine().getRenderingCanvas(), true);
 
         // load avatar mesh
         const result = await SceneLoader.ImportMeshAsync("",
@@ -302,15 +332,33 @@ export class VScene {
         const avatar = result.meshes[0] as Mesh;
 
         avatar.scaling = new Vector3(1, 1, 1);
-        avatar.position = avatarPos;
+        avatar.position = new Vector3(0, 49.6, 0);
 
         const avatarMesh = avatar.getChildren()[0] as Mesh;
         avatarMesh.rotationQuaternion = animMesh.rotationQuaternion;
 
+        // Creates, angles, distances and targets the camera
+        const camera = new ArcRotateCamera(
+            "Camera", -Math.PI / 2, Math.PI / 2, 6,
+            new Vector3(0, 1, 0), aScene);
+
+        // This attaches the camera to the canvas
+        camera.attachControl(aScene.getEngine().getRenderingCanvas(), true);
+        camera.parent = avatar;
+        camera.minZ = 1;
+        camera.maxZ = 250000;
+
         this._avatarController = new AvatarController(avatar, camera, aScene, this._avatarAnimationGroups);
         this._avatarController.start();
 
-        camera.parent = avatar;
+        // Create default pipeline
+        const defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, [camera]);
+        defaultPipeline.glowLayerEnabled = true;
+        if (defaultPipeline.glowLayer) {
+            defaultPipeline.glowLayer.blurKernelSize = 16;
+            defaultPipeline.glowLayer.intensity = 0.5;
+        }
+
         /* eslint-enable @typescript-eslint/no-magic-numbers */
     }
 
