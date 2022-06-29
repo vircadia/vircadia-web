@@ -293,6 +293,9 @@ export class VScene {
             "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_Inside_Tableware.glb", this._scene);
 
         await SceneLoader.ImportMeshAsync("",
+            "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_Light.glb", this._scene);
+
+        await SceneLoader.ImportMeshAsync("",
             "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_Planet_A.glb", this._scene);
 
         await SceneLoader.ImportMeshAsync("",
@@ -309,6 +312,7 @@ export class VScene {
 
         await SceneLoader.ImportMeshAsync("",
             "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_Stone.glb", this._scene);
+
     }
 
     /**
