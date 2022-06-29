@@ -53,7 +53,7 @@
         :defaultWidth="400"
         :defaultLeft="250"
         :defaultTop="10"
-        :hoverShowBar="true"
+        :hoverShowBar="false"
         :style="{ border: 'none' }"
     >
         <q-card

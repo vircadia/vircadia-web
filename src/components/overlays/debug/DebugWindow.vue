@@ -22,7 +22,7 @@
         :defaultWidth="600"
         :defaultLeft="40"
         :defaultTop="400"
-        :hoverShowBar="true"
+        :hoverShowBar="false"
         :style="{
             'box-shadow': '0 1px 5px rgb(0 0 0 / 20%), 0 2px 2px rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 12%)',
             border: 'none'
