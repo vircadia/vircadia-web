@@ -73,11 +73,13 @@
         :style="{
             // Dimensions
             // TODO: Should these two be a string so that we can define vh or whatever at will?
-            height: isMaximized ? '100%' : (showWindowContent ? height : 32) + 'px',
+            height: isMaximized ? '100%' : (showWindowContent ? height : heightWhenMinimized) + 'px',
             width: isMaximized ? '100%' : width + 'px',
             // Positioning
-            top: isMaximized ? '0px' : top + 'px',
-            left: isMaximized ? '0px' : left + 'px'
+            // eslint-disable-next-line max-len
+            top: `${isMaximized ? 0 : top < 0 ? 0 : showWindowContent ? top > windowCache.innerHeight - height ? windowCache.innerHeight - height : top : top > windowCache.innerHeight - heightWhenMinimized ? windowCache.innerHeight - heightWhenMinimized : top}px`,
+            // eslint-disable-next-line max-len
+            left: `${isMaximized ? 0 : left < 0 ? 0 : left > windowCache.innerWidth - width ? windowCache.innerWidth - width : left}px`
         }"
     >
         <q-slide-transition>
@@ -129,6 +131,12 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+
+interface WindowCache {
+    innerWidth: number,
+    innerHeight: number
+}
+
 export default defineComponent({
     props: {
         // Primary
@@ -165,11 +173,13 @@ export default defineComponent({
         left: vm.defaultLeft,
         // Internal
         overlayStatus: "restored",
+        heightWhenMinimized: 32,
         hovered: false,
         dragAction: "UNKNOWN",
         dragStart: { x: 0, y: 0 },
         mouseCaptured: false,
-        onDragMoveReady: true
+        onDragMoveReady: true,
+        windowCache: {} as WindowCache
     }),
 
     computed: {
@@ -188,6 +198,10 @@ export default defineComponent({
     },
 
     watch: {
+        overlayStatus() {
+            this.refinePosition();
+        },
+
         mouseCaptured(newVal: boolean) {
             if (newVal) {
                 // TODO: what is 'newVal' telling us that all settings are to 'true'?
@@ -265,20 +279,21 @@ export default defineComponent({
             if (this.dragAction && this.dragAction !== "UNKNOWN") {
                 return;
             }
+            this.cacheWindowParams();
             this.dragAction = action;
             this.dragStart = { x: event.clientX, y: event.clientY };
             this.mouseCaptured = true;
         },
 
-        applyDrag(pageX: number, pageY: number): void {
+        applyDrag(mouseX: number, mouseY: number): void {
             // TODO: the logic if 'dragAction' needs work. Value is string?
             if (!this.dragAction || !this.dragStart) {
                 // shouldn't be here, get out now
                 return;
             }
             const behavior = this.dragBehavior(this.dragAction);
-            let offsetX = pageX - this.dragStart.x;
-            let offsetY = pageY - this.dragStart.y;
+            let offsetX = mouseX - this.dragStart.x;
+            let offsetY = mouseY - this.dragStart.y;
 
             // apply the size changes first and enforce min/max sizes
             let newWidth = this.width + offsetX * behavior.width;
@@ -305,10 +320,11 @@ export default defineComponent({
             this.height = newHeight;
             this.top += offsetY * behavior.top;
             this.left += offsetX * behavior.left;
-            this.dragStart = { x: pageX, y: pageY };
+            this.dragStart = { x: mouseX, y: mouseY };
         },
 
         onDragMove(event: MouseEvent) {
+            this.cacheWindowParams();
             if (this.onDragMoveReady) {
                 this.applyDrag(event.clientX, event.clientY);
                 this.onDragMoveReady = false;
@@ -322,13 +338,42 @@ export default defineComponent({
         },
 
         onDragDone(event: MouseEvent) {
+            this.cacheWindowParams();
             this.applyDrag(event.clientX, event.clientY);
             this.mouseCaptured = false;
             this.dragAction = "UNKNOWN";
             this.dragStart = { x: 0, y: 0 };
+            this.refinePosition();
 
             event.preventDefault();
             event.stopPropagation();
+        },
+
+        cacheWindowParams(): void {
+            // Cache some necessary properties of the global window object.
+            this.windowCache = {
+                innerWidth: window.innerWidth,
+                innerHeight: document.body.querySelector("main")?.clientHeight || window.innerHeight
+            };
+        },
+
+        refinePosition(): void {
+            if (this.top < 0) {
+                this.top = 0;
+            }
+            if (this.overlayStatus === "minimized") {
+                if (this.top > this.windowCache.innerHeight - this.heightWhenMinimized) {
+                    this.top = this.windowCache.innerHeight - this.heightWhenMinimized;
+                }
+            } else if (this.top > this.windowCache.innerHeight - this.height) {
+                this.top = this.windowCache.innerHeight - this.height;
+            }
+            if (this.left < 0) {
+                this.left = 0;
+            }
+            if (this.left > this.windowCache.innerWidth - this.width) {
+                this.left = this.windowCache.innerWidth - this.width;
+            }
         }
     },
 
