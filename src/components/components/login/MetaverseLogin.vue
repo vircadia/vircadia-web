@@ -19,8 +19,6 @@
             dense
             label="Username"
             hint="Enter your username."
-            lazy-rules
-            :rules="[ val => val && val.length > 0 || 'Please enter a username.']"
         />
 
         <q-input
@@ -30,8 +28,6 @@
             label="Password"
             :type="showPassword ? 'text' : 'password'"
             hint="Enter your password."
-            lazy-rules
-            :rules="[ val => val && val.length > 0 || 'Please enter a password.']"
         >
             <template v-slot:append>
                 <q-icon
@@ -43,7 +39,7 @@
         </q-input>
 
         <div align="right">
-            <q-btn label="Login" type="submit" color="primary"/>
+            <q-btn label="Login" type="submit" color="primary" :disable="usernameEmpty || passwordEmpty"/>
         </div>
     </q-form>
 </template>
@@ -63,6 +59,14 @@ export default defineComponent({
         showPassword: false
     }),
 
+    computed: {
+        usernameEmpty: function() {
+            return this.username.length <= 0;
+        },
+        passwordEmpty: function() {
+            return this.password.length <= 0;
+        }
+    },
     methods: {
         async onSubmit() {
             try {
