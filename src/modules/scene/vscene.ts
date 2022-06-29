@@ -309,7 +309,6 @@ export class VScene {
 
         await SceneLoader.ImportMeshAsync("",
             "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_Stone.glb", this._scene);
-
     }
 
     /**
@@ -358,6 +357,8 @@ export class VScene {
             defaultPipeline.glowLayer.blurKernelSize = 16;
             defaultPipeline.glowLayer.intensity = 0.5;
         }
+
+        defaultPipeline.fxaaEnabled = true;
 
         /* eslint-enable @typescript-eslint/no-magic-numbers */
     }
