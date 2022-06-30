@@ -21,7 +21,9 @@ import {
     Nullable,
     Node,
     TransformNode,
-    Scalar
+    Scalar,
+    Ray,
+    AbstractMesh
 } from "@babylonjs/core";
 
 
@@ -90,6 +92,8 @@ export class AvatarController {
             }
 
         });
+
+        this._avatar.isPickable = false;
 
     }
 
@@ -171,6 +175,8 @@ export class AvatarController {
         this._avatar.movePOV(movement.x, movement.y, movement.z);
 
         this._animateAvatar();
+
+        this._updateGroundDetection();
     }
 
     private _animateAvatar() {
@@ -199,5 +205,32 @@ export class AvatarController {
             this._currentAnim.start(this._currentAnim.loopAnimation, 1.0, 2, this._currentAnim.to, false);
             this._prevAnim = this._currentAnim;
         }
+    }
+
+
+    private _updateGroundDetection(): void {
+        const pickedPoint = this._floorRaycast(0, 0, 1);
+        if (!pickedPoint.equals(Vector3.Zero())) {
+            this._avatar.position.y = pickedPoint.y;
+        }
+    }
+
+    // --GROUND DETECTION--
+    // Send raycast to the floor to detect if there are any hits with meshes below the character
+    private _floorRaycast(offsetx: number, offsetz: number, raycastlen: number): Vector3 {
+        // position the raycast from bottom center of mesh
+        const raycastFloorPos = new Vector3(
+            this._avatar.position.x + offsetx, this._avatar.position.y + 0.5, this._avatar.position.z + offsetz);
+        const ray = new Ray(raycastFloorPos, Vector3.Down(), raycastlen);
+
+        // defined which type of meshes should be pickable
+        const predicate = (mesh:AbstractMesh) => mesh.isPickable && mesh.isEnabled();
+
+        const pick = this._scene.pickWithRay(ray, predicate);
+        if (pick && pick.hit && pick.pickedPoint) { // grounded
+            return pick.pickedPoint;
+        }  // not grounded
+        return Vector3.Zero();
+
     }
 }

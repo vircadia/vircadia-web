@@ -266,7 +266,21 @@ export class VScene {
         }
     }
 
-    async loadScene(): Promise<void> {
+    async _loadSceneMesh(rootUrl: string, filename: string): Promise<void> {
+        const result = await SceneLoader.ImportMeshAsync("", rootUrl, filename, this._scene);
+
+        result.meshes.forEach((mesh) => {
+            const nodes = mesh.getChildren(undefined, false);
+            nodes.forEach((node) => {
+                const subMesh = node as Mesh;
+                if (subMesh.name !== "Inside_Floor_B_01" && subMesh.name !== "Inside_Floor_D_01") {
+                    subMesh.isPickable = false;
+                }
+            });
+        });
+    }
+
+    async _loadScene(): Promise<void> {
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         this._scene.clearColor = new Color4(0.5, 0.5, 0.5, 1.0);
         this._scene.ambientColor = new Color3(1, 1, 1);
@@ -274,44 +288,21 @@ export class VScene {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const light = new HemisphericLight("light", new Vector3(0, 1, 0), this._scene);
 
-        await SceneLoader.ImportMeshAsync("",
-            "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_HDRI.glb", this._scene);
+        const sceneRootUrl = "http://localhost:8080/assets/scenes/SpaceStation/";
 
-        await SceneLoader.ImportMeshAsync("",
-            "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_Inside_Desk.glb", this._scene);
-
-        await SceneLoader.ImportMeshAsync("",
-            "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_Inside_Floor.glb", this._scene);
-
-        await SceneLoader.ImportMeshAsync("",
-            "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_Inside_Furniture.glb", this._scene);
-
-        await SceneLoader.ImportMeshAsync("",
-            "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_Inside_Light.glb", this._scene);
-
-        await SceneLoader.ImportMeshAsync("",
-            "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_Inside_Tableware.glb", this._scene);
-
-        await SceneLoader.ImportMeshAsync("",
-            "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_Light.glb", this._scene);
-
-        await SceneLoader.ImportMeshAsync("",
-            "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_Planet_A.glb", this._scene);
-
-        await SceneLoader.ImportMeshAsync("",
-            "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_Planet_B.glb", this._scene);
-
-        await SceneLoader.ImportMeshAsync("",
-            "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_Station_Body_01.glb", this._scene);
-
-        await SceneLoader.ImportMeshAsync("",
-            "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_Station_Body_02.glb", this._scene);
-
-        await SceneLoader.ImportMeshAsync("",
-            "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_Station_Station_Part.glb", this._scene);
-
-        await SceneLoader.ImportMeshAsync("",
-            "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_Stone.glb", this._scene);
+        await this._loadSceneMesh(sceneRootUrl, "SpaceStation_HDRI.glb");
+        await this._loadSceneMesh(sceneRootUrl, "SpaceStation_Inside_Desk.glb");
+        await this._loadSceneMesh(sceneRootUrl, "SpaceStation_Inside_Floor.glb");
+        await this._loadSceneMesh(sceneRootUrl, "SpaceStation_Inside_Furniture.glb");
+        await this._loadSceneMesh(sceneRootUrl, "SpaceStation_Inside_Light.glb");
+        await this._loadSceneMesh(sceneRootUrl, "SpaceStation_Inside_Tableware.glb");
+        await this._loadSceneMesh(sceneRootUrl, "SpaceStation_Light.glb");
+        await this._loadSceneMesh(sceneRootUrl, "SpaceStation_Planet_A.glb");
+        await this._loadSceneMesh(sceneRootUrl, "SpaceStation_Planet_B.glb");
+        await this._loadSceneMesh(sceneRootUrl, "SpaceStation_Station_Body_01.glb");
+        await this._loadSceneMesh(sceneRootUrl, "SpaceStation_Station_Body_02.glb");
+        await this._loadSceneMesh(sceneRootUrl, "SpaceStation_Station_Station_Part.glb");
+        await this._loadSceneMesh(sceneRootUrl, "SpaceStation_Stone.glb");
     }
 
     /**
@@ -322,7 +313,7 @@ export class VScene {
         /* eslint-disable @typescript-eslint/no-magic-numbers */
         const aScene = this._scene;
 
-        await this.loadScene();
+        await this._loadScene();
 
         const animMesh = await this.loadAvatarAnimations(
             "http://localhost:8080/assets/avatars/animations/AnimationsBasic.glb");
