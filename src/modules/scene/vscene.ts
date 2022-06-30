@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /*
 //  Copyright 2021 Vircadia contributors.
 //
@@ -10,7 +12,8 @@
 
 import { AnimationGroup, Engine, MeshBuilder, Scene, SceneLoader,
     ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, StandardMaterial,
-    Mesh } from "@babylonjs/core";
+    Mesh, HemisphericLight, DefaultRenderingPipeline } from "@babylonjs/core";
+
 import { Color3, Color4, Vector3 } from "@babylonjs/core/Maths/math";
 import "@babylonjs/loaders/glTF";
 import "@babylonjs/core/Meshes/meshBuilder";
@@ -66,6 +69,8 @@ export class VScene {
         );
 
         this._sceneId = pSceneId;
+
+        this._loadSecondarySceneAsync = this._loadSecondarySceneAsync.bind(this);
     }
 
     getSceneId(): number {
@@ -264,6 +269,67 @@ export class VScene {
         }
     }
 
+    async _loadSceneMesh(rootUrl: string, filename: string): Promise<void> {
+        const result = await SceneLoader.ImportMeshAsync("", rootUrl, filename, this._scene);
+
+        result.meshes.forEach((mesh) => {
+            const nodes = mesh.getChildren(undefined, false);
+            nodes.forEach((node) => {
+                const subMesh = node as Mesh;
+                if (subMesh.name !== "Inside_Floor_B_01" && subMesh.name !== "Inside_Floor_D_01") {
+                    subMesh.isPickable = false;
+                }
+            });
+        });
+    }
+
+    _loadSceneMeshAsync(rootUrl: string, filename: string): void {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        SceneLoader.ImportMeshAsync("", rootUrl, filename, this._scene).then((result) => {
+            result.meshes.forEach((mesh) => {
+                const nodes = mesh.getChildren(undefined, false);
+                nodes.forEach((node) => {
+                    const subMesh = node as Mesh;
+                    if (subMesh.name !== "Inside_Floor_B_01" && subMesh.name !== "Inside_Floor_D_01") {
+                        subMesh.isPickable = false;
+                    }
+                });
+            });
+        });
+    }
+
+    async _loadPrimaryScene(): Promise<void> {
+        this._scene.clearColor = new Color4(0.5, 0.5, 0.5, 1.0);
+        this._scene.ambientColor = new Color3(0.3, 0.3, 0.3);
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const light = new HemisphericLight("light", new Vector3(0, 1, 0), this._scene);
+
+        const sceneRootUrl = "http://localhost:8080/assets/scenes/SpaceStation/";
+
+        await this._loadSceneMesh(sceneRootUrl, "SpaceStation_Inside_Floor.glb");
+    }
+
+    _loadSecondarySceneAsync() : void {
+        const sceneRootUrl = "http://localhost:8080/assets/scenes/SpaceStation/";
+
+        this._loadSceneMeshAsync(sceneRootUrl, "SpaceStation_HDRI.glb");
+        this._loadSceneMeshAsync(sceneRootUrl, "SpaceStation_Inside_Desk.glb");
+        this._loadSceneMeshAsync(sceneRootUrl, "SpaceStation_Inside_Furniture.glb");
+        this._loadSceneMeshAsync(sceneRootUrl, "SpaceStation_Inside_Light.glb");
+        this._loadSceneMeshAsync(sceneRootUrl, "SpaceStation_Inside_Tableware.glb");
+        this._loadSceneMeshAsync(sceneRootUrl, "SpaceStation_Light.glb");
+        this._loadSceneMeshAsync(sceneRootUrl, "SpaceStation_Planet_A.glb");
+        this._loadSceneMeshAsync(sceneRootUrl, "SpaceStation_Planet_B.glb");
+        this._loadSceneMeshAsync(sceneRootUrl, "SpaceStation_Station_Body_01.glb");
+        this._loadSceneMeshAsync(sceneRootUrl, "SpaceStation_Station_Body_02.glb");
+        this._loadSceneMeshAsync(sceneRootUrl, "SpaceStation_Station_Station_Part.glb");
+        this._loadSceneMeshAsync(sceneRootUrl, "SpaceStation_Stone.glb");
+
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        this._scene.unregisterBeforeRender(this._loadSecondarySceneAsync);
+    }
+
     /**
      * Build a simple test collection of entities in this scene. Also includes some testing operations.
      * @returns {Promise<void>} when completed
@@ -271,29 +337,13 @@ export class VScene {
     async buildTestScene(): Promise<void> {
         const aScene = this._scene;
 
-        /* eslint-disable @typescript-eslint/no-magic-numbers */
-        aScene.clearColor = new Color4(0.8, 0.8, 0.8, 0.0);
+        await this._loadPrimaryScene();
 
-        const options = {
-            groundColor: Color3.White()
-        };
-
-        aScene.createDefaultEnvironment(options);
-
-        const box = MeshBuilder.CreateBox("box1", {}, aScene);
-        box.position = new Vector3(5, 0.5, 5);
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        this._scene.registerBeforeRender(this._loadSecondarySceneAsync);
 
         const animMesh = await this.loadAvatarAnimations(
             "http://localhost:8080/assets/avatars/animations/AnimationsBasic.glb");
-
-        const avatarPos = new Vector3(0, 0, 0);
-
-        // Creates, angles, distances and targets the camera
-        const camera = new ArcRotateCamera(
-            "Camera", -Math.PI / 2, Math.PI / 2, 6, new Vector3(avatarPos.x, avatarPos.y + 1, avatarPos.z), aScene);
-
-        // This attaches the camera to the canvas
-        camera.attachControl(aScene.getEngine().getRenderingCanvas(), true);
 
         // load avatar mesh
         const result = await SceneLoader.ImportMeshAsync("",
@@ -302,16 +352,35 @@ export class VScene {
         const avatar = result.meshes[0] as Mesh;
 
         avatar.scaling = new Vector3(1, 1, 1);
-        avatar.position = avatarPos;
+        avatar.position = new Vector3(0, 49.6, 0);
 
         const avatarMesh = avatar.getChildren()[0] as Mesh;
         avatarMesh.rotationQuaternion = animMesh.rotationQuaternion;
 
+        // Creates, angles, distances and targets the camera
+        const camera = new ArcRotateCamera(
+            "Camera", -Math.PI / 2, Math.PI / 2, 6,
+            new Vector3(0, 1, 0), aScene);
+
+        // This attaches the camera to the canvas
+        camera.attachControl(aScene.getEngine().getRenderingCanvas(), true);
+        camera.parent = avatar;
+        camera.minZ = 1;
+        camera.maxZ = 250000;
+        camera.wheelPrecision = 50;
+
         this._avatarController = new AvatarController(avatar, camera, aScene, this._avatarAnimationGroups);
         this._avatarController.start();
 
-        camera.parent = avatar;
-        /* eslint-enable @typescript-eslint/no-magic-numbers */
+        // Create default pipeline
+        const defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, [camera]);
+        defaultPipeline.glowLayerEnabled = true;
+        if (defaultPipeline.glowLayer) {
+            defaultPipeline.glowLayer.blurKernelSize = 16;
+            defaultPipeline.glowLayer.intensity = 0.5;
+        }
+
+        defaultPipeline.fxaaEnabled = true;
     }
 
     // eslint-disable-next-line class-methods-use-this
