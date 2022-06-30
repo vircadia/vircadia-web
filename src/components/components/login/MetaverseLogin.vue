@@ -19,6 +19,7 @@
             dense
             label="Username"
             hint="Enter your username."
+            :disable="loading"
         />
 
         <q-input
@@ -28,6 +29,7 @@
             label="Password"
             :type="showPassword ? 'text' : 'password'"
             hint="Enter your password."
+            :disable="loading"
         >
             <template v-slot:append>
                 <q-icon
@@ -39,7 +41,7 @@
         </q-input>
 
         <div align="right">
-            <q-btn label="Login" type="submit" color="primary" :disable="usernameEmpty || passwordEmpty"/>
+            <q-btn label="Login" type="submit" color="primary" :disable="usernameEmpty || passwordEmpty" :loading="loading" />
         </div>
     </q-form>
 </template>
@@ -56,7 +58,8 @@ export default defineComponent({
     data: () => ({
         username: "",
         password: "",
-        showPassword: false
+        showPassword: false,
+        loading: false
     }),
 
     computed: {
@@ -69,6 +72,7 @@ export default defineComponent({
     },
     methods: {
         async onSubmit() {
+            this.loading = true;
             try {
                 const loginResponse = await Account.login(this.username, this.password);
 
@@ -79,7 +83,7 @@ export default defineComponent({
                         icon: "cloud_done",
                         message: "Welcome " + this.username + "."
                     });
-
+                    this.loading = false;
                     this.$emit("closeDialog");
                 } else {
                     this.$q.notify({
@@ -88,6 +92,7 @@ export default defineComponent({
                         icon: "warning",
                         message: "Login attempted failed"
                     });
+                    this.loading = false;
                 }
             } catch (result) {
                 // TODO: what is the type of "result"? Define the fields
@@ -98,6 +103,7 @@ export default defineComponent({
                     // message: "Login attempted failed: " + result.error
                     message: "Login attempted failed: " + (result as string)
                 });
+                this.loading = false;
             }
         }
     }
