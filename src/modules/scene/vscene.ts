@@ -312,7 +312,6 @@ export class VScene {
 
         await SceneLoader.ImportMeshAsync("",
             "http://localhost:8080/assets/scenes/SpaceStation/", "SpaceStation_Stone.glb", this._scene);
-
     }
 
     /**
@@ -348,8 +347,10 @@ export class VScene {
         // This attaches the camera to the canvas
         camera.attachControl(aScene.getEngine().getRenderingCanvas(), true);
         camera.parent = avatar;
-        camera.minZ = 1;
+        camera.minZ = 0.1;
         camera.maxZ = 250000;
+        camera.wheelPrecision = 50;
+
 
         this._avatarController = new AvatarController(avatar, camera, aScene, this._avatarAnimationGroups);
         this._avatarController.start();
