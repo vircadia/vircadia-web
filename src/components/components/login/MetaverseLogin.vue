@@ -90,7 +90,7 @@ export default defineComponent({
                         type: "negative",
                         textColor: "white",
                         icon: "warning",
-                        message: "Login attempted failed"
+                        message: "Login attempt failed."
                     });
                     this.loading = false;
                 }
@@ -101,7 +101,7 @@ export default defineComponent({
                     textColor: "white",
                     icon: "warning",
                     // message: "Login attempted failed: " + result.error
-                    message: "Login attempted failed: " + (result as string)
+                    message: "Login attempt failed: " + (result as string)
                 });
                 this.loading = false;
             }
