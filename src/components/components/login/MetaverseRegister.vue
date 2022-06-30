@@ -21,6 +21,7 @@
             hint="Enter your username."
             lazy-rules
             :rules="[ val => val && val.length > 0 || 'Please enter a username.']"
+            :disable="loading"
         />
 
         <q-input
@@ -31,6 +32,7 @@
             hint="Enter your email."
             lazy-rules
             :rules="[ val => val && val.length > 0 || 'Please enter an email.']"
+            :disable="loading"
         />
 
         <q-input
@@ -42,6 +44,7 @@
             hint="Enter your password."
             lazy-rules
             :rules="[ val => val && val.length > 0 || 'Please enter a password.']"
+            :disable="loading"
         >
             <template v-slot:append>
                 <q-icon
@@ -61,6 +64,7 @@
             hint="Enter your password again."
             lazy-rules
             :rules="[ val => val && val.length > 0 && val === password || 'Please ensure your passwords match.']"
+            :disable="loading"
         >
             <template v-slot:append>
                 <q-icon
@@ -72,7 +76,7 @@
         </q-input>
 
         <div align="right">
-            <q-btn label="Register" type="submit" color="primary"/>
+            <q-btn label="Register" type="submit" color="primary" :loading="loading" />
         </div>
     </q-form>
 </template>
@@ -92,11 +96,13 @@ export default defineComponent({
         password: "",
         confirmPassword: "",
         showPassword: false,
-        showConfirmPassword: false
+        showConfirmPassword: false,
+        loading: false
     }),
 
     methods: {
         async onSubmit() {
+            this.loading = true;
             const $q = useQuasar();
             try {
                 const awaiting = await Account.createAccount(this.username, this.password, this.email);
@@ -116,6 +122,7 @@ export default defineComponent({
                         message: "Check your email " + this.email + " to complete registration.",
                         actions: [{ label: "Dismiss", color: "white", handler: () => { /* ... */ } }]
                     });
+                    this.loading = false;
                 } else {
                     this.$q.notify({
                         type: "positive",
@@ -123,6 +130,7 @@ export default defineComponent({
                         icon: "cloud_done",
                         message: "Successfully registered " + this.username + "."
                     });
+                    this.loading = false;
                 }
             } catch (result) {
                 // TODO: what is the type of "result"?
@@ -133,6 +141,7 @@ export default defineComponent({
                     // message: "Failed to register: " + result.error
                     message: "Failed to register: " + (result as string)
                 });
+                this.loading = false;
             }
         }
     }
