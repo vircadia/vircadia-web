@@ -347,7 +347,7 @@ export class VScene {
         // This attaches the camera to the canvas
         camera.attachControl(aScene.getEngine().getRenderingCanvas(), true);
         camera.parent = avatar;
-        camera.minZ = 0.1;
+        camera.minZ = 1;
         camera.maxZ = 250000;
         camera.wheelPrecision = 50;
 
