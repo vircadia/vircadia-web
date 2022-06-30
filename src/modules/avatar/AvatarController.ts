@@ -34,7 +34,7 @@ export class AvatarController {
     private _avatar: Mesh;
     private _camera: ArcRotateCamera;
     private _scene: Scene;
-    private _walkSpeed = 5;
+    private _walkSpeed = 3;
     private _movement : Vector3;
     private _rotationSpeed = 40 * Math.PI / 180;
     private _rotation = 0;
