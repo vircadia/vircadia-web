@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /*
 //  Copyright 2021 Vircadia contributors.
@@ -68,6 +69,8 @@ export class VScene {
         );
 
         this._sceneId = pSceneId;
+
+        this._loadSecondarySceneAsync = this._loadSecondarySceneAsync.bind(this);
     }
 
     getSceneId(): number {
@@ -280,29 +283,51 @@ export class VScene {
         });
     }
 
-    async _loadScene(): Promise<void> {
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+    _loadSceneMeshAsync(rootUrl: string, filename: string): void {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        SceneLoader.ImportMeshAsync("", rootUrl, filename, this._scene).then((result) => {
+            result.meshes.forEach((mesh) => {
+                const nodes = mesh.getChildren(undefined, false);
+                nodes.forEach((node) => {
+                    const subMesh = node as Mesh;
+                    if (subMesh.name !== "Inside_Floor_B_01" && subMesh.name !== "Inside_Floor_D_01") {
+                        subMesh.isPickable = false;
+                    }
+                });
+            });
+        });
+    }
+
+    async _loadPrimaryScene(): Promise<void> {
         this._scene.clearColor = new Color4(0.5, 0.5, 0.5, 1.0);
-        this._scene.ambientColor = new Color3(1, 1, 1);
+        this._scene.ambientColor = new Color3(0.3, 0.3, 0.3);
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const light = new HemisphericLight("light", new Vector3(0, 1, 0), this._scene);
 
         const sceneRootUrl = "http://localhost:8080/assets/scenes/SpaceStation/";
 
-        await this._loadSceneMesh(sceneRootUrl, "SpaceStation_HDRI.glb");
-        await this._loadSceneMesh(sceneRootUrl, "SpaceStation_Inside_Desk.glb");
         await this._loadSceneMesh(sceneRootUrl, "SpaceStation_Inside_Floor.glb");
-        await this._loadSceneMesh(sceneRootUrl, "SpaceStation_Inside_Furniture.glb");
-        await this._loadSceneMesh(sceneRootUrl, "SpaceStation_Inside_Light.glb");
-        await this._loadSceneMesh(sceneRootUrl, "SpaceStation_Inside_Tableware.glb");
-        await this._loadSceneMesh(sceneRootUrl, "SpaceStation_Light.glb");
-        await this._loadSceneMesh(sceneRootUrl, "SpaceStation_Planet_A.glb");
-        await this._loadSceneMesh(sceneRootUrl, "SpaceStation_Planet_B.glb");
-        await this._loadSceneMesh(sceneRootUrl, "SpaceStation_Station_Body_01.glb");
-        await this._loadSceneMesh(sceneRootUrl, "SpaceStation_Station_Body_02.glb");
-        await this._loadSceneMesh(sceneRootUrl, "SpaceStation_Station_Station_Part.glb");
-        await this._loadSceneMesh(sceneRootUrl, "SpaceStation_Stone.glb");
+    }
+
+    _loadSecondarySceneAsync() : void {
+        const sceneRootUrl = "http://localhost:8080/assets/scenes/SpaceStation/";
+
+        this._loadSceneMeshAsync(sceneRootUrl, "SpaceStation_HDRI.glb");
+        this._loadSceneMeshAsync(sceneRootUrl, "SpaceStation_Inside_Desk.glb");
+        this._loadSceneMeshAsync(sceneRootUrl, "SpaceStation_Inside_Furniture.glb");
+        this._loadSceneMeshAsync(sceneRootUrl, "SpaceStation_Inside_Light.glb");
+        this._loadSceneMeshAsync(sceneRootUrl, "SpaceStation_Inside_Tableware.glb");
+        this._loadSceneMeshAsync(sceneRootUrl, "SpaceStation_Light.glb");
+        this._loadSceneMeshAsync(sceneRootUrl, "SpaceStation_Planet_A.glb");
+        this._loadSceneMeshAsync(sceneRootUrl, "SpaceStation_Planet_B.glb");
+        this._loadSceneMeshAsync(sceneRootUrl, "SpaceStation_Station_Body_01.glb");
+        this._loadSceneMeshAsync(sceneRootUrl, "SpaceStation_Station_Body_02.glb");
+        this._loadSceneMeshAsync(sceneRootUrl, "SpaceStation_Station_Station_Part.glb");
+        this._loadSceneMeshAsync(sceneRootUrl, "SpaceStation_Stone.glb");
+
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        this._scene.unregisterBeforeRender(this._loadSecondarySceneAsync);
     }
 
     /**
@@ -310,10 +335,12 @@ export class VScene {
      * @returns {Promise<void>} when completed
      */
     async buildTestScene(): Promise<void> {
-        /* eslint-disable @typescript-eslint/no-magic-numbers */
         const aScene = this._scene;
 
-        await this._loadScene();
+        await this._loadPrimaryScene();
+
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        this._scene.registerBeforeRender(this._loadSecondarySceneAsync);
 
         const animMesh = await this.loadAvatarAnimations(
             "http://localhost:8080/assets/avatars/animations/AnimationsBasic.glb");
@@ -342,7 +369,6 @@ export class VScene {
         camera.maxZ = 250000;
         camera.wheelPrecision = 50;
 
-
         this._avatarController = new AvatarController(avatar, camera, aScene, this._avatarAnimationGroups);
         this._avatarController.start();
 
@@ -355,8 +381,6 @@ export class VScene {
         }
 
         defaultPipeline.fxaaEnabled = true;
-
-        /* eslint-enable @typescript-eslint/no-magic-numbers */
     }
 
     // eslint-disable-next-line class-methods-use-this
