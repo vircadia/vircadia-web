@@ -93,7 +93,7 @@
                 <q-icon :name="icon" />
                 <div class="title" @mousedown="canMove && beginAction($event, 'move')">{{ title }}</div>
 
-                <div class="col full-height" @mousedown="canMove && beginAction($event, 'move')" />
+                <div class="col full-height" @mousedown="canMove && beginAction($event, 'move')"></div>
 
                 <q-btn dense flat
                     :icon="overlayStatus === 'minimized' ? 'expand_more' : 'minimize'"
@@ -128,7 +128,7 @@
             :style="hoverShowBar ? 'margin-top: 32px;' : ''"
             v-show="showWindowContent"
         >
-            <slot />
+            <slot></slot>
         </q-card-section>
 
         <div v-if="canResize && canResizeHeight && !isMinimized && !isMaximized"
