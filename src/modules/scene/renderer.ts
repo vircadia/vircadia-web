@@ -12,6 +12,8 @@ import { Engine } from "@babylonjs/core";
 
 import { Store, Mutations } from "@Store/index";
 import { Config } from "@Base/config";
+import { WebGPUEngine } from "@babylonjs/core/Engines/webgpuEngine";
+
 
 // General Modules
 import { VScene } from "@Modules/scene/vscene";
@@ -25,7 +27,29 @@ export const Renderer = {
 
     // eslint-disable-next-line @typescript-eslint/require-await
     async initialize(pCanvas: HTMLCanvasElement): Promise<void> {
-        Renderer._engine = new Engine(pCanvas);
+
+        const webgpuSupported = await WebGPUEngine.IsSupportedAsync;
+        if (webgpuSupported) {
+
+            Renderer._engine = new WebGPUEngine(pCanvas, {
+                deviceDescriptor: {
+                    requiredFeatures: [
+                        "depth-clip-control",
+                        "depth24unorm-stencil8",
+                        "depth32float-stencil8",
+                        "texture-compression-bc",
+                        "texture-compression-etc2",
+                        "texture-compression-astc",
+                        "timestamp-query",
+                        "indirect-first-instance"
+                    ]
+                }
+            });
+            await (Renderer._engine as WebGPUEngine).initAsync();
+        } else {
+            Renderer._engine = new Engine(pCanvas, true);
+        }
+
         this._renderingScenes = new Array<VScene>();
 
         // Update renderer statistics for Vue
