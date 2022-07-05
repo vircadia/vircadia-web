@@ -220,6 +220,7 @@
         <q-dialog v-model="getDialogState">
             <q-card
                 class="column no-wrap items-stretch"
+                style="width: 310px;"
             >
                 <component @closeDialog='closeDialog' :is="$store.state.dialog.which"></component>
             </q-card>
