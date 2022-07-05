@@ -18,7 +18,11 @@
         <canvas
             :height="canvasHeight"
             :width="canvasWidth"
-            :style="{ width: canvasWidth + 'px', height: canvasHeight + 'px' }"
+            :style="{
+                width: canvasWidth + 'px',
+                height: canvasHeight + 'px',
+                pointerEvents: $props.interactive ? 'all' : 'none'
+            }"
             ref="renderCanvas"
             class="renderCanvas"
         />
@@ -44,6 +48,13 @@ export interface ResizeShape {
 
 export default defineComponent({
     name: "MainScene",
+
+    props: {
+        interactive: {
+            type: Boolean,
+            required: true
+        }
+    },
 
     $refs!: {   // definition to make this.$ref work with TypeScript
         mainSceneAudioElement: HTMLFormElement
