@@ -1,4 +1,3 @@
-/* eslint-disable new-cap */
 //
 //  AvatarController.ts
 //
@@ -9,11 +8,10 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
+/* eslint-disable new-cap */
 
 import {
     Vector3,
-    Mesh,
-    ArcRotateCamera,
     Scene,
     ActionManager,
     ExecuteCodeAction,
@@ -23,7 +21,10 @@ import {
     TransformNode,
     Scalar,
     Ray,
-    AbstractMesh
+    AbstractMesh,
+    Camera,
+    ActionEvent,
+    IAction
 } from "@babylonjs/core";
 
 
@@ -31,8 +32,8 @@ import {
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/dot-notation */
 export class AvatarController {
-    private _avatar: Mesh;
-    private _camera: ArcRotateCamera;
+    private _avatar: AbstractMesh;
+    private _camera: Camera;
     private _scene: Scene;
     private _walkSpeed = 3;
     private _movement : Vector3;
@@ -51,13 +52,18 @@ export class AvatarController {
     private _prevAnim: Nullable<AnimationGroup> = null;
 
     private _shiftKey = false;
+    private _keyDownAction:Nullable<IAction> = null;
+    private _keyUpAction:Nullable<IAction> = null;
 
-    constructor(avatar: Mesh, camera: ArcRotateCamera, scene: Scene, animGroups: AnimationGroup[]) {
+    constructor(avatar: AbstractMesh, camera: Camera, scene: Scene, animGroups: AnimationGroup[]) {
         this._avatar = avatar;
         this._camera = camera;
         this._scene = scene;
         this._movement = new Vector3();
         this._inputMap = {};
+        this._update = this._update.bind(this);
+        this._onKeyUp = this._onKeyUp.bind(this);
+        this._onKeyupDown = this._onKeyupDown.bind(this);
 
         const nodes = new Map<string, Node>();
         this._avatar.getChildren((node):boolean => {
@@ -113,28 +119,53 @@ export class AvatarController {
     }
 
     public start():void {
-        this._scene.registerBeforeRender(this._update.bind(this));
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        this._scene.registerBeforeRender(this._update);
 
         // scene action manager to detect inputs
         if (!this._scene.actionManager) {
             this._scene.actionManager = new ActionManager(this._scene);
         }
 
-        this._scene.actionManager.registerAction(
-            new ExecuteCodeAction(ActionManager.OnKeyDownTrigger,
-                (evt) => {
-                    this._inputMap[evt.sourceEvent.code] = evt.sourceEvent.type === "keydown";
-                    this._shiftKey = evt.sourceEvent.shiftKey === true;
-                }));
+        this._keyDownAction = new ExecuteCodeAction(ActionManager.OnKeyDownTrigger,
+            // eslint-disable-next-line @typescript-eslint/unbound-method
+            this._onKeyupDown);
+
+        this._keyUpAction = new ExecuteCodeAction(ActionManager.OnKeyUpTrigger,
+            // eslint-disable-next-line @typescript-eslint/unbound-method
+            this._onKeyUp);
 
         this._scene.actionManager.registerAction(
-            new ExecuteCodeAction(ActionManager.OnKeyUpTrigger,
-                (evt) => {
-                    this._inputMap[evt.sourceEvent.code] = evt.sourceEvent.type === "keydown";
-                    this._shiftKey = evt.sourceEvent.shiftKey === true;
-                }));
+            this._keyDownAction);
+
+        this._scene.actionManager.registerAction(
+            this._keyUpAction);
     }
 
+    public stop():void {
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        this._scene.unregisterAfterRender(this._update);
+
+        if (this._keyDownAction) {
+            this._scene.actionManager.unregisterAction(this._keyDownAction);
+            this._keyDownAction = null;
+        }
+
+        if (this._keyUpAction) {
+            this._scene.actionManager.unregisterAction(this._keyUpAction);
+            this._keyUpAction = null;
+        }
+    }
+
+    private _onKeyupDown(evt: ActionEvent):void {
+        this._inputMap[evt.sourceEvent.code] = evt.sourceEvent.type === "keydown";
+        this._shiftKey = evt.sourceEvent.shiftKey === true;
+    }
+
+    private _onKeyUp(evt: ActionEvent):void {
+        this._inputMap[evt.sourceEvent.code] = evt.sourceEvent.type === "keydown";
+        this._shiftKey = evt.sourceEvent.shiftKey === true;
+    }
 
     private _update():void {
         if (this._inputMap["KeyW"]) {
