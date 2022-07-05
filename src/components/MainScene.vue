@@ -112,8 +112,9 @@ export default defineComponent({
         // Create one scene for the moment
         this.scene = Renderer.createScene();
 
-        // Until connected to the external world, add test items to the scene
-        await this.scene.buildTestScene();
+        this.scene.createDefaultEnvionment();
+
+        await this.scene.loadSceneUA92Campus();
 
         Renderer.startRenderLoop([this.scene as VScene]);
     }

@@ -63,7 +63,7 @@ export const Renderer = {
     },
     _renderLoop(): void {
         Renderer._renderingScenes.forEach((vscene) => {
-            vscene._scene.render();
+            vscene.render();
         });
     }
 };
