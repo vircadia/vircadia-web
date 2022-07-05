@@ -24,12 +24,13 @@ import Log from "@Modules/debugging/log";
 export const Renderer = {
     _engine: <Engine><unknown>undefined,
     _renderingScenes: <VScene[]><unknown>undefined,
+    _webgpuSupported: false,
 
     // eslint-disable-next-line @typescript-eslint/require-await
     async initialize(pCanvas: HTMLCanvasElement): Promise<void> {
 
-        const webgpuSupported = await WebGPUEngine.IsSupportedAsync;
-        if (webgpuSupported) {
+        this._webgpuSupported = await WebGPUEngine.IsSupportedAsync;
+        if (this._webgpuSupported) {
 
             Renderer._engine = new WebGPUEngine(pCanvas, {
                 deviceDescriptor: {
@@ -78,7 +79,9 @@ export const Renderer = {
     },
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     resize(pHeight: number, pWidth: number): void {
-        this._engine.resize();
+        if (!this._webgpuSupported) {
+            this._engine.resize();
+        }
     },
     startRenderLoop(pScenes: VScene[]): void {
         this._renderingScenes = pScenes;
