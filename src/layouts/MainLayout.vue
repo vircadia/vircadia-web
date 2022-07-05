@@ -127,7 +127,7 @@
                         icon="settings"
                         aria-label="Settings Menu"
                     >
-                        <q-menu>
+                        <q-menu ref="SettingsMenu" @show="aMenuIsOpen = true">
                             <q-list>
                                 <template v-for="(menuItem, index) in settingsMenu" :key="index">
                                     <q-item-label
@@ -158,7 +158,7 @@
 
                     <q-separator dark vertical inset />
 
-                    <q-btn-dropdown stretch flat>
+                    <q-btn-dropdown ref="HelpMenu" stretch flat :persistent="false" @show="aMenuIsOpen = true">
                         <template v-slot:label>
                             <q-avatar rounded size="48px">
                                 <img :src="defaultProductLogo">
@@ -210,7 +210,7 @@
         </q-header>
 
         <q-page-container class="full-height">
-            <MainScene>
+            <MainScene :interactive="!aMenuIsOpen" @click="hideSettingsAndHelpMenus($event)">
                 <template v-slot:manager>
                     <OverlayManager ref="OverlayManager" />
                 </template>
@@ -232,7 +232,7 @@
 <script lang="ts">
 
 import { defineComponent } from "vue";
-import { openURL } from "quasar";
+import { openURL, QBtn, QBtnDropdown } from "quasar";
 
 // Components
 import MainScene from "@Components/MainScene.vue";
@@ -251,7 +251,9 @@ export default defineComponent({
 
     $refs!: {   // definition to make this.$ref work with TypeScript
         MainScene: HTMLFormElement,
-        OverlayManager: HTMLFormElement
+        OverlayManager: HTMLFormElement,
+        SettingsMenu: QBtn,
+        HelpMenu: QBtnDropdown
     },
 
     components: {
@@ -299,6 +301,7 @@ export default defineComponent({
                     link: "https://docs.vircadia.com/"
                 }
             ],
+            aMenuIsOpen: false,
             defaultProductLogo: "assets/vircadia-icon.svg"
         };
     },
@@ -374,6 +377,18 @@ export default defineComponent({
             // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             (this.$refs.OverlayManager as typeof OverlayManager).toggleOverlay("menu");
+        },
+        // Settings & Help menus clickaway
+        hideSettingsAndHelpMenus: function(event: Event): void {
+            if (this.aMenuIsOpen) {
+                event.preventDefault();
+                this.aMenuIsOpen = false;
+                // TODO: figure out how to properly type $ref references. The following disables are a poor solution.
+                // eslint-disable-next-line
+                (this.$refs.SettingsMenu as typeof QBtn).hide();
+                // eslint-disable-next-line
+                (this.$refs.HelpMenu as typeof QBtnDropdown).hide();
+            }
         },
 
         // Pressed "connect"
