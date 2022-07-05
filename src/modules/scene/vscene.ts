@@ -356,7 +356,7 @@ export class VScene {
 
     public async loadUA92CampusEnvironment(): Promise<void> {
         await this._loadEnvionment("https://staging.vircadia.com/O12OR634/UA92/",
-            ["UA92_6-30-2022_BabylonTesting.glb"], null
+            ["UA92_7-5-2022a.glb"], null
         );
 
         if (this._defaultPipeline) {
@@ -439,13 +439,12 @@ export class VScene {
         // load avatar animation
         if (!this._avatarAnimMesh) {
             this._avatarAnimMesh = await this._loadAvatarAnimations(
-                "http://localhost:8080/assets/avatars/animations/AnimationsBasic.glb");
+                "https://staging.vircadia.com/O12OR634/UA92/AnimationsBasic.glb");
         }
         // load avatar mesh
         if (!this._avatar) {
             const result = await SceneLoader.ImportMeshAsync("",
-                "http://localhost:8080/assets/avatars/meshes/", "nolan.glb", this._scene);
-
+                "https://staging.vircadia.com/O12OR634/UA92/", "sara.glb", this._scene);
             result.meshes.forEach((mesh) => {
                 mesh.isPickable = false;
             });
