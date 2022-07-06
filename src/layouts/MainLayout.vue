@@ -391,19 +391,6 @@ export default defineComponent({
             }
         },
 
-        // Settings & Help menus clickaway
-        hideSettingsAndHelpMenus: function(event: Event): void {
-            if (this.aMenuIsOpen) {
-                event.preventDefault();
-                this.aMenuIsOpen = false;
-                // TODO: figure out how to properly type $ref references. The following disables are a poor solution.
-                // eslint-disable-next-line
-                (this.$refs.SettingsMenu as typeof QBtn).hide();
-                // eslint-disable-next-line
-                (this.$refs.HelpMenu as typeof QBtnDropdown).hide();
-            }
-        },
-
         // Pressed "connect"
         // Connect to the specified domain-server and the associated metaverse-server
         // Also add state update links to keep the Vuex state variables up to date.
