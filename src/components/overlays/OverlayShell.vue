@@ -81,7 +81,7 @@
             windowCache.innerHeight - height ? windowCache.innerHeight - height :
             top : top > windowCache.innerHeight - heightWhenMinimized ?
             windowCache.innerHeight - heightWhenMinimized : top}px`,
-            
+
             // eslint-disable-next-line max-len
             left: `${isMaximized ? 0 : left < 0 ? 0 : left > windowCache.innerWidth - width ? windowCache.innerWidth - width : left}px`,
             borderRadius: '5px',

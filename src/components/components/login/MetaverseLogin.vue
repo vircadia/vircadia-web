@@ -93,7 +93,6 @@ export default defineComponent({
                         icon: "warning",
 
                         message: "Login attempt failed"
-                        
                     });
                     this.loading = false;
                 }
