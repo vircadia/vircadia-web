@@ -70,6 +70,7 @@ export default defineComponent({
             return this.password.length <= 0;
         }
     },
+
     methods: {
         async onSubmit() {
             this.loading = true;
@@ -90,7 +91,9 @@ export default defineComponent({
                         type: "negative",
                         textColor: "white",
                         icon: "warning",
-                        message: "Login attempt failed."
+
+                        message: "Login attempt failed"
+                        
                     });
                     this.loading = false;
                 }
@@ -100,7 +103,9 @@ export default defineComponent({
                     type: "negative",
                     textColor: "white",
                     icon: "warning",
-                    // message: "Login attempted failed: " + result.error
+
+                    // message: "Login attempt failed: " + result.error
+
                     message: "Login attempt failed: " + (result as string)
                 });
                 this.loading = false;
