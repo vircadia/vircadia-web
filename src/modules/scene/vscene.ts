@@ -324,7 +324,7 @@ export class VScene {
     }
 
     public async loadSpaceStationEnvironment(): Promise<void> {
-        await this._loadEnvionment("https://staging.vircadia.com/O12OR634/SpaceStation/",
+        await this._loadEnvironment("https://staging.vircadia.com/O12OR634/SpaceStation/",
             ["SpaceStation_Inside_Floor.glb"],
             [
                 "SpaceStation_HDRI.glb",
@@ -355,7 +355,7 @@ export class VScene {
     }
 
     public async loadUA92CampusEnvironment(): Promise<void> {
-        await this._loadEnvionment("https://staging.vircadia.com/O12OR634/UA92/",
+        await this._loadEnvironment("https://staging.vircadia.com/O12OR634/UA92/",
             ["UA92_7-5-2022a.glb"], null
         );
 
@@ -474,7 +474,7 @@ export class VScene {
     }
 
 
-    private async _loadEnvionment(rootUrl:string,
+    private async _loadEnvironment(rootUrl:string,
         meshList:string[],
         incrementalMeshList:string[] | null | undefined) : Promise<void> {
 
