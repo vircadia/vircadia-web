@@ -11,35 +11,40 @@
 <template>
     <q-form
         @submit="onSubmit"
-        @reset="onReset"
         class="q-gutter-md"
     >
         <q-input
             v-model="username"
             filled
+            dense
             label="Username"
             hint="Enter your username."
             lazy-rules
             :rules="[ val => val && val.length > 0 || 'Please enter a username.']"
+            :disable="loading"
         />
 
         <q-input
             v-model="email"
             filled
+            dense
             label="Email"
             hint="Enter your email."
             lazy-rules
             :rules="[ val => val && val.length > 0 || 'Please enter an email.']"
+            :disable="loading"
         />
 
         <q-input
             v-model="password"
             filled
+            dense
             label="Password"
             :type="showPassword ? 'text' : 'password'"
             hint="Enter your password."
             lazy-rules
             :rules="[ val => val && val.length > 0 || 'Please enter a password.']"
+            :disable="loading"
         >
             <template v-slot:append>
                 <q-icon
@@ -53,11 +58,13 @@
         <q-input
             v-model="confirmPassword"
             filled
+            dense
             label="Confirm Password"
             :type="showConfirmPassword ? 'text' : 'password'"
             hint="Enter your password again."
             lazy-rules
             :rules="[ val => val && val.length > 0 && val === password || 'Please ensure your passwords match.']"
+            :disable="loading"
         >
             <template v-slot:append>
                 <q-icon
@@ -69,8 +76,7 @@
         </q-input>
 
         <div align="right">
-            <q-btn label="Reset" type="reset" color="primary" flat class="q-mr-sm" />
-            <q-btn label="Register" type="submit" color="primary"/>
+            <q-btn label="Register" type="submit" color="primary" :loading="loading" />
         </div>
     </q-form>
 </template>
@@ -90,11 +96,13 @@ export default defineComponent({
         password: "",
         confirmPassword: "",
         showPassword: false,
-        showConfirmPassword: false
+        showConfirmPassword: false,
+        loading: false
     }),
 
     methods: {
         async onSubmit() {
+            this.loading = true;
             const $q = useQuasar();
             try {
                 const awaiting = await Account.createAccount(this.username, this.password, this.email);
@@ -114,6 +122,7 @@ export default defineComponent({
                         message: "Check your email " + this.email + " to complete registration.",
                         actions: [{ label: "Dismiss", color: "white", handler: () => { /* ... */ } }]
                     });
+                    this.loading = false;
                 } else {
                     this.$q.notify({
                         type: "positive",
@@ -121,6 +130,7 @@ export default defineComponent({
                         icon: "cloud_done",
                         message: "Successfully registered " + this.username + "."
                     });
+                    this.loading = false;
                 }
             } catch (result) {
                 // TODO: what is the type of "result"?
@@ -131,14 +141,8 @@ export default defineComponent({
                     // message: "Failed to register: " + result.error
                     message: "Failed to register: " + (result as string)
                 });
+                this.loading = false;
             }
-        },
-
-        onReset() {
-            this.username = "";
-            this.email = "";
-            this.password = "";
-            this.confirmPassword = "";
         }
     }
 });

@@ -11,26 +11,25 @@
 <template>
     <q-form
         @submit="onSubmit"
-        @reset="onReset"
         class="q-gutter-md"
     >
         <q-input
             v-model="username"
             filled
+            dense
             label="Username"
             hint="Enter your username."
-            lazy-rules
-            :rules="[ val => val && val.length > 0 || 'Please enter a username.']"
+            :disable="loading"
         />
 
         <q-input
             v-model="password"
             filled
+            dense
             label="Password"
             :type="showPassword ? 'text' : 'password'"
             hint="Enter your password."
-            lazy-rules
-            :rules="[ val => val && val.length > 0 || 'Please enter a password.']"
+            :disable="loading"
         >
             <template v-slot:append>
                 <q-icon
@@ -42,8 +41,7 @@
         </q-input>
 
         <div align="right">
-            <q-btn label="Reset" type="reset" color="primary" flat class="q-mr-sm" />
-            <q-btn label="Login" type="submit" color="primary"/>
+            <q-btn label="Login" type="submit" color="primary" :disable="usernameEmpty || passwordEmpty" :loading="loading" />
         </div>
     </q-form>
 </template>
@@ -60,11 +58,22 @@ export default defineComponent({
     data: () => ({
         username: "",
         password: "",
-        showPassword: false
+        showPassword: false,
+        loading: false
     }),
+
+    computed: {
+        usernameEmpty: function() {
+            return this.username.length <= 0;
+        },
+        passwordEmpty: function() {
+            return this.password.length <= 0;
+        }
+    },
 
     methods: {
         async onSubmit() {
+            this.loading = true;
             try {
                 const loginResponse = await Account.login(this.username, this.password);
 
@@ -75,15 +84,16 @@ export default defineComponent({
                         icon: "cloud_done",
                         message: "Welcome " + this.username + "."
                     });
-
+                    this.loading = false;
                     this.$emit("closeDialog");
                 } else {
                     this.$q.notify({
                         type: "negative",
                         textColor: "white",
                         icon: "warning",
-                        message: "Login attempted failed"
+                        message: "Login attempt failed"
                     });
+                    this.loading = false;
                 }
             } catch (result) {
                 // TODO: what is the type of "result"? Define the fields
@@ -91,15 +101,11 @@ export default defineComponent({
                     type: "negative",
                     textColor: "white",
                     icon: "warning",
-                    // message: "Login attempted failed: " + result.error
-                    message: "Login attempted failed: " + (result as string)
+                    // message: "Login attempt failed: " + result.error
+                    message: "Login attempt failed: " + (result as string)
                 });
+                this.loading = false;
             }
-        },
-
-        onReset() {
-            this.username = "";
-            this.password = "";
         }
     }
 });
