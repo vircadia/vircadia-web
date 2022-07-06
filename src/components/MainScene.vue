@@ -36,7 +36,6 @@ import { defineComponent } from "vue";
 import { Mutations as StoreMutations } from "@Store/index";
 import { AudioMgr } from "@Modules/scene/audio";
 import { Renderer } from "@Modules/scene/renderer";
-import { VScene } from "@Modules/scene/vscene";
 // import Log from "@Modules/debugging/log";
 
 type Nullable<T> = T | null | undefined;
@@ -48,7 +47,6 @@ export interface ResizeShape {
 
 export default defineComponent({
     name: "MainScene",
-
     props: {
         interactive: {
             type: Boolean,
@@ -61,8 +59,7 @@ export default defineComponent({
     },
 
     data: () => ({
-        // Rendering
-        scene: <VScene><unknown>undefined,
+        sceneCreated: false,
         canvasHeight: 200,
         canvasWidth: 200
     }),
@@ -93,7 +90,7 @@ export default defineComponent({
     },
 
     created: function(): boolean {
-        return Boolean(this.scene);
+        return this.sceneCreated;
     },
 
     // Called when MainScene is loaded onto the page
@@ -109,14 +106,13 @@ export default defineComponent({
         // Initialize the audio for the scene
         await AudioMgr.initialize(this.setOutputStream.bind(this));
 
-        // Create one scene for the moment
-        this.scene = Renderer.createScene();
+        const scene = Renderer.createScene();
 
-        this.scene.createDefaultEnvionment();
+        scene.createDefaultEnvionment();
 
-        await this.scene.loadSceneUA92Campus();
+        await scene.loadSceneUA92Campus();
 
-        Renderer.startRenderLoop([this.scene as VScene]);
+        Renderer.startRenderLoop([scene]);
     }
 });
 </script>
