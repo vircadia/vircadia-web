@@ -76,8 +76,12 @@
             height: isMaximized ? '100%' : (showWindowContent ? height : heightWhenMinimized) + 'px',
             width: isMaximized ? '100%' : width + 'px',
             // Positioning
-            // eslint-disable-next-line max-len
-            top: `${isMaximized ? 0 : top < 0 ? 0 : showWindowContent ? top > windowCache.innerHeight - height ? windowCache.innerHeight - height : top : top > windowCache.innerHeight - heightWhenMinimized ? windowCache.innerHeight - heightWhenMinimized : top}px`,
+
+            top: `${isMaximized ? 0 : top < 0 ? 0 : showWindowContent ? top >
+            windowCache.innerHeight - height ? windowCache.innerHeight - height :
+            top : top > windowCache.innerHeight - heightWhenMinimized ?
+            windowCache.innerHeight - heightWhenMinimized : top}px`,
+            
             // eslint-disable-next-line max-len
             left: `${isMaximized ? 0 : left < 0 ? 0 : left > windowCache.innerWidth - width ? windowCache.innerWidth - width : left}px`,
             borderRadius: '5px',
@@ -117,7 +121,10 @@
                 </q-btn>
                 <q-btn dense flat
                     icon="close"
-                    @click="$emit('overlay-action', 'close')" />
+
+                    @click="$emit('overlay-action', 'close')"
+                />
+
             </q-bar>
         </q-slide-transition>
 
