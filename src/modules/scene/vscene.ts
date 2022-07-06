@@ -68,7 +68,6 @@ export class VScene {
     _defaultPipeline : Nullable<DefaultRenderingPipeline>;
     _incrementalLoading = false;
     _defaultEnviroment = false;
-    _debugOverlay: Nullable<AdvancedDynamicTexture>;
 
     constructor(pEngine: Engine, pSceneId = 0) {
         if (process.env.NODE_ENV === "development") {
@@ -546,18 +545,7 @@ export class VScene {
                     if (this._scene.debugLayer.isVisible()) {
                         this._scene.debugLayer.hide();
                     } else {
-                        await this._scene.debugLayer.show();
-                    }
-                }
-                break;
-            case "Backslash":
-                if (process.env.NODE_ENV === "development"
-                    && evt.sourceEvent.shiftKey) {
-                    if (!this._debugOverlay) {
-                        this._createDebugOverlay();
-                    } else {
-                        this._debugOverlay.dispose();
-                        this._debugOverlay = null;
+                        await this._scene.debugLayer.show({ overlay: true });
                     }
                 }
                 break;
@@ -578,25 +566,4 @@ export class VScene {
         }
     }
 
-    private _createDebugOverlay():void {
-        this._debugOverlay = AdvancedDynamicTexture.CreateFullscreenUI("UI");
-
-        const fps = new TextBlock();
-        fps.text = "fps";
-        fps.fontSize = "24px";
-        fps.top = -100;
-        fps.left = -100;
-        fps.color = "white";
-        fps.resizeToFit = true;
-        fps.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
-        fps.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
-        this._debugOverlay.addControl(fps);
-
-        this._scene.registerBeforeRender(() => {
-            const f = this._scene.getEngine().getFps()
-                .toPrecision(2);
-            fps.text = "fps:" + f;
-
-        });
-    }
 }
