@@ -3,6 +3,7 @@
 //
 //  Created by Kalila L. & Heather Anderson on May 13th, 2021.
 //  Copyright 2021 Vircadia contributors.
+//  Copyright 2022 DigiSomni LLC.
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
@@ -76,10 +77,12 @@
             height: isMaximized ? '100%' : (showWindowContent ? height : heightWhenMinimized) + 'px',
             width: isMaximized ? '100%' : width + 'px',
             // Positioning
+
             top: `${isMaximized ? 0 : top < 0 ? 0 : showWindowContent ? top >
             windowCache.innerHeight - height ? windowCache.innerHeight - height :
             top : top > windowCache.innerHeight - heightWhenMinimized ?
             windowCache.innerHeight - heightWhenMinimized : top}px`,
+
             // eslint-disable-next-line max-len
             left: `${isMaximized ? 0 : left < 0 ? 0 : left > windowCache.innerWidth - width ? windowCache.innerWidth - width : left}px`,
             borderRadius: '5px',
@@ -119,8 +122,10 @@
                 </q-btn>
                 <q-btn dense flat
                     icon="close"
+
                     @click="$emit('overlay-action', 'close')"
                 />
+
             </q-bar>
         </q-slide-transition>
 
@@ -224,6 +229,7 @@ export default defineComponent({
         overlayStatus() {
             this.refinePosition();
         },
+
         mouseCaptured(newVal: boolean) {
             if (newVal) {
                 // TODO: what is 'newVal' telling us that all settings are to 'true'?
@@ -370,6 +376,7 @@ export default defineComponent({
             event.preventDefault();
             event.stopPropagation();
         },
+
         cacheWindowParams(): void {
             // Cache some necessary properties of the global window object.
             this.windowCache = {
@@ -377,6 +384,7 @@ export default defineComponent({
                 innerHeight: document.body.querySelector("main")?.clientHeight || window.innerHeight
             };
         },
+
         refinePosition(): void {
             if (this.top < 0) {
                 this.top = 0;

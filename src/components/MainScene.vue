@@ -3,6 +3,7 @@
 //
 //  Created by Kalila L. on May 9th, 2021.
 //  Copyright 2021 Vircadia contributors.
+//  Copyright 2022 DigiSomni LLC.
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
@@ -36,7 +37,6 @@ import { defineComponent } from "vue";
 import { Mutations as StoreMutations } from "@Store/index";
 import { AudioMgr } from "@Modules/scene/audio";
 import { Renderer } from "@Modules/scene/renderer";
-import { VScene } from "@Modules/scene/vscene";
 // import Log from "@Modules/debugging/log";
 
 type Nullable<T> = T | null | undefined;
@@ -48,7 +48,6 @@ export interface ResizeShape {
 
 export default defineComponent({
     name: "MainScene",
-
     props: {
         interactive: {
             type: Boolean,
@@ -61,8 +60,7 @@ export default defineComponent({
     },
 
     data: () => ({
-        // Rendering
-        scene: <VScene><unknown>undefined,
+        sceneCreated: false,
         canvasHeight: 200,
         canvasWidth: 200
     }),
@@ -93,7 +91,7 @@ export default defineComponent({
     },
 
     created: function(): boolean {
-        return Boolean(this.scene);
+        return this.sceneCreated;
     },
 
     // Called when MainScene is loaded onto the page
@@ -109,13 +107,13 @@ export default defineComponent({
         // Initialize the audio for the scene
         await AudioMgr.initialize(this.setOutputStream.bind(this));
 
-        // Create one scene for the moment
-        this.scene = Renderer.createScene();
+        const scene = Renderer.createScene();
 
-        // Until connected to the external world, add test items to the scene
-        await this.scene.buildTestScene();
+        scene.createDefaultEnvionment();
 
-        Renderer.startRenderLoop([this.scene as VScene]);
+        await scene.loadSceneUA92Campus();
+
+        Renderer.startRenderLoop([scene]);
     }
 });
 </script>

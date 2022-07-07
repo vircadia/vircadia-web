@@ -1,5 +1,6 @@
 /*
 //  Copyright 2021 Vircadia contributors.
+//  Copyright 2022 DigiSomni LLC.
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
@@ -12,6 +13,8 @@ import { Engine } from "@babylonjs/core";
 
 import { Store, Mutations } from "@Store/index";
 import { Config } from "@Base/config";
+import { WebGPUEngine } from "@babylonjs/core/Engines/webgpuEngine";
+
 
 // General Modules
 import { VScene } from "@Modules/scene/vscene";
@@ -22,10 +25,33 @@ import Log from "@Modules/debugging/log";
 export const Renderer = {
     _engine: <Engine><unknown>undefined,
     _renderingScenes: <VScene[]><unknown>undefined,
+    _webgpuSupported: false,
 
     // eslint-disable-next-line @typescript-eslint/require-await
     async initialize(pCanvas: HTMLCanvasElement): Promise<void> {
-        Renderer._engine = new Engine(pCanvas);
+
+        this._webgpuSupported = await WebGPUEngine.IsSupportedAsync;
+        if (this._webgpuSupported) {
+
+            Renderer._engine = new WebGPUEngine(pCanvas, {
+                deviceDescriptor: {
+                    requiredFeatures: [
+                        "depth-clip-control",
+                        "depth24unorm-stencil8",
+                        "depth32float-stencil8",
+                        "texture-compression-bc",
+                        "texture-compression-etc2",
+                        "texture-compression-astc",
+                        "timestamp-query",
+                        "indirect-first-instance"
+                    ]
+                }
+            });
+            await (Renderer._engine as WebGPUEngine).initAsync();
+        } else {
+            Renderer._engine = new Engine(pCanvas, true);
+        }
+
         this._renderingScenes = new Array<VScene>();
 
         // Update renderer statistics for Vue
@@ -54,7 +80,9 @@ export const Renderer = {
     },
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     resize(pHeight: number, pWidth: number): void {
-        this._engine.resize();
+        if (!this._webgpuSupported) {
+            this._engine.resize();
+        }
     },
     startRenderLoop(pScenes: VScene[]): void {
         this._renderingScenes = pScenes;
@@ -63,7 +91,7 @@ export const Renderer = {
     },
     _renderLoop(): void {
         Renderer._renderingScenes.forEach((vscene) => {
-            vscene._scene.render();
+            vscene.render();
         });
     }
 };
