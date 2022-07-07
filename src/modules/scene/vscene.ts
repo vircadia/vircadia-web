@@ -16,9 +16,7 @@ import { AnimationGroup, Engine, MeshBuilder, Scene, SceneLoader,
     Mesh, HemisphericLight, DefaultRenderingPipeline, Camera, AbstractMesh,
     AssetsManager } from "@babylonjs/core";
 
-import { AdvancedDynamicTexture, TextBlock, Control } from "@babylonjs/gui";
-
-import { Color3, Color4, Vector3 } from "@babylonjs/core/Maths/math";
+import { Color3, Quaternion, Vector3 } from "@babylonjs/core/Maths/math";
 import "@babylonjs/loaders/glTF";
 import "@babylonjs/core/Meshes/meshBuilder";
 // General Modules
@@ -273,7 +271,7 @@ export class VScene {
         // setup camera
         const camera = this._camera as ArcRotateCamera;
         if (camera) {
-            camera.minZ = 1;
+            camera.minZ = 0.5;
             camera.maxZ = 250000;
             camera.alpha = -Math.PI / 2;
             camera.beta = Math.PI / 2;
@@ -301,11 +299,11 @@ export class VScene {
         // setup camera
         const camera = this._camera as ArcRotateCamera;
         if (camera) {
-            camera.minZ = 1;
+            camera.minZ = 0.1;
             camera.maxZ = 2000;
             camera.alpha = -Math.PI / 2;
             camera.beta = Math.PI / 2;
-            camera.parent = this._avatar as Mesh;
+            camera.parent = this._avatar as AbstractMesh;
         }
 
         await this.loadUA92CampusEnvironment();
@@ -392,29 +390,42 @@ export class VScene {
         const mesh = result.meshes[0].getChildren()[0] as AbstractMesh;
 
         result.animationGroups.forEach((sourceAnimGroup) => {
-
             const animGroup = new AnimationGroup(sourceAnimGroup.name);
-            // scale of Armature
-            const scale = mesh.scaling;
-
             // trim unnecessary animation data
             sourceAnimGroup.targetedAnimations.forEach((targetAnim) => {
-                // scale postion animation of Hips node
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                if (targetAnim.target.name === "Hips" && targetAnim.animation.targetProperty === "position") {
-                    const anim = targetAnim.animation.clone();
-                    const keys = anim.getKeys();
-                    keys.forEach((keyFrame) => {
-                        const pos = keyFrame.value as Vector3;
-                        keyFrame.value = pos.multiply(scale);
-                    });
+                if (targetAnim.target.name === "Hips") {
+                    // recaculate the postion and roatation quaternion animation key of Hip
+                    if (targetAnim.animation.targetProperty === "position") {
+                        const anim = targetAnim.animation.clone();
+                        const keys = anim.getKeys();
+                        keys.forEach((keyFrame) => {
+                            // apply the roation and scale of Armatue node
+                            let pos = keyFrame.value as Vector3;
+                            pos = pos.applyRotationQuaternion(mesh.rotationQuaternion as Quaternion);
+                            keyFrame.value = pos.multiply(mesh.scaling);
+                        });
+                        animGroup.addTargetedAnimation(anim, targetAnim.target);
 
-                    animGroup.addTargetedAnimation(anim, targetAnim.target);
-                // keep rotationQuaternion animation of all nodes
+                    } else if (targetAnim.animation.targetProperty === "rotationQuaternion") {
+                        const anim = targetAnim.animation.clone();
+                        const keys = anim.getKeys();
+                        keys.forEach((keyFrame) => {
+                            // apply the roation Armatue node
+                            const rot = keyFrame.value as Quaternion;
+                            if (mesh.rotationQuaternion) {
+                                keyFrame.value = mesh.rotationQuaternion.multiply(rot);
+                            }
+                        });
+                        animGroup.addTargetedAnimation(targetAnim.animation, targetAnim.target);
+                    }
                 } else if (targetAnim.animation.targetProperty === "rotationQuaternion") {
+                // keep rotationQuaternion animation of all other nodes
                     animGroup.addTargetedAnimation(targetAnim.animation, targetAnim.target);
                 }
             });
+
+
             this._avatarAnimationGroups.push(animGroup);
 
             sourceAnimGroup.dispose();
@@ -443,17 +454,14 @@ export class VScene {
             const avatar = result.meshes[0];
             avatar.scaling = new Vector3(1, 1, 1);
 
-            const avatarMesh = avatar.getChildren()[0] as AbstractMesh;
-            avatarMesh.rotationQuaternion = this._avatarAnimMesh.rotationQuaternion;
-
             // Creates, angles, distances and targets the camera
             if (!this._camera) {
                 const camera = new ArcRotateCamera(
                     "Camera", -Math.PI / 2, Math.PI / 2, 6,
-                    new Vector3(0, 1, 0), this._scene);
+                    new Vector3(0, 1.5, 0), this._scene);
 
                 // This attaches the camera to the canvas
-                camera.attachControl(this._scene.getEngine().getRenderingCanvas(), true);
+                camera.attachControl(this._scene.getEngine().getRenderingCanvas(), false);
                 camera.wheelPrecision = 50;
 
                 this._scene.activeCamera = camera;
