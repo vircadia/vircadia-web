@@ -262,7 +262,7 @@ export class VScene {
 
         this._unloadEnvionment();
 
-        await this.loadAvatarAssets();
+        await this._loadAvatarAssets();
         // setup avatar
         if (this._avatar) {
             this._avatar.position = new Vector3(0, 49.6, 0);
@@ -290,7 +290,7 @@ export class VScene {
 
         this._unloadEnvionment();
 
-        await this.loadAvatarAssets();
+        await this._loadAvatarAssets();
         // setup avatar
         if (this._avatar) {
             this._avatar.position = new Vector3(25, 0, 30);
@@ -311,15 +311,6 @@ export class VScene {
 
         await this._scene.whenReadyAsync();
         this._scene.getEngine().hideLoadingUI();
-    }
-
-    public async loadAvatarAssets(): Promise<void> {
-        await this._loadAvatarAssets();
-        if (this._avatar && this._camera) {
-            this._avatarController = new AvatarController(this._avatar, this._camera,
-                this._scene, this._avatarAnimationGroups);
-            this._avatarController.start();
-        }
     }
 
     public async loadSpaceStationEnvironment(): Promise<void> {
@@ -469,6 +460,12 @@ export class VScene {
             }
 
             this._avatar = avatar;
+        }
+
+        if (this._avatar && this._camera) {
+            this._avatarController = new AvatarController(this._avatar, this._camera,
+                this._scene, this._avatarAnimationGroups);
+            this._avatarController.start();
         }
     }
 
