@@ -9,7 +9,7 @@
 // Allow 'get' lines to be compact
 /* eslint-disable @typescript-eslint/brace-style */
 
-import { DomainServer, SignalEmitter } from "@vircadia/web-sdk";
+import { DomainServer, SignalEmitter, Camera } from "@vircadia/web-sdk";
 import { DomainAudio } from "@Modules/domain/audio";
 import { DomainMessage } from "@Modules/domain/message";
 import { DomainAvatar } from "@Modules/domain/avatar";
@@ -61,6 +61,7 @@ export class Domain {
     #_audioClient: Nullable<DomainAudio>;
     #_messageClient: Nullable<DomainMessage>;
     #_avatarClient: Nullable<DomainAvatar>;
+    #_camera:Nullable<Camera>;
 
     public get DomainClient(): Nullable<DomainServer> { return this.#_domain; }
     public get AudioClient(): Nullable<DomainAudio> { return this.#_audioClient; }
@@ -106,9 +107,14 @@ export class Domain {
         Log.debug(Log.types.COMM, `Creating a new DomainServer`);
         this.#_domain = new DomainServer();
 
+        this.#_camera = new Camera(this.#_domain.contextID);
+
         // Get instances of all the possible clients
+
         this.#_avatarClient = new DomainAvatar(this);
+
         this.#_messageClient = new DomainMessage(this);
+
         this.#_audioClient = new DomainAudio(this);
 
         // connect to the domain. The 'connected' event will say if the connection as made.
