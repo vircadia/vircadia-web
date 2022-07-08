@@ -39,6 +39,16 @@ declare module "@vircadia/web-sdk" {
         valid(value: any): boolean;
         equal(q1: quat, q2: quat): boolean;
     };
+
+    export type SkeletonJoint = {
+        jointName: string;
+        jointIndex: number;
+        parentIndex: number;
+        boneType: number;
+        defaultTranslation: vec3;
+        defaultRotation: quat;
+        defaultScale: number;
+    };
     // Uuid ============================
     export class Uuid {
         static readonly NUM_BYTES_RFC4122_UUID = 16;
@@ -198,10 +208,27 @@ declare module "@vircadia/web-sdk" {
         get displayNameChanged(): Signal;
         get sessionDisplayName(): string;
         get sessionDisplayNameChanged(): Signal;
+        get skeletonModelURL(): string;
+        set skeletonModelURL(skeletonModelURL: string);
+        get skeletonModelURLChanged(): Signal;
+        get skeleton(): SkeletonJoint[];
+        set skeleton(skeleton: SkeletonJoint[]);
+        get skeletonChanged(): Signal;
+        get scale(): number;
+        set scale(scale: number);
+        get scaleChanged(): Signal;
+        get targetScale(): number;
+        set targetScale(targetScale: number);
+        get targetScaleChanged(): Signal;
         get position(): vec3;
-        set position(pos: vec3);
+        set position(position: vec3);
         get orientation(): quat;
-        set orientation(orient: quat);
+        set orientation(orientation: quat);
+        get locationChangeRequired(): Signal;
+        get jointRotations(): (quat | null)[];
+        set jointRotations(jointRotations: (quat | null)[]);
+        get jointTranslations(): (vec3 | null)[];
+        set jointTranslations(jointTranslations: (vec3 | null)[]);
     }
 
     // ScriptAvatar ==================================
@@ -238,6 +265,23 @@ declare module "@vircadia/web-sdk" {
         constructor(contextID: number);
         get myAvatar(): MyAvatarInterface;
         get avatarList(): AvatarListInterface;
+        update(): void;
+    }
+
+    export class Camera {
+        constructor(contextID: number);
+        get position(): vec3;
+        set position(position: vec3);
+        get orientation(): quat;
+        set orientation(orientation: quat);
+        get fieldOfView(): number;
+        set fieldOfView(fieldOfView: number);
+        get aspectRatio(): number;
+        set aspectRatio(aspectRatio: number);
+        get farClip(): number;
+        set farClip(farClip: number);
+        get centerRadius(): number;
+        set centerRadius(centerRadius: number);
         update(): void;
     }
 
