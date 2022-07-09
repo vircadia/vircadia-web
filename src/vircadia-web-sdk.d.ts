@@ -231,15 +231,58 @@ declare module "@vircadia/web-sdk" {
         set jointTranslations(jointTranslations: (vec3 | null)[]);
     }
 
+    export class AvatarData {
+        constructor(contextID: number);
+        get displayNameChanged(): Signal;
+        get sessionDisplayNameChanged(): Signal;
+        get skeletonModelURLChanged(): Signal;
+        get skeletonChanged(): Signal;
+        get targetScaleChanged(): Signal;
+        getSessionUUID(): Uuid;
+        setSessionUUID(sessionUUID: Uuid): void;
+        getDisplayName(): string | null;
+        setDisplayName(displayName: string | null): void;
+        getSessionDisplayName(): string | null;
+        setSessionDisplayName(sessionDisplayName: string | null): void;
+        maybeUpdateSessionDisplayNameFromTransport(sessionDisplayName: string | null): void;
+        getSkeletonModelURL(): string | null;
+        setSkeletonModelURL(skeletonModelURL: string | null): void;
+        getSkeletonData(): SkeletonJoint[];
+        setSkeletonData(skeletonData: SkeletonJoint[]): void;
+        setTargetScale(targetScale: number): void;
+        getTargetScale(): number;
+        getDomainLimitedScale(): number;
+        getJointRotations(): (quat | null)[];
+        setJointRotations(jointRotations: (quat | null)[]): void;
+        getJointTranslations(): (vec3 | null)[];
+        setJointTranslations(jointTranslations: (vec3 | null)[]): void;
+        markIdentityDataChanged(): void;
+        getIdentityDataChanged(): boolean;
+        sendIdentityPacket(): number;
+        resetLastSent(): void;
+        sendAvatarDataPacket(sendAll?: boolean): number;
+
+    }
+
     // ScriptAvatar ==================================
     export class ScriptAvatar {
+        #private;
+        constructor(avatar: AvatarData | null);
         get isValid(): boolean;
         get displayName(): string;
         get displayNameChanged(): Signal;
         get sessionDisplayName(): string;
         get sessionDisplayNameChanged(): Signal;
+        get skeletonModelURL(): string;
+        get skeletonModelURLChanged(): Signal;
+        get skeleton(): SkeletonJoint[];
+        get skeletonChanged(): Signal;
+        get scale(): number;
+        get scaleChanged(): Signal;
         get position(): vec3;
         get orientation(): quat;
+        get jointRotations(): (quat | null)[];
+        get jointTranslations(): (vec3 | null)[];
     }
 
     // AvatarListInterface ============================

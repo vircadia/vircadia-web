@@ -102,13 +102,13 @@ export class DomainAvatar extends Client {
         if (typeof this.#_gameLoopTimer === "undefined") {
             this.#_gameLoopFunction = this.update.bind(this);
             // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-            this.#_gameLoopTimer = setTimeout(this.#_gameLoopFunction, 100);
+            this.#_gameLoopTimer = setInterval(this.#_gameLoopFunction, 50);
         }
     }
 
     public stopGameLoop(): void {
         if (this.#_gameLoopTimer && this.#_gameLoopFunction) {
-            setTimeout(this.#_gameLoopFunction, 0);
+            clearInterval(this.#_gameLoopTimer);
             this.#_gameLoopTimer = undefined;
         }
     }

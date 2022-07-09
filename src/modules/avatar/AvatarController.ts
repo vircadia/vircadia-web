@@ -8,6 +8,8 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
+
+// This is disabled because TS complains about BABYLON's use of cap'ed function names
 /* eslint-disable new-cap */
 
 import {
@@ -25,14 +27,20 @@ import {
     Camera,
     ActionEvent,
     IAction
+
 } from "@babylonjs/core";
+// General Modules
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import Log from "@Modules/debugging/log";
+// Domain Modules
+import { MyAvatarInterface } from "@vircadia/web-sdk";
 
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/dot-notation */
 export class AvatarController {
-    private _avatar: AbstractMesh;
+    private _avatarMesh: AbstractMesh;
     private _camera: Camera;
     private _scene: Scene;
     private _walkSpeed = 3;
@@ -55,8 +63,13 @@ export class AvatarController {
     private _keyDownAction:Nullable<IAction> = null;
     private _keyUpAction:Nullable<IAction> = null;
 
+    // domain properties
+    private _avatarDomain : Nullable<MyAvatarInterface> = null;
+    private _positionUpdated = false;
+    private _rotationUpdated = false;
+
     constructor(avatar: AbstractMesh, camera: Camera, scene: Scene, animGroups: AnimationGroup[]) {
-        this._avatar = avatar;
+        this._avatarMesh = avatar;
         this._camera = camera;
         this._scene = scene;
         this._movement = new Vector3();
@@ -66,7 +79,7 @@ export class AvatarController {
         this._onKeyupDown = this._onKeyupDown.bind(this);
 
         const nodes = new Map<string, Node>();
-        this._avatar.getChildren((node):boolean => {
+        this._avatarMesh.getChildren((node):boolean => {
             nodes.set(node.name, node);
             return true;
         }, false);
@@ -99,9 +112,18 @@ export class AvatarController {
 
         });
 
-        this._avatar.isPickable = false;
+        this._avatarMesh.isPickable = false;
 
     }
+
+    set domain(avatar :MyAvatarInterface) {
+        this._avatarDomain = avatar;
+        this._avatarDomain.scale = this._avatarMesh.scaling.x;
+        this._avatarDomain.locationChangeRequired.connect(this._updateDomain.bind(this));
+        this._positionUpdated = true;
+        this._rotationUpdated = true;
+    }
+
 
     static _cloneAnimGroup(sourceAnimGroup : AnimationGroup, nodes : Map<string, Node>, loop = true):AnimationGroup {
         const animGroup = new AnimationGroup(sourceAnimGroup.name);
@@ -144,7 +166,7 @@ export class AvatarController {
 
     public stop():void {
         // eslint-disable-next-line @typescript-eslint/unbound-method
-        this._scene.unregisterAfterRender(this._update);
+        this._scene.unregisterBeforeRender(this._update);
 
         if (this._keyDownAction) {
             this._scene.actionManager.unregisterAction(this._keyDownAction);
@@ -170,8 +192,10 @@ export class AvatarController {
     private _update():void {
         if (this._inputMap["KeyW"]) {
             this._movement.z = Scalar.Lerp(this._movement.z, -this._walkSpeed, 0.1);
+            this._positionUpdated = true;
         } else if (this._inputMap["KeyS"]) {
             this._movement.z = Scalar.Lerp(this._movement.z, this._walkSpeed, 0.1);
+            this._positionUpdated = true;
         } else {
             this._movement.z = 0;
         }
@@ -179,14 +203,18 @@ export class AvatarController {
         if (this._inputMap["KeyA"]) {
             if (this._shiftKey) {
                 this._movement.x = Scalar.Lerp(this._movement.x, this._walkSpeed, 0.1);
+                this._positionUpdated = true;
             } else {
                 this._rotation = Scalar.Lerp(this._rotation, -this._rotationSpeed, 0.1);
+                this._rotationUpdated = true;
             }
         } else if (this._inputMap["KeyD"]) {
             if (this._shiftKey) {
                 this._movement.x = Scalar.Lerp(this._movement.x, -this._walkSpeed, 0.1);
+                this._positionUpdated = true;
             } else {
                 this._rotation = Scalar.Lerp(this._rotation, this._rotationSpeed, 0.1);
+                this._rotationUpdated = true;
             }
         } else {
             this._movement.x = 0;
@@ -202,12 +230,14 @@ export class AvatarController {
         const movement = this._movement.scale(dt);
         const rot = this._rotation * dt;
 
-        this._avatar.rotate(Vector3.Up(), rot);
-        this._avatar.movePOV(movement.x, movement.y, movement.z);
+        this._avatarMesh.rotate(Vector3.Up(), rot);
+        this._avatarMesh.movePOV(movement.x, movement.y, movement.z);
 
         this._animateAvatar();
 
         this._updateGroundDetection();
+
+        this._updateDomain();
     }
 
     private _animateAvatar() {
@@ -242,7 +272,7 @@ export class AvatarController {
     private _updateGroundDetection(): void {
         const pickedPoint = this._floorRaycast(0, 0, 1);
         if (!pickedPoint.equals(Vector3.Zero())) {
-            this._avatar.position.y = pickedPoint.y;
+            this._avatarMesh.position.y = pickedPoint.y;
         }
     }
 
@@ -251,7 +281,7 @@ export class AvatarController {
     private _floorRaycast(offsetx: number, offsetz: number, raycastlen: number): Vector3 {
         // position the raycast from bottom center of mesh
         const raycastFloorPos = new Vector3(
-            this._avatar.position.x + offsetx, this._avatar.position.y + 0.5, this._avatar.position.z + offsetz);
+            this._avatarMesh.position.x + offsetx, this._avatarMesh.position.y + 0.5, this._avatarMesh.position.z + offsetz);
         const ray = new Ray(raycastFloorPos, Vector3.Down(), raycastlen);
 
         // defined which type of meshes should be pickable
@@ -263,5 +293,27 @@ export class AvatarController {
         }  // not grounded
         return Vector3.Zero();
 
+    }
+
+    private _updateDomain() {
+        if (this._avatarDomain) {
+            if (this._positionUpdated) {
+                this._avatarDomain.position = { x: this._avatarMesh.position.x,
+                    y: this._avatarMesh.position.y,
+                    z: this._avatarMesh.position.z };
+                this._positionUpdated = false;
+            }
+            if (this._rotationUpdated) {
+                if (this._avatarDomain.orientation && this._avatarMesh.rotationQuaternion) {
+                    // Log.debug(Log.types.AVATAR, "update avatar domian rotation");
+                    this._avatarDomain.orientation = { x: this._avatarMesh.rotationQuaternion.x,
+                        y: this._avatarMesh.rotationQuaternion.y,
+                        z: this._avatarMesh.rotationQuaternion.z,
+                        w: this._avatarMesh.rotationQuaternion.z };
+                }
+
+                this._rotationUpdated = false;
+            }
+        }
     }
 }

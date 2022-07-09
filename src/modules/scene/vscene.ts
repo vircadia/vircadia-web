@@ -24,7 +24,12 @@ import Log from "@Modules/debugging/log";
 // System Modules
 import { v4 as uuidv4 } from "uuid";
 import { VVector3 } from ".";
-import { AvatarController } from "@Modules/avatar";
+import { AvatarController, RemoteAvatarController } from "@Modules/avatar";
+// Domain Modules
+import { DomainMgr } from "@Modules/domain";
+import { Domain, ConnectionState } from "@Modules/domain/domain";
+// import { AssignmentClientState } from "@Modules/domain/client";
+import { MyAvatarInterface, AvatarListInterface, AvatarMixer, Uuid } from "@vircadia/web-sdk";
 
 
 /**
@@ -63,10 +68,12 @@ export class VScene {
     _avatarAnimMesh :Nullable<AbstractMesh> = null;
     _camera : Nullable<Camera> = null;
     _avatarController : Nullable<AvatarController>;
+    _remoteAvatarControllers : Map<Uuid, RemoteAvatarController>;
     _avatarAnimationGroups : AnimationGroup[] = [];
     _defaultPipeline : Nullable<DefaultRenderingPipeline>;
     _incrementalLoading = false;
     _defaultEnviroment = false;
+    _avatarMixer : Nullable<AvatarMixer> = null;
 
     constructor(pEngine: Engine, pSceneId = 0) {
         if (process.env.NODE_ENV === "development") {
@@ -87,6 +94,11 @@ export class VScene {
         this._sceneId = pSceneId;
 
         this._scene.registerBeforeRender(this._befeforeRender.bind(this));
+
+        // Listen for the domain to connect and disconnect
+        DomainMgr.onActiveDomainStateChange.connect(this._handleActiveDomainStateChange.bind(this));
+
+        this._remoteAvatarControllers = new Map<Uuid, RemoteAvatarController>();
     }
 
     getSceneId(): number {
@@ -569,6 +581,80 @@ export class VScene {
                 break;
             default:
                 break;
+        }
+    }
+
+    private _handleActiveDomainStateChange(pDomain: Domain, pState: ConnectionState, pInfo: string): void {
+        if (pState === ConnectionState.CONNECTED) {
+            Log.debug(Log.types.AVATAR, `VScene._handleActiveDomainStateChange: CONNECTED`);
+
+            const sessionID = pDomain.DomainClient?.sessionUUID;
+            if (sessionID) {
+                Log.debug(Log.types.AVATAR, `Session ID: ${sessionID.stringify()}`);
+            }
+
+            this._avatarMixer = pDomain.AvatarClient?.Mixer;
+            const myAvatar = pDomain.AvatarClient?.MyAvatar;
+            if (myAvatar) {
+                myAvatar.displayName = "Sara";
+                myAvatar.skeletonModelURL = "https://staging.vircadia.com/O12OR634/UA92/sara.glb";
+
+                if (this._avatarController) {
+                    this._avatarController.domain = myAvatar;
+                }
+            }
+
+            Log.debug(Log.types.AVATAR, `get avatar list`);
+            const avatarList = this._avatarMixer?.avatarList;
+            if (avatarList) {
+                Log.debug(Log.types.AVATAR, `avatar number:${avatarList.count}`);
+                avatarList.avatarAdded.connect(this._handleAvatarAdded.bind(this));
+                avatarList.avatarRemoved.connect(this._handleAvatarRemoved.bind(this));
+
+                const uuids = avatarList.getAvatarIDs();
+                const emptyId = new Uuid();
+
+                uuids.forEach((uuid) => {
+                    // filter my avatar
+                    if (uuid.stringify() !== emptyId.stringify()) {
+                        this._handleAvatarAdded(uuid);
+                    }
+                });
+            }
+
+        } else if (pState === ConnectionState.DISCONNECTED) {
+            Log.debug(Log.types.AUDIO, `VScene._handleActiveDomainStateChange: ${Domain.stateToString(pState)}`);
+            this._remoteAvatarControllers.forEach((controller) => {
+                controller.stop();
+            });
+            this._remoteAvatarControllers.clear();
+        }
+    }
+
+    private _handleAvatarAdded(sessionID:Uuid): void {
+        const avatarList = this._avatarMixer?.avatarList;
+        if (avatarList) {
+            Log.debug(Log.types.AVATAR, `Handle avatar Session ID: ${sessionID.stringify()}`);
+            const avatar = avatarList.getAvatar(sessionID);
+            const controller = new RemoteAvatarController(this._scene, [], avatar);
+            controller.start();
+            this._remoteAvatarControllers.set(sessionID, controller);
+        }
+    }
+
+    private _handleAvatarRemoved(sessionID:Uuid): void {
+        const avatarList = this._avatarMixer?.avatarList;
+        if (avatarList) {
+            const controller = this._remoteAvatarControllers.get(sessionID);
+            if (controller) {
+                controller.stop();
+                // eslint-disable-next-line @typescript-eslint/dot-notation
+                this._remoteAvatarControllers.delete(sessionID);
+                const avatar = avatarList.getAvatar(sessionID);
+                Log.debug(Log.types.AVATAR,
+                    `Avatar removed", 
+                    sessionID:${sessionID.stringify()} SessionDisplayName:${avatar.sessionDisplayName}`);
+            }
         }
     }
 
