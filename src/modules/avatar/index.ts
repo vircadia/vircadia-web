@@ -10,3 +10,4 @@
 //
 
 export { AvatarController } from "./AvatarController";
+export { RemoteAvatarController } from "./RemoteAvatarController";
