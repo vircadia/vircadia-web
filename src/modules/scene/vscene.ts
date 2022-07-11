@@ -380,7 +380,7 @@ export class VScene {
         }
         // load avatar mesh
         if (!this._avatar) {
-            this._avatar = await this._resourceManager.loadAvatar(DefaultAvatarUrl);
+            this._avatar = await this._resourceManager.loadMyAvatar(DefaultAvatarUrl);
         }
 
         // Creates, angles, distances and targets the camera
@@ -525,6 +525,7 @@ export class VScene {
             Log.debug(Log.types.AUDIO, `VScene._handleActiveDomainStateChange: ${Domain.stateToString(pState)}`);
             this._remoteAvatarControllers.forEach((controller) => {
                 controller.stop();
+                this._resourceManager.unloadAvatar(controller.mesh.id);
             });
             this._remoteAvatarControllers.clear();
         }
@@ -533,11 +534,16 @@ export class VScene {
     private _handleAvatarAdded(sessionID:Uuid): void {
         const avatarList = this._avatarMixer?.avatarList;
         if (avatarList) {
-            Log.debug(Log.types.AVATAR, `Handle avatar Session ID: ${sessionID.stringify()}`);
+            Log.debug(Log.types.AVATAR, `Handle avatar added Session ID: ${sessionID.stringify()}`);
             const avatar = avatarList.getAvatar(sessionID);
-            const controller = new RemoteAvatarController(this._scene, [], avatar);
-            controller.start();
-            this._remoteAvatarControllers.set(sessionID, controller);
+
+            const url = avatar.skeletonModelURL === "" ? DefaultAvatarUrl : avatar.skeletonModelURL;
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            this._resourceManager.loadAvatar(url).then((mesh) => {
+                const controller = new RemoteAvatarController(this._scene, mesh, [], avatar);
+                controller.start();
+                this._remoteAvatarControllers.set(sessionID, controller);
+            });
         }
     }
 
@@ -546,6 +552,7 @@ export class VScene {
         if (avatarList) {
             const controller = this._remoteAvatarControllers.get(sessionID);
             if (controller) {
+                this._resourceManager.unloadAvatar(controller.mesh.id);
                 controller.stop();
                 // eslint-disable-next-line @typescript-eslint/dot-notation
                 this._remoteAvatarControllers.delete(sessionID);
