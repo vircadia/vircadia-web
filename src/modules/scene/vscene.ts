@@ -540,7 +540,7 @@ export class VScene {
             const url = avatar.skeletonModelURL === "" ? DefaultAvatarUrl : avatar.skeletonModelURL;
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this._resourceManager.loadAvatar(url).then((mesh) => {
-                const controller = new RemoteAvatarController(this._scene, mesh, [], avatar);
+                const controller = new RemoteAvatarController(this._scene, mesh, this._avatarAnimationGroups, avatar);
                 controller.start();
                 this._remoteAvatarControllers.set(sessionID, controller);
             });

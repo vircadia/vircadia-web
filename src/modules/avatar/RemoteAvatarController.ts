@@ -19,6 +19,7 @@ import {
     AnimationGroup,
     Quaternion
 } from "@babylonjs/core";
+import { AnimationController } from "./AnimationController";
 // General Modules
 import Log from "@Modules/debugging/log";
 // Domain Modules
@@ -27,6 +28,7 @@ import { ScriptAvatar, vec3, quat } from "@vircadia/web-sdk";
 export class RemoteAvatarController {
     private _scene: Scene;
     private _avatarMesh: AbstractMesh;
+    private _animController: AnimationController;
     // domain properties
     private _avatarDomain : ScriptAvatar;
     private _prePos: vec3;
@@ -37,6 +39,7 @@ export class RemoteAvatarController {
         this._scene = scene;
         this._avatarDomain = domain;
         this._update = this._update.bind(this);
+        this._animController = new AnimationController(this._avatarMesh, animGroups);
 
         Log.debug(Log.types.AVATAR,
             `Avatar created.
@@ -75,7 +78,6 @@ export class RemoteAvatarController {
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
     private _update():void {
-        this._updateOrientation();
 
         const pos = this._avatarDomain.position;
         if (this._prePos.x !== pos.x || this._prePos.y !== pos.y || this._prePos.z !== pos.z) {
@@ -91,6 +93,10 @@ export class RemoteAvatarController {
             this._updateOrientation();
             this._preQuat = q;
         }
+
+        this._animController.play("idle02");
+
+        this._animController.update();
     }
 
     private _handleDisplayNameChanged() {
