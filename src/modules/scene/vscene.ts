@@ -13,12 +13,13 @@
 
 import { AnimationGroup, Engine, MeshBuilder, Scene, SceneLoader,
     ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, StandardMaterial,
-    Mesh, HemisphericLight, DefaultRenderingPipeline, Camera, AbstractMesh,
-    AssetsManager } from "@babylonjs/core";
+    Mesh, HemisphericLight, DefaultRenderingPipeline, Camera, AbstractMesh } from "@babylonjs/core";
 
 import { Color3, Quaternion, Vector3 } from "@babylonjs/core/Maths/math";
 import "@babylonjs/loaders/glTF";
 import "@babylonjs/core/Meshes/meshBuilder";
+import { ResourceManager } from "./resource";
+
 // General Modules
 import Log from "@Modules/debugging/log";
 // System Modules
@@ -28,8 +29,7 @@ import { AvatarController, RemoteAvatarController } from "@Modules/avatar";
 // Domain Modules
 import { DomainMgr } from "@Modules/domain";
 import { Domain, ConnectionState } from "@Modules/domain/domain";
-// import { AssignmentClientState } from "@Modules/domain/client";
-import { MyAvatarInterface, AvatarListInterface, AvatarMixer, Uuid } from "@vircadia/web-sdk";
+import { AvatarMixer, Uuid } from "@vircadia/web-sdk";
 
 
 /**
@@ -50,10 +50,8 @@ interface EntityProps {
     color?: { r: number; g: number; b: number; a?: number };
 }
 
-interface ILoadAvatarAssetsResult {
-    readonly avatar:Mesh,
-    readonly camera:Camera
-}
+const DefaultAvatarUrl = "https://staging.vircadia.com/O12OR634/UA92/sara.glb";
+const AvatarAnimationUrl = "https://staging.vircadia.com/O12OR634/UA92/AnimationsBasic.glb";
 
 /**
  * VScene is the interface to a single scene's state, entities, and operations.
@@ -61,9 +59,7 @@ interface ILoadAvatarAssetsResult {
 export class VScene {
     _sceneId: number;
     _scene: Scene;
-    _assetsManager : AssetsManager;
     _entities: Map<string, Mesh>;
-    _sceneMeshes: Map<string, AbstractMesh>;
     _avatar : Nullable<AbstractMesh> = null;
     _avatarAnimMesh :Nullable<AbstractMesh> = null;
     _camera : Nullable<Camera> = null;
@@ -74,6 +70,7 @@ export class VScene {
     _incrementalLoading = false;
     _defaultEnviroment = false;
     _avatarMixer : Nullable<AvatarMixer> = null;
+    _resourceManager : ResourceManager;
 
     constructor(pEngine: Engine, pSceneId = 0) {
         if (process.env.NODE_ENV === "development") {
@@ -82,9 +79,8 @@ export class VScene {
         }
 
         this._entities = new Map<string, Mesh>();
-        this._sceneMeshes = new Map<string, AbstractMesh>();
         this._scene = new Scene(pEngine);
-        this._assetsManager = new AssetsManager(this._scene);
+        this._resourceManager = new ResourceManager(this._scene);
         this._scene.actionManager = new ActionManager(this._scene);
         this._scene.actionManager.registerAction(
             new ExecuteCodeAction(ActionManager.OnKeyUpTrigger,
@@ -99,6 +95,7 @@ export class VScene {
         DomainMgr.onActiveDomainStateChange.connect(this._handleActiveDomainStateChange.bind(this));
 
         this._remoteAvatarControllers = new Map<Uuid, RemoteAvatarController>();
+
     }
 
     getSceneId(): number {
@@ -273,7 +270,7 @@ export class VScene {
 
         this._unloadEnvionment();
 
-        await this._loadAvatarAssets();
+        await this._loadMyAvatar();
         // setup avatar
         if (this._avatar) {
             this._avatar.position = new Vector3(0, 49.6, 0);
@@ -301,7 +298,7 @@ export class VScene {
 
         this._unloadEnvionment();
 
-        await this._loadAvatarAssets();
+        await this._loadMyAvatar();
         // setup avatar
         if (this._avatar) {
             this._avatar.position = new Vector3(25, 0, 30);
@@ -366,124 +363,41 @@ export class VScene {
 
     }
 
-    _processSceneMesh(mesh : AbstractMesh) : void {
-        mesh.id = uuidv4();
-        this._sceneMeshes.set(mesh.id, mesh);
-
-        VScene._applySceneMeshRule(mesh);
-
-        const nodes = mesh.getChildren();
-        nodes.forEach((node) => {
-            VScene._applySceneMeshRule(node as AbstractMesh);
-        });
-    }
-
-    static _applySceneMeshRule(mesh : AbstractMesh) : void {
-        if (mesh.name !== "Inside_Floor_B_01" && mesh.name !== "Inside_Floor_D_01") {
-            mesh.isPickable = false;
-        }
-    }
-
     _befeforeRender() : void {
         if (this._incrementalLoading) {
-            this._assetsManager.load();
+            // eslint-disable-next-line no-void
+            void this._resourceManager.loadAsync();
             this._incrementalLoading = false;
         }
     }
 
-    async _loadAvatarAnimations(modelUrl: string): Promise<AbstractMesh> {
-        const parsedUrl = new URL(modelUrl);
-        const urlWithoutFilename = modelUrl.substring(0, modelUrl.lastIndexOf("/")) + "/";
-        const filename = parsedUrl.pathname.split("/").pop();
-
-        const result = await SceneLoader.ImportMeshAsync("",
-            urlWithoutFilename, filename, this._scene);
-
-        const mesh = result.meshes[0].getChildren()[0] as AbstractMesh;
-
-        result.animationGroups.forEach((sourceAnimGroup) => {
-            const animGroup = new AnimationGroup(sourceAnimGroup.name);
-            // trim unnecessary animation data
-            sourceAnimGroup.targetedAnimations.forEach((targetAnim) => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                if (targetAnim.target.name === "Hips") {
-                    // recaculate the postion and roatation quaternion animation key of Hip
-                    if (targetAnim.animation.targetProperty === "position") {
-                        const anim = targetAnim.animation.clone();
-                        const keys = anim.getKeys();
-                        keys.forEach((keyFrame) => {
-                            // apply the roation and scale of Armatue node
-                            let pos = keyFrame.value as Vector3;
-                            pos = pos.applyRotationQuaternion(mesh.rotationQuaternion as Quaternion);
-                            keyFrame.value = pos.multiply(mesh.scaling);
-                        });
-                        animGroup.addTargetedAnimation(anim, targetAnim.target);
-
-                    } else if (targetAnim.animation.targetProperty === "rotationQuaternion") {
-                        const anim = targetAnim.animation.clone();
-                        const keys = anim.getKeys();
-                        keys.forEach((keyFrame) => {
-                            // apply the roation Armatue node
-                            const rot = keyFrame.value as Quaternion;
-                            if (mesh.rotationQuaternion) {
-                                keyFrame.value = mesh.rotationQuaternion.multiply(rot);
-                            }
-                        });
-                        animGroup.addTargetedAnimation(targetAnim.animation, targetAnim.target);
-                    }
-                } else if (targetAnim.animation.targetProperty === "rotationQuaternion") {
-                // keep rotationQuaternion animation of all other nodes
-                    animGroup.addTargetedAnimation(targetAnim.animation, targetAnim.target);
-                }
-            });
-
-
-            this._avatarAnimationGroups.push(animGroup);
-
-            sourceAnimGroup.dispose();
-        });
-
-        mesh.parent?.dispose();
-
-        return mesh;
-    }
-
-
-    private async _loadAvatarAssets() : Promise<void> {
+    private async _loadMyAvatar() : Promise<void> {
         // load avatar animation
         if (!this._avatarAnimMesh) {
-            this._avatarAnimMesh = await this._loadAvatarAnimations(
-                "https://staging.vircadia.com/O12OR634/UA92/AnimationsBasic.glb");
+            const result = await this._resourceManager.loadAvatarAnimations(AvatarAnimationUrl);
+            this._avatarAnimMesh = result.mesh;
+            this._avatarAnimationGroups = result.animGroups;
         }
         // load avatar mesh
         if (!this._avatar) {
-            const result = await SceneLoader.ImportMeshAsync("",
-                "https://staging.vircadia.com/O12OR634/UA92/", "sara.glb", this._scene);
-            result.meshes.forEach((mesh) => {
-                mesh.isPickable = false;
-            });
-
-            const avatar = result.meshes[0];
-            avatar.scaling = new Vector3(1, 1, 1);
-
-            // Creates, angles, distances and targets the camera
-            if (!this._camera) {
-                const camera = new ArcRotateCamera(
-                    "Camera", -Math.PI / 2, Math.PI / 2, 6,
-                    new Vector3(0, 1.5, 0), this._scene);
-
-                // This attaches the camera to the canvas
-                camera.attachControl(this._scene.getEngine().getRenderingCanvas(), false);
-                camera.wheelPrecision = 50;
-
-                this._scene.activeCamera = camera;
-                this._camera = camera;
-            }
-
-            this._avatar = avatar;
+            this._avatar = await this._resourceManager.loadAvatar(DefaultAvatarUrl);
         }
 
-        if (this._avatar && this._camera) {
+        // Creates, angles, distances and targets the camera
+        if (!this._camera) {
+            const camera = new ArcRotateCamera(
+                "Camera", -Math.PI / 2, Math.PI / 2, 6,
+                new Vector3(0, 1.5, 0), this._scene);
+
+            // This attaches the camera to the canvas
+            camera.attachControl(this._scene.getEngine().getRenderingCanvas(), false);
+            camera.wheelPrecision = 50;
+
+            this._scene.activeCamera = camera;
+            this._camera = camera;
+        }
+
+        if (this._avatar && this._camera && !this._avatarController) {
             this._avatarController = new AvatarController(this._avatar, this._camera,
                 this._scene, this._avatarAnimationGroups);
             this._avatarController.start();
@@ -495,22 +409,10 @@ export class VScene {
         meshList:string[],
         incrementalMeshList:string[] | null | undefined) : Promise<void> {
 
-        meshList.forEach((filename) => {
-            const task = this._assetsManager.addMeshTask("SceneIncrementalLoading", "", rootUrl, filename);
-            task.onSuccess = (meshAssetTask) => {
-                meshAssetTask.loadedMeshes.forEach(this._processSceneMesh.bind(this));
-            };
-        });
-        await this._assetsManager.loadAsync();
-
+        this._resourceManager.addSceneObjectTasks("SceneLoading", rootUrl, meshList);
+        await this._resourceManager.loadAsync();
         if (incrementalMeshList) {
-            incrementalMeshList.forEach((filename) => {
-                const task = this._assetsManager.addMeshTask("SceneIncrementalLoading", "", rootUrl, filename);
-                task.onSuccess = (meshAssetTask) => {
-                    meshAssetTask.loadedMeshes.forEach(this._processSceneMesh.bind(this));
-                };
-            });
-
+            this._resourceManager.addSceneObjectTasks("SceneIncrementalLoading", rootUrl, incrementalMeshList);
             this._incrementalLoading = true;
         } else {
             this._incrementalLoading = false;
@@ -523,10 +425,7 @@ export class VScene {
     }
 
     private _unloadEnvionment() : void {
-        this._sceneMeshes.forEach((mesh) => {
-            mesh.dispose();
-        });
-        this._sceneMeshes.clear();
+        this._resourceManager.unload();
 
         if (this._defaultPipeline) {
             this._defaultPipeline.glowLayerEnabled = false;

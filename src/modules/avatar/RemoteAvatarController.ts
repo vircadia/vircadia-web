@@ -21,10 +21,6 @@ import Log from "@Modules/debugging/log";
 // Domain Modules
 import { ScriptAvatar, vec3, quat } from "@vircadia/web-sdk";
 
-
-/* eslint-disable @typescript-eslint/no-magic-numbers */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/dot-notation */
 export class RemoteAvatarController {
     private _scene: Scene;
 
