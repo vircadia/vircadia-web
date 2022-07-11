@@ -13,8 +13,11 @@
 /* eslint-disable new-cap */
 
 import {
+    Vector3,
+    AbstractMesh,
     Scene,
-    AnimationGroup
+    AnimationGroup,
+    Quaternion
 } from "@babylonjs/core";
 // General Modules
 import Log from "@Modules/debugging/log";
@@ -23,14 +26,14 @@ import { ScriptAvatar, vec3, quat } from "@vircadia/web-sdk";
 
 export class RemoteAvatarController {
     private _scene: Scene;
-
+    private _avatarMesh: AbstractMesh;
     // domain properties
     private _avatarDomain : ScriptAvatar;
     private _prePos: vec3;
     private _preQuat : quat;
 
-    constructor(scene: Scene, animGroups: AnimationGroup[], domain :ScriptAvatar) {
-        // this._avatarMesh = mesh;
+    constructor(scene: Scene, mesh: AbstractMesh, animGroups: AnimationGroup[], domain :ScriptAvatar) {
+        this._avatarMesh = mesh;
         this._scene = scene;
         this._avatarDomain = domain;
         this._update = this._update.bind(this);
@@ -51,7 +54,13 @@ export class RemoteAvatarController {
         this._avatarDomain.skeletonModelURLChanged.connect(this._handleSkeletonModelURLChanged.bind(this));
 
         this._prePos = this._avatarDomain.position;
+        this._updatePosition();
         this._preQuat = this._avatarDomain.orientation;
+        this._updateOrientation();
+    }
+
+    public get mesh(): AbstractMesh {
+        return this._avatarMesh;
     }
 
     public start():void {
@@ -66,10 +75,11 @@ export class RemoteAvatarController {
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
     private _update():void {
+        this._updateOrientation();
+
         const pos = this._avatarDomain.position;
         if (this._prePos.x !== pos.x || this._prePos.y !== pos.y || this._prePos.z !== pos.z) {
-            Log.debug(Log.types.AVATAR,
-                `Pos:${pos.x}, ${pos.y}, ${pos.z}`);
+            this._updatePosition();
             this._prePos = pos;
         }
 
@@ -78,6 +88,7 @@ export class RemoteAvatarController {
             || this._preQuat.z !== q.z || this._preQuat.w !== q.w) {
             Log.debug(Log.types.AVATAR,
                 `Quat:${q.x}, ${q.y}, ${q.z}, ${q.w}`);
+            this._updateOrientation();
             this._preQuat = q;
         }
     }
@@ -95,5 +106,15 @@ export class RemoteAvatarController {
     private _handleSkeletonModelURLChanged() {
         Log.debug(Log.types.AVATAR,
             `SkeletonModelURL:${this._avatarDomain.skeletonModelURL}`);
+    }
+
+    private _updatePosition() : void {
+        const pos = this._avatarDomain.position;
+        this._avatarMesh.position = new Vector3(pos.x, pos.y, pos.z);
+    }
+
+    private _updateOrientation() : void {
+        const q = this._avatarDomain.orientation;
+        this._avatarMesh.rotationQuaternion = new Quaternion(q.x, q.y, q.z, q.w);
     }
 }

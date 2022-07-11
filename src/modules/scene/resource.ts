@@ -14,7 +14,7 @@ import { AnimationGroup, Scene, SceneLoader, AssetsManager,
 // System Modules
 import { v4 as uuidv4 } from "uuid";
 // General Modules
-// import Log from "@Modules/debugging/log";
+import Log from "@Modules/debugging/log";
 
 interface IAvatarAnimationResult {
     mesh : AbstractMesh;
@@ -33,11 +33,13 @@ export class ResourceManager {
     _scene: Scene;
     _assetsManager : AssetsManager;
     _sceneMeshes: Map<string, AbstractMesh>;
+    _avatarList: Map<string, AbstractMesh>;
 
     constructor(secne: Scene) {
         this._scene = secne;
         this._assetsManager = new AssetsManager(this._scene);
         this._sceneMeshes = new Map<string, AbstractMesh>();
+        this._avatarList = new Map<string, AbstractMesh>();
     }
 
     public get sceneMeshes() : Map<string, AbstractMesh> {
@@ -51,20 +53,21 @@ export class ResourceManager {
         return { rootUrl, filename };
     }
 
+    public async loadMyAvatar(modelUrl: string): Promise<AbstractMesh> {
+        return this._loadAvatar(modelUrl);
+    }
+
     public async loadAvatar(modelUrl: string): Promise<AbstractMesh> {
-        const url = ResourceManager.splitUrl(modelUrl);
-        const result = await SceneLoader.ImportMeshAsync("", url.rootUrl, url.filename, this._scene);
-        result.meshes.forEach((mesh) => {
-            mesh.isPickable = false;
-        });
-
-        const avatar = result.meshes[0];
-        avatar.scaling = new Vector3(1, 1, 1);
-
+        const avatar = await this._loadAvatar(modelUrl);
+        this._avatarList.set(avatar.id, avatar);
         return avatar;
     }
 
+
     public async loadAvatarAnimations(modelUrl: string): Promise<IAvatarAnimationResult> {
+        Log.info(Log.types.AVATAR,
+            `Load avatar animation url:${modelUrl}`);
+
         const url = ResourceManager.splitUrl(modelUrl);
         const result = await SceneLoader.ImportMeshAsync("", url.rootUrl, url.filename, this._scene);
 
@@ -136,6 +139,52 @@ export class ResourceManager {
             mesh.dispose();
         });
         this._sceneMeshes.clear();
+
+        this._avatarList.forEach((avatar) => {
+            avatar.dispose();
+        });
+        this._avatarList.clear();
+    }
+
+    public unloadAvatar(id:string): void {
+        const avatar = this._avatarList.get(id);
+        if (avatar) {
+            Log.info(Log.types.AVATAR,
+                `Unload avatar mesh id:${id}`);
+
+            avatar.dispose();
+            // eslint-disable-next-line @typescript-eslint/dot-notation
+            this._avatarList.delete(id);
+        }
+    }
+
+    private async _loadAvatar(modelUrl: string): Promise<AbstractMesh> {
+        Log.info(Log.types.AVATAR,
+            `Load avatar mesh url:${modelUrl}`);
+
+        const url = ResourceManager.splitUrl(modelUrl);
+        const result = await SceneLoader.ImportMeshAsync("", url.rootUrl, url.filename, this._scene);
+        result.meshes.forEach((mesh) => {
+            mesh.isPickable = false;
+        });
+
+        const avatar = result.meshes[0];
+        avatar.id = uuidv4();
+        avatar.scaling = new Vector3(1, 1, 1);
+
+        return avatar;
+    }
+
+    private _processAvatarMesh(mesh : AbstractMesh) : void {
+        mesh.id = uuidv4();
+        this._sceneMeshes.set(mesh.id, mesh);
+
+        ResourceManager._applySceneMeshRule(mesh);
+
+        const nodes = mesh.getChildren();
+        nodes.forEach((node) => {
+            ResourceManager._applySceneMeshRule(node as AbstractMesh);
+        });
     }
 
     private _processSceneMesh(mesh : AbstractMesh) : void {

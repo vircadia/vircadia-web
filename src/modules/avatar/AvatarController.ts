@@ -305,11 +305,17 @@ export class AvatarController {
             }
             if (this._rotationUpdated) {
                 if (this._avatarDomain.orientation && this._avatarMesh.rotationQuaternion) {
-                    // Log.debug(Log.types.AVATAR, "update avatar domian rotation");
                     this._avatarDomain.orientation = { x: this._avatarMesh.rotationQuaternion.x,
                         y: this._avatarMesh.rotationQuaternion.y,
                         z: this._avatarMesh.rotationQuaternion.z,
                         w: this._avatarMesh.rotationQuaternion.z };
+                /*
+                    Log.debug(Log.types.AVATAR,
+                        `update avatar domian rotation=
+                            ${this._avatarDomain.orientation.x},
+                            ${this._avatarDomain.orientation.y},
+                            ${this._avatarDomain.orientation.z},
+                            ${this._avatarDomain.orientation.w} `); */
                 }
 
                 this._rotationUpdated = false;
