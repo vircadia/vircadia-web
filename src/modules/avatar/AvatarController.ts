@@ -168,11 +168,11 @@ export class AvatarController {
         }
 
         const dt = this._scene.getEngine().getDeltaTime() / 1000;
-        const movement = this._movement.scale(dt);
-        const rot = this._rotation * dt;
+        const movement = this._avatarMesh.calcMovePOV(this._movement.x, 0, this._movement.z).scale(dt);
+        this._avatarMesh.moveWithCollisions(movement);
 
+        const rot = this._rotation * dt;
         this._avatarMesh.rotate(Vector3.Up(), rot);
-        this._avatarMesh.movePOV(movement.x, movement.y, movement.z);
 
         this._animateAvatar();
 
@@ -209,7 +209,7 @@ export class AvatarController {
     private _updateGroundDetection(): void {
         const pickedPoint = this._floorRaycast(0, 0, 1);
         if (!pickedPoint.equals(Vector3.Zero())) {
-            this._avatarMesh.position.y = pickedPoint.y;
+            this._avatarMesh.position.y = pickedPoint.y + 0.05;
         }
     }
 
