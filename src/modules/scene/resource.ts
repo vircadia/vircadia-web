@@ -175,33 +175,27 @@ export class ResourceManager {
         return avatar;
     }
 
-    private _processAvatarMesh(mesh : AbstractMesh) : void {
-        mesh.id = uuidv4();
-        this._sceneMeshes.set(mesh.id, mesh);
-
-        ResourceManager._applySceneMeshRule(mesh);
-
-        const nodes = mesh.getChildren();
-        nodes.forEach((node) => {
-            ResourceManager._applySceneMeshRule(node as AbstractMesh);
-        });
-    }
-
     private _processSceneMesh(mesh : AbstractMesh) : void {
         mesh.id = uuidv4();
         this._sceneMeshes.set(mesh.id, mesh);
 
         ResourceManager._applySceneMeshRule(mesh);
-
-        const nodes = mesh.getChildren();
-        nodes.forEach((node) => {
-            ResourceManager._applySceneMeshRule(node as AbstractMesh);
-        });
     }
 
     private static _applySceneMeshRule(mesh : AbstractMesh) : void {
-        if (mesh.name !== "Inside_Floor_B_01" && mesh.name !== "Inside_Floor_D_01") {
-            mesh.isPickable = false;
+        mesh.isPickable = false;
+        mesh.checkCollisions = false;
+
+        if (mesh.name.includes("Collision") && !mesh.name.includes("Floor")) {
+            mesh.checkCollisions = true;
+            mesh.isVisible = false;
+        } else
+        if (mesh.name === "Inside_Floor_B_01" || mesh.name === "Inside_Floor_D_01"
+        || mesh.name.includes("Ground Floor") || mesh.name.includes("Land")) {
+            mesh.isPickable = true;
+            mesh.checkCollisions = false;
+        } else if (mesh.name.includes("Collision") && mesh.name.includes("Floor")) {
+            mesh.isVisible = false;
         }
     }
 }
