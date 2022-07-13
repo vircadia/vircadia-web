@@ -186,16 +186,16 @@ export class ResourceManager {
         mesh.isPickable = false;
         mesh.checkCollisions = false;
 
-        if (mesh.name.includes("Collision") && !mesh.name.includes("Floor")) {
-            mesh.checkCollisions = true;
+        if (mesh.name.includes("Collision")) {
+            if (mesh.name.includes("Floor")) {
+                mesh.isPickable = true;
+            } else {
+                mesh.checkCollisions = true;
+            }
             mesh.isVisible = false;
-        } else
-        if (mesh.name === "Inside_Floor_B_01" || mesh.name === "Inside_Floor_D_01"
-        || mesh.name.includes("Ground Floor") || mesh.name.includes("Land")) {
+        } else if (mesh.name === "Inside_Floor_B_01" || mesh.name === "Inside_Floor_D_01") {
             mesh.isPickable = true;
             mesh.checkCollisions = false;
-        } else if (mesh.name.includes("Collision") && mesh.name.includes("Floor")) {
-            mesh.isVisible = false;
         }
     }
 }
