@@ -354,7 +354,19 @@ export class VScene {
 
     public async loadUA92CampusEnvironment(): Promise<void> {
         await this._loadEnvironment("https://staging.vircadia.com/O12OR634/UA92/",
-            ["UA92_7-5-2022a.glb"], null
+            [
+                "FirstFloor.glb",
+                "Outdoors.glb",
+                "Collisions.glb"
+            ],
+            [
+                "Exterior.glb",
+                "Atirum.glb",
+                "Elevator.glb",
+                "Furniture.glb",
+                "Support.glb",
+                "UpperFloors.glb"
+            ]
         );
 
         if (this._defaultPipeline) {

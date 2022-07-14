@@ -171,6 +171,7 @@ export class ResourceManager {
         const avatar = result.meshes[0];
         avatar.id = uuidv4();
         avatar.scaling = new Vector3(1, 1, 1);
+        avatar.checkCollisions = true;
 
         return avatar;
     }
@@ -193,7 +194,9 @@ export class ResourceManager {
                 mesh.checkCollisions = true;
             }
             mesh.isVisible = false;
-        } else if (mesh.name === "Inside_Floor_B_01" || mesh.name === "Inside_Floor_D_01") {
+        } else
+        if (mesh.name === "Inside_Floor_B_01" || mesh.name === "Inside_Floor_D_01") {
+        // || mesh.name.includes("Ground Floor") || mesh.name.includes("Land")) {
             mesh.isPickable = true;
             mesh.checkCollisions = false;
         }
