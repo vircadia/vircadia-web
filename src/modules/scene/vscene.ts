@@ -13,9 +13,10 @@
 
 import { AnimationGroup, Engine, MeshBuilder, Scene, SceneLoader,
     ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, StandardMaterial,
-    Mesh, HemisphericLight, DefaultRenderingPipeline, Camera, AbstractMesh } from "@babylonjs/core";
+    Mesh, HemisphericLight, DefaultRenderingPipeline, Camera, AbstractMesh,
+    Texture, CubeTexture } from "@babylonjs/core";
 
-import { Color3, Quaternion, Vector3 } from "@babylonjs/core/Maths/math";
+import { Color3, Color4, Quaternion, Vector3 } from "@babylonjs/core/Maths/math";
 import "@babylonjs/loaders/glTF";
 import "@babylonjs/core/Meshes/meshBuilder";
 import { ResourceManager } from "./resource";
@@ -58,7 +59,9 @@ const AvatarAnimationUrl = "https://staging.vircadia.com/O12OR634/UA92/Animation
  */
 export class VScene {
     _sceneId: number;
+    _engine: Engine;
     _scene: Scene;
+    _preScene: Nullable<Scene> = null;
     _entities: Map<string, Mesh>;
     _avatar : Nullable<AbstractMesh> = null;
     _avatarAnimMesh :Nullable<AbstractMesh> = null;
@@ -68,9 +71,9 @@ export class VScene {
     _avatarAnimationGroups : AnimationGroup[] = [];
     _defaultPipeline : Nullable<DefaultRenderingPipeline>;
     _incrementalLoading = false;
-    _defaultEnviroment = false;
     _avatarMixer : Nullable<AvatarMixer> = null;
-    _resourceManager : ResourceManager;
+    _resourceManager : Nullable<ResourceManager> = null;
+    _skyBox : Nullable<Mesh> = null;
 
     constructor(pEngine: Engine, pSceneId = 0) {
         if (process.env.NODE_ENV === "development") {
@@ -78,24 +81,14 @@ export class VScene {
             import("@babylonjs/inspector");
         }
 
+        this._engine = pEngine;
         this._entities = new Map<string, Mesh>();
         this._scene = new Scene(pEngine);
-        this._resourceManager = new ResourceManager(this._scene);
-        this._scene.actionManager = new ActionManager(this._scene);
-        this._scene.actionManager.registerAction(
-            new ExecuteCodeAction(ActionManager.OnKeyUpTrigger,
-                this._onKeyUp.bind(this))
-        );
-
         this._sceneId = pSceneId;
-
-        this._scene.registerBeforeRender(this._befeforeRender.bind(this));
-
         // Listen for the domain to connect and disconnect
         DomainMgr.onActiveDomainStateChange.connect(this._handleActiveDomainStateChange.bind(this));
 
         this._remoteAvatarControllers = new Map<Uuid, RemoteAvatarController>();
-
     }
 
     getSceneId(): number {
@@ -254,21 +247,12 @@ export class VScene {
         }
     }
 
-    public createDefaultEnvionment():void {
-        this._scene.createDefaultEnvironment(
-            { createGround: false,
-                createSkybox: false });
-
-        // this._scene.clearColor = new Color4(0.5, 0.5, 0.5, 1.0);
-        // this._scene.ambientColor = new Color3(0.3, 0.3, 0.3);
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        // const light = new HemisphericLight("ambient", new Vector3(0, 1, 0), this._scene);
-    }
-
     public async loadSceneSpaceStation(): Promise<void> {
-        this._scene.getEngine().displayLoadingUI();
+        this._engine.displayLoadingUI();
+        this._scene.detachControl();
 
-        this._unloadEnvionment();
+        this._preScene = this._scene;
+        this._createScene();
 
         await this._loadMyAvatar();
         // setup avatar
@@ -289,14 +273,19 @@ export class VScene {
 
         await this.loadSpaceStationEnvironment();
 
+        this._preScene.dispose();
+        this._preScene = null;
         await this._scene.whenReadyAsync();
-        this._scene.getEngine().hideLoadingUI();
+        this._engine.hideLoadingUI();
     }
 
     public async loadSceneUA92Campus(): Promise<void> {
-        this._scene.getEngine().displayLoadingUI();
+        this._engine.displayLoadingUI();
+        this._scene.detachControl();
 
-        this._unloadEnvionment();
+        this._preScene = this._scene;
+        // this._disposeScene();
+        this._createScene();
 
         await this._loadMyAvatar();
         // setup avatar
@@ -317,8 +306,11 @@ export class VScene {
 
         await this.loadUA92CampusEnvironment();
 
+        this._preScene.dispose();
+        this._preScene = null;
+
         await this._scene.whenReadyAsync();
-        this._scene.getEngine().hideLoadingUI();
+        this._engine.hideLoadingUI();
     }
 
     public async loadSpaceStationEnvironment(): Promise<void> {
@@ -341,6 +333,11 @@ export class VScene {
             ]
         );
 
+        this._scene.createDefaultEnvironment(
+            { createGround: false,
+                createSkybox: false,
+                environmentTexture: "https://assets.babylonjs.com/textures/night.env" });
+
         if (this._defaultPipeline) {
             this._defaultPipeline.glowLayerEnabled = true;
             if (this._defaultPipeline.glowLayer) {
@@ -353,6 +350,11 @@ export class VScene {
     }
 
     public async loadUA92CampusEnvironment(): Promise<void> {
+        this._scene?.createDefaultEnvironment(
+            { createGround: false,
+                createSkybox: false,
+                environmentTexture: "https://assets.babylonjs.com/textures/country.env" });
+
         await this._loadEnvironment("https://staging.vircadia.com/O12OR634/UA92/",
             [
                 "FirstFloor.glb",
@@ -369,6 +371,18 @@ export class VScene {
             ]
         );
 
+        this._skyBox = MeshBuilder.CreateBox("skyBox", { size: 2000 }, this._scene);
+
+        const skyboxMaterial = new StandardMaterial("skyBox", this._scene);
+        skyboxMaterial.backFaceCulling = false;
+        skyboxMaterial.reflectionTexture = new CubeTexture(
+            "https://assets.babylonjs.com/textures/TropicalSunnyDay", this._scene);
+        skyboxMaterial.reflectionTexture.coordinatesMode = Texture.SKYBOX_MODE;
+        skyboxMaterial.diffuseColor = new Color3(0, 0, 0);
+        skyboxMaterial.specularColor = new Color3(0, 0, 0);
+        skyboxMaterial.disableLighting = true;
+        this._skyBox.material = skyboxMaterial;
+
         if (this._defaultPipeline) {
             this._defaultPipeline.fxaaEnabled = true;
         }
@@ -378,38 +392,31 @@ export class VScene {
     _befeforeRender() : void {
         if (this._incrementalLoading) {
             // eslint-disable-next-line no-void
-            void this._resourceManager.loadAsync();
+            void this._resourceManager?.loadAsync();
             this._incrementalLoading = false;
         }
     }
 
     private async _loadMyAvatar() : Promise<void> {
-        // load avatar animation
-        if (!this._avatarAnimMesh) {
+        // Creates, angles, distances and targets the camera
+        const camera = new ArcRotateCamera(
+            "Camera", -Math.PI / 2, Math.PI / 2, 6,
+            new Vector3(0, 1.5, 0), this._scene);
+
+        // This attaches the camera to the canvas
+        camera.attachControl(this._scene.getEngine().getRenderingCanvas(), false);
+        camera.wheelPrecision = 50;
+
+        this._scene.activeCamera = camera;
+        this._camera = camera;
+
+        if (this._resourceManager) {
             const result = await this._resourceManager.loadAvatarAnimations(AvatarAnimationUrl);
             this._avatarAnimMesh = result.mesh;
             this._avatarAnimationGroups = result.animGroups;
-        }
-        // load avatar mesh
-        if (!this._avatar) {
+
             this._avatar = await this._resourceManager.loadMyAvatar(DefaultAvatarUrl);
-        }
 
-        // Creates, angles, distances and targets the camera
-        if (!this._camera) {
-            const camera = new ArcRotateCamera(
-                "Camera", -Math.PI / 2, Math.PI / 2, 6,
-                new Vector3(0, 1.5, 0), this._scene);
-
-            // This attaches the camera to the canvas
-            camera.attachControl(this._scene.getEngine().getRenderingCanvas(), false);
-            camera.wheelPrecision = 50;
-
-            this._scene.activeCamera = camera;
-            this._camera = camera;
-        }
-
-        if (this._avatar && this._camera && !this._avatarController) {
             this._avatarController = new AvatarController(this._avatar, this._camera,
                 this._scene, this._avatarAnimationGroups);
             this._avatarController.start();
@@ -421,43 +428,43 @@ export class VScene {
         meshList:string[],
         incrementalMeshList:string[] | null | undefined) : Promise<void> {
 
-        this._resourceManager.addSceneObjectTasks("SceneLoading", rootUrl, meshList);
-        await this._resourceManager.loadAsync();
+        this._resourceManager?.addSceneObjectTasks("SceneLoading", rootUrl, meshList);
+        await this._resourceManager?.loadAsync();
         if (incrementalMeshList) {
-            this._resourceManager.addSceneObjectTasks("SceneIncrementalLoading", rootUrl, incrementalMeshList);
+            this._resourceManager?.addSceneObjectTasks("SceneIncrementalLoading", rootUrl, incrementalMeshList);
             this._incrementalLoading = true;
         } else {
             this._incrementalLoading = false;
         }
 
-        // Create default pipeline
-        if (!this._defaultPipeline) {
-            this._defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);
-        }
+        this._defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);
     }
 
     private _unloadEnvionment() : void {
-        this._resourceManager.unload();
+        if (this._skyBox) {
+            this._skyBox.dispose();
+            this._skyBox = null;
+        }
+
+        this._resourceManager?.unload();
 
         if (this._defaultPipeline) {
             this._defaultPipeline.glowLayerEnabled = false;
         }
     }
 
-    private _unloadAvatar() {
-        if (this._avatar) {
-            if (this._camera) {
-                this._camera.parent = null;
-            }
+    private _createScene() {
+        this._scene = new Scene(this._engine);
+        this._resourceManager = new ResourceManager(this._scene);
+        this._scene.actionManager = new ActionManager(this._scene);
+        this._scene.actionManager.registerAction(
+            new ExecuteCodeAction(ActionManager.OnKeyUpTrigger,
+                this._onKeyUp.bind(this))
+        );
 
-            this._avatar.dispose();
-            this._avatar = null;
+        this._scene.registerBeforeRender(this._befeforeRender.bind(this));
 
-            if (this._avatarController) {
-                this._avatarController.stop();
-                this._avatarController = null;
-            }
-        }
+        this._scene.createDefaultCamera();
     }
 
     private _onKeyUp(evt: ActionEvent) : void {
@@ -537,7 +544,7 @@ export class VScene {
             Log.debug(Log.types.AUDIO, `VScene._handleActiveDomainStateChange: ${Domain.stateToString(pState)}`);
             this._remoteAvatarControllers.forEach((controller) => {
                 controller.stop();
-                this._resourceManager.unloadAvatar(controller.mesh.id);
+                this._resourceManager?.unloadAvatar(controller.mesh.id);
             });
             this._remoteAvatarControllers.clear();
         }
@@ -551,7 +558,7 @@ export class VScene {
 
             const url = avatar.skeletonModelURL === "" ? DefaultAvatarUrl : avatar.skeletonModelURL;
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this._resourceManager.loadAvatar(url).then((mesh) => {
+            this._resourceManager?.loadAvatar(url).then((mesh) => {
                 const controller = new RemoteAvatarController(this._scene, mesh, this._avatarAnimationGroups, avatar);
                 controller.start();
                 this._remoteAvatarControllers.set(sessionID, controller);
@@ -564,7 +571,7 @@ export class VScene {
         if (avatarList) {
             const controller = this._remoteAvatarControllers.get(sessionID);
             if (controller) {
-                this._resourceManager.unloadAvatar(controller.mesh.id);
+                this._resourceManager?.unloadAvatar(controller.mesh.id);
                 controller.stop();
                 // eslint-disable-next-line @typescript-eslint/dot-notation
                 this._remoteAvatarControllers.delete(sessionID);
