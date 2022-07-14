@@ -109,8 +109,6 @@ export default defineComponent({
 
         const scene = Renderer.createScene();
 
-        scene.createDefaultEnvionment();
-
         await scene.loadSceneUA92Campus();
 
         Renderer.startRenderLoop([scene]);
