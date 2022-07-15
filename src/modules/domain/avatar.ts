@@ -90,11 +90,12 @@ export class DomainAvatar extends Client {
         Log.debug(Log.types.AVATAR,
             // eslint-disable-next-line max-len
             `DomainAvatar: AvatarMixer state=${AvatarMixer.stateToString(this.#_avaMixer?.state ?? AssignmentClientState.DISCONNECTED)}`);
+        /*
         if (pNewState === AssignmentClientState.CONNECTED) {
             this.startGameLoop();
         } else {
             this.stopGameLoop();
-        }
+        } */
         this.onStateChange.emit(this.#_domain, this, pNewState);
     }
 

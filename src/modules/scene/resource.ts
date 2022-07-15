@@ -147,11 +147,10 @@ export class ResourceManager {
     }
 
     public unloadAvatar(id:string): void {
+        Log.info(Log.types.AVATAR,
+            `Unload avatar mesh id:${id}`);
         const avatar = this._avatarList.get(id);
         if (avatar) {
-            Log.info(Log.types.AVATAR,
-                `Unload avatar mesh id:${id}`);
-
             avatar.dispose();
             // eslint-disable-next-line @typescript-eslint/dot-notation
             this._avatarList.delete(id);
@@ -159,9 +158,6 @@ export class ResourceManager {
     }
 
     private async _loadAvatar(modelUrl: string): Promise<AbstractMesh> {
-        Log.info(Log.types.AVATAR,
-            `Load avatar mesh url:${modelUrl}`);
-
         const url = ResourceManager.splitUrl(modelUrl);
         const result = await SceneLoader.ImportMeshAsync("", url.rootUrl, url.filename, this._scene);
         result.meshes.forEach((mesh) => {
@@ -172,6 +168,9 @@ export class ResourceManager {
         avatar.id = uuidv4();
         avatar.scaling = new Vector3(1, 1, 1);
         avatar.checkCollisions = true;
+
+        Log.info(Log.types.AVATAR,
+            `Load avatar mesh url:${modelUrl} id::${avatar.id}`);
 
         return avatar;
     }
@@ -194,11 +193,6 @@ export class ResourceManager {
                 mesh.checkCollisions = true;
             }
             mesh.isVisible = false;
-        } else
-        if (mesh.name === "Inside_Floor_B_01" || mesh.name === "Inside_Floor_D_01") {
-        // || mesh.name.includes("Ground Floor") || mesh.name.includes("Land")) {
-            mesh.isPickable = true;
-            mesh.checkCollisions = false;
         }
     }
 }

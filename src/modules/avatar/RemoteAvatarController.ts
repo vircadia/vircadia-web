@@ -16,45 +16,33 @@ import {
     Vector3,
     AbstractMesh,
     Scene,
-    AnimationGroup,
-    Quaternion
+    TransformNode,
+    Quaternion,
+    Nullable
 } from "@babylonjs/core";
-import { AnimationController } from "./AnimationController";
 // General Modules
 import Log from "@Modules/debugging/log";
 // Domain Modules
-import { ScriptAvatar, vec3, quat } from "@vircadia/web-sdk";
+import { ScriptAvatar, vec3, quat, SignalEmitter } from "@vircadia/web-sdk";
 
 export class RemoteAvatarController {
     private _scene: Scene;
-    private _avatarMesh: AbstractMesh;
-    private _animController: AnimationController;
+    private _avatarMesh: Nullable<AbstractMesh> = null;
     // domain properties
     private _avatarDomain : ScriptAvatar;
     private _prePos: vec3;
     private _preQuat : quat;
+    public skeletonModelURLChanged :SignalEmitter;
 
-    constructor(scene: Scene, mesh: AbstractMesh, animGroups: AnimationGroup[], domain :ScriptAvatar) {
-        this._avatarMesh = mesh;
+    constructor(scene: Scene, domain :ScriptAvatar) {
         this._scene = scene;
         this._avatarDomain = domain;
         this._update = this._update.bind(this);
-        this._animController = new AnimationController(this._avatarMesh, animGroups);
-
-        Log.debug(Log.types.AVATAR,
-            `Avatar created.
-            DisplayName:${this._avatarDomain.displayName}
-            SessionDisplayName:${this._avatarDomain.sessionDisplayName}
-            SkeletonModelURL:${this._avatarDomain.skeletonModelURL}`);
-
-        Log.debug(Log.types.AVATAR,
-            `Pos:${this._avatarDomain.position.x}, ${this._avatarDomain.position.y}, ${this._avatarDomain.position.z}
-             Quat:${this._avatarDomain.orientation.x}, ${this._avatarDomain.orientation.y}, 
-             ${this._avatarDomain.orientation.z}, ${this._avatarDomain.orientation.w}`);
 
         this._avatarDomain.displayNameChanged.connect(this._handleDisplayNameChanged.bind(this));
         this._avatarDomain.sessionDisplayNameChanged.connect(this._handleSessionDisplayNameChanged.bind(this));
         this._avatarDomain.skeletonModelURLChanged.connect(this._handleSkeletonModelURLChanged.bind(this));
+        this.skeletonModelURLChanged = new SignalEmitter();
 
         this._prePos = this._avatarDomain.position;
         this._updatePosition();
@@ -62,8 +50,16 @@ export class RemoteAvatarController {
         this._updateOrientation();
     }
 
-    public get mesh(): AbstractMesh {
+    public get mesh(): Nullable<AbstractMesh> {
         return this._avatarMesh;
+    }
+
+    public set mesh(m:Nullable<AbstractMesh>) {
+        this._avatarMesh = m;
+    }
+
+    public get domain(): ScriptAvatar {
+        return this._avatarDomain;
     }
 
     public start():void {
@@ -79,6 +75,10 @@ export class RemoteAvatarController {
     // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
     private _update():void {
 
+        this._updatePosition();
+
+        this._updateOrientation();
+        /*
         const pos = this._avatarDomain.position;
         if (this._prePos.x !== pos.x || this._prePos.y !== pos.y || this._prePos.z !== pos.z) {
             this._updatePosition();
@@ -92,35 +92,60 @@ export class RemoteAvatarController {
                 `Quat:${q.x}, ${q.y}, ${q.z}, ${q.w}`);
             this._updateOrientation();
             this._preQuat = q;
-        }
+        } */
 
-        this._animController.play("idle02");
+        // this._animController.play("idle02");
 
-        this._animController.update();
+        // this._animController.update();
     }
 
     private _handleDisplayNameChanged() {
         Log.debug(Log.types.AVATAR,
-            `DisplayName:${this._avatarDomain.displayName}`);
+            `DisplayName Changed:${this._avatarDomain.displayName}`);
     }
 
     private _handleSessionDisplayNameChanged() {
         Log.debug(Log.types.AVATAR,
-            `SessionDisplayName:${this._avatarDomain.sessionDisplayName}`);
+            `SessionDisplayName Changed:${this._avatarDomain.sessionDisplayName}`);
     }
 
     private _handleSkeletonModelURLChanged() {
         Log.debug(Log.types.AVATAR,
-            `SkeletonModelURL:${this._avatarDomain.skeletonModelURL}`);
+            `SkeletonModelURL Changed:${this._avatarDomain.skeletonModelURL}`);
+
+        this.skeletonModelURLChanged.emit(this);
     }
 
     private _updatePosition() : void {
-        const pos = this._avatarDomain.position;
-        this._avatarMesh.position = new Vector3(pos.x, pos.y, pos.z);
+        if (this._avatarMesh) {
+            const pos = this._avatarDomain.position;
+            this._avatarMesh.position = new Vector3(pos.x, pos.y, pos.z);
+        }
     }
 
     private _updateOrientation() : void {
-        const q = this._avatarDomain.orientation;
-        this._avatarMesh.rotationQuaternion = new Quaternion(q.x, q.y, q.z, q.w);
+        if (this._avatarMesh) {
+            const q = this._avatarDomain.orientation;
+            this._avatarMesh.rotationQuaternion = new Quaternion(q.x, q.y, q.z, q.w);
+        }
+    }
+
+    private _updateJointData() : void {
+        if (this._avatarMesh) {
+            this._avatarMesh.getChildren();
+
+            const rotations = this._avatarDomain.jointRotations;
+
+            const nodes = this._avatarMesh.getChildren(undefined, false);
+            nodes.forEach((node, index) => {
+                const transNode = node as TransformNode;
+                const q = rotations[index];
+                if (transNode.rotationQuaternion && q) {
+                    transNode.rotationQuaternion = new Quaternion(
+                        q.x, q.y, q.z, q.w
+                    );
+                }
+            });
+        }
     }
 }

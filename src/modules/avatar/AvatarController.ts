@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 //
 //  AvatarController.ts
 //
@@ -24,7 +25,8 @@ import {
     AbstractMesh,
     Camera,
     ActionEvent,
-    IAction
+    IAction,
+    TransformNode
 
 } from "@babylonjs/core";
 
@@ -33,7 +35,7 @@ import { AnimationController } from "./AnimationController";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
 // Domain Modules
-import { MyAvatarInterface } from "@vircadia/web-sdk";
+import { MyAvatarInterface, quat } from "@vircadia/web-sdk";
 
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
@@ -245,18 +247,30 @@ export class AvatarController {
                     this._avatarDomain.orientation = { x: this._avatarMesh.rotationQuaternion.x,
                         y: this._avatarMesh.rotationQuaternion.y,
                         z: this._avatarMesh.rotationQuaternion.z,
-                        w: this._avatarMesh.rotationQuaternion.z };
-                /*
-                    Log.debug(Log.types.AVATAR,
-                        `update avatar domian rotation=
-                            ${this._avatarDomain.orientation.x},
-                            ${this._avatarDomain.orientation.y},
-                            ${this._avatarDomain.orientation.z},
-                            ${this._avatarDomain.orientation.w} `); */
+                        w: this._avatarMesh.rotationQuaternion.w };
                 }
 
                 this._rotationUpdated = false;
             }
+
+            // update joint data
+            const rotations = new Array<quat>();
+
+            const nodes = this._avatarMesh.getChildren(undefined, false);
+            nodes.forEach((node) => {
+                const trans = node as TransformNode;
+                if (trans.rotationQuaternion) {
+                    const q = {
+                        x: trans.rotationQuaternion.x,
+                        y: trans.rotationQuaternion.y,
+                        z: trans.rotationQuaternion.z,
+                        w: trans.rotationQuaternion.w
+                    };
+                    rotations.push(q);
+                }
+            });
+
+            // this._avatarDomain.jointRotations = rotations;
         }
     }
 }

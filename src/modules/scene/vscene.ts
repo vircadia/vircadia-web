@@ -29,6 +29,7 @@ import { VVector3 } from ".";
 import { AvatarController, RemoteAvatarController } from "@Modules/avatar";
 // Domain Modules
 import { DomainMgr } from "@Modules/domain";
+import { DomainAvatar } from "@Modules/domain/avatar";
 import { Domain, ConnectionState } from "@Modules/domain/domain";
 import { AvatarMixer, Uuid } from "@vircadia/web-sdk";
 
@@ -315,7 +316,10 @@ export class VScene {
 
     public async loadSpaceStationEnvironment(): Promise<void> {
         await this._loadEnvironment("https://staging.vircadia.com/O12OR634/SpaceStation/",
-            ["SpaceStation_Inside_Floor.glb"],
+            [
+                "SpaceStation_Inside_Floor.glb",
+                "Collision_Station_Inside.glb"
+            ],
             [
                 "SpaceStation_HDRI.glb",
                 "SpaceStation_Inside_Desk.glb",
@@ -514,15 +518,16 @@ export class VScene {
             this._avatarMixer = pDomain.AvatarClient?.Mixer;
             const myAvatar = pDomain.AvatarClient?.MyAvatar;
             if (myAvatar) {
-                myAvatar.displayName = "Sara";
-                myAvatar.skeletonModelURL = "https://staging.vircadia.com/O12OR634/UA92/sara.glb";
+
+                if (myAvatar.skeletonModelURL === "") {
+                    myAvatar.skeletonModelURL = DefaultAvatarUrl;
+                }
 
                 if (this._avatarController) {
                     this._avatarController.domain = myAvatar;
                 }
             }
 
-            Log.debug(Log.types.AVATAR, `get avatar list`);
             const avatarList = this._avatarMixer?.avatarList;
             if (avatarList) {
                 Log.debug(Log.types.AVATAR, `avatar number:${avatarList.count}`);
@@ -544,7 +549,9 @@ export class VScene {
             Log.debug(Log.types.AUDIO, `VScene._handleActiveDomainStateChange: ${Domain.stateToString(pState)}`);
             this._remoteAvatarControllers.forEach((controller) => {
                 controller.stop();
-                this._resourceManager?.unloadAvatar(controller.mesh.id);
+                if (controller.mesh) {
+                    this._resourceManager?.unloadAvatar(controller.mesh.id);
+                }
             });
             this._remoteAvatarControllers.clear();
         }
@@ -555,14 +562,20 @@ export class VScene {
         if (avatarList) {
             Log.debug(Log.types.AVATAR, `Handle avatar added Session ID: ${sessionID.stringify()}`);
             const avatar = avatarList.getAvatar(sessionID);
-
+            const controller = new RemoteAvatarController(this._scene, avatar);
+            controller.skeletonModelURLChanged.connect(this._handleAvatarSkeletonModelURLChanged.bind(this));
+            this._remoteAvatarControllers.set(sessionID, controller);
+            /*
+            Log.debug(Log.types.AVATAR, `DisplayName:${avatar.displayName}
+            SessionDisplayName:${avatar.sessionDisplayName}
+            SkeletonModelURL:${avatar.skeletonModelURL}`);
             const url = avatar.skeletonModelURL === "" ? DefaultAvatarUrl : avatar.skeletonModelURL;
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this._resourceManager?.loadAvatar(url).then((mesh) => {
                 const controller = new RemoteAvatarController(this._scene, mesh, this._avatarAnimationGroups, avatar);
                 controller.start();
                 this._remoteAvatarControllers.set(sessionID, controller);
-            });
+            }); */
         }
     }
 
@@ -571,7 +584,9 @@ export class VScene {
         if (avatarList) {
             const controller = this._remoteAvatarControllers.get(sessionID);
             if (controller) {
-                this._resourceManager?.unloadAvatar(controller.mesh.id);
+                if (controller.mesh) {
+                    this._resourceManager?.unloadAvatar(controller.mesh.id);
+                }
                 controller.stop();
                 // eslint-disable-next-line @typescript-eslint/dot-notation
                 this._remoteAvatarControllers.delete(sessionID);
@@ -581,6 +596,28 @@ export class VScene {
                     sessionID:${sessionID.stringify()} SessionDisplayName:${avatar.sessionDisplayName}`);
             }
         }
+    }
+
+    private _handleAvatarSkeletonModelURLChanged(controller:RemoteAvatarController): void {
+        controller.stop();
+        if (this._resourceManager) {
+            if (controller.mesh) {
+                this._resourceManager.unloadAvatar(controller.mesh.id);
+            }
+            if (controller.domain.skeletonModelURL !== "") {
+                this._resourceManager.loadAvatar(controller.domain.skeletonModelURL).then((mesh) => {
+                    controller.mesh = mesh;
+                    controller.start();
+                })
+                // eslint-disable-next-line @typescript-eslint/dot-notation
+                    .catch((error) => {
+                        console.error(error);
+                        Log.error(Log.types.AVATAR, `fail to load avatar ${controller.domain.skeletonModelURL}`);
+                    });
+            }
+        }
+
+
     }
 
 }
