@@ -217,4 +217,9 @@ export class Domain {
         this.#_domainUrl = Config.getItem(DomainPersist.DOMAIN_URL, "UNKNOWN");
     }
 
+    public update() : void {
+        if (this.#_avatarClient) {
+            this.#_avatarClient.update();
+        }
+    }
 }
