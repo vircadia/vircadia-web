@@ -13,41 +13,37 @@
 /* eslint-disable new-cap */
 
 import {
-    Vector3,
+    Node,
     AbstractMesh,
     Scene,
-    TransformNode,
-    Quaternion,
-    Nullable
+    Nullable,
+    TransformNode
 } from "@babylonjs/core";
 // General Modules
 import Log from "@Modules/debugging/log";
+import { AvatarMapper } from "./AvatarMapper";
 // Domain Modules
-import { ScriptAvatar, vec3, quat, SignalEmitter } from "@vircadia/web-sdk";
+import { ScriptAvatar, SignalEmitter } from "@vircadia/web-sdk";
 
 export class RemoteAvatarController {
     private _scene: Scene;
     private _avatarMesh: Nullable<AbstractMesh> = null;
+    private _skeletonNodes: TransformNode[];
     // domain properties
     private _avatarDomain : ScriptAvatar;
-    private _prePos: vec3;
-    private _preQuat : quat;
+    private _skeletonReady = false;
     public skeletonModelURLChanged :SignalEmitter;
 
     constructor(scene: Scene, domain :ScriptAvatar) {
         this._scene = scene;
         this._avatarDomain = domain;
+        this._skeletonNodes = new Array<TransformNode>();
         this._update = this._update.bind(this);
-
         this._avatarDomain.displayNameChanged.connect(this._handleDisplayNameChanged.bind(this));
         this._avatarDomain.sessionDisplayNameChanged.connect(this._handleSessionDisplayNameChanged.bind(this));
+        this._avatarDomain.skeletonChanged.connect(this._handleSkeletonChanged.bind(this));
         this._avatarDomain.skeletonModelURLChanged.connect(this._handleSkeletonModelURLChanged.bind(this));
         this.skeletonModelURLChanged = new SignalEmitter();
-
-        this._prePos = this._avatarDomain.position;
-        this._updatePosition();
-        this._preQuat = this._avatarDomain.orientation;
-        this._updateOrientation();
     }
 
     public get mesh(): Nullable<AbstractMesh> {
@@ -55,7 +51,22 @@ export class RemoteAvatarController {
     }
 
     public set mesh(m:Nullable<AbstractMesh>) {
-        this._avatarMesh = m;
+        Log.debug(Log.types.AVATAR,
+            `Script avatar bind mesh`);
+        if (m) {
+            this._avatarMesh = m;
+            const rootNode = this._avatarMesh.getChildTransformNodes()[0];
+            this._collectSkeletonNode(rootNode);
+
+            if (this._skeletonReady) {
+                this._skeletonNodes.forEach((node, index) => {
+                    const joint = this._avatarDomain.skeleton[index];
+                    node.position = AvatarMapper.mapToNodePosition(joint.defaultTranslation);
+                    node.rotationQuaternion = AvatarMapper.mapToNodeQuaternion(joint.defaultRotation);
+                    node.scaling = AvatarMapper.mapToNodeScaling(joint.defaultScale);
+                });
+            }
+        }
     }
 
     public get domain(): ScriptAvatar {
@@ -74,29 +85,22 @@ export class RemoteAvatarController {
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
     private _update():void {
+        if (this._avatarMesh && this._skeletonReady) {
+            // sync postion
+            this._avatarMesh.position = AvatarMapper.mapToNodePosition(this._avatarDomain.position);
+            // sync orientation
+            this._avatarMesh.rotationQuaternion = AvatarMapper.mapToNodeQuaternion(this._avatarDomain.orientation);
+            // sync joints
+            this._skeletonNodes.forEach((node, index) => {
+                if (this._avatarDomain.jointTranslations[index]) {
+                    node.position = AvatarMapper.mapToNodePosition(this._avatarDomain.jointTranslations[index]);
+                }
 
-        this._updatePosition();
-
-        this._updateOrientation();
-        /*
-        const pos = this._avatarDomain.position;
-        if (this._prePos.x !== pos.x || this._prePos.y !== pos.y || this._prePos.z !== pos.z) {
-            this._updatePosition();
-            this._prePos = pos;
+                if (this._avatarDomain.jointRotations[index]) {
+                    node.rotationQuaternion = AvatarMapper.mapToNodeQuaternion(this._avatarDomain.jointRotations[index]);
+                }
+            });
         }
-
-        const q = this._avatarDomain.orientation;
-        if (this._preQuat.x !== q.x || this._preQuat.y !== q.y
-            || this._preQuat.z !== q.z || this._preQuat.w !== q.w) {
-            Log.debug(Log.types.AVATAR,
-                `Quat:${q.x}, ${q.y}, ${q.z}, ${q.w}`);
-            this._updateOrientation();
-            this._preQuat = q;
-        } */
-
-        // this._animController.play("idle02");
-
-        // this._animController.update();
     }
 
     private _handleDisplayNameChanged() {
@@ -109,43 +113,32 @@ export class RemoteAvatarController {
             `SessionDisplayName Changed:${this._avatarDomain.sessionDisplayName}`);
     }
 
+    private _handleSkeletonChanged() {
+        Log.debug(Log.types.AVATAR,
+            `Script avatar Skeleton changed`);
+
+        this._skeletonReady = true;
+    }
+
     private _handleSkeletonModelURLChanged() {
         Log.debug(Log.types.AVATAR,
             `SkeletonModelURL Changed:${this._avatarDomain.skeletonModelURL}`);
 
+        this._skeletonReady = false;
         this.skeletonModelURLChanged.emit(this);
     }
 
-    private _updatePosition() : void {
-        if (this._avatarMesh) {
-            const pos = this._avatarDomain.position;
-            this._avatarMesh.position = new Vector3(pos.x, pos.y, pos.z);
+    private _collectSkeletonNode(node:Node) : void {
+        if (node.getClassName() !== "TransformNode") {
+            return;
         }
-    }
 
-    private _updateOrientation() : void {
-        if (this._avatarMesh) {
-            const q = this._avatarDomain.orientation;
-            this._avatarMesh.rotationQuaternion = new Quaternion(q.x, q.y, q.z, q.w);
-        }
-    }
+        const transNode = node as TransformNode;
+        this._skeletonNodes.push(transNode);
 
-    private _updateJointData() : void {
-        if (this._avatarMesh) {
-            this._avatarMesh.getChildren();
-
-            const rotations = this._avatarDomain.jointRotations;
-
-            const nodes = this._avatarMesh.getChildren(undefined, false);
-            nodes.forEach((node, index) => {
-                const transNode = node as TransformNode;
-                const q = rotations[index];
-                if (transNode.rotationQuaternion && q) {
-                    transNode.rotationQuaternion = new Quaternion(
-                        q.x, q.y, q.z, q.w
-                    );
-                }
-            });
-        }
+        const children = node.getChildren();
+        children.forEach((child) => {
+            this._collectSkeletonNode(child);
+        });
     }
 }

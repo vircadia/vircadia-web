@@ -524,13 +524,13 @@ export class VScene {
                 }
 
                 if (this._avatarController) {
-                    this._avatarController.domain = myAvatar;
+                    this._avatarController.bindDomain(myAvatar);
                 }
             }
 
             const avatarList = this._avatarMixer?.avatarList;
             if (avatarList) {
-                Log.debug(Log.types.AVATAR, `avatar number:${avatarList.count}`);
+                Log.debug(Log.types.AVATAR, `Handle avatar list. Avatar number:${avatarList.count}`);
                 avatarList.avatarAdded.connect(this._handleAvatarAdded.bind(this));
                 avatarList.avatarRemoved.connect(this._handleAvatarRemoved.bind(this));
 
