@@ -14,6 +14,7 @@
 /* eslint-disable new-cap */
 
 import {
+    Node,
     Vector3,
     Scene,
     ActionManager,
@@ -27,15 +28,15 @@ import {
     ActionEvent,
     IAction,
     TransformNode
-
 } from "@babylonjs/core";
 
 import { AnimationController } from "./AnimationController";
+import { AvatarMapper } from "./AvatarMapper";
 // General Modules
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
 // Domain Modules
-import { MyAvatarInterface, quat } from "@vircadia/web-sdk";
+import { MyAvatarInterface, quat, SkeletonJoint } from "@vircadia/web-sdk";
 
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
@@ -43,6 +44,7 @@ import { MyAvatarInterface, quat } from "@vircadia/web-sdk";
 /* eslint-disable @typescript-eslint/dot-notation */
 export class AvatarController {
     private _avatarMesh: AbstractMesh;
+    private _skeletonNodes: TransformNode[];
     private _camera: Camera;
     private _scene: Scene;
     private _walkSpeed = 3;
@@ -63,6 +65,7 @@ export class AvatarController {
 
     constructor(avatar: AbstractMesh, camera: Camera, scene: Scene, animGroups: AnimationGroup[]) {
         this._avatarMesh = avatar;
+        this._skeletonNodes = new Array<TransformNode>();
         this._camera = camera;
         this._scene = scene;
         this._movement = new Vector3();
@@ -73,10 +76,19 @@ export class AvatarController {
         this._animController = new AnimationController(avatar, animGroups);
     }
 
-    set domain(avatar :MyAvatarInterface) {
+    public bindDomain(avatar :MyAvatarInterface):void {
+        Log.debug(Log.types.AVATAR,
+            `bind my avatar domain`);
+
         this._avatarDomain = avatar;
         this._avatarDomain.scale = this._avatarMesh.scaling.x;
-        this._avatarDomain.locationChangeRequired.connect(this._updateDomain.bind(this));
+        this._avatarDomain.locationChangeRequired.connect(this._syncToDomain.bind(this));
+
+        const rootNode = this._avatarMesh.getChildTransformNodes()[0];
+        const skeleton = new Array<SkeletonJoint>();
+        this._collectJointData(rootNode, -1, skeleton);
+        this._avatarDomain.skeleton = skeleton;
+
         this._positionUpdated = true;
         this._rotationUpdated = true;
     }
@@ -180,7 +192,7 @@ export class AvatarController {
 
         this._updateGroundDetection();
 
-        this._updateDomain();
+        this._syncToDomain();
     }
 
     private _animateAvatar() {
@@ -234,43 +246,42 @@ export class AvatarController {
 
     }
 
-    private _updateDomain() {
+    private _collectJointData(node:Node, parentIndex: number, joints: SkeletonJoint[]) : void {
+        if (node.getClassName() !== "TransformNode") {
+            return;
+        }
+
+        const transNode = node as TransformNode;
+        this._skeletonNodes.push(transNode);
+
+        const jointIndex = joints.length;
+        const joint = AvatarMapper.mapToJoint(transNode, jointIndex, parentIndex);
+        joints.push(joint);
+
+        const children = node.getChildren();
+        children.forEach((child) => {
+            this._collectJointData(child, jointIndex, joints);
+        });
+    }
+
+    private _syncToDomain() {
         if (this._avatarDomain) {
             if (this._positionUpdated) {
-                this._avatarDomain.position = { x: this._avatarMesh.position.x,
-                    y: this._avatarMesh.position.y,
-                    z: this._avatarMesh.position.z };
+                this._avatarDomain.position = AvatarMapper.mapToJointPosition(this._avatarMesh.position);
                 this._positionUpdated = false;
             }
             if (this._rotationUpdated) {
-                if (this._avatarDomain.orientation && this._avatarMesh.rotationQuaternion) {
-                    this._avatarDomain.orientation = { x: this._avatarMesh.rotationQuaternion.x,
-                        y: this._avatarMesh.rotationQuaternion.y,
-                        z: this._avatarMesh.rotationQuaternion.z,
-                        w: this._avatarMesh.rotationQuaternion.w };
-                }
-
+                this._avatarDomain.orientation = AvatarMapper.mapToJointQuaternion(this._avatarMesh.rotationQuaternion);
                 this._rotationUpdated = false;
             }
 
-            // update joint data
-            const rotations = new Array<quat>();
-
-            const nodes = this._avatarMesh.getChildren(undefined, false);
-            nodes.forEach((node) => {
-                const trans = node as TransformNode;
-                if (trans.rotationQuaternion) {
-                    const q = {
-                        x: trans.rotationQuaternion.x,
-                        y: trans.rotationQuaternion.y,
-                        z: trans.rotationQuaternion.z,
-                        w: trans.rotationQuaternion.w
-                    };
-                    rotations.push(q);
-                }
-            });
-
-            // this._avatarDomain.jointRotations = rotations;
+            // sync joint data
+            for (let i = 0; i < this._avatarDomain.jointRotations.length; i++) {
+                this._avatarDomain.jointTranslations[i]
+                        = AvatarMapper.mapToJointPosition(this._skeletonNodes[i].position);
+                this._avatarDomain.jointRotations[i]
+                        = AvatarMapper.mapToJointQuaternion(this._skeletonNodes[i].rotationQuaternion);
+            }
         }
     }
 }
