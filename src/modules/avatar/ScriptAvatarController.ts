@@ -25,7 +25,7 @@ import { AvatarMapper } from "./AvatarMapper";
 // Domain Modules
 import { ScriptAvatar, SignalEmitter } from "@vircadia/web-sdk";
 
-export class RemoteAvatarController {
+export class ScriptAvatarController {
     private _scene: Scene;
     private _avatarMesh: Nullable<AbstractMesh> = null;
     private _skeletonNodes: TransformNode[];
@@ -38,7 +38,6 @@ export class RemoteAvatarController {
         this._scene = scene;
         this._avatarDomain = domain;
         this._skeletonNodes = new Array<TransformNode>();
-        this._update = this._update.bind(this);
         this._avatarDomain.displayNameChanged.connect(this._handleDisplayNameChanged.bind(this));
         this._avatarDomain.sessionDisplayNameChanged.connect(this._handleSessionDisplayNameChanged.bind(this));
         this._avatarDomain.skeletonChanged.connect(this._handleSkeletonChanged.bind(this));
@@ -74,18 +73,8 @@ export class RemoteAvatarController {
         return this._avatarDomain;
     }
 
-    public start():void {
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        this._scene.registerBeforeRender(this._update);
-    }
-
-    public stop():void {
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        this._scene.unregisterBeforeRender(this._update);
-    }
-
     // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
-    private _update():void {
+    public update():void {
         if (this._avatarMesh && this._skeletonReady) {
             // sync postion
             this._avatarMesh.position = AvatarMapper.mapToNodePosition(this._avatarDomain.position);

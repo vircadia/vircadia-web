@@ -399,6 +399,12 @@ export class VScene {
             void this._resourceManager?.loadAsync();
             this._incrementalLoading = false;
         }
+
+        this._avatarController?.update();
+
+        this._remoteAvatarControllers.forEach((avatar) => {
+            avatar.update();
+        });
     }
 
     private async _loadMyAvatar() : Promise<void> {
@@ -548,7 +554,6 @@ export class VScene {
         } else if (pState === ConnectionState.DISCONNECTED) {
             Log.debug(Log.types.AUDIO, `VScene._handleActiveDomainStateChange: ${Domain.stateToString(pState)}`);
             this._remoteAvatarControllers.forEach((controller) => {
-                controller.stop();
                 if (controller.mesh) {
                     this._resourceManager?.unloadAvatar(controller.mesh.id);
                 }
@@ -565,17 +570,6 @@ export class VScene {
             const controller = new RemoteAvatarController(this._scene, avatar);
             controller.skeletonModelURLChanged.connect(this._handleAvatarSkeletonModelURLChanged.bind(this));
             this._remoteAvatarControllers.set(sessionID, controller);
-            /*
-            Log.debug(Log.types.AVATAR, `DisplayName:${avatar.displayName}
-            SessionDisplayName:${avatar.sessionDisplayName}
-            SkeletonModelURL:${avatar.skeletonModelURL}`);
-            const url = avatar.skeletonModelURL === "" ? DefaultAvatarUrl : avatar.skeletonModelURL;
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this._resourceManager?.loadAvatar(url).then((mesh) => {
-                const controller = new RemoteAvatarController(this._scene, mesh, this._avatarAnimationGroups, avatar);
-                controller.start();
-                this._remoteAvatarControllers.set(sessionID, controller);
-            }); */
         }
     }
 
@@ -587,7 +581,6 @@ export class VScene {
                 if (controller.mesh) {
                     this._resourceManager?.unloadAvatar(controller.mesh.id);
                 }
-                controller.stop();
                 // eslint-disable-next-line @typescript-eslint/dot-notation
                 this._remoteAvatarControllers.delete(sessionID);
                 const avatar = avatarList.getAvatar(sessionID);
@@ -599,7 +592,6 @@ export class VScene {
     }
 
     private _handleAvatarSkeletonModelURLChanged(controller:RemoteAvatarController): void {
-        controller.stop();
         if (this._resourceManager) {
             if (controller.mesh) {
                 this._resourceManager.unloadAvatar(controller.mesh.id);
@@ -607,7 +599,6 @@ export class VScene {
             if (controller.domain.skeletonModelURL !== "") {
                 this._resourceManager.loadAvatar(controller.domain.skeletonModelURL).then((mesh) => {
                     controller.mesh = mesh;
-                    controller.start();
                 })
                 // eslint-disable-next-line @typescript-eslint/dot-notation
                     .catch((error) => {

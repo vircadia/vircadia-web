@@ -70,7 +70,6 @@ export class AvatarController {
         this._scene = scene;
         this._movement = new Vector3();
         this._inputMap = {};
-        this._update = this._update.bind(this);
         this._onKeyUp = this._onKeyUp.bind(this);
         this._onKeyupDown = this._onKeyupDown.bind(this);
         this._animController = new AnimationController(avatar, animGroups);
@@ -94,9 +93,6 @@ export class AvatarController {
     }
 
     public start():void {
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        this._scene.registerBeforeRender(this._update);
-
         // scene action manager to detect inputs
         if (!this._scene.actionManager) {
             this._scene.actionManager = new ActionManager(this._scene);
@@ -120,9 +116,6 @@ export class AvatarController {
     }
 
     public stop():void {
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        this._scene.unregisterBeforeRender(this._update);
-
         if (this._keyDownAction) {
             this._scene.actionManager.unregisterAction(this._keyDownAction);
             this._keyDownAction = null;
@@ -144,7 +137,7 @@ export class AvatarController {
         this._shiftKey = evt.sourceEvent.shiftKey === true;
     }
 
-    private _update():void {
+    public update():void {
         if (this._inputMap["KeyW"]) {
             this._movement.z = Scalar.Lerp(this._movement.z, -this._walkSpeed, 0.1);
             this._positionUpdated = true;
