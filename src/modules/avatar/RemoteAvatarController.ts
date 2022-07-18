@@ -43,6 +43,7 @@ export class RemoteAvatarController {
         this._avatarDomain.sessionDisplayNameChanged.connect(this._handleSessionDisplayNameChanged.bind(this));
         this._avatarDomain.skeletonChanged.connect(this._handleSkeletonChanged.bind(this));
         this._avatarDomain.skeletonModelURLChanged.connect(this._handleSkeletonModelURLChanged.bind(this));
+        this._avatarDomain.scaleChanged.connect(this._handleScaleChanged.bind(this));
         this.skeletonModelURLChanged = new SignalEmitter();
     }
 
@@ -122,10 +123,18 @@ export class RemoteAvatarController {
 
     private _handleSkeletonModelURLChanged() {
         Log.debug(Log.types.AVATAR,
-            `SkeletonModelURL Changed:${this._avatarDomain.skeletonModelURL}`);
+            `Script Avatar SkeletonModelURL Changed:${this._avatarDomain.skeletonModelURL}`);
 
         this._skeletonReady = false;
         this.skeletonModelURLChanged.emit(this);
+    }
+
+    private _handleScaleChanged(): void {
+        Log.debug(Log.types.AVATAR,
+            `Script Avatar Scale Changed.`);
+        if (this._avatarMesh && this._avatarMesh.scaling) {
+            this._avatarMesh.scaling = AvatarMapper.mapToNodeScaling(this._avatarDomain.scale);
+        }
     }
 
     private _collectSkeletonNode(node:Node) : void {
