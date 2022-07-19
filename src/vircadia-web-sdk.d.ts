@@ -39,6 +39,16 @@ declare module "@vircadia/web-sdk" {
         valid(value: any): boolean;
         equal(q1: quat, q2: quat): boolean;
     };
+
+    export type SkeletonJoint = {
+        jointName: string;
+        jointIndex: number;
+        parentIndex: number;
+        boneType: number;
+        defaultTranslation: vec3;
+        defaultRotation: quat;
+        defaultScale: number;
+    };
     // Uuid ============================
     export class Uuid {
         static readonly NUM_BYTES_RFC4122_UUID = 16;
@@ -198,21 +208,81 @@ declare module "@vircadia/web-sdk" {
         get displayNameChanged(): Signal;
         get sessionDisplayName(): string;
         get sessionDisplayNameChanged(): Signal;
+        get skeletonModelURL(): string;
+        set skeletonModelURL(skeletonModelURL: string);
+        get skeletonModelURLChanged(): Signal;
+        get skeleton(): SkeletonJoint[];
+        set skeleton(skeleton: SkeletonJoint[]);
+        get skeletonChanged(): Signal;
+        get scale(): number;
+        set scale(scale: number);
+        get scaleChanged(): Signal;
+        get targetScale(): number;
+        set targetScale(targetScale: number);
+        get targetScaleChanged(): Signal;
         get position(): vec3;
-        set position(pos: vec3);
+        set position(position: vec3);
         get orientation(): quat;
-        set orientation(orient: quat);
+        set orientation(orientation: quat);
+        get locationChangeRequired(): Signal;
+        get jointRotations(): (quat | null)[];
+        set jointRotations(jointRotations: (quat | null)[]);
+        get jointTranslations(): (vec3 | null)[];
+        set jointTranslations(jointTranslations: (vec3 | null)[]);
+    }
+
+    export class AvatarData {
+        constructor(contextID: number);
+        get displayNameChanged(): Signal;
+        get sessionDisplayNameChanged(): Signal;
+        get skeletonModelURLChanged(): Signal;
+        get skeletonChanged(): Signal;
+        get targetScaleChanged(): Signal;
+        getSessionUUID(): Uuid;
+        setSessionUUID(sessionUUID: Uuid): void;
+        getDisplayName(): string | null;
+        setDisplayName(displayName: string | null): void;
+        getSessionDisplayName(): string | null;
+        setSessionDisplayName(sessionDisplayName: string | null): void;
+        maybeUpdateSessionDisplayNameFromTransport(sessionDisplayName: string | null): void;
+        getSkeletonModelURL(): string | null;
+        setSkeletonModelURL(skeletonModelURL: string | null): void;
+        getSkeletonData(): SkeletonJoint[];
+        setSkeletonData(skeletonData: SkeletonJoint[]): void;
+        setTargetScale(targetScale: number): void;
+        getTargetScale(): number;
+        getDomainLimitedScale(): number;
+        getJointRotations(): (quat | null)[];
+        setJointRotations(jointRotations: (quat | null)[]): void;
+        getJointTranslations(): (vec3 | null)[];
+        setJointTranslations(jointTranslations: (vec3 | null)[]): void;
+        markIdentityDataChanged(): void;
+        getIdentityDataChanged(): boolean;
+        sendIdentityPacket(): number;
+        resetLastSent(): void;
+        sendAvatarDataPacket(sendAll?: boolean): number;
+
     }
 
     // ScriptAvatar ==================================
     export class ScriptAvatar {
+        #private;
+        constructor(avatar: AvatarData | null);
         get isValid(): boolean;
         get displayName(): string;
         get displayNameChanged(): Signal;
         get sessionDisplayName(): string;
         get sessionDisplayNameChanged(): Signal;
+        get skeletonModelURL(): string;
+        get skeletonModelURLChanged(): Signal;
+        get skeleton(): SkeletonJoint[];
+        get skeletonChanged(): Signal;
+        get scale(): number;
+        get scaleChanged(): Signal;
         get position(): vec3;
         get orientation(): quat;
+        get jointRotations(): (quat | null)[];
+        get jointTranslations(): (vec3 | null)[];
     }
 
     // AvatarListInterface ============================
@@ -238,6 +308,23 @@ declare module "@vircadia/web-sdk" {
         constructor(contextID: number);
         get myAvatar(): MyAvatarInterface;
         get avatarList(): AvatarListInterface;
+        update(): void;
+    }
+
+    export class Camera {
+        constructor(contextID: number);
+        get position(): vec3;
+        set position(position: vec3);
+        get orientation(): quat;
+        set orientation(orientation: quat);
+        get fieldOfView(): number;
+        set fieldOfView(fieldOfView: number);
+        get aspectRatio(): number;
+        set aspectRatio(aspectRatio: number);
+        get farClip(): number;
+        set farClip(farClip: number);
+        get centerRadius(): number;
+        set centerRadius(centerRadius: number);
         update(): void;
     }
 

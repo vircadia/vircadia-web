@@ -14,19 +14,24 @@
 import { AnimationGroup, Engine, MeshBuilder, Scene, SceneLoader,
     ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, StandardMaterial,
     Mesh, HemisphericLight, DefaultRenderingPipeline, Camera, AbstractMesh,
-    AssetsManager } from "@babylonjs/core";
+    Texture, CubeTexture } from "@babylonjs/core";
 
-import { AdvancedDynamicTexture, TextBlock, Control } from "@babylonjs/gui";
-
-import { Color3, Color4, Vector3 } from "@babylonjs/core/Maths/math";
+import { Color3, Color4, Quaternion, Vector3 } from "@babylonjs/core/Maths/math";
 import "@babylonjs/loaders/glTF";
 import "@babylonjs/core/Meshes/meshBuilder";
+import { ResourceManager } from "./resource";
+
 // General Modules
 import Log from "@Modules/debugging/log";
 // System Modules
 import { v4 as uuidv4 } from "uuid";
 import { VVector3 } from ".";
-import { AvatarController } from "@Modules/avatar";
+import { AvatarController, RemoteAvatarController } from "@Modules/avatar";
+// Domain Modules
+import { DomainMgr } from "@Modules/domain";
+import { DomainAvatar } from "@Modules/domain/avatar";
+import { Domain, ConnectionState } from "@Modules/domain/domain";
+import { AvatarMixer, Uuid } from "@vircadia/web-sdk";
 
 
 /**
@@ -47,28 +52,29 @@ interface EntityProps {
     color?: { r: number; g: number; b: number; a?: number };
 }
 
-interface ILoadAvatarAssetsResult {
-    readonly avatar:Mesh,
-    readonly camera:Camera
-}
+const DefaultAvatarUrl = "https://staging.vircadia.com/O12OR634/UA92/sara.glb";
+const AvatarAnimationUrl = "https://staging.vircadia.com/O12OR634/UA92/AnimationsBasic.glb";
 
 /**
  * VScene is the interface to a single scene's state, entities, and operations.
  */
 export class VScene {
     _sceneId: number;
+    _engine: Engine;
     _scene: Scene;
-    _assetsManager : AssetsManager;
+    _preScene: Nullable<Scene> = null;
     _entities: Map<string, Mesh>;
-    _sceneMeshes: Map<string, AbstractMesh>;
     _avatar : Nullable<AbstractMesh> = null;
     _avatarAnimMesh :Nullable<AbstractMesh> = null;
     _camera : Nullable<Camera> = null;
     _avatarController : Nullable<AvatarController>;
+    _remoteAvatarControllers : Map<Uuid, RemoteAvatarController>;
     _avatarAnimationGroups : AnimationGroup[] = [];
     _defaultPipeline : Nullable<DefaultRenderingPipeline>;
     _incrementalLoading = false;
-    _defaultEnviroment = false;
+    _avatarMixer : Nullable<AvatarMixer> = null;
+    _resourceManager : Nullable<ResourceManager> = null;
+    _skyBox : Nullable<Mesh> = null;
 
     constructor(pEngine: Engine, pSceneId = 0) {
         if (process.env.NODE_ENV === "development") {
@@ -76,19 +82,14 @@ export class VScene {
             import("@babylonjs/inspector");
         }
 
+        this._engine = pEngine;
         this._entities = new Map<string, Mesh>();
-        this._sceneMeshes = new Map<string, AbstractMesh>();
         this._scene = new Scene(pEngine);
-        this._assetsManager = new AssetsManager(this._scene);
-        this._scene.actionManager = new ActionManager(this._scene);
-        this._scene.actionManager.registerAction(
-            new ExecuteCodeAction(ActionManager.OnKeyUpTrigger,
-                this._onKeyUp.bind(this))
-        );
-
         this._sceneId = pSceneId;
+        // Listen for the domain to connect and disconnect
+        DomainMgr.onActiveDomainStateChange.connect(this._handleActiveDomainStateChange.bind(this));
 
-        this._scene.registerBeforeRender(this._befeforeRender.bind(this));
+        this._remoteAvatarControllers = new Map<Uuid, RemoteAvatarController>();
     }
 
     getSceneId(): number {
@@ -247,23 +248,14 @@ export class VScene {
         }
     }
 
-    public createDefaultEnvionment():void {
-        this._scene.createDefaultEnvironment(
-            { createGround: false,
-                createSkybox: false });
-
-        // this._scene.clearColor = new Color4(0.5, 0.5, 0.5, 1.0);
-        // this._scene.ambientColor = new Color3(0.3, 0.3, 0.3);
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        // const light = new HemisphericLight("ambient", new Vector3(0, 1, 0), this._scene);
-    }
-
     public async loadSceneSpaceStation(): Promise<void> {
-        this._scene.getEngine().displayLoadingUI();
+        this._engine.displayLoadingUI();
+        this._scene.detachControl();
 
-        this._unloadEnvionment();
+        this._preScene = this._scene;
+        this._createScene();
 
-        await this._loadAvatarAssets();
+        await this._loadMyAvatar();
         // setup avatar
         if (this._avatar) {
             this._avatar.position = new Vector3(0, 49.6, 0);
@@ -273,7 +265,7 @@ export class VScene {
         // setup camera
         const camera = this._camera as ArcRotateCamera;
         if (camera) {
-            camera.minZ = 1;
+            camera.minZ = 0.5;
             camera.maxZ = 250000;
             camera.alpha = -Math.PI / 2;
             camera.beta = Math.PI / 2;
@@ -282,16 +274,21 @@ export class VScene {
 
         await this.loadSpaceStationEnvironment();
 
+        this._preScene.dispose();
+        this._preScene = null;
         await this._scene.whenReadyAsync();
-        this._scene.getEngine().hideLoadingUI();
+        this._engine.hideLoadingUI();
     }
 
     public async loadSceneUA92Campus(): Promise<void> {
-        this._scene.getEngine().displayLoadingUI();
+        this._engine.displayLoadingUI();
+        this._scene.detachControl();
 
-        this._unloadEnvionment();
+        this._preScene = this._scene;
+        // this._disposeScene();
+        this._createScene();
 
-        await this._loadAvatarAssets();
+        await this._loadMyAvatar();
         // setup avatar
         if (this._avatar) {
             this._avatar.position = new Vector3(25, 0, 30);
@@ -301,22 +298,28 @@ export class VScene {
         // setup camera
         const camera = this._camera as ArcRotateCamera;
         if (camera) {
-            camera.minZ = 1;
+            camera.minZ = 0.1;
             camera.maxZ = 2000;
             camera.alpha = -Math.PI / 2;
             camera.beta = Math.PI / 2;
-            camera.parent = this._avatar as Mesh;
+            camera.parent = this._avatar as AbstractMesh;
         }
 
         await this.loadUA92CampusEnvironment();
 
+        this._preScene.dispose();
+        this._preScene = null;
+
         await this._scene.whenReadyAsync();
-        this._scene.getEngine().hideLoadingUI();
+        this._engine.hideLoadingUI();
     }
 
     public async loadSpaceStationEnvironment(): Promise<void> {
         await this._loadEnvironment("https://staging.vircadia.com/O12OR634/SpaceStation/",
-            ["SpaceStation_Inside_Floor.glb"],
+            [
+                "SpaceStation_Inside_Floor.glb",
+                "Collision_Station_Inside.glb"
+            ],
             [
                 "SpaceStation_HDRI.glb",
                 "SpaceStation_Inside_Desk.glb",
@@ -334,6 +337,11 @@ export class VScene {
             ]
         );
 
+        this._scene.createDefaultEnvironment(
+            { createGround: false,
+                createSkybox: false,
+                environmentTexture: "https://assets.babylonjs.com/textures/night.env" });
+
         if (this._defaultPipeline) {
             this._defaultPipeline.glowLayerEnabled = true;
             if (this._defaultPipeline.glowLayer) {
@@ -346,9 +354,38 @@ export class VScene {
     }
 
     public async loadUA92CampusEnvironment(): Promise<void> {
+        this._scene?.createDefaultEnvironment(
+            { createGround: false,
+                createSkybox: false,
+                environmentTexture: "https://assets.babylonjs.com/textures/country.env" });
+
         await this._loadEnvironment("https://staging.vircadia.com/O12OR634/UA92/",
-            ["UA92_7-5-2022a.glb"], null
+            [
+                "FirstFloor.glb",
+                "Outdoors.glb",
+                "Collisions.glb"
+            ],
+            [
+                "Exterior.glb",
+                "Atirum.glb",
+                "Elevator.glb",
+                "Furniture.glb",
+                "Support.glb",
+                "UpperFloors.glb"
+            ]
         );
+
+        this._skyBox = MeshBuilder.CreateBox("skyBox", { size: 2000 }, this._scene);
+
+        const skyboxMaterial = new StandardMaterial("skyBox", this._scene);
+        skyboxMaterial.backFaceCulling = false;
+        skyboxMaterial.reflectionTexture = new CubeTexture(
+            "https://assets.babylonjs.com/textures/TropicalSunnyDay", this._scene);
+        skyboxMaterial.reflectionTexture.coordinatesMode = Texture.SKYBOX_MODE;
+        skyboxMaterial.diffuseColor = new Color3(0, 0, 0);
+        skyboxMaterial.specularColor = new Color3(0, 0, 0);
+        skyboxMaterial.disableLighting = true;
+        this._skyBox.material = skyboxMaterial;
 
         if (this._defaultPipeline) {
             this._defaultPipeline.fxaaEnabled = true;
@@ -356,114 +393,40 @@ export class VScene {
 
     }
 
-    _processSceneMesh(mesh : AbstractMesh) : void {
-        mesh.id = uuidv4();
-        this._sceneMeshes.set(mesh.id, mesh);
-
-        VScene._applySceneMeshRule(mesh);
-
-        const nodes = mesh.getChildren();
-        nodes.forEach((node) => {
-            VScene._applySceneMeshRule(node as AbstractMesh);
-        });
-    }
-
-    static _applySceneMeshRule(mesh : AbstractMesh) : void {
-        if (mesh.name !== "Inside_Floor_B_01" && mesh.name !== "Inside_Floor_D_01") {
-            mesh.isPickable = false;
-        }
-    }
-
     _befeforeRender() : void {
         if (this._incrementalLoading) {
-            this._assetsManager.load();
+            // eslint-disable-next-line no-void
+            void this._resourceManager?.loadAsync();
             this._incrementalLoading = false;
         }
-    }
 
-    async _loadAvatarAnimations(modelUrl: string): Promise<AbstractMesh> {
-        const parsedUrl = new URL(modelUrl);
-        const urlWithoutFilename = modelUrl.substring(0, modelUrl.lastIndexOf("/")) + "/";
-        const filename = parsedUrl.pathname.split("/").pop();
+        this._avatarController?.update();
 
-        const result = await SceneLoader.ImportMeshAsync("",
-            urlWithoutFilename, filename, this._scene);
-
-        const mesh = result.meshes[0].getChildren()[0] as AbstractMesh;
-
-        result.animationGroups.forEach((sourceAnimGroup) => {
-
-            const animGroup = new AnimationGroup(sourceAnimGroup.name);
-            // scale of Armature
-            const scale = mesh.scaling;
-
-            // trim unnecessary animation data
-            sourceAnimGroup.targetedAnimations.forEach((targetAnim) => {
-                // scale postion animation of Hips node
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                if (targetAnim.target.name === "Hips" && targetAnim.animation.targetProperty === "position") {
-                    const anim = targetAnim.animation.clone();
-                    const keys = anim.getKeys();
-                    keys.forEach((keyFrame) => {
-                        const pos = keyFrame.value as Vector3;
-                        keyFrame.value = pos.multiply(scale);
-                    });
-
-                    animGroup.addTargetedAnimation(anim, targetAnim.target);
-                // keep rotationQuaternion animation of all nodes
-                } else if (targetAnim.animation.targetProperty === "rotationQuaternion") {
-                    animGroup.addTargetedAnimation(targetAnim.animation, targetAnim.target);
-                }
-            });
-            this._avatarAnimationGroups.push(animGroup);
-
-            sourceAnimGroup.dispose();
+        this._remoteAvatarControllers.forEach((avatar) => {
+            avatar.update();
         });
-
-        mesh.parent?.dispose();
-
-        return mesh;
     }
 
+    private async _loadMyAvatar() : Promise<void> {
+        // Creates, angles, distances and targets the camera
+        const camera = new ArcRotateCamera(
+            "Camera", -Math.PI / 2, Math.PI / 2, 6,
+            new Vector3(0, 1.5, 0), this._scene);
 
-    private async _loadAvatarAssets() : Promise<void> {
-        // load avatar animation
-        if (!this._avatarAnimMesh) {
-            this._avatarAnimMesh = await this._loadAvatarAnimations(
-                "https://staging.vircadia.com/O12OR634/UA92/AnimationsBasic.glb");
-        }
-        // load avatar mesh
-        if (!this._avatar) {
-            const result = await SceneLoader.ImportMeshAsync("",
-                "https://staging.vircadia.com/O12OR634/UA92/", "sara.glb", this._scene);
-            result.meshes.forEach((mesh) => {
-                mesh.isPickable = false;
-            });
+        // This attaches the camera to the canvas
+        camera.attachControl(this._scene.getEngine().getRenderingCanvas(), false);
+        camera.wheelPrecision = 50;
 
-            const avatar = result.meshes[0];
-            avatar.scaling = new Vector3(1, 1, 1);
+        this._scene.activeCamera = camera;
+        this._camera = camera;
 
-            const avatarMesh = avatar.getChildren()[0] as AbstractMesh;
-            avatarMesh.rotationQuaternion = this._avatarAnimMesh.rotationQuaternion;
+        if (this._resourceManager) {
+            const result = await this._resourceManager.loadAvatarAnimations(AvatarAnimationUrl);
+            this._avatarAnimMesh = result.mesh;
+            this._avatarAnimationGroups = result.animGroups;
 
-            // Creates, angles, distances and targets the camera
-            if (!this._camera) {
-                const camera = new ArcRotateCamera(
-                    "Camera", -Math.PI / 2, Math.PI / 2, 6,
-                    new Vector3(0, 1, 0), this._scene);
+            this._avatar = await this._resourceManager.loadMyAvatar(DefaultAvatarUrl);
 
-                // This attaches the camera to the canvas
-                camera.attachControl(this._scene.getEngine().getRenderingCanvas(), true);
-                camera.wheelPrecision = 50;
-
-                this._scene.activeCamera = camera;
-                this._camera = camera;
-            }
-
-            this._avatar = avatar;
-        }
-
-        if (this._avatar && this._camera) {
             this._avatarController = new AvatarController(this._avatar, this._camera,
                 this._scene, this._avatarAnimationGroups);
             this._avatarController.start();
@@ -475,58 +438,43 @@ export class VScene {
         meshList:string[],
         incrementalMeshList:string[] | null | undefined) : Promise<void> {
 
-        meshList.forEach((filename) => {
-            const task = this._assetsManager.addMeshTask("SceneIncrementalLoading", "", rootUrl, filename);
-            task.onSuccess = (meshAssetTask) => {
-                meshAssetTask.loadedMeshes.forEach(this._processSceneMesh.bind(this));
-            };
-        });
-        await this._assetsManager.loadAsync();
-
+        this._resourceManager?.addSceneObjectTasks("SceneLoading", rootUrl, meshList);
+        await this._resourceManager?.loadAsync();
         if (incrementalMeshList) {
-            incrementalMeshList.forEach((filename) => {
-                const task = this._assetsManager.addMeshTask("SceneIncrementalLoading", "", rootUrl, filename);
-                task.onSuccess = (meshAssetTask) => {
-                    meshAssetTask.loadedMeshes.forEach(this._processSceneMesh.bind(this));
-                };
-            });
-
+            this._resourceManager?.addSceneObjectTasks("SceneIncrementalLoading", rootUrl, incrementalMeshList);
             this._incrementalLoading = true;
         } else {
             this._incrementalLoading = false;
         }
 
-        // Create default pipeline
-        if (!this._defaultPipeline) {
-            this._defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);
-        }
+        this._defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);
     }
 
     private _unloadEnvionment() : void {
-        this._sceneMeshes.forEach((mesh) => {
-            mesh.dispose();
-        });
-        this._sceneMeshes.clear();
+        if (this._skyBox) {
+            this._skyBox.dispose();
+            this._skyBox = null;
+        }
+
+        this._resourceManager?.unload();
 
         if (this._defaultPipeline) {
             this._defaultPipeline.glowLayerEnabled = false;
         }
     }
 
-    private _unloadAvatar() {
-        if (this._avatar) {
-            if (this._camera) {
-                this._camera.parent = null;
-            }
+    private _createScene() {
+        this._scene = new Scene(this._engine);
+        this._resourceManager = new ResourceManager(this._scene);
+        this._scene.actionManager = new ActionManager(this._scene);
+        this._scene.actionManager.registerAction(
+            new ExecuteCodeAction(ActionManager.OnKeyUpTrigger,
+                this._onKeyUp.bind(this))
+        );
 
-            this._avatar.dispose();
-            this._avatar = null;
+        this._scene.registerBeforeRender(this._befeforeRender.bind(this));
 
-            if (this._avatarController) {
-                this._avatarController.stop();
-                this._avatarController = null;
-            }
-        }
+        this._scene.createDefaultCamera();
     }
 
     private _onKeyUp(evt: ActionEvent) : void {
@@ -562,6 +510,105 @@ export class VScene {
             default:
                 break;
         }
+    }
+
+    private _handleActiveDomainStateChange(pDomain: Domain, pState: ConnectionState, pInfo: string): void {
+        if (pState === ConnectionState.CONNECTED) {
+            Log.debug(Log.types.AVATAR, `VScene._handleActiveDomainStateChange: CONNECTED`);
+
+            const sessionID = pDomain.DomainClient?.sessionUUID;
+            if (sessionID) {
+                Log.debug(Log.types.AVATAR, `Session ID: ${sessionID.stringify()}`);
+            }
+
+            this._avatarMixer = pDomain.AvatarClient?.Mixer;
+            const myAvatar = pDomain.AvatarClient?.MyAvatar;
+            if (myAvatar) {
+
+                if (myAvatar.skeletonModelURL === "") {
+                    myAvatar.skeletonModelURL = DefaultAvatarUrl;
+                }
+
+                if (this._avatarController) {
+                    this._avatarController.bindDomain(myAvatar);
+                }
+            }
+
+            const avatarList = this._avatarMixer?.avatarList;
+            if (avatarList) {
+                Log.debug(Log.types.AVATAR, `Handle avatar list. Avatar number:${avatarList.count}`);
+                avatarList.avatarAdded.connect(this._handleAvatarAdded.bind(this));
+                avatarList.avatarRemoved.connect(this._handleAvatarRemoved.bind(this));
+
+                const uuids = avatarList.getAvatarIDs();
+                const emptyId = new Uuid();
+
+                uuids.forEach((uuid) => {
+                    // filter my avatar
+                    if (uuid.stringify() !== emptyId.stringify()) {
+                        this._handleAvatarAdded(uuid);
+                    }
+                });
+            }
+
+        } else if (pState === ConnectionState.DISCONNECTED) {
+            Log.debug(Log.types.AUDIO, `VScene._handleActiveDomainStateChange: ${Domain.stateToString(pState)}`);
+            this._remoteAvatarControllers.forEach((controller) => {
+                if (controller.mesh) {
+                    this._resourceManager?.unloadAvatar(controller.mesh.id);
+                }
+            });
+            this._remoteAvatarControllers.clear();
+        }
+    }
+
+    private _handleAvatarAdded(sessionID:Uuid): void {
+        const avatarList = this._avatarMixer?.avatarList;
+        if (avatarList) {
+            Log.debug(Log.types.AVATAR, `Handle avatar added Session ID: ${sessionID.stringify()}`);
+            const avatar = avatarList.getAvatar(sessionID);
+            const controller = new RemoteAvatarController(this._scene, avatar);
+            controller.skeletonModelURLChanged.connect(this._handleAvatarSkeletonModelURLChanged.bind(this));
+            this._remoteAvatarControllers.set(sessionID, controller);
+        }
+    }
+
+    private _handleAvatarRemoved(sessionID:Uuid): void {
+        const avatarList = this._avatarMixer?.avatarList;
+        if (avatarList) {
+            const controller = this._remoteAvatarControllers.get(sessionID);
+            if (controller) {
+                if (controller.mesh) {
+                    this._resourceManager?.unloadAvatar(controller.mesh.id);
+                }
+                // eslint-disable-next-line @typescript-eslint/dot-notation
+                this._remoteAvatarControllers.delete(sessionID);
+                const avatar = avatarList.getAvatar(sessionID);
+                Log.debug(Log.types.AVATAR,
+                    `Avatar removed", 
+                    sessionID:${sessionID.stringify()} SessionDisplayName:${avatar.sessionDisplayName}`);
+            }
+        }
+    }
+
+    private _handleAvatarSkeletonModelURLChanged(controller:RemoteAvatarController): void {
+        if (this._resourceManager) {
+            if (controller.mesh) {
+                this._resourceManager.unloadAvatar(controller.mesh.id);
+            }
+            if (controller.domain.skeletonModelURL !== "") {
+                this._resourceManager.loadAvatar(controller.domain.skeletonModelURL).then((mesh) => {
+                    controller.mesh = mesh;
+                })
+                // eslint-disable-next-line @typescript-eslint/dot-notation
+                    .catch((error) => {
+                        console.error(error);
+                        Log.error(Log.types.AVATAR, `fail to load avatar ${controller.domain.skeletonModelURL}`);
+                    });
+            }
+        }
+
+
     }
 
 }

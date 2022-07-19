@@ -90,5 +90,11 @@ export const DomainMgr = {
     // eslint-disable-next-line @typescript-eslint/require-await
     async shutdown(): Promise<void> {
         Log.info(Log.types.COMM, `DomainMgr: shutdown`);
+    },
+
+    update():void {
+        if (DomainMgr._activeDomain) {
+            DomainMgr._activeDomain.update();
+        }
     }
 };

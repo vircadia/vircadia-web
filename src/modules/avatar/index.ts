@@ -10,3 +10,4 @@
 //
 
 export { AvatarController } from "./AvatarController";
+export { ScriptAvatarController as RemoteAvatarController } from "./ScriptAvatarController";
