@@ -14,6 +14,7 @@ import { Engine } from "@babylonjs/core";
 import { Store, Mutations } from "@Store/index";
 import { Config } from "@Base/config";
 import { WebGPUEngine } from "@babylonjs/core/Engines/webgpuEngine";
+import { DomainMgr } from "@Modules/domain";
 
 
 // General Modules
@@ -90,6 +91,8 @@ export const Renderer = {
         this._engine.runRenderLoop(Renderer._renderLoop);
     },
     _renderLoop(): void {
+        DomainMgr.update();
+
         Renderer._renderingScenes.forEach((vscene) => {
             vscene.render();
         });

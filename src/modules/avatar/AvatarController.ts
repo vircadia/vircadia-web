@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 //
 //  AvatarController.ts
 //
@@ -8,31 +9,42 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
+
+// This is disabled because TS complains about BABYLON's use of cap'ed function names
 /* eslint-disable new-cap */
 
 import {
+    Node,
     Vector3,
     Scene,
     ActionManager,
     ExecuteCodeAction,
     AnimationGroup,
     Nullable,
-    Node,
-    TransformNode,
     Scalar,
     Ray,
     AbstractMesh,
     Camera,
     ActionEvent,
-    IAction
+    IAction,
+    TransformNode
 } from "@babylonjs/core";
+
+import { AnimationController } from "./AnimationController";
+import { AvatarMapper } from "./AvatarMapper";
+// General Modules
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import Log from "@Modules/debugging/log";
+// Domain Modules
+import { MyAvatarInterface, quat, SkeletonJoint } from "@vircadia/web-sdk";
 
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/dot-notation */
 export class AvatarController {
-    private _avatar: AbstractMesh;
+    private _avatarMesh: AbstractMesh;
+    private _skeletonNodes: TransformNode[];
     private _camera: Camera;
     private _scene: Scene;
     private _walkSpeed = 3;
@@ -41,87 +53,46 @@ export class AvatarController {
     private _rotation = 0;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private _inputMap : any;
-    private _idleAnim : Nullable<AnimationGroup> = null;
-    private _walkFwdAnim : Nullable<AnimationGroup> = null;
-    private _walkbwdAnim : Nullable<AnimationGroup> = null;
-    private _walkLeftAnim : Nullable<AnimationGroup> = null;
-    private _walkRightAnim : Nullable<AnimationGroup> = null;
-    private _turnLeftAnim : Nullable<AnimationGroup> = null;
-    private _turnRightAnim : Nullable<AnimationGroup> = null;
-    private _currentAnim: Nullable<AnimationGroup> = null;
-    private _prevAnim: Nullable<AnimationGroup> = null;
-
     private _shiftKey = false;
     private _keyDownAction:Nullable<IAction> = null;
     private _keyUpAction:Nullable<IAction> = null;
 
+    // domain properties
+    private _avatarDomain : Nullable<MyAvatarInterface> = null;
+    private _positionUpdated = false;
+    private _rotationUpdated = false;
+    private _animController: AnimationController;
+
     constructor(avatar: AbstractMesh, camera: Camera, scene: Scene, animGroups: AnimationGroup[]) {
-        this._avatar = avatar;
+        this._avatarMesh = avatar;
+        this._skeletonNodes = new Array<TransformNode>();
         this._camera = camera;
         this._scene = scene;
         this._movement = new Vector3();
         this._inputMap = {};
-        this._update = this._update.bind(this);
         this._onKeyUp = this._onKeyUp.bind(this);
         this._onKeyupDown = this._onKeyupDown.bind(this);
-
-        const nodes = new Map<string, Node>();
-        this._avatar.getChildren((node):boolean => {
-            nodes.set(node.name, node);
-            return true;
-        }, false);
-
-        animGroups.forEach((animGroup : AnimationGroup) => {
-            switch (animGroup.name) {
-                case "idle02":
-                    this._idleAnim = AvatarController._cloneAnimGroup(animGroup, nodes);
-                    break;
-                case "walk_fwd":
-                    this._walkFwdAnim = AvatarController._cloneAnimGroup(animGroup, nodes);
-                    break;
-                case "walk_bwd":
-                    this._walkbwdAnim = AvatarController._cloneAnimGroup(animGroup, nodes);
-                    break;
-                case "walk_left":
-                    this._walkLeftAnim = AvatarController._cloneAnimGroup(animGroup, nodes);
-                    break;
-                case "walk_right":
-                    this._walkRightAnim = AvatarController._cloneAnimGroup(animGroup, nodes);
-                    break;
-                case "turn_left":
-                    this._turnLeftAnim = AvatarController._cloneAnimGroup(animGroup, nodes);
-                    break;
-                case "turn_right":
-                    this._turnRightAnim = AvatarController._cloneAnimGroup(animGroup, nodes);
-                    break;
-                default:
-            }
-
-        });
-
-        this._avatar.isPickable = false;
-
+        this._animController = new AnimationController(avatar, animGroups);
     }
 
-    static _cloneAnimGroup(sourceAnimGroup : AnimationGroup, nodes : Map<string, Node>, loop = true):AnimationGroup {
-        const animGroup = new AnimationGroup(sourceAnimGroup.name);
-        animGroup.loopAnimation = loop;
+    public bindDomain(avatar :MyAvatarInterface):void {
+        Log.debug(Log.types.AVATAR,
+            `bind my avatar domain`);
 
-        sourceAnimGroup.targetedAnimations.forEach((targetAnim) => {
-            const target = targetAnim.target as TransformNode;
-            const node = nodes.get(target.name);
-            if (node) {
-                animGroup.addTargetedAnimation(targetAnim.animation, node);
-            }
-        });
+        this._avatarDomain = avatar;
+        this._avatarDomain.scale = this._avatarMesh.scaling.x;
+        this._avatarDomain.locationChangeRequired.connect(this._syncToDomain.bind(this));
 
-        return animGroup;
+        const rootNode = this._avatarMesh.getChildTransformNodes()[0];
+        const skeleton = new Array<SkeletonJoint>();
+        this._collectJointData(rootNode, -1, skeleton);
+        this._avatarDomain.skeleton = skeleton;
+
+        this._positionUpdated = true;
+        this._rotationUpdated = true;
     }
 
     public start():void {
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        this._scene.registerBeforeRender(this._update);
-
         // scene action manager to detect inputs
         if (!this._scene.actionManager) {
             this._scene.actionManager = new ActionManager(this._scene);
@@ -140,12 +111,11 @@ export class AvatarController {
 
         this._scene.actionManager.registerAction(
             this._keyUpAction);
+
+        this._animController.play("idle02");
     }
 
     public stop():void {
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        this._scene.unregisterAfterRender(this._update);
-
         if (this._keyDownAction) {
             this._scene.actionManager.unregisterAction(this._keyDownAction);
             this._keyDownAction = null;
@@ -167,11 +137,13 @@ export class AvatarController {
         this._shiftKey = evt.sourceEvent.shiftKey === true;
     }
 
-    private _update():void {
+    public update():void {
         if (this._inputMap["KeyW"]) {
             this._movement.z = Scalar.Lerp(this._movement.z, -this._walkSpeed, 0.1);
+            this._positionUpdated = true;
         } else if (this._inputMap["KeyS"]) {
             this._movement.z = Scalar.Lerp(this._movement.z, this._walkSpeed, 0.1);
+            this._positionUpdated = true;
         } else {
             this._movement.z = 0;
         }
@@ -179,14 +151,18 @@ export class AvatarController {
         if (this._inputMap["KeyA"]) {
             if (this._shiftKey) {
                 this._movement.x = Scalar.Lerp(this._movement.x, this._walkSpeed, 0.1);
+                this._positionUpdated = true;
             } else {
                 this._rotation = Scalar.Lerp(this._rotation, -this._rotationSpeed, 0.1);
+                this._rotationUpdated = true;
             }
         } else if (this._inputMap["KeyD"]) {
             if (this._shiftKey) {
                 this._movement.x = Scalar.Lerp(this._movement.x, -this._walkSpeed, 0.1);
+                this._positionUpdated = true;
             } else {
                 this._rotation = Scalar.Lerp(this._rotation, this._rotationSpeed, 0.1);
+                this._rotationUpdated = true;
             }
         } else {
             this._movement.x = 0;
@@ -199,50 +175,48 @@ export class AvatarController {
         }
 
         const dt = this._scene.getEngine().getDeltaTime() / 1000;
-        const movement = this._movement.scale(dt);
-        const rot = this._rotation * dt;
+        const movement = this._avatarMesh.calcMovePOV(this._movement.x, 0, this._movement.z).scale(dt);
+        this._avatarMesh.moveWithCollisions(movement);
 
-        this._avatar.rotate(Vector3.Up(), rot);
-        this._avatar.movePOV(movement.x, movement.y, movement.z);
+        const rot = this._rotation * dt;
+        this._avatarMesh.rotate(Vector3.Up(), rot);
 
         this._animateAvatar();
 
         this._updateGroundDetection();
+
+        this._syncToDomain();
     }
 
     private _animateAvatar() {
-        this._currentAnim = this._idleAnim;
-
         if (this._inputMap["KeyW"]) {
-            this._currentAnim = this._walkFwdAnim;
+            this._animController.play("walk_fwd");
         } else if (this._inputMap["KeyS"]) {
-            this._currentAnim = this._walkbwdAnim;
+            this._animController.play("walk_bwd");
         } else if (this._inputMap["KeyA"]) {
             if (this._shiftKey) {
-                this._currentAnim = this._walkRightAnim;
+                this._animController.play("walk_right");
             } else {
-                this._currentAnim = this._turnLeftAnim;
+                this._animController.play("turn_left");
             }
         } else if (this._inputMap["KeyD"]) {
             if (this._shiftKey) {
-                this._currentAnim = this._walkLeftAnim;
+                this._animController.play("walk_left");
             } else {
-                this._currentAnim = this._turnRightAnim;
+                this._animController.play("turn_right");
             }
+        } else {
+            this._animController.play("idle02");
         }
 
-        if (this._currentAnim !== null && this._currentAnim !== this._prevAnim) {
-            this._prevAnim?.stop();
-            this._currentAnim.start(this._currentAnim.loopAnimation, 1.0, 2, this._currentAnim.to, false);
-            this._prevAnim = this._currentAnim;
-        }
+        this._animController.update();
     }
 
 
     private _updateGroundDetection(): void {
         const pickedPoint = this._floorRaycast(0, 0, 1);
         if (!pickedPoint.equals(Vector3.Zero())) {
-            this._avatar.position.y = pickedPoint.y;
+            this._avatarMesh.position.y = pickedPoint.y + 0.05;
         }
     }
 
@@ -251,7 +225,7 @@ export class AvatarController {
     private _floorRaycast(offsetx: number, offsetz: number, raycastlen: number): Vector3 {
         // position the raycast from bottom center of mesh
         const raycastFloorPos = new Vector3(
-            this._avatar.position.x + offsetx, this._avatar.position.y + 0.5, this._avatar.position.z + offsetz);
+            this._avatarMesh.position.x + offsetx, this._avatarMesh.position.y + 0.5, this._avatarMesh.position.z + offsetz);
         const ray = new Ray(raycastFloorPos, Vector3.Down(), raycastlen);
 
         // defined which type of meshes should be pickable
@@ -263,5 +237,44 @@ export class AvatarController {
         }  // not grounded
         return Vector3.Zero();
 
+    }
+
+    private _collectJointData(node:Node, parentIndex: number, joints: SkeletonJoint[]) : void {
+        if (node.getClassName() !== "TransformNode") {
+            return;
+        }
+
+        const transNode = node as TransformNode;
+        this._skeletonNodes.push(transNode);
+
+        const jointIndex = joints.length;
+        const joint = AvatarMapper.mapToJoint(transNode, jointIndex, parentIndex);
+        joints.push(joint);
+
+        const children = node.getChildren();
+        children.forEach((child) => {
+            this._collectJointData(child, jointIndex, joints);
+        });
+    }
+
+    private _syncToDomain() {
+        if (this._avatarDomain) {
+            if (this._positionUpdated) {
+                this._avatarDomain.position = AvatarMapper.mapToJointPosition(this._avatarMesh.position);
+                this._positionUpdated = false;
+            }
+            if (this._rotationUpdated) {
+                this._avatarDomain.orientation = AvatarMapper.mapToJointQuaternion(this._avatarMesh.rotationQuaternion);
+                this._rotationUpdated = false;
+            }
+
+            // sync joint data
+            for (let i = 0; i < this._avatarDomain.jointRotations.length; i++) {
+                this._avatarDomain.jointTranslations[i]
+                        = AvatarMapper.mapToJointPosition(this._skeletonNodes[i].position);
+                this._avatarDomain.jointRotations[i]
+                        = AvatarMapper.mapToJointQuaternion(this._skeletonNodes[i].rotationQuaternion);
+            }
+        }
     }
 }
