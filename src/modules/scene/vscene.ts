@@ -70,11 +70,8 @@ export class VScene {
     _avatarController : Nullable<AvatarController>;
     _remoteAvatarControllers : Map<Uuid, RemoteAvatarController>;
     _avatarAnimationGroups : AnimationGroup[] = [];
-    _defaultPipeline : Nullable<DefaultRenderingPipeline>;
-    _incrementalLoading = false;
     _avatarMixer : Nullable<AvatarMixer> = null;
     _resourceManager : Nullable<ResourceManager> = null;
-    _skyBox : Nullable<Mesh> = null;
 
     constructor(pEngine: Engine, pSceneId = 0) {
         if (process.env.NODE_ENV === "development") {
@@ -342,19 +339,19 @@ export class VScene {
                 createSkybox: false,
                 environmentTexture: "https://assets.babylonjs.com/textures/night.env" });
 
-        if (this._defaultPipeline) {
-            this._defaultPipeline.glowLayerEnabled = true;
-            if (this._defaultPipeline.glowLayer) {
-                this._defaultPipeline.glowLayer.blurKernelSize = 16;
-                this._defaultPipeline.glowLayer.intensity = 0.5;
-            }
 
-            this._defaultPipeline.fxaaEnabled = true;
+        const defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);
+        defaultPipeline.fxaaEnabled = true;
+
+        defaultPipeline.glowLayerEnabled = true;
+        if (defaultPipeline.glowLayer) {
+            defaultPipeline.glowLayer.blurKernelSize = 16;
+            defaultPipeline.glowLayer.intensity = 0.5;
         }
     }
 
     public async loadUA92CampusEnvironment(): Promise<void> {
-        this._scene?.createDefaultEnvironment(
+        this._scene.createDefaultEnvironment(
             { createGround: false,
                 createSkybox: false,
                 environmentTexture: "https://assets.babylonjs.com/textures/country.env" });
@@ -375,7 +372,7 @@ export class VScene {
             ]
         );
 
-        this._skyBox = MeshBuilder.CreateBox("skyBox", { size: 2000 }, this._scene);
+        const skyBox = MeshBuilder.CreateBox("skyBox", { size: 2000 }, this._scene);
 
         const skyboxMaterial = new StandardMaterial("skyBox", this._scene);
         skyboxMaterial.backFaceCulling = false;
@@ -385,21 +382,13 @@ export class VScene {
         skyboxMaterial.diffuseColor = new Color3(0, 0, 0);
         skyboxMaterial.specularColor = new Color3(0, 0, 0);
         skyboxMaterial.disableLighting = true;
-        this._skyBox.material = skyboxMaterial;
+        skyBox.material = skyboxMaterial;
 
-        if (this._defaultPipeline) {
-            this._defaultPipeline.fxaaEnabled = true;
-        }
-
+        const defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);
+        defaultPipeline.fxaaEnabled = true;
     }
 
-    _befeforeRender() : void {
-        if (this._incrementalLoading) {
-            // eslint-disable-next-line no-void
-            void this._resourceManager?.loadAsync();
-            this._incrementalLoading = false;
-        }
-
+    private _befeforeRender() : void {
         this._avatarController?.update();
 
         this._remoteAvatarControllers.forEach((avatar) => {
@@ -438,28 +427,18 @@ export class VScene {
         meshList:string[],
         incrementalMeshList:string[] | null | undefined) : Promise<void> {
 
-        this._resourceManager?.addSceneObjectTasks("SceneLoading", rootUrl, meshList);
-        await this._resourceManager?.loadAsync();
-        if (incrementalMeshList) {
-            this._resourceManager?.addSceneObjectTasks("SceneIncrementalLoading", rootUrl, incrementalMeshList);
-            this._incrementalLoading = true;
-        } else {
-            this._incrementalLoading = false;
-        }
+        if (this._resourceManager) {
+            this._resourceManager.addSceneObjectTasks("SceneLoading", rootUrl, meshList);
+            await this._resourceManager.loadAsync();
 
-        this._defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);
-    }
+            if (incrementalMeshList) {
+                this._scene.onBeforeRenderObservable.addOnce(() => {
+                    this._resourceManager?.addSceneObjectTasks("SceneIncrementalLoading", rootUrl, incrementalMeshList);
+                    // eslint-disable-next-line no-void
+                    void this._resourceManager?.loadAsync();
 
-    private _unloadEnvionment() : void {
-        if (this._skyBox) {
-            this._skyBox.dispose();
-            this._skyBox = null;
-        }
-
-        this._resourceManager?.unload();
-
-        if (this._defaultPipeline) {
-            this._defaultPipeline.glowLayerEnabled = false;
+                });
+            }
         }
     }
 
