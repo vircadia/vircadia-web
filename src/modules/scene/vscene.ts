@@ -11,12 +11,14 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
+import { Script } from "./object/script";
+
 import { AnimationGroup, Engine, MeshBuilder, Scene, SceneLoader,
     ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, StandardMaterial,
-    Mesh, HemisphericLight, DefaultRenderingPipeline, Camera, AbstractMesh,
-    Texture, CubeTexture } from "@babylonjs/core";
+    Mesh, DefaultRenderingPipeline, Camera, AbstractMesh,
+    Texture, CubeTexture, TransformNode } from "@babylonjs/core";
 
-import { Color3, Color4, Quaternion, Vector3 } from "@babylonjs/core/Maths/math";
+import { Color3, Vector3 } from "@babylonjs/core/Maths/math";
 import "@babylonjs/loaders/glTF";
 import "@babylonjs/core/Meshes/meshBuilder";
 import { ResourceManager } from "./resource";
@@ -29,10 +31,8 @@ import { VVector3 } from ".";
 import { AvatarController, RemoteAvatarController } from "@Modules/avatar";
 // Domain Modules
 import { DomainMgr } from "@Modules/domain";
-import { DomainAvatar } from "@Modules/domain/avatar";
 import { Domain, ConnectionState } from "@Modules/domain/domain";
 import { AvatarMixer, Uuid } from "@vircadia/web-sdk";
-
 
 /**
  * this.addEntity() takes parameters describing the entity to create and add to
@@ -54,6 +54,7 @@ interface EntityProps {
 
 const DefaultAvatarUrl = "https://staging.vircadia.com/O12OR634/UA92/sara.glb";
 const AvatarAnimationUrl = "https://staging.vircadia.com/O12OR634/UA92/AnimationsBasic.glb";
+
 
 /**
  * VScene is the interface to a single scene's state, entities, and operations.
@@ -273,6 +274,8 @@ export class VScene {
 
         this._preScene.dispose();
         this._preScene = null;
+
+        this._scene.executeWhenReady(this._attachScripts.bind(this));
         await this._scene.whenReadyAsync();
         this._engine.hideLoadingUI();
     }
@@ -307,7 +310,9 @@ export class VScene {
         this._preScene.dispose();
         this._preScene = null;
 
+        this._scene.executeWhenReady(this._attachScripts.bind(this));
         await this._scene.whenReadyAsync();
+
         this._engine.hideLoadingUI();
     }
 
@@ -436,7 +441,6 @@ export class VScene {
                     this._resourceManager?.addSceneObjectTasks("SceneIncrementalLoading", rootUrl, incrementalMeshList);
                     // eslint-disable-next-line no-void
                     void this._resourceManager?.loadAsync();
-
                 });
             }
         }
@@ -454,6 +458,8 @@ export class VScene {
         this._scene.registerBeforeRender(this._befeforeRender.bind(this));
 
         this._scene.createDefaultCamera();
+
+        const sceneController = new TransformNode("SceneController", this._scene);
     }
 
     private _onKeyUp(evt: ActionEvent) : void {
@@ -586,8 +592,32 @@ export class VScene {
                     });
             }
         }
+    }
 
+    private _attachScripts():void {
+        this._scene.transformNodes.forEach((node) => {
+            if (node instanceof Script) {
 
+                // initialize
+                node.onInitialize();
+
+                // start
+                const startObserver = this._scene.onBeforeRenderObservable.addOnce(node.onStart.bind(node));
+
+                // update
+                const updateObserver = this._scene.onBeforeRenderObservable.add(node.onUpdate.bind(node));
+
+                // stop
+                node.onDispose = () => {
+                    if (startObserver) {
+                        this._scene.onBeforeRenderObservable.remove(startObserver);
+                    }
+                    this._scene.onBeforeRenderObservable.remove(updateObserver);
+
+                    node.onStop();
+                };
+            }
+        });
     }
 
 }
