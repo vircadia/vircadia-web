@@ -11,8 +11,6 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { Script } from "./object/script";
-
 import { AnimationGroup, Engine, MeshBuilder, Scene, SceneLoader,
     ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, StandardMaterial,
     Mesh, DefaultRenderingPipeline, Camera, AbstractMesh,
@@ -22,6 +20,8 @@ import { Color3, Vector3 } from "@babylonjs/core/Maths/math";
 import "@babylonjs/loaders/glTF";
 import "@babylonjs/core/Meshes/meshBuilder";
 import { ResourceManager } from "./resource";
+import { ScriptComponent } from "./object/script";
+import { MeshComponent } from "./object/mesh";
 
 // General Modules
 import Log from "@Modules/debugging/log";
@@ -33,6 +33,7 @@ import { AvatarController, RemoteAvatarController } from "@Modules/avatar";
 import { DomainMgr } from "@Modules/domain";
 import { Domain, ConnectionState } from "@Modules/domain/domain";
 import { AvatarMixer, Uuid } from "@vircadia/web-sdk";
+import { GameObject } from "./object/GameObject";
 
 /**
  * this.addEntity() takes parameters describing the entity to create and add to
@@ -66,6 +67,7 @@ export class VScene {
     _preScene: Nullable<Scene> = null;
     _entities: Map<string, Mesh>;
     _avatar : Nullable<AbstractMesh> = null;
+    _myAvatar: Nullable<GameObject> = null;
     _avatarAnimMesh :Nullable<AbstractMesh> = null;
     _camera : Nullable<Camera> = null;
     _avatarController : Nullable<AvatarController>;
@@ -420,6 +422,9 @@ export class VScene {
             this._avatarAnimationGroups = result.animGroups;
 
             this._avatar = await this._resourceManager.loadMyAvatar(DefaultAvatarUrl);
+            this._myAvatar = new GameObject("MyAvatar");
+            const meshComponent = new MeshComponent(this._avatar);
+            this._myAvatar.addComponent(meshComponent);
 
             this._avatarController = new AvatarController(this._avatar, this._camera,
                 this._scene, this._avatarAnimationGroups);
@@ -596,7 +601,7 @@ export class VScene {
 
     private _attachScripts():void {
         this._scene.transformNodes.forEach((node) => {
-            if (node instanceof Script) {
+            if (node instanceof ScriptComponent) {
 
                 // initialize
                 node.onInitialize();

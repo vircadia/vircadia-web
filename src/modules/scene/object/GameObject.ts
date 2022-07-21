@@ -19,6 +19,7 @@ import {
 } from "@babylonjs/core";
 
 import { IComponent } from "./component";
+import { accessorDisplayInInspector } from "./decorators";
 
 /**
  *
@@ -29,6 +30,11 @@ export class GameObject extends TransformNode {
     constructor(name: string, scene?: Nullable<Scene>) {
         super(name, scene);
         this._components = new Map<string, IComponent>();
+    }
+
+    @accessorDisplayInInspector()
+    public get type():string {
+        return "GameObject";
     }
 
     public addComponent(component : IComponent) : void {
