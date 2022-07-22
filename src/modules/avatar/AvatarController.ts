@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 //
 //  AvatarController.ts
 //
@@ -10,13 +9,9 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-// This is disabled because TS complains about BABYLON's use of cap'ed function names
-/* eslint-disable new-cap */
-
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
-    Node,
     Vector3,
-    Scene,
     ActionManager,
     ExecuteCodeAction,
     AnimationGroup,
@@ -24,33 +19,27 @@ import {
     Scalar,
     Ray,
     AbstractMesh,
-    Camera,
     ActionEvent,
-    IAction,
-    TransformNode
+    IAction
 } from "@babylonjs/core";
 
 import { AnimationController } from "./AnimationController";
-import { AvatarMapper } from "./AvatarMapper";
+import { GameObject, ScriptComponent } from "@Modules/object";
+
 // General Modules
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
-// Domain Modules
-import { MyAvatarInterface, quat, SkeletonJoint } from "@vircadia/web-sdk";
 
-
+// This is disabled because TS complains about BABYLON's use of cap'ed function names
+/* eslint-disable new-cap */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/dot-notation */
-export class AvatarController {
-    private _avatarMesh: AbstractMesh;
-    private _skeletonNodes: TransformNode[];
-    private _camera: Camera;
-    private _scene: Scene;
+export class AvatarController extends ScriptComponent {
+    private _animGroups: Nullable<Array<AnimationGroup>> = null;
     private _walkSpeed = 3;
     private _movement : Vector3;
     private _rotationSpeed = 40 * Math.PI / 180;
-    private _rotation = 0;
+    private _rot = 0;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private _inputMap : any;
     private _shiftKey = false;
@@ -58,41 +47,46 @@ export class AvatarController {
     private _keyUpAction:Nullable<IAction> = null;
 
     // domain properties
-    private _avatarDomain : Nullable<MyAvatarInterface> = null;
     private _positionUpdated = false;
     private _rotationUpdated = false;
-    private _animController: AnimationController;
+    private _animController: Nullable<AnimationController> = null;
 
-    constructor(avatar: AbstractMesh, camera: Camera, scene: Scene, animGroups: AnimationGroup[]) {
-        this._avatarMesh = avatar;
-        this._skeletonNodes = new Array<TransformNode>();
-        this._camera = camera;
-        this._scene = scene;
+    constructor() {
+        super("AvatarController");
         this._movement = new Vector3();
         this._inputMap = {};
         this._onKeyUp = this._onKeyUp.bind(this);
         this._onKeyupDown = this._onKeyupDown.bind(this);
-        this._animController = new AnimationController(avatar, animGroups);
     }
 
-    public bindDomain(avatar :MyAvatarInterface):void {
+    public set animGroups(value: AnimationGroup[]) {
+        this._animGroups = value;
+    }
+
+    /**
+    * Gets a string identifying the type of this Component
+    * @returns "AvatarController" string
+    */
+    // eslint-disable-next-line class-methods-use-this
+    public getComponentType():string {
+        return "AvatarController";
+    }
+
+    public onInitialize(): void {
         Log.debug(Log.types.AVATAR,
-            `bind my avatar domain`);
+            `MyAvatar onInitialize`);
 
-        this._avatarDomain = avatar;
-        this._avatarDomain.scale = this._avatarMesh.scaling.x;
-        this._avatarDomain.locationChangeRequired.connect(this._syncToDomain.bind(this));
+        this._animController = new AnimationController(
+            this._gameObject as GameObject,
+            this._animGroups as AnimationGroup[]);
 
-        const rootNode = this._avatarMesh.getChildTransformNodes()[0];
-        const skeleton = new Array<SkeletonJoint>();
-        this._collectJointData(rootNode, -1, skeleton);
-        this._avatarDomain.skeleton = skeleton;
-
-        this._positionUpdated = true;
-        this._rotationUpdated = true;
+        this._animController.play("idle02");
     }
 
-    public start():void {
+    public onStart():void {
+        Log.debug(Log.types.AVATAR,
+            `MyAvatar onStart`);
+
         // scene action manager to detect inputs
         if (!this._scene.actionManager) {
             this._scene.actionManager = new ActionManager(this._scene);
@@ -111,11 +105,9 @@ export class AvatarController {
 
         this._scene.actionManager.registerAction(
             this._keyUpAction);
-
-        this._animController.play("idle02");
     }
 
-    public stop():void {
+    public onStop():void {
         if (this._keyDownAction) {
             this._scene.actionManager.unregisterAction(this._keyDownAction);
             this._keyDownAction = null;
@@ -137,7 +129,11 @@ export class AvatarController {
         this._shiftKey = evt.sourceEvent.shiftKey === true;
     }
 
-    public update():void {
+    public onUpdate():void {
+        if (!this._gameObject) {
+            return;
+        }
+
         if (this._inputMap["KeyW"]) {
             this._movement.z = Scalar.Lerp(this._movement.z, -this._walkSpeed, 0.1);
             this._positionUpdated = true;
@@ -153,7 +149,7 @@ export class AvatarController {
                 this._movement.x = Scalar.Lerp(this._movement.x, this._walkSpeed, 0.1);
                 this._positionUpdated = true;
             } else {
-                this._rotation = Scalar.Lerp(this._rotation, -this._rotationSpeed, 0.1);
+                this._rot = Scalar.Lerp(this._rot, -this._rotationSpeed, 0.1);
                 this._rotationUpdated = true;
             }
         } else if (this._inputMap["KeyD"]) {
@@ -161,12 +157,12 @@ export class AvatarController {
                 this._movement.x = Scalar.Lerp(this._movement.x, -this._walkSpeed, 0.1);
                 this._positionUpdated = true;
             } else {
-                this._rotation = Scalar.Lerp(this._rotation, this._rotationSpeed, 0.1);
+                this._rot = Scalar.Lerp(this._rot, this._rotationSpeed, 0.1);
                 this._rotationUpdated = true;
             }
         } else {
             this._movement.x = 0;
-            this._rotation = 0;
+            this._rot = 0;
         }
 
         // eslint-disable-next-line no-empty
@@ -175,20 +171,21 @@ export class AvatarController {
         }
 
         const dt = this._scene.getEngine().getDeltaTime() / 1000;
-        const movement = this._avatarMesh.calcMovePOV(this._movement.x, 0, this._movement.z).scale(dt);
-        this._avatarMesh.moveWithCollisions(movement);
+        const movement = this._gameObject.calcMovePOV(this._movement.x, 0, this._movement.z).scale(dt);
+        this._gameObject.moveWithCollisions(movement);
 
-        const rot = this._rotation * dt;
-        this._avatarMesh.rotate(Vector3.Up(), rot);
-
+        const rot = this._rot * dt;
+        this._gameObject.rotate(Vector3.Up(), rot);
         this._animateAvatar();
 
         this._updateGroundDetection();
-
-        this._syncToDomain();
     }
 
     private _animateAvatar() {
+        if (!this._animController) {
+            return;
+        }
+
         if (this._inputMap["KeyW"]) {
             this._animController.play("walk_fwd");
         } else if (this._inputMap["KeyS"]) {
@@ -215,17 +212,22 @@ export class AvatarController {
 
     private _updateGroundDetection(): void {
         const pickedPoint = this._floorRaycast(0, 0, 1);
-        if (!pickedPoint.equals(Vector3.Zero())) {
-            this._avatarMesh.position.y = pickedPoint.y + 0.05;
+        if (!pickedPoint.equals(Vector3.Zero()) && this._gameObject) {
+            this._gameObject.position.y = pickedPoint.y + 0.05;
         }
     }
 
     // --GROUND DETECTION--
     // Send raycast to the floor to detect if there are any hits with meshes below the character
     private _floorRaycast(offsetx: number, offsetz: number, raycastlen: number): Vector3 {
+        if (!this._gameObject) {
+            return Vector3.Zero();
+        }
+
         // position the raycast from bottom center of mesh
         const raycastFloorPos = new Vector3(
-            this._avatarMesh.position.x + offsetx, this._avatarMesh.position.y + 0.5, this._avatarMesh.position.z + offsetz);
+            this._gameObject.position.x + offsetx, this._gameObject.position.y + 0.5, this._gameObject.position.z + offsetz);
+
         const ray = new Ray(raycastFloorPos, Vector3.Down(), raycastlen);
 
         // defined which type of meshes should be pickable
@@ -236,45 +238,5 @@ export class AvatarController {
             return pick.pickedPoint;
         }  // not grounded
         return Vector3.Zero();
-
-    }
-
-    private _collectJointData(node:Node, parentIndex: number, joints: SkeletonJoint[]) : void {
-        if (node.getClassName() !== "TransformNode") {
-            return;
-        }
-
-        const transNode = node as TransformNode;
-        this._skeletonNodes.push(transNode);
-
-        const jointIndex = joints.length;
-        const joint = AvatarMapper.mapToJoint(transNode, jointIndex, parentIndex);
-        joints.push(joint);
-
-        const children = node.getChildren();
-        children.forEach((child) => {
-            this._collectJointData(child, jointIndex, joints);
-        });
-    }
-
-    private _syncToDomain() {
-        if (this._avatarDomain) {
-            if (this._positionUpdated) {
-                this._avatarDomain.position = AvatarMapper.mapToJointPosition(this._avatarMesh.position);
-                this._positionUpdated = false;
-            }
-            if (this._rotationUpdated) {
-                this._avatarDomain.orientation = AvatarMapper.mapToJointQuaternion(this._avatarMesh.rotationQuaternion);
-                this._rotationUpdated = false;
-            }
-
-            // sync joint data
-            for (let i = 0; i < this._avatarDomain.jointRotations.length; i++) {
-                this._avatarDomain.jointTranslations[i]
-                        = AvatarMapper.mapToJointPosition(this._skeletonNodes[i].position);
-                this._avatarDomain.jointRotations[i]
-                        = AvatarMapper.mapToJointQuaternion(this._skeletonNodes[i].rotationQuaternion);
-            }
-        }
     }
 }

@@ -18,5 +18,6 @@ import { GameObject } from "./GameObject";
 export interface IComponent {
     attach(gameObject:GameObject):void;
     detatch():void;
+    dispose():void;
     getComponentType():string;
 }

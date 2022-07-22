@@ -1,4 +1,3 @@
-/* eslint-disable class-methods-use-this */
 //
 //  gameobj.ts
 //
@@ -10,21 +9,27 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable class-methods-use-this */
 // This is disabled because TS complains about BABYLON's use of cap'ed function names
 /* eslint-disable new-cap */
 
 import {
     TransformNode,
-    Scene
+    Node,
+    Scene,
+    Mesh
 } from "@babylonjs/core";
 
 import { IComponent } from "./component";
 import { accessorDisplayInInspector } from "./decorators";
 
+import Log from "@Modules/debugging/log";
+
 /**
  *
  */
-export class GameObject extends TransformNode {
+export class GameObject extends Mesh {
     _components : Map<string, IComponent>;
 
     constructor(name: string, scene?: Nullable<Scene>) {
@@ -46,12 +51,14 @@ export class GameObject extends TransformNode {
         return this._components.get(componentType);
     }
 
-    public removeComponent(componentType : string) : boolean {
+    public removeComponent(componentType : string, dispose = true) : boolean {
         const component = this._components.get(componentType);
         if (component) {
             component.detatch();
-            // eslint-disable-next-line @typescript-eslint/dot-notation
-            return this._components.delete(componentType);
+            if (dispose) {
+                component.dispose();
+            }
+            return this._components["delete"](componentType);
         }
         return false;
     }

@@ -33,8 +33,9 @@ export class AvatarMapper {
     }
 
     public static mapToJointQuaternion(rotationQuaternion : Nullable<Quaternion>) : quat {
+        // prevent null and w === 0
         const q = rotationQuaternion ? rotationQuaternion : Quaternion.Zero();
-        return { x: q.x, y: q.y, z: q.z, w: q.w };
+        return { x: q.x, y: q.y, z: q.z, w: q.w === 0 ? 1 : q.w };
     }
 
     public static mapToJointScale(scaling : Vector3) : number {
