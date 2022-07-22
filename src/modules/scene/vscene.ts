@@ -16,24 +16,25 @@ import { AnimationGroup, Engine, MeshBuilder, Scene, SceneLoader,
     Mesh, DefaultRenderingPipeline, Camera, AbstractMesh,
     Texture, CubeTexture, TransformNode } from "@babylonjs/core";
 
-import { Color3, Vector3 } from "@babylonjs/core/Maths/math";
+import { Color3, Quaternion, Vector3 } from "@babylonjs/core/Maths/math";
 import "@babylonjs/loaders/glTF";
 import "@babylonjs/core/Meshes/meshBuilder";
 import { ResourceManager } from "./resource";
-import { ScriptComponent } from "./object/script";
-import { MeshComponent } from "./object/mesh";
+import { GameObject, ScriptComponent, MeshComponent } from "@Modules/object";
+import { AvatarController, ScriptAvatarController } from "@Modules/avatar";
 
 // General Modules
 import Log from "@Modules/debugging/log";
 // System Modules
 import { v4 as uuidv4 } from "uuid";
 import { VVector3 } from ".";
-import { AvatarController, RemoteAvatarController } from "@Modules/avatar";
+
 // Domain Modules
 import { DomainMgr } from "@Modules/domain";
 import { Domain, ConnectionState } from "@Modules/domain/domain";
-import { AvatarMixer, Uuid } from "@vircadia/web-sdk";
-import { GameObject } from "./object/GameObject";
+import { AvatarMixer, Uuid, ScriptAvatar } from "@vircadia/web-sdk";
+import { MyAvatarController } from "../avatar/MyAvatarController";
+
 
 /**
  * this.addEntity() takes parameters describing the entity to create and add to
@@ -66,15 +67,16 @@ export class VScene {
     _scene: Scene;
     _preScene: Nullable<Scene> = null;
     _entities: Map<string, Mesh>;
-    _avatar : Nullable<AbstractMesh> = null;
     _myAvatar: Nullable<GameObject> = null;
     _avatarAnimMesh :Nullable<AbstractMesh> = null;
     _camera : Nullable<Camera> = null;
     _avatarController : Nullable<AvatarController>;
-    _remoteAvatarControllers : Map<Uuid, RemoteAvatarController>;
+    _avatarList : Map<Uuid, GameObject>;
     _avatarAnimationGroups : AnimationGroup[] = [];
     _avatarMixer : Nullable<AvatarMixer> = null;
     _resourceManager : Nullable<ResourceManager> = null;
+    _incrementalMeshList : Nullable<Array<string>> = null;
+    _rootUrl = "";
 
     constructor(pEngine: Engine, pSceneId = 0) {
         if (process.env.NODE_ENV === "development") {
@@ -89,7 +91,8 @@ export class VScene {
         // Listen for the domain to connect and disconnect
         DomainMgr.onActiveDomainStateChange.connect(this._handleActiveDomainStateChange.bind(this));
 
-        this._remoteAvatarControllers = new Map<Uuid, RemoteAvatarController>();
+        // this._scriptAvatarControllers = new Map<Uuid, ScriptAvatarController>();
+        this._avatarList = new Map<Uuid, GameObject>();
     }
 
     getSceneId(): number {
@@ -257,9 +260,9 @@ export class VScene {
 
         await this._loadMyAvatar();
         // setup avatar
-        if (this._avatar) {
-            this._avatar.position = new Vector3(0, 49.6, 0);
-            this._avatar.rotation = new Vector3(0, 0, 0);
+        if (this._myAvatar) {
+            this._myAvatar.position = new Vector3(0, 49.6, 0);
+            this._myAvatar.rotation = new Vector3(0, 0, 0);
         }
 
         // setup camera
@@ -269,7 +272,7 @@ export class VScene {
             camera.maxZ = 250000;
             camera.alpha = -Math.PI / 2;
             camera.beta = Math.PI / 2;
-            camera.parent = this._avatar as Mesh;
+            camera.parent = this._myAvatar as Mesh;
         }
 
         await this.loadSpaceStationEnvironment();
@@ -277,7 +280,7 @@ export class VScene {
         this._preScene.dispose();
         this._preScene = null;
 
-        this._scene.executeWhenReady(this._attachScripts.bind(this));
+        this._scene.executeWhenReady(this._onSceneReady.bind(this));
         await this._scene.whenReadyAsync();
         this._engine.hideLoadingUI();
     }
@@ -287,14 +290,13 @@ export class VScene {
         this._scene.detachControl();
 
         this._preScene = this._scene;
-        // this._disposeScene();
         this._createScene();
 
         await this._loadMyAvatar();
         // setup avatar
-        if (this._avatar) {
-            this._avatar.position = new Vector3(25, 0, 30);
-            this._avatar.rotation = new Vector3(0, Math.PI, 0);
+        if (this._myAvatar) {
+            this._myAvatar.position = new Vector3(25, 0, 30);
+            this._myAvatar.rotation = new Vector3(0, Math.PI, 0);
         }
 
         // setup camera
@@ -304,7 +306,7 @@ export class VScene {
             camera.maxZ = 2000;
             camera.alpha = -Math.PI / 2;
             camera.beta = Math.PI / 2;
-            camera.parent = this._avatar as AbstractMesh;
+            camera.parent = this._myAvatar as Mesh;
         }
 
         await this.loadUA92CampusEnvironment();
@@ -312,9 +314,8 @@ export class VScene {
         this._preScene.dispose();
         this._preScene = null;
 
-        this._scene.executeWhenReady(this._attachScripts.bind(this));
+        this._scene.executeWhenReady(this._onSceneReady.bind(this));
         await this._scene.whenReadyAsync();
-
         this._engine.hideLoadingUI();
     }
 
@@ -395,14 +396,6 @@ export class VScene {
         defaultPipeline.fxaaEnabled = true;
     }
 
-    private _befeforeRender() : void {
-        this._avatarController?.update();
-
-        this._remoteAvatarControllers.forEach((avatar) => {
-            avatar.update();
-        });
-    }
-
     private async _loadMyAvatar() : Promise<void> {
         // Creates, angles, distances and targets the camera
         const camera = new ArcRotateCamera(
@@ -421,14 +414,17 @@ export class VScene {
             this._avatarAnimMesh = result.mesh;
             this._avatarAnimationGroups = result.animGroups;
 
-            this._avatar = await this._resourceManager.loadMyAvatar(DefaultAvatarUrl);
-            this._myAvatar = new GameObject("MyAvatar");
-            const meshComponent = new MeshComponent(this._avatar);
+            this._myAvatar = new GameObject("MyAvatar", this._scene);
+
+            const mesh = await this._resourceManager.loadMyAvatar(DefaultAvatarUrl);
+            mesh.rotationQuaternion = Quaternion.Zero();
+            const meshComponent = new MeshComponent(mesh);
             this._myAvatar.addComponent(meshComponent);
 
-            this._avatarController = new AvatarController(this._avatar, this._camera,
-                this._scene, this._avatarAnimationGroups);
-            this._avatarController.start();
+            this._avatarController = new AvatarController();
+            this._avatarController.animGroups = this._avatarAnimationGroups;
+
+            this._myAvatar.addComponent(this._avatarController);
         }
     }
 
@@ -440,14 +436,8 @@ export class VScene {
         if (this._resourceManager) {
             this._resourceManager.addSceneObjectTasks("SceneLoading", rootUrl, meshList);
             await this._resourceManager.loadAsync();
-
-            if (incrementalMeshList) {
-                this._scene.onBeforeRenderObservable.addOnce(() => {
-                    this._resourceManager?.addSceneObjectTasks("SceneIncrementalLoading", rootUrl, incrementalMeshList);
-                    // eslint-disable-next-line no-void
-                    void this._resourceManager?.loadAsync();
-                });
-            }
+            this._incrementalMeshList = incrementalMeshList;
+            this._rootUrl = rootUrl;
         }
     }
 
@@ -459,8 +449,6 @@ export class VScene {
             new ExecuteCodeAction(ActionManager.OnKeyUpTrigger,
                 this._onKeyUp.bind(this))
         );
-
-        this._scene.registerBeforeRender(this._befeforeRender.bind(this));
 
         this._scene.createDefaultCamera();
 
@@ -514,19 +502,16 @@ export class VScene {
             this._avatarMixer = pDomain.AvatarClient?.Mixer;
             const myAvatar = pDomain.AvatarClient?.MyAvatar;
             if (myAvatar) {
-
                 if (myAvatar.skeletonModelURL === "") {
                     myAvatar.skeletonModelURL = DefaultAvatarUrl;
                 }
 
-                if (this._avatarController) {
-                    this._avatarController.bindDomain(myAvatar);
-                }
+                const comp = new MyAvatarController(myAvatar);
+                this._myAvatar?.addComponent(comp);
             }
 
             const avatarList = this._avatarMixer?.avatarList;
             if (avatarList) {
-                Log.debug(Log.types.AVATAR, `Handle avatar list. Avatar number:${avatarList.count}`);
                 avatarList.avatarAdded.connect(this._handleAvatarAdded.bind(this));
                 avatarList.avatarRemoved.connect(this._handleAvatarRemoved.bind(this));
 
@@ -542,87 +527,128 @@ export class VScene {
             }
 
         } else if (pState === ConnectionState.DISCONNECTED) {
-            Log.debug(Log.types.AUDIO, `VScene._handleActiveDomainStateChange: ${Domain.stateToString(pState)}`);
-            this._remoteAvatarControllers.forEach((controller) => {
-                if (controller.mesh) {
-                    this._resourceManager?.unloadAvatar(controller.mesh.id);
-                }
+            Log.debug(Log.types.AVATAR, `VScene._handleActiveDomainStateChange: ${Domain.stateToString(pState)}`);
+
+            this._avatarList.forEach((gameObj) => {
+                gameObj.dispose();
             });
-            this._remoteAvatarControllers.clear();
+            this._avatarList.clear();
+
+            this._myAvatar?.removeComponent("MyAvatarController");
         }
     }
 
     private _handleAvatarAdded(sessionID:Uuid): void {
         const avatarList = this._avatarMixer?.avatarList;
         if (avatarList) {
-            Log.debug(Log.types.AVATAR, `Handle avatar added Session ID: ${sessionID.stringify()}`);
-            const avatar = avatarList.getAvatar(sessionID);
-            const controller = new RemoteAvatarController(this._scene, avatar);
-            controller.skeletonModelURLChanged.connect(this._handleAvatarSkeletonModelURLChanged.bind(this));
-            this._remoteAvatarControllers.set(sessionID, controller);
+            Log.debug(Log.types.AVATAR,
+                `VScene._handleAvatarAdded. Session ID: ${sessionID.stringify()}`);
+
+            const domain = avatarList.getAvatar(sessionID);
+            domain.skeletonModelURLChanged.connect(() => {
+                this._handleAvatarSkeletonModelURLChanged(sessionID, domain);
+            });
         }
     }
 
     private _handleAvatarRemoved(sessionID:Uuid): void {
-        const avatarList = this._avatarMixer?.avatarList;
-        if (avatarList) {
-            const controller = this._remoteAvatarControllers.get(sessionID);
-            if (controller) {
-                if (controller.mesh) {
-                    this._resourceManager?.unloadAvatar(controller.mesh.id);
+        Log.debug(Log.types.AVATAR,
+            `VScene._handleAvatarRemoved. Session ID: ${sessionID.stringify()}`);
+
+        const domain = this._avatarMixer?.avatarList.getAvatar(sessionID);
+        if (domain) {
+            const avatar = this._avatarList.get(sessionID);
+            if (avatar) {
+                avatar.dispose();
+                this._avatarList["delete"](sessionID);
+            }
+        }
+    }
+
+    private _handleAvatarSkeletonModelURLChanged(sessionID:Uuid, domain:ScriptAvatar): void {
+        Log.debug(Log.types.AVATAR,
+            `VScene._handleAvatarSkeletonModelURLChanged. Session ID: ${sessionID.stringify()}, ${domain.skeletonModelURL}`);
+
+        const avatar = this._avatarList.get(sessionID);
+        if (avatar) {
+            avatar.dispose();
+        }
+
+        if (domain.skeletonModelURL !== "" && this._resourceManager) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            this._resourceManager.loadAvatar(domain.skeletonModelURL).then((mesh) => {
+                const newAvatar = new GameObject("ScriptAvatar_" + sessionID.stringify(), this._scene);
+                this._avatarList.set(sessionID, newAvatar);
+
+                newAvatar.addComponent(new MeshComponent(mesh));
+                newAvatar.addComponent(new ScriptAvatarController(domain));
+            })
+                ["catch"]((error) => {
+                    Log.debug(Log.types.AVATAR,
+                        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                        `fail to load mesh ${domain.skeletonModelURL} : ${error}`);
+                });
+        }
+    }
+
+    private _onSceneReady():void {
+        Log.info(Log.types.OTHER, "Attach scripts to scene.");
+
+        this._attachScripts(this._scene.transformNodes);
+
+        // handle dynamic loaded script
+        this._scene.onNewTransformNodeAddedObservable.add((node) => {
+            this._scene.onBeforeRenderObservable.addOnce(() => {
+                if (node instanceof ScriptComponent) {
+                    Log.debug(Log.types.OTHER, `attach script ${node.name} `);
+                    this._attachScript(node);
                 }
-                // eslint-disable-next-line @typescript-eslint/dot-notation
-                this._remoteAvatarControllers.delete(sessionID);
-                const avatar = avatarList.getAvatar(sessionID);
-                Log.debug(Log.types.AVATAR,
-                    `Avatar removed", 
-                    sessionID:${sessionID.stringify()} SessionDisplayName:${avatar.sessionDisplayName}`);
-            }
+            });
+        });
+
+        if (this._incrementalMeshList) {
+            this._scene.onBeforeRenderObservable.addOnce(() => {
+                this._resourceManager?.addSceneObjectTasks("SceneIncrementalLoading",
+                    this._rootUrl, this._incrementalMeshList as string[]);
+                // eslint-disable-next-line no-void
+                void this._resourceManager?.loadAsync();
+
+                this._incrementalMeshList = null;
+            });
         }
     }
 
-    private _handleAvatarSkeletonModelURLChanged(controller:RemoteAvatarController): void {
-        if (this._resourceManager) {
-            if (controller.mesh) {
-                this._resourceManager.unloadAvatar(controller.mesh.id);
-            }
-            if (controller.domain.skeletonModelURL !== "") {
-                this._resourceManager.loadAvatar(controller.domain.skeletonModelURL).then((mesh) => {
-                    controller.mesh = mesh;
-                })
-                // eslint-disable-next-line @typescript-eslint/dot-notation
-                    .catch((error) => {
-                        console.error(error);
-                        Log.error(Log.types.AVATAR, `fail to load avatar ${controller.domain.skeletonModelURL}`);
-                    });
-            }
-        }
-    }
-
-    private _attachScripts():void {
-        this._scene.transformNodes.forEach((node) => {
+    private _attachScripts(nodes : TransformNode[]):void {
+        nodes.forEach((node) => {
             if (node instanceof ScriptComponent) {
-
-                // initialize
-                node.onInitialize();
-
-                // start
-                const startObserver = this._scene.onBeforeRenderObservable.addOnce(node.onStart.bind(node));
-
-                // update
-                const updateObserver = this._scene.onBeforeRenderObservable.add(node.onUpdate.bind(node));
-
-                // stop
-                node.onDispose = () => {
-                    if (startObserver) {
-                        this._scene.onBeforeRenderObservable.remove(startObserver);
-                    }
-                    this._scene.onBeforeRenderObservable.remove(updateObserver);
-
-                    node.onStop();
-                };
+                this._attachScript(node);
             }
         });
+    }
+
+    private _attachScript(comp : ScriptComponent):void {
+        // initialize
+        comp.onInitialize();
+
+        // start
+        const startObserver = this._scene.onBeforeRenderObservable.addOnce(comp.onStart.bind(comp));
+
+        // update
+        const updateObserver = this._scene.onBeforeRenderObservable.add(() => {
+            if (comp.isEnabled()) {
+                comp.onUpdate();
+            }
+        });
+
+        // stop
+        comp.onDispose = () => {
+            if (startObserver) {
+                this._scene.onBeforeRenderObservable.remove(startObserver);
+            }
+            this._scene.onBeforeRenderObservable.remove(updateObserver);
+
+            comp.onStop();
+        };
     }
 
 }

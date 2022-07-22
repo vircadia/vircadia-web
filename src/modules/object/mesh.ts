@@ -22,10 +22,18 @@ import {
  */
 export class MeshComponent implements IComponent {
     _gameObject:Nullable<GameObject> = null;
-    _mesh:AbstractMesh;
+    private _mesh: AbstractMesh;
 
     constructor(mesh: AbstractMesh) {
         this._mesh = mesh;
+    }
+
+    public get mesh(): AbstractMesh {
+        return this._mesh;
+    }
+
+    public set mesh(value: AbstractMesh) {
+        this._mesh = value;
     }
 
     @accessorDisplayInInspector()
@@ -41,6 +49,10 @@ export class MeshComponent implements IComponent {
     public detatch():void {
         this._mesh.parent = null;
         this._gameObject = null;
+    }
+
+    public dispose():void {
+        this.mesh.dispose();
     }
 
     /**
