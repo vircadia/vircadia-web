@@ -10,6 +10,7 @@
 //
 
 import {
+    // IInspectable,
     InspectableType
 } from "@babylonjs/core/Misc";
 
@@ -43,6 +44,8 @@ export function displayInInspector(options ?: InspectorPropertyOptions | undefin
                 type
             }
         );
+
+        console.log("displayInInspector", target);
     };
 }
 

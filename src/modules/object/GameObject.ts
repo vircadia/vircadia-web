@@ -22,7 +22,7 @@ import {
 } from "@babylonjs/core";
 
 import { IComponent } from "./component";
-import { accessorDisplayInInspector } from "./decorators";
+// import { accessorDisplayInInspector } from "./decorators";
 
 import Log from "@Modules/debugging/log";
 
@@ -37,7 +37,7 @@ export class GameObject extends Mesh {
         this._components = new Map<string, IComponent>();
     }
 
-    @accessorDisplayInInspector()
+    // @accessorDisplayInInspector()
     public get type():string {
         return "GameObject";
     }

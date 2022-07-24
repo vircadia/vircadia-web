@@ -20,7 +20,8 @@ import { Color3, Quaternion, Vector3 } from "@babylonjs/core/Maths/math";
 import "@babylonjs/loaders/glTF";
 import "@babylonjs/core/Meshes/meshBuilder";
 import { ResourceManager } from "./resource";
-import { GameObject, ScriptComponent, MeshComponent } from "@Modules/object";
+import { GameObject, MeshComponent } from "@Modules/object";
+import { ScriptComponent, requireScript, requireScriptForNodes } from "@Modules/script";
 import { AvatarController, ScriptAvatarController } from "@Modules/avatar";
 
 // General Modules
@@ -592,18 +593,16 @@ export class VScene {
     }
 
     private _onSceneReady():void {
-        Log.info(Log.types.OTHER, "Attach scripts to scene.");
-
-        this._attachScripts(this._scene.transformNodes);
+        requireScriptForNodes(this._scene, this._scene.transformNodes);
 
         // handle dynamic loaded script
         this._scene.onNewTransformNodeAddedObservable.add((node) => {
-            this._scene.onBeforeRenderObservable.addOnce(() => {
-                if (node instanceof ScriptComponent) {
-                    Log.debug(Log.types.OTHER, `attach script ${node.name} `);
-                    this._attachScript(node);
-                }
-            });
+            if (node instanceof ScriptComponent) {
+                this._scene.onBeforeRenderObservable.addOnce(() => {
+                    requireScript(this._scene, node);
+
+                });
+            }
         });
 
         if (this._incrementalMeshList) {
@@ -617,38 +616,4 @@ export class VScene {
             });
         }
     }
-
-    private _attachScripts(nodes : TransformNode[]):void {
-        nodes.forEach((node) => {
-            if (node instanceof ScriptComponent) {
-                this._attachScript(node);
-            }
-        });
-    }
-
-    private _attachScript(comp : ScriptComponent):void {
-        // initialize
-        comp.onInitialize();
-
-        // start
-        const startObserver = this._scene.onBeforeRenderObservable.addOnce(comp.onStart.bind(comp));
-
-        // update
-        const updateObserver = this._scene.onBeforeRenderObservable.add(() => {
-            if (comp.isEnabled()) {
-                comp.onUpdate();
-            }
-        });
-
-        // stop
-        comp.onDispose = () => {
-            if (startObserver) {
-                this._scene.onBeforeRenderObservable.remove(startObserver);
-            }
-            this._scene.onBeforeRenderObservable.remove(updateObserver);
-
-            comp.onStop();
-        };
-    }
-
 }
