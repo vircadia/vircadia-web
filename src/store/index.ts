@@ -30,7 +30,7 @@ import { onAccessTokenChangePayload, onAttributeChangePayload } from "@Modules/a
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
-import { toJSON } from "@Modules/debugging";
+// import { toJSON } from "@Modules/debugging";
 
 /**
  * $store of shared state used by the Vue components. The Store that is created
@@ -352,10 +352,11 @@ export const Store = createStore<IRootState>({
         [Mutations.MUTATE](state: IRootState, payload: MutatePayload) {
             // DEBUG DEBUG DEBUG
             // This supresses the periodic renderer stat update from being output on the console
+            /*
             if (payload && payload.property && payload.property !== "renderer") {
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 Log.debug(Log.types.OTHER, `MUTATE: ${toJSON(payload)}`);
-            }
+            } */
             // END DEBUG DEBUG DEBUG
             // Create the target location to store the mutation
             let target = state as unknown as KeyedCollection;
@@ -528,7 +529,7 @@ export const Store = createStore<IRootState>({
         async [Actions.UPDATE_AVATAR_INFO](pContext: ActionContext<IRootState, IRootState>,
             pPayload: UpdateAvatarInfoPayload): Promise<void> {
 
-            Log.debug(Log.types.OTHER, `StoreAction.UpdateAvatarInfo`);
+            // Log.debug(Log.types.OTHER, `StoreAction.UpdateAvatarInfo`);
 
             const domainLoc = pPayload.domain.DomainClient?.location ?? "Unconnected";
             // If we have information on my avatar, update same

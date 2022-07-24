@@ -22,9 +22,13 @@ import {
     ActionEvent,
     IAction
 } from "@babylonjs/core";
+import {
+    InspectableType
+} from "@babylonjs/core/Misc";
 
 import { AnimationController } from "./AnimationController";
-import { GameObject, ScriptComponent } from "@Modules/object";
+import { GameObject } from "@Modules/object";
+import { ScriptComponent } from "@Modules/script";
 
 // General Modules
 import Log from "@Modules/debugging/log";
@@ -57,7 +61,27 @@ export class AvatarController extends ScriptComponent {
         this._inputMap = {};
         this._onKeyUp = this._onKeyUp.bind(this);
         this._onKeyupDown = this._onKeyupDown.bind(this);
+
+        // this.inspectorProperty({ propertyName: "walkSpeed",
+        //    type: InspectableType.Slider, max: 100 });
     }
+
+    public get walkSpeed() : number {
+        return this._walkSpeed;
+    }
+
+    public set walkSpeed(value : number) {
+        this._walkSpeed = value;
+    }
+
+    /*
+    public get walkSpeed() : string {
+        return this._walkSpeed.toString();
+    }
+
+    public set walkSpeed(value : string) {
+        this._walkSpeed = parseFloat(value);
+    } */
 
     public set animGroups(value: AnimationGroup[]) {
         this._animGroups = value;

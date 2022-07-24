@@ -15,7 +15,8 @@ import {
 } from "@babylonjs/core";
 
 import { AvatarMapper } from "./AvatarMapper";
-import { ScriptComponent, accessorDisplayInInspector } from "@Modules/object";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { ScriptComponent, accessorDisplayInInspector } from "@Modules/script";
 
 // Domain Modules
 import { MyAvatarInterface, SkeletonJoint } from "@vircadia/web-sdk";
@@ -30,7 +31,7 @@ export class MyAvatarController extends ScriptComponent {
         this._skeletonNodes = new Array<TransformNode>();
     }
 
-    @accessorDisplayInInspector()
+    // @accessorDisplayInInspector()
     public get skeletonModelURL() : string {
         return this._myAvatar.skeletonModelURL;
     }
@@ -39,7 +40,7 @@ export class MyAvatarController extends ScriptComponent {
         this._myAvatar.skeletonModelURL = value;
     }
 
-    @accessorDisplayInInspector()
+    // @accessorDisplayInInspector()
     public get displayName() : string {
         return this._myAvatar.displayName;
     }
@@ -48,7 +49,7 @@ export class MyAvatarController extends ScriptComponent {
         this._myAvatar.displayName = value;
     }
 
-    @accessorDisplayInInspector()
+    // @accessorDisplayInInspector()
     public get sessionDisplayName() : string {
         return this._myAvatar.sessionDisplayName;
     }

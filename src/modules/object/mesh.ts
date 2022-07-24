@@ -12,7 +12,6 @@
 
 import { IComponent } from "./component";
 import { GameObject } from "./GameObject";
-import { accessorDisplayInInspector } from "./decorators";
 
 import {
     AbstractMesh
@@ -36,7 +35,6 @@ export class MeshComponent implements IComponent {
         this._mesh = value;
     }
 
-    @accessorDisplayInInspector()
     public get type():string {
         return this.getComponentType();
     }
