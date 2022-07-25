@@ -426,6 +426,8 @@ export class VScene {
             this._avatarController.animGroups = this._avatarAnimationGroups;
 
             this._myAvatar.addComponent(this._avatarController);
+
+            this._myAvatar.addComponent(new MyAvatarController());
         }
     }
 
@@ -507,8 +509,10 @@ export class VScene {
                     myAvatar.skeletonModelURL = DefaultAvatarUrl;
                 }
 
-                const comp = new MyAvatarController(myAvatar);
-                this._myAvatar?.addComponent(comp);
+                if (this._myAvatar) {
+                    const myAvatarController = this._myAvatar.getComponent("MyAvatarController") as MyAvatarController;
+                    myAvatarController.myAvatar = myAvatar;
+                }
             }
 
             const avatarList = this._avatarMixer?.avatarList;
@@ -535,7 +539,10 @@ export class VScene {
             });
             this._avatarList.clear();
 
-            this._myAvatar?.removeComponent("MyAvatarController");
+            if (this._myAvatar) {
+                const myAvatarController = this._myAvatar.getComponent("MyAvatarController") as MyAvatarController;
+                myAvatarController.myAvatar = null;
+            }
         }
     }
 

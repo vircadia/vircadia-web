@@ -10,7 +10,6 @@
 //
 
 import {
-    // IInspectable,
     InspectableType
 } from "@babylonjs/core/Misc";
 
@@ -21,35 +20,72 @@ import {
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 
-export interface InspectorPropertyOptions {
-    propertyName?: string;
-    label?: string
-    type?: InspectableType
+export interface IInspectorPropertyDesc {
+    propertyName: string;
+    label: string;
+    type?: InspectableType;
+    min?: number;
+    max?: number;
+    step?: number;
+    callback?: () => void;
+    options?: [];
 }
 
-export function displayInInspector(options ?: InspectorPropertyOptions | undefined) {
+export interface IInspectorPropertyOptions {
+    label?: string;
+    type?: InspectableType;
+    min?: number;
+    max?: number;
+    step?: number;
+    callback?: () => void;
+    options?: [];
+}
+
+const inspectorPropertiesDescMap = new Map<string, IInspectorPropertyDesc[]>();
+
+export function requireDecoratorInspectorPropertyDescs(name:string):IInspectorPropertyDesc[] | undefined {
+    return inspectorPropertiesDescMap.get(name);
+}
+
+export function getAndCreateDecoratorInspectorPropertyDescs(name:string):IInspectorPropertyDesc[] {
+    const properties = inspectorPropertiesDescMap.get(name);
+    if (properties) {
+        return properties;
+    }
+
+    inspectorPropertiesDescMap.set(name, []);
+    return inspectorPropertiesDescMap.get(name) as IInspectorPropertyDesc[];
+}
+
+/**
+ * Decorator to make the property display in babylon.js inspector.
+ */
+export function inspector(options ?: IInspectorPropertyOptions | undefined) {
     return (target: any, propertyKey: string):void => {
+        // remove prefix and capatilze the propertyKey
         const index = propertyKey[0] === "_" ? 1 : 0;
         const label = options && options.label
             ? options.label
             : propertyKey[index].toUpperCase() + propertyKey.slice(index + 1);
-        const propertyName = options && options.propertyName ? options.propertyName : propertyKey.slice(index);
-        const type = options && options.type ? options.type : InspectableType.String;
 
-        target.inspectableCustomProperties = target.inspectableCustomProperties ?? [];
-        target.inspectableCustomProperties.push(
-            {
-                label,
-                propertyName,
-                type
-            }
-        );
-
-        console.log("displayInInspector", target);
+        const descs = getAndCreateDecoratorInspectorPropertyDescs(target.constructor.name);
+        descs.push({
+            label,
+            propertyName: propertyKey,
+            type: options?.type,
+            max: options?.max,
+            min: options?.min,
+            step: options?.step,
+            callback: options?.callback,
+            options: options?.options
+        });
     };
 }
 
-export function accessorDisplayInInspector(options ?: InspectorPropertyOptions | undefined) {
+/**
+ * Decorator to make the accessor display in babylon.js inspector.
+ */
+export function inspectorAccessor(options ?: IInspectorPropertyOptions | undefined) {
     return function(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
         const index = 0;
         // capatilze the propertyKey
@@ -57,15 +93,16 @@ export function accessorDisplayInInspector(options ?: InspectorPropertyOptions |
             ? options.label
             : propertyKey[index].toUpperCase() + propertyKey.slice(index + 1);
 
-        const type = options && options.type ? options.type : InspectableType.String;
-
-        target.inspectableCustomProperties = target.inspectableCustomProperties ?? [];
-        target.inspectableCustomProperties.push(
-            {
-                label,
-                propertyName: propertyKey,
-                type
-            }
-        );
+        const descs = getAndCreateDecoratorInspectorPropertyDescs(target.constructor.name);
+        descs.push({
+            label,
+            propertyName: propertyKey,
+            type: options?.type,
+            max: options?.max,
+            min: options?.min,
+            step: options?.step,
+            callback: options?.callback,
+            options: options?.options
+        });
     };
 }

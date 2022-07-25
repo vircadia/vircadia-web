@@ -15,56 +15,35 @@ import {
 } from "@babylonjs/core";
 
 import { AvatarMapper } from "./AvatarMapper";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { ScriptComponent, accessorDisplayInInspector } from "@Modules/script";
+import { ScriptComponent, inspectorAccessor } from "@Modules/script";
 
 // Domain Modules
 import { MyAvatarInterface, SkeletonJoint } from "@vircadia/web-sdk";
 
 export class MyAvatarController extends ScriptComponent {
-    private _myAvatar : MyAvatarInterface;
+    private _myAvatar : Nullable<MyAvatarInterface> = null;
     private _skeletonNodes: Array<TransformNode>;
 
-    constructor(avatar :MyAvatarInterface) {
+    constructor() {
         super("MyAvatarController");
-        this._myAvatar = avatar;
         this._skeletonNodes = new Array<TransformNode>();
     }
 
-    // @accessorDisplayInInspector()
+    @inspectorAccessor()
     public get skeletonModelURL() : string {
-        return this._myAvatar.skeletonModelURL;
+        return this._myAvatar ? this._myAvatar.skeletonModelURL : "";
     }
 
     public set skeletonModelURL(value:string) {
-        this._myAvatar.skeletonModelURL = value;
+        if (this._myAvatar) {
+            this._myAvatar.skeletonModelURL = value;
+        }
     }
 
-    // @accessorDisplayInInspector()
-    public get displayName() : string {
-        return this._myAvatar.displayName;
-    }
+    public set myAvatar(avatar : MyAvatarInterface | null) {
+        this._myAvatar = avatar;
 
-    public set displayName(value:string) {
-        this._myAvatar.displayName = value;
-    }
-
-    // @accessorDisplayInInspector()
-    public get sessionDisplayName() : string {
-        return this._myAvatar.sessionDisplayName;
-    }
-
-    /**
-    * Gets a string identifying the type of this Component
-    * @returns "MyAvatarController" string
-    */
-    // eslint-disable-next-line class-methods-use-this
-    public getComponentType():string {
-        return "MyAvatarController";
-    }
-
-    public onInitialize(): void {
-        if (!this._gameObject) {
+        if (!this._gameObject || !this._myAvatar) {
             return;
         }
 
@@ -76,9 +55,33 @@ export class MyAvatarController extends ScriptComponent {
         this._myAvatar.skeleton = skeleton;
     }
 
+    @inspectorAccessor()
+    public get displayName() : string {
+        return this._myAvatar ? this._myAvatar.displayName : "";
+    }
+
+    public set displayName(value:string) {
+        if (this._myAvatar) {
+            this._myAvatar.displayName = value;
+        }
+    }
+
+    @inspectorAccessor()
+    public get sessionDisplayName() : string {
+        return this._myAvatar ? this._myAvatar.sessionDisplayName : "";
+    }
+
+    /**
+    * Gets a string identifying the type of this Component
+    * @returns "MyAvatarController" string
+    */
+    // eslint-disable-next-line class-methods-use-this
+    public get componentType():string {
+        return "MyAvatarController";
+    }
 
     public onUpdate():void {
-        if (this._gameObject) {
+        if (this._gameObject && this._myAvatar) {
             // sync position
             this._myAvatar.position = AvatarMapper.mapToJointPosition(this._gameObject.position);
             // sync orientation

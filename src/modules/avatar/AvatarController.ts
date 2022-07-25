@@ -9,7 +9,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
     Vector3,
     ActionManager,
@@ -22,13 +21,9 @@ import {
     ActionEvent,
     IAction
 } from "@babylonjs/core";
-import {
-    InspectableType
-} from "@babylonjs/core/Misc";
-
 import { AnimationController } from "./AnimationController";
 import { GameObject } from "@Modules/object";
-import { ScriptComponent } from "@Modules/script";
+import { ScriptComponent, inspector } from "@Modules/script";
 
 // General Modules
 import Log from "@Modules/debugging/log";
@@ -40,19 +35,20 @@ import Log from "@Modules/debugging/log";
 /* eslint-disable @typescript-eslint/dot-notation */
 export class AvatarController extends ScriptComponent {
     private _animGroups: Nullable<Array<AnimationGroup>> = null;
+    @inspector({ min: 0.1, max: 10 })
     private _walkSpeed = 3;
-    private _movement : Vector3;
+
+    @inspector({ min: 0.1, max: 2 * Math.PI })
     private _rotationSpeed = 40 * Math.PI / 180;
+
+    private _movement : Vector3;
+
     private _rot = 0;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private _inputMap : any;
     private _shiftKey = false;
     private _keyDownAction:Nullable<IAction> = null;
     private _keyUpAction:Nullable<IAction> = null;
-
-    // domain properties
-    private _positionUpdated = false;
-    private _rotationUpdated = false;
     private _animController: Nullable<AnimationController> = null;
 
     constructor() {
@@ -74,15 +70,6 @@ export class AvatarController extends ScriptComponent {
         this._walkSpeed = value;
     }
 
-    /*
-    public get walkSpeed() : string {
-        return this._walkSpeed.toString();
-    }
-
-    public set walkSpeed(value : string) {
-        this._walkSpeed = parseFloat(value);
-    } */
-
     public set animGroups(value: AnimationGroup[]) {
         this._animGroups = value;
     }
@@ -92,7 +79,7 @@ export class AvatarController extends ScriptComponent {
     * @returns "AvatarController" string
     */
     // eslint-disable-next-line class-methods-use-this
-    public getComponentType():string {
+    public get componentType():string {
         return "AvatarController";
     }
 
@@ -160,10 +147,8 @@ export class AvatarController extends ScriptComponent {
 
         if (this._inputMap["KeyW"]) {
             this._movement.z = Scalar.Lerp(this._movement.z, -this._walkSpeed, 0.1);
-            this._positionUpdated = true;
         } else if (this._inputMap["KeyS"]) {
             this._movement.z = Scalar.Lerp(this._movement.z, this._walkSpeed, 0.1);
-            this._positionUpdated = true;
         } else {
             this._movement.z = 0;
         }
@@ -171,18 +156,14 @@ export class AvatarController extends ScriptComponent {
         if (this._inputMap["KeyA"]) {
             if (this._shiftKey) {
                 this._movement.x = Scalar.Lerp(this._movement.x, this._walkSpeed, 0.1);
-                this._positionUpdated = true;
             } else {
                 this._rot = Scalar.Lerp(this._rot, -this._rotationSpeed, 0.1);
-                this._rotationUpdated = true;
             }
         } else if (this._inputMap["KeyD"]) {
             if (this._shiftKey) {
                 this._movement.x = Scalar.Lerp(this._movement.x, -this._walkSpeed, 0.1);
-                this._positionUpdated = true;
             } else {
                 this._rot = Scalar.Lerp(this._rot, this._rotationSpeed, 0.1);
-                this._rotationUpdated = true;
             }
         } else {
             this._movement.x = 0;
