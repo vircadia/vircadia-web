@@ -13,11 +13,11 @@
 import { GameObject } from "./GameObject";
 
 /**
- *
+ * Base interfance for everything attached to GameObjects
  */
 export interface IComponent {
     attach(gameObject:GameObject):void;
     detatch():void;
     dispose():void;
-    getComponentType():string;
+    get componentType():string;
 }

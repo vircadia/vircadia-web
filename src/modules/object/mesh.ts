@@ -16,8 +16,9 @@ import { GameObject } from "./GameObject";
 import {
     AbstractMesh
 } from "@babylonjs/core";
+
 /**
- *
+ * A mesh component.
  */
 export class MeshComponent implements IComponent {
     _gameObject:Nullable<GameObject> = null;
@@ -33,10 +34,6 @@ export class MeshComponent implements IComponent {
 
     public set mesh(value: AbstractMesh) {
         this._mesh = value;
-    }
-
-    public get type():string {
-        return this.getComponentType();
     }
 
     public attach(gameObject:GameObject):void {
@@ -57,7 +54,7 @@ export class MeshComponent implements IComponent {
     * Gets a string identifying the type of this Component
     * @returns "Mesh" string
     */
-    public getComponentType():string {
+    public get componentType():string {
         return "Mesh";
     }
 }

@@ -11,4 +11,4 @@
 
 export { ScriptComponent } from "./script";
 export { requireScript, requireScriptForNodes } from "./processor";
-export { displayInInspector, accessorDisplayInInspector } from "./decorators";
+export { inspector, inspectorAccessor } from "./decorators";

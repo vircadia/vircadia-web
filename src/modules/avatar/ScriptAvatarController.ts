@@ -20,8 +20,7 @@ import Log from "@Modules/debugging/log";
 import { AvatarMapper } from "./AvatarMapper";
 // Domain Modules
 import { ScriptAvatar } from "@vircadia/web-sdk";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { ScriptComponent, accessorDisplayInInspector } from "@Modules/script";
+import { ScriptComponent, inspectorAccessor } from "@Modules/script";
 
 export class ScriptAvatarController extends ScriptComponent {
     // domain properties
@@ -34,17 +33,17 @@ export class ScriptAvatarController extends ScriptComponent {
         this._skeletonNodes = new Array<TransformNode>();
     }
 
-    // @accessorDisplayInInspector()
+    @inspectorAccessor()
     public get skeletonModelURL() : string {
         return this._avatar.skeletonModelURL;
     }
 
-    // @accessorDisplayInInspector()
+    @inspectorAccessor()
     public get displayName() : string {
         return this._avatar.displayName;
     }
 
-    // @accessorDisplayInInspector()
+    @inspectorAccessor()
     public get sessionDisplayName() : string {
         return this._avatar.sessionDisplayName;
     }
@@ -54,7 +53,7 @@ export class ScriptAvatarController extends ScriptComponent {
     * @returns "ScriptAvatarController" string
     */
     // eslint-disable-next-line class-methods-use-this
-    public getComponentType():string {
+    public get componentType():string {
         return "ScriptAvatarController";
     }
 

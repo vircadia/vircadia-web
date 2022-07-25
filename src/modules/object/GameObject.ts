@@ -22,12 +22,11 @@ import {
 } from "@babylonjs/core";
 
 import { IComponent } from "./component";
-// import { accessorDisplayInInspector } from "./decorators";
 
 import Log from "@Modules/debugging/log";
 
 /**
- *
+ * Base class for all objects in scenes.
  */
 export class GameObject extends Mesh {
     _components : Map<string, IComponent>;
@@ -37,20 +36,29 @@ export class GameObject extends Mesh {
         this._components = new Map<string, IComponent>();
     }
 
-    // @accessorDisplayInInspector()
     public get type():string {
         return "GameObject";
     }
 
+    /**
+    * Adds a component to this game object.
+    */
     public addComponent(component : IComponent) : void {
-        this._components.set(component.getComponentType(), component);
+        this._components.set(component.componentType, component);
         component.attach(this);
     }
 
+    /**
+    * Gets the component of specific type from this game object.
+    */
     public getComponent(componentType : string) : IComponent | undefined {
         return this._components.get(componentType);
     }
 
+    /**
+    * Removes the component of specific type from this game object.
+    * @param dispose true will also dispose the componet when remove it.
+    */
     public removeComponent(componentType : string, dispose = true) : boolean {
         const component = this._components.get(componentType);
         if (component) {
