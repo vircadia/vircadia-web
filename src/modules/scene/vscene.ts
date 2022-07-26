@@ -10,6 +10,7 @@
 /* eslint-disable new-cap */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
 import { AnimationGroup, Engine, MeshBuilder, Scene, SceneLoader,
     ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, StandardMaterial,
@@ -22,7 +23,8 @@ import "@babylonjs/core/Meshes/meshBuilder";
 import { ResourceManager } from "./resource";
 import { GameObject, MeshComponent } from "@Modules/object";
 import { ScriptComponent, requireScript, requireScriptForNodes } from "@Modules/script";
-import { AvatarController, ScriptAvatarController } from "@Modules/avatar";
+import { AvatarController, ScriptAvatarController, MyAvatarController } from "@Modules/avatar";
+import { IEntityProperties, IEntityDescription, EntityBuilder } from "@Modules/entity";
 
 // General Modules
 import Log from "@Modules/debugging/log";
@@ -34,7 +36,6 @@ import { VVector3 } from ".";
 import { DomainMgr } from "@Modules/domain";
 import { Domain, ConnectionState } from "@Modules/domain/domain";
 import { AvatarMixer, Uuid, ScriptAvatar } from "@vircadia/web-sdk";
-import { MyAvatarController } from "../avatar/MyAvatarController";
 
 
 /**
@@ -250,6 +251,28 @@ export class VScene {
         } else {
             Log.error(Log.types.ENTITIES, `Failed to delete entity by name: ${name}`);
         }
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    public async loadEntities(url: string) : Promise<void> {
+        this._createScene();
+        this._scene.createDefaultCameraOrLight(true, true, true);
+        this._scene.createDefaultEnvironment();
+        if (this._scene.activeCamera) {
+            this._scene.activeCamera.position = new Vector3(0, 3, 5);
+        }
+
+        const response = await fetch(url);
+        const json = await response.json();
+        const entityDescription = json as IEntityDescription;
+        Log.info(Log.types.ENTITIES, `Load ${url}`);
+        Log.info(Log.types.ENTITIES,
+            `DataVersion: ${entityDescription.DataVersion} 
+             Id: ${entityDescription.Id}
+             Version: ${entityDescription.Version}`);
+
+        const entityBuilder = new EntityBuilder();
+        entityBuilder.createEntity(entityDescription.Entities[0], this._scene);
     }
 
     public async loadSceneSpaceStation(): Promise<void> {
