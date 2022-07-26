@@ -1,6 +1,7 @@
 {
     "extends": "@quasar/app/tsconfig-preset",
     "compilerOptions": {
+        "experimentalDecorators": true,
         "baseUrl": ".",
         "paths": {
             // Path aliases to reduce number of dot-dot relative paths.

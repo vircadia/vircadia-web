@@ -32,18 +32,10 @@ interface IResourceUrl {
 export class ResourceManager {
     _scene: Scene;
     _assetsManager : AssetsManager;
-    _sceneMeshes: Map<string, AbstractMesh>;
-    _avatarList: Map<string, AbstractMesh>;
 
     constructor(secne: Scene) {
         this._scene = secne;
         this._assetsManager = new AssetsManager(this._scene);
-        this._sceneMeshes = new Map<string, AbstractMesh>();
-        this._avatarList = new Map<string, AbstractMesh>();
-    }
-
-    public get sceneMeshes() : Map<string, AbstractMesh> {
-        return this._sceneMeshes;
     }
 
     public static splitUrl(url: string): IResourceUrl {
@@ -59,7 +51,6 @@ export class ResourceManager {
 
     public async loadAvatar(modelUrl: string): Promise<AbstractMesh> {
         const avatar = await this._loadAvatar(modelUrl);
-        this._avatarList.set(avatar.id, avatar);
         return avatar;
     }
 
@@ -126,35 +117,19 @@ export class ResourceManager {
             const task = this._assetsManager.addMeshTask(taskName, "", rootUrl, filename);
             task.onSuccess = (meshAssetTask) => {
                 meshAssetTask.loadedMeshes.forEach(this._processSceneMesh.bind(this));
+
+                Log.info(Log.types.ENTITIES,
+                    `load scene object: ${rootUrl}${filename}`);
+            };
+
+            task.onError = () => {
+                Log.error(Log.types.ENTITIES, `fail to load scene object: ${rootUrl}${filename}`);
             };
         });
     }
 
     public loadAsync(): Promise<void> {
         return this._assetsManager.loadAsync();
-    }
-
-    public unload(): void {
-        this._sceneMeshes.forEach((mesh) => {
-            mesh.dispose();
-        });
-        this._sceneMeshes.clear();
-
-        this._avatarList.forEach((avatar) => {
-            avatar.dispose();
-        });
-        this._avatarList.clear();
-    }
-
-    public unloadAvatar(id:string): void {
-        Log.info(Log.types.AVATAR,
-            `Unload avatar mesh id:${id}`);
-        const avatar = this._avatarList.get(id);
-        if (avatar) {
-            avatar.dispose();
-            // eslint-disable-next-line @typescript-eslint/dot-notation
-            this._avatarList.delete(id);
-        }
     }
 
     private async _loadAvatar(modelUrl: string): Promise<AbstractMesh> {
@@ -175,10 +150,9 @@ export class ResourceManager {
         return avatar;
     }
 
+    // eslint-disable-next-line class-methods-use-this
     private _processSceneMesh(mesh : AbstractMesh) : void {
         mesh.id = uuidv4();
-        this._sceneMeshes.set(mesh.id, mesh);
-
         ResourceManager._applySceneMeshRule(mesh);
     }
 
