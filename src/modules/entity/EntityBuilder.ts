@@ -12,11 +12,8 @@
 /* eslint-disable new-cap */
 import {
     Scene,
-    MeshBuilder,
     Vector3,
-    Quaternion,
-    Mesh,
-    Color4
+    Quaternion
 } from "@babylonjs/core";
 
 import { GameObject, MeshComponent } from "@Modules/object";
