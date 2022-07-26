@@ -1,7 +1,7 @@
 //
 //  index.ts
 //
-//  Created by Nolan Huang on 17 Jun 2022.
+//  Created by Nolan Huang on 24 Jul 2022.
 //  Copyright 2022 Vircadia contributors.
 //  Copyright 2022 DigiSomni LLC.
 //
@@ -9,5 +9,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-export { AvatarController } from "./AvatarController";
-export { ScriptAvatarController } from "./ScriptAvatarController";
+export { ScriptComponent } from "./script";
+export { requireScript, requireScriptForNodes } from "./processor";
+export { inspector, inspectorAccessor } from "./decorators";

@@ -9,19 +9,14 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-// This is disabled because TS complains about BABYLON's use of cap'ed function names
-/* eslint-disable new-cap */
 
 import {
     AnimationGroup,
     Nullable,
     Node,
     TransformNode,
-    AbstractMesh
+    Mesh
 } from "@babylonjs/core";
-// General Modules
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import Log from "@Modules/debugging/log";
 
 type AnimationName =
 "idle02" | "walk_fwd" | "walk_bwd" | "walk_left" | "walk_right" |
@@ -31,18 +26,18 @@ type AnimationName =
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/dot-notation */
 export class AnimationController {
-    private _avatarMesh: AbstractMesh;
+    private _mesh: Mesh;
     private _currentAnim: Nullable<AnimationGroup> = null;
     private _prevAnim: Nullable<AnimationGroup> = null;
     private _animGroups : Map<string, AnimationGroup>;
 
-    constructor(avatar: AbstractMesh, animGroups: AnimationGroup[]) {
-        this._avatarMesh = avatar;
+    constructor(mesh: Mesh, animGroups: AnimationGroup[]) {
+        this._mesh = mesh;
 
         this._animGroups = new Map<string, AnimationGroup>();
 
         const nodes = new Map<string, Node>();
-        this._avatarMesh.getChildren((node):boolean => {
+        this._mesh.getChildren((node):boolean => {
             nodes.set(node.name, node);
             return true;
         }, false);
