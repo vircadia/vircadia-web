@@ -10,63 +10,105 @@
 //
 
 /* eslint-disable new-cap */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
-    Scene,
-    Vector3,
-    Quaternion
+    Scene, SceneLoader, Vector3
 } from "@babylonjs/core";
 
-import { GameObject, MeshComponent } from "@Modules/object";
-import { IEntityProperties, IShapeEntityProperties } from "./EntityProperties";
+import { GameObject, MeshComponent, LightComponent } from "@Modules/object";
+import { IEntityProperties, IShapeEntityProperties, ILightEntityProperties,
+    IModelEntityProperties, IZoneEntityProperties } from "./EntityProperties";
 import { ShapeBuilder } from "./ShapeBuilder";
+import { LightBuilder } from "./LightBuilder";
+import { EntityMapper } from "./EntityMapper";
 import Log from "@Modules/debugging/log";
+
+export interface IEntityBuildResult {
+    gameObject: Nullable<GameObject>;
+}
 
 export class EntityBuilder {
     _gameObject: Nullable<GameObject>;
     _scene : Nullable<Scene>;
     _props: Nullable<IEntityProperties>;
 
-    public createEntity(props: IEntityProperties, scene: Nullable<Scene>) : Nullable<GameObject> {
+    public createEntity(props: IEntityProperties, scene: Nullable<Scene>) : IEntityBuildResult {
+        console.debug("ENTITIES props", props);
         switch (props.type) {
             case "Box":
-                return this.createBoxEntity(props as IShapeEntityProperties, scene);
+                return this.createBoxEntity(props, scene);
+            case "Light":
+                return this.createLightEntity(props, scene);
+            case "Model":
+                return this.createModelEntity(props, scene);
+            case "Zone":
+                return this.createZoneEntity(props, scene);
             default:
-                return undefined;
+                Log.error(Log.types.ENTITIES, `Indvalid entity type: ${props.type}`);
+                return { gameObject: undefined };
         }
     }
 
-    public createBoxEntity(props: IShapeEntityProperties, scene: Nullable<Scene>) : Nullable<GameObject> {
+    public createBoxEntity(props: IEntityProperties, scene: Nullable<Scene>) : IEntityBuildResult {
         Log.debug(Log.types.ENTITIES,
-            `Create Box Entity ${props.name}`);
+            `Create Box Entity ${EntityMapper.getEntityName(props)}`);
 
-        return this._beginBuildEntity(props, scene)
-            ._buildShape()
-            ._endBuildEntity();
+        return this.beginBuildEntity(props, scene)
+            .buildShape()
+            .endBuildEntity();
     }
 
-    private _beginBuildEntity(props: IEntityProperties, scene: Nullable<Scene>) : EntityBuilder {
+    public createLightEntity(props: IEntityProperties, scene: Nullable<Scene>) : IEntityBuildResult {
+        Log.debug(Log.types.ENTITIES,
+            `Create Light Entity ${EntityMapper.getEntityName(props)}`);
+
+        return this.beginBuildEntity(props, scene)
+            .buildLight()
+            .endBuildEntity();
+    }
+
+    public createModelEntity(props: IEntityProperties, scene: Nullable<Scene>) : IEntityBuildResult {
+        Log.debug(Log.types.ENTITIES,
+            `Create Model Entity ${EntityMapper.getEntityName(props)}`);
+
+        return this.beginBuildEntity(props, scene)
+            .buildModel()
+            .endBuildEntity();
+    }
+
+    public createZoneEntity(props: IEntityProperties, scene: Nullable<Scene>) : IEntityBuildResult {
+        Log.debug(Log.types.ENTITIES,
+            `Create Zone Entity ${EntityMapper.getEntityName(props)}`);
+        return this.beginBuildEntity(props, scene)
+            .buildEnviroment()
+            .endBuildEntity();
+    }
+
+    public beginBuildEntity(props: IEntityProperties, scene: Nullable<Scene>) : EntityBuilder {
         this._props = props;
         this._scene = scene;
-        this._gameObject = new GameObject(props.name, scene);
+        this._gameObject = new GameObject(EntityMapper.getEntityName(props), scene);
 
         this._gameObject.id = props.id;
 
-        this._gameObject.position = new Vector3(props.position.x, props.position.y, props.position.z);
-        this._gameObject.rotationQuaternion
-            = new Quaternion(props.rotation.x, props.rotation.y, props.rotation.z, props.rotation.w);
+        this._gameObject.position = EntityMapper.mapToVector3(props.position);
+        this._gameObject.rotationQuaternion = EntityMapper.mapToQuaternion(props.rotation);
         return this;
     }
 
-    private _endBuildEntity() : Nullable<GameObject> {
-        const gameObject = this._gameObject;
+    private endBuildEntity() : IEntityBuildResult {
+        const result = {
+            gameObject: this._gameObject
+        };
+
         this._gameObject = null;
         this._props = null;
         this._scene = null;
 
-        return gameObject;
+        return result;
     }
 
-    private _buildShape() : EntityBuilder {
+    public buildShape() : EntityBuilder {
         if (!this._props || !this._gameObject) {
             throw new Error(`null props or gameObject. 
             please call _beginBuildEntity before call this function.`);
@@ -75,6 +117,60 @@ export class EntityBuilder {
         const mesh = ShapeBuilder.createShape(this._props as IShapeEntityProperties);
         const meshComponent = new MeshComponent(mesh);
         this._gameObject.addComponent(meshComponent);
+
+        return this;
+    }
+
+    public buildModel() : EntityBuilder {
+        if (!this._props || !this._gameObject) {
+            throw new Error(`null props or gameObject. 
+            please call _beginBuildEntity before call this function.`);
+        }
+
+        const props = this._props as IModelEntityProperties;
+
+        const gameObject = this._gameObject;
+        SceneLoader.ImportMesh("",
+            props.modelURL, undefined, this._scene, (meshes) => {
+                const mesh = meshes[0];
+                const meshComponent = new MeshComponent(mesh);
+                gameObject?.addComponent(meshComponent);
+            });
+        return this;
+    }
+
+    public buildLight() : EntityBuilder {
+        if (!this._props || !this._gameObject || !this._scene) {
+            throw new Error(`null props or gameObject. 
+            please call _beginBuildEntity before call this function.`);
+        }
+
+        const light = LightBuilder.createPointLight(this._props as ILightEntityProperties,
+            this._scene);
+        const comp = new LightComponent(light);
+        this._gameObject.addComponent(comp);
+
+        return this;
+    }
+
+    public buildEnviroment() : EntityBuilder {
+        if (!this._props || !this._gameObject || !this._scene) {
+            throw new Error(`null props or gameObject. 
+            please call _beginBuildEntity before call this function.`);
+        }
+
+        const props = this._props as IZoneEntityProperties;
+        if (props.ambientLight) {
+            const light = LightBuilder.createAmbientLight(props.ambientLight, this._scene);
+            const comp = new LightComponent(light);
+            this._gameObject.addComponent(comp);
+        }
+
+        if (props.keyLight) {
+            const light = LightBuilder.createKeyLight(props.keyLight, this._scene);
+            const comp = new LightComponent(light);
+            this._gameObject.addComponent(comp);
+        }
 
         return this;
     }

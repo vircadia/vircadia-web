@@ -21,3 +21,19 @@ export interface IComponent {
     dispose():void;
     get componentType():string;
 }
+
+export abstract class AbstractComponent implements IComponent {
+    protected _gameObject:Nullable<GameObject> = null;
+
+    public attach(gameObject:GameObject):void {
+        this._gameObject = gameObject;
+    }
+
+    public detatch():void {
+        this._gameObject = null;
+    }
+
+    public abstract dispose():void;
+
+    public abstract get componentType():string;
+}

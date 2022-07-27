@@ -110,7 +110,7 @@ export default defineComponent({
         const scene = Renderer.createScene();
 
         // await scene.loadSceneUA92Campus();
-        await scene.loadEntities("http://localhost:8080/assets/scenes/box.json");
+        await scene.loadEntities("http://localhost:8080/assets/scenes/models.json");
 
         Renderer.startRenderLoop([scene]);
     }

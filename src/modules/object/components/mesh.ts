@@ -10,8 +10,8 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { IComponent } from "./component";
-import { GameObject } from "./GameObject";
+import { AbstractComponent } from "../component";
+import { GameObject } from "../GameObject";
 
 import {
     AbstractMesh
@@ -20,11 +20,11 @@ import {
 /**
  * A mesh component.
  */
-export class MeshComponent implements IComponent {
-    _gameObject:Nullable<GameObject> = null;
+export class MeshComponent extends AbstractComponent {
     private _mesh: AbstractMesh;
 
     constructor(mesh: AbstractMesh) {
+        super();
         this._mesh = mesh;
     }
 
@@ -37,17 +37,17 @@ export class MeshComponent implements IComponent {
     }
 
     public attach(gameObject:GameObject):void {
-        this._gameObject = gameObject;
+        super.attach(gameObject);
         this._mesh.parent = gameObject;
     }
 
     public detatch():void {
         this._mesh.parent = null;
-        this._gameObject = null;
+        super.detatch();
     }
 
     public dispose():void {
-        this.mesh.dispose();
+        this._mesh.dispose();
     }
 
     /**
