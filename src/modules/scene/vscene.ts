@@ -256,8 +256,10 @@ export class VScene {
     // eslint-disable-next-line class-methods-use-this
     public async loadEntities(url: string) : Promise<void> {
         this._createScene();
-        this._scene.createDefaultCameraOrLight(true, true, true);
-        this._scene.createDefaultEnvironment();
+        this._scene.createDefaultCamera(true, true, true);
+
+        MeshBuilder.CreateGround("ground", { width: 10, height: 10 });
+
         if (this._scene.activeCamera) {
             this._scene.activeCamera.position = new Vector3(0, 3, 5);
         }
@@ -270,9 +272,13 @@ export class VScene {
             `DataVersion: ${entityDescription.DataVersion} 
              Id: ${entityDescription.Id}
              Version: ${entityDescription.Version}`);
+        console.log("ENTITIES", entityDescription.Entities);
 
         const entityBuilder = new EntityBuilder();
-        entityBuilder.createEntity(entityDescription.Entities[0], this._scene);
+        entityDescription.Entities.forEach((props) => {
+            entityBuilder.createEntity(props, this._scene);
+        });
+
     }
 
     public async loadSceneSpaceStation(): Promise<void> {

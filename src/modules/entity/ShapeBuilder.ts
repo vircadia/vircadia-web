@@ -17,6 +17,7 @@ import {
 } from "@babylonjs/core";
 
 import { IShapeEntityProperties } from "./EntityProperties";
+import { EntityMapper } from "./EntityMapper";
 
 export class ShapeBuilder {
     public static createShape(props: IShapeEntityProperties) : Mesh {
@@ -44,11 +45,17 @@ export class ShapeBuilder {
 
         }
 
-        const mesh = MeshBuilder.CreateBox(props.name,
-            { width: props.dimensions.x,
-                height: props.dimensions.y,
-                depth: props.dimensions.z,
-                faceColors: colors });
-        return mesh;
+        if (props.dimensions) {
+            return MeshBuilder.CreateBox(
+                EntityMapper.getEntityName(props),
+                { width: props.dimensions.x,
+                    height: props.dimensions.y,
+                    depth: props.dimensions.z,
+                    faceColors: colors });
+        }
+
+        return MeshBuilder.CreateBox(
+            EntityMapper.getEntityName(props),
+            { faceColors: colors });
     }
 }
