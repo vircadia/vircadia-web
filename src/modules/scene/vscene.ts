@@ -17,7 +17,7 @@ import { AnimationGroup, Engine, MeshBuilder, Scene, SceneLoader,
     Mesh, DefaultRenderingPipeline, Camera, AbstractMesh,
     Texture, CubeTexture, TransformNode } from "@babylonjs/core";
 
-import { Color3, Quaternion, Vector3 } from "@babylonjs/core/Maths/math";
+import { Color3, Color4, Quaternion, Vector3 } from "@babylonjs/core/Maths/math";
 import "@babylonjs/loaders/glTF";
 import "@babylonjs/core/Meshes/meshBuilder";
 import { ResourceManager } from "./resource";
@@ -258,10 +258,11 @@ export class VScene {
         this._createScene();
         this._scene.createDefaultCamera(true, true, true);
 
-        MeshBuilder.CreateGround("ground", { width: 10, height: 10 });
+        MeshBuilder.CreateGround("ground", { width: 100, height: 100 });
 
         if (this._scene.activeCamera) {
-            this._scene.activeCamera.position = new Vector3(0, 3, 5);
+            this._scene.activeCamera.position = new Vector3(0, 4, 8);
+            this._scene.activeCamera.maxZ = 3000;
         }
 
         const response = await fetch(url);

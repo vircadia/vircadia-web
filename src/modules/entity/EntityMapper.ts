@@ -15,22 +15,22 @@ import {
     Vector3
 } from "@babylonjs/core";
 
-import { IPropertyVector3, IPropertyQuaternion, IPropertyColor } from "./Properties";
+import { IVector3Property, IQuaternionProperty, IColorProperty } from "./Properties";
 import { IEntityProperties } from "./EntityProperties";
 
 
 /* eslint-disable new-cap */
 export class EntityMapper {
 
-    public static mapToVector3(vec? : IPropertyVector3) : Vector3 {
+    public static mapToVector3(vec? : IVector3Property) : Vector3 {
         return vec ? new Vector3(vec.x, vec.y, vec.z) : Vector3.Zero();
     }
 
-    public static mapToQuaternion(q? : IPropertyQuaternion) : Quaternion {
+    public static mapToQuaternion(q? : IQuaternionProperty) : Quaternion {
         return q ? new Quaternion(q.x, q.y, q.z, q.w) : Quaternion.Identity();
     }
 
-    public static mapToColor3(c?: IPropertyColor) : Color3 {
+    public static mapToColor3(c?: IColorProperty) : Color3 {
         return c ? new Color3(c.red, c.green, c.blue) : Color3.White();
     }
 
