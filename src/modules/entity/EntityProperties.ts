@@ -23,7 +23,7 @@ export interface IEntityProperties {
     lastEdited: Date;
     lastEditedBy: Date;
     name?: string;
-    parentID: string;
+    parentID?: string;
     position?: IVector3Property;
     rotation?: IQuaternionProperty;
     dimensions?: IVector3Property;

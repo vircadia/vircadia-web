@@ -36,6 +36,7 @@ import { VVector3 } from ".";
 import { DomainMgr } from "@Modules/domain";
 import { Domain, ConnectionState } from "@Modules/domain/domain";
 import { AvatarMixer, Uuid, ScriptAvatar } from "@vircadia/web-sdk";
+import { IEntityMetaData } from "../entity/EntityBuilder";
 
 
 /**
@@ -268,18 +269,31 @@ export class VScene {
         const response = await fetch(url);
         const json = await response.json();
         const entityDescription = json as IEntityDescription;
-        Log.info(Log.types.ENTITIES, `Load ${url}`);
+        Log.info(Log.types.ENTITIES, `Load Entities from ${url}`);
         Log.info(Log.types.ENTITIES,
             `DataVersion: ${entityDescription.DataVersion} 
              Id: ${entityDescription.Id}
              Version: ${entityDescription.Version}`);
-        console.log("ENTITIES", entityDescription.Entities);
 
+        Log.info(Log.types.ENTITIES, "Create Entities.");
+        // create entities
         const entityBuilder = new EntityBuilder();
         entityDescription.Entities.forEach((props) => {
             entityBuilder.createEntity(props, this._scene);
         });
 
+        // setup hierarchies of entites
+        Log.info(Log.types.ENTITIES, "Setup hierarchies of Entities.");
+        this._scene.meshes.forEach((mesh) => {
+            if (mesh.metadata) {
+                const data = mesh.metadata as IEntityMetaData;
+                if (data.parentID) {
+                    mesh.parent = this._scene.getMeshById(data.parentID);
+                }
+            }
+        });
+
+        Log.info(Log.types.ENTITIES, "Load Entities done.");
     }
 
     public async loadSceneSpaceStation(): Promise<void> {

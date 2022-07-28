@@ -69,7 +69,7 @@
     "id": "{eeaa81a8-019c-4244-b19b-be58c02aa2be}",
     "type": "Light",
     "lastEdited": 1655773630772132,
-    "parentID": "{253d83ee-d7b7-4678-90b1-58a6f2206a21}",
+    "parentID": "{b45c9644-77cb-42c1-8476-3df582b8bd4c}",
     "name": "(4)",
     "position": {
         "x": -0.7057181000709534,
@@ -252,11 +252,11 @@
             "red": 255,
             "green": 255,
             "blue": 255
-        },
-        "url": "https://opengameart.org/sites/default/files/Daylight%20Box%20UV.png"
+        },        
+		"url": "https://assets.babylonjs.com/textures/TropicalSunnyDay"
     },
     "haze": {
-        "hazeRange": 3500,
+        "hazeRange": 50,
         "hazeColor": {
             "red": 173,
             "green": 231,

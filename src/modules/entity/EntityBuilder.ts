@@ -28,6 +28,11 @@ export interface IEntityBuildResult {
     gameObject: Nullable<GameObject>;
 }
 
+export interface IEntityMetaData {
+    parentID?: string;
+}
+
+
 export class EntityBuilder {
     _gameObject: Nullable<GameObject>;
     _scene : Nullable<Scene>;
@@ -91,9 +96,15 @@ export class EntityBuilder {
         this._gameObject = new GameObject(EntityMapper.getEntityName(props), scene);
 
         this._gameObject.id = props.id;
-
         this._gameObject.position = EntityMapper.mapToVector3(props.position);
         this._gameObject.rotationQuaternion = EntityMapper.mapToQuaternion(props.rotation);
+
+        if (props.parentID) {
+            this._gameObject.metadata = {
+                parentID: props.parentID
+            };
+        }
+
         return this;
     }
 
