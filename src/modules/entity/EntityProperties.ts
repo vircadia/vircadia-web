@@ -8,8 +8,9 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
-import { IPropertyVector3, IPropertyQuaternion,
-    IPropertyAmbientLight, IPropertyKeyLight } from "./Properties";
+import { IVector3Property, IQuaternionProperty,
+    IAmbientLightProperty, IKeyLightProperty,
+    ISkyboxProperty, IHazeProperty, IBloomProperty } from "./Properties";
 
 
 type EntityType = "Model" | "Box" | "Cube" | "Sphere" |
@@ -23,9 +24,9 @@ export interface IEntityProperties {
     lastEditedBy: Date;
     name?: string;
     parentID: string;
-    position?: IPropertyVector3;
-    rotation?: IPropertyQuaternion;
-    dimensions?: IPropertyVector3;
+    position?: IVector3Property;
+    rotation?: IQuaternionProperty;
+    dimensions?: IVector3Property;
     grab: {
         grabbable: boolean;
     }
@@ -56,6 +57,9 @@ export interface ILightEntityProperties extends IEntityProperties {
 export interface IZoneEntityProperties extends IEntityProperties {
     userData: string;
     shapeType: string;
-    ambientLight?: IPropertyAmbientLight;
-    keyLight?: IPropertyKeyLight;
+    ambientLight?: IAmbientLightProperty;
+    keyLight?: IKeyLightProperty;
+    skybox?: ISkyboxProperty;
+    haze?: IHazeProperty;
+    bloom?: IBloomProperty;
 }

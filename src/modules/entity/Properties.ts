@@ -11,35 +11,57 @@
 
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 
-export interface IPropertyVector3 {
+export interface IVector3Property {
     x: number;
     y: number;
     z: number;
 }
 
-export interface IPropertyQuaternion {
+export interface IQuaternionProperty {
     x: number;
     y: number;
     z: number;
     w: number
 }
 
-export interface IPropertyColor {
+export interface IColorProperty {
     red: number;
     green: number;
     blue: number;
 }
 
-export interface IPropertyAmbientLight {
+export interface IAmbientLightProperty {
     ambientIntensity: number;
     ambientURL? : string;
 }
 
-export interface IPropertyKeyLight {
-    color?: IPropertyColor;
+export interface IKeyLightProperty {
+    color?: IColorProperty;
     intensity? : number;
     direction : Vector3;
     castShadows: boolean;
     shadowBias: number;
     shadowMaxDistance: number;
+}
+
+export interface ISkyboxProperty {
+    color?: IColorProperty;
+    url?:string;
+}
+
+export interface IHazeProperty {
+    hazeRange: number;
+    hazeColor: IColorProperty;
+    hazeGlareColor: IColorProperty;
+    hazeEnableGlare: boolean;
+    hazeGlareAngle: number;
+    hazeCeiling: number;
+    hazeBaseRef: number;
+    hazeBackgroundBlend: number;
+}
+
+export interface IBloomProperty {
+    bloomIntensity: number;
+    bloomThreshold: number;
+    bloomSize: number;
 }

@@ -11,11 +11,11 @@
 
 /* eslint-disable new-cap */
 import {
-    Light, PointLight, SpotLight, HemisphericLight,
+    Light, PointLight, SpotLight,
     Scene, Vector3, DirectionalLight
 } from "@babylonjs/core";
 
-import { IPropertyAmbientLight, IPropertyKeyLight } from "./Properties";
+import { IKeyLightProperty } from "./Properties";
 import { ILightEntityProperties } from "./EntityProperties";
 import { EntityMapper } from "./EntityMapper";
 
@@ -37,19 +37,13 @@ export class LightBuilder {
             return light;
         }
         const light = new PointLight(
-            EntityMapper.getEntityName(props),
+            "PointLight",
             EntityMapper.mapToVector3(Vector3.Zero()),
             scene);
         return light;
     }
 
-    public static createAmbientLight(props: IPropertyAmbientLight, scene: Scene) : Light {
-        const light = new HemisphericLight("AmbientLight", Vector3.Forward(), scene);
-        light.intensity = props.ambientIntensity;
-        return light;
-    }
-
-    public static createKeyLight(props: IPropertyKeyLight, scene: Scene) : Light {
+    public static createKeyLight(props: IKeyLightProperty, scene: Scene) : Light {
         const light = new DirectionalLight("KeyLight", EntityMapper.mapToVector3(props.direction), scene);
         light.intensity = props.intensity ?? 1;
         light.diffuse = EntityMapper.mapToColor3(props.color);

@@ -21,6 +21,7 @@ import { IEntityProperties, IShapeEntityProperties, ILightEntityProperties,
 import { ShapeBuilder } from "./ShapeBuilder";
 import { LightBuilder } from "./LightBuilder";
 import { EntityMapper } from "./EntityMapper";
+import { EnvironmentBuilder } from "./EnvironmentBuilder";
 import Log from "@Modules/debugging/log";
 
 export interface IEntityBuildResult {
@@ -160,16 +161,27 @@ export class EntityBuilder {
         }
 
         const props = this._props as IZoneEntityProperties;
-        if (props.ambientLight) {
-            const light = LightBuilder.createAmbientLight(props.ambientLight, this._scene);
-            const comp = new LightComponent(light);
-            this._gameObject.addComponent(comp);
-        }
 
         if (props.keyLight) {
             const light = LightBuilder.createKeyLight(props.keyLight, this._scene);
             const comp = new LightComponent(light);
             this._gameObject.addComponent(comp);
+        }
+
+        if (props.ambientLight) {
+            const light = EnvironmentBuilder.createAmbientLight(props.ambientLight, this._scene);
+            const comp = new LightComponent(light);
+            this._gameObject.addComponent(comp);
+        }
+
+        if (props.skybox) {
+            const skyBox = EnvironmentBuilder.createSkybox(props.skybox, this._scene);
+            const comp = new MeshComponent(skyBox);
+            this._gameObject.addComponent(comp);
+        }
+
+        if (props.haze) {
+            EnvironmentBuilder.createHaze(props.haze, this._scene);
         }
 
         return this;
