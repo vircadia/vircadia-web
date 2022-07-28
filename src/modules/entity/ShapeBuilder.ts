@@ -47,7 +47,7 @@ export class ShapeBuilder {
 
         if (props.dimensions) {
             return MeshBuilder.CreateBox(
-                EntityMapper.getEntityName(props),
+                "Box",
                 { width: props.dimensions.x,
                     height: props.dimensions.y,
                     depth: props.dimensions.z,
