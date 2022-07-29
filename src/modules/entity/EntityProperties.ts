@@ -10,43 +10,46 @@
 //
 import { IVector3Property, IQuaternionProperty,
     IAmbientLightProperty, IKeyLightProperty,
-    ISkyboxProperty, IHazeProperty, IBloomProperty } from "./Properties";
+    ISkyboxProperty, IHazeProperty, IBloomProperty,
+    IGrabProperty, IColorProperty } from "./Properties";
 
 
-type EntityType = "Model" | "Box" | "Cube" | "Sphere" |
+export type EntityType = "Model" | "Box" |
 "Light" | "Text" | "Image" | "Web" | "Zone" | "Particle" | "Material";
 
-export interface IEntityProperties {
-    id: string;
-    type: EntityType;
-    created: Date;
-    lastEdited: Date;
-    lastEditedBy: Date;
-    name?: string;
-    parentID?: string;
+export type Shape = "Cube" | "Sphere";
+
+export type ShapeType = "box" | "sphere" | "cylinder";
+
+export type CollisionTarget = "static" | "dynamic" | "kinematic" | "otherAvatar" | "myAvatar";
+
+export interface ISpatialProperties {
     position?: IVector3Property;
     rotation?: IQuaternionProperty;
     dimensions?: IVector3Property;
-    grab: {
-        grabbable: boolean;
-    }
 }
 
-export interface IMeshEntityProperties extends IEntityProperties {
-    canCastShadow: boolean;
+export interface ICollisionProperties {
+    collision?: string;
+    collidesWith?: CollisionTarget;
 }
 
-export interface IModelEntityProperties extends IMeshEntityProperties {
+export interface IBehaviorProperties extends ICollisionProperties {
+    grab?: IGrabProperty;
+    canCastShadow?: boolean;
+}
+
+export interface IShapeProperties {
+    shape: Shape;
+    color?: IColorProperty;
+}
+
+export interface IModelEProperties {
     modelURL: string;
     shapeType: string;
 }
 
-export interface IShapeEntityProperties extends IMeshEntityProperties {
-    shape: string;
-    color?: { red: number; green: number; blue: number; alpha?: number };
-}
-
-export interface ILightEntityProperties extends IEntityProperties {
+export interface ILightProperties {
     isSpotlight: boolean;
     exponent?: number;
     cutoff?: number;
@@ -54,7 +57,7 @@ export interface ILightEntityProperties extends IEntityProperties {
     intensity?: number;
 }
 
-export interface IZoneEntityProperties extends IEntityProperties {
+export interface IZoneProperties {
     userData: string;
     shapeType: string;
     ambientLight?: IAmbientLightProperty;
@@ -62,4 +65,39 @@ export interface IZoneEntityProperties extends IEntityProperties {
     skybox?: ISkyboxProperty;
     haze?: IHazeProperty;
     bloom?: IBloomProperty;
+}
+
+export interface IEntityProperties extends ISpatialProperties {
+    id: string;
+    type: EntityType;
+    created: Date;
+    lastEdited: Date;
+    lastEditedBy: Date;
+    name?: string;
+    parentID?: string;
+    visible?: boolean;
+}
+
+export interface IModelEntityProperties extends
+    IEntityProperties,
+    IBehaviorProperties,
+    IModelEProperties {
+}
+
+export interface IShapeEntityProperties extends
+    IEntityProperties,
+    IBehaviorProperties,
+    IShapeProperties {
+}
+
+export interface ILightEntityProperties extends
+    IEntityProperties,
+    IBehaviorProperties,
+    ILightProperties {
+}
+
+export interface IZoneEntityProperties extends
+    IEntityProperties,
+    IBehaviorProperties,
+    IZoneProperties {
 }

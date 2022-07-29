@@ -28,6 +28,7 @@ export interface IColorProperty {
     red: number;
     green: number;
     blue: number;
+    alpha?: number;
 }
 
 export interface IAmbientLightProperty {
@@ -64,4 +65,11 @@ export interface IBloomProperty {
     bloomIntensity: number;
     bloomThreshold: number;
     bloomSize: number;
+}
+
+export interface IGrabProperty {
+    grabbable: boolean;
+    grabFollowsController?: boolean;
+    equippableLeftRotation?: IQuaternionProperty;
+    equippableRightRotation?: IQuaternionProperty;
 }
