@@ -254,18 +254,30 @@ export class VScene {
         }
     }
 
-    // eslint-disable-next-line class-methods-use-this
-    public async loadEntities(url: string) : Promise<void> {
+    public async GoToTestDomain() : Promise<void> {
+        this._engine.displayLoadingUI();
+        this._scene.detachControl();
+        this._preScene = this._scene;
+
         this._createScene();
         this._scene.createDefaultCamera(true, true, true);
 
-        MeshBuilder.CreateGround("ground", { width: 100, height: 100 });
-
         if (this._scene.activeCamera) {
             this._scene.activeCamera.position = new Vector3(0, 4, 8);
-            this._scene.activeCamera.maxZ = 3000;
+            this._scene.activeCamera.minZ = 0.1;
+            this._scene.activeCamera.maxZ = 2000;
         }
 
+        await this.loadEntities("http://localhost:8080/assets/scenes/campus.json");
+
+        this._preScene.dispose();
+        this._preScene = null;
+
+        await this._scene.whenReadyAsync();
+        this._engine.hideLoadingUI();
+    }
+
+    public async loadEntities(url: string) : Promise<void> {
         const response = await fetch(url);
         const json = await response.json();
         const entityDescription = json as IEntityDescription;
@@ -313,14 +325,15 @@ export class VScene {
         // setup camera
         const camera = this._camera as ArcRotateCamera;
         if (camera) {
-            camera.minZ = 0.5;
+            camera.minZ = 1;
             camera.maxZ = 250000;
             camera.alpha = -Math.PI / 2;
             camera.beta = Math.PI / 2;
             camera.parent = this._myAvatar as Mesh;
         }
 
-        await this.loadSpaceStationEnvironment();
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        this.loadSpaceStationEnvironment();
 
         this._preScene.dispose();
         this._preScene = null;
@@ -365,33 +378,12 @@ export class VScene {
     }
 
     public async loadSpaceStationEnvironment(): Promise<void> {
-        await this._loadEnvironment("https://staging.vircadia.com/O12OR634/SpaceStation/",
-            [
-                "SpaceStation_Inside_Floor.glb",
-                "Collision_Station_Inside.glb"
-            ],
-            [
-                "SpaceStation_HDRI.glb",
-                "SpaceStation_Inside_Desk.glb",
-                "SpaceStation_Inside_Furniture.glb",
-                "SpaceStation_Inside_Light.glb",
-                "SpaceStation_Inside_Tableware.glb",
-                "SpaceStation_Light.glb",
-                "SpaceStation_Planet_A.glb",
-                "SpaceStation_Planet_B.glb",
-                "SpaceStation_Station_Body_01.glb",
-                "SpaceStation_Station_Body_02.glb",
-                "SpaceStation_Station_Station_Part.glb",
-                "SpaceStation_Stone.glb",
-                "SpaceStation_Ship.glb"
-            ]
-        );
-
         this._scene.createDefaultEnvironment(
             { createGround: false,
                 createSkybox: false,
                 environmentTexture: "https://assets.babylonjs.com/textures/night.env" });
 
+        await this.loadEntities("http://localhost:8080/assets/scenes/spacestation.json");
 
         const defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);
         defaultPipeline.fxaaEnabled = true;
@@ -409,33 +401,7 @@ export class VScene {
                 createSkybox: false,
                 environmentTexture: "https://assets.babylonjs.com/textures/country.env" });
 
-        await this._loadEnvironment("https://staging.vircadia.com/O12OR634/UA92/",
-            [
-                "FirstFloor.glb",
-                "Outdoors.glb",
-                "Collisions.glb"
-            ],
-            [
-                "Exterior.glb",
-                "Atirum.glb",
-                "Elevator.glb",
-                "Furniture.glb",
-                "Support.glb",
-                "UpperFloors.glb"
-            ]
-        );
-
-        const skyBox = MeshBuilder.CreateBox("skyBox", { size: 2000 }, this._scene);
-
-        const skyboxMaterial = new StandardMaterial("skyBox", this._scene);
-        skyboxMaterial.backFaceCulling = false;
-        skyboxMaterial.reflectionTexture = new CubeTexture(
-            "https://assets.babylonjs.com/textures/TropicalSunnyDay", this._scene);
-        skyboxMaterial.reflectionTexture.coordinatesMode = Texture.SKYBOX_MODE;
-        skyboxMaterial.diffuseColor = new Color3(0, 0, 0);
-        skyboxMaterial.specularColor = new Color3(0, 0, 0);
-        skyboxMaterial.disableLighting = true;
-        skyBox.material = skyboxMaterial;
+        await this.loadEntities("http://localhost:8080/assets/scenes/campus.json");
 
         const defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);
         defaultPipeline.fxaaEnabled = true;
@@ -532,6 +498,13 @@ export class VScene {
                     await this.loadSceneUA92Campus();
                 }
                 break;
+            case "KeyE":
+                if (process.env.NODE_ENV === "development"
+                            && evt.sourceEvent.shiftKey) {
+                    await this.GoToTestDomain();
+                }
+                break;
+
             default:
                 break;
         }

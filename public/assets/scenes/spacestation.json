@@ -1,0 +1,969 @@
+{
+    "DataVersion": 575489,
+    "Entities": [
+      {
+          "id": "{0426c281-c6b7-4d03-9a52-a0926e19ee2f}",
+          "type": "Model",
+          "lastEdited": 1655773630796121,
+          "name": "Collision_Station_Inside",
+          "locked": true,
+          "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+          },
+          "dimensions": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+          },
+          "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0,
+              "w": 1
+          },
+          "created": 1639672618942464,
+          "lastEditedBy": "{5074da71-ac10-4d4c-96ca-2bebd5bf0178}",
+          "queryAACube": {
+              "x": -39.0230712890625,
+              "y": 6.703355312347412,
+              "z": -36.402408599853516,
+              "scale": 3.527052879333496
+          },
+          "grab": {
+              "grabbable": false,
+              "equippableLeftRotation": {
+                  "x": -0.0000152587890625,
+                  "y": -0.0000152587890625,
+                  "z": -0.0000152587890625,
+                  "w": 1
+              },
+              "equippableRightRotation": {
+                  "x": -0.0000152587890625,
+                  "y": -0.0000152587890625,
+                  "z": -0.0000152587890625,
+                  "w": 1
+              }
+          },
+          "damping": 0,
+          "angularDamping": 0,
+          "collisionMask": 24,
+          "collidesWith": "myAvatar,otherAvatar,",
+          "shapeType": "static-mesh",
+          "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/Collision_Station_Inside.glb",
+          "blendshapeCoefficients": "{\n}\n",
+          "useOriginalPivot": true,
+          "animation": {
+              "allowTranslation": false
+          },
+          "clientOnly": false,
+          "avatarEntity": false,
+          "localEntity": false,
+          "faceCamera": false,
+          "isFacingAvatar": false,
+          "visible": false
+      },
+      {
+      "id": "{0426c281-c6b7-4d03-9a52-a0926e19ee2f}",
+      "type": "Model",
+      "lastEdited": 1655773630796121,
+      "name": "SpaceStation_Inside_Floor",
+      "locked": true,
+      "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+      },
+      "dimensions": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+      },
+      "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+      },
+      "created": 1639672618942464,
+      "lastEditedBy": "{5074da71-ac10-4d4c-96ca-2bebd5bf0178}",
+      "queryAACube": {
+          "x": -39.0230712890625,
+          "y": 6.703355312347412,
+          "z": -36.402408599853516,
+          "scale": 3.527052879333496
+      },
+      "grab": {
+          "grabbable": false,
+          "equippableLeftRotation": {
+              "x": -0.0000152587890625,
+              "y": -0.0000152587890625,
+              "z": -0.0000152587890625,
+              "w": 1
+          },
+          "equippableRightRotation": {
+              "x": -0.0000152587890625,
+              "y": -0.0000152587890625,
+              "z": -0.0000152587890625,
+              "w": 1
+          }
+      },
+      "damping": 0,
+      "angularDamping": 0,
+      "collisionMask": 24,
+      "shapeType": "static-mesh",
+      "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Inside_Floor.glb",
+      "blendshapeCoefficients": "{\n}\n",
+      "useOriginalPivot": true,
+      "animation": {
+          "allowTranslation": false
+      },
+      "clientOnly": false,
+      "avatarEntity": false,
+      "localEntity": false,
+      "faceCamera": false,
+      "isFacingAvatar": false
+  },
+  {
+      "id": "{0426c281-c6b7-4d03-9a52-a0926e19ee2f}",
+      "type": "Model",
+      "lastEdited": 1655773630796121,
+      "name": "SpaceStation_HDRI",
+      "locked": true,
+      "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+      },
+      "dimensions": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+      },
+      "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+      },
+      "created": 1639672618942464,
+      "lastEditedBy": "{5074da71-ac10-4d4c-96ca-2bebd5bf0178}",
+      "queryAACube": {
+          "x": -39.0230712890625,
+          "y": 6.703355312347412,
+          "z": -36.402408599853516,
+          "scale": 3.527052879333496
+      },
+      "grab": {
+          "grabbable": false,
+          "equippableLeftRotation": {
+              "x": -0.0000152587890625,
+              "y": -0.0000152587890625,
+              "z": -0.0000152587890625,
+              "w": 1
+          },
+          "equippableRightRotation": {
+              "x": -0.0000152587890625,
+              "y": -0.0000152587890625,
+              "z": -0.0000152587890625,
+              "w": 1
+          }
+      },
+      "damping": 0,
+      "angularDamping": 0,
+      "collisionMask": 24,
+      "shapeType": "static-mesh",
+      "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_HDRI.glb",
+      "blendshapeCoefficients": "{\n}\n",
+      "useOriginalPivot": true,
+      "animation": {
+          "allowTranslation": false
+      },
+      "clientOnly": false,
+      "avatarEntity": false,
+      "localEntity": false,
+      "faceCamera": false,
+      "isFacingAvatar": false
+  },
+  {
+      "id": "{0426c281-c6b7-4d03-9a52-a0926e19ee2f}",
+      "type": "Model",
+      "lastEdited": 1655773630796121,
+      "name": "SpaceStation_Inside_Desk",
+      "locked": true,
+      "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+      },
+      "dimensions": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+      },
+      "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+      },
+      "created": 1639672618942464,
+      "lastEditedBy": "{5074da71-ac10-4d4c-96ca-2bebd5bf0178}",
+      "queryAACube": {
+          "x": -39.0230712890625,
+          "y": 6.703355312347412,
+          "z": -36.402408599853516,
+          "scale": 3.527052879333496
+      },
+      "grab": {
+          "grabbable": false,
+          "equippableLeftRotation": {
+              "x": -0.0000152587890625,
+              "y": -0.0000152587890625,
+              "z": -0.0000152587890625,
+              "w": 1
+          },
+          "equippableRightRotation": {
+              "x": -0.0000152587890625,
+              "y": -0.0000152587890625,
+              "z": -0.0000152587890625,
+              "w": 1
+          }
+      },
+      "damping": 0,
+      "angularDamping": 0,
+      "collisionMask": 24,
+      "shapeType": "static-mesh",
+      "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Inside_Desk.glb",
+      "blendshapeCoefficients": "{\n}\n",
+      "useOriginalPivot": true,
+      "animation": {
+          "allowTranslation": false
+      },
+      "clientOnly": false,
+      "avatarEntity": false,
+      "localEntity": false,
+      "faceCamera": false,
+      "isFacingAvatar": false
+  },
+  {
+      "id": "{0426c281-c6b7-4d03-9a52-a0926e19ee2f}",
+      "type": "Model",
+      "lastEdited": 1655773630796121,
+      "name": "SpaceStation_Inside_Furniture",
+      "locked": true,
+      "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+      },
+      "dimensions": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+      },
+      "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+      },
+      "created": 1639672618942464,
+      "lastEditedBy": "{5074da71-ac10-4d4c-96ca-2bebd5bf0178}",
+      "queryAACube": {
+          "x": -39.0230712890625,
+          "y": 6.703355312347412,
+          "z": -36.402408599853516,
+          "scale": 3.527052879333496
+      },
+      "grab": {
+          "grabbable": false,
+          "equippableLeftRotation": {
+              "x": -0.0000152587890625,
+              "y": -0.0000152587890625,
+              "z": -0.0000152587890625,
+              "w": 1
+          },
+          "equippableRightRotation": {
+              "x": -0.0000152587890625,
+              "y": -0.0000152587890625,
+              "z": -0.0000152587890625,
+              "w": 1
+          }
+      },
+      "damping": 0,
+      "angularDamping": 0,
+      "collisionMask": 24,
+      "shapeType": "static-mesh",
+      "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Inside_Furniture.glb",
+      "blendshapeCoefficients": "{\n}\n",
+      "useOriginalPivot": true,
+      "animation": {
+          "allowTranslation": false
+      },
+      "clientOnly": false,
+      "avatarEntity": false,
+      "localEntity": false,
+      "faceCamera": false,
+      "isFacingAvatar": false
+  },{
+      "id": "{0426c281-c6b7-4d03-9a52-a0926e19ee2f}",
+      "type": "Model",
+      "lastEdited": 1655773630796121,
+      "name": "SpaceStation_Inside_Light",
+      "locked": true,
+      "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+      },
+      "dimensions": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+      },
+      "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+      },
+      "created": 1639672618942464,
+      "lastEditedBy": "{5074da71-ac10-4d4c-96ca-2bebd5bf0178}",
+      "queryAACube": {
+          "x": -39.0230712890625,
+          "y": 6.703355312347412,
+          "z": -36.402408599853516,
+          "scale": 3.527052879333496
+      },
+      "grab": {
+          "grabbable": false,
+          "equippableLeftRotation": {
+              "x": -0.0000152587890625,
+              "y": -0.0000152587890625,
+              "z": -0.0000152587890625,
+              "w": 1
+          },
+          "equippableRightRotation": {
+              "x": -0.0000152587890625,
+              "y": -0.0000152587890625,
+              "z": -0.0000152587890625,
+              "w": 1
+          }
+      },
+      "damping": 0,
+      "angularDamping": 0,
+      "collisionMask": 24,
+      "shapeType": "static-mesh",
+      "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Inside_Light.glb",
+      "blendshapeCoefficients": "{\n}\n",
+      "useOriginalPivot": true,
+      "animation": {
+          "allowTranslation": false
+      },
+      "clientOnly": false,
+      "avatarEntity": false,
+      "localEntity": false,
+      "faceCamera": false,
+      "isFacingAvatar": false
+  },{
+      "id": "{0426c281-c6b7-4d03-9a52-a0926e19ee2f}",
+      "type": "Model",
+      "lastEdited": 1655773630796121,
+      "name": "SpaceStation_Inside_Tableware",
+      "locked": true,
+      "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+      },
+      "dimensions": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+      },
+      "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+      },
+      "created": 1639672618942464,
+      "lastEditedBy": "{5074da71-ac10-4d4c-96ca-2bebd5bf0178}",
+      "queryAACube": {
+          "x": -39.0230712890625,
+          "y": 6.703355312347412,
+          "z": -36.402408599853516,
+          "scale": 3.527052879333496
+      },
+      "grab": {
+          "grabbable": false,
+          "equippableLeftRotation": {
+              "x": -0.0000152587890625,
+              "y": -0.0000152587890625,
+              "z": -0.0000152587890625,
+              "w": 1
+          },
+          "equippableRightRotation": {
+              "x": -0.0000152587890625,
+              "y": -0.0000152587890625,
+              "z": -0.0000152587890625,
+              "w": 1
+          }
+      },
+      "damping": 0,
+      "angularDamping": 0,
+      "collisionMask": 24,
+      "shapeType": "static-mesh",
+      "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Inside_Tableware.glb",
+      "blendshapeCoefficients": "{\n}\n",
+      "useOriginalPivot": true,
+      "animation": {
+          "allowTranslation": false
+      },
+      "clientOnly": false,
+      "avatarEntity": false,
+      "localEntity": false,
+      "faceCamera": false,
+      "isFacingAvatar": false
+  },{
+      "id": "{0426c281-c6b7-4d03-9a52-a0926e19ee2f}",
+      "type": "Model",
+      "lastEdited": 1655773630796121,
+      "name": "SpaceStation_Light",
+      "locked": true,
+      "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+      },
+      "dimensions": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+      },
+      "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+      },
+      "created": 1639672618942464,
+      "lastEditedBy": "{5074da71-ac10-4d4c-96ca-2bebd5bf0178}",
+      "queryAACube": {
+          "x": -39.0230712890625,
+          "y": 6.703355312347412,
+          "z": -36.402408599853516,
+          "scale": 3.527052879333496
+      },
+      "grab": {
+          "grabbable": false,
+          "equippableLeftRotation": {
+              "x": -0.0000152587890625,
+              "y": -0.0000152587890625,
+              "z": -0.0000152587890625,
+              "w": 1
+          },
+          "equippableRightRotation": {
+              "x": -0.0000152587890625,
+              "y": -0.0000152587890625,
+              "z": -0.0000152587890625,
+              "w": 1
+          }
+      },
+      "damping": 0,
+      "angularDamping": 0,
+      "collisionMask": 24,
+      "shapeType": "static-mesh",
+      "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Light.glb",
+      "blendshapeCoefficients": "{\n}\n",
+      "useOriginalPivot": true,
+      "animation": {
+          "allowTranslation": false
+      },
+      "clientOnly": false,
+      "avatarEntity": false,
+      "localEntity": false,
+      "faceCamera": false,
+      "isFacingAvatar": false
+  },{
+      "id": "{0426c281-c6b7-4d03-9a52-a0926e19ee2f}",
+      "type": "Model",
+      "lastEdited": 1655773630796121,
+      "name": "SpaceStation_Planet_A",
+      "locked": true,
+      "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+      },
+      "dimensions": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+      },
+      "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+      },
+      "created": 1639672618942464,
+      "lastEditedBy": "{5074da71-ac10-4d4c-96ca-2bebd5bf0178}",
+      "queryAACube": {
+          "x": -39.0230712890625,
+          "y": 6.703355312347412,
+          "z": -36.402408599853516,
+          "scale": 3.527052879333496
+      },
+      "grab": {
+          "grabbable": false,
+          "equippableLeftRotation": {
+              "x": -0.0000152587890625,
+              "y": -0.0000152587890625,
+              "z": -0.0000152587890625,
+              "w": 1
+          },
+          "equippableRightRotation": {
+              "x": -0.0000152587890625,
+              "y": -0.0000152587890625,
+              "z": -0.0000152587890625,
+              "w": 1
+          }
+      },
+      "damping": 0,
+      "angularDamping": 0,
+      "collisionMask": 24,
+      "shapeType": "static-mesh",
+      "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Planet_A.glb",
+      "blendshapeCoefficients": "{\n}\n",
+      "useOriginalPivot": true,
+      "animation": {
+          "allowTranslation": false
+      },
+      "clientOnly": false,
+      "avatarEntity": false,
+      "localEntity": false,
+      "faceCamera": false,
+      "isFacingAvatar": false
+  },{
+    "id": "{0426c281-c6b7-4d03-9a52-a0926e19ee2f}",
+    "type": "Model",
+    "lastEdited": 1655773630796121,
+    "name": "SpaceStation_Planet_B",
+    "locked": true,
+    "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 1,
+        "y": 1,
+        "z": 1
+    },
+    "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "w": 1
+    },
+    "created": 1639672618942464,
+    "lastEditedBy": "{5074da71-ac10-4d4c-96ca-2bebd5bf0178}",
+    "queryAACube": {
+        "x": -39.0230712890625,
+        "y": 6.703355312347412,
+        "z": -36.402408599853516,
+        "scale": 3.527052879333496
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 24,
+    "shapeType": "static-mesh",
+    "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Planet_B.glb",
+    "blendshapeCoefficients": "{\n}\n",
+    "useOriginalPivot": true,
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},{
+    "id": "{0426c281-c6b7-4d03-9a52-a0926e19ee2f}",
+    "type": "Model",
+    "lastEdited": 1655773630796121,
+    "name": "SpaceStation_Station_Body_01",
+    "locked": true,
+    "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 1,
+        "y": 1,
+        "z": 1
+    },
+    "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "w": 1
+    },
+    "created": 1639672618942464,
+    "lastEditedBy": "{5074da71-ac10-4d4c-96ca-2bebd5bf0178}",
+    "queryAACube": {
+        "x": -39.0230712890625,
+        "y": 6.703355312347412,
+        "z": -36.402408599853516,
+        "scale": 3.527052879333496
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 24,
+    "shapeType": "static-mesh",
+    "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Station_Body_01.glb",
+    "blendshapeCoefficients": "{\n}\n",
+    "useOriginalPivot": true,
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},{
+    "id": "{0426c281-c6b7-4d03-9a52-a0926e19ee2f}",
+    "type": "Model",
+    "lastEdited": 1655773630796121,
+    "name": "SpaceStation_Station_Body_02",
+    "locked": true,
+    "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 1,
+        "y": 1,
+        "z": 1
+    },
+    "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "w": 1
+    },
+    "created": 1639672618942464,
+    "lastEditedBy": "{5074da71-ac10-4d4c-96ca-2bebd5bf0178}",
+    "queryAACube": {
+        "x": -39.0230712890625,
+        "y": 6.703355312347412,
+        "z": -36.402408599853516,
+        "scale": 3.527052879333496
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 24,
+    "shapeType": "static-mesh",
+    "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Station_Body_02.glb",
+    "blendshapeCoefficients": "{\n}\n",
+    "useOriginalPivot": true,
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},{
+    "id": "{0426c281-c6b7-4d03-9a52-a0926e19ee2f}",
+    "type": "Model",
+    "lastEdited": 1655773630796121,
+    "name": "SpaceStation_Station_Station_Part",
+    "locked": true,
+    "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 1,
+        "y": 1,
+        "z": 1
+    },
+    "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "w": 1
+    },
+    "created": 1639672618942464,
+    "lastEditedBy": "{5074da71-ac10-4d4c-96ca-2bebd5bf0178}",
+    "queryAACube": {
+        "x": -39.0230712890625,
+        "y": 6.703355312347412,
+        "z": -36.402408599853516,
+        "scale": 3.527052879333496
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 24,
+    "shapeType": "static-mesh",
+    "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Station_Station_Part.glb",
+    "blendshapeCoefficients": "{\n}\n",
+    "useOriginalPivot": true,
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},{
+    "id": "{0426c281-c6b7-4d03-9a52-a0926e19ee2f}",
+    "type": "Model",
+    "lastEdited": 1655773630796121,
+    "name": "SpaceStation_Stone",
+    "locked": true,
+    "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 1,
+        "y": 1,
+        "z": 1
+    },
+    "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "w": 1
+    },
+    "created": 1639672618942464,
+    "lastEditedBy": "{5074da71-ac10-4d4c-96ca-2bebd5bf0178}",
+    "queryAACube": {
+        "x": -39.0230712890625,
+        "y": 6.703355312347412,
+        "z": -36.402408599853516,
+        "scale": 3.527052879333496
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 24,
+    "shapeType": "static-mesh",
+    "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Stone.glb",
+    "blendshapeCoefficients": "{\n}\n",
+    "useOriginalPivot": true,
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},{
+    "id": "{0426c281-c6b7-4d03-9a52-a0926e19ee2f}",
+    "type": "Model",
+    "lastEdited": 1655773630796121,
+    "name": "SpaceStation_Ship",
+    "locked": true,
+    "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 1,
+        "y": 1,
+        "z": 1
+    },
+    "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "w": 1
+    },
+    "created": 1639672618942464,
+    "lastEditedBy": "{5074da71-ac10-4d4c-96ca-2bebd5bf0178}",
+    "queryAACube": {
+        "x": -39.0230712890625,
+        "y": 6.703355312347412,
+        "z": -36.402408599853516,
+        "scale": 3.527052879333496
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 24,
+    "shapeType": "static-mesh",
+    "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Ship.glb",
+    "blendshapeCoefficients": "{\n}\n",
+    "useOriginalPivot": true,
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+      {
+      "id": "{525b9d7e-a395-4b98-a159-edde6ee913f6}",
+      "type": "Zone",
+      "lastEdited": 1655773630838657,
+      "name": "Main",
+      "userData": "{\n    \"grabbableKey\": {\n        \"grabbable\": false,\n        \"ignoreIK\": false\n    }\n}",
+      "dimensions": {
+          "x": 1024,
+          "y": 256,
+          "z": 1024
+      },
+      "rotation": {
+          "x": -0.0000152587890625,
+          "y": 0.927824854850769,
+          "z": -0.0000152587890625,
+          "w": 0.37297630310058594
+      },
+      "created": 1637252539088896,
+      "lastEditedBy": "{241e97b8-ffd2-48ef-b30f-b818ae608ddc}",
+      "queryAACube": {
+          "x": -735.3040161132812,
+          "y": -735.3040161132812,
+          "z": -735.3040161132812,
+          "scale": 1470.6080322265625
+      },
+      "grab": {
+          "grabbable": false,
+          "grabFollowsController": false,
+          "equippableLeftRotation": {
+              "x": -0.0000152587890625,
+              "y": -0.0000152587890625,
+              "z": -0.0000152587890625,
+              "w": 1
+          },
+          "equippableRightRotation": {
+              "x": -0.0000152587890625,
+              "y": -0.0000152587890625,
+              "z": -0.0000152587890625,
+              "w": 1
+          }
+      },
+      "shapeType": "box",
+      "ambientLight": {
+          "ambientIntensity": 0.20000000298023224,
+          "ambientURL": "https://aitolda.s3.amazonaws.com/Vircadia/DemoWorld/Skybox/Forest360.jpg"
+      },
+      
+      "keyLightMode": "enabled",
+      "ambientLightMode": "enabled",
+      "clientOnly": false,
+      "avatarEntity": false,
+      "localEntity": false,
+      "faceCamera": false,
+      "isFacingAvatar": false
+  }
+  ],
+    "Id": "{91449683-665f-487b-985b-30a7846b5ccc}",
+    "Version": 133
+  }
