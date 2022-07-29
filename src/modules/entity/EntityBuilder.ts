@@ -39,7 +39,6 @@ export class EntityBuilder {
     _props: Nullable<IEntityProperties>;
 
     public createEntity(props: IEntityProperties, scene: Nullable<Scene>) : IEntityBuildResult {
-        console.debug("ENTITIES props", props);
         switch (props.type) {
             case "Box":
                 return this.createBoxEntity(props, scene);
@@ -99,6 +98,10 @@ export class EntityBuilder {
         this._gameObject.position = EntityMapper.mapToVector3(props.position);
         this._gameObject.rotationQuaternion = EntityMapper.mapToQuaternion(props.rotation);
 
+        if (props.visible !== undefined) {
+            this._gameObject.isVisible = props.visible;
+        }
+
         if (props.parentID) {
             this._gameObject.metadata = {
                 parentID: props.parentID
@@ -144,9 +147,29 @@ export class EntityBuilder {
         const gameObject = this._gameObject;
         SceneLoader.ImportMesh("",
             props.modelURL, undefined, this._scene, (meshes) => {
-                const mesh = meshes[0];
-                const meshComponent = new MeshComponent(mesh);
-                gameObject?.addComponent(meshComponent);
+
+                gameObject?.addComponent(new MeshComponent(meshes[0]));
+
+                meshes.forEach((mesh) => {
+                    if (props.visible !== undefined) {
+                        mesh.isVisible = props.visible;
+                    }
+
+                    if (props.collidesWith && (
+                        props.collidesWith.includes("myAvatar") || props.collidesWith.includes("otherAvatar"))) {
+                        // TODO:
+                        // fix collide rule
+                        if (mesh.name.includes("Collision")) {
+                            if (mesh.name.includes("Floor")) {
+                                mesh.isPickable = true;
+                            } else {
+                                mesh.checkCollisions = true;
+                            }
+                        } else {
+                            mesh.checkCollisions = true;
+                        }
+                    }
+                });
             });
         return this;
     }

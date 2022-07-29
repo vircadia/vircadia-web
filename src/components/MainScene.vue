@@ -109,8 +109,8 @@ export default defineComponent({
 
         const scene = Renderer.createScene();
 
-        // await scene.loadSceneUA92Campus();
-        await scene.loadEntities("http://localhost:8080/assets/scenes/models.json");
+        await scene.loadSceneUA92Campus();
+        // await scene.loadEntities("http://localhost:8080/assets/scenes/campus.json");
 
         Renderer.startRenderLoop([scene]);
     }

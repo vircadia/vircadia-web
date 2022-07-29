@@ -57,9 +57,6 @@ export class AvatarController extends ScriptComponent {
         this._inputMap = {};
         this._onKeyUp = this._onKeyUp.bind(this);
         this._onKeyupDown = this._onKeyupDown.bind(this);
-
-        // this.inspectorProperty({ propertyName: "walkSpeed",
-        //    type: InspectableType.Slider, max: 100 });
     }
 
     public get walkSpeed() : number {
