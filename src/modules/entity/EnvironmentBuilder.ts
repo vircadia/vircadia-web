@@ -30,7 +30,7 @@ const DefaultCubeMapSize = 1024;
 export class EnvironmentBuilder {
 
     public static createAmbientLight(props: IAmbientLightProperty, scene: Scene) : Light {
-        const light = new HemisphericLight("AmbientLight", Vector3.Down(), scene);
+        const light = new HemisphericLight("AmbientLight", Vector3.Up(), scene);
         light.intensity = props.ambientIntensity;
         return light;
     }
