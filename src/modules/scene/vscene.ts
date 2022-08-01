@@ -17,13 +17,14 @@ import { AnimationGroup, Engine, MeshBuilder, Scene, SceneLoader,
     Mesh, DefaultRenderingPipeline, Camera, AbstractMesh,
     Texture, CubeTexture, TransformNode } from "@babylonjs/core";
 
-import { Color3, Color4, Quaternion, Vector3 } from "@babylonjs/core/Maths/math";
+import { Color3, Quaternion, Vector3 } from "@babylonjs/core/Maths/math";
 import "@babylonjs/loaders/glTF";
 import "@babylonjs/core/Meshes/meshBuilder";
 import { ResourceManager } from "./resource";
+import { DomainController } from "./DomainController";
 import { GameObject, MeshComponent } from "@Modules/object";
 import { ScriptComponent, requireScript, requireScriptForNodes } from "@Modules/script";
-import { AvatarController, ScriptAvatarController, MyAvatarController } from "@Modules/avatar";
+import { AvatarController, MyAvatarController } from "@Modules/avatar";
 import { IEntityProperties, IEntityDescription, EntityBuilder } from "@Modules/entity";
 
 // General Modules
@@ -31,11 +32,6 @@ import Log from "@Modules/debugging/log";
 // System Modules
 import { v4 as uuidv4 } from "uuid";
 import { VVector3 } from ".";
-
-// Domain Modules
-import { DomainMgr } from "@Modules/domain";
-import { Domain, ConnectionState } from "@Modules/domain/domain";
-import { AvatarMixer, Uuid, ScriptAvatar } from "@vircadia/web-sdk";
 import { IEntityMetaData } from "../entity/EntityBuilder";
 
 
@@ -73,13 +69,11 @@ export class VScene {
     _myAvatar: Nullable<GameObject> = null;
     _avatarAnimMesh :Nullable<AbstractMesh> = null;
     _camera : Nullable<Camera> = null;
-    _avatarController : Nullable<AvatarController>;
-    _avatarList : Map<Uuid, GameObject>;
     _avatarAnimationGroups : AnimationGroup[] = [];
-    _avatarMixer : Nullable<AvatarMixer> = null;
     _resourceManager : Nullable<ResourceManager> = null;
     _incrementalMeshList : Nullable<Array<string>> = null;
     _rootUrl = "";
+    _domainController : Nullable<DomainController> = null;
 
     constructor(pEngine: Engine, pSceneId = 0) {
         if (process.env.NODE_ENV === "development") {
@@ -91,11 +85,6 @@ export class VScene {
         this._entities = new Map<string, Mesh>();
         this._scene = new Scene(pEngine);
         this._sceneId = pSceneId;
-        // Listen for the domain to connect and disconnect
-        DomainMgr.onActiveDomainStateChange.connect(this._handleActiveDomainStateChange.bind(this));
-
-        // this._scriptAvatarControllers = new Map<Uuid, ScriptAvatarController>();
-        this._avatarList = new Map<Uuid, GameObject>();
     }
 
     getSceneId(): number {
@@ -432,12 +421,15 @@ export class VScene {
             const meshComponent = new MeshComponent(mesh);
             this._myAvatar.addComponent(meshComponent);
 
-            this._avatarController = new AvatarController();
-            this._avatarController.animGroups = this._avatarAnimationGroups;
-
-            this._myAvatar.addComponent(this._avatarController);
+            const avatarController = new AvatarController();
+            avatarController.animGroups = this._avatarAnimationGroups;
+            this._myAvatar.addComponent(avatarController);
 
             this._myAvatar.addComponent(new MyAvatarController());
+
+            if (this._domainController) {
+                this._domainController.myAvatar = this._myAvatar;
+            }
         }
     }
 
@@ -463,9 +455,11 @@ export class VScene {
                 this._onKeyUp.bind(this))
         );
 
-        this._scene.createDefaultCamera();
+        const sceneManager = new GameObject("SceneManager", this._scene);
 
-        const sceneController = new TransformNode("SceneController", this._scene);
+        this._domainController = new DomainController();
+        this._domainController.resourceManager = this._resourceManager;
+        sceneManager.addComponent(this._domainController);
     }
 
     private _onKeyUp(evt: ActionEvent) : void {
@@ -510,112 +504,6 @@ export class VScene {
         }
     }
 
-    private _handleActiveDomainStateChange(pDomain: Domain, pState: ConnectionState, pInfo: string): void {
-        if (pState === ConnectionState.CONNECTED) {
-            Log.debug(Log.types.AVATAR, `VScene._handleActiveDomainStateChange: CONNECTED`);
-
-            const sessionID = pDomain.DomainClient?.sessionUUID;
-            if (sessionID) {
-                Log.debug(Log.types.AVATAR, `Session ID: ${sessionID.stringify()}`);
-            }
-
-            this._avatarMixer = pDomain.AvatarClient?.Mixer;
-            const myAvatar = pDomain.AvatarClient?.MyAvatar;
-            if (myAvatar) {
-                if (myAvatar.skeletonModelURL === "") {
-                    myAvatar.skeletonModelURL = DefaultAvatarUrl;
-                }
-
-                if (this._myAvatar) {
-                    const myAvatarController = this._myAvatar.getComponent("MyAvatarController") as MyAvatarController;
-                    myAvatarController.myAvatar = myAvatar;
-                }
-            }
-
-            const avatarList = this._avatarMixer?.avatarList;
-            if (avatarList) {
-                avatarList.avatarAdded.connect(this._handleAvatarAdded.bind(this));
-                avatarList.avatarRemoved.connect(this._handleAvatarRemoved.bind(this));
-
-                const uuids = avatarList.getAvatarIDs();
-                const emptyId = new Uuid();
-
-                uuids.forEach((uuid) => {
-                    // filter my avatar
-                    if (uuid.stringify() !== emptyId.stringify()) {
-                        this._handleAvatarAdded(uuid);
-                    }
-                });
-            }
-
-        } else if (pState === ConnectionState.DISCONNECTED) {
-            Log.debug(Log.types.AVATAR, `VScene._handleActiveDomainStateChange: ${Domain.stateToString(pState)}`);
-
-            this._avatarList.forEach((gameObj) => {
-                gameObj.dispose();
-            });
-            this._avatarList.clear();
-
-            if (this._myAvatar) {
-                const myAvatarController = this._myAvatar.getComponent("MyAvatarController") as MyAvatarController;
-                myAvatarController.myAvatar = null;
-            }
-        }
-    }
-
-    private _handleAvatarAdded(sessionID:Uuid): void {
-        const avatarList = this._avatarMixer?.avatarList;
-        if (avatarList) {
-            Log.debug(Log.types.AVATAR,
-                `VScene._handleAvatarAdded. Session ID: ${sessionID.stringify()}`);
-
-            const domain = avatarList.getAvatar(sessionID);
-            domain.skeletonModelURLChanged.connect(() => {
-                this._handleAvatarSkeletonModelURLChanged(sessionID, domain);
-            });
-        }
-    }
-
-    private _handleAvatarRemoved(sessionID:Uuid): void {
-        Log.debug(Log.types.AVATAR,
-            `VScene._handleAvatarRemoved. Session ID: ${sessionID.stringify()}`);
-
-        const domain = this._avatarMixer?.avatarList.getAvatar(sessionID);
-        if (domain) {
-            const avatar = this._avatarList.get(sessionID);
-            if (avatar) {
-                avatar.dispose();
-                this._avatarList["delete"](sessionID);
-            }
-        }
-    }
-
-    private _handleAvatarSkeletonModelURLChanged(sessionID:Uuid, domain:ScriptAvatar): void {
-        Log.debug(Log.types.AVATAR,
-            `VScene._handleAvatarSkeletonModelURLChanged. Session ID: ${sessionID.stringify()}, ${domain.skeletonModelURL}`);
-
-        const avatar = this._avatarList.get(sessionID);
-        if (avatar) {
-            avatar.dispose();
-        }
-
-        if (domain.skeletonModelURL !== "" && this._resourceManager) {
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this._resourceManager.loadAvatar(domain.skeletonModelURL).then((mesh) => {
-                const newAvatar = new GameObject("ScriptAvatar_" + sessionID.stringify(), this._scene);
-                this._avatarList.set(sessionID, newAvatar);
-
-                newAvatar.addComponent(new MeshComponent(mesh));
-                newAvatar.addComponent(new ScriptAvatarController(domain));
-            })
-                ["catch"]((error) => {
-                    Log.debug(Log.types.AVATAR,
-                        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                        `fail to load mesh ${domain.skeletonModelURL} : ${error}`);
-                });
-        }
-    }
-
     private _onSceneReady():void {
         requireScriptForNodes(this._scene, this._scene.transformNodes);
 
@@ -638,6 +526,10 @@ export class VScene {
 
                 this._incrementalMeshList = null;
             });
+        }
+
+        if (!this._scene.activeCamera) {
+            this._scene.createDefaultCamera(true, true, true);
         }
     }
 }
