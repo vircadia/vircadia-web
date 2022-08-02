@@ -243,27 +243,42 @@ export class VScene {
         }
     }
 
-    public async GoToTestDomain() : Promise<void> {
+    public async goToDomain() : Promise<void> {
         this._engine.displayLoadingUI();
         this._scene.detachControl();
         this._preScene = this._scene;
 
         this._createScene();
-        this._scene.createDefaultCamera(true, true, true);
-
-        if (this._scene.activeCamera) {
-            this._scene.activeCamera.position = new Vector3(0, 4, 8);
-            this._scene.activeCamera.minZ = 0.1;
-            this._scene.activeCamera.maxZ = 2000;
+        await this._loadMyAvatar();
+        // setup avatar
+        if (this._myAvatar) {
+            this._myAvatar.position = new Vector3(0, 0, 0);
+            this._myAvatar.rotation = new Vector3(0, 0, 0);
         }
 
-        await this.loadEntities("http://localhost:8080/assets/scenes/campus.json");
+        // setup camera
+        const camera = this._camera as ArcRotateCamera;
+        if (camera) {
+            camera.minZ = 1;
+            camera.maxZ = 2500;
+            camera.alpha = -Math.PI / 2;
+            camera.beta = Math.PI / 2;
+            camera.parent = this._myAvatar as Mesh;
+        }
+
+        await this.loadEntities("http://localhost:8080/assets/scenes/default.json");
 
         this._preScene.dispose();
         this._preScene = null;
 
+        this._scene.executeWhenReady(this._onSceneReady.bind(this));
         await this._scene.whenReadyAsync();
         this._engine.hideLoadingUI();
+    }
+
+    public loadEntity(props: IEntityProperties) : void {
+        const entityBuilder = new EntityBuilder();
+        entityBuilder.createEntity(props, this._scene);
     }
 
     public async loadEntities(url: string) : Promise<void> {
@@ -458,6 +473,7 @@ export class VScene {
         const sceneManager = new GameObject("SceneManager", this._scene);
 
         this._domainController = new DomainController();
+        this._domainController.vscene = this;
         this._domainController.resourceManager = this._resourceManager;
         sceneManager.addComponent(this._domainController);
     }
@@ -495,7 +511,7 @@ export class VScene {
             case "KeyE":
                 if (process.env.NODE_ENV === "development"
                             && evt.sourceEvent.shiftKey) {
-                    await this.GoToTestDomain();
+                    await this.goToDomain();
                 }
                 break;
 

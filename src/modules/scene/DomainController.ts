@@ -19,22 +19,41 @@ import { AvatarController, ScriptAvatarController, MyAvatarController } from "@M
 import { ResourceManager } from "./resource";
 // Domain Modules
 import { DomainMgr } from "@Modules/domain";
-import { AssignmentClientState } from "@Modules/domain/client";
+import { Client, AssignmentClientState } from "@Modules/domain/client";
 import { Domain, ConnectionState } from "@Modules/domain/domain";
-import { AvatarMixer, Uuid, ScriptAvatar, DomainServer } from "@vircadia/web-sdk";
+import { AvatarMixer, Uuid, ScriptAvatar, DomainServer,
+    EntityServer, EntityProperties } from "@vircadia/web-sdk";
+import { EntityType, DomainEntityPropertiesAdaptor, createDomainEntityAdaptor } from "@Modules/entity";
+import { VScene } from "./vscene";
 
 
 const DefaultAvatarUrl = "https://staging.vircadia.com/O12OR634/UA92/sara.glb";
 
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function logObjectProperties(obj: any) : void {
+    const proertyNames = Object.getOwnPropertyNames(obj);
+    proertyNames.forEach((name) => {
+
+        if (obj[name]) {
+            console.log(Log.types.ENTITIES, `property ${name} :`, obj[name]);
+        }
+    });
+}
+
 export class DomainController extends ScriptComponent {
     _avatarMixer : Nullable<AvatarMixer> = null;
+    _entityServer : Nullable<EntityServer> = null;
     _myAvatar: Nullable<GameObject> = null;
     _avatarList : Map<Uuid, GameObject>;
     _resourceManager : Nullable<ResourceManager> = null;
     _domainConnectionState : ConnectionState = ConnectionState.DISCONNECTED;
+    _entityProperties : Map<string, DomainEntityPropertiesAdaptor>;
+    _vscene : Nullable<VScene>;
     constructor() {
         super("DomainController");
         this._avatarList = new Map<Uuid, GameObject>();
+        this._entityProperties = new Map<string, DomainEntityPropertiesAdaptor>();
     }
 
     public set resourceManager(value : ResourceManager) {
@@ -45,8 +64,12 @@ export class DomainController extends ScriptComponent {
         this._myAvatar = value;
     }
 
+    public set vscene(value : VScene) {
+        this._vscene = value;
+    }
+
     @inspectorAccessor()
-    public get domainConnectionState(): string {
+    public get domainState(): string {
         return DomainServer.stateToString(this._domainConnectionState);
     }
 
@@ -56,6 +79,14 @@ export class DomainController extends ScriptComponent {
             ? AvatarMixer.stateToString(this._avatarMixer.state)
             : AvatarMixer.stateToString(AssignmentClientState.UNAVAILABLE);
     }
+
+    @inspectorAccessor()
+    public get entityServerState(): string {
+        return this._entityServer
+            ? Client.stateToString(this._entityServer.state)
+            : Client.stateToString(AssignmentClientState.UNAVAILABLE);
+    }
+
 
     /**
     * Gets a string identifying the type of this Component
@@ -76,7 +107,9 @@ export class DomainController extends ScriptComponent {
 
     /*
     public onUpdate():void {
-
+        if (this._entityServer) {
+            this._entityServer.update();
+        }
     } */
 
     private _handleActiveDomainStateChange(pDomain: Domain, pState: ConnectionState, pInfo: string): void {
@@ -119,6 +152,15 @@ export class DomainController extends ScriptComponent {
                 });
             }
 
+            // this._entityServer = new EntityServer(pDomain.ContextId);
+            this._entityServer = pDomain.EntityClient;
+            if (this._entityServer) {
+                this._entityServer.onStateChanged = this._handleOnEntityServerStateChanged.bind(this);
+                this._entityServer.entityData.connect(this._handleOnEntityData.bind(this));
+            }
+
+            this._vscene?.goToDomain();
+
         } else if (pState === ConnectionState.DISCONNECTED) {
             Log.debug(Log.types.AVATAR, `VScene._handleActiveDomainStateChange: ${Domain.stateToString(pState)}`);
 
@@ -131,6 +173,8 @@ export class DomainController extends ScriptComponent {
                 const myAvatarController = this._myAvatar.getComponent("MyAvatarController") as MyAvatarController;
                 myAvatarController.myAvatar = null;
             }
+
+            this._entityServer = null;
         }
     }
 
@@ -185,5 +229,46 @@ export class DomainController extends ScriptComponent {
                         `fail to load mesh ${domain.skeletonModelURL} : ${error}`);
                 });
         }
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    private _handleOnEntityServerStateChanged(state: AssignmentClientState): void {
+        Log.info(Log.types.ENTITIES,
+            `Entity Sever state changed. New state: ${Client.stateToString(state)}`);
+        /*
+        if (state === AssignmentClientState.CONNECTED) {
+
+        } */
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    private _handleOnEntityData(data : EntityProperties[]): void {
+        data.forEach((proerties) => {
+            const id = proerties.entityItemID.stringify();
+            const entity = this._entityProperties.get(id);
+            if (entity) {
+                Log.debug(Log.types.ENTITIES,
+                    `Update entity ${id}
+                    name:${proerties.name as string}
+                    type: ${proerties.entityType}`);
+
+                entity.update(proerties);
+            } else {
+                Log.debug(Log.types.ENTITIES,
+                    `Add new entity ${id}
+                    name:${proerties.name as string}
+                    type: ${proerties.entityType}`);
+
+                const props = createDomainEntityAdaptor(proerties);
+                this._entityProperties.set(id, props);
+
+                if (this._vscene) {
+                    if (props.type === EntityType.Box) {
+                        // logObjectProperties(props);
+                        this._vscene.loadEntity(props);
+                    }
+                }
+            }
+        });
     }
 }
