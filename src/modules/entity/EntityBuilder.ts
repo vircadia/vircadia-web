@@ -17,7 +17,8 @@ import {
 
 import { GameObject, MeshComponent, LightComponent } from "@Modules/object";
 import { IEntityProperties, IShapeEntityProperties, ILightEntityProperties,
-    IModelEntityProperties, IZoneEntityProperties } from "./EntityProperties";
+    IModelEntityProperties, IZoneEntityProperties,
+    EntityType } from "./EntityProperties";
 import { ShapeBuilder } from "./ShapeBuilder";
 import { LightBuilder } from "./LightBuilder";
 import { EntityMapper } from "./EntityMapper";
@@ -40,13 +41,13 @@ export class EntityBuilder {
 
     public createEntity(props: IEntityProperties, scene: Nullable<Scene>) : IEntityBuildResult {
         switch (props.type) {
-            case "Box":
+            case EntityType.Box:
                 return this.createBoxEntity(props, scene);
-            case "Light":
+            case EntityType.Light:
                 return this.createLightEntity(props, scene);
-            case "Model":
+            case EntityType.Model:
                 return this.createModelEntity(props, scene);
-            case "Zone":
+            case EntityType.Zone:
                 return this.createZoneEntity(props, scene);
             default:
                 Log.error(Log.types.ENTITIES, `Indvalid entity type: ${props.type}`);
@@ -146,7 +147,7 @@ export class EntityBuilder {
 
         const gameObject = this._gameObject;
         SceneLoader.ImportMesh("",
-            props.modelURL, undefined, this._scene, (meshes) => {
+            props.modelURL as string, undefined, this._scene, (meshes) => {
 
                 gameObject?.addComponent(new MeshComponent(meshes[0]));
 

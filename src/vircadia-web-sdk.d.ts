@@ -328,4 +328,212 @@ declare module "@vircadia/web-sdk" {
         update(): void;
     }
 
+    // Entity
+    // =============================================================================================
+
+    export class EntityServer extends AssignmentClient {
+        constructor(contextID: number);
+        get maxOctreePacketsPerSecond(): number;
+        get entityData(): Signal;
+        update(): void;
+    }
+
+    export enum EntityType {
+        Unknown = 0,
+        Box = 1,
+        Sphere = 2,
+        Shape = 3,
+        Model = 4,
+        Text = 5,
+        Image = 6,
+        Web = 7,
+        ParticleEffect = 8,
+        Line = 9,
+        PolyLine = 10,
+        PolyVox = 11,
+        Grid = 12,
+        Gizmo = 13,
+        Light = 14,
+        Zone = 15,
+        Material = 16,
+        NUM_TYPES = 17
+    }
+
+    export type color = {
+        red: number;
+        green: number;
+        blue: number;
+    };
+
+    export class AACube {
+        constructor(corner: vec3, scale: number);
+        get corner(): vec3;
+        get scale(): number;
+    }
+
+    export type CommonEntityProperties = {
+        entityItemID: Uuid;
+        entityType: EntityType;
+        createdFromBuffer: bigint;
+        lastEdited: bigint;
+        updateDelta: number;
+        simulatedDelta: number;
+        simOwnerData: ArrayBuffer | undefined;
+        parentID: Uuid | null | undefined;
+        parentJointIndex: number | undefined;
+        visible: boolean | undefined;
+        name: string | undefined;
+        locked: boolean | undefined;
+        userData: string | undefined;
+        privateUserData: string | undefined;
+        href: string | undefined;
+        description: string | undefined;
+        position: vec3 | undefined;
+        dimensions: vec3 | undefined;
+        rotation: quat | undefined;
+        registrationPoint: vec3 | undefined;
+        created: bigint | undefined;
+        lastEditedBy: Uuid | undefined;
+        queryAACube: AACube | undefined;
+        canCastShadow: boolean | undefined;
+        renderLayer: number | undefined;
+        primitiveMode: number | undefined;
+        ignorePickIntersection: boolean | undefined;
+        renderWithZones: Uuid[] | undefined;
+        billboardMode: number | undefined;
+        grabbable: boolean | undefined;
+        grabKinematic: boolean | undefined;
+        grabFollowsController: boolean | undefined;
+        triggerable: boolean | undefined;
+        grabEquippable: boolean | undefined;
+        delegateToParent: boolean | undefined;
+        equippableLeftPositionOffset: vec3 | undefined;
+        equippableLeftRotationOffset: quat | undefined;
+        equippableRightPositionOffset: vec3 | undefined;
+        equippableRightRotationOffset: quat | undefined;
+        equippableIndicatorURL: string | undefined;
+        equippableIndicatorScale: vec3 | undefined;
+        equippableIndicatorOffset: vec3 | undefined;
+        density: number | undefined;
+        velocity: vec3 | undefined;
+        angularVelocity: vec3 | undefined;
+        gravity: vec3 | undefined;
+        acceleration: vec3 | undefined;
+        damping: number | undefined;
+        angularDampling: number | undefined;
+        restitution: number | undefined;
+        friction: number | undefined;
+        lifetime: number | undefined;
+        collisionless: boolean | undefined;
+        collisionMask: number | undefined;
+        dynamic: boolean | undefined;
+        collisionSoundURL: string | undefined;
+        actionData: ArrayBuffer | undefined;
+        cloneable: boolean | undefined;
+        cloneLifetime: number | undefined;
+        cloneLimit: number | undefined;
+        cloneDynamic: boolean | undefined;
+        cloneAvatarIdentity: boolean | undefined;
+        cloneOriginID: Uuid | undefined;
+        script: string | undefined;
+        scriptTimestamp: bigint | undefined;
+        serverScripts: string | undefined;
+        itemName: string | undefined;
+        itemDescription: string | undefined;
+        itemCategories: string | undefined;
+        itemArtist: string | undefined;
+        itemLicense: string | undefined;
+        limitedRun: number | undefined;
+        marketplaceID: string | undefined;
+        editionNumber: number | undefined;
+        entityInstanceNumber: number | undefined;
+        certificateID: string | undefined;
+        certificateType: string | undefined;
+        staticCertificateVersion: number | undefined;
+    };
+
+    export type AnimationProperties = {
+        animationURL: string | undefined;
+        animationAllowTranslation: boolean | undefined;
+        animationFPS: number | undefined;
+        animationFrameIndex: number | undefined;
+        animationPlaying: boolean | undefined;
+        animationLoop: boolean | undefined;
+        animationFirstFrame: number | undefined;
+        animationLastFrame: number | undefined;
+        animationHold: boolean | undefined;
+    };
+
+    export type ModelEntitySubclassProperties = {
+        shapeType: number | undefined;
+        compoundShapeURL: string | undefined;
+        color: color | undefined;
+        textures: string | undefined;
+        modelURL: string | undefined;
+        modelScale: vec3 | undefined;
+        jointRotationsSet: boolean[] | undefined;
+        jointRotations: quat[] | undefined;
+        jointTranslationsSet: boolean[] | undefined;
+        jointTranslations: vec3[] | undefined;
+        groupCulled: boolean | undefined;
+        relayParentJoints: boolean | undefined;
+        blendShapeCoefficients: string | undefined;
+        useOriginalPivot: boolean | undefined;
+        animation: AnimationProperties | undefined;
+    };
+
+    export type ModelEntityProperties = CommonEntityProperties & ModelEntitySubclassProperties;
+
+    export enum Shape {
+        CIRCLE = "Circle",
+        CONE = "Cone",
+        CUBE = "Cube",
+        CYLINDER = "Cylinder",
+        DODECAHEDRON = "Dodecahedron",
+        HEXAGON = "Hexagon",
+        ICOSAHEDRON = "Icosahedron",
+        OCTAGON = "Octagon",
+        OCTAHEDRON = "Octahedron",
+        QUAD = "Quad",
+        SPHERE = "Sphere",
+        TETRAHEDRON = "Tetrahedron",
+        TORUS = "Torus",
+        TRIANGLE = "Triangle"
+    }
+    export type ShapeEntitySubclassProperties = {
+        shape: Shape | undefined;
+        color: color | undefined;
+        alpha: number | undefined;
+    };
+    export type ShapeEntityProperties = CommonEntityProperties & ShapeEntitySubclassProperties;
+
+    export type TextEntityProperties = CommonEntityProperties;
+
+    export type ImageEntityProperties = CommonEntityProperties;
+
+    export type WebEntityProperties = CommonEntityProperties;
+
+    export type ParticleEffectEntityProperties = CommonEntityProperties;
+
+    export type LineEntityProperties = CommonEntityProperties;
+
+    export type PolyLineEntityProperties = CommonEntityProperties;
+
+    export type PolyVoxEntityProperties = CommonEntityProperties;
+
+    export type GridEntityProperties = CommonEntityProperties;
+
+    export type GizmoEntityProperties = CommonEntityProperties;
+
+    export type LightEntityProperties = CommonEntityProperties;
+
+    export type ZoneEntityProperties = CommonEntityProperties;
+
+    export type MaterialEntityProperties = CommonEntityProperties;
+
+    export type EntityProperties = ModelEntityProperties | ShapeEntityProperties | TextEntityProperties |
+    ImageEntityProperties | WebEntityProperties | ParticleEffectEntityProperties | LineEntityProperties |
+    PolyLineEntityProperties | PolyVoxEntityProperties | GridEntityProperties | GizmoEntityProperties |
+    LightEntityProperties | ZoneEntityProperties | MaterialEntityProperties;
+
 }

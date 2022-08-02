@@ -28,7 +28,7 @@ export interface IColorProperty {
     red: number;
     green: number;
     blue: number;
-    alpha?: number;
+    // alpha?: number;
 }
 
 export interface IAmbientLightProperty {
