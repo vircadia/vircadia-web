@@ -18,6 +18,7 @@ import {
 
 import { IShapeEntityProperties } from "./EntityProperties";
 import { EntityMapper } from "./EntityMapper";
+import { Shape } from "@vircadia/web-sdk";
 
 export class ShapeBuilder {
     public static createShape(props: IShapeEntityProperties) : Mesh {
@@ -25,7 +26,7 @@ export class ShapeBuilder {
             case "Cube":
                 return ShapeBuilder.createBox(props);
             default:
-                throw new Error(`Invalid shape type ${props.shape}`);
+                throw new Error(`Invalid shape type ${props.shape as Shape}`);
         }
     }
 
@@ -36,7 +37,8 @@ export class ShapeBuilder {
                 props.color.red,
                 props.color.green,
                 props.color.blue,
-                props.color.alpha ?? 1);
+                props.alpha);
+                // props.color.alpha ?? 1);
 
             // eslint-disable-next-line @typescript-eslint/no-magic-numbers
             for (let i = 0; i < 6; i++) {

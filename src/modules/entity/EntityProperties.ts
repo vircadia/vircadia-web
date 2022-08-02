@@ -14,19 +14,55 @@ import { IVector3Property, IQuaternionProperty,
     IGrabProperty, IColorProperty } from "./Properties";
 
 
-export type EntityType = "Model" | "Box" |
-"Light" | "Text" | "Image" | "Web" | "Zone" | "Particle" | "Material";
+// export type EntityType = "Model" | "Box" |
+// "Light" | "Text" | "Image" | "Web" | "Zone" | "Particle" | "Material";
 
-export type Shape = "Cube" | "Sphere";
+// export type Shape = "Cube" | "Sphere";
+
+export enum EntityType {
+    Unknown = "Unknown",
+    Box = "Box",
+    Sphere = "Sphere",
+    Model = "Model",
+    Text = "Text",
+    Image = "Image",
+    Web = "Web",
+    ParticleEffect = "ParticleEffect",
+    Line = "Line",
+    PolyLine = "PolyLine",
+    PolyVox = "PolyVox",
+    Grid = "Grid",
+    Gizmo = "Gizmo",
+    Light = "Light",
+    Zone = "Zone",
+    Material = "Material"
+}
+
+export enum Shape {
+    CIRCLE = "Circle",
+    CONE = "Cone",
+    CUBE = "Cube",
+    CYLINDER = "Cylinder",
+    DODECAHEDRON = "Dodecahedron",
+    HEXAGON = "Hexagon",
+    ICOSAHEDRON = "Icosahedron",
+    OCTAGON = "Octagon",
+    OCTAHEDRON = "Octahedron",
+    QUAD = "Quad",
+    SPHERE = "Sphere",
+    TETRAHEDRON = "Tetrahedron",
+    TORUS = "Torus",
+    TRIANGLE = "Triangle"
+}
 
 export type ShapeType = "box" | "sphere" | "cylinder";
 
 export type CollisionTarget = "static" | "dynamic" | "kinematic" | "otherAvatar" | "myAvatar";
 
 export interface ISpatialProperties {
-    position?: IVector3Property;
-    rotation?: IQuaternionProperty;
-    dimensions?: IVector3Property;
+    position?: IVector3Property | undefined;
+    rotation?: IQuaternionProperty | undefined;
+    dimensions?: IVector3Property | undefined;
 }
 
 export interface ICollisionProperties {
@@ -40,13 +76,14 @@ export interface IBehaviorProperties extends ICollisionProperties {
 }
 
 export interface IShapeProperties {
-    shape: Shape;
-    color?: IColorProperty;
+    shape: Shape | undefined;
+    color?: IColorProperty | undefined;
+    alpha?: number | undefined;
 }
 
 export interface IModelEProperties {
-    modelURL: string;
-    shapeType: string;
+    modelURL: string | undefined;
+    shapeType: string | undefined;
 }
 
 export interface ILightProperties {
@@ -70,12 +107,12 @@ export interface IZoneProperties {
 export interface IEntityProperties extends ISpatialProperties {
     id: string;
     type: EntityType;
-    created: Date;
-    lastEdited: Date;
-    lastEditedBy: Date;
-    name?: string;
-    parentID?: string;
-    visible?: boolean;
+    created?: Date;
+    lastEdited?: Date;
+    lastEditedBy?: Date;
+    name?: string | undefined;
+    parentID?: string | undefined;
+    visible?: boolean | undefined;
 }
 
 export interface IModelEntityProperties extends
