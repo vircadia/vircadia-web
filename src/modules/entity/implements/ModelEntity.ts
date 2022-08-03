@@ -9,20 +9,21 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { EntityType, IModelEntityProperties } from "../EntityProperties";
+import { EntityType } from "../EntityProperties";
+import { IModelEntity } from "../IEntity";
 import { Observable } from "@babylonjs/core";
 import { Entity } from "./Entity";
 import { EntityProperties, ModelEntityProperties } from "@vircadia/web-sdk";
 
-export class ModelEntity extends Entity implements IModelEntityProperties {
+export class ModelEntity extends Entity implements IModelEntity {
     protected _modelURL = "";
     protected _shapeType: string | undefined;
-    protected _onModelURLChanged : Observable<IModelEntityProperties>;
+    protected _onModelURLChanged : Observable<IModelEntity>;
     _isModelURLChanged = false;
 
     constructor(id : string) {
         super(id, EntityType.Model);
-        this._onModelURLChanged = new Observable<IModelEntityProperties>();
+        this._onModelURLChanged = new Observable<IModelEntity>();
     }
 
     public get modelURL(): string | undefined {

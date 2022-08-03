@@ -9,28 +9,29 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { IEntityProperties, EntityType } from "./EntityProperties";
+import { EntityType } from "./EntityProperties";
+import { IEntity } from "./IEntity";
 import { Observable } from "@babylonjs/core";
 import { EntityProperties } from "@vircadia/web-sdk";
-import { DomainEntityType } from "./DomainProperties";
+import { DomainEntityType } from "./implements/DomainProperties";
 import { Entity, ShapeEntity, ModelEntity } from "./implements";
 
 export class EntityManager {
     _entities : Map<string, Entity>;
-    _onEntityAdded : Observable<IEntityProperties>;
-    _onEntityRemoved : Observable<IEntityProperties>;
+    _onEntityAdded : Observable<IEntity>;
+    _onEntityRemoved : Observable<IEntity>;
 
     constructor() {
         this._entities = new Map<string, Entity>();
-        this._onEntityAdded = new Observable<IEntityProperties>();
-        this._onEntityRemoved = new Observable<IEntityProperties>();
+        this._onEntityAdded = new Observable<IEntity>();
+        this._onEntityRemoved = new Observable<IEntity>();
     }
 
     public hasEntity(id : string) : boolean {
         return this._entities.has(id);
     }
 
-    public getEntity(id : string) : IEntityProperties | undefined {
+    public getEntity(id : string) : IEntity | undefined {
         return this._entities.get(id);
     }
 
@@ -49,7 +50,7 @@ export class EntityManager {
         this.clear();
     }
 
-    public createEntity(props : EntityProperties) : IEntityProperties {
+    public createEntity(props : EntityProperties) : IEntity {
         let entity = undefined;
         switch (props.entityType) {
             case DomainEntityType.Box as number:

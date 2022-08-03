@@ -16,13 +16,10 @@ import {
 } from "@babylonjs/core";
 
 import { GameObject, MeshComponent, LightComponent } from "@Modules/object";
-import { IEntityProperties, IShapeEntityProperties, ILightEntityProperties,
-    IModelEntityProperties, IZoneEntityProperties,
-    EntityType } from "./EntityProperties";
-import { ShapeBuilder } from "./ShapeBuilder";
-import { LightBuilder } from "./LightBuilder";
-import { EntityMapper } from "./EntityMapper";
-import { EnvironmentBuilder } from "./EnvironmentBuilder";
+import { EntityType } from "./EntityProperties";
+import { IEntity, IShapeEntity, ILightEntity,
+    IModelEntity, IZoneEntity } from "./IEntity";
+import { ShapeBuilder, LightBuilder, EntityMapper, EnvironmentBuilder } from "./builders";
 import Log from "@Modules/debugging/log";
 
 export interface IEntityBuildResult {
@@ -37,9 +34,9 @@ export interface IEntityMetaData {
 export class EntityBuilder {
     _gameObject: Nullable<GameObject>;
     _scene : Nullable<Scene>;
-    _props: Nullable<IEntityProperties>;
+    _props: Nullable<IEntity>;
 
-    public createEntity(props: IEntityProperties, scene: Nullable<Scene>) : IEntityBuildResult {
+    public createEntity(props: IEntity, scene: Nullable<Scene>) : IEntityBuildResult {
         switch (props.type) {
             case EntityType.Box:
                 return this.createBoxEntity(props, scene);
@@ -55,7 +52,7 @@ export class EntityBuilder {
         }
     }
 
-    public createBoxEntity(props: IEntityProperties, scene: Nullable<Scene>) : IEntityBuildResult {
+    public createBoxEntity(props: IEntity, scene: Nullable<Scene>) : IEntityBuildResult {
         Log.debug(Log.types.ENTITIES,
             `Create Box Entity ${EntityMapper.getEntityName(props)}`);
 
@@ -64,7 +61,7 @@ export class EntityBuilder {
             .endBuildEntity();
     }
 
-    public createLightEntity(props: IEntityProperties, scene: Nullable<Scene>) : IEntityBuildResult {
+    public createLightEntity(props: IEntity, scene: Nullable<Scene>) : IEntityBuildResult {
         Log.debug(Log.types.ENTITIES,
             `Create Light Entity ${EntityMapper.getEntityName(props)}`);
 
@@ -73,7 +70,7 @@ export class EntityBuilder {
             .endBuildEntity();
     }
 
-    public createModelEntity(props: IEntityProperties, scene: Nullable<Scene>) : IEntityBuildResult {
+    public createModelEntity(props: IEntity, scene: Nullable<Scene>) : IEntityBuildResult {
         Log.debug(Log.types.ENTITIES,
             `Create Model Entity ${EntityMapper.getEntityName(props)}`);
 
@@ -82,7 +79,7 @@ export class EntityBuilder {
             .endBuildEntity();
     }
 
-    public createZoneEntity(props: IEntityProperties, scene: Nullable<Scene>) : IEntityBuildResult {
+    public createZoneEntity(props: IEntity, scene: Nullable<Scene>) : IEntityBuildResult {
         Log.debug(Log.types.ENTITIES,
             `Create Zone Entity ${EntityMapper.getEntityName(props)}`);
         return this.beginBuildEntity(props, scene)
@@ -90,7 +87,7 @@ export class EntityBuilder {
             .endBuildEntity();
     }
 
-    public beginBuildEntity(props: IEntityProperties, scene: Nullable<Scene>) : EntityBuilder {
+    public beginBuildEntity(props: IEntity, scene: Nullable<Scene>) : EntityBuilder {
         this._props = props;
         this._scene = scene;
         this._gameObject = new GameObject(EntityMapper.getEntityName(props), scene);
@@ -130,7 +127,7 @@ export class EntityBuilder {
             please call _beginBuildEntity before call this function.`);
         }
 
-        const mesh = ShapeBuilder.createShape(this._props as IShapeEntityProperties);
+        const mesh = ShapeBuilder.createShape(this._props as IShapeEntity);
         const meshComponent = new MeshComponent(mesh);
         this._gameObject.addComponent(meshComponent);
 
@@ -143,7 +140,7 @@ export class EntityBuilder {
             please call _beginBuildEntity before call this function.`);
         }
 
-        const props = this._props as IModelEntityProperties;
+        const props = this._props as IModelEntity;
         if (!props.modelURL) {
             throw new Error(`undefined model url of Model Entity.`);
         }
@@ -187,7 +184,7 @@ export class EntityBuilder {
             please call _beginBuildEntity before call this function.`);
         }
 
-        const light = LightBuilder.createPointLight(this._props as ILightEntityProperties,
+        const light = LightBuilder.createPointLight(this._props as ILightEntity,
             this._scene);
         const comp = new LightComponent(light);
         this._gameObject.addComponent(comp);
@@ -201,7 +198,7 @@ export class EntityBuilder {
             please call _beginBuildEntity before call this function.`);
         }
 
-        const props = this._props as IZoneEntityProperties;
+        const props = this._props as IZoneEntity;
 
         if (props.keyLight) {
             const light = LightBuilder.createKeyLight(props.keyLight, this._scene);
