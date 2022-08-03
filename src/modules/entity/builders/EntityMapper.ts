@@ -15,8 +15,8 @@ import {
     Vector3
 } from "@babylonjs/core";
 
-import { IVector3Property, IQuaternionProperty, IColorProperty } from "./Properties";
-import { IEntityProperties } from "./EntityProperties";
+import { IVector3Property, IQuaternionProperty, IColorProperty } from "../EntityProperties";
+import { IEntity } from "../IEntity";
 
 
 /* eslint-disable new-cap */
@@ -34,7 +34,7 @@ export class EntityMapper {
         return c ? new Color3(c.red, c.green, c.blue) : Color3.White();
     }
 
-    public static getEntityName(props: IEntityProperties) : string {
+    public static getEntityName(props: IEntity) : string {
         return props.name ?? props.type + "_" + props.id;
     }
 }

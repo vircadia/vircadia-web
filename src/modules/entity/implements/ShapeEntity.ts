@@ -9,14 +9,14 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { IColorProperty } from "../Properties";
-import { EntityType, IShapeEntityProperties, Shape } from "../EntityProperties";
+import { IColorProperty, EntityType, Shape } from "../EntityProperties";
+import { IShapeEntity } from "../IEntity";
 import { Observable } from "@babylonjs/core";
 import { Entity } from "./Entity";
 import { EntityProperties, ShapeEntityProperties } from "@vircadia/web-sdk";
 
-export class ShapeEntity extends Entity implements IShapeEntityProperties {
-    protected _onShapeEntityChanged : Observable<IShapeEntityProperties>;
+export class ShapeEntity extends Entity implements IShapeEntity {
+    protected _onShapeEntityChanged : Observable<IShapeEntity>;
 
     protected _shape: Shape | undefined;
 
@@ -26,7 +26,7 @@ export class ShapeEntity extends Entity implements IShapeEntityProperties {
 
     constructor(id : string, type : EntityType) {
         super(id, type);
-        this._onShapeEntityChanged = new Observable<IShapeEntityProperties>();
+        this._onShapeEntityChanged = new Observable<IShapeEntity>();
     }
 
     public get shape(): Shape | undefined {

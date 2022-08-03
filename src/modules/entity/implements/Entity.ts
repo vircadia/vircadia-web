@@ -9,13 +9,13 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { IVector3Property, IQuaternionProperty } from "../Properties";
-import { EntityType, IEntityProperties } from "../EntityProperties";
+import { IVector3Property, IQuaternionProperty, EntityType } from "../EntityProperties";
+import { IEntity } from "../IEntity";
 import { Observable } from "@babylonjs/core";
 import { EntityProperties } from "@vircadia/web-sdk";
 
-export class Entity implements IEntityProperties {
-    protected _onChanged : Observable<IEntityProperties>;
+export class Entity implements IEntity {
+    protected _onChanged : Observable<IEntity>;
     protected _id : string;
     protected _type : EntityType;
     protected _name: string | undefined;
@@ -28,7 +28,7 @@ export class Entity implements IEntityProperties {
     constructor(id : string, type : EntityType) {
         this._id = id;
         this._type = type;
-        this._onChanged = new Observable<IEntityProperties>();
+        this._onChanged = new Observable<IEntity>();
     }
 
     public get id() : string {

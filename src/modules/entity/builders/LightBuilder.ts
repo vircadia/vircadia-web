@@ -15,12 +15,12 @@ import {
     Scene, Vector3, DirectionalLight
 } from "@babylonjs/core";
 
-import { IKeyLightProperty } from "./Properties";
-import { ILightEntityProperties } from "./EntityProperties";
+import { IKeyLightProperty } from "../EntityProperties";
+import { ILightEntity } from "../IEntity";
 import { EntityMapper } from "./EntityMapper";
 
 export class LightBuilder {
-    public static createPointLight(props: ILightEntityProperties, scene: Scene) : Light {
+    public static createPointLight(props: ILightEntity, scene: Scene) : Light {
         if (props.isSpotlight) {
             const light = new SpotLight(
                 "SpotLight",
