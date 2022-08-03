@@ -144,10 +144,16 @@ export class EntityBuilder {
         }
 
         const props = this._props as IModelEntityProperties;
+        if (!props.modelURL) {
+            throw new Error(`undefined model url of Model Entity.`);
+        }
+
+        Log.debug(Log.types.ENTITIES,
+            `Load model: ${props.modelURL}`);
 
         const gameObject = this._gameObject;
         SceneLoader.ImportMesh("",
-            props.modelURL as string, undefined, this._scene, (meshes) => {
+            props.modelURL, undefined, this._scene, (meshes) => {
 
                 gameObject?.addComponent(new MeshComponent(meshes[0]));
 

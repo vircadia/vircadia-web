@@ -44,18 +44,9 @@
     },
     "shapeType": "box",
     "ambientLight": {
-        "ambientIntensity": 0.20000000298023224,
-        "ambientURL": "https://aitolda.s3.amazonaws.com/Vircadia/DemoWorld/Skybox/Forest360.jpg"
+        "ambientIntensity": 1.0
     },
-    "skybox": {
-        "color": {
-            "red": 255,
-            "green": 255,
-            "blue": 255
-        },        
-		"url": "https://assets.babylonjs.com/textures/TropicalSunnyDay"
-    },
-    
+        
     "keyLightMode": "enabled",
     "ambientLightMode": "enabled",
     "skyboxMode": "enabled",
