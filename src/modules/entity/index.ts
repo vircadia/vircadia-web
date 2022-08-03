@@ -1,5 +1,5 @@
 //
-//  DomainAdaptor.ts
+//  index.ts
 //
 //  Created by Nolan Huang on 26 Jul 2022.
 //  Copyright 2022 Vircadia contributors.
@@ -12,4 +12,4 @@
 export { IEntityProperties, EntityType } from "./EntityProperties";
 export { IEntityDescription } from "./EntityDescription";
 export { EntityBuilder } from "./EntityBuilder";
-export { DomainEntityPropertiesAdaptor, createDomainEntityAdaptor } from "./DomainAdaptor";
+export { EntityManager } from "./EntityManager";

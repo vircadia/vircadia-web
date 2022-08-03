@@ -13,17 +13,16 @@
 import {
     MeshBuilder,
     Mesh,
-    Color4
+    StandardMaterial
 } from "@babylonjs/core";
 
-import { IShapeEntityProperties } from "./EntityProperties";
+import { Shape, IShapeEntityProperties } from "./EntityProperties";
 import { EntityMapper } from "./EntityMapper";
-import { Shape } from "@vircadia/web-sdk";
 
 export class ShapeBuilder {
     public static createShape(props: IShapeEntityProperties) : Mesh {
         switch (props.shape) {
-            case "Cube":
+            case Shape.CUBE:
                 return ShapeBuilder.createBox(props);
             default:
                 throw new Error(`Invalid shape type ${props.shape as Shape}`);
@@ -31,33 +30,25 @@ export class ShapeBuilder {
     }
 
     public static createBox(props: IShapeEntityProperties) : Mesh {
-        const colors: Color4[] = [];
+        const dimensions = props.dimensions
+            ? { width: props.dimensions.x,
+                height: props.dimensions.y,
+                depth: props.dimensions.z }
+            : undefined;
+
+        const box = MeshBuilder.CreateBox(
+            "Box",
+            dimensions);
+
         if (props.color) {
-            const color = new Color4(
-                props.color.red,
-                props.color.green,
-                props.color.blue,
-                props.alpha);
-                // props.color.alpha ?? 1);
-
-            // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-            for (let i = 0; i < 6; i++) {
-                colors.push(color);
-            }
-
+            const mat = new StandardMaterial("Box_" + props.id);
+            const color = EntityMapper.mapToColor3(props.color);
+            mat.diffuseColor = color;
+            mat.specularColor = color;
+            mat.alpha = props.alpha ?? mat.alpha;
+            box.material = mat;
         }
 
-        if (props.dimensions) {
-            return MeshBuilder.CreateBox(
-                "Box",
-                { width: props.dimensions.x,
-                    height: props.dimensions.y,
-                    depth: props.dimensions.z,
-                    faceColors: colors });
-        }
-
-        return MeshBuilder.CreateBox(
-            EntityMapper.getEntityName(props),
-            { faceColors: colors });
+        return box;
     }
 }

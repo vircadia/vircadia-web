@@ -23,7 +23,7 @@ import { Client, AssignmentClientState } from "@Modules/domain/client";
 import { Domain, ConnectionState } from "@Modules/domain/domain";
 import { AvatarMixer, Uuid, ScriptAvatar, DomainServer,
     EntityServer, EntityProperties } from "@vircadia/web-sdk";
-import { EntityType, DomainEntityPropertiesAdaptor, createDomainEntityAdaptor } from "@Modules/entity";
+import { EntityManager } from "@Modules/entity";
 import { VScene } from "./vscene";
 
 
@@ -48,12 +48,12 @@ export class DomainController extends ScriptComponent {
     _avatarList : Map<Uuid, GameObject>;
     _resourceManager : Nullable<ResourceManager> = null;
     _domainConnectionState : ConnectionState = ConnectionState.DISCONNECTED;
-    _entityProperties : Map<string, DomainEntityPropertiesAdaptor>;
+    _entityManager : EntityManager;
     _vscene : Nullable<VScene>;
     constructor() {
         super("DomainController");
         this._avatarList = new Map<Uuid, GameObject>();
-        this._entityProperties = new Map<string, DomainEntityPropertiesAdaptor>();
+        this._entityManager = new EntityManager();
     }
 
     public set resourceManager(value : ResourceManager) {
@@ -105,12 +105,12 @@ export class DomainController extends ScriptComponent {
         DomainMgr.onActiveDomainStateChange.connect(this._handleActiveDomainStateChange.bind(this));
     }
 
-    /*
+
     public onUpdate():void {
-        if (this._entityServer) {
-            this._entityServer.update();
+        if (this._entityManager) {
+            this._entityManager.update();
         }
-    } */
+    }
 
     private _handleActiveDomainStateChange(pDomain: Domain, pState: ConnectionState, pInfo: string): void {
         this._domainConnectionState = pState;
@@ -243,30 +243,23 @@ export class DomainController extends ScriptComponent {
 
     // eslint-disable-next-line class-methods-use-this
     private _handleOnEntityData(data : EntityProperties[]): void {
-        data.forEach((proerties) => {
-            const id = proerties.entityItemID.stringify();
-            const entity = this._entityProperties.get(id);
+        data.forEach((properties) => {
+            const id = properties.entityItemID.stringify();
+            const entity = this._entityManager.getEntity(id);
             if (entity) {
                 Log.debug(Log.types.ENTITIES,
                     `Update entity ${id}
-                    name:${proerties.name as string}
-                    type: ${proerties.entityType}`);
-
-                entity.update(proerties);
+                    name:${properties.name as string}
+                    type: ${properties.entityType}`);
             } else {
                 Log.debug(Log.types.ENTITIES,
                     `Add new entity ${id}
-                    name:${proerties.name as string}
-                    type: ${proerties.entityType}`);
-
-                const props = createDomainEntityAdaptor(proerties);
-                this._entityProperties.set(id, props);
+                    name:${properties.name as string}
+                    type: ${properties.entityType}`);
+                const props = this._entityManager.createEntity(properties);
 
                 if (this._vscene) {
-                    if (props.type === EntityType.Box) {
-                        // logObjectProperties(props);
-                        this._vscene.loadEntity(props);
-                    }
+                    this._vscene.loadEntity(props);
                 }
             }
         });
