@@ -16,11 +16,12 @@ import {
     StandardMaterial
 } from "@babylonjs/core";
 
-import { Shape, IShapeEntityProperties } from "./EntityProperties";
+import { Shape } from "../EntityProperties";
+import { IShapeEntity } from "../IEntity";
 import { EntityMapper } from "./EntityMapper";
 
 export class ShapeBuilder {
-    public static createShape(props: IShapeEntityProperties) : Mesh {
+    public static createShape(props: IShapeEntity) : Mesh {
         switch (props.shape) {
             case Shape.CUBE:
                 return ShapeBuilder.createBox(props);
@@ -29,7 +30,7 @@ export class ShapeBuilder {
         }
     }
 
-    public static createBox(props: IShapeEntityProperties) : Mesh {
+    public static createBox(props: IShapeEntity) : Mesh {
         const dimensions = props.dimensions
             ? { width: props.dimensions.x,
                 height: props.dimensions.y,

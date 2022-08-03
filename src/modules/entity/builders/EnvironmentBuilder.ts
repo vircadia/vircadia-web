@@ -16,11 +16,10 @@ import {
     Mesh, Scene, MeshBuilder, StandardMaterial,
     Texture, CubeTexture, Light, HemisphericLight,
     EquiRectangularCubeTexture, DefaultRenderingPipeline,
-    Vector3,
-    Color3
+    Vector3
 } from "@babylonjs/core";
 
-import { IAmbientLightProperty, ISkyboxProperty, IHazeProperty, IBloomProperty } from "./Properties";
+import { IAmbientLightProperty, ISkyboxProperty, IHazeProperty, IBloomProperty } from "../EntityProperties";
 import { EntityMapper } from "./EntityMapper";
 import { AssetUrl } from "./asset";
 

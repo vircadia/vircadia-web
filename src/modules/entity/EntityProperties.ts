@@ -8,11 +8,69 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
-import { IVector3Property, IQuaternionProperty,
-    IAmbientLightProperty, IKeyLightProperty,
-    ISkyboxProperty, IHazeProperty, IBloomProperty,
-    IGrabProperty, IColorProperty } from "./Properties";
 
+export interface IVector3Property {
+    x: number;
+    y: number;
+    z: number;
+}
+
+export interface IQuaternionProperty {
+    x: number;
+    y: number;
+    z: number;
+    w: number
+}
+
+export interface IColorProperty {
+    red: number;
+    green: number;
+    blue: number;
+    // alpha?: number;
+}
+
+export interface IAmbientLightProperty {
+    ambientIntensity: number;
+    ambientURL? : string;
+}
+
+export interface IKeyLightProperty {
+    color?: IColorProperty;
+    intensity? : number;
+    direction : IVector3Property;
+    castShadows: boolean;
+    shadowBias: number;
+    shadowMaxDistance: number;
+}
+
+export interface ISkyboxProperty {
+    color?: IColorProperty;
+    url?:string;
+}
+
+export interface IHazeProperty {
+    hazeRange: number;
+    hazeColor: IColorProperty;
+    hazeGlareColor: IColorProperty;
+    hazeEnableGlare: boolean;
+    hazeGlareAngle: number;
+    hazeCeiling: number;
+    hazeBaseRef: number;
+    hazeBackgroundBlend: number;
+}
+
+export interface IBloomProperty {
+    bloomIntensity: number;
+    bloomThreshold: number;
+    bloomSize: number;
+}
+
+export interface IGrabProperty {
+    grabbable: boolean;
+    grabFollowsController?: boolean;
+    equippableLeftRotation?: IQuaternionProperty;
+    equippableRightRotation?: IQuaternionProperty;
+}
 
 // export type EntityType = "Model" | "Box" |
 // "Light" | "Text" | "Image" | "Web" | "Zone" | "Particle" | "Material";
@@ -104,7 +162,7 @@ export interface IZoneProperties {
     bloom?: IBloomProperty;
 }
 
-export interface IEntityProperties extends ISpatialProperties {
+export interface IEntityCommonProperties {
     id: string;
     type: EntityType;
     created?: Date;
@@ -113,28 +171,4 @@ export interface IEntityProperties extends ISpatialProperties {
     name?: string | undefined;
     parentID?: string | undefined;
     visible?: boolean | undefined;
-}
-
-export interface IModelEntityProperties extends
-    IEntityProperties,
-    IBehaviorProperties,
-    IModelEProperties {
-}
-
-export interface IShapeEntityProperties extends
-    IEntityProperties,
-    IBehaviorProperties,
-    IShapeProperties {
-}
-
-export interface ILightEntityProperties extends
-    IEntityProperties,
-    IBehaviorProperties,
-    ILightProperties {
-}
-
-export interface IZoneEntityProperties extends
-    IEntityProperties,
-    IBehaviorProperties,
-    IZoneProperties {
 }

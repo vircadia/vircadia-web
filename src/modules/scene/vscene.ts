@@ -25,7 +25,7 @@ import { DomainController } from "./DomainController";
 import { GameObject, MeshComponent } from "@Modules/object";
 import { ScriptComponent, requireScript, requireScriptForNodes } from "@Modules/script";
 import { AvatarController, MyAvatarController } from "@Modules/avatar";
-import { IEntityProperties, IEntityDescription, EntityBuilder } from "@Modules/entity";
+import { IEntity, IEntityDescription, EntityBuilder } from "@Modules/entity";
 
 // General Modules
 import Log from "@Modules/debugging/log";
@@ -276,7 +276,7 @@ export class VScene {
         this._engine.hideLoadingUI();
     }
 
-    public loadEntity(props: IEntityProperties) : void {
+    public loadEntity(props: IEntity) : void {
         const entityBuilder = new EntityBuilder();
         entityBuilder.createEntity(props, this._scene);
     }
