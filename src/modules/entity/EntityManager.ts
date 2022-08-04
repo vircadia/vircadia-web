@@ -10,21 +10,33 @@
 //
 
 import { EntityType } from "./EntityProperties";
-import { IEntity } from "./IEntity";
+import { IEntity } from "./Entities";
 import { Observable } from "@babylonjs/core";
-import { EntityProperties } from "@vircadia/web-sdk";
+import { EntityServer, EntityProperties } from "@vircadia/web-sdk";
 import { DomainEntityType } from "./implements/DomainProperties";
 import { Entity, ShapeEntity, ModelEntity } from "./implements";
 
 export class EntityManager {
+    _entityServer : EntityServer;
     _entities : Map<string, Entity>;
     _onEntityAdded : Observable<IEntity>;
     _onEntityRemoved : Observable<IEntity>;
 
-    constructor() {
+    constructor(entityServer : EntityServer) {
+        this._entityServer = entityServer;
+        this._entityServer.entityData.connect(this._handleOnEntityData.bind(this));
+
         this._entities = new Map<string, Entity>();
         this._onEntityAdded = new Observable<IEntity>();
         this._onEntityRemoved = new Observable<IEntity>();
+    }
+
+    public get onEntityAdded() : Observable<IEntity> {
+        return this._onEntityAdded;
+    }
+
+    public get onEntityRemoved() : Observable<IEntity> {
+        return this._onEntityRemoved;
     }
 
     public hasEntity(id : string) : boolean {
@@ -80,6 +92,17 @@ export class EntityManager {
     public update() : void {
         this._entities.forEach((entity) => {
             entity.update();
+        });
+    }
+
+    private _handleOnEntityData(data : EntityProperties[]): void {
+        data.forEach((props) => {
+            const entity = this._entities.get(props.entityItemID.stringify());
+            if (entity) {
+                entity.copyFormPacketData(props);
+            } else {
+                this.createEntity(props);
+            }
         });
     }
 

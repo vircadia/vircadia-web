@@ -23,7 +23,7 @@ import { Client, AssignmentClientState } from "@Modules/domain/client";
 import { Domain, ConnectionState } from "@Modules/domain/domain";
 import { AvatarMixer, Uuid, ScriptAvatar, DomainServer,
     EntityServer, EntityProperties } from "@vircadia/web-sdk";
-import { EntityManager } from "@Modules/entity";
+import { EntityManager, IEntity } from "@Modules/entity";
 import { VScene } from "./vscene";
 
 
@@ -48,12 +48,11 @@ export class DomainController extends ScriptComponent {
     _avatarList : Map<Uuid, GameObject>;
     _resourceManager : Nullable<ResourceManager> = null;
     _domainConnectionState : ConnectionState = ConnectionState.DISCONNECTED;
-    _entityManager : EntityManager;
+    _entityManager : Nullable<EntityManager> = null;
     _vscene : Nullable<VScene>;
     constructor() {
         super("DomainController");
         this._avatarList = new Map<Uuid, GameObject>();
-        this._entityManager = new EntityManager();
     }
 
     public set resourceManager(value : ResourceManager) {
@@ -152,11 +151,9 @@ export class DomainController extends ScriptComponent {
                 });
             }
 
-            // this._entityServer = new EntityServer(pDomain.ContextId);
             this._entityServer = pDomain.EntityClient;
             if (this._entityServer) {
                 this._entityServer.onStateChanged = this._handleOnEntityServerStateChanged.bind(this);
-                this._entityServer.entityData.connect(this._handleOnEntityData.bind(this));
             }
 
             this._vscene?.goToDomain();
@@ -235,33 +232,32 @@ export class DomainController extends ScriptComponent {
     private _handleOnEntityServerStateChanged(state: AssignmentClientState): void {
         Log.info(Log.types.ENTITIES,
             `Entity Sever state changed. New state: ${Client.stateToString(state)}`);
-        /*
-        if (state === AssignmentClientState.CONNECTED) {
 
-        } */
+        if (state === AssignmentClientState.CONNECTED) {
+            this._entityManager = new EntityManager(this._entityServer as EntityServer);
+            this._entityManager.onEntityAdded.add(this._handleOnEntityAdded.bind(this));
+            this._entityManager.onEntityRemoved.add(this._handleOnEntityRemoved.bind(this));
+        } else if (state === AssignmentClientState.DISCONNECTED) {
+            this._entityManager = null;
+        }
+    }
+
+    private _handleOnEntityAdded(entity : IEntity) {
+        Log.debug(Log.types.ENTITIES,
+            `Add entity ${entity.id}
+            name:${entity.name as string}
+            type: ${entity.type}`);
+
+        this._vscene?.loadEntity(entity);
     }
 
     // eslint-disable-next-line class-methods-use-this
-    private _handleOnEntityData(data : EntityProperties[]): void {
-        data.forEach((properties) => {
-            const id = properties.entityItemID.stringify();
-            const entity = this._entityManager.getEntity(id);
-            if (entity) {
-                Log.debug(Log.types.ENTITIES,
-                    `Update entity ${id}
-                    name:${properties.name as string}
-                    type: ${properties.entityType}`);
-            } else {
-                Log.debug(Log.types.ENTITIES,
-                    `Add new entity ${id}
-                    name:${properties.name as string}
-                    type: ${properties.entityType}`);
-                const props = this._entityManager.createEntity(properties);
+    private _handleOnEntityRemoved(entity : IEntity) {
+        Log.debug(Log.types.ENTITIES,
+            `Remove entity ${entity.id}
+            name:${entity.name as string}
+            type: ${entity.type}`);
 
-                if (this._vscene) {
-                    this._vscene.loadEntity(props);
-                }
-            }
-        });
+        this._vscene?.removeEntity(entity.id);
     }
 }

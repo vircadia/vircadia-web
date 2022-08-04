@@ -18,7 +18,7 @@ import {
 import { GameObject, MeshComponent, LightComponent } from "@Modules/object";
 import { EntityType } from "./EntityProperties";
 import { IEntity, IShapeEntity, ILightEntity,
-    IModelEntity, IZoneEntity } from "./IEntity";
+    IModelEntity, IZoneEntity } from "./Entities";
 import { ShapeBuilder, LightBuilder, EntityMapper, EnvironmentBuilder } from "./builders";
 import Log from "@Modules/debugging/log";
 
