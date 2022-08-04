@@ -16,7 +16,7 @@ import {
 } from "@babylonjs/core";
 
 import { IKeyLightProperty } from "../EntityProperties";
-import { ILightEntity } from "../IEntity";
+import { ILightEntity } from "../Entities";
 import { EntityMapper } from "./EntityMapper";
 
 export class LightBuilder {

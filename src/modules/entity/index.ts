@@ -9,7 +9,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-export { IEntity } from "./IEntity";
+export { IEntity } from "./Entities";
 export { IVector3Property, IQuaternionProperty, IColorProperty,
     IAmbientLightProperty, IKeyLightProperty, ISkyboxProperty,
     IHazeProperty, IBloomProperty, IGrabProperty,

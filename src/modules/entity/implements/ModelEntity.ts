@@ -10,7 +10,7 @@
 //
 
 import { EntityType } from "../EntityProperties";
-import { IModelEntity } from "../IEntity";
+import { IModelEntity } from "../Entities";
 import { Observable } from "@babylonjs/core";
 import { Entity } from "./Entity";
 import { EntityProperties, ModelEntityProperties } from "@vircadia/web-sdk";

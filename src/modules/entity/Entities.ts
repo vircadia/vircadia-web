@@ -11,10 +11,14 @@
 import { IEntityCommonProperties, ISpatialProperties, IBehaviorProperties,
     IModelEProperties, IShapeProperties, ILightProperties,
     IZoneProperties } from "./EntityProperties";
+import { Observable } from "@babylonjs/core";
 
 export interface IEntity extends
     IEntityCommonProperties,
     ISpatialProperties {
+
+    onCommonPropertiesChanged ?: Observable<IEntity>;
+    onPositionAndRotationChanged ?: Observable<IEntity>;
 }
 
 export interface IModelEntity extends
