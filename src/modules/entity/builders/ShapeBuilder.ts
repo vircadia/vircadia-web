@@ -17,7 +17,7 @@ import {
 } from "@babylonjs/core";
 
 import { Shape } from "../EntityProperties";
-import { IShapeEntity } from "../IEntity";
+import { IShapeEntity } from "../Entities";
 import { EntityMapper } from "./EntityMapper";
 
 export class ShapeBuilder {

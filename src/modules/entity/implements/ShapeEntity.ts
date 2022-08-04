@@ -10,7 +10,7 @@
 //
 
 import { IColorProperty, EntityType, Shape } from "../EntityProperties";
-import { IShapeEntity } from "../IEntity";
+import { IShapeEntity } from "../Entities";
 import { Observable } from "@babylonjs/core";
 import { Entity } from "./Entity";
 import { EntityProperties, ShapeEntityProperties } from "@vircadia/web-sdk";

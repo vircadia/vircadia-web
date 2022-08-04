@@ -16,7 +16,7 @@ import {
 } from "@babylonjs/core";
 
 import { IVector3Property, IQuaternionProperty, IColorProperty } from "../EntityProperties";
-import { IEntity } from "../IEntity";
+import { IEntity } from "../Entities";
 
 
 /* eslint-disable new-cap */

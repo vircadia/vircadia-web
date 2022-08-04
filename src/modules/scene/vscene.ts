@@ -276,9 +276,16 @@ export class VScene {
         this._engine.hideLoadingUI();
     }
 
-    public loadEntity(props: IEntity) : void {
+    public loadEntity(entity: IEntity) : void {
         const entityBuilder = new EntityBuilder();
-        entityBuilder.createEntity(props, this._scene);
+        entityBuilder.createEntity(entity, this._scene);
+    }
+
+    public removeEntity(id: string) : void {
+        const mesh = this._scene.getMeshById(id);
+        if (mesh) {
+            this._scene.removeMesh(mesh, true);
+        }
     }
 
     public async loadEntities(url: string) : Promise<void> {
