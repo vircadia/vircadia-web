@@ -9,12 +9,12 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { EntityType } from "./EntityProperties";
 import { IEntity } from "./Entities";
 import { Observable } from "@babylonjs/core";
 import { EntityServer, EntityProperties } from "@vircadia/web-sdk";
 import { DomainEntityType } from "./implements/DomainProperties";
 import { Entity, ShapeEntity, ModelEntity } from "./implements";
+import Log from "@Modules/debugging/log";
 
 export class EntityManager {
     _entityServer : EntityServer;
@@ -66,7 +66,7 @@ export class EntityManager {
         let entity = undefined;
         switch (props.entityType) {
             case DomainEntityType.Box as number:
-                entity = new ShapeEntity(props.entityItemID.stringify(), EntityType.Box);
+                entity = new ShapeEntity(props.entityItemID.stringify(), "Box");
                 break;
             case DomainEntityType.Model as number:
                 entity = new ModelEntity(props.entityItemID.stringify());
@@ -97,6 +97,9 @@ export class EntityManager {
 
     private _handleOnEntityData(data : EntityProperties[]): void {
         data.forEach((props) => {
+            console.log(Log.types.ENTITIES,
+                `Receive entity properties:`, props);
+
             const entity = this._entities.get(props.entityItemID.stringify());
             if (entity) {
                 entity.copyFormPacketData(props);

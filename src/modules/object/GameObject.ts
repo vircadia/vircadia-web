@@ -15,8 +15,6 @@
 /* eslint-disable new-cap */
 
 import {
-    TransformNode,
-    Node,
     Scene,
     Mesh
 } from "@babylonjs/core";
@@ -31,13 +29,22 @@ import Log from "@Modules/debugging/log";
 export class GameObject extends Mesh {
     _components : Map<string, IComponent>;
 
+    static _gameObjects : Array<GameObject> = new Array<GameObject>();
+    static _dontDestroyOnLoadList : Array<GameObject> = new Array<GameObject>();
+
     constructor(name: string, scene?: Nullable<Scene>) {
         super(name, scene);
         this._components = new Map<string, IComponent>();
+
+        GameObject._addGameObject(this);
     }
 
     public get type():string {
         return "GameObject";
+    }
+
+    public get components() : Map<string, IComponent> {
+        return this._components;
     }
 
     /**
@@ -69,5 +76,40 @@ export class GameObject extends Mesh {
             return this._components["delete"](componentType);
         }
         return false;
+    }
+
+    /**
+     * Releases resources associated with this node.
+     * @param doNotRecurse Set to true to not recurse into each children (recurse into each children by default)
+     * @param disposeMaterialAndTextures Set to true to also dispose referenced materials and textures (false by default)
+     */
+    public dispose(doNotRecurse?: boolean, disposeMaterialAndTextures = false): void {
+        super.dispose(doNotRecurse, disposeMaterialAndTextures);
+        GameObject._removeGameObject(this);
+    }
+
+    public static get gameObjects() : GameObject[] {
+        return this._gameObjects;
+    }
+
+    public static get dontDestroyOnLoadList() : GameObject[] {
+        return this._dontDestroyOnLoadList;
+    }
+
+    public static dontDestroyOnLoad(target: GameObject) : void {
+        this._dontDestroyOnLoadList.push(target);
+    }
+
+    private static _addGameObject(target: GameObject) {
+        this._gameObjects.push(target);
+    }
+
+    private static _removeGameObject(target: GameObject) {
+        const index = this._gameObjects.indexOf(target);
+        if (index !== -1) {
+            // Remove from the scene if mesh found
+            this._gameObjects[index] = this._gameObjects[this._gameObjects.length - 1];
+            this._gameObjects.pop();
+        }
     }
 }

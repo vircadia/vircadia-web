@@ -9,7 +9,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { EntityType } from "../EntityProperties";
 import { IModelEntity } from "../Entities";
 import { Observable } from "@babylonjs/core";
 import { Entity } from "./Entity";
@@ -22,7 +21,7 @@ export class ModelEntity extends Entity implements IModelEntity {
     _isModelURLChanged = false;
 
     constructor(id : string) {
-        super(id, EntityType.Model);
+        super(id, "Model");
         this._onModelURLChanged = new Observable<IModelEntity>();
     }
 

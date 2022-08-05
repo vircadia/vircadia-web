@@ -23,7 +23,7 @@ import { EntityMapper } from "./EntityMapper";
 export class ShapeBuilder {
     public static createShape(props: IShapeEntity) : Mesh {
         switch (props.shape) {
-            case Shape.CUBE:
+            case "Cube":
                 return ShapeBuilder.createBox(props);
             default:
                 throw new Error(`Invalid shape type ${props.shape as Shape}`);
