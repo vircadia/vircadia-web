@@ -16,10 +16,10 @@ import {
 } from "@babylonjs/core";
 
 import { GameObject, MeshComponent, LightComponent } from "@Modules/object";
-import { EntityType } from "./EntityProperties";
 import { IEntity, IShapeEntity, ILightEntity,
     IModelEntity, IZoneEntity } from "./Entities";
 import { ShapeBuilder, LightBuilder, EntityMapper, EnvironmentBuilder } from "./builders";
+import { EntityController } from "./components";
 import Log from "@Modules/debugging/log";
 
 export interface IEntityBuildResult {
@@ -34,17 +34,17 @@ export interface IEntityMetaData {
 export class EntityBuilder {
     _gameObject: Nullable<GameObject>;
     _scene : Nullable<Scene>;
-    _props: Nullable<IEntity>;
+    _entity: Nullable<IEntity>;
 
     public createEntity(props: IEntity, scene: Nullable<Scene>) : IEntityBuildResult {
         switch (props.type) {
-            case EntityType.Box:
+            case "Box":
                 return this.createBoxEntity(props, scene);
-            case EntityType.Light:
+            case "Light":
                 return this.createLightEntity(props, scene);
-            case EntityType.Model:
+            case "Model":
                 return this.createModelEntity(props, scene);
-            case EntityType.Zone:
+            case "Zone":
                 return this.createZoneEntity(props, scene);
             default:
                 Log.error(Log.types.ENTITIES, `Indvalid entity type: ${props.type}`);
@@ -57,6 +57,7 @@ export class EntityBuilder {
             `Create Box Entity ${EntityMapper.getEntityName(props)}`);
 
         return this.beginBuildEntity(props, scene)
+            .buildEntityCommon()
             .buildShape()
             .endBuildEntity();
     }
@@ -66,6 +67,7 @@ export class EntityBuilder {
             `Create Light Entity ${EntityMapper.getEntityName(props)}`);
 
         return this.beginBuildEntity(props, scene)
+            .buildEntityCommon()
             .buildLight()
             .endBuildEntity();
     }
@@ -75,6 +77,7 @@ export class EntityBuilder {
             `Create Model Entity ${EntityMapper.getEntityName(props)}`);
 
         return this.beginBuildEntity(props, scene)
+            .buildEntityCommon()
             .buildModel()
             .endBuildEntity();
     }
@@ -82,29 +85,17 @@ export class EntityBuilder {
     public createZoneEntity(props: IEntity, scene: Nullable<Scene>) : IEntityBuildResult {
         Log.debug(Log.types.ENTITIES,
             `Create Zone Entity ${EntityMapper.getEntityName(props)}`);
+
         return this.beginBuildEntity(props, scene)
+            .buildEntityCommon()
             .buildEnviroment()
             .endBuildEntity();
     }
 
-    public beginBuildEntity(props: IEntity, scene: Nullable<Scene>) : EntityBuilder {
-        this._props = props;
+    public beginBuildEntity(entity: IEntity, scene: Nullable<Scene>, gameObj = undefined) : EntityBuilder {
+        this._entity = entity;
         this._scene = scene;
-        this._gameObject = new GameObject(EntityMapper.getEntityName(props), scene);
-
-        this._gameObject.id = props.id;
-        this._gameObject.position = EntityMapper.mapToVector3(props.position);
-        this._gameObject.rotationQuaternion = EntityMapper.mapToQuaternion(props.rotation);
-
-        if (props.visible !== undefined) {
-            this._gameObject.isVisible = props.visible;
-        }
-
-        if (props.parentID) {
-            this._gameObject.metadata = {
-                parentID: props.parentID
-            };
-        }
+        this._gameObject = gameObj ?? new GameObject(EntityMapper.getEntityName(entity), scene);
 
         return this;
     }
@@ -115,19 +106,46 @@ export class EntityBuilder {
         };
 
         this._gameObject = null;
-        this._props = null;
+        this._entity = null;
         this._scene = null;
 
         return result;
     }
 
-    public buildShape() : EntityBuilder {
-        if (!this._props || !this._gameObject) {
+    public buildEntityCommon() : EntityBuilder {
+        if (!this._entity || !this._gameObject) {
             throw new Error(`null props or gameObject. 
             please call _beginBuildEntity before call this function.`);
         }
 
-        const mesh = ShapeBuilder.createShape(this._props as IShapeEntity);
+        this._gameObject.id = this._entity.id;
+        this._gameObject.position = EntityMapper.mapToVector3(this._entity.position);
+        this._gameObject.rotationQuaternion = EntityMapper.mapToQuaternion(this._entity.rotation);
+
+        if (this._entity.visible !== undefined) {
+            this._gameObject.isVisible = this._entity.visible;
+        }
+
+        if (this._entity.parentID) {
+            this._gameObject.metadata = {
+                parentID: this._entity.parentID
+            };
+        }
+
+        if (!this._gameObject.getComponent("EntityController")) {
+            this._gameObject.addComponent(new EntityController(this._entity));
+        }
+
+        return this;
+    }
+
+    public buildShape() : EntityBuilder {
+        if (!this._entity || !this._gameObject) {
+            throw new Error(`null props or gameObject. 
+            please call _beginBuildEntity before call this function.`);
+        }
+
+        const mesh = ShapeBuilder.createShape(this._entity as IShapeEntity);
         const meshComponent = new MeshComponent(mesh);
         this._gameObject.addComponent(meshComponent);
 
@@ -135,12 +153,12 @@ export class EntityBuilder {
     }
 
     public buildModel() : EntityBuilder {
-        if (!this._props || !this._gameObject) {
+        if (!this._entity || !this._gameObject) {
             throw new Error(`null props or gameObject. 
             please call _beginBuildEntity before call this function.`);
         }
 
-        const props = this._props as IModelEntity;
+        const props = this._entity as IModelEntity;
         if (!props.modelURL) {
             throw new Error(`undefined model url of Model Entity.`);
         }
@@ -179,12 +197,12 @@ export class EntityBuilder {
     }
 
     public buildLight() : EntityBuilder {
-        if (!this._props || !this._gameObject || !this._scene) {
+        if (!this._entity || !this._gameObject || !this._scene) {
             throw new Error(`null props or gameObject. 
             please call _beginBuildEntity before call this function.`);
         }
 
-        const light = LightBuilder.createPointLight(this._props as ILightEntity,
+        const light = LightBuilder.createPointLight(this._entity as ILightEntity,
             this._scene);
         const comp = new LightComponent(light);
         this._gameObject.addComponent(comp);
@@ -193,12 +211,12 @@ export class EntityBuilder {
     }
 
     public buildEnviroment() : EntityBuilder {
-        if (!this._props || !this._gameObject || !this._scene) {
+        if (!this._entity || !this._gameObject || !this._scene) {
             throw new Error(`null props or gameObject. 
             please call _beginBuildEntity before call this function.`);
         }
 
-        const props = this._props as IZoneEntity;
+        const props = this._entity as IZoneEntity;
 
         if (props.keyLight) {
             const light = LightBuilder.createKeyLight(props.keyLight, this._scene);

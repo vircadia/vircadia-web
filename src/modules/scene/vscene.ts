@@ -12,18 +12,18 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
-import { AnimationGroup, Engine, MeshBuilder, Scene, SceneLoader,
+import { AnimationGroup, Engine, Scene,
     ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, StandardMaterial,
     Mesh, DefaultRenderingPipeline, Camera, AbstractMesh,
-    Texture, CubeTexture, TransformNode } from "@babylonjs/core";
+    TransformNode } from "@babylonjs/core";
 
-import { Color3, Quaternion, Vector3 } from "@babylonjs/core/Maths/math";
+import { Quaternion, Vector3 } from "@babylonjs/core/Maths/math";
 import "@babylonjs/loaders/glTF";
 import "@babylonjs/core/Meshes/meshBuilder";
 import { ResourceManager } from "./resource";
 import { DomainController } from "./DomainController";
 import { GameObject, MeshComponent } from "@Modules/object";
-import { ScriptComponent, requireScript, requireScriptForNodes } from "@Modules/script";
+import { ScriptComponent, requireScript, requireScripts } from "@Modules/script";
 import { AvatarController, MyAvatarController } from "@Modules/avatar";
 import { IEntity, IEntityDescription, EntityBuilder } from "@Modules/entity";
 
@@ -34,27 +34,9 @@ import { v4 as uuidv4 } from "uuid";
 import { VVector3 } from ".";
 import { IEntityMetaData } from "../entity/EntityBuilder";
 
-
-/**
- * this.addEntity() takes parameters describing the entity to create and add to
- * the scene. This interface defines the parameters in the definition object
- * passed to addEntity()
- * @typedef Object EntityProps
- */
-interface EntityProps {
-    id?: string;        // lookup identifier. One is generated if no specified
-    name: string;
-    type: "Shape" | "Model";
-    shape?: "box" | "sphere" | "cylinder" | "cone" | "triangle" ; // if type=="Shape"
-    modelUrl?: string;  // if type=="Model"
-    position: { x: number; y: number; z: number };
-    rotation: { x: number; y: number; z: number; w?: number };
-    dimensions: { x: number; y: number; z: number; };   // scaling
-    color?: { r: number; g: number; b: number; a?: number };
-}
-
 const DefaultAvatarUrl = "https://staging.vircadia.com/O12OR634/UA92/sara.glb";
 const AvatarAnimationUrl = "https://staging.vircadia.com/O12OR634/UA92/AnimationsBasic.glb";
+const DefaultSceneUrl = "http://localhost:8080/assets/scenes/default.json";
 
 
 /**
@@ -65,7 +47,6 @@ export class VScene {
     _engine: Engine;
     _scene: Scene;
     _preScene: Nullable<Scene> = null;
-    _entities: Map<string, Mesh>;
     _myAvatar: Nullable<GameObject> = null;
     _avatarAnimMesh :Nullable<AbstractMesh> = null;
     _camera : Nullable<Camera> = null;
@@ -74,6 +55,7 @@ export class VScene {
     _incrementalMeshList : Nullable<Array<string>> = null;
     _rootUrl = "";
     _domainController : Nullable<DomainController> = null;
+    _sceneManager : Nullable<GameObject> = null;
 
     constructor(pEngine: Engine, pSceneId = 0) {
         if (process.env.NODE_ENV === "development") {
@@ -82,7 +64,6 @@ export class VScene {
         }
 
         this._engine = pEngine;
-        this._entities = new Map<string, Mesh>();
         this._scene = new Scene(pEngine);
         this._sceneId = pSceneId;
     }
@@ -103,151 +84,9 @@ export class VScene {
         this._scene.render();
     }
 
-    /**
-     * Use the Babylon loader to load a model from an URL and return the Mesh
-     * @param name asset name to assign to the loaded mesh
-     * @param modelUrl URL to load model from
-     * @returns Mesh
-     * @throws if loading failed
-     */
-    async importModel(name: string, modelUrl: string): Promise<Mesh> {
-        const parsedUrl = new URL(modelUrl);
-        const urlWithoutFilename = modelUrl.substring(0, modelUrl.lastIndexOf("/")) + "/";
-        const filename = parsedUrl.pathname.split("/").pop();
-
-        // eslint-disable-next-line new-cap
-        const meshes = await SceneLoader.ImportMeshAsync(name, urlWithoutFilename, filename, this._scene);
-        return meshes.meshes[0] as Mesh;
-    }
-
-    /**
-     * Add an entity to the scene.
-     *
-     * The properties block passed specifies whether to create a primitive object (box,
-     * sphere, ...) or to load a model from an URL. The created entity is added to the
-     * world at the location/rotation described in the properties
-     *
-     * @param {EntityProps} pProperties object describing entity to create (see EntityProps)
-     * @returns {Promise<string>} Id of the created entity or 'null' if failure.
-     */
-    async addEntity(pProperties: EntityProps): Promise<Nullable<string>> {
-        if (!pProperties.type) {
-            Log.error(Log.types.ENTITIES, "Failed to specify entity type.");
-            return null;
-        }
-
-        let entity: Nullable<Mesh> = undefined;
-
-        // If no UUID is given for the entity, we"ll make one now.
-        if (!pProperties.id) {
-            pProperties.id = uuidv4();
-        }
-
-        // Create the entity.
-        switch (pProperties.type) {
-            case "Shape":
-                if (pProperties.shape) {
-                    switch (pProperties.shape.toLowerCase()) {
-                        case "box":
-                            entity = MeshBuilder.CreateBox(pProperties.name, {}, this._scene);
-                            break;
-                        case "sphere":
-                            entity = MeshBuilder.CreateSphere(pProperties.name, {}, this._scene);
-                            break;
-                        case "cylinder":
-                            entity = MeshBuilder.CreateCylinder(pProperties.name, {}, this._scene);
-                            break;
-                        case "cone":
-                            entity = MeshBuilder.CreateCylinder(pProperties.name, { diameterTop: 0 }, this._scene);
-                            break;
-                        case "triangle":
-                            entity = MeshBuilder.CreateCylinder(pProperties.name, { tessellation: 3 }, this._scene);
-                            break;
-                        default:
-                            Log.error(Log.types.ENTITIES, "Failed to create shape entity, unknown/unsupported shape type: "
-                                    + pProperties.shape);
-                            return null;
-                    }
-                } else {
-                    Log.error(Log.types.ENTITIES, "Attempted to create type Shape with no shape specified");
-                    return null;
-                }
-                break;
-            case "Model":
-                if (pProperties.modelUrl) {
-                    entity = await this.importModel(pProperties.name, pProperties.modelUrl);
-                } else {
-                    Log.error(Log.types.ENTITIES, "Attempted to create type Model with no modelUrl specified");
-                    return null;
-                }
-                break;
-            default:
-                Log.error(Log.types.ENTITIES, `Unspecified entity type. props=${JSON.stringify(pProperties)}`);
-                entity = MeshBuilder.CreateBox(pProperties.name, {}, this._scene);
-                break;
-        }
-
-        if (entity) {
-            // Set the ID.
-            entity.id = pProperties.id;
-
-            // Rotate and position the entity.
-            entity.position = new Vector3(pProperties.position.x, pProperties.position.y, pProperties.position.z);
-            entity.rotation = new Vector3(pProperties.rotation.x, pProperties.rotation.y, pProperties.rotation.z);
-
-            // Scale the entity.
-            entity.scaling = new Vector3(pProperties.dimensions.x, pProperties.dimensions.y, pProperties.dimensions.z);
-
-            // Apply a color if requested.
-            if (pProperties.color) {
-                const colorMaterial = new StandardMaterial(pProperties.name + "-material", this._scene);
-                colorMaterial.emissiveColor = new Color3(pProperties.color.r, pProperties.color.g, pProperties.color.b);
-                entity.material = colorMaterial;
-            }
-
-            Log.info(Log.types.ENTITIES, "Successfully created entity: " + entity.id);
-
-            this._entities.set(entity.id, entity);
-
-            return entity.id;
-        }
-        Log.error(Log.types.ENTITIES, "Failed to create entity.");
-        return null;
-    }
-
-    // Scripting would look like:
-    // sceneInstance.deleteById
-    deleteEntityById(id: string): void {
-        const entityToDelete = this._scene.getNodeByID(id);
-
-        if (entityToDelete) {
-            entityToDelete.dispose();
-            // eslint-disable-next-line @typescript-eslint/dot-notation
-            this._entities.delete(id);
-        } else {
-            Log.error(Log.types.ENTITIES, `Failed to delete entity by ID: ${id}`);
-        }
-    }
-
-    // Scripting would look like:
-    // sceneInstance.deleteByName
-    deleteEntityByName(name: string): void {
-        const entityToDelete = this._scene.getNodeByName(name);
-
-        if (entityToDelete) {
-            // eslint-disable-next-line @typescript-eslint/dot-notation
-            this._entities.delete(entityToDelete.id);
-            entityToDelete.dispose();
-        } else {
-            Log.error(Log.types.ENTITIES, `Failed to delete entity by name: ${name}`);
-        }
-    }
-
-    public async goToDomain() : Promise<void> {
+    public async load(sceneUrl ?: string, onSceneReady ?: ()=> void) : Promise<void> {
         this._engine.displayLoadingUI();
         this._scene.detachControl();
-        this._preScene = this._scene;
-
         this._createScene();
         await this._loadMyAvatar();
         // setup avatar
@@ -266,12 +105,13 @@ export class VScene {
             camera.parent = this._myAvatar as Mesh;
         }
 
-        await this.loadEntities("http://localhost:8080/assets/scenes/default.json");
+        const url = sceneUrl ?? DefaultSceneUrl;
 
-        this._preScene.dispose();
-        this._preScene = null;
+        await this.loadEntities(url);
 
-        this._scene.executeWhenReady(this._onSceneReady.bind(this));
+        if (onSceneReady) {
+            this._scene.onReadyObservable.addOnce(onSceneReady);
+        }
         await this._scene.whenReadyAsync();
         this._engine.hideLoadingUI();
     }
@@ -320,102 +160,66 @@ export class VScene {
     }
 
     public async loadSceneSpaceStation(): Promise<void> {
-        this._engine.displayLoadingUI();
-        this._scene.detachControl();
+        await this.load("http://localhost:8080/assets/scenes/spacestation.json",
+            () => {
+                if (this._myAvatar) {
+                    this._myAvatar.position = new Vector3(0, 49.6, 0);
+                    this._myAvatar.rotation = new Vector3(0, 0, 0);
+                }
 
-        this._preScene = this._scene;
-        this._createScene();
+                // setup camera
+                const camera = this._camera as ArcRotateCamera;
+                if (camera) {
+                    camera.minZ = 1;
+                    camera.maxZ = 250000;
+                    camera.alpha = -Math.PI / 2;
+                    camera.beta = Math.PI / 2;
+                    camera.parent = this._myAvatar as Mesh;
+                }
 
-        await this._loadMyAvatar();
-        // setup avatar
-        if (this._myAvatar) {
-            this._myAvatar.position = new Vector3(0, 49.6, 0);
-            this._myAvatar.rotation = new Vector3(0, 0, 0);
-        }
+                this._scene.createDefaultEnvironment(
+                    { createGround: false,
+                        createSkybox: false,
+                        environmentTexture: "https://assets.babylonjs.com/textures/night.env" });
 
-        // setup camera
-        const camera = this._camera as ArcRotateCamera;
-        if (camera) {
-            camera.minZ = 1;
-            camera.maxZ = 250000;
-            camera.alpha = -Math.PI / 2;
-            camera.beta = Math.PI / 2;
-            camera.parent = this._myAvatar as Mesh;
-        }
+                const defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);
+                defaultPipeline.fxaaEnabled = true;
 
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.loadSpaceStationEnvironment();
-
-        this._preScene.dispose();
-        this._preScene = null;
-
-        this._scene.executeWhenReady(this._onSceneReady.bind(this));
-        await this._scene.whenReadyAsync();
-        this._engine.hideLoadingUI();
+                defaultPipeline.glowLayerEnabled = true;
+                if (defaultPipeline.glowLayer) {
+                    defaultPipeline.glowLayer.blurKernelSize = 16;
+                    defaultPipeline.glowLayer.intensity = 0.5;
+                }
+            });
     }
 
     public async loadSceneUA92Campus(): Promise<void> {
-        this._engine.displayLoadingUI();
-        this._scene.detachControl();
+        await this.load("http://localhost:8080/assets/scenes/campus.json",
+            () => {
+                // setup avatar
+                if (this._myAvatar) {
+                    this._myAvatar.position = new Vector3(25, 0, 30);
+                    this._myAvatar.rotation = new Vector3(0, Math.PI, 0);
+                }
 
-        this._preScene = this._scene;
-        this._createScene();
+                // setup camera
+                const camera = this._camera as ArcRotateCamera;
+                if (camera) {
+                    camera.minZ = 0.1;
+                    camera.maxZ = 2000;
+                    camera.alpha = -Math.PI / 2;
+                    camera.beta = Math.PI / 2;
+                    camera.parent = this._myAvatar as Mesh;
+                }
 
-        await this._loadMyAvatar();
-        // setup avatar
-        if (this._myAvatar) {
-            this._myAvatar.position = new Vector3(25, 0, 30);
-            this._myAvatar.rotation = new Vector3(0, Math.PI, 0);
-        }
+                this._scene.createDefaultEnvironment(
+                    { createGround: false,
+                        createSkybox: false,
+                        environmentTexture: "https://assets.babylonjs.com/textures/country.env" });
 
-        // setup camera
-        const camera = this._camera as ArcRotateCamera;
-        if (camera) {
-            camera.minZ = 0.1;
-            camera.maxZ = 2000;
-            camera.alpha = -Math.PI / 2;
-            camera.beta = Math.PI / 2;
-            camera.parent = this._myAvatar as Mesh;
-        }
-
-        await this.loadUA92CampusEnvironment();
-
-        this._preScene.dispose();
-        this._preScene = null;
-
-        this._scene.executeWhenReady(this._onSceneReady.bind(this));
-        await this._scene.whenReadyAsync();
-        this._engine.hideLoadingUI();
-    }
-
-    public async loadSpaceStationEnvironment(): Promise<void> {
-        this._scene.createDefaultEnvironment(
-            { createGround: false,
-                createSkybox: false,
-                environmentTexture: "https://assets.babylonjs.com/textures/night.env" });
-
-        await this.loadEntities("http://localhost:8080/assets/scenes/spacestation.json");
-
-        const defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);
-        defaultPipeline.fxaaEnabled = true;
-
-        defaultPipeline.glowLayerEnabled = true;
-        if (defaultPipeline.glowLayer) {
-            defaultPipeline.glowLayer.blurKernelSize = 16;
-            defaultPipeline.glowLayer.intensity = 0.5;
-        }
-    }
-
-    public async loadUA92CampusEnvironment(): Promise<void> {
-        this._scene.createDefaultEnvironment(
-            { createGround: false,
-                createSkybox: false,
-                environmentTexture: "https://assets.babylonjs.com/textures/country.env" });
-
-        await this.loadEntities("http://localhost:8080/assets/scenes/campus.json");
-
-        const defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);
-        defaultPipeline.fxaaEnabled = true;
+                const defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);
+                defaultPipeline.fxaaEnabled = true;
+            });
     }
 
     private async _loadMyAvatar() : Promise<void> {
@@ -455,20 +259,8 @@ export class VScene {
         }
     }
 
-
-    private async _loadEnvironment(rootUrl:string,
-        meshList:string[],
-        incrementalMeshList:string[] | null | undefined) : Promise<void> {
-
-        if (this._resourceManager) {
-            this._resourceManager.addSceneObjectTasks("SceneLoading", rootUrl, meshList);
-            await this._resourceManager.loadAsync();
-            this._incrementalMeshList = incrementalMeshList;
-            this._rootUrl = rootUrl;
-        }
-    }
-
-    private _createScene() {
+    private _createScene() : void {
+        this._preScene = this._scene;
         this._scene = new Scene(this._engine);
         this._resourceManager = new ResourceManager(this._scene);
         this._scene.actionManager = new ActionManager(this._scene);
@@ -477,12 +269,46 @@ export class VScene {
                 this._onKeyUp.bind(this))
         );
 
-        const sceneManager = new GameObject("SceneManager", this._scene);
+        if (!this._sceneManager) {
+            this._sceneManager = new GameObject("SceneManager", this._scene);
 
-        this._domainController = new DomainController();
-        this._domainController.vscene = this;
-        this._domainController.resourceManager = this._resourceManager;
-        sceneManager.addComponent(this._domainController);
+            this._domainController = new DomainController();
+            this._domainController.vscene = this;
+            if (this._resourceManager) {
+                this._domainController.resourceManager = this._resourceManager;
+            }
+            this._sceneManager.addComponent(this._domainController);
+        }
+
+        this._scene.onReadyObservable.add(this._onSceneReady.bind(this));
+    }
+
+    private _handleDontDestroyOnLoadObjects() : void {
+        if (!this._preScene) {
+            return;
+        }
+
+        GameObject.dontDestroyOnLoadList.forEach((gameObj) => {
+            if (this._preScene === gameObj.getScene()) {
+                // remove GameObject form pervious scene
+                this._preScene.removeMesh(gameObj, true);
+                // add GameObject to new scene
+                gameObj._scene = this._scene;
+                gameObj.uniqueId = this._scene.getUniqueId();
+                this._scene.addMesh(gameObj, true);
+
+                gameObj.components.forEach((component) => {
+                    if (component instanceof TransformNode) {
+                        // remove component form pervious scene
+                        this._preScene?.removeTransformNode(component);
+                        // add component to new scene
+                        component._scene = this._scene;
+                        component.uniqueId = this._scene.getUniqueId();
+                        this._scene.addTransformNode(component);
+                    }
+                });
+            }
+        });
     }
 
     private _onKeyUp(evt: ActionEvent) : void {
@@ -518,7 +344,7 @@ export class VScene {
             case "KeyE":
                 if (process.env.NODE_ENV === "development"
                             && evt.sourceEvent.shiftKey) {
-                    await this.goToDomain();
+                    await this.load();
                 }
                 break;
 
@@ -528,14 +354,15 @@ export class VScene {
     }
 
     private _onSceneReady():void {
-        requireScriptForNodes(this._scene, this._scene.transformNodes);
+        requireScripts(this._scene, this._scene.transformNodes);
+
+        this._handleDontDestroyOnLoadObjects();
 
         // handle dynamic loaded script
         this._scene.onNewTransformNodeAddedObservable.add((node) => {
             if (node instanceof ScriptComponent) {
                 this._scene.onBeforeRenderObservable.addOnce(() => {
                     requireScript(this._scene, node);
-
                 });
             }
         });
@@ -553,6 +380,11 @@ export class VScene {
 
         if (!this._scene.activeCamera) {
             this._scene.createDefaultCamera(true, true, true);
+        }
+
+        if (this._preScene) {
+            this._preScene.dispose();
+            this._preScene = null;
         }
     }
 }

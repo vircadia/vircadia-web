@@ -72,46 +72,16 @@ export interface IGrabProperty {
     equippableRightRotation?: IQuaternionProperty;
 }
 
-// export type EntityType = "Model" | "Box" |
-// "Light" | "Text" | "Image" | "Web" | "Zone" | "Particle" | "Material";
+export type EntityType =
+"Unknown" | "Box" | "Sphere" | "Model" |
+"Text" | "Image" | "Web" | "ParticleEffect" |
+"Line" | "PolyLine" | "PolyVox" | "Grid" | "Gizmo" |
+"Light" | "Zone" | "Material";
 
-// export type Shape = "Cube" | "Sphere";
-
-export enum EntityType {
-    Unknown = "Unknown",
-    Box = "Box",
-    Sphere = "Sphere",
-    Model = "Model",
-    Text = "Text",
-    Image = "Image",
-    Web = "Web",
-    ParticleEffect = "ParticleEffect",
-    Line = "Line",
-    PolyLine = "PolyLine",
-    PolyVox = "PolyVox",
-    Grid = "Grid",
-    Gizmo = "Gizmo",
-    Light = "Light",
-    Zone = "Zone",
-    Material = "Material"
-}
-
-export enum Shape {
-    CIRCLE = "Circle",
-    CONE = "Cone",
-    CUBE = "Cube",
-    CYLINDER = "Cylinder",
-    DODECAHEDRON = "Dodecahedron",
-    HEXAGON = "Hexagon",
-    ICOSAHEDRON = "Icosahedron",
-    OCTAGON = "Octagon",
-    OCTAHEDRON = "Octahedron",
-    QUAD = "Quad",
-    SPHERE = "Sphere",
-    TETRAHEDRON = "Tetrahedron",
-    TORUS = "Torus",
-    TRIANGLE = "Triangle"
-}
+export type Shape =
+"Circle" | "Cone" | "Cube" | "Cylinder" | "Dodecahedron" |
+"Hexagon" | "Icosahedron" | "Octagon" | "Octahedron" |
+"Quad" | "Sphere" | "Tetrahedron" | "Torus" | "Triangle";
 
 export type ShapeType = "box" | "sphere" | "cylinder";
 
