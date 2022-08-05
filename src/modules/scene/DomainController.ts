@@ -10,7 +10,7 @@
 //
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { ScriptComponent, inspectorAccessor } from "@Modules/script";
+import { ScriptComponent, inspectorAccessor, inspector } from "@Modules/script";
 
 // General Modules
 import Log from "@Modules/debugging/log";
@@ -23,7 +23,7 @@ import { Client, AssignmentClientState } from "@Modules/domain/client";
 import { Domain, ConnectionState } from "@Modules/domain/domain";
 import { AvatarMixer, Uuid, ScriptAvatar, DomainServer,
     EntityServer, EntityProperties } from "@vircadia/web-sdk";
-import { EntityManager, IEntity } from "@Modules/entity";
+import { EntityManager, EntityType, IEntity } from "@Modules/entity";
 import { VScene } from "./vscene";
 
 
@@ -31,15 +31,7 @@ const DefaultAvatarUrl = "https://staging.vircadia.com/O12OR634/UA92/sara.glb";
 
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function logObjectProperties(obj: any) : void {
-    const proertyNames = Object.getOwnPropertyNames(obj);
-    proertyNames.forEach((name) => {
-
-        if (obj[name]) {
-            console.log(Log.types.ENTITIES, `property ${name} :`, obj[name]);
-        }
-    });
-}
+/* eslint-disable @typescript-eslint/unbound-method */
 
 export class DomainController extends ScriptComponent {
     _avatarMixer : Nullable<AvatarMixer> = null;
@@ -50,9 +42,11 @@ export class DomainController extends ScriptComponent {
     _domainConnectionState : ConnectionState = ConnectionState.DISCONNECTED;
     _entityManager : Nullable<EntityManager> = null;
     _vscene : Nullable<VScene>;
+
     constructor() {
         super("DomainController");
         this._avatarList = new Map<Uuid, GameObject>();
+        this._handleActiveDomainStateChange = this._handleActiveDomainStateChange.bind(this);
     }
 
     public set resourceManager(value : ResourceManager) {
@@ -101,7 +95,11 @@ export class DomainController extends ScriptComponent {
             `DomainController onInitialize`);
 
         // Listen for the domain to connect and disconnect
-        DomainMgr.onActiveDomainStateChange.connect(this._handleActiveDomainStateChange.bind(this));
+        // DomainMgr.onActiveDomainStateChange.connect(this._handleActiveDomainStateChange.bind(this));
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        DomainMgr.onActiveDomainStateChange.connect(this._handleActiveDomainStateChange);
+
+        GameObject.dontDestroyOnLoad(this._gameObject as GameObject);
     }
 
 
@@ -111,9 +109,13 @@ export class DomainController extends ScriptComponent {
         }
     }
 
-    private _handleActiveDomainStateChange(pDomain: Domain, pState: ConnectionState, pInfo: string): void {
-        this._domainConnectionState = pState;
+    public onStop(): void {
+        Log.debug(Log.types.OTHER,
+            `DomainController onStop`);
+        DomainMgr.onActiveDomainStateChange.disconnect(this._handleActiveDomainStateChange);
+    }
 
+    public _handleActiveDomainStateChange(pDomain: Domain, pState: ConnectionState, pInfo: string): void {
         if (pState === ConnectionState.CONNECTED) {
             Log.debug(Log.types.AVATAR, `VScene._handleActiveDomainStateChange: CONNECTED`);
 
@@ -156,7 +158,7 @@ export class DomainController extends ScriptComponent {
                 this._entityServer.onStateChanged = this._handleOnEntityServerStateChanged.bind(this);
             }
 
-            this._vscene?.goToDomain();
+            this._vscene?.load();
 
         } else if (pState === ConnectionState.DISCONNECTED) {
             Log.debug(Log.types.AVATAR, `VScene._handleActiveDomainStateChange: ${Domain.stateToString(pState)}`);
@@ -173,6 +175,8 @@ export class DomainController extends ScriptComponent {
 
             this._entityServer = null;
         }
+
+        this._domainConnectionState = pState;
     }
 
     private _handleAvatarAdded(sessionID:Uuid): void {
@@ -228,7 +232,6 @@ export class DomainController extends ScriptComponent {
         }
     }
 
-    // eslint-disable-next-line class-methods-use-this
     private _handleOnEntityServerStateChanged(state: AssignmentClientState): void {
         Log.info(Log.types.ENTITIES,
             `Entity Sever state changed. New state: ${Client.stateToString(state)}`);
@@ -248,7 +251,9 @@ export class DomainController extends ScriptComponent {
             name:${entity.name as string}
             type: ${entity.type}`);
 
-        this._vscene?.loadEntity(entity);
+        if (entity.type === "Box") {
+            this._vscene?.loadEntity(entity);
+        }
     }
 
     // eslint-disable-next-line class-methods-use-this

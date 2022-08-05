@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 //
-//  RemoteAvatarController.ts
+//  ScriptAvatarController.ts
 //
 //  Created by Nolan Huang on 8 July 2022.
 //  Copyright 2022 Vircadia contributors.

@@ -92,14 +92,14 @@ export function requireScript(scene: Scene, script : ScriptComponent):void {
     });
 
     // stop
-    script.onDispose = () => {
+    script.onDisposeObservable.add(() => {
         if (startObserver) {
             scene.onBeforeRenderObservable.remove(startObserver);
         }
         scene.onBeforeRenderObservable.remove(updateObserver);
 
         script.onStop();
-    };
+    });
 }
 
 /**
@@ -107,10 +107,29 @@ export function requireScript(scene: Scene, script : ScriptComponent):void {
  * @param scene defines the reference to the scene that contains the given nodes.
  * @param nodes the array of nodes to attach script (if exists).
  */
-export function requireScriptForNodes(scene: Scene, nodes: Node[]): void {
+export function requireScripts(scene: Scene, nodes: Node[]): void {
     nodes.forEach((node) => {
         if (node instanceof ScriptComponent) {
             requireScript(scene, node);
         }
+    });
+}
+
+/**
+ * Attach the imported script to a new scene.
+ */
+export function reattachScript(scene: Scene, script : ScriptComponent):void {
+    // update
+    const updateObserver = scene.onBeforeRenderObservable.add(() => {
+        if (script.isEnabled()) {
+            script.onUpdate();
+        }
+    });
+
+    // stop
+    script.onDisposeObservable.add(() => {
+        scene.onBeforeRenderObservable.remove(updateObserver);
+
+        script.onStop();
     });
 }
