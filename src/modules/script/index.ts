@@ -10,5 +10,5 @@
 //
 
 export { ScriptComponent } from "./script";
-export { requireScript, requireScripts } from "./processor";
+export { requireScript, requireScripts, reattachScript } from "./processor";
 export { inspector, inspectorAccessor } from "./decorators";

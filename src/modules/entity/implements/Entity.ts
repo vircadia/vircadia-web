@@ -13,6 +13,25 @@ import { IVector3Property, IQuaternionProperty, EntityType } from "../EntityProp
 import { IEntity } from "../Entities";
 import { Observable } from "@babylonjs/core";
 import { EntityProperties } from "@vircadia/web-sdk";
+import Log from "@Base/modules/debugging/log";
+
+export class EntityChangeObservable {
+    _entity : IEntity;
+    public observable : Observable<IEntity> = new Observable<IEntity>();
+    public isDirty = false;
+
+    constructor(entity : IEntity) {
+        this._entity = entity;
+    }
+
+    public update() : void {
+        if (this.isDirty) {
+            this.observable.notifyObservers(this._entity);
+            this.isDirty = false;
+            Log.debug(Log.types.ENTITIES, "notify change");
+        }
+    }
+}
 
 export abstract class Entity implements IEntity {
     protected _id : string;
@@ -23,18 +42,28 @@ export abstract class Entity implements IEntity {
     protected _position: IVector3Property | undefined;
     protected _rotation: IQuaternionProperty | undefined;
     protected _dimensions: IVector3Property | undefined;
+    protected _changeObservables : Array<EntityChangeObservable>;
 
-    private _onCommonPropertiesChanged : Observable<IEntity>;
-    private _onPositionAndRotationChanged : Observable<IEntity>;
-    private _commonProperties = false;
-    private _positionAndRotationChanged = false;
+    private _onCommonPropertiesChanged : EntityChangeObservable;
+    private _onPositionAndRotationChanged : EntityChangeObservable;
+    private _onDimensionChanged : EntityChangeObservable;
 
 
     constructor(id : string, type : EntityType) {
         this._id = id;
         this._type = type;
-        this._onCommonPropertiesChanged = new Observable<IEntity>();
-        this._onPositionAndRotationChanged = new Observable<IEntity>();
+
+        this._changeObservables = new Array<EntityChangeObservable>();
+
+        this._onCommonPropertiesChanged = new EntityChangeObservable(this);
+        this._changeObservables.push(this._onCommonPropertiesChanged);
+
+        this._onPositionAndRotationChanged = new EntityChangeObservable(this);
+        this._changeObservables.push(this._onPositionAndRotationChanged);
+
+        this._onDimensionChanged = new EntityChangeObservable(this);
+        this._changeObservables.push(this._onDimensionChanged);
+
     }
 
     public get id() : string {
@@ -52,7 +81,7 @@ export abstract class Entity implements IEntity {
     public set name(value : string | undefined) {
         if (value && value !== this._name) {
             this._name = value;
-            this._commonProperties = true;
+            this._onCommonPropertiesChanged.isDirty = true;
         }
     }
 
@@ -63,7 +92,7 @@ export abstract class Entity implements IEntity {
     public set parentID(value: string | undefined) {
         if (value && value !== this._parentID) {
             this._parentID = value;
-            this._commonProperties = true;
+            this._onCommonPropertiesChanged.isDirty = true;
         }
     }
 
@@ -74,7 +103,7 @@ export abstract class Entity implements IEntity {
     public set visible(value: boolean | undefined) {
         if (value && value !== this._visible) {
             this._visible = value;
-            this._commonProperties = true;
+            this._onCommonPropertiesChanged.isDirty = true;
         }
     }
 
@@ -85,7 +114,7 @@ export abstract class Entity implements IEntity {
     public set position(value: IVector3Property | undefined) {
         if (value) {
             this._position = value;
-            this._positionAndRotationChanged = true;
+            this._onPositionAndRotationChanged.isDirty = true;
         }
     }
 
@@ -96,7 +125,7 @@ export abstract class Entity implements IEntity {
     public set rotation(value: IQuaternionProperty | undefined) {
         if (value) {
             this._rotation = value;
-            this._positionAndRotationChanged = true;
+            this._onPositionAndRotationChanged.isDirty = true;
         }
     }
 
@@ -107,28 +136,22 @@ export abstract class Entity implements IEntity {
     public set dimensions(value: IVector3Property | undefined) {
         if (value) {
             this._dimensions = value;
+            this._onDimensionChanged.isDirty = true;
         }
     }
 
     public get onCommonPropertiesChanged(): Observable<IEntity> {
-        return this._onCommonPropertiesChanged;
+        return this._onCommonPropertiesChanged.observable;
     }
 
     public get onPositionAndRotationChanged(): Observable<IEntity> {
-        return this._onPositionAndRotationChanged;
+        return this._onPositionAndRotationChanged.observable;
     }
 
     public update() : void {
-        if (this._commonProperties) {
-            this._onCommonPropertiesChanged.notifyObservers(this);
-            this._commonProperties = false;
-        }
-
-        if (this._positionAndRotationChanged) {
-            this._onPositionAndRotationChanged.notifyObservers(this);
-            this._positionAndRotationChanged = false;
-        }
-
+        this._changeObservables.forEach((observable) => {
+            observable.update();
+        });
     }
 
     public copyFormPacketData(props : EntityProperties) : void {
