@@ -23,14 +23,14 @@ import "@babylonjs/core/Meshes/meshBuilder";
 import { ResourceManager } from "./resource";
 import { DomainController } from "./DomainController";
 import { GameObject, MeshComponent } from "@Modules/object";
-import { ScriptComponent, requireScript, requireScripts } from "@Modules/script";
-import { AvatarController, MyAvatarController } from "@Modules/avatar";
+import { ScriptComponent, requireScript, requireScripts, reattachScript } from "@Modules/script";
+import { AvatarController, MyAvatarController, ScriptAvatarController } from "@Modules/avatar";
 import { IEntity, IEntityDescription, EntityBuilder } from "@Modules/entity";
+import { ScriptAvatar } from "@vircadia/web-sdk";
 
 // General Modules
 import Log from "@Modules/debugging/log";
 // System Modules
-import { v4 as uuidv4 } from "uuid";
 import { VVector3 } from ".";
 import { IEntityMetaData } from "../entity/EntityBuilder";
 
@@ -48,7 +48,7 @@ export class VScene {
     _scene: Scene;
     _preScene: Nullable<Scene> = null;
     _myAvatar: Nullable<GameObject> = null;
-    _avatarAnimMesh :Nullable<AbstractMesh> = null;
+    _avatarList : Map<string, GameObject>;
     _camera : Nullable<Camera> = null;
     _avatarAnimationGroups : AnimationGroup[] = [];
     _resourceManager : Nullable<ResourceManager> = null;
@@ -66,6 +66,7 @@ export class VScene {
         this._engine = pEngine;
         this._scene = new Scene(pEngine);
         this._sceneId = pSceneId;
+        this._avatarList = new Map<string, GameObject>();
     }
 
     getSceneId(): number {
@@ -88,7 +89,7 @@ export class VScene {
         this._engine.displayLoadingUI();
         this._scene.detachControl();
         this._createScene();
-        await this._loadMyAvatar();
+        await this.loadMyAvatar();
         // setup avatar
         if (this._myAvatar) {
             this._myAvatar.position = new Vector3(0, 0, 0);
@@ -222,7 +223,7 @@ export class VScene {
             });
     }
 
-    private async _loadMyAvatar() : Promise<void> {
+    public async loadMyAvatar(modelURL ?: string) : Promise<Nullable<GameObject>> {
         // Creates, angles, distances and targets the camera
         const camera = new ArcRotateCamera(
             "Camera", -Math.PI / 2, Math.PI / 2, 6,
@@ -236,13 +237,15 @@ export class VScene {
         this._camera = camera;
 
         if (this._resourceManager) {
-            const result = await this._resourceManager.loadAvatarAnimations(AvatarAnimationUrl);
-            this._avatarAnimMesh = result.mesh;
-            this._avatarAnimationGroups = result.animGroups;
+            if (this._avatarAnimationGroups.length === 0) {
+
+                const result = await this._resourceManager.loadAvatarAnimations(AvatarAnimationUrl);
+                this._avatarAnimationGroups = result.animGroups;
+            }
 
             this._myAvatar = new GameObject("MyAvatar", this._scene);
 
-            const mesh = await this._resourceManager.loadMyAvatar(DefaultAvatarUrl);
+            const mesh = await this._resourceManager.loadMyAvatar(modelURL ?? DefaultAvatarUrl);
             mesh.rotationQuaternion = Quaternion.Zero();
             const meshComponent = new MeshComponent(mesh);
             this._myAvatar.addComponent(meshComponent);
@@ -252,11 +255,53 @@ export class VScene {
             this._myAvatar.addComponent(avatarController);
 
             this._myAvatar.addComponent(new MyAvatarController());
-
-            if (this._domainController) {
-                this._domainController.myAvatar = this._myAvatar;
-            }
         }
+
+        return this._myAvatar;
+    }
+
+    public async loadAvatar(id: string, domain: ScriptAvatar) : Promise<Nullable<GameObject>> {
+        Log.debug(Log.types.AVATAR,
+            `Load avatar. id: ${id} url: ${domain.skeletonModelURL} `);
+
+        let avatar = this._avatarList.get(id);
+        if (avatar) {
+            avatar.dispose();
+        }
+
+        if (this._resourceManager && domain.skeletonModelURL !== "") {
+            const mesh = await this._resourceManager.loadAvatar(domain.skeletonModelURL);
+            avatar = new GameObject("ScriptAvatar_" + id, this._scene);
+            avatar.id = id;
+            avatar.addComponent(new MeshComponent(mesh));
+            avatar.addComponent(new ScriptAvatarController(domain));
+
+            this._avatarList.set(id, avatar);
+
+            return avatar;
+        }
+
+        return null;
+    }
+
+    public unloadAvatar(id: string) : void {
+        Log.debug(Log.types.AVATAR,
+            `Load avatar. id: ${id}`);
+
+        const avatar = this._avatarList.get(id);
+        if (avatar) {
+            avatar.dispose();
+            // eslint-disable-next-line @typescript-eslint/dot-notation
+            this._avatarList.delete(id);
+        }
+
+    }
+
+    public unloadAllAvatars() : void {
+        this._avatarList.forEach((gameObj) => {
+            gameObj.dispose();
+        });
+        this._avatarList.clear();
     }
 
     private _createScene() : void {
@@ -273,11 +318,12 @@ export class VScene {
             this._sceneManager = new GameObject("SceneManager", this._scene);
 
             this._domainController = new DomainController();
-            this._domainController.vscene = this;
-            if (this._resourceManager) {
-                this._domainController.resourceManager = this._resourceManager;
-            }
             this._sceneManager.addComponent(this._domainController);
+        }
+
+        if (this._domainController) {
+            this._domainController.vscene = this;
+            // this._domainController.resourceManager = this._resourceManager;
         }
 
         this._scene.onReadyObservable.add(this._onSceneReady.bind(this));
@@ -297,14 +343,18 @@ export class VScene {
                 gameObj.uniqueId = this._scene.getUniqueId();
                 this._scene.addMesh(gameObj, true);
 
-                gameObj.components.forEach((component) => {
-                    if (component instanceof TransformNode) {
+                const nodes = gameObj.getChildTransformNodes(false);
+
+                nodes.forEach((component) => {
+                    if (component instanceof ScriptComponent) {
                         // remove component form pervious scene
                         this._preScene?.removeTransformNode(component);
                         // add component to new scene
                         component._scene = this._scene;
                         component.uniqueId = this._scene.getUniqueId();
                         this._scene.addTransformNode(component);
+
+                        reattachScript(this._scene, component);
                     }
                 });
             }

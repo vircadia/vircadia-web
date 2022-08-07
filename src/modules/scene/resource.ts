@@ -101,6 +101,8 @@ export class ResourceManager {
                 }
             });
 
+            // remove from scene to prevent animation group is disposed when dispose scene
+            this._scene.removeAnimationGroup(animGroup);
 
             animationGroups.push(animGroup);
 
