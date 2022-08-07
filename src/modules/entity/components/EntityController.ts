@@ -50,7 +50,6 @@ export class EntityController extends ScriptComponent {
 
     }
 
-
     private _handlePositionAndRotationChanged(): void {
         if (this._gameObject) {
             this._gameObject.position = EntityMapper.mapToVector3(this._entity.position);

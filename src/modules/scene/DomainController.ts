@@ -36,25 +36,13 @@ const DefaultAvatarUrl = "https://staging.vircadia.com/O12OR634/UA92/sara.glb";
 export class DomainController extends ScriptComponent {
     _avatarMixer : Nullable<AvatarMixer> = null;
     _entityServer : Nullable<EntityServer> = null;
-    _myAvatar: Nullable<GameObject> = null;
-    _avatarList : Map<Uuid, GameObject>;
-    _resourceManager : Nullable<ResourceManager> = null;
     _domainConnectionState : ConnectionState = ConnectionState.DISCONNECTED;
     _entityManager : Nullable<EntityManager> = null;
     _vscene : Nullable<VScene>;
 
     constructor() {
         super("DomainController");
-        this._avatarList = new Map<Uuid, GameObject>();
         this._handleActiveDomainStateChange = this._handleActiveDomainStateChange.bind(this);
-    }
-
-    public set resourceManager(value : ResourceManager) {
-        this._resourceManager = value;
-    }
-
-    public set myAvatar(value : Nullable<GameObject>) {
-        this._myAvatar = value;
     }
 
     public set vscene(value : VScene) {
@@ -95,7 +83,6 @@ export class DomainController extends ScriptComponent {
             `DomainController onInitialize`);
 
         // Listen for the domain to connect and disconnect
-        // DomainMgr.onActiveDomainStateChange.connect(this._handleActiveDomainStateChange.bind(this));
         // eslint-disable-next-line @typescript-eslint/unbound-method
         DomainMgr.onActiveDomainStateChange.connect(this._handleActiveDomainStateChange);
 
@@ -116,76 +103,86 @@ export class DomainController extends ScriptComponent {
     }
 
     public _handleActiveDomainStateChange(pDomain: Domain, pState: ConnectionState, pInfo: string): void {
+
+        Log.debug(Log.types.COMM, `handleActiveDomainStateChange: ${Domain.stateToString(pState)}`);
+
         if (pState === ConnectionState.CONNECTED) {
-            Log.debug(Log.types.AVATAR, `VScene._handleActiveDomainStateChange: CONNECTED`);
-
-            const sessionID = pDomain.DomainClient?.sessionUUID;
-            if (sessionID) {
-                Log.debug(Log.types.AVATAR, `Session ID: ${sessionID.stringify()}`);
-            }
-
-            this._avatarMixer = pDomain.AvatarClient?.Mixer;
-            const myAvatar = pDomain.AvatarClient?.MyAvatar;
-            if (myAvatar) {
-                if (myAvatar.skeletonModelURL === "") {
-                    myAvatar.skeletonModelURL = DefaultAvatarUrl;
-                }
-
-                if (this._myAvatar) {
-                    const myAvatarController = this._myAvatar.getComponent("MyAvatarController") as MyAvatarController;
-                    myAvatarController.myAvatar = myAvatar;
-                }
-            }
-
-            const avatarList = this._avatarMixer?.avatarList;
-            if (avatarList) {
-                avatarList.avatarAdded.connect(this._handleAvatarAdded.bind(this));
-                avatarList.avatarRemoved.connect(this._handleAvatarRemoved.bind(this));
-
-                const uuids = avatarList.getAvatarIDs();
-                const emptyId = new Uuid();
-
-                uuids.forEach((uuid) => {
-                    // filter my avatar
-                    if (uuid.stringify() !== emptyId.stringify()) {
-                        this._handleAvatarAdded(uuid);
-                    }
-                });
-            }
-
-            this._entityServer = pDomain.EntityClient;
-            if (this._entityServer) {
-                this._entityServer.onStateChanged = this._handleOnEntityServerStateChanged.bind(this);
-            }
-
-            this._vscene?.load();
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            this._handleDomainConnected(pDomain);
 
         } else if (pState === ConnectionState.DISCONNECTED) {
-            Log.debug(Log.types.AVATAR, `VScene._handleActiveDomainStateChange: ${Domain.stateToString(pState)}`);
+            this._vscene?.unloadAllAvatars();
 
-            this._avatarList.forEach((gameObj) => {
-                gameObj.dispose();
-            });
-            this._avatarList.clear();
-
-            if (this._myAvatar) {
-                const myAvatarController = this._myAvatar.getComponent("MyAvatarController") as MyAvatarController;
+            if (this._vscene && this._vscene._myAvatar) {
+                const myAvatarController = this._vscene._myAvatar.getComponent("MyAvatarController") as MyAvatarController;
                 myAvatarController.myAvatar = null;
             }
 
+            this._avatarMixer = null;
             this._entityServer = null;
+            this._entityManager = null;
         }
 
         this._domainConnectionState = pState;
+    }
+
+    private async _handleDomainConnected(pDomain: Domain): Promise<void> {
+        this._entityServer = pDomain.EntityClient;
+        if (this._entityServer) {
+            this._entityServer.onStateChanged = this._handleOnEntityServerStateChanged.bind(this);
+        }
+
+        await this._vscene?.load();
+
+        const sessionID = pDomain.DomainClient?.sessionUUID;
+        if (sessionID) {
+            Log.debug(Log.types.AVATAR, `Session ID: ${sessionID.stringify()}`);
+        }
+
+        this._avatarMixer = pDomain.AvatarClient?.Mixer;
+        const myAvatarInterface = pDomain.AvatarClient?.MyAvatar;
+        if (myAvatarInterface) {
+            if (myAvatarInterface.skeletonModelURL === "") {
+                myAvatarInterface.skeletonModelURL = DefaultAvatarUrl;
+            }
+
+            const gameObject = this._vscene?._myAvatar;
+            if (gameObject) {
+                const myAvatarController = gameObject.getComponent("MyAvatarController") as MyAvatarController;
+                myAvatarController.myAvatar = myAvatarInterface;
+            }
+        }
+
+
+        const avatarList = this._avatarMixer?.avatarList;
+        if (avatarList) {
+            avatarList.avatarAdded.connect(this._handleAvatarAdded.bind(this));
+            avatarList.avatarRemoved.connect(this._handleAvatarRemoved.bind(this));
+
+            const uuids = avatarList.getAvatarIDs();
+            const emptyId = new Uuid();
+
+            uuids.forEach((uuid) => {
+                // filter my avatar
+                if (uuid.stringify() !== emptyId.stringify()) {
+                    this._handleAvatarAdded(uuid);
+                }
+            });
+        }
     }
 
     private _handleAvatarAdded(sessionID:Uuid): void {
         const avatarList = this._avatarMixer?.avatarList;
         if (avatarList) {
             Log.debug(Log.types.AVATAR,
-                `VScene._handleAvatarAdded. Session ID: ${sessionID.stringify()}`);
+                `AvatarAdded. Session ID: ${sessionID.stringify()}`);
 
             const domain = avatarList.getAvatar(sessionID);
+
+            if (domain.skeletonModelURL !== "") {
+                this._vscene?.loadAvatar(sessionID.stringify(), domain);
+            }
+
             domain.skeletonModelURLChanged.connect(() => {
                 this._handleAvatarSkeletonModelURLChanged(sessionID, domain);
             });
@@ -194,42 +191,16 @@ export class DomainController extends ScriptComponent {
 
     private _handleAvatarRemoved(sessionID:Uuid): void {
         Log.debug(Log.types.AVATAR,
-            `VScene._handleAvatarRemoved. Session ID: ${sessionID.stringify()}`);
+            `handleAvatarRemoved. Session ID: ${sessionID.stringify()}`);
+        this._vscene?.unloadAvatar(sessionID.stringify());
 
-        const domain = this._avatarMixer?.avatarList.getAvatar(sessionID);
-        if (domain) {
-            const avatar = this._avatarList.get(sessionID);
-            if (avatar) {
-                avatar.dispose();
-                this._avatarList["delete"](sessionID);
-            }
-        }
     }
 
     private _handleAvatarSkeletonModelURLChanged(sessionID:Uuid, domain:ScriptAvatar): void {
         Log.debug(Log.types.AVATAR,
-            `VScene._handleAvatarSkeletonModelURLChanged. Session ID: ${sessionID.stringify()}, ${domain.skeletonModelURL}`);
+            `handleAvatarSkeletonModelURLChanged. Session ID: ${sessionID.stringify()}, ${domain.skeletonModelURL}`);
 
-        const avatar = this._avatarList.get(sessionID);
-        if (avatar) {
-            avatar.dispose();
-        }
-
-        if (domain.skeletonModelURL !== "" && this._resourceManager) {
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this._resourceManager.loadAvatar(domain.skeletonModelURL).then((mesh) => {
-                const newAvatar = new GameObject("ScriptAvatar_" + sessionID.stringify(), this._scene);
-                this._avatarList.set(sessionID, newAvatar);
-
-                newAvatar.addComponent(new MeshComponent(mesh));
-                newAvatar.addComponent(new ScriptAvatarController(domain));
-            })
-                ["catch"]((error) => {
-                    Log.debug(Log.types.AVATAR,
-                        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                        `fail to load mesh ${domain.skeletonModelURL} : ${error}`);
-                });
-        }
+        this._vscene?.loadAvatar(sessionID.stringify(), domain);
     }
 
     private _handleOnEntityServerStateChanged(state: AssignmentClientState): void {

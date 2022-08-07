@@ -82,7 +82,7 @@ export class AvatarController extends ScriptComponent {
 
     public onInitialize(): void {
         Log.debug(Log.types.AVATAR,
-            `MyAvatar onInitialize`);
+            `AvatarController onInitialize`);
 
         this._animController = new AnimationController(
             this._gameObject as GameObject,
@@ -93,7 +93,7 @@ export class AvatarController extends ScriptComponent {
 
     public onStart():void {
         Log.debug(Log.types.AVATAR,
-            `MyAvatar onStart`);
+            `AvatarController onStart`);
 
         // scene action manager to detect inputs
         if (!this._scene.actionManager) {

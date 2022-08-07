@@ -21,6 +21,7 @@ export class EntityManager {
     _entities : Map<string, Entity>;
     _onEntityAdded : Observable<IEntity>;
     _onEntityRemoved : Observable<IEntity>;
+    _entityPropertiesArray = new Array<EntityProperties>();
 
     constructor(entityServer : EntityServer) {
         this._entityServer = entityServer;
@@ -90,12 +91,34 @@ export class EntityManager {
     }
 
     public update() : void {
+        if (this._entityPropertiesArray.length > 0) {
+            console.log(Log.types.ENTITIES,
+                `Process entity data:`, this._entityPropertiesArray);
+
+            this._entityPropertiesArray.forEach((props) => {
+                const entity = this._entities.get(props.entityItemID.stringify());
+                if (entity) {
+                    entity.copyFormPacketData(props);
+                } else {
+                    this.createEntity(props);
+                }
+            });
+            this._entityPropertiesArray = [];
+        }
+
         this._entities.forEach((entity) => {
             entity.update();
         });
     }
 
     private _handleOnEntityData(data : EntityProperties[]): void {
+        if (data.length > 0) {
+            console.log(Log.types.ENTITIES,
+                `Receive entity data:`, data);
+
+            this._entityPropertiesArray = this._entityPropertiesArray.concat(data);
+        }
+        /*
         data.forEach((props) => {
             console.log(Log.types.ENTITIES,
                 `Receive entity properties:`, props);
@@ -106,7 +129,7 @@ export class EntityManager {
             } else {
                 this.createEntity(props);
             }
-        });
+        }); */
     }
 
     private _addEntity(entity : Entity) : void {
