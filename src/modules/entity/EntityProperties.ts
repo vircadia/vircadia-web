@@ -73,7 +73,7 @@ export interface IGrabProperty {
 }
 
 export type EntityType =
-"Unknown" | "Box" | "Sphere" | "Model" |
+"Unknown" | "Box" | "Sphere" | "Shape" | "Model" |
 "Text" | "Image" | "Web" | "ParticleEffect" |
 "Line" | "PolyLine" | "PolyVox" | "Grid" | "Gizmo" |
 "Light" | "Zone" | "Material";

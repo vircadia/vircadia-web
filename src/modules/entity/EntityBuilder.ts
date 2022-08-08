@@ -19,7 +19,7 @@ import { GameObject, MeshComponent, LightComponent } from "@Modules/object";
 import { IEntity, IShapeEntity, ILightEntity,
     IModelEntity, IZoneEntity } from "./Entities";
 import { ShapeBuilder, LightBuilder, EntityMapper, EnvironmentBuilder } from "./builders";
-import { EntityController } from "./components";
+import { EntityController, ShapeEntityController } from "./components";
 import Log from "@Modules/debugging/log";
 
 export interface IEntityBuildResult {
@@ -39,7 +39,9 @@ export class EntityBuilder {
     public createEntity(props: IEntity, scene: Nullable<Scene>) : IEntityBuildResult {
         switch (props.type) {
             case "Box":
-                return this.createBoxEntity(props, scene);
+            case "Sphere":
+            case "Shape":
+                return this.createShapeEntity(props, scene);
             case "Light":
                 return this.createLightEntity(props, scene);
             case "Model":
@@ -52,12 +54,12 @@ export class EntityBuilder {
         }
     }
 
-    public createBoxEntity(props: IEntity, scene: Nullable<Scene>) : IEntityBuildResult {
+    public createShapeEntity(props: IEntity, scene: Nullable<Scene>) : IEntityBuildResult {
         Log.debug(Log.types.ENTITIES,
             `Create Box Entity ${EntityMapper.getEntityName(props)}`);
 
         return this.beginBuildEntity(props, scene)
-            .buildEntityCommon()
+            // .buildEntityCommon()
             .buildShape()
             .endBuildEntity();
     }
@@ -117,10 +119,8 @@ export class EntityBuilder {
             throw new Error(`null props or gameObject. 
             please call _beginBuildEntity before call this function.`);
         }
-
+        /*
         this._gameObject.id = this._entity.id;
-        this._gameObject.position = EntityMapper.mapToVector3(this._entity.position);
-        this._gameObject.rotationQuaternion = EntityMapper.mapToQuaternion(this._entity.rotation);
 
         if (this._entity.visible !== undefined) {
             this._gameObject.isVisible = this._entity.visible;
@@ -132,10 +132,13 @@ export class EntityBuilder {
             };
         }
 
+        this._gameObject.position = EntityMapper.mapToVector3(this._entity.position);
+        this._gameObject.rotationQuaternion = EntityMapper.mapToQuaternion(this._entity.rotation);
+
         if (!this._gameObject.getComponent("EntityController")) {
             this._gameObject.addComponent(new EntityController(this._entity));
         }
-
+*/
         return this;
     }
 
@@ -145,9 +148,11 @@ export class EntityBuilder {
             please call _beginBuildEntity before call this function.`);
         }
 
-        const mesh = ShapeBuilder.createShape(this._entity as IShapeEntity);
-        const meshComponent = new MeshComponent(mesh);
-        this._gameObject.addComponent(meshComponent);
+        ShapeBuilder.buildMesh(this._gameObject, this._entity as IShapeEntity);
+
+        if (!this._gameObject.getComponent("ShapeEntityController")) {
+            this._gameObject.addComponent(new ShapeEntityController(this._entity as IShapeEntity));
+        }
 
         return this;
     }
@@ -160,7 +165,9 @@ export class EntityBuilder {
 
         const props = this._entity as IModelEntity;
         if (!props.modelURL) {
-            throw new Error(`undefined model url of Model Entity.`);
+            Log.debug(Log.types.ENTITIES,
+                `Load model: model url of Model Entity is undefined.`);
+            return this;
         }
 
         Log.debug(Log.types.ENTITIES,

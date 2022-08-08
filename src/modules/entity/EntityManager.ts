@@ -63,17 +63,25 @@ export class EntityManager {
         this.clear();
     }
 
-    public createEntity(props : EntityProperties) : IEntity {
+    public createEntity(props : EntityProperties) : IEntity | undefined {
         let entity = undefined;
         switch (props.entityType) {
             case DomainEntityType.Box as number:
                 entity = new ShapeEntity(props.entityItemID.stringify(), "Box");
                 break;
+            case DomainEntityType.Sphere as number:
+                entity = new ShapeEntity(props.entityItemID.stringify(), "Sphere");
+                break;
+            case DomainEntityType.Shape as number:
+                entity = new ShapeEntity(props.entityItemID.stringify(), "Shape");
+                break;
+
             case DomainEntityType.Model as number:
                 entity = new ModelEntity(props.entityItemID.stringify());
                 break;
             default:
-                throw new Error(`Invalid entity type ${props.entityType}`);
+                Log.warn(Log.types.ENTITIES, `unknow entity type ${props.entityType}`);
+                return undefined;
         }
 
         entity.copyFormPacketData(props);
@@ -92,9 +100,6 @@ export class EntityManager {
 
     public update() : void {
         if (this._entityPropertiesArray.length > 0) {
-            console.log(Log.types.ENTITIES,
-                `Process entity data:`, this._entityPropertiesArray);
-
             this._entityPropertiesArray.forEach((props) => {
                 const entity = this._entities.get(props.entityItemID.stringify());
                 if (entity) {
