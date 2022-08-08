@@ -16,13 +16,20 @@ import Log from "@Modules/debugging/log";
 import { ScriptComponent, inspectorAccessor } from "@Modules/script";
 import { EntityController } from "./EntityController";
 import { IShapeEntity } from "../Entities";
+import { MeshComponent } from "@Base/modules/object";
+import { ShapeBuilder } from "../builders";
+import {
+    MeshBuilder,
+    Mesh,
+    StandardMaterial
+} from "@babylonjs/core";
 
 export class ShapeEntityController extends EntityController {
     // domain properties
     _shapeEntity : IShapeEntity;
 
     constructor(entity : IShapeEntity) {
-        super(entity);
+        super(entity, "ShapeEntityController");
         this._shapeEntity = entity;
     }
 
@@ -32,12 +39,20 @@ export class ShapeEntityController extends EntityController {
     */
     // eslint-disable-next-line class-methods-use-this
     public get componentType():string {
-        return "EntityController";
+        return "ShapeEntityController";
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
     public onInitialize(): void {
+        super.onInitialize();
+        this._shapeEntity.onShapeChanged?.add(this._handleShapeChanged.bind(this));
+        this._shapeEntity.onColorChanged?.add(this._handleColorChanged.bind(this));
+        this._shapeEntity.onDimensionChanged?.add(this._handleShapeChanged.bind(this));
+    }
 
+    public onStart(): void {
+        super.onStart();
+        this._handleShapeChanged();
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
@@ -45,8 +60,20 @@ export class ShapeEntityController extends EntityController {
 
     }
 
-    /*
-    private _handleScaleChanged(): void {
-    } */
+    private _handleShapeChanged(): void {
+        if (this._shapeEntity.shape && this._gameObject) {
+            ShapeBuilder.buildMesh(this._gameObject, this._shapeEntity);
+        }
+    }
+
+    private _handleColorChanged(): void {
+        if (this._shapeEntity.color && this._gameObject) {
+            const comp = this._gameObject.getComponent("Mesh") as MeshComponent;
+            if (comp) {
+                const mesh = comp.mesh;
+                ShapeBuilder.buildColor(mesh, this._shapeEntity);
+            }
+        }
+    }
 
 }

@@ -10,23 +10,33 @@
 //
 
 import { IColorProperty, EntityType, Shape } from "../EntityProperties";
-import { IShapeEntity } from "../Entities";
-import { Observable } from "@babylonjs/core";
-import { Entity } from "./Entity";
+import { IEntity, IShapeEntity } from "../Entities";
+import { Entity, EntityPropertyChangeObservable } from "./Entity";
 import { EntityProperties, ShapeEntityProperties } from "@vircadia/web-sdk";
+import { Observable } from "@babylonjs/core";
 
 export class ShapeEntity extends Entity implements IShapeEntity {
-    protected _onShapeEntityChanged : Observable<IShapeEntity>;
-
     protected _shape: Shape | undefined;
 
     protected _color: IColorProperty | undefined;
 
     protected _alpha: number | undefined;
 
+    protected _onShapeChanged : EntityPropertyChangeObservable<IEntity>;
+
+    protected _onColorChanged : EntityPropertyChangeObservable<IEntity>;
+
     constructor(id : string, type : EntityType) {
         super(id, type);
-        this._onShapeEntityChanged = new Observable<IShapeEntity>();
+
+        this._onShapeChanged = this.createPropertyChangeObservable();
+        this._onColorChanged = this.createPropertyChangeObservable();
+        /*
+        this._onShapeChanged = new EntityPropertyChangeObservable<IEntity>(this);
+        this._propertyChangeObservables.push(this._onShapeChanged);
+
+        this._onColorChanged = new EntityPropertyChangeObservable<IEntity>(this);
+        this._propertyChangeObservables.push(this._onColorChanged); */
     }
 
     public get shape(): Shape | undefined {
@@ -34,7 +44,10 @@ export class ShapeEntity extends Entity implements IShapeEntity {
     }
 
     public set shape(value: Shape | undefined) {
-        this._shape = value;
+        if (this._shape !== value) {
+            this._shape = value;
+            this._onShapeChanged.isDirty = true;
+        }
     }
 
 
@@ -43,7 +56,10 @@ export class ShapeEntity extends Entity implements IShapeEntity {
     }
 
     public set color(value: IColorProperty | undefined) {
-        this._color = value;
+        if (value) {
+            this._color = value;
+            this._onColorChanged.isDirty = true;
+        }
     }
 
     public get alpha(): number | undefined {
@@ -51,7 +67,18 @@ export class ShapeEntity extends Entity implements IShapeEntity {
     }
 
     public set alpha(value: number | undefined) {
-        this._alpha = value;
+        if (value) {
+            this._alpha = value;
+            this._onColorChanged.isDirty = true;
+        }
+    }
+
+    public get onShapeChanged() : Observable<IEntity> {
+        return this._onShapeChanged.observable;
+    }
+
+    public get onColorChanged() : Observable<IEntity> {
+        return this._onColorChanged.observable;
     }
 
     public copyFormPacketData(props : EntityProperties) : void {
@@ -61,10 +88,5 @@ export class ShapeEntity extends Entity implements IShapeEntity {
         this.shape = shapeProps.shape;
         this.color = shapeProps.color;
         this.alpha = shapeProps.alpha;
-    }
-
-    // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-empty-function
-    public update() : void {
-        super.update();
     }
 }

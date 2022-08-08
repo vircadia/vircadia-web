@@ -9,6 +9,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-export { Entity } from "./Entity";
+export { Entity, EntityPropertyChangeObservable } from "./Entity";
 export { ShapeEntity } from "./ShapeEntity";
 export { ModelEntity } from "./ModelEntity";

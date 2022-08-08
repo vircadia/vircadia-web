@@ -9,18 +9,20 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { IVector3Property, IQuaternionProperty, EntityType } from "../EntityProperties";
 import { IEntity } from "../Entities";
 import { Observable } from "@babylonjs/core";
 import { EntityProperties } from "@vircadia/web-sdk";
 import Log from "@Base/modules/debugging/log";
+// import Log from "@Base/modules/debugging/log";
 
-export class EntityChangeObservable {
-    _entity : IEntity;
-    public observable : Observable<IEntity> = new Observable<IEntity>();
+export class EntityPropertyChangeObservable<T extends IEntity> {
+    _entity : T;
+    public observable : Observable<T> = new Observable<T>();
     public isDirty = false;
 
-    constructor(entity : IEntity) {
+    constructor(entity : T) {
         this._entity = entity;
     }
 
@@ -28,7 +30,6 @@ export class EntityChangeObservable {
         if (this.isDirty) {
             this.observable.notifyObservers(this._entity);
             this.isDirty = false;
-            Log.debug(Log.types.ENTITIES, "notify change");
         }
     }
 }
@@ -42,28 +43,37 @@ export abstract class Entity implements IEntity {
     protected _position: IVector3Property | undefined;
     protected _rotation: IQuaternionProperty | undefined;
     protected _dimensions: IVector3Property | undefined;
-    protected _changeObservables : Array<EntityChangeObservable>;
+    protected _propertyChangeObservables : Array<EntityPropertyChangeObservable<IEntity>>;
 
-    private _onCommonPropertiesChanged : EntityChangeObservable;
-    private _onPositionAndRotationChanged : EntityChangeObservable;
-    private _onDimensionChanged : EntityChangeObservable;
+    private _onCommonPropertiesChanged : EntityPropertyChangeObservable<IEntity>;
+    private _onPositionAndRotationChanged : EntityPropertyChangeObservable<IEntity>;
+    private _onDimensionChanged : EntityPropertyChangeObservable<IEntity>;
 
 
     constructor(id : string, type : EntityType) {
         this._id = id;
         this._type = type;
 
-        this._changeObservables = new Array<EntityChangeObservable>();
+        this._propertyChangeObservables = new Array<EntityPropertyChangeObservable<IEntity>>();
 
-        this._onCommonPropertiesChanged = new EntityChangeObservable(this);
-        this._changeObservables.push(this._onCommonPropertiesChanged);
+        this._onCommonPropertiesChanged = this.createPropertyChangeObservable();
+        this._onPositionAndRotationChanged = this.createPropertyChangeObservable();
+        this._onDimensionChanged = this.createPropertyChangeObservable();
+        /*
+        this._onCommonPropertiesChanged = new EntityPropertyChangeObservable<IEntity>(this);
+        this._propertyChangeObservables.push(this._onCommonPropertiesChanged);
 
-        this._onPositionAndRotationChanged = new EntityChangeObservable(this);
-        this._changeObservables.push(this._onPositionAndRotationChanged);
+        this._onPositionAndRotationChanged = new EntityPropertyChangeObservable<IEntity>(this);
+        this._propertyChangeObservables.push(this._onPositionAndRotationChanged);
 
-        this._onDimensionChanged = new EntityChangeObservable(this);
-        this._changeObservables.push(this._onDimensionChanged);
+        this._onDimensionChanged = new EntityPropertyChangeObservable<IEntity>(this);
+        this._propertyChangeObservables.push(this._onDimensionChanged); */
+    }
 
+    protected createPropertyChangeObservable(): EntityPropertyChangeObservable<IEntity> {
+        const observable = new EntityPropertyChangeObservable<IEntity>(this);
+        this._propertyChangeObservables.push(observable);
+        return observable;
     }
 
     public get id() : string {
@@ -101,7 +111,7 @@ export abstract class Entity implements IEntity {
     }
 
     public set visible(value: boolean | undefined) {
-        if (value && value !== this._visible) {
+        if (value !== undefined && value !== this._visible) {
             this._visible = value;
             this._onCommonPropertiesChanged.isDirty = true;
         }
@@ -148,8 +158,12 @@ export abstract class Entity implements IEntity {
         return this._onPositionAndRotationChanged.observable;
     }
 
+    public get onDimensionChanged(): Observable<IEntity> {
+        return this._onDimensionChanged.observable;
+    }
+
     public update() : void {
-        this._changeObservables.forEach((observable) => {
+        this._propertyChangeObservables.forEach((observable) => {
             observable.update();
         });
     }

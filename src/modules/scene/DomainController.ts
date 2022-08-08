@@ -222,9 +222,7 @@ export class DomainController extends ScriptComponent {
             name:${entity.name as string}
             type: ${entity.type}`);
 
-        if (entity.type === "Box") {
-            this._vscene?.loadEntity(entity);
-        }
+        this._vscene?.loadEntity(entity);
     }
 
     // eslint-disable-next-line class-methods-use-this
