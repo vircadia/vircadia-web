@@ -145,7 +145,7 @@ export class VScene {
         entityDescription.Entities.forEach((props) => {
             entityBuilder.createEntity(props, this._scene);
         });
-
+        /*
         // setup hierarchies of entites
         Log.info(Log.types.ENTITIES, "Setup hierarchies of Entities.");
         this._scene.meshes.forEach((mesh) => {
@@ -156,7 +156,7 @@ export class VScene {
                 }
             }
         });
-
+*/
         Log.info(Log.types.ENTITIES, "Load Entities done.");
     }
 

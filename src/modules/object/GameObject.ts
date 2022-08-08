@@ -88,6 +88,10 @@ export class GameObject extends Mesh {
         GameObject._removeGameObject(this);
     }
 
+    public static getGameObjectByID(id:string) : GameObject | undefined {
+        return this._gameObjects.find((value) => value.id === id);
+    }
+
     public static get gameObjects() : GameObject[] {
         return this._gameObjects;
     }

@@ -19,6 +19,7 @@ export interface IEntity extends
 
     onCommonPropertiesChanged ?: Observable<IEntity>;
     onPositionAndRotationChanged ?: Observable<IEntity>;
+    onDimensionChanged ?: Observable<IEntity>;
 }
 
 export interface IModelEntity extends
@@ -31,6 +32,9 @@ export interface IShapeEntity extends
     IEntity,
     IBehaviorProperties,
     IShapeProperties {
+
+    onShapeChanged ?: Observable<IEntity>;
+    onColorChanged ?: Observable<IEntity>;
 }
 
 export interface ILightEntity extends

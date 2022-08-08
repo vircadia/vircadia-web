@@ -34,6 +34,7 @@ export class MeshComponent extends AbstractComponent {
 
     public set mesh(value: AbstractMesh) {
         this._mesh = value;
+        this._mesh.parent = this._gameObject ?? null;
     }
 
     public attach(gameObject:GameObject):void {

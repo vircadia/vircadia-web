@@ -10,3 +10,4 @@
 //
 
 export { EntityController } from "./EntityController";
+export { ShapeEntityController } from "./ShapeEntityController";
