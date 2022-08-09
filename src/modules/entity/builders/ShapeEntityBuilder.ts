@@ -17,12 +17,27 @@ import {
 } from "@babylonjs/core";
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { IShapeEntity } from "../Entities";
+import { IEntity, IShapeEntity } from "../Entities";
 import { EntityMapper } from "./EntityMapper";
+import { AbstractEntityBuilder } from "./AbstractEntityBuilder";
+
 import Log from "@Base/modules/debugging/log";
 import { GameObject, MeshComponent } from "@Base/modules/object";
+import { ShapeEntityController } from "../components";
 
-export class ShapeBuilder {
+export class ShapeEntityBuilder extends AbstractEntityBuilder {
+
+    // eslint-disable-next-line class-methods-use-this
+    public build(gameObject:GameObject, entity: IEntity) : void {
+        const shapeEntity = entity as IShapeEntity;
+
+        ShapeEntityBuilder.buildMesh(gameObject, shapeEntity);
+
+        if (!gameObject.getComponent("ShapeEntityController")) {
+            gameObject.addComponent(new ShapeEntityController(shapeEntity));
+        }
+    }
+
     public static createShape(props: IShapeEntity) : Mesh | undefined {
         switch (props.shape) {
             case "Cube":
@@ -33,14 +48,12 @@ export class ShapeBuilder {
                 return MeshBuilder.CreateCylinder("CylinderMesh", { diameter: 1, height: 1 });
             default:
                 return MeshBuilder.CreateBox("BoxMesh");
-                // Log.warn(Log.types.ENTITIES, "Shape is undefined");
-                // return undefined;
         }
     }
 
     public static buildMesh(gameObject: GameObject, props: IShapeEntity) : void {
         if (props.shape) {
-            const mesh = ShapeBuilder.createShape(props);
+            const mesh = ShapeEntityBuilder.createShape(props);
             if (!mesh) {
                 return;
             }

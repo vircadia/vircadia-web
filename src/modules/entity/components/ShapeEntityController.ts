@@ -13,16 +13,10 @@
 // General Modules
 import Log from "@Modules/debugging/log";
 // Domain Modules
-import { ScriptComponent, inspectorAccessor } from "@Modules/script";
 import { EntityController } from "./EntityController";
 import { IShapeEntity } from "../Entities";
 import { MeshComponent } from "@Base/modules/object";
-import { ShapeBuilder } from "../builders";
-import {
-    MeshBuilder,
-    Mesh,
-    StandardMaterial
-} from "@babylonjs/core";
+import { ShapeEntityBuilder } from "../builders";
 
 export class ShapeEntityController extends EntityController {
     // domain properties
@@ -62,7 +56,7 @@ export class ShapeEntityController extends EntityController {
 
     private _handleShapeChanged(): void {
         if (this._shapeEntity.shape && this._gameObject) {
-            ShapeBuilder.buildMesh(this._gameObject, this._shapeEntity);
+            ShapeEntityBuilder.buildMesh(this._gameObject, this._shapeEntity);
         }
     }
 
@@ -71,7 +65,7 @@ export class ShapeEntityController extends EntityController {
             const comp = this._gameObject.getComponent("Mesh") as MeshComponent;
             if (comp) {
                 const mesh = comp.mesh;
-                ShapeBuilder.buildColor(mesh, this._shapeEntity);
+                ShapeEntityBuilder.buildColor(mesh, this._shapeEntity);
             }
         }
     }
