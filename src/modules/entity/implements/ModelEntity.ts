@@ -9,20 +9,19 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { IModelEntity } from "../Entities";
+import { IEntity, IModelEntity } from "../Entities";
 import { Observable } from "@babylonjs/core";
-import { Entity } from "./Entity";
+import { Entity, EntityPropertyChangeObservable } from "./Entity";
 import { EntityProperties, ModelEntityProperties } from "@vircadia/web-sdk";
 
 export class ModelEntity extends Entity implements IModelEntity {
     protected _modelURL = "";
     protected _shapeType: string | undefined;
-    protected _onModelURLChanged : Observable<IModelEntity>;
-    _isModelURLChanged = false;
+    protected _onModelURLChanged : EntityPropertyChangeObservable<IEntity>;
 
     constructor(id : string) {
         super(id, "Model");
-        this._onModelURLChanged = new Observable<IModelEntity>();
+        this._onModelURLChanged = this.createPropertyChangeObservable();
     }
 
     public get modelURL(): string | undefined {
@@ -32,7 +31,7 @@ export class ModelEntity extends Entity implements IModelEntity {
     public set modelURL(value: string | undefined) {
         if (value && value !== this._modelURL) {
             this._modelURL = value;
-            this._isModelURLChanged = true;
+            this._onModelURLChanged.isDirty = true;
         }
     }
 
@@ -44,21 +43,15 @@ export class ModelEntity extends Entity implements IModelEntity {
         this._shapeType = value;
     }
 
+    public get onModelURLChanged() : Observable<IEntity> {
+        return this._onModelURLChanged.observable;
+    }
+
     public copyFormPacketData(props : EntityProperties) : void {
         super.copyFormPacketData(props);
 
         const modelProps = props as ModelEntityProperties;
         this.modelURL = modelProps.modelURL;
         // this.shapeType = modelProps.shapeType;
-    }
-
-    // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-empty-function
-    public update() : void {
-        super.update();
-
-        if (this._isModelURLChanged) {
-            this._onModelURLChanged.notifyObservers(this);
-            this._isModelURLChanged = false;
-        }
     }
 }
