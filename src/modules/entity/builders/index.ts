@@ -10,6 +10,8 @@
 //
 
 export { EntityMapper } from "./EntityMapper";
-export { EnvironmentBuilder } from "./EnvironmentBuilder";
-export { LightBuilder } from "./LightBuilder";
-export { ShapeBuilder } from "./ShapeBuilder";
+export { AbstractEntityBuilder } from "./AbstractEntityBuilder";
+export { ShapeEntityBuilder } from "./ShapeEntityBuilder";
+export { LightEntityBuilder } from "./LightEntityBuilder";
+export { ModelEntityBuilder } from "./ModelEntityBuilder";
+export { ZoneEntityBuilder } from "./ZoneEntityBuilder";

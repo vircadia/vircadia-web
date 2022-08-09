@@ -1,7 +1,7 @@
 //
 //  LightBuilder.ts
 //
-//  Created by Nolan Huang on 27 Jul 2022.
+//  Created by Nolan Huang on 8 Aug 2022.
 //  Copyright 2022 Vircadia contributors.
 //  Copyright 2022 DigiSomni LLC.
 //
@@ -12,14 +12,23 @@
 /* eslint-disable new-cap */
 import {
     Light, PointLight, SpotLight,
-    Scene, Vector3, DirectionalLight
+    Scene, Vector3
 } from "@babylonjs/core";
 
-import { IKeyLightProperty } from "../EntityProperties";
-import { ILightEntity } from "../Entities";
+import { IEntity, ILightEntity } from "../Entities";
 import { EntityMapper } from "./EntityMapper";
+import { AbstractEntityBuilder } from "./AbstractEntityBuilder";
+import { GameObject, LightComponent } from "@Base/modules/object";
 
-export class LightBuilder {
+export class LightEntityBuilder extends AbstractEntityBuilder {
+    // eslint-disable-next-line class-methods-use-this
+    public build(gameObject: GameObject, entity: IEntity) : void {
+        const light = LightEntityBuilder.createPointLight(entity as ILightEntity,
+            gameObject.getScene());
+        const comp = new LightComponent(light);
+        gameObject.addComponent(comp);
+    }
+
     public static createPointLight(props: ILightEntity, scene: Scene) : Light {
         if (props.isSpotlight) {
             const light = new SpotLight(
@@ -40,18 +49,6 @@ export class LightBuilder {
             "PointLight",
             EntityMapper.mapToVector3(Vector3.Zero()),
             scene);
-        return light;
-    }
-
-    public static createKeyLight(props: IKeyLightProperty, scene: Scene) : Light {
-        const light = new DirectionalLight("KeyLight", EntityMapper.mapToVector3(props.direction), scene);
-        light.intensity = props.intensity ?? 1;
-        light.diffuse = EntityMapper.mapToColor3(props.color);
-        light.specular = EntityMapper.mapToColor3(props.color);
-
-        // TODO:
-        // props.castShadows
-
         return light;
     }
 
