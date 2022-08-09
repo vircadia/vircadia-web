@@ -26,51 +26,16 @@ export class ShapeBuilder {
     public static createShape(props: IShapeEntity) : Mesh | undefined {
         switch (props.shape) {
             case "Cube":
-                return ShapeBuilder.createBox(props);
+                return MeshBuilder.CreateBox("BoxMesh");
             case "Sphere":
-                return ShapeBuilder.createSphere(props);
+                return MeshBuilder.CreateSphere("SphereMesh");
             case "Cylinder":
-                return ShapeBuilder.createCylinder(props);
+                return MeshBuilder.CreateCylinder("CylinderMesh", { diameter: 1, height: 1 });
             default:
-                return ShapeBuilder.createBox(props);
+                return MeshBuilder.CreateBox("BoxMesh");
                 // Log.warn(Log.types.ENTITIES, "Shape is undefined");
                 // return undefined;
         }
-    }
-
-    public static createBox(props: IShapeEntity) : Mesh {
-        const dimensions = props.dimensions
-            ? { width: props.dimensions.x,
-                height: props.dimensions.y,
-                depth: props.dimensions.z }
-            : undefined;
-
-        const mesh = MeshBuilder.CreateBox("BoxMesh", dimensions);
-        this.buildColor(mesh, props);
-        return mesh;
-    }
-
-    public static createSphere(props: IShapeEntity) : Mesh {
-        const options = props.dimensions
-            ? { diameterX: props.dimensions.x,
-                diameterY: props.dimensions.y,
-                diameterZ: props.dimensions.z }
-            : undefined;
-
-        const mesh = MeshBuilder.CreateSphere("SphereMesh", options);
-        this.buildColor(mesh, props);
-        return mesh;
-    }
-
-    public static createCylinder(props: IShapeEntity) : Mesh {
-        const options = { diameter: 1, height: 1 };
-        const mesh = MeshBuilder.CreateCylinder("CylinderMesh", options);
-        if (props.dimensions) {
-            mesh.scaling = EntityMapper.mapToVector3(props.dimensions);
-        }
-
-        this.buildColor(mesh, props);
-        return mesh;
     }
 
     public static buildMesh(gameObject: GameObject, props: IShapeEntity) : void {
@@ -80,7 +45,8 @@ export class ShapeBuilder {
                 return;
             }
 
-            ShapeBuilder.buildColor(mesh, props);
+            this.buildDimensions(mesh, props);
+            this.buildColor(mesh, props);
 
             const comp = gameObject.getComponent("Mesh") as MeshComponent;
             if (comp) {
@@ -89,6 +55,12 @@ export class ShapeBuilder {
             } else {
                 gameObject.addComponent(new MeshComponent(mesh));
             }
+        }
+    }
+
+    public static buildDimensions(mesh: AbstractMesh, props: IShapeEntity) : void {
+        if (props.dimensions) {
+            mesh.scaling = EntityMapper.mapToVector3(props.dimensions);
         }
     }
 

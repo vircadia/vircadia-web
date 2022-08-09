@@ -59,7 +59,6 @@ export class EntityBuilder {
             `Create Box Entity ${EntityMapper.getEntityName(props)}`);
 
         return this.beginBuildEntity(props, scene)
-            // .buildEntityCommon()
             .buildShape()
             .endBuildEntity();
     }
@@ -69,7 +68,6 @@ export class EntityBuilder {
             `Create Light Entity ${EntityMapper.getEntityName(props)}`);
 
         return this.beginBuildEntity(props, scene)
-            .buildEntityCommon()
             .buildLight()
             .endBuildEntity();
     }
@@ -79,7 +77,6 @@ export class EntityBuilder {
             `Create Model Entity ${EntityMapper.getEntityName(props)}`);
 
         return this.beginBuildEntity(props, scene)
-            .buildEntityCommon()
             .buildModel()
             .endBuildEntity();
     }
@@ -89,7 +86,6 @@ export class EntityBuilder {
             `Create Zone Entity ${EntityMapper.getEntityName(props)}`);
 
         return this.beginBuildEntity(props, scene)
-            .buildEntityCommon()
             .buildEnviroment()
             .endBuildEntity();
     }
