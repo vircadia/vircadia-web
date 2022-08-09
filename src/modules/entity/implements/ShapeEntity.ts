@@ -31,12 +31,6 @@ export class ShapeEntity extends Entity implements IShapeEntity {
 
         this._onShapeChanged = this.createPropertyChangeObservable();
         this._onColorChanged = this.createPropertyChangeObservable();
-        /*
-        this._onShapeChanged = new EntityPropertyChangeObservable<IEntity>(this);
-        this._propertyChangeObservables.push(this._onShapeChanged);
-
-        this._onColorChanged = new EntityPropertyChangeObservable<IEntity>(this);
-        this._propertyChangeObservables.push(this._onColorChanged); */
     }
 
     public get shape(): Shape | undefined {

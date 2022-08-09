@@ -11,3 +11,4 @@
 
 export { EntityController } from "./EntityController";
 export { ShapeEntityController } from "./ShapeEntityController";
+export { ModelEntityController } from "./ModelEntityController";

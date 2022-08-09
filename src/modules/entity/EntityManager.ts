@@ -123,24 +123,13 @@ export class EntityManager {
 
             this._entityPropertiesArray = this._entityPropertiesArray.concat(data);
         }
-        /*
-        data.forEach((props) => {
-            console.log(Log.types.ENTITIES,
-                `Receive entity properties:`, props);
-
-            const entity = this._entities.get(props.entityItemID.stringify());
-            if (entity) {
-                entity.copyFormPacketData(props);
-            } else {
-                this.createEntity(props);
-            }
-        }); */
     }
 
     private _addEntity(entity : Entity) : void {
         if (this._entities.get(entity.id)) {
             throw new Error(`Entity ${entity.id} already exists.`);
         }
+
         this._entities.set(entity.id, entity);
         this._onEntityAdded.notifyObservers(entity);
     }

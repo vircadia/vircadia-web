@@ -41,7 +41,7 @@ export class ShapeEntityController extends EntityController {
         super.onInitialize();
         this._shapeEntity.onShapeChanged?.add(this._handleShapeChanged.bind(this));
         this._shapeEntity.onColorChanged?.add(this._handleColorChanged.bind(this));
-        this._shapeEntity.onDimensionChanged?.add(this._handleShapeChanged.bind(this));
+        this._shapeEntity.onDimensionChanged?.add(this._handleDimensionChanged.bind(this));
     }
 
     public onStart(): void {
@@ -64,8 +64,16 @@ export class ShapeEntityController extends EntityController {
         if (this._shapeEntity.color && this._gameObject) {
             const comp = this._gameObject.getComponent("Mesh") as MeshComponent;
             if (comp) {
-                const mesh = comp.mesh;
-                ShapeEntityBuilder.buildColor(mesh, this._shapeEntity);
+                ShapeEntityBuilder.buildColor(comp.mesh, this._shapeEntity);
+            }
+        }
+    }
+
+    private _handleDimensionChanged(): void {
+        if (this._shapeEntity.color && this._gameObject) {
+            const comp = this._gameObject.getComponent("Mesh") as MeshComponent;
+            if (comp) {
+                ShapeEntityBuilder.buildDimensions(comp.mesh, this._shapeEntity);
             }
         }
     }
