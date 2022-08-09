@@ -26,6 +26,8 @@ export interface IModelEntity extends
     IEntity,
     IBehaviorProperties,
     IModelEProperties {
+
+    onModelURLChanged ?: Observable<IEntity>;
 }
 
 export interface IShapeEntity extends

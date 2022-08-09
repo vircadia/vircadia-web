@@ -118,12 +118,12 @@ export class VScene {
             this.loadEntities(url);
         });
 
+        await this._scene.whenReadyAsync();
+
         if (this._preScene) {
             this._preScene.dispose();
             this._preScene = null;
         }
-
-        await this._scene.whenReadyAsync();
 
         this._engine.hideLoadingUI();
     }
