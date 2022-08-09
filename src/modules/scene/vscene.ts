@@ -88,12 +88,17 @@ export class VScene {
     public async load(sceneUrl ?: string, onSceneReady ?: ()=> void) : Promise<void> {
         this._engine.displayLoadingUI();
         this._scene.detachControl();
+        this._preScene = this._scene;
         this._createScene();
+        if (onSceneReady) {
+            this._scene.onReadyObservable.addOnce(onSceneReady);
+        }
+
         await this.loadMyAvatar();
         // setup avatar
         if (this._myAvatar) {
             this._myAvatar.position = new Vector3(0, 0, 0);
-            this._myAvatar.rotation = new Vector3(0, 0, 0);
+            this._myAvatar.rotation = new Vector3(0, Math.PI, 0);
         }
 
         // setup camera
@@ -108,18 +113,24 @@ export class VScene {
 
         const url = sceneUrl ?? DefaultSceneUrl;
 
-        await this.loadEntities(url);
+        this._scene.onAfterRenderObservable.addOnce(() => {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            this.loadEntities(url);
+        });
 
-        if (onSceneReady) {
-            this._scene.onReadyObservable.addOnce(onSceneReady);
+        if (this._preScene) {
+            this._preScene.dispose();
+            this._preScene = null;
         }
+
         await this._scene.whenReadyAsync();
+
         this._engine.hideLoadingUI();
     }
 
     public loadEntity(entity: IEntity) : void {
         const entityBuilder = new EntityBuilder();
-        entityBuilder.createEntity(entity, this._scene);
+        entityBuilder.buildEntity(entity, this._scene);
     }
 
     public removeEntity(id: string) : void {
@@ -143,20 +154,9 @@ export class VScene {
         // create entities
         const entityBuilder = new EntityBuilder();
         entityDescription.Entities.forEach((props) => {
-            entityBuilder.createEntity(props, this._scene);
+            entityBuilder.buildEntity(props, this._scene);
         });
-        /*
-        // setup hierarchies of entites
-        Log.info(Log.types.ENTITIES, "Setup hierarchies of Entities.");
-        this._scene.meshes.forEach((mesh) => {
-            if (mesh.metadata) {
-                const data = mesh.metadata as IEntityMetaData;
-                if (data.parentID) {
-                    mesh.parent = this._scene.getMeshById(data.parentID);
-                }
-            }
-        });
-*/
+
         Log.info(Log.types.ENTITIES, "Load Entities done.");
     }
 
@@ -305,7 +305,6 @@ export class VScene {
     }
 
     private _createScene() : void {
-        this._preScene = this._scene;
         this._scene = new Scene(this._engine);
         this._resourceManager = new ResourceManager(this._scene);
         this._scene.actionManager = new ActionManager(this._scene);
@@ -323,7 +322,6 @@ export class VScene {
 
         if (this._domainController) {
             this._domainController.vscene = this;
-            // this._domainController.resourceManager = this._resourceManager;
         }
 
         this._scene.onReadyObservable.add(this._onSceneReady.bind(this));
@@ -430,11 +428,6 @@ export class VScene {
 
         if (!this._scene.activeCamera) {
             this._scene.createDefaultCamera(true, true, true);
-        }
-
-        if (this._preScene) {
-            this._preScene.dispose();
-            this._preScene = null;
         }
     }
 }
