@@ -251,10 +251,11 @@ export class VScene {
             this._myAvatar = new GameObject("MyAvatar", this._scene);
 
             const mesh = await this._resourceManager.loadMyAvatar(modelURL ?? DefaultAvatarUrl);
-            mesh.rotationQuaternion = Quaternion.Zero();
-            const meshComponent = new MeshComponent(mesh);
-            this._myAvatar.addComponent(meshComponent);
-
+            if (mesh) {
+                mesh.rotationQuaternion = Quaternion.Zero();
+                const meshComponent = new MeshComponent(mesh);
+                this._myAvatar.addComponent(meshComponent);
+            }
             const avatarController = new AvatarController();
             avatarController.animGroups = this._avatarAnimationGroups;
             this._myAvatar.addComponent(avatarController);
@@ -275,14 +276,15 @@ export class VScene {
         }
 
         if (this._resourceManager && domain.skeletonModelURL !== "") {
-            const mesh = await this._resourceManager.loadAvatar(domain.skeletonModelURL);
             avatar = new GameObject("ScriptAvatar_" + id, this._scene);
-            avatar.id = id;
-            avatar.addComponent(new MeshComponent(mesh));
-            avatar.addComponent(new ScriptAvatarController(domain));
+            const mesh = await this._resourceManager.loadAvatar(domain.skeletonModelURL);
+            if (mesh) {
+                avatar.id = id;
+                avatar.addComponent(new MeshComponent(mesh));
+                avatar.addComponent(new ScriptAvatarController(domain));
 
-            this._avatarList.set(id, avatar);
-
+                this._avatarList.set(id, avatar);
+            }
             return avatar;
         }
 
