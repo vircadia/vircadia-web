@@ -28,6 +28,7 @@ import { VScene } from "./vscene";
 
 
 const DefaultAvatarUrl = "https://staging.vircadia.com/O12OR634/UA92/sara.glb";
+const DefaultSceneUrl = "http://localhost:8080/assets/scenes/default.json";
 
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -132,7 +133,7 @@ export class DomainController extends ScriptComponent {
             this._entityServer.onStateChanged = this._handleOnEntityServerStateChanged.bind(this);
         }
 
-        await this._vscene?.load();
+        await this._vscene?.load(DefaultSceneUrl);
 
         const sessionID = pDomain.DomainClient?.sessionUUID;
         if (sessionID) {
