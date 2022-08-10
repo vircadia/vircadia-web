@@ -15,7 +15,7 @@ import { IEntity } from "../Entities";
 import { Observable } from "@babylonjs/core";
 import { EntityProperties } from "@vircadia/web-sdk";
 import Log from "@Base/modules/debugging/log";
-// import Log from "@Base/modules/debugging/log";
+
 
 export class EntityPropertyChangeObservable<T extends IEntity> {
     _entity : T;
