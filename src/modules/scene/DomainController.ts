@@ -10,20 +10,20 @@
 //
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { ScriptComponent, inspectorAccessor, inspector } from "@Modules/script";
+import { ScriptComponent, inspectorAccessor } from "@Modules/script";
 
 // General Modules
 import Log from "@Modules/debugging/log";
-import { GameObject, MeshComponent } from "@Modules/object";
-import { AvatarController, ScriptAvatarController, MyAvatarController } from "@Modules/avatar";
-import { ResourceManager } from "./resource";
+import { GameObject } from "@Modules/object";
+import { MyAvatarController } from "@Modules/avatar";
+
 // Domain Modules
 import { DomainMgr } from "@Modules/domain";
 import { Client, AssignmentClientState } from "@Modules/domain/client";
 import { Domain, ConnectionState } from "@Modules/domain/domain";
 import { AvatarMixer, Uuid, ScriptAvatar, DomainServer,
-    EntityServer, EntityProperties } from "@vircadia/web-sdk";
-import { EntityManager, EntityType, IEntity } from "@Modules/entity";
+    EntityServer } from "@vircadia/web-sdk";
+import { EntityManager, IEntity } from "@Modules/entity";
 import { VScene } from "./vscene";
 
 
