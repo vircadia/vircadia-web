@@ -59,8 +59,7 @@ export class ResourceManager {
         Log.info(Log.types.AVATAR,
             `Load avatar animation url:${modelUrl}`);
 
-        const url = ResourceManager.splitUrl(modelUrl);
-        const result = await SceneLoader.ImportMeshAsync("", url.rootUrl, url.filename, this._scene);
+        const result = await SceneLoader.ImportMeshAsync("", modelUrl, undefined, this._scene);
 
         const mesh = result.meshes[0].getChildren()[0] as AbstractMesh;
         const animationGroups = new Array<AnimationGroup>();
@@ -135,8 +134,7 @@ export class ResourceManager {
     }
 
     private async _loadAvatar(modelUrl: string): Promise<AbstractMesh> {
-        const url = ResourceManager.splitUrl(modelUrl);
-        const result = await SceneLoader.ImportMeshAsync("", url.rootUrl, url.filename, this._scene);
+        const result = await SceneLoader.ImportMeshAsync("", modelUrl, undefined, this._scene);
         result.meshes.forEach((mesh) => {
             mesh.isPickable = false;
         });
