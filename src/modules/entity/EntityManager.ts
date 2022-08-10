@@ -99,6 +99,12 @@ export class EntityManager {
     }
 
     public update() : void {
+        // NOTE:
+        // update exist entities to prevent the add and change event notified in the same frame
+        this._entities.forEach((entity) => {
+            entity.update();
+        });
+
         if (this._entityPropertiesArray.length > 0) {
             this._entityPropertiesArray.forEach((props) => {
                 const entity = this._entities.get(props.entityItemID.stringify());
@@ -110,10 +116,6 @@ export class EntityManager {
             });
             this._entityPropertiesArray = [];
         }
-
-        this._entities.forEach((entity) => {
-            entity.update();
-        });
     }
 
     private _handleOnEntityData(data : EntityProperties[]): void {
