@@ -45,11 +45,11 @@ export class ResourceManager {
         return { rootUrl, filename };
     }
 
-    public async loadMyAvatar(modelUrl: string): Promise<AbstractMesh> {
+    public async loadMyAvatar(modelUrl: string): Promise<Nullable<AbstractMesh>> {
         return this._loadAvatar(modelUrl);
     }
 
-    public async loadAvatar(modelUrl: string): Promise<AbstractMesh> {
+    public async loadAvatar(modelUrl: string): Promise<Nullable<AbstractMesh>> {
         const avatar = await this._loadAvatar(modelUrl);
         return avatar;
     }
@@ -133,21 +133,27 @@ export class ResourceManager {
         return this._assetsManager.loadAsync();
     }
 
-    private async _loadAvatar(modelUrl: string): Promise<AbstractMesh> {
-        const result = await SceneLoader.ImportMeshAsync("", modelUrl, undefined, this._scene);
-        result.meshes.forEach((mesh) => {
-            mesh.isPickable = false;
-        });
+    private async _loadAvatar(modelUrl: string): Promise<Nullable<AbstractMesh>> {
+        try {
+            const result = await SceneLoader.ImportMeshAsync("", modelUrl, undefined, this._scene);
 
-        const avatar = result.meshes[0];
-        avatar.id = uuidv4();
-        avatar.scaling = new Vector3(1, 1, 1);
-        avatar.checkCollisions = true;
+            result.meshes.forEach((mesh) => {
+                mesh.isPickable = false;
+            });
 
-        Log.info(Log.types.AVATAR,
-            `Load avatar mesh url:${modelUrl} id::${avatar.id}`);
+            const avatar = result.meshes[0];
+            avatar.id = uuidv4();
+            avatar.scaling = new Vector3(1, 1, 1);
+            avatar.checkCollisions = true;
 
-        return avatar;
+            Log.info(Log.types.AVATAR,
+                `Load avatar mesh url:${modelUrl} id::${avatar.id}`);
+            return avatar;
+        } catch (err) {
+            const error = err as Error;
+            Log.error(Log.types.AVATAR, `${error.message}`);
+            return undefined;
+        }
     }
 
     // eslint-disable-next-line class-methods-use-this
