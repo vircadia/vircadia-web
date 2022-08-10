@@ -32,7 +32,6 @@ import { ScriptAvatar } from "@vircadia/web-sdk";
 import Log from "@Modules/debugging/log";
 // System Modules
 import { VVector3 } from ".";
-import { IEntityMetaData } from "../entity/EntityBuilder";
 
 const DefaultAvatarUrl = "https://staging.vircadia.com/O12OR634/UA92/sara.glb";
 const AvatarAnimationUrl = "https://staging.vircadia.com/O12OR634/UA92/AnimationsBasic.glb";
@@ -85,13 +84,14 @@ export class VScene {
         this._scene.render();
     }
 
-    public async load(sceneUrl ?: string, onSceneReady ?: ()=> void) : Promise<void> {
+    public async load(sceneUrl ?: string, beforeLoading ?: ()=> void, afterLoading ?: ()=> void) : Promise<void> {
         this._engine.displayLoadingUI();
         this._scene.detachControl();
         this._preScene = this._scene;
         this._createScene();
-        if (onSceneReady) {
-            this._scene.onReadyObservable.addOnce(onSceneReady);
+
+        if (beforeLoading) {
+            beforeLoading();
         }
 
         await this.loadMyAvatar();
@@ -111,14 +111,18 @@ export class VScene {
             camera.parent = this._myAvatar as Mesh;
         }
 
-        const url = sceneUrl ?? DefaultSceneUrl;
-
-        this._scene.onAfterRenderObservable.addOnce(() => {
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.loadEntities(url);
-        });
+        if (sceneUrl) {
+            this._scene.onAfterRenderObservable.addOnce(() => {
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                this.loadEntities(sceneUrl);
+            });
+        }
 
         await this._scene.whenReadyAsync();
+
+        if (afterLoading) {
+            afterLoading();
+        }
 
         if (this._preScene) {
             this._preScene.dispose();
@@ -163,6 +167,21 @@ export class VScene {
     public async loadSceneSpaceStation(): Promise<void> {
         await this.load("http://localhost:8080/assets/scenes/spacestation.json",
             () => {
+                this._scene.createDefaultEnvironment(
+                    { createGround: false,
+                        createSkybox: false,
+                        environmentTexture: "https://assets.babylonjs.com/textures/night.env" });
+
+                const defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);
+                defaultPipeline.fxaaEnabled = true;
+
+                defaultPipeline.glowLayerEnabled = true;
+                if (defaultPipeline.glowLayer) {
+                    defaultPipeline.glowLayer.blurKernelSize = 16;
+                    defaultPipeline.glowLayer.intensity = 0.5;
+                }
+            },
+            () => {
                 if (this._myAvatar) {
                     this._myAvatar.position = new Vector3(0, 49.6, 0);
                     this._myAvatar.rotation = new Vector3(0, 0, 0);
@@ -177,27 +196,21 @@ export class VScene {
                     camera.beta = Math.PI / 2;
                     camera.parent = this._myAvatar as Mesh;
                 }
-
-                this._scene.createDefaultEnvironment(
-                    { createGround: false,
-                        createSkybox: false,
-                        environmentTexture: "https://assets.babylonjs.com/textures/night.env" });
-
-                const defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);
-                defaultPipeline.fxaaEnabled = true;
-
-                defaultPipeline.glowLayerEnabled = true;
-                if (defaultPipeline.glowLayer) {
-                    defaultPipeline.glowLayer.blurKernelSize = 16;
-                    defaultPipeline.glowLayer.intensity = 0.5;
-                }
             });
     }
 
     public async loadSceneUA92Campus(): Promise<void> {
         await this.load("http://localhost:8080/assets/scenes/campus.json",
             () => {
-                // setup avatar
+                this._scene.createDefaultEnvironment(
+                    { createGround: false,
+                        createSkybox: false,
+                        environmentTexture: "https://assets.babylonjs.com/textures/country.env" });
+
+                const defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);
+                defaultPipeline.fxaaEnabled = true;
+            },
+            () => { // setup avatar
                 if (this._myAvatar) {
                     this._myAvatar.position = new Vector3(25, 0, 30);
                     this._myAvatar.rotation = new Vector3(0, Math.PI, 0);
@@ -212,14 +225,6 @@ export class VScene {
                     camera.beta = Math.PI / 2;
                     camera.parent = this._myAvatar as Mesh;
                 }
-
-                this._scene.createDefaultEnvironment(
-                    { createGround: false,
-                        createSkybox: false,
-                        environmentTexture: "https://assets.babylonjs.com/textures/country.env" });
-
-                const defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);
-                defaultPipeline.fxaaEnabled = true;
             });
     }
 
@@ -392,7 +397,8 @@ export class VScene {
             case "KeyE":
                 if (process.env.NODE_ENV === "development"
                             && evt.sourceEvent.shiftKey) {
-                    await this.load();
+
+                    await this.load(DefaultSceneUrl);
                 }
                 break;
 
