@@ -30,8 +30,6 @@ export class ModelEntityBuilder extends AbstractEntityBuilder {
         if (!gameObject.getComponent("ModelEntityController")) {
             gameObject.addComponent(new ModelEntityController(modelEntity));
         }
-
-        ModelEntityBuilder.buildModel(gameObject, modelEntity);
     }
 
     public static buildModel(gameObject: GameObject, entity: IModelEntity) : void {

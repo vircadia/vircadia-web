@@ -15,9 +15,10 @@ import {
     Scene
 } from "@babylonjs/core";
 
-import { GameObject } from "@Modules/object";
+import { GameObject, MeshComponent } from "@Modules/object";
+import { EntityMapper } from "./EntityMapper";
 import { IEntity } from "../Entities";
 
 export abstract class AbstractEntityBuilder {
-    public abstract build(gameObj:GameObject, entity: IEntity) : void;
+    public abstract build(gameObject:GameObject, entity: IEntity) : void;
 }
