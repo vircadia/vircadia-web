@@ -31,8 +31,6 @@ export class ShapeEntityBuilder extends AbstractEntityBuilder {
     public build(gameObject:GameObject, entity: IEntity) : void {
         const shapeEntity = entity as IShapeEntity;
 
-        ShapeEntityBuilder.buildMesh(gameObject, shapeEntity);
-
         if (!gameObject.getComponent("ShapeEntityController")) {
             gameObject.addComponent(new ShapeEntityController(shapeEntity));
         }
@@ -57,6 +55,9 @@ export class ShapeEntityBuilder extends AbstractEntityBuilder {
             if (!mesh) {
                 return;
             }
+
+            mesh.isPickable = false;
+            mesh.checkCollisions = false;
 
             this.buildDimensions(mesh, props);
             this.buildColor(mesh, props);
