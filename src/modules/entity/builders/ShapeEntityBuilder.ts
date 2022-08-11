@@ -88,6 +88,7 @@ export class ShapeEntityBuilder extends AbstractEntityBuilder {
 
         const mat = mesh.material as StandardMaterial;
         const color = EntityMapper.mapToColor3(props.color);
+        mat.ambientColor = color;
         mat.diffuseColor = color;
         mat.specularColor = color;
         mat.alpha = props.alpha ?? mat.alpha;
