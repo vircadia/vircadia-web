@@ -85,6 +85,8 @@ export class EntityManager {
         }
 
         entity.copyFormPacketData(props);
+        // prevent to emit change event
+        entity.update();
 
         this._addEntity(entity);
 

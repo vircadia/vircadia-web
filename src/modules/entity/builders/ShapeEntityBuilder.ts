@@ -34,6 +34,8 @@ export class ShapeEntityBuilder extends AbstractEntityBuilder {
         if (!gameObject.getComponent("ShapeEntityController")) {
             gameObject.addComponent(new ShapeEntityController(shapeEntity));
         }
+
+        ShapeEntityBuilder.buildMesh(gameObject, shapeEntity);
     }
 
     public static createShape(props: IShapeEntity) : Mesh | undefined {
