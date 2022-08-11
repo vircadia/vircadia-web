@@ -47,6 +47,11 @@ export class EntityController extends ScriptComponent {
         this._entity.onPositionAndRotationChanged?.add(this._handlePositionAndRotationChanged.bind(this));
     }
 
+    public onStart(): void {
+        this._handleCommonPropertiesChanged();
+        this._handlePositionAndRotationChanged();
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
     public onUpdate():void {
 
