@@ -31,7 +31,8 @@ export class EntityMapper {
     }
 
     public static mapToColor3(c?: IColorProperty) : Color3 {
-        return c ? new Color3(c.red, c.green, c.blue) : Color3.White();
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        return c ? new Color3(c.red / 255, c.green / 255, c.blue / 255) : Color3.White();
     }
 
     public static getEntityName(props: IEntity) : string {
