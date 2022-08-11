@@ -10,7 +10,7 @@
 //
 
 import { AnimationGroup, Scene, SceneLoader, AssetsManager,
-    AbstractMesh, Vector3, Quaternion } from "@babylonjs/core";
+    AbstractMesh, Vector3, Quaternion, MeshBuilder, StandardMaterial, Color3 } from "@babylonjs/core";
 // System Modules
 import { v4 as uuidv4 } from "uuid";
 // General Modules
@@ -152,8 +152,25 @@ export class ResourceManager {
         } catch (err) {
             const error = err as Error;
             Log.error(Log.types.AVATAR, `${error.message}`);
-            return undefined;
+            return this._createDummyMesh();
         }
+    }
+
+    private _createDummyMesh() : AbstractMesh {
+        const mesh = MeshBuilder.CreateSphere("DummyMesh");
+        mesh.isPickable = false;
+
+        let material = this._scene.getMaterialByName("DummyMaterial");
+        if (!material) {
+            const mat = new StandardMaterial("DummyMaterial");
+            mat.ambientColor = Color3.Red();
+            mat.diffuseColor = Color3.Red();
+            mat.specularColor = Color3.Red();
+            material = mat;
+        }
+
+        mesh.material = material;
+        return mesh;
     }
 
     // eslint-disable-next-line class-methods-use-this
