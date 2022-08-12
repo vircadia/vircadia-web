@@ -22,12 +22,15 @@ import { IEntity } from "../Entities";
 /* eslint-disable new-cap */
 export class EntityMapper {
 
+    // NOTE:
+    // Vercadia is right hand side coordinate system
+    // babylon.js is left hand side
     public static mapToVector3(vec? : IVector3Property) : Vector3 {
-        return vec ? new Vector3(vec.x, vec.y, vec.z) : Vector3.Zero();
+        return vec ? new Vector3(-vec.x, vec.y, vec.z) : Vector3.Zero();
     }
 
     public static mapToQuaternion(q? : IQuaternionProperty) : Quaternion {
-        return q ? new Quaternion(q.x, q.y, q.z, q.w) : Quaternion.Identity();
+        return q ? new Quaternion(q.x, -q.y, -q.z, q.w) : Quaternion.Identity();
     }
 
     public static mapToColor3(c?: IColorProperty) : Color3 {

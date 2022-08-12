@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 //
 //  ScriptAvatarController.ts
 //
@@ -12,7 +11,6 @@
 
 import {
     Node,
-    Nullable,
     TransformNode
 } from "@babylonjs/core";
 // General Modules
@@ -25,12 +23,11 @@ import { ScriptComponent, inspectorAccessor } from "@Modules/script";
 export class ScriptAvatarController extends ScriptComponent {
     // domain properties
     private _avatar : ScriptAvatar;
-    private _skeletonNodes: Array<TransformNode>;
+    private _skeletonNodes: Map<string, TransformNode> = new Map<string, TransformNode>();
 
     constructor(avatar:ScriptAvatar) {
         super("ScriptAvatarController");
         this._avatar = avatar;
-        this._skeletonNodes = new Array<TransformNode>();
     }
 
     @inspectorAccessor()
@@ -65,18 +62,16 @@ export class ScriptAvatarController extends ScriptComponent {
             this._collectSkeletonNode(rootNode);
         }
 
-        this._skeletonNodes.forEach((node, index) => {
-            if (!this._avatar || index > this._avatar.skeleton.length) {
-                return;
-            }
-
-            const joint = this._avatar.skeleton[index];
-            if (joint) {
+        this._avatar.skeleton.forEach((joint) => {
+            const node = this._skeletonNodes.get(joint.jointName);
+            if (node) {
                 node.position = AvatarMapper.mapToNodePosition(joint.defaultTranslation);
                 node.rotationQuaternion = AvatarMapper.mapToNodeQuaternion(joint.defaultRotation);
                 node.scaling = AvatarMapper.mapToNodeScaling(joint.defaultScale);
             }
         });
+
+        this._syncFromJointData();
 
         this._avatar.scaleChanged.connect(this._handleScaleChanged.bind(this));
     }
@@ -89,19 +84,7 @@ export class ScriptAvatarController extends ScriptComponent {
             // sync orientation
             this._gameObject.rotationQuaternion = AvatarMapper.mapToNodeQuaternion(this._avatar.orientation);
             // sync joints
-            this._skeletonNodes.forEach((node, index) => {
-                if (!this._avatar) {
-                    return;
-                }
-
-                if (this._avatar.jointTranslations[index]) {
-                    node.position = AvatarMapper.mapToNodePosition(this._avatar.jointTranslations[index]);
-                }
-
-                if (this._avatar.jointRotations[index]) {
-                    node.rotationQuaternion = AvatarMapper.mapToNodeQuaternion(this._avatar.jointRotations[index]);
-                }
-            });
+            this._syncFromJointData();
         }
     }
 
@@ -112,14 +95,31 @@ export class ScriptAvatarController extends ScriptComponent {
     }
 
     private _collectSkeletonNode(node:Node) : void {
-        if (node.name === "__root__" || node.getClassName() === "TransformNode") {
+        if (node.getClassName() === "TransformNode") {
             const transNode = node as TransformNode;
-            this._skeletonNodes.push(transNode);
+            this._skeletonNodes.set(node.name, transNode);
         }
 
         const children = node.getChildren();
         children.forEach((child) => {
             this._collectSkeletonNode(child);
+        });
+    }
+
+    private _syncFromJointData() {
+        this._avatar.skeleton.forEach((joint, index) => {
+            const node = this._skeletonNodes.get(joint.jointName);
+            if (node) {
+                const translation = this._avatar.jointTranslations[index];
+                if (translation) {
+                    node.position = AvatarMapper.mapToNodePosition(translation);
+                }
+
+                const rotation = this._avatar.jointRotations[index];
+                if (rotation) {
+                    node.rotationQuaternion = AvatarMapper.mapToNodeQuaternion(rotation);
+                }
+            }
         });
     }
 }
