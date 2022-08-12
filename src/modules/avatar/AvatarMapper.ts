@@ -29,13 +29,13 @@ export enum BoneType {
 export class AvatarMapper {
 
     public static mapToJointPosition(position : Vector3) : vec3 {
-        return { x: position.x, y: position.y, z: position.z };
+        return { x: -position.x, y: position.y, z: position.z };
     }
 
     public static mapToJointQuaternion(rotationQuaternion : Nullable<Quaternion>) : quat {
         // prevent null and w === 0
-        const q = rotationQuaternion ? rotationQuaternion : Quaternion.Zero();
-        return { x: q.x, y: q.y, z: q.z, w: q.w === 0 ? 1 : q.w };
+        const q = rotationQuaternion ? rotationQuaternion : Quaternion.Identity();
+        return { x: q.x, y: -q.y, z: -q.z, w: q.w === 0 ? 1 : q.w };
     }
 
     public static mapToJointScale(scaling : Vector3) : number {
@@ -55,11 +55,11 @@ export class AvatarMapper {
     }
 
     public static mapToNodePosition(position : vec3 | null) : Vector3 {
-        return position ? new Vector3(position.x, position.y, position.z) : Vector3.Zero();
+        return position ? new Vector3(-position.x, position.y, position.z) : Vector3.Zero();
     }
 
-    public static mapToNodeQuaternion(quaternion : quat | null) : Quaternion {
-        return quaternion ? new Quaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w) : Quaternion.Zero();
+    public static mapToNodeQuaternion(q : quat | null) : Quaternion {
+        return q ? new Quaternion(q.x, -q.y, -q.z, q.w) : Quaternion.Identity();
     }
 
     public static mapToNodeScaling(scale :number) : Vector3 {
