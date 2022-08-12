@@ -19,14 +19,15 @@ import { ScriptComponent, inspectorAccessor } from "@Modules/script";
 
 // Domain Modules
 import { MyAvatarInterface, SkeletonJoint } from "@vircadia/web-sdk";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import Log from "@Modules/debugging/log";
 
 export class MyAvatarController extends ScriptComponent {
     private _myAvatar : Nullable<MyAvatarInterface> = null;
-    private _skeletonNodes: Array<TransformNode>;
+    private _skeletonNodes: Map<string, TransformNode> = new Map<string, TransformNode>();
 
     constructor() {
         super("MyAvatarController");
-        this._skeletonNodes = new Array<TransformNode>();
     }
 
     @inspectorAccessor()
@@ -53,6 +54,8 @@ export class MyAvatarController extends ScriptComponent {
         const skeleton = new Array<SkeletonJoint>();
         this._collectJointData(rootNode, -1, skeleton);
         this._myAvatar.skeleton = skeleton;
+
+        this._syncToJointData();
     }
 
     @inspectorAccessor()
@@ -87,21 +90,16 @@ export class MyAvatarController extends ScriptComponent {
             // sync orientation
             this._myAvatar.orientation = AvatarMapper.mapToJointQuaternion(this._gameObject.rotationQuaternion);
 
-            // sync joint data
-            for (let i = 0; i < this._myAvatar.jointRotations.length; i++) {
-                this._myAvatar.jointTranslations[i]
-                        = AvatarMapper.mapToJointPosition(this._skeletonNodes[i].position);
-                this._myAvatar.jointRotations[i]
-                        = AvatarMapper.mapToJointQuaternion(this._skeletonNodes[i].rotationQuaternion);
-            }
+            this._syncToJointData();
         }
     }
 
     private _collectJointData(node:Node, parentIndex: number, joints: SkeletonJoint[]) : void {
         let jointIndex = parentIndex;
-        if (node.name === "__root__" || node.getClassName() === "TransformNode") {
+        if (node.getClassName() === "TransformNode") {
             const transNode = node as TransformNode;
-            this._skeletonNodes.push(transNode);
+            // this._skeletonNodes.push(transNode);
+            this._skeletonNodes.set(node.name, transNode);
 
             jointIndex = joints.length;
             const joint = AvatarMapper.mapToJoint(transNode, jointIndex, parentIndex);
@@ -112,5 +110,21 @@ export class MyAvatarController extends ScriptComponent {
         children.forEach((child) => {
             this._collectJointData(child, jointIndex, joints);
         });
+    }
+
+    private _syncToJointData() {
+        if (!this._gameObject || !this._myAvatar) {
+            return;
+        }
+
+        for (let i = 0; i < this._myAvatar.skeleton.length; i++) {
+            const node = this._skeletonNodes.get(this._myAvatar.skeleton[i].jointName);
+            if (node) {
+                this._myAvatar.jointTranslations[i]
+                    = AvatarMapper.mapToJointPosition(node.position);
+                this._myAvatar.jointRotations[i]
+                    = AvatarMapper.mapToJointQuaternion(node.rotationQuaternion);
+            }
+        }
     }
 }

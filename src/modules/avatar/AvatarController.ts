@@ -143,22 +143,22 @@ export class AvatarController extends ScriptComponent {
         }
 
         if (this._inputMap["KeyW"]) {
-            this._movement.z = Scalar.Lerp(this._movement.z, -this._walkSpeed, 0.1);
-        } else if (this._inputMap["KeyS"]) {
             this._movement.z = Scalar.Lerp(this._movement.z, this._walkSpeed, 0.1);
+        } else if (this._inputMap["KeyS"]) {
+            this._movement.z = Scalar.Lerp(this._movement.z, -this._walkSpeed, 0.1);
         } else {
             this._movement.z = 0;
         }
 
         if (this._inputMap["KeyA"]) {
             if (this._shiftKey) {
-                this._movement.x = Scalar.Lerp(this._movement.x, this._walkSpeed, 0.1);
+                this._movement.x = Scalar.Lerp(this._movement.x, -this._walkSpeed, 0.1);
             } else {
                 this._rot = Scalar.Lerp(this._rot, -this._rotationSpeed, 0.1);
             }
         } else if (this._inputMap["KeyD"]) {
             if (this._shiftKey) {
-                this._movement.x = Scalar.Lerp(this._movement.x, -this._walkSpeed, 0.1);
+                this._movement.x = Scalar.Lerp(this._movement.x, this._walkSpeed, 0.1);
             } else {
                 this._rot = Scalar.Lerp(this._rot, this._rotationSpeed, 0.1);
             }

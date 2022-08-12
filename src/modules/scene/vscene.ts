@@ -98,15 +98,15 @@ export class VScene {
         // setup avatar
         if (this._myAvatar) {
             this._myAvatar.position = new Vector3(0, 0, 0);
-            this._myAvatar.rotation = new Vector3(0, Math.PI, 0);
+            // this._myAvatar.rotation = new Vector3(0, Math.PI, 0);
         }
 
         // setup camera
         const camera = this._camera as ArcRotateCamera;
         if (camera) {
-            camera.minZ = 1;
+            camera.minZ = 0.1;
             camera.maxZ = 2500;
-            camera.alpha = -Math.PI / 2;
+            camera.alpha = Math.PI / 2;
             camera.beta = Math.PI / 2;
             camera.parent = this._myAvatar as Mesh;
         }
@@ -184,7 +184,6 @@ export class VScene {
             () => {
                 if (this._myAvatar) {
                     this._myAvatar.position = new Vector3(0, 49.6, 0);
-                    this._myAvatar.rotation = new Vector3(0, 0, 0);
                 }
 
                 // setup camera
@@ -192,9 +191,6 @@ export class VScene {
                 if (camera) {
                     camera.minZ = 1;
                     camera.maxZ = 250000;
-                    camera.alpha = -Math.PI / 2;
-                    camera.beta = Math.PI / 2;
-                    camera.parent = this._myAvatar as Mesh;
                 }
             });
     }
@@ -213,17 +209,6 @@ export class VScene {
             () => { // setup avatar
                 if (this._myAvatar) {
                     this._myAvatar.position = new Vector3(25, 0, 30);
-                    this._myAvatar.rotation = new Vector3(0, Math.PI, 0);
-                }
-
-                // setup camera
-                const camera = this._camera as ArcRotateCamera;
-                if (camera) {
-                    camera.minZ = 0.1;
-                    camera.maxZ = 2000;
-                    camera.alpha = -Math.PI / 2;
-                    camera.beta = Math.PI / 2;
-                    camera.parent = this._myAvatar as Mesh;
                 }
             });
     }
@@ -252,7 +237,7 @@ export class VScene {
 
             const mesh = await this._resourceManager.loadMyAvatar(modelURL ?? DefaultAvatarUrl);
             if (mesh) {
-                mesh.rotationQuaternion = Quaternion.Zero();
+                // mesh.rotationQuaternion = Quaternion.Identity();
                 const meshComponent = new MeshComponent(mesh);
                 this._myAvatar.addComponent(meshComponent);
             }
