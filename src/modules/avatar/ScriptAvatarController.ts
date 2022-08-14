@@ -17,7 +17,7 @@ import {
 import Log from "@Modules/debugging/log";
 import { AvatarMapper } from "./AvatarMapper";
 // Domain Modules
-import { ScriptAvatar } from "@vircadia/web-sdk";
+import { ScriptAvatar, vec3, quat } from "@vircadia/web-sdk";
 import { ScriptComponent, inspectorAccessor } from "@Modules/script";
 
 export class ScriptAvatarController extends ScriptComponent {
@@ -62,16 +62,9 @@ export class ScriptAvatarController extends ScriptComponent {
             this._collectSkeletonNode(rootNode);
         }
 
-        this._avatar.skeleton.forEach((joint) => {
-            const node = this._skeletonNodes.get(joint.jointName);
-            if (node) {
-                node.position = AvatarMapper.mapToNodePosition(joint.defaultTranslation);
-                node.rotationQuaternion = AvatarMapper.mapToNodeQuaternion(joint.defaultRotation);
-                node.scaling = AvatarMapper.mapToNodeScaling(joint.defaultScale);
-            }
-        });
+        console.log(Log.types.AVATAR, "ScriptAvatar", this._avatar.skeleton);
 
-        this._syncFromJointData();
+        this._syncDefaultPoseFromDomain();
 
         this._avatar.scaleChanged.connect(this._handleScaleChanged.bind(this));
     }
@@ -80,11 +73,11 @@ export class ScriptAvatarController extends ScriptComponent {
     public onUpdate():void {
         if (this._gameObject) {
             // sync postion
-            this._gameObject.position = AvatarMapper.mapToNodePosition(this._avatar.position);
+            this._gameObject.position = AvatarMapper.mapDomainPosition(this._avatar.position);
             // sync orientation
-            this._gameObject.rotationQuaternion = AvatarMapper.mapToNodeQuaternion(this._avatar.orientation);
-            // sync joints
-            this._syncFromJointData();
+            this._gameObject.rotationQuaternion = AvatarMapper.mapDomainOrientation(this._avatar.orientation);
+
+            this._syncPoseFromDomain();
         }
     }
 
@@ -106,20 +99,49 @@ export class ScriptAvatarController extends ScriptComponent {
         });
     }
 
-    private _syncFromJointData() {
-        this._avatar.skeleton.forEach((joint, index) => {
+    private _syncDefaultPoseFromDomain() {
+        this._avatar.skeleton.forEach((joint) => {
+            console.log(Log.types.AVATAR, joint);
             const node = this._skeletonNodes.get(joint.jointName);
             if (node) {
-                const translation = this._avatar.jointTranslations[index];
-                if (translation) {
-                    node.position = AvatarMapper.mapToNodePosition(translation);
-                }
+                node.position = AvatarMapper.mapJointTranslation(joint.defaultTranslation);
 
-                const rotation = this._avatar.jointRotations[index];
-                if (rotation) {
-                    node.rotationQuaternion = AvatarMapper.mapToNodeQuaternion(rotation);
+                let rotation = AvatarMapper.mapJointRotation(joint.defaultRotation);
+                if (joint.parentIndex >= 0 && joint.parentIndex < this._avatar.skeleton.length) {
+                    const parentQuat = AvatarMapper.mapJointRotation(this._avatar.skeleton[joint.parentIndex].defaultRotation);
+                    rotation = parentQuat.invert().multiply(rotation);
                 }
+                node.rotationQuaternion = rotation;
+
+                node.scaling = AvatarMapper.mapToNodeScaling(joint.defaultScale);
             }
         });
+    }
+
+    private _syncPoseFromDomain() {
+        this._avatar.skeleton.forEach((joint) => {
+            const node = this._skeletonNodes.get(joint.jointName);
+            if (node) {
+                node.position = AvatarMapper.mapJointTranslation(this._getJointTranslation(joint.jointIndex));
+
+                // covert absolute rotation to relative
+                let rotation = AvatarMapper.mapJointRotation(this._getJointRotation(joint.jointIndex));
+                if (joint.parentIndex >= 0 && joint.parentIndex < this._avatar.skeleton.length) {
+                    const parentRotation = AvatarMapper.mapJointRotation(this._getJointRotation(joint.parentIndex));
+                    rotation = parentRotation.invert().multiply(rotation);
+                }
+                node.rotationQuaternion = rotation;
+            }
+        });
+    }
+
+    private _getJointTranslation(index: number) : vec3 {
+        const trans = this._avatar.jointTranslations[index];
+        return trans ?? this._avatar.skeleton[index].defaultTranslation;
+    }
+
+    private _getJointRotation(index: number) : quat {
+        const q = this._avatar.jointRotations[index];
+        return q ?? this._avatar.skeleton[index].defaultRotation;
     }
 }
