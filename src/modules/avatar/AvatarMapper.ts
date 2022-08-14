@@ -28,18 +28,30 @@ export enum BoneType {
 /* eslint-disable new-cap */
 export class AvatarMapper {
 
-    public static mapToJointPosition(position : Vector3) : vec3 {
+    public static mapToDomainPosition(position : Vector3) : vec3 {
         return { x: -position.x, y: position.y, z: position.z };
     }
 
-    public static mapToJointQuaternion(rotationQuaternion : Nullable<Quaternion>) : quat {
+    public static mapToDomainOrientation(rotationQuaternion : Nullable<Quaternion>) : quat {
         // prevent null and w === 0
         const q = rotationQuaternion ? rotationQuaternion : Quaternion.Identity();
         return { x: q.x, y: -q.y, z: -q.z, w: q.w === 0 ? 1 : q.w };
     }
 
-    public static mapToJointScale(scaling : Vector3) : number {
+    public static mapToDomainScale(scaling : Vector3) : number {
         return scaling.x;
+    }
+
+    public static mapDomainPosition(position : vec3 | null) : Vector3 {
+        return position ? new Vector3(-position.x, position.y, position.z) : Vector3.Zero();
+    }
+
+    public static mapDomainOrientation(q : quat | null) : Quaternion {
+        return q ? new Quaternion(q.x, -q.y, -q.z, q.w) : Quaternion.Identity();
+    }
+
+    public static mapToNodeScaling(scale :number) : Vector3 {
+        return new Vector3(scale, scale, scale);
     }
 
     public static mapToJoint(node:TransformNode, jointIndex : number, parentIndex : number) : SkeletonJoint {
@@ -48,22 +60,27 @@ export class AvatarMapper {
             jointIndex,
             parentIndex,
             boneType: parentIndex === -1 ? BoneType.SkeletonRoot : BoneType.SkeletonChild,
-            defaultTranslation: AvatarMapper.mapToJointPosition(node.position),
-            defaultRotation: AvatarMapper.mapToJointQuaternion(node.rotationQuaternion),
-            defaultScale: AvatarMapper.mapToJointScale(node.scaling)
+            defaultTranslation: AvatarMapper.mapToJointTranslation(node.position),
+            defaultRotation: AvatarMapper.mapToJointRotation(node.rotationQuaternion),
+            defaultScale: AvatarMapper.mapToDomainScale(node.scaling)
         };
     }
 
-    public static mapToNodePosition(position : vec3 | null) : Vector3 {
-        return position ? new Vector3(-position.x, position.y, position.z) : Vector3.Zero();
+    public static mapToJointTranslation(vec : Vector3) : vec3 {
+        return { x: vec.x, y: vec.y, z: vec.z };
     }
 
-    public static mapToNodeQuaternion(q : quat | null) : Quaternion {
-        return q ? new Quaternion(q.x, -q.y, -q.z, q.w) : Quaternion.Identity();
+    public static mapToJointRotation(quaternion : Nullable<Quaternion>) : quat {
+        // prevent null and w === 0
+        const q = quaternion ? quaternion : Quaternion.Identity();
+        return { x: q.x, y: q.y, z: q.z, w: q.w === 0 ? 1 : q.w };
     }
 
-    public static mapToNodeScaling(scale :number) : Vector3 {
-        return new Vector3(scale, scale, scale);
+    public static mapJointTranslation(translation : vec3) : Vector3 {
+        return new Vector3(translation.x, translation.y, translation.z);
     }
 
+    public static mapJointRotation(q : quat) : Quaternion {
+        return new Quaternion(q.x, q.y, q.z, q.w);
+    }
 }
