@@ -62,8 +62,6 @@ export class ScriptAvatarController extends ScriptComponent {
             this._collectSkeletonNode(rootNode);
         }
 
-        console.log(Log.types.AVATAR, "ScriptAvatar", this._avatar.skeleton);
-
         this._syncDefaultPoseFromDomain();
 
         this._avatar.scaleChanged.connect(this._handleScaleChanged.bind(this));
@@ -101,7 +99,6 @@ export class ScriptAvatarController extends ScriptComponent {
 
     private _syncDefaultPoseFromDomain() {
         this._avatar.skeleton.forEach((joint) => {
-            console.log(Log.types.AVATAR, joint);
             const node = this._skeletonNodes.get(joint.jointName);
             if (node) {
                 node.position = AvatarMapper.mapJointTranslation(joint.defaultTranslation);
@@ -113,7 +110,7 @@ export class ScriptAvatarController extends ScriptComponent {
                 }
                 node.rotationQuaternion = rotation;
 
-                node.scaling = AvatarMapper.mapToNodeScaling(joint.defaultScale);
+                // node.scaling = AvatarMapper.mapToNodeScaling(joint.defaultScale);
             }
         });
     }
