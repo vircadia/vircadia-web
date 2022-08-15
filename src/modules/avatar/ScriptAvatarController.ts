@@ -17,13 +17,14 @@ import {
 import Log from "@Modules/debugging/log";
 import { AvatarMapper } from "./AvatarMapper";
 // Domain Modules
-import { ScriptAvatar, vec3, quat } from "@vircadia/web-sdk";
+import { ScriptAvatar, vec3, quat, SkeletonJoint } from "@vircadia/web-sdk";
 import { ScriptComponent, inspectorAccessor } from "@Modules/script";
 
 export class ScriptAvatarController extends ScriptComponent {
     // domain properties
     private _avatar : ScriptAvatar;
     private _skeletonNodes: Map<string, TransformNode> = new Map<string, TransformNode>();
+    private _skeletonJointsCache = new Array<SkeletonJoint>();
 
     constructor(avatar:ScriptAvatar) {
         super("ScriptAvatarController");
@@ -62,6 +63,13 @@ export class ScriptAvatarController extends ScriptComponent {
             this._collectSkeletonNode(rootNode);
         }
 
+        // NOTE:
+        // call this._avatar.skeleton hits performance.
+        // chace default joints value here.
+        this._avatar.skeleton.forEach((joint) => {
+            this._skeletonJointsCache.push(joint);
+        });
+
         this._syncDefaultPoseFromDomain();
 
         this._avatar.scaleChanged.connect(this._handleScaleChanged.bind(this));
@@ -98,32 +106,38 @@ export class ScriptAvatarController extends ScriptComponent {
     }
 
     private _syncDefaultPoseFromDomain() {
-        this._avatar.skeleton.forEach((joint) => {
+        // this._avatar.skeleton.forEach((joint) => {
+        this._skeletonJointsCache.forEach((joint) => {
             const node = this._skeletonNodes.get(joint.jointName);
             if (node) {
                 node.position = AvatarMapper.mapJointTranslation(joint.defaultTranslation);
 
                 let rotation = AvatarMapper.mapJointRotation(joint.defaultRotation);
-                if (joint.parentIndex >= 0 && joint.parentIndex < this._avatar.skeleton.length) {
-                    const parentQuat = AvatarMapper.mapJointRotation(this._avatar.skeleton[joint.parentIndex].defaultRotation);
+                if (this._isVaildParentIndex(joint.parentIndex)) {
+                    const parentQuat = AvatarMapper.mapJointRotation(
+                        this._skeletonJointsCache[joint.parentIndex].defaultRotation);
                     rotation = parentQuat.invert().multiply(rotation);
                 }
                 node.rotationQuaternion = rotation;
 
+                // FIXME:
+                // joint.defaultScale does not work correctly
+                // maybe absolute coordinate problem.
                 // node.scaling = AvatarMapper.mapToNodeScaling(joint.defaultScale);
             }
         });
     }
 
     private _syncPoseFromDomain() {
-        this._avatar.skeleton.forEach((joint) => {
+        this._skeletonJointsCache.forEach((joint) => {
             const node = this._skeletonNodes.get(joint.jointName);
             if (node) {
                 node.position = AvatarMapper.mapJointTranslation(this._getJointTranslation(joint.jointIndex));
 
                 // covert absolute rotation to relative
                 let rotation = AvatarMapper.mapJointRotation(this._getJointRotation(joint.jointIndex));
-                if (joint.parentIndex >= 0 && joint.parentIndex < this._avatar.skeleton.length) {
+
+                if (this._isVaildParentIndex(joint.parentIndex)) {
                     const parentRotation = AvatarMapper.mapJointRotation(this._getJointRotation(joint.parentIndex));
                     rotation = parentRotation.invert().multiply(rotation);
                 }
@@ -134,11 +148,15 @@ export class ScriptAvatarController extends ScriptComponent {
 
     private _getJointTranslation(index: number) : vec3 {
         const trans = this._avatar.jointTranslations[index];
-        return trans ?? this._avatar.skeleton[index].defaultTranslation;
+        return trans ? trans : this._skeletonJointsCache[index].defaultTranslation;
     }
 
     private _getJointRotation(index: number) : quat {
         const q = this._avatar.jointRotations[index];
-        return q ?? this._avatar.skeleton[index].defaultRotation;
+        return q ? q : this._skeletonJointsCache[index].defaultRotation;
+    }
+
+    private _isVaildParentIndex(index: number) : boolean {
+        return index >= 0 && index < this._skeletonJointsCache.length;
     }
 }
