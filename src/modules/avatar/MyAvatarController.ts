@@ -142,16 +142,19 @@ export class MyAvatarController extends ScriptComponent {
             return;
         }
 
-        for (let i = 0; i < this._myAvatar.skeleton.length; i++) {
-            const joint = this._myAvatar.skeleton[i];
+        this._myAvatar.skeleton.forEach((joint) => {
+            if (!this._myAvatar) {
+                return;
+            }
             const node = this._skeletonNodes.get(joint.jointName);
+
             if (node) {
                 this._myAvatar.jointTranslations[joint.jointIndex]
                    = AvatarMapper.mapToJointTranslation(node.position);
 
                 let rotation = node.rotationQuaternion;
                 if (rotation) {
-                    if (joint.parentIndex >= 0 && joint.parentIndex < this._myAvatar.skeleton.length) {
+                    if (joint.parentIndex >= 0) {
                         const q = this._myAvatar.jointRotations[joint.parentIndex];
                         if (q) {
                             const parentRotation = AvatarMapper.mapJointRotation(q);
@@ -162,6 +165,6 @@ export class MyAvatarController extends ScriptComponent {
                     this._myAvatar.jointRotations[joint.jointIndex] = AvatarMapper.mapToJointRotation(rotation);
                 }
             }
-        }
+        });
     }
 }
