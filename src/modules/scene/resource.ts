@@ -16,6 +16,8 @@ import { v4 as uuidv4 } from "uuid";
 // General Modules
 import Log from "@Modules/debugging/log";
 
+/* eslint-disable @typescript-eslint/no-magic-numbers */
+
 interface IAvatarAnimationResult {
     mesh : AbstractMesh;
     animGroups : AnimationGroup[]
@@ -141,14 +143,23 @@ export class ResourceManager {
                 mesh.isPickable = false;
             });
 
-            const avatar = result.meshes[0];
-            avatar.id = uuidv4();
-            avatar.scaling = new Vector3(1, 1, 1);
-            avatar.checkCollisions = true;
+            const mesh = result.meshes[0];
+            mesh.id = uuidv4();
+            mesh.scaling = new Vector3(1, 1, 1);
+            mesh.checkCollisions = true;
+
+            // make the pivot to the center of the bounding
+            const bounding = mesh.getHierarchyBoundingVectors(true);
+            const pivot = bounding.max.add(bounding.min).scale(-0.5);
+            // add some offset
+            pivot.addInPlace(new Vector3(0, -0.1, 0));
+            // move the mesh to the pivot
+            mesh.position = pivot;
 
             Log.info(Log.types.AVATAR,
-                `Load avatar mesh url:${modelUrl} id::${avatar.id}`);
-            return avatar;
+                `Load avatar mesh url:${modelUrl} id::${mesh.id}`);
+
+            return mesh;
         } catch (err) {
             const error = err as Error;
             Log.error(Log.types.AVATAR, `${error.message}`);
