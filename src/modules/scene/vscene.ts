@@ -97,7 +97,7 @@ export class VScene {
         await this.loadMyAvatar();
         // setup avatar
         if (this._myAvatar) {
-            this._myAvatar.position = new Vector3(0, 0, 0);
+            this._myAvatar.position = new Vector3(0, 1, 0);
             // this._myAvatar.rotation = new Vector3(0, Math.PI, 0);
         }
 
@@ -183,7 +183,7 @@ export class VScene {
             },
             () => {
                 if (this._myAvatar) {
-                    this._myAvatar.position = new Vector3(0, 49.6, 0);
+                    this._myAvatar.position = new Vector3(0, 50.6, 0);
                 }
 
                 // setup camera
@@ -208,7 +208,7 @@ export class VScene {
             },
             () => { // setup avatar
                 if (this._myAvatar) {
-                    this._myAvatar.position = new Vector3(25, 0, 30);
+                    this._myAvatar.position = new Vector3(25, 1, 30);
                 }
             });
     }
