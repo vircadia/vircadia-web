@@ -213,9 +213,9 @@ export class AvatarController extends ScriptComponent {
 
 
     private _updateGroundDetection(): void {
-        const pickedPoint = this._floorRaycast(0, 0, 1);
+        const pickedPoint = this._floorRaycast(0, 0, 1.5);
         if (!pickedPoint.equals(Vector3.Zero()) && this._gameObject) {
-            this._gameObject.position.y = pickedPoint.y + 0.05;
+            this._gameObject.position.y = pickedPoint.y + 1.0;
         }
     }
 
@@ -228,7 +228,7 @@ export class AvatarController extends ScriptComponent {
 
         // position the raycast from bottom center of mesh
         const raycastFloorPos = new Vector3(
-            this._gameObject.position.x + offsetx, this._gameObject.position.y + 0.5, this._gameObject.position.z + offsetz);
+            this._gameObject.position.x + offsetx, this._gameObject.position.y, this._gameObject.position.z + offsetz);
 
         const ray = new Ray(raycastFloorPos, Vector3.Down(), raycastlen);
 
