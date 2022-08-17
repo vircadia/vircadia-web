@@ -31,11 +31,11 @@ export class ShapeEntityBuilder extends AbstractEntityBuilder {
     public build(gameObject:GameObject, entity: IEntity) : void {
         const shapeEntity = entity as IShapeEntity;
 
+        ShapeEntityBuilder.buildMesh(gameObject, shapeEntity);
+
         if (!gameObject.getComponent("ShapeEntityController")) {
             gameObject.addComponent(new ShapeEntityController(shapeEntity));
         }
-
-        ShapeEntityBuilder.buildMesh(gameObject, shapeEntity);
     }
 
     public static createShape(props: IShapeEntity) : Mesh | undefined {
@@ -51,9 +51,11 @@ export class ShapeEntityBuilder extends AbstractEntityBuilder {
         }
     }
 
-    public static buildMesh(gameObject: GameObject, props: IShapeEntity) : void {
-        if (props.shape) {
-            const mesh = ShapeEntityBuilder.createShape(props);
+    public static buildMesh(gameObject: GameObject, entity: IShapeEntity) : void {
+        if (entity.shape) {
+            gameObject.removeComponent(MeshComponent.typeName);
+
+            const mesh = ShapeEntityBuilder.createShape(entity);
             if (!mesh) {
                 return;
             }
@@ -61,16 +63,14 @@ export class ShapeEntityBuilder extends AbstractEntityBuilder {
             mesh.isPickable = false;
             mesh.checkCollisions = false;
 
-            this.buildDimensions(mesh, props);
-            this.buildColor(mesh, props);
+            this.buildDimensions(mesh, entity);
+            this.buildColor(mesh, entity);
 
-            const comp = gameObject.getComponent("Mesh") as MeshComponent;
-            if (comp) {
-                comp.mesh.dispose(true, true);
-                comp.mesh = mesh;
-            } else {
-                gameObject.addComponent(new MeshComponent(mesh));
+            const comp = new MeshComponent(mesh);
+            if (entity.visible !== undefined) {
+                comp.visible = entity.visible;
             }
+            gameObject.addComponent(comp);
         }
     }
 

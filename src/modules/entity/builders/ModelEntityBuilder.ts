@@ -11,11 +11,13 @@
 
 /* eslint-disable new-cap */
 import {
+    AbstractMesh,
     SceneLoader
 } from "@babylonjs/core";
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { IEntity, IModelEntity } from "../Entities";
+import { CollisionMask } from "../EntityProperties";
 import { AbstractEntityBuilder } from "./AbstractEntityBuilder";
 
 import Log from "@Base/modules/debugging/log";
@@ -27,15 +29,16 @@ export class ModelEntityBuilder extends AbstractEntityBuilder {
     // eslint-disable-next-line class-methods-use-this
     public build(gameObject: GameObject, entity: IEntity) : void {
         const modelEntity = entity as IModelEntity;
+
+        ModelEntityBuilder.buildModel(gameObject, modelEntity);
+
         if (!gameObject.getComponent("ModelEntityController")) {
             gameObject.addComponent(new ModelEntityController(modelEntity));
         }
-
-        ModelEntityBuilder.buildModel(gameObject, modelEntity);
     }
 
     public static buildModel(gameObject: GameObject, entity: IModelEntity) : void {
-        gameObject.removeComponent("Mesh");
+        gameObject.removeComponent(MeshComponent.typeName);
 
         if (!entity.modelURL || entity.modelURL === "") {
             return;
@@ -47,31 +50,36 @@ export class ModelEntityBuilder extends AbstractEntityBuilder {
         SceneLoader.ImportMesh("",
             entity.modelURL, undefined, gameObject.getScene(), (meshes) => {
 
-                gameObject.addComponent(new MeshComponent(meshes[0]));
+                const comp = new MeshComponent(meshes[0]);
+                if (entity.visible !== undefined) {
+                    comp.visible = entity.visible;
+                }
+                gameObject.addComponent(comp);
 
-                meshes.forEach((mesh) => {
-                    mesh.isPickable = false;
-                    mesh.checkCollisions = false;
-
-                    if (entity.visible !== undefined) {
-                        mesh.isVisible = entity.visible;
-                    }
-
-                    if (entity.collidesWith && (
-                        entity.collidesWith.includes("myAvatar") || entity.collidesWith.includes("otherAvatar"))) {
-                        // TODO:
-                        // fix collide rule
-                        if (mesh.name.includes("Collision")) {
-                            if (mesh.name.includes("Floor")) {
-                                mesh.isPickable = true;
-                            } else {
-                                mesh.checkCollisions = true;
-                            }
-                        } else {
-                            mesh.checkCollisions = true;
-                        }
-                    }
-                });
+                ModelEntityBuilder.buildCollision(meshes, entity);
             });
+    }
+
+    public static buildCollision(meshes: AbstractMesh[], entity: IModelEntity):void {
+        meshes.forEach((mesh) => {
+            mesh.isPickable = false;
+            mesh.checkCollisions = false;
+
+            if (entity.collisionMask
+                && entity.collisionMask & CollisionMask.MyAvatar) {
+
+                // TODO:
+                // fix collide rule
+                if (mesh.name.includes("Collision")) {
+                    if (mesh.name.includes("Floor")) {
+                        mesh.isPickable = true;
+                    } else {
+                        mesh.checkCollisions = true;
+                    }
+                } else {
+                    mesh.checkCollisions = true;
+                }
+            }
+        });
     }
 }
