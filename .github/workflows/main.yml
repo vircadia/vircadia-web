@@ -32,5 +32,5 @@ jobs:
         server: ftp.vircadia.com
         username: ${{ secrets.ftp_username }}
         password: ${{ secrets.ftp_password }}
-        local-dir: dist/
+        local-dir: dist/spa/
         dry-run: false
