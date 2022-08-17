@@ -213,9 +213,9 @@ export class AvatarController extends ScriptComponent {
 
 
     private _updateGroundDetection(): void {
-        const pickedPoint = this._floorRaycast(0, 0, 1.5);
+        const pickedPoint = this._floorRaycast(0, 0, 2.5);
         if (!pickedPoint.equals(Vector3.Zero()) && this._gameObject) {
-            this._gameObject.position.y = pickedPoint.y + 1.0;
+            this._gameObject.position.y = pickedPoint.y + 1.05;
         }
     }
 

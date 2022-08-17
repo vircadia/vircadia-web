@@ -14,7 +14,7 @@
 import { EntityController } from "./EntityController";
 import { IModelEntity } from "../Entities";
 import { ModelEntityBuilder } from "../builders";
-import { GameObject } from "@Base/modules/object";
+import { GameObject, MeshComponent } from "@Base/modules/object";
 import Log from "@Base/modules/debugging/log";
 
 export class ModelEntityController extends EntityController {
@@ -39,6 +39,7 @@ export class ModelEntityController extends EntityController {
     public onInitialize(): void {
         super.onInitialize();
         this._modelEntity.onModelURLChanged?.add(this._handleModelURLChanged.bind(this));
+        this._modelEntity.onCollisionPropertiesChanged?.add(this._handleCollisionPropertiesChanged.bind(this));
     }
 
     public onStart(): void {
@@ -53,5 +54,15 @@ export class ModelEntityController extends EntityController {
 
     private _handleModelURLChanged(): void {
         ModelEntityBuilder.buildModel(this._gameObject as GameObject, this._modelEntity);
+    }
+
+    private _handleCollisionPropertiesChanged(): void {
+        if (this._gameObject) {
+            const comp = this._gameObject?.getComponent(MeshComponent.typeName);
+            if (comp && comp instanceof MeshComponent) {
+                const meshes = comp.mesh.getChildMeshes(false);
+                ModelEntityBuilder.buildCollision(meshes, this._modelEntity);
+            }
+        }
     }
 }

@@ -85,7 +85,16 @@ export type Shape =
 
 export type ShapeType = "box" | "sphere" | "cylinder";
 
-export type CollisionTarget = "static" | "dynamic" | "kinematic" | "otherAvatar" | "myAvatar";
+export enum CollisionMask {
+    None = 0,
+    Static = 1,
+    Dynamic = 2,
+    Kinematic = 4,
+    MyAvatar = 8,
+    OtherAvatar = 16
+}
+
+export type CollisionTarget = "static" | "dynamic" | "kinematic" | "myAvatar" | "otherAvatar";
 
 export interface ISpatialProperties {
     position?: IVector3Property | undefined;
@@ -96,6 +105,7 @@ export interface ISpatialProperties {
 export interface ICollisionProperties {
     collision?: string;
     collidesWith?: CollisionTarget;
+    collisionMask?: number | undefined;
 }
 
 export interface IBehaviorProperties extends ICollisionProperties {

@@ -15,16 +15,17 @@ import { Observable } from "@babylonjs/core";
 
 export interface IEntity extends
     IEntityCommonProperties,
-    ISpatialProperties {
+    ISpatialProperties,
+    IBehaviorProperties {
 
     onCommonPropertiesChanged ?: Observable<IEntity>;
     onPositionAndRotationChanged ?: Observable<IEntity>;
     onDimensionChanged ?: Observable<IEntity>;
+    onCollisionPropertiesChanged ?: Observable<IEntity>
 }
 
 export interface IModelEntity extends
     IEntity,
-    IBehaviorProperties,
     IModelEProperties {
 
     onModelURLChanged ?: Observable<IEntity>;
@@ -32,7 +33,6 @@ export interface IModelEntity extends
 
 export interface IShapeEntity extends
     IEntity,
-    IBehaviorProperties,
     IShapeProperties {
 
     onShapeChanged ?: Observable<IEntity>;
@@ -41,12 +41,10 @@ export interface IShapeEntity extends
 
 export interface ILightEntity extends
     IEntity,
-    IBehaviorProperties,
     ILightProperties {
 }
 
 export interface IZoneEntity extends
     IEntity,
-    IBehaviorProperties,
     IZoneProperties {
 }
