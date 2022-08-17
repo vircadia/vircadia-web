@@ -46,7 +46,7 @@ export class ShapeEntityController extends EntityController {
 
     public onStart(): void {
         super.onStart();
-        this._handleShapeChanged();
+        // this._handleShapeChanged();
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this

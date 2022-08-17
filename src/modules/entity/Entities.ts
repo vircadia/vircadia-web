@@ -42,6 +42,9 @@ export interface IShapeEntity extends
 export interface ILightEntity extends
     IEntity,
     ILightProperties {
+
+    onLightPropertiesChanged ?: Observable<IEntity>;
+    onLightTypeChanged ?: Observable<IEntity>;
 }
 
 export interface IZoneEntity extends

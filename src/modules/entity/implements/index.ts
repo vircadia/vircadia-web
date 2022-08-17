@@ -12,3 +12,4 @@
 export { Entity, EntityPropertyChangeObservable } from "./Entity";
 export { ShapeEntity } from "./ShapeEntity";
 export { ModelEntity } from "./ModelEntity";
+export { LightEntity } from "./LightEntity";

@@ -1,5 +1,5 @@
 //
-//  Entity.ts
+//  ShapeEntity.ts
 //
 //  Created by Nolan Huang on 3 Aug 2022.
 //  Copyright 2022 Vircadia contributors.
