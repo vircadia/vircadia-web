@@ -55,6 +55,10 @@ export class LightComponent extends AbstractComponent {
     * @returns "Mesh" string
     */
     public get componentType():string {
+        return LightComponent.typeName;
+    }
+
+    static get typeName(): string {
         return "Light";
     }
 }

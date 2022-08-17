@@ -41,4 +41,14 @@ export class EntityMapper {
     public static getEntityName(props: IEntity) : string {
         return props.name ?? props.type + "_" + props.id;
     }
+
+    public static toRadians(degree:number) : number {
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        return degree * Math.PI / 180;
+    }
+
+    public static toDegree(radians:number) : number {
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        return radians * 180 / Math.PI;
+    }
 }

@@ -13,7 +13,7 @@ import { IEntity } from "./Entities";
 import { Observable } from "@babylonjs/core";
 import { EntityServer, EntityProperties } from "@vircadia/web-sdk";
 import { DomainEntityType } from "./implements/DomainProperties";
-import { Entity, ShapeEntity, ModelEntity } from "./implements";
+import { Entity, ShapeEntity, ModelEntity, LightEntity } from "./implements";
 import Log from "@Modules/debugging/log";
 
 export class EntityManager {
@@ -75,9 +75,11 @@ export class EntityManager {
             case DomainEntityType.Shape as number:
                 entity = new ShapeEntity(props.entityItemID.stringify(), "Shape");
                 break;
-
             case DomainEntityType.Model as number:
                 entity = new ModelEntity(props.entityItemID.stringify());
+                break;
+            case DomainEntityType.Light as number:
+                entity = new LightEntity(props.entityItemID.stringify());
                 break;
             default:
                 Log.warn(Log.types.ENTITIES, `unknow entity type ${props.entityType}`);
