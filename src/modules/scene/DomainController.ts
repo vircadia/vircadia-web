@@ -133,7 +133,7 @@ export class DomainController extends ScriptComponent {
             this._entityServer.onStateChanged = this._handleOnEntityServerStateChanged.bind(this);
         }
 
-        await this._vscene?.load(DefaultSceneUrl);
+        await this._vscene?.load();
 
         const sessionID = pDomain.DomainClient?.sessionUUID;
         if (sessionID) {

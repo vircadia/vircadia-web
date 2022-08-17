@@ -47,9 +47,10 @@ export class ModelEntityBuilder extends AbstractEntityBuilder {
         Log.debug(Log.types.ENTITIES,
             `Load model: ${entity.modelURL}`);
 
-        SceneLoader.ImportMesh("",
-            entity.modelURL, undefined, gameObject.getScene(), (meshes) => {
-
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        SceneLoader.ImportMeshAsync("", entity.modelURL, undefined, gameObject.getScene())
+            .then((result) => {
+                const meshes = result.meshes;
                 const comp = new MeshComponent(meshes[0]);
                 if (entity.visible !== undefined) {
                     comp.visible = entity.visible;
@@ -57,6 +58,13 @@ export class ModelEntityBuilder extends AbstractEntityBuilder {
                 gameObject.addComponent(comp);
 
                 ModelEntityBuilder.buildCollision(meshes, entity);
+
+            })
+            // eslint-disable-next-line @typescript-eslint/dot-notation
+            .catch((err) => {
+                const error = err as Error;
+                Log.error(Log.types.ENTITIES, `${error.message}`);
+
             });
     }
 

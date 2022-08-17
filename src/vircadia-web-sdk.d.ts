@@ -525,7 +525,16 @@ declare module "@vircadia/web-sdk" {
 
     export type GizmoEntityProperties = CommonEntityProperties;
 
-    export type LightEntityProperties = CommonEntityProperties;
+    type LightEntitySubclassProperties = {
+        color: color | undefined,
+        isSpotlight: boolean | undefined,
+        intensity: number | undefined,
+        exponent: number | undefined,
+        cutoff: number | undefined,
+        falloffRadius: number | undefined
+    };
+
+    export type LightEntityProperties = CommonEntityProperties & LightEntitySubclassProperties;
 
     export type ZoneEntityProperties = CommonEntityProperties;
 

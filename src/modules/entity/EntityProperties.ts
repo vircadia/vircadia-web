@@ -125,11 +125,12 @@ export interface IModelEProperties {
 }
 
 export interface ILightProperties {
-    isSpotlight: boolean;
-    exponent?: number;
-    cutoff?: number;
-    falloffRadius?: number;
-    intensity?: number;
+    color?: IColorProperty | undefined;
+    isSpotlight?: boolean | undefined;
+    exponent?: number | undefined;
+    cutoff?: number | undefined;
+    falloffRadius?: number | undefined;
+    intensity?: number | undefined;
 }
 
 export interface IZoneProperties {
