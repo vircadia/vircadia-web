@@ -37,6 +37,14 @@ export class MeshComponent extends AbstractComponent {
         this._mesh.parent = this._gameObject ?? null;
     }
 
+    public set visible(enalbe: boolean) {
+        this._mesh.isVisible = enalbe;
+        const subMeshes = this._mesh.getChildMeshes(false);
+        subMeshes.forEach((subMesh) => {
+            subMesh.isVisible = enalbe;
+        });
+    }
+
     public attach(gameObject:GameObject):void {
         super.attach(gameObject);
         this._mesh.parent = gameObject;
@@ -56,6 +64,10 @@ export class MeshComponent extends AbstractComponent {
     * @returns "Mesh" string
     */
     public get componentType():string {
+        return MeshComponent.typeName;
+    }
+
+    static get typeName(): string {
         return "Mesh";
     }
 }

@@ -217,7 +217,7 @@ export class VScene {
         // Creates, angles, distances and targets the camera
         const camera = new ArcRotateCamera(
             "Camera", -Math.PI / 2, Math.PI / 2, 6,
-            new Vector3(0, 1.5, 0), this._scene);
+            new Vector3(0, 1, 0), this._scene);
 
         // This attaches the camera to the canvas
         camera.attachControl(this._scene.getEngine().getRenderingCanvas(), false);

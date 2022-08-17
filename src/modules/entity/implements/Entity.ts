@@ -43,11 +43,13 @@ export abstract class Entity implements IEntity {
     protected _position: IVector3Property | undefined;
     protected _rotation: IQuaternionProperty | undefined;
     protected _dimensions: IVector3Property | undefined;
+    protected _collisionMask : number | undefined;
     protected _propertyChangeObservables : Array<EntityPropertyChangeObservable<IEntity>>;
 
     private _onCommonPropertiesChanged : EntityPropertyChangeObservable<IEntity>;
     private _onPositionAndRotationChanged : EntityPropertyChangeObservable<IEntity>;
     private _onDimensionChanged : EntityPropertyChangeObservable<IEntity>;
+    private _onCollisionPropertiesChanged : EntityPropertyChangeObservable<IEntity>;
 
 
     constructor(id : string, type : EntityType) {
@@ -59,15 +61,7 @@ export abstract class Entity implements IEntity {
         this._onCommonPropertiesChanged = this.createPropertyChangeObservable();
         this._onPositionAndRotationChanged = this.createPropertyChangeObservable();
         this._onDimensionChanged = this.createPropertyChangeObservable();
-        /*
-        this._onCommonPropertiesChanged = new EntityPropertyChangeObservable<IEntity>(this);
-        this._propertyChangeObservables.push(this._onCommonPropertiesChanged);
-
-        this._onPositionAndRotationChanged = new EntityPropertyChangeObservable<IEntity>(this);
-        this._propertyChangeObservables.push(this._onPositionAndRotationChanged);
-
-        this._onDimensionChanged = new EntityPropertyChangeObservable<IEntity>(this);
-        this._propertyChangeObservables.push(this._onDimensionChanged); */
+        this._onCollisionPropertiesChanged = this.createPropertyChangeObservable();
     }
 
     protected createPropertyChangeObservable(): EntityPropertyChangeObservable<IEntity> {
@@ -150,6 +144,17 @@ export abstract class Entity implements IEntity {
         }
     }
 
+    public get collisionMask() : number | undefined {
+        return this._collisionMask;
+    }
+
+    public set collisionMask(value: number | undefined) {
+        if (value && value !== this._collisionMask) {
+            this._collisionMask = value;
+            this._onCollisionPropertiesChanged.isDirty = true;
+        }
+    }
+
     public get onCommonPropertiesChanged(): Observable<IEntity> {
         return this._onCommonPropertiesChanged.observable;
     }
@@ -160,6 +165,10 @@ export abstract class Entity implements IEntity {
 
     public get onDimensionChanged(): Observable<IEntity> {
         return this._onDimensionChanged.observable;
+    }
+
+    public get onCollisionPropertiesChanged(): Observable<IEntity> {
+        return this._onCollisionPropertiesChanged.observable;
     }
 
     public update() : void {
@@ -175,5 +184,6 @@ export abstract class Entity implements IEntity {
         this.dimensions = props.dimensions;
         this.parentID = props.parentID?.stringify();
         this.visible = props.visible;
+        this.collisionMask = props.collisionMask;
     }
 }

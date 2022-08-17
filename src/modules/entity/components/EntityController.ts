@@ -75,9 +75,9 @@ export class EntityController extends ScriptComponent {
             if (this._entity.visible !== undefined) {
                 this._gameObject.isVisible = this._entity.visible;
 
-                const comp = this._gameObject.getComponent("Mesh") as MeshComponent;
-                if (comp) {
-                    comp.mesh.isVisible = this._entity.visible;
+                const comp = this._gameObject.getComponent(MeshComponent.typeName);
+                if (comp && comp instanceof MeshComponent) {
+                    comp.visible = this._entity.visible;
                 }
             }
 

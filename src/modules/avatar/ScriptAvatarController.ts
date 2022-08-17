@@ -136,11 +136,11 @@ export class ScriptAvatarController extends ScriptComponent {
 
                 // covert absolute rotation to relative
                 let rotation = AvatarMapper.mapJointRotation(this._getJointRotation(joint.jointIndex));
-
                 if (this._isVaildParentIndex(joint.parentIndex)) {
                     const parentRotation = AvatarMapper.mapJointRotation(this._getJointRotation(joint.parentIndex));
                     rotation = parentRotation.invert().multiply(rotation);
                 }
+
                 node.rotationQuaternion = rotation;
             }
         });
