@@ -359,6 +359,37 @@ declare module "@vircadia/web-sdk" {
         NUM_TYPES = 17
     }
 
+    export enum ShapeType {
+        // C++  enum ShapeType
+        NONE,
+        BOX,
+        SPHERE,
+        CAPSULE_X,
+        CAPSULE_Y,
+        CAPSULE_Z,
+        CYLINDER_X,
+        CYLINDER_Y,
+        CYLINDER_Z,
+        HULL,
+        PLANE,
+        COMPOUND,
+        SIMPLE_HULL,
+        SIMPLE_COMPOUND,
+        STATIC_MESH,
+        ELLIPSOID,
+        CIRCLE,
+        MULTISPHERE
+    }
+
+    export enum ComponentMode {
+        // C++  enum ComponentMode
+        INHERIT,
+        DISABLED,
+        ENABLED,
+
+        ITEM_COUNT
+    }
+
     export type color = {
         red: number;
         green: number;
@@ -525,7 +556,7 @@ declare module "@vircadia/web-sdk" {
 
     export type GizmoEntityProperties = CommonEntityProperties;
 
-    type LightEntitySubclassProperties = {
+    export type LightEntitySubclassProperties = {
         color: color | undefined,
         isSpotlight: boolean | undefined,
         intensity: number | undefined,
@@ -536,7 +567,75 @@ declare module "@vircadia/web-sdk" {
 
     export type LightEntityProperties = CommonEntityProperties & LightEntitySubclassProperties;
 
-    export type ZoneEntityProperties = CommonEntityProperties;
+    export type KeyLightProperties = {
+        color: color | undefined,
+        intensity: number | undefined,
+        direction: vec3 | undefined,
+        castShadows: boolean | undefined,
+        shadowBias: number | undefined,
+        shadowMaxDistance: number | undefined
+    };
+
+    export type AmbientLightProperties = {
+        intensity: number | undefined,
+        url: string | undefined
+    };
+
+    export type SkyboxProperties = {
+        color: color | undefined,
+        url: string | undefined
+    };
+
+    export type HazeProperties = {
+        range: number | undefined,
+        color: color | undefined,
+        enableGlare: boolean | undefined,
+        glareColor: color | undefined,
+        glareAngle: number | undefined,
+        altitudeEffect: boolean | undefined,
+        base: number | undefined,
+        ceiling: number | undefined,
+        backgroundBlend: number | undefined,
+        attenuateKeyLight: boolean | undefined,
+        keyLightRange: number | undefined,
+        keyLightAltitude: number | undefined
+    };
+
+    export type BloomProperties = {
+        intensity: number | undefined,
+        threshold: number | undefined,
+        size: number | undefined
+    };
+
+    export enum AvatarPriorityMode {
+        // C++  enum AvatarPriorityMode
+        INHERIT,
+        CROWD,
+        HERO,
+        ITEM_COUNT
+    }
+
+    export type ZoneEntitySubclassProperties = {
+        shapeType: ShapeType | undefined,
+        compoundShapeURL: string | undefined,
+        keyLightMode: ComponentMode | undefined,
+        keyLight: KeyLightProperties | undefined,
+        ambientLightMode: ComponentMode | undefined,
+        ambientLight: AmbientLightProperties | undefined,
+        skyboxMode: ComponentMode | undefined,
+        skybox: SkyboxProperties | undefined,
+        hazeMode: ComponentMode | undefined,
+        haze: HazeProperties | undefined,
+        bloomMode: ComponentMode | undefined,
+        bloom: BloomProperties | undefined,
+        flyingAllowed: boolean | undefined,
+        ghostingAllowed: boolean | undefined,
+        filterURL: string | undefined,
+        avatarPriority: AvatarPriorityMode | undefined,
+        screenshare: ComponentMode | undefined
+    };
+
+    export type ZoneEntityProperties = CommonEntityProperties & ZoneEntitySubclassProperties;
 
     export type MaterialEntityProperties = CommonEntityProperties;
 
