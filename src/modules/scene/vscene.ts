@@ -35,7 +35,7 @@ import { VVector3 } from ".";
 
 const DefaultAvatarUrl = "https://staging.vircadia.com/O12OR634/UA92/sara.glb";
 const AvatarAnimationUrl = "https://staging.vircadia.com/O12OR634/UA92/AnimationsBasic.glb";
-const DefaultSceneUrl = "http://localhost:8080/assets/scenes/default.json";
+const DefaultSceneUrl = "/assets/scenes/default.json";
 
 
 /**
@@ -165,7 +165,7 @@ export class VScene {
     }
 
     public async loadSceneSpaceStation(): Promise<void> {
-        await this.load("http://localhost:8080/assets/scenes/spacestation.json",
+        await this.load("/assets/scenes/spacestation.json",
             () => {
                 this._scene.createDefaultEnvironment(
                     { createGround: false,
@@ -196,7 +196,7 @@ export class VScene {
     }
 
     public async loadSceneUA92Campus(): Promise<void> {
-        await this.load("http://localhost:8080/assets/scenes/campus.json",
+        await this.load("/assets/scenes/campus.json",
             () => {
                 this._scene.createDefaultEnvironment(
                     { createGround: false,
