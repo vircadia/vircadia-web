@@ -28,7 +28,6 @@ import { VScene } from "./vscene";
 
 
 const DefaultAvatarUrl = "https://staging.vircadia.com/O12OR634/UA92/sara.glb";
-const DefaultSceneUrl = "http://localhost:8080/assets/scenes/default.json";
 
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
