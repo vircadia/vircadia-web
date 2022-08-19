@@ -12,9 +12,12 @@
 import { IEntity } from "./Entities";
 import { Observable } from "@babylonjs/core";
 import { EntityServer, EntityProperties } from "@vircadia/web-sdk";
-import { DomainEntityType } from "./implements/DomainProperties";
-import { Entity, ShapeEntity, ModelEntity, LightEntity } from "./implements";
+import { EntityType as PackageEntityType } from "./package/DomainProperties";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { Entity, ShapeEntity, ModelEntity, LightEntity, ZoneEntity } from "./implements";
 import Log from "@Modules/debugging/log";
+
+type EntityFactory = (id:string) => Entity;
 
 export class EntityManager {
     _entityServer : EntityServer;
@@ -22,6 +25,7 @@ export class EntityManager {
     _onEntityAdded : Observable<IEntity>;
     _onEntityRemoved : Observable<IEntity>;
     _entityPropertiesArray = new Array<EntityProperties>();
+    _entityFactories = new Map<PackageEntityType, EntityFactory>();
 
     constructor(entityServer : EntityServer) {
         this._entityServer = entityServer;
@@ -30,6 +34,15 @@ export class EntityManager {
         this._entities = new Map<string, Entity>();
         this._onEntityAdded = new Observable<IEntity>();
         this._onEntityRemoved = new Observable<IEntity>();
+
+        // register EntityFactories
+        this._entityFactories.set(PackageEntityType.Box, (id) => new ShapeEntity(id, "Box"));
+        this._entityFactories.set(PackageEntityType.Sphere, (id) => new ShapeEntity(id, "Sphere"));
+        this._entityFactories.set(PackageEntityType.Shape, (id) => new ShapeEntity(id, "Shape"));
+
+        this._entityFactories.set(PackageEntityType.Model, (id) => new ModelEntity(id));
+        this._entityFactories.set(PackageEntityType.Light, (id) => new LightEntity(id));
+        this._entityFactories.set(PackageEntityType.Zone, (id) => new ZoneEntity(id));
     }
 
     public get onEntityAdded() : Observable<IEntity> {
@@ -64,28 +77,12 @@ export class EntityManager {
     }
 
     public createEntity(props : EntityProperties) : IEntity | undefined {
-        let entity = undefined;
-        switch (props.entityType) {
-            case DomainEntityType.Box as number:
-                entity = new ShapeEntity(props.entityItemID.stringify(), "Box");
-                break;
-            case DomainEntityType.Sphere as number:
-                entity = new ShapeEntity(props.entityItemID.stringify(), "Sphere");
-                break;
-            case DomainEntityType.Shape as number:
-                entity = new ShapeEntity(props.entityItemID.stringify(), "Shape");
-                break;
-            case DomainEntityType.Model as number:
-                entity = new ModelEntity(props.entityItemID.stringify());
-                break;
-            case DomainEntityType.Light as number:
-                entity = new LightEntity(props.entityItemID.stringify());
-                break;
-            default:
-                Log.warn(Log.types.ENTITIES, `unknow entity type ${props.entityType}`);
-                return undefined;
+        const factory = this._entityFactories.get(props.entityType);
+        if (!factory) {
+            Log.warn(Log.types.ENTITIES, `unknow entity type ${props.entityType}`);
+            return undefined;
         }
-
+        const entity = factory(props.entityItemID.stringify());
         entity.copyFormPacketData(props);
         // prevent to emit change event
         entity.update();

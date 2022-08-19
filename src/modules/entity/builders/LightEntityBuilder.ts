@@ -16,7 +16,7 @@ import {
 } from "@babylonjs/core";
 
 import { IEntity, ILightEntity } from "../Entities";
-import { EntityMapper } from "./EntityMapper";
+import { EntityMapper } from "../package/EntityMapper";
 import { AbstractEntityBuilder } from "./AbstractEntityBuilder";
 import { GameObject, LightComponent } from "@Base/modules/object";
 import { LightEntityController } from "../components";

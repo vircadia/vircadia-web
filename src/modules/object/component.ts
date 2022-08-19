@@ -11,6 +11,9 @@
 //
 
 import { GameObject } from "./GameObject";
+import {
+    Node
+} from "@babylonjs/core";
 
 /**
  * Base interfance for everything attached to GameObjects
@@ -36,4 +39,43 @@ export abstract class AbstractComponent implements IComponent {
     public abstract dispose():void;
 
     public abstract get componentType():string;
+}
+
+export abstract class GenericNodeComponent<T extends Node> extends AbstractComponent {
+    protected _node:Nullable<T> = undefined;
+
+    public get node() : Nullable<T> {
+        return this._node;
+    }
+
+    public set node(n: Nullable<T>) {
+        this._node = n;
+    }
+
+    public get enable() : boolean {
+        return this._node ? this._node.isEnabled() : false;
+    }
+
+    public set enable(value : boolean) {
+        this._node?.setEnabled(value);
+    }
+
+    public attach(gameObject:GameObject):void {
+        super.attach(gameObject);
+        if (this._node) {
+            this._node.parent = gameObject;
+        }
+    }
+
+    public detatch():void {
+        if (this._node) {
+            this._node.parent = null;
+        }
+        super.detatch();
+    }
+
+    public dispose():void {
+        this._node?.dispose();
+    }
+
 }

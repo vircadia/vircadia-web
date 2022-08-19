@@ -48,6 +48,7 @@ export class EntityBuilder {
 
     public buildEntity(entity: IEntity, scene: Nullable<Scene>, gameObj ?: GameObject) : GameObject {
         const gameObject = gameObj ?? new GameObject(EntityMapper.getEntityName(entity), scene);
+        gameObject.id = entity.id;
 
         const builder = this._builders.get(entity.type);
         if (builder) {

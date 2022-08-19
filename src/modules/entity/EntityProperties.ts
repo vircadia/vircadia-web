@@ -30,39 +30,43 @@ export interface IColorProperty {
 }
 
 export interface IAmbientLightProperty {
-    ambientIntensity: number;
-    ambientURL? : string;
+    ambientIntensity?: number | undefined;
+    ambientURL? : string | undefined;
 }
 
 export interface IKeyLightProperty {
-    color?: IColorProperty;
-    intensity? : number;
-    direction : IVector3Property;
-    castShadows: boolean;
-    shadowBias: number;
-    shadowMaxDistance: number;
+    color?: IColorProperty | undefined;
+    intensity? : number | undefined;
+    direction? : IVector3Property | undefined;
+    castShadows?: boolean | undefined;
+    shadowBias?: number | undefined;
+    shadowMaxDistance?: number | undefined;
 }
 
 export interface ISkyboxProperty {
-    color?: IColorProperty;
-    url?:string;
+    color?: IColorProperty | undefined;
+    url?:string | undefined;
 }
 
 export interface IHazeProperty {
-    hazeRange: number;
-    hazeColor: IColorProperty;
-    hazeGlareColor: IColorProperty;
-    hazeEnableGlare: boolean;
-    hazeGlareAngle: number;
-    hazeCeiling: number;
-    hazeBaseRef: number;
-    hazeBackgroundBlend: number;
+    hazeRange?: number | undefined;
+    hazeColor?: IColorProperty | undefined;
+    hazeEnableGlare?: boolean | undefined;
+    hazeGlareColor?: IColorProperty | undefined;
+    hazeGlareAngle?: number | undefined;
+    hazeAltitudeEffect?: boolean | undefined;
+    hazeBaseRef?: number | undefined;
+    hazeCeiling?: number | undefined;
+    hazeBackgroundBlend?: number | undefined;
+    hazeAttenuateKeyLight?: boolean | undefined;
+    hazeKeyLightRange?: number | undefined;
+    hazeKeyLightAltitude?: number | undefined;
 }
 
 export interface IBloomProperty {
-    bloomIntensity: number;
-    bloomThreshold: number;
-    bloomSize: number;
+    bloomIntensity?: number | undefined;
+    bloomThreshold?: number | undefined;
+    bloomSize?: number | undefined;
 }
 
 export interface IGrabProperty {
@@ -83,7 +87,10 @@ export type Shape =
 "Hexagon" | "Icosahedron" | "Octagon" | "Octahedron" |
 "Quad" | "Sphere" | "Tetrahedron" | "Torus" | "Triangle";
 
-export type ShapeType = "box" | "sphere" | "cylinder";
+export type ShapeType = "none" | "box" | "sphere" | "cylinder" |
+"capsule-x" | "capsule-y" | "capsule-z" | "cylinder-x" | "cylinder-y" | "cylinder-z" |
+"hull" | "compound" | "simple-hull" | "simple-compound" | "static-mesh" |
+"plane" | "ellipsoid" | "circle" | "multisphere";
 
 export enum CollisionMask {
     None = 0,
@@ -95,6 +102,10 @@ export enum CollisionMask {
 }
 
 export type CollisionTarget = "static" | "dynamic" | "kinematic" | "myAvatar" | "otherAvatar";
+
+export type ComponentMode = "inherit" | "disabled" | "enabled";
+
+export type AvatarPriorityMode = "inherit" | "crowd" | "hero";
 
 export interface ISpatialProperties {
     position?: IVector3Property | undefined;
@@ -134,22 +145,33 @@ export interface ILightProperties {
 }
 
 export interface IZoneProperties {
-    userData: string;
-    shapeType: string;
-    ambientLight?: IAmbientLightProperty;
-    keyLight?: IKeyLightProperty;
-    skybox?: ISkyboxProperty;
-    haze?: IHazeProperty;
-    bloom?: IBloomProperty;
+    shapeType?: ShapeType | undefined;
+    compoundShapeURL?: string | undefined;
+    keyLightMode?: ComponentMode | undefined;
+    keyLight?: IKeyLightProperty | undefined;
+    ambientLightMode?: ComponentMode | undefined;
+    ambientLight?: IAmbientLightProperty | undefined;
+    skyboxMode?: ComponentMode | undefined;
+    skybox?: ISkyboxProperty | undefined;
+    hazeMode?: ComponentMode | undefined;
+    haze?: IHazeProperty | undefined;
+    bloomMode?: ComponentMode | undefined;
+    bloom?: IBloomProperty | undefined;
+    flyingAllowed?: boolean | undefined;
+    ghostingAllowed?: boolean | undefined;
+    filterURL?: string | undefined;
+    avatarPriority?: AvatarPriorityMode | undefined;
+    screenshare?: ComponentMode | undefined;
 }
 
-export interface IEntityCommonProperties {
+export interface IEntityProperties {
     id: string;
+    name?: string | undefined;
     type: EntityType;
     created?: Date;
     lastEdited?: Date;
     lastEditedBy?: Date;
-    name?: string | undefined;
     parentID?: string | undefined;
     visible?: boolean | undefined;
+    userData?: string | undefined;
 }

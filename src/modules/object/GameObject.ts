@@ -22,6 +22,7 @@ import {
 import { IComponent } from "./component";
 
 import Log from "@Modules/debugging/log";
+import { Icon } from "@babylonjs/inspector/components/Icon";
 
 /**
  * Base class for all objects in scenes.
@@ -60,6 +61,10 @@ export class GameObject extends Mesh {
     */
     public getComponent(componentType : string) : IComponent | undefined {
         return this._components.get(componentType);
+    }
+
+    public hasComponent(componentType : string) : boolean {
+        return this._components.has(componentType);
     }
 
     /**

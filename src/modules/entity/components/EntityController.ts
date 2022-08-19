@@ -10,15 +10,10 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import {
-    Node,
-    Nullable,
-    TransformNode
-} from "@babylonjs/core";
 // General Modules
 import Log from "@Modules/debugging/log";
 // Domain Modules
-import { ScriptComponent, inspectorAccessor } from "@Modules/script";
+import { ScriptComponent } from "@Modules/script";
 import { IEntity } from "../Entities";
 import { EntityMapper } from "../builders";
 import { GameObject, MeshComponent } from "@Base/modules/object";
