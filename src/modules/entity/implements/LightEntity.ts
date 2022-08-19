@@ -19,12 +19,10 @@ import { Observable } from "@babylonjs/core";
 export class LightEntity extends Entity implements ILightEntity {
     protected _color: IColorProperty | undefined;
     protected _isSpotlight: boolean | undefined;
-
-    private _exponent: number | undefined;
-
-    private _cutoff: number | undefined;
-    private _falloffRadius: number | undefined;
-    private _intensity: number | undefined;
+    protected _exponent: number | undefined;
+    protected _cutoff: number | undefined;
+    protected _falloffRadius: number | undefined;
+    protected _intensity: number | undefined;
     protected _onLightPropertiesChanged : EntityPropertyChangeObservable<IEntity>;
     protected _onLightTypeChanged : EntityPropertyChangeObservable<IEntity>;
 

@@ -9,7 +9,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-export enum DomainEntityType {
+export enum EntityType {
     Unknown = 0,
     Box = 1,
     Sphere = 2,
@@ -28,4 +28,35 @@ export enum DomainEntityType {
     Zone = 15,
     Material = 16,
     NUM_TYPES = 17
+}
+
+export enum ShapeType {
+    // C++  enum ShapeType
+    NONE,
+    BOX,
+    SPHERE,
+    CAPSULE_X,
+    CAPSULE_Y,
+    CAPSULE_Z,
+    CYLINDER_X,
+    CYLINDER_Y,
+    CYLINDER_Z,
+    HULL,
+    PLANE,
+    COMPOUND,
+    SIMPLE_HULL,
+    SIMPLE_COMPOUND,
+    STATIC_MESH,
+    ELLIPSOID,
+    CIRCLE,
+    MULTISPHERE
+}
+
+export enum ComponentMode {
+    // C++  enum ComponentMode
+    INHERIT,
+    DISABLED,
+    ENABLED,
+
+    ITEM_COUNT
 }

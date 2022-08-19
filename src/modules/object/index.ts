@@ -1,4 +1,4 @@
 export { GameObject } from "./GameObject";
-export { IComponent, AbstractComponent } from "./component";
+export { IComponent, AbstractComponent, GenericNodeComponent } from "./component";
 export { MeshComponent } from "./components/mesh";
-export { LightComponent } from "./components/light";
+export { LightComponent, AmbientLightComponent } from "./components/light";

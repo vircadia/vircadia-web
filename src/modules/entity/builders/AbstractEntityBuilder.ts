@@ -16,7 +16,7 @@ import {
 } from "@babylonjs/core";
 
 import { GameObject, MeshComponent } from "@Modules/object";
-import { EntityMapper } from "./EntityMapper";
+import { EntityMapper } from "../package/EntityMapper";
 import { IEntity } from "../Entities";
 
 export abstract class AbstractEntityBuilder {
