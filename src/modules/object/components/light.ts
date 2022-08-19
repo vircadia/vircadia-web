@@ -10,10 +10,11 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { AbstractComponent } from "../component";
+import { AbstractComponent, GenericNodeComponent } from "../component";
 import { GameObject } from "../GameObject";
 
 import {
+    DirectionalLight,
     Light
 } from "@babylonjs/core";
 
@@ -60,5 +61,25 @@ export class LightComponent extends AbstractComponent {
 
     static get typeName(): string {
         return "Light";
+    }
+}
+
+export class AmbientLightComponent extends LightComponent {
+    public get componentType():string {
+        return AmbientLightComponent.typeName;
+    }
+
+    static get typeName(): string {
+        return "AmbientLight";
+    }
+}
+
+export class DirectionalLightComponent extends GenericNodeComponent<DirectionalLight> {
+    public get componentType():string {
+        return DirectionalLightComponent.typeName;
+    }
+
+    static get typeName(): string {
+        return "DirectionalLight";
     }
 }

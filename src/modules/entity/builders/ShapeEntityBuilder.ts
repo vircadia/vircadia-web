@@ -18,7 +18,7 @@ import {
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { IEntity, IShapeEntity } from "../Entities";
-import { EntityMapper } from "./EntityMapper";
+import { EntityMapper } from "../package/EntityMapper";
 import { AbstractEntityBuilder } from "./AbstractEntityBuilder";
 
 import Log from "@Base/modules/debugging/log";

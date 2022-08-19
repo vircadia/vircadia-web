@@ -595,7 +595,6 @@
 		"url": "https://assets.babylonjs.com/textures/TropicalSunnyDay"
     },
     
-    "keyLightMode": "enabled",
     "ambientLightMode": "enabled",
     "skyboxMode": "enabled",
     "clientOnly": false,
