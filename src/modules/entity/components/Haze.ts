@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
 //
-//  Haze.ts
+//  haze.ts
 //
 //  Created by Nolan Huang on 27 Jul 2022.
 //  Copyright 2022 Vircadia contributors.

@@ -13,13 +13,13 @@
 // Domain Modules
 import { EntityController } from "./EntityController";
 import { IModelEntity } from "../Entities";
-import { ModelEntityBuilder } from "../builders";
-import { GameObject, MeshComponent } from "@Base/modules/object";
+import { ModelComponent } from "../components";
 import Log from "@Base/modules/debugging/log";
 
 export class ModelEntityController extends EntityController {
     // domain properties
     _modelEntity : IModelEntity;
+    _modelComponent : Nullable<ModelComponent>;
 
     constructor(entity : IModelEntity) {
         super(entity, "ModelEntityController");
@@ -38,12 +38,17 @@ export class ModelEntityController extends EntityController {
     // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
     public onInitialize(): void {
         super.onInitialize();
+
+        this._modelComponent = new ModelComponent();
+        this._gameObject?.addComponent(this._modelComponent);
+
         this._modelEntity.onModelURLChanged?.add(this._handleModelURLChanged.bind(this));
         this._modelEntity.onCollisionPropertiesChanged?.add(this._handleCollisionPropertiesChanged.bind(this));
     }
 
     public onStart(): void {
         super.onStart();
+        this._modelComponent?.load(this._modelEntity);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
@@ -53,16 +58,10 @@ export class ModelEntityController extends EntityController {
 
 
     private _handleModelURLChanged(): void {
-        ModelEntityBuilder.buildModel(this._gameObject as GameObject, this._modelEntity);
+        this._modelComponent?.load(this._modelEntity);
     }
 
     private _handleCollisionPropertiesChanged(): void {
-        if (this._gameObject) {
-            const comp = this._gameObject?.getComponent(MeshComponent.typeName);
-            if (comp && comp instanceof MeshComponent) {
-                const meshes = comp.mesh.getChildMeshes(false);
-                ModelEntityBuilder.buildCollision(meshes, this._modelEntity);
-            }
-        }
+        this._modelComponent?.updateCollisionProperties(this._modelEntity);
     }
 }

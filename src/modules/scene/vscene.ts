@@ -104,8 +104,10 @@ export class VScene {
         // setup camera
         const camera = this._camera as ArcRotateCamera;
         if (camera) {
-            camera.minZ = 0.1;
-            camera.maxZ = 2500;
+            // camera.minZ = 0.1;
+            // camera.maxZ = 2500;
+            camera.minZ = 1;
+            camera.maxZ = 250000;
             camera.alpha = Math.PI / 2;
             camera.beta = Math.PI / 2;
             camera.parent = this._myAvatar as Mesh;
@@ -185,13 +187,6 @@ export class VScene {
                 if (this._myAvatar) {
                     this._myAvatar.position = new Vector3(0, 50.6, 0);
                 }
-
-                // setup camera
-                const camera = this._camera as ArcRotateCamera;
-                if (camera) {
-                    camera.minZ = 1;
-                    camera.maxZ = 250000;
-                }
             });
     }
 
@@ -237,8 +232,8 @@ export class VScene {
 
             const mesh = await this._resourceManager.loadMyAvatar(modelURL ?? DefaultAvatarUrl);
             if (mesh) {
-                // mesh.rotationQuaternion = Quaternion.Identity();
-                const meshComponent = new MeshComponent(mesh);
+                const meshComponent = new MeshComponent();
+                meshComponent.mesh = mesh;
                 this._myAvatar.addComponent(meshComponent);
             }
             const avatarController = new AvatarController();
@@ -265,7 +260,9 @@ export class VScene {
             const mesh = await this._resourceManager.loadAvatar(domain.skeletonModelURL);
             if (mesh) {
                 avatar.id = id;
-                avatar.addComponent(new MeshComponent(mesh));
+                const meshComponent = new MeshComponent();
+                meshComponent.node = mesh;
+                avatar.addComponent(meshComponent);
                 avatar.addComponent(new ScriptAvatarController(domain));
 
                 this._avatarList.set(id, avatar);
