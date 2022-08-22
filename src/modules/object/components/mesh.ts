@@ -10,8 +10,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { AbstractComponent } from "../component";
-import { GameObject } from "../GameObject";
+import { GenericNodeComponent } from "../component";
 
 import {
     AbstractMesh
@@ -20,43 +19,31 @@ import {
 /**
  * A mesh component.
  */
-export class MeshComponent extends AbstractComponent {
-    private _mesh: AbstractMesh;
+export class MeshComponent extends GenericNodeComponent<AbstractMesh> {
+    protected _mesh: Nullable<AbstractMesh>;
 
-    constructor(mesh: AbstractMesh) {
-        super();
-        this._mesh = mesh;
-    }
-
-    public get mesh(): AbstractMesh {
+    public get mesh(): Nullable<AbstractMesh> {
         return this._mesh;
     }
 
-    public set mesh(value: AbstractMesh) {
+    public set mesh(value: Nullable<AbstractMesh>) {
         this._mesh = value;
-        this._mesh.parent = this._gameObject ?? null;
+        this.node = value;
+    }
+
+    public set node(value: Nullable<AbstractMesh>) {
+        this._mesh = value;
+        super.node = value;
     }
 
     public set visible(enalbe: boolean) {
-        this._mesh.isVisible = enalbe;
-        const subMeshes = this._mesh.getChildMeshes(false);
-        subMeshes.forEach((subMesh) => {
-            subMesh.isVisible = enalbe;
-        });
-    }
-
-    public attach(gameObject:GameObject):void {
-        super.attach(gameObject);
-        this._mesh.parent = gameObject;
-    }
-
-    public detatch():void {
-        this._mesh.parent = null;
-        super.detatch();
-    }
-
-    public dispose():void {
-        this._mesh.dispose();
+        if (this._mesh) {
+            this._mesh.isVisible = enalbe;
+            const subMeshes = this._mesh.getChildMeshes(false);
+            subMeshes.forEach((subMesh) => {
+                subMesh.isVisible = enalbe;
+            });
+        }
     }
 
     /**
