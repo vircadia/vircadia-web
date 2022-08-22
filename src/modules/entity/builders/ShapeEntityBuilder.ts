@@ -66,7 +66,9 @@ export class ShapeEntityBuilder extends AbstractEntityBuilder {
             this.buildDimensions(mesh, entity);
             this.buildColor(mesh, entity);
 
-            const comp = new MeshComponent(mesh);
+            // const comp = new MeshComponent(mesh);
+            const comp = new MeshComponent();
+            comp.mesh = mesh;
             if (entity.visible !== undefined) {
                 comp.visible = entity.visible;
             }

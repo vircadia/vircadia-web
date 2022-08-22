@@ -15,5 +15,6 @@ export { ModelEntityController } from "./ModelEntityController";
 export { LightEntityController } from "./LightEntityController";
 export { ZoneEntityController } from "./ZoneEntityController";
 export { KeyLightComponent } from "./KeyLight";
-export { HazeComponent } from "./Haze";
+export { HazeComponent } from "./haze";
 export { SkyboxComponent } from "./skybox";
+export { ModelComponent } from "./model";

@@ -63,7 +63,7 @@ export class ShapeEntityController extends EntityController {
     private _handleColorChanged(): void {
         if (this._shapeEntity.color && this._gameObject) {
             const comp = this._gameObject.getComponent("Mesh") as MeshComponent;
-            if (comp) {
+            if (comp && comp.mesh) {
                 ShapeEntityBuilder.buildColor(comp.mesh, this._shapeEntity);
             }
         }
@@ -72,7 +72,7 @@ export class ShapeEntityController extends EntityController {
     private _handleDimensionChanged(): void {
         if (this._shapeEntity.color && this._gameObject) {
             const comp = this._gameObject.getComponent("Mesh") as MeshComponent;
-            if (comp) {
+            if (comp && comp.mesh) {
                 ShapeEntityBuilder.buildDimensions(comp.mesh, this._shapeEntity);
             }
         }
