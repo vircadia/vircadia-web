@@ -50,6 +50,9 @@ export abstract class GenericNodeComponent<T extends Node> extends AbstractCompo
 
     public set node(n: Nullable<T>) {
         this._node = n;
+        if (this._gameObject) {
+            this.attach(this._gameObject);
+        }
     }
 
     public get enable() : boolean {
