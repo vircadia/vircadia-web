@@ -18,7 +18,7 @@ import { EntityController } from "./EntityController";
 import { IZoneEntity } from "../Entities";
 import { SkyboxComponent } from "./skybox";
 import { KeyLightComponent } from "./KeyLight";
-import { HazeComponent } from "./haze";
+import { HazeComponent } from "./Haze";
 import { AmbientLightComponent } from "@Base/modules/object";
 
 import {
