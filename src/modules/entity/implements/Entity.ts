@@ -43,6 +43,7 @@ export abstract class Entity implements IEntity {
     protected _position: IVector3Property | undefined;
     protected _rotation: IQuaternionProperty | undefined;
     protected _dimensions: IVector3Property | undefined;
+    protected _userData: string | undefined;
     protected _collisionMask : number | undefined;
     protected _propertyChangeObservables : Array<EntityPropertyChangeObservable<IEntity>>;
 
@@ -144,6 +145,17 @@ export abstract class Entity implements IEntity {
         }
     }
 
+    public get userData(): string | undefined {
+        return this._userData;
+    }
+
+    public set userData(value: string | undefined) {
+        if (value && this._userData !== value) {
+            this._userData = value;
+            this._onCommonPropertiesChanged.isDirty = true;
+        }
+    }
+
     public get collisionMask() : number | undefined {
         return this._collisionMask;
     }
@@ -184,6 +196,7 @@ export abstract class Entity implements IEntity {
         this.dimensions = props.dimensions;
         this.parentID = props.parentID?.stringify();
         this.visible = props.visible;
+        this.userData = props.userData;
         this.collisionMask = props.collisionMask;
     }
 }
