@@ -51,6 +51,7 @@ export abstract class Entity implements IEntity {
     private _onPositionAndRotationChanged : EntityPropertyChangeObservable<IEntity>;
     private _onDimensionChanged : EntityPropertyChangeObservable<IEntity>;
     private _onCollisionPropertiesChanged : EntityPropertyChangeObservable<IEntity>;
+    private _onUserDataChanged : EntityPropertyChangeObservable<IEntity>;
 
 
     constructor(id : string, type : EntityType) {
@@ -63,6 +64,7 @@ export abstract class Entity implements IEntity {
         this._onPositionAndRotationChanged = this.createPropertyChangeObservable();
         this._onDimensionChanged = this.createPropertyChangeObservable();
         this._onCollisionPropertiesChanged = this.createPropertyChangeObservable();
+        this._onUserDataChanged = this.createPropertyChangeObservable();
     }
 
     protected createPropertyChangeObservable(): EntityPropertyChangeObservable<IEntity> {
@@ -152,7 +154,7 @@ export abstract class Entity implements IEntity {
     public set userData(value: string | undefined) {
         if (value && this._userData !== value) {
             this._userData = value;
-            this._onCommonPropertiesChanged.isDirty = true;
+            this._onUserDataChanged.isDirty = true;
         }
     }
 
@@ -181,6 +183,10 @@ export abstract class Entity implements IEntity {
 
     public get onCollisionPropertiesChanged(): Observable<IEntity> {
         return this._onCollisionPropertiesChanged.observable;
+    }
+
+    public get onUserDataChanged(): Observable<IEntity> {
+        return this._onUserDataChanged.observable;
     }
 
     public update() : void {

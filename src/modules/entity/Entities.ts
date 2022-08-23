@@ -21,7 +21,8 @@ export interface IEntity extends
     onCommonPropertiesChanged ?: Observable<IEntity>;
     onPositionAndRotationChanged ?: Observable<IEntity>;
     onDimensionChanged ?: Observable<IEntity>;
-    onCollisionPropertiesChanged ?: Observable<IEntity>
+    onCollisionPropertiesChanged ?: Observable<IEntity>;
+    onUserDataChanged ?: Observable<IEntity>;
 }
 
 export interface IModelEntity extends
