@@ -84,7 +84,8 @@ export class VScene {
         this._scene.render();
     }
 
-    public async load(sceneUrl ?: string, beforeLoading ?: ()=> void, afterLoading ?: ()=> void) : Promise<void> {
+    public async load(sceneUrl ?: string, avatarPos ?: Vector3, avatarQuat ?: Quaternion,
+        beforeLoading ?: ()=> void, afterLoading ?: ()=> void) : Promise<void> {
         this._engine.displayLoadingUI();
         this._scene.detachControl();
         this._preScene = this._scene;
@@ -97,8 +98,8 @@ export class VScene {
         await this.loadMyAvatar();
         // setup avatar
         if (this._myAvatar) {
-            this._myAvatar.position = new Vector3(0, 1, 0);
-            // this._myAvatar.rotation = new Vector3(0, Math.PI, 0);
+            this._myAvatar.position = avatarPos ?? new Vector3(0, 1, 0);
+            this._myAvatar.rotationQuaternion = avatarQuat ?? Quaternion.Identity();
         }
 
         // setup camera
@@ -168,6 +169,7 @@ export class VScene {
 
     public async loadSceneSpaceStation(): Promise<void> {
         await this.load("/assets/scenes/spacestation.json",
+            new Vector3(0, 50.6, 0), undefined,
             () => {
                 this._scene.createDefaultEnvironment(
                     { createGround: false,
@@ -182,16 +184,12 @@ export class VScene {
                     defaultPipeline.glowLayer.blurKernelSize = 16;
                     defaultPipeline.glowLayer.intensity = 0.5;
                 }
-            },
-            () => {
-                if (this._myAvatar) {
-                    this._myAvatar.position = new Vector3(0, 50.6, 0);
-                }
             });
     }
 
     public async loadSceneUA92Campus(): Promise<void> {
         await this.load("/assets/scenes/campus.json",
+            new Vector3(25, 1, 30), undefined,
             () => {
                 this._scene.createDefaultEnvironment(
                     { createGround: false,
@@ -200,11 +198,6 @@ export class VScene {
 
                 const defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);
                 defaultPipeline.fxaaEnabled = true;
-            },
-            () => { // setup avatar
-                if (this._myAvatar) {
-                    this._myAvatar.position = new Vector3(25, 1, 30);
-                }
             });
     }
 
@@ -378,14 +371,6 @@ export class VScene {
                     await this.loadSceneUA92Campus();
                 }
                 break;
-            case "KeyE":
-                if (process.env.NODE_ENV === "development"
-                            && evt.sourceEvent.shiftKey) {
-
-                    await this.load(DefaultSceneUrl);
-                }
-                break;
-
             default:
                 break;
         }

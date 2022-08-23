@@ -198,11 +198,18 @@ export class Domain {
         if (!(url.startsWith("ws://") || url.startsWith("wss://"))) {
             url = Config.getItem(DEFAULT_DOMAIN_PROTOCOL) + "//" + url;
         }
-        // See if there is a :port on the end
-        const ifPort = (/:\d*$/u).exec(url);
-        if (!Array.isArray(ifPort)) {
-            url = url + ":" + Config.getItem(DEFAULT_DOMAIN_PORT);
+
+        const fullUrl = new URL(url);
+        if (fullUrl.port === "") {
+            fullUrl.port = Config.getItem(DEFAULT_DOMAIN_PORT);
         }
+
+        url = fullUrl.href;
+        // trim the last "/"
+        if (url[url.length - 1] === "/") {
+            url = url.slice(0, url.length - 1);
+        }
+
         return url;
     }
 
