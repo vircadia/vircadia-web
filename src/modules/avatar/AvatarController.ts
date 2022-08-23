@@ -57,9 +57,6 @@ export class AvatarController extends ScriptComponent {
         this._inputMap = {};
         this._onKeyUp = this._onKeyUp.bind(this);
         this._onKeyupDown = this._onKeyupDown.bind(this);
-
-        // this.inspectorProperty({ propertyName: "walkSpeed",
-        //    type: InspectableType.Slider, max: 100 });
     }
 
     public get walkSpeed() : number {
@@ -85,7 +82,7 @@ export class AvatarController extends ScriptComponent {
 
     public onInitialize(): void {
         Log.debug(Log.types.AVATAR,
-            `MyAvatar onInitialize`);
+            `AvatarController onInitialize`);
 
         this._animController = new AnimationController(
             this._gameObject as GameObject,
@@ -96,7 +93,7 @@ export class AvatarController extends ScriptComponent {
 
     public onStart():void {
         Log.debug(Log.types.AVATAR,
-            `MyAvatar onStart`);
+            `AvatarController onStart`);
 
         // scene action manager to detect inputs
         if (!this._scene.actionManager) {
@@ -146,22 +143,22 @@ export class AvatarController extends ScriptComponent {
         }
 
         if (this._inputMap["KeyW"]) {
-            this._movement.z = Scalar.Lerp(this._movement.z, -this._walkSpeed, 0.1);
-        } else if (this._inputMap["KeyS"]) {
             this._movement.z = Scalar.Lerp(this._movement.z, this._walkSpeed, 0.1);
+        } else if (this._inputMap["KeyS"]) {
+            this._movement.z = Scalar.Lerp(this._movement.z, -this._walkSpeed, 0.1);
         } else {
             this._movement.z = 0;
         }
 
         if (this._inputMap["KeyA"]) {
             if (this._shiftKey) {
-                this._movement.x = Scalar.Lerp(this._movement.x, this._walkSpeed, 0.1);
+                this._movement.x = Scalar.Lerp(this._movement.x, -this._walkSpeed, 0.1);
             } else {
                 this._rot = Scalar.Lerp(this._rot, -this._rotationSpeed, 0.1);
             }
         } else if (this._inputMap["KeyD"]) {
             if (this._shiftKey) {
-                this._movement.x = Scalar.Lerp(this._movement.x, -this._walkSpeed, 0.1);
+                this._movement.x = Scalar.Lerp(this._movement.x, this._walkSpeed, 0.1);
             } else {
                 this._rot = Scalar.Lerp(this._rot, this._rotationSpeed, 0.1);
             }
@@ -216,9 +213,9 @@ export class AvatarController extends ScriptComponent {
 
 
     private _updateGroundDetection(): void {
-        const pickedPoint = this._floorRaycast(0, 0, 1);
+        const pickedPoint = this._floorRaycast(0, 0, 2.5);
         if (!pickedPoint.equals(Vector3.Zero()) && this._gameObject) {
-            this._gameObject.position.y = pickedPoint.y + 0.05;
+            this._gameObject.position.y = pickedPoint.y + 1.05;
         }
     }
 
@@ -231,7 +228,7 @@ export class AvatarController extends ScriptComponent {
 
         // position the raycast from bottom center of mesh
         const raycastFloorPos = new Vector3(
-            this._gameObject.position.x + offsetx, this._gameObject.position.y + 0.5, this._gameObject.position.z + offsetz);
+            this._gameObject.position.x + offsetx, this._gameObject.position.y, this._gameObject.position.z + offsetz);
 
         const ray = new Ray(raycastFloorPos, Vector3.Down(), raycastlen);
 

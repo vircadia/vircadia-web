@@ -10,11 +10,13 @@
 //
 
 import { AnimationGroup, Scene, SceneLoader, AssetsManager,
-    AbstractMesh, Vector3, Quaternion } from "@babylonjs/core";
+    AbstractMesh, Vector3, Quaternion, MeshBuilder, StandardMaterial, Color3 } from "@babylonjs/core";
 // System Modules
 import { v4 as uuidv4 } from "uuid";
 // General Modules
 import Log from "@Modules/debugging/log";
+
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 
 interface IAvatarAnimationResult {
     mesh : AbstractMesh;
@@ -45,11 +47,11 @@ export class ResourceManager {
         return { rootUrl, filename };
     }
 
-    public async loadMyAvatar(modelUrl: string): Promise<AbstractMesh> {
+    public async loadMyAvatar(modelUrl: string): Promise<Nullable<AbstractMesh>> {
         return this._loadAvatar(modelUrl);
     }
 
-    public async loadAvatar(modelUrl: string): Promise<AbstractMesh> {
+    public async loadAvatar(modelUrl: string): Promise<Nullable<AbstractMesh>> {
         const avatar = await this._loadAvatar(modelUrl);
         return avatar;
     }
@@ -59,8 +61,7 @@ export class ResourceManager {
         Log.info(Log.types.AVATAR,
             `Load avatar animation url:${modelUrl}`);
 
-        const url = ResourceManager.splitUrl(modelUrl);
-        const result = await SceneLoader.ImportMeshAsync("", url.rootUrl, url.filename, this._scene);
+        const result = await SceneLoader.ImportMeshAsync("", modelUrl, undefined, this._scene);
 
         const mesh = result.meshes[0].getChildren()[0] as AbstractMesh;
         const animationGroups = new Array<AnimationGroup>();
@@ -101,6 +102,8 @@ export class ResourceManager {
                 }
             });
 
+            // remove from scene to prevent animation group is disposed when dispose scene
+            this._scene.removeAnimationGroup(animGroup);
 
             animationGroups.push(animGroup);
 
@@ -132,22 +135,53 @@ export class ResourceManager {
         return this._assetsManager.loadAsync();
     }
 
-    private async _loadAvatar(modelUrl: string): Promise<AbstractMesh> {
-        const url = ResourceManager.splitUrl(modelUrl);
-        const result = await SceneLoader.ImportMeshAsync("", url.rootUrl, url.filename, this._scene);
-        result.meshes.forEach((mesh) => {
-            mesh.isPickable = false;
-        });
+    private async _loadAvatar(modelUrl: string): Promise<Nullable<AbstractMesh>> {
+        try {
+            const result = await SceneLoader.ImportMeshAsync("", modelUrl, undefined, this._scene);
 
-        const avatar = result.meshes[0];
-        avatar.id = uuidv4();
-        avatar.scaling = new Vector3(1, 1, 1);
-        avatar.checkCollisions = true;
+            result.meshes.forEach((mesh) => {
+                mesh.isPickable = false;
+            });
 
-        Log.info(Log.types.AVATAR,
-            `Load avatar mesh url:${modelUrl} id::${avatar.id}`);
+            const mesh = result.meshes[0];
+            mesh.id = uuidv4();
+            mesh.scaling = new Vector3(1, 1, 1);
+            mesh.checkCollisions = true;
 
-        return avatar;
+            // make the pivot to the center of the bounding
+            const bounding = mesh.getHierarchyBoundingVectors(true);
+            const pivot = bounding.max.add(bounding.min).scale(-0.5);
+            // add some offset
+            pivot.addInPlace(new Vector3(0, -0.1, 0));
+            // move the mesh to the pivot
+            mesh.position = pivot;
+
+            Log.info(Log.types.AVATAR,
+                `Load avatar mesh url:${modelUrl} id::${mesh.id}`);
+
+            return mesh;
+        } catch (err) {
+            const error = err as Error;
+            Log.error(Log.types.AVATAR, `${error.message}`);
+            return this._createDummyMesh();
+        }
+    }
+
+    private _createDummyMesh() : AbstractMesh {
+        const mesh = MeshBuilder.CreateSphere("DummyMesh");
+        mesh.isPickable = false;
+
+        let material = this._scene.getMaterialByName("DummyMaterial");
+        if (!material) {
+            const mat = new StandardMaterial("DummyMaterial");
+            mat.ambientColor = Color3.Red();
+            mat.diffuseColor = Color3.Red();
+            mat.specularColor = Color3.Red();
+            material = mat;
+        }
+
+        mesh.material = material;
+        return mesh;
     }
 
     // eslint-disable-next-line class-methods-use-this

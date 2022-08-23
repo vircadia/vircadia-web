@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 //
-//  RemoteAvatarController.ts
+//  ScriptAvatarController.ts
 //
 //  Created by Nolan Huang on 8 July 2022.
 //  Copyright 2022 Vircadia contributors.
@@ -12,25 +11,24 @@
 
 import {
     Node,
-    Nullable,
     TransformNode
 } from "@babylonjs/core";
 // General Modules
 import Log from "@Modules/debugging/log";
 import { AvatarMapper } from "./AvatarMapper";
 // Domain Modules
-import { ScriptAvatar } from "@vircadia/web-sdk";
+import { ScriptAvatar, vec3, quat, SkeletonJoint } from "@vircadia/web-sdk";
 import { ScriptComponent, inspectorAccessor } from "@Modules/script";
 
 export class ScriptAvatarController extends ScriptComponent {
     // domain properties
     private _avatar : ScriptAvatar;
-    private _skeletonNodes: Array<TransformNode>;
+    private _skeletonNodes: Map<string, TransformNode> = new Map<string, TransformNode>();
+    private _skeletonJointsCache = new Array<SkeletonJoint>();
 
     constructor(avatar:ScriptAvatar) {
         super("ScriptAvatarController");
         this._avatar = avatar;
-        this._skeletonNodes = new Array<TransformNode>();
     }
 
     @inspectorAccessor()
@@ -65,18 +63,14 @@ export class ScriptAvatarController extends ScriptComponent {
             this._collectSkeletonNode(rootNode);
         }
 
-        this._skeletonNodes.forEach((node, index) => {
-            if (!this._avatar || index > this._avatar.skeleton.length) {
-                return;
-            }
-
-            const joint = this._avatar.skeleton[index];
-            if (joint) {
-                node.position = AvatarMapper.mapToNodePosition(joint.defaultTranslation);
-                node.rotationQuaternion = AvatarMapper.mapToNodeQuaternion(joint.defaultRotation);
-                node.scaling = AvatarMapper.mapToNodeScaling(joint.defaultScale);
-            }
+        // NOTE:
+        // call this._avatar.skeleton hits performance.
+        // chace default joints value here.
+        this._avatar.skeleton.forEach((joint) => {
+            this._skeletonJointsCache.push(joint);
         });
+
+        this._syncDefaultPoseFromDomain();
 
         this._avatar.scaleChanged.connect(this._handleScaleChanged.bind(this));
     }
@@ -85,23 +79,11 @@ export class ScriptAvatarController extends ScriptComponent {
     public onUpdate():void {
         if (this._gameObject) {
             // sync postion
-            this._gameObject.position = AvatarMapper.mapToNodePosition(this._avatar.position);
+            this._gameObject.position = AvatarMapper.mapDomainPosition(this._avatar.position);
             // sync orientation
-            this._gameObject.rotationQuaternion = AvatarMapper.mapToNodeQuaternion(this._avatar.orientation);
-            // sync joints
-            this._skeletonNodes.forEach((node, index) => {
-                if (!this._avatar) {
-                    return;
-                }
+            this._gameObject.rotationQuaternion = AvatarMapper.mapDomainOrientation(this._avatar.orientation);
 
-                if (this._avatar.jointTranslations[index]) {
-                    node.position = AvatarMapper.mapToNodePosition(this._avatar.jointTranslations[index]);
-                }
-
-                if (this._avatar.jointRotations[index]) {
-                    node.rotationQuaternion = AvatarMapper.mapToNodeQuaternion(this._avatar.jointRotations[index]);
-                }
-            });
+            this._syncPoseFromDomain();
         }
     }
 
@@ -112,14 +94,69 @@ export class ScriptAvatarController extends ScriptComponent {
     }
 
     private _collectSkeletonNode(node:Node) : void {
-        if (node.name === "__root__" || node.getClassName() === "TransformNode") {
+        if (node.getClassName() === "TransformNode") {
             const transNode = node as TransformNode;
-            this._skeletonNodes.push(transNode);
+            this._skeletonNodes.set(node.name, transNode);
         }
 
         const children = node.getChildren();
         children.forEach((child) => {
             this._collectSkeletonNode(child);
         });
+    }
+
+    private _syncDefaultPoseFromDomain() {
+        // this._avatar.skeleton.forEach((joint) => {
+        this._skeletonJointsCache.forEach((joint) => {
+            const node = this._skeletonNodes.get(joint.jointName);
+            if (node) {
+                node.position = AvatarMapper.mapJointTranslation(joint.defaultTranslation);
+
+                let rotation = AvatarMapper.mapJointRotation(joint.defaultRotation);
+                if (this._isVaildParentIndex(joint.parentIndex)) {
+                    const parentQuat = AvatarMapper.mapJointRotation(
+                        this._skeletonJointsCache[joint.parentIndex].defaultRotation);
+                    rotation = parentQuat.invert().multiply(rotation);
+                }
+                node.rotationQuaternion = rotation;
+
+                // FIXME:
+                // joint.defaultScale does not work correctly
+                // maybe absolute coordinate problem.
+                // node.scaling = AvatarMapper.mapToNodeScaling(joint.defaultScale);
+            }
+        });
+    }
+
+    private _syncPoseFromDomain() {
+        this._skeletonJointsCache.forEach((joint) => {
+            const node = this._skeletonNodes.get(joint.jointName);
+            if (node) {
+                node.position = AvatarMapper.mapJointTranslation(this._getJointTranslation(joint.jointIndex));
+
+                // covert absolute rotation to relative
+                let rotation = AvatarMapper.mapJointRotation(this._getJointRotation(joint.jointIndex));
+                if (this._isVaildParentIndex(joint.parentIndex)) {
+                    const parentRotation = AvatarMapper.mapJointRotation(this._getJointRotation(joint.parentIndex));
+                    rotation = parentRotation.invert().multiply(rotation);
+                }
+
+                node.rotationQuaternion = rotation;
+            }
+        });
+    }
+
+    private _getJointTranslation(index: number) : vec3 {
+        const trans = this._avatar.jointTranslations[index];
+        return trans ? trans : this._skeletonJointsCache[index].defaultTranslation;
+    }
+
+    private _getJointRotation(index: number) : quat {
+        const q = this._avatar.jointRotations[index];
+        return q ? q : this._skeletonJointsCache[index].defaultRotation;
+    }
+
+    private _isVaildParentIndex(index: number) : boolean {
+        return index >= 0 && index < this._skeletonJointsCache.length;
     }
 }
