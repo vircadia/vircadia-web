@@ -15,7 +15,7 @@
 import { AnimationGroup, Engine, Scene,
     ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, StandardMaterial,
     Mesh, DefaultRenderingPipeline, Camera, AbstractMesh,
-    TransformNode } from "@babylonjs/core";
+    TransformNode, CubeTexture } from "@babylonjs/core";
 
 import { Quaternion, Vector3 } from "@babylonjs/core/Maths/math";
 import "@babylonjs/loaders/glTF";
@@ -189,16 +189,7 @@ export class VScene {
 
     public async loadSceneUA92Campus(): Promise<void> {
         await this.load("/assets/scenes/campus.json",
-            new Vector3(25, 1, 30), undefined,
-            () => {
-                this._scene.createDefaultEnvironment(
-                    { createGround: false,
-                        createSkybox: false,
-                        environmentTexture: "https://assets.babylonjs.com/textures/country.env" });
-
-                const defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);
-                defaultPipeline.fxaaEnabled = true;
-            });
+            new Vector3(25, 1, 30));
     }
 
     public async loadMyAvatar(modelURL ?: string) : Promise<Nullable<GameObject>> {

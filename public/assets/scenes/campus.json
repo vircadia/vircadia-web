@@ -2,253 +2,11 @@
   "DataVersion": 0,
   "Entities": [
     {
-    "id": "{3709ea46-dbde-46b3-a408-e7403f21c0a6}",
-    "type": "Model",
-    "lastEdited": 1661136423649123,
-    "name": "UpperFloors",
-    "position": {
-        "x": 1.104217529296875,
-        "y": 0,
-        "z": 0
-    },
-    "dimensions": {
-        "x": 65.1016845703125,
-        "y": 8.603124618530273,
-        "z": 62.820472717285156
-    },
-    "rotation": {
-        "x": -0.0000152587890625,
-        "y": -0.0000152587890625,
-        "z": -0.0000152587890625,
-        "w": 1
-    },
-    "created": 1660184980094976,
-    "lastEditedBy": "{7b244ad2-a957-450f-a8af-a0715e308f9a}",
-    "queryAACube": {
-        "x": -44.334354400634766,
-        "y": -45.43857192993164,
-        "z": -45.43857192993164,
-        "scale": 90.87714385986328
-    },
-    "grab": {
-        "grabbable": false,
-        "equippableLeftRotation": {
-            "x": -0.0000152587890625,
-            "y": -0.0000152587890625,
-            "z": -0.0000152587890625,
-            "w": 1
-        },
-        "equippableRightRotation": {
-            "x": -0.0000152587890625,
-            "y": -0.0000152587890625,
-            "z": -0.0000152587890625,
-            "w": 1
-        }
-    },
-    "damping": 0,
-    "angularDamping": 0,
-    "collisionMask": 7,
-    "collidesWith": "static,dynamic,kinematic,",
-    "modelURL": "https://staging.vircadia.com/O12OR634/UA92/UpperFloors.glb",
-    "blendshapeCoefficients": "{\n}\n",
-    "useOriginalPivot": true,
-    "animation": {
-        "allowTranslation": false
-    },
-    "clientOnly": false,
-    "avatarEntity": false,
-    "localEntity": false,
-    "faceCamera": false,
-    "isFacingAvatar": false
-},
-    {
-    "id": "{7fae14cd-e7af-44c1-9dff-7608c7b1a6c6}",
-    "type": "Model",
-    "lastEdited": 1661136423648441,
-    "visible": false,
-    "name": "Collision",
-    "position": {
-        "x": 0.8394737243652344,
-        "y": 0,
-        "z": 0.23493194580078125
-    },
-    "dimensions": {
-        "x": 104.40375518798828,
-        "y": 5.013250350952148,
-        "z": 94.15046691894531
-    },
-    "rotation": {
-        "x": -0.0000152587890625,
-        "y": -0.0000152587890625,
-        "z": -0.0000152587890625,
-        "w": 1
-    },
-    "created": 1660118273884160,
-    "lastEditedBy": "{506bb411-58a4-473d-acb2-8d858f877f28}",
-    "queryAACube": {
-        "x": -69.49826049804688,
-        "y": -70.33773803710938,
-        "z": -70.1028060913086,
-        "scale": 140.67547607421875
-    },
-    "grab": {
-        "grabbable": false,
-        "equippableLeftRotation": {
-            "x": -0.0000152587890625,
-            "y": -0.0000152587890625,
-            "z": -0.0000152587890625,
-            "w": 1
-        },
-        "equippableRightRotation": {
-            "x": -0.0000152587890625,
-            "y": -0.0000152587890625,
-            "z": -0.0000152587890625,
-            "w": 1
-        }
-    },
-    "damping": 0,
-    "angularDamping": 0,
-    "collisionMask": 8,
-    "collidesWith": "myAvatar,",
-    "shapeType": "static-mesh",
-    "modelURL": "https://staging.vircadia.com/O12OR634/UA92/Collisions.glb",
-    "blendshapeCoefficients": "{\n}\n",
-    "useOriginalPivot": true,
-    "animation": {
-        "allowTranslation": false
-    },
-    "clientOnly": false,
-    "avatarEntity": false,
-    "localEntity": false,
-    "faceCamera": false,
-    "isFacingAvatar": false
-},
-    {
-    "id": "{8aa421f6-effd-4f5c-9631-b4c5f27a1953}",
-    "type": "Model",
-    "lastEdited": 1661136423648731,
-    "name": "Elevator",
-    "position": {
-        "x": 1.104217529296875,
-        "y": 0,
-        "z": 0
-    },
-    "dimensions": {
-        "x": 3.563272476196289,
-        "y": 2.0460000038146973,
-        "z": 3.70428466796875
-    },
-    "rotation": {
-        "x": -0.0000152587890625,
-        "y": -0.0000152587890625,
-        "z": -0.0000152587890625,
-        "w": 1
-    },
-    "created": 1660184711659520,
-    "lastEditedBy": "{7b244ad2-a957-450f-a8af-a0715e308f9a}",
-    "queryAACube": {
-        "x": -1.661860466003418,
-        "y": -2.766077995300293,
-        "z": -2.766077995300293,
-        "scale": 5.532155990600586
-    },
-    "grab": {
-        "grabbable": false,
-        "equippableLeftRotation": {
-            "x": -0.0000152587890625,
-            "y": -0.0000152587890625,
-            "z": -0.0000152587890625,
-            "w": 1
-        },
-        "equippableRightRotation": {
-            "x": -0.0000152587890625,
-            "y": -0.0000152587890625,
-            "z": -0.0000152587890625,
-            "w": 1
-        }
-    },
-    "damping": 0,
-    "angularDamping": 0,
-    "collisionMask": 7,
-    "collidesWith": "static,dynamic,kinematic,",
-    "modelURL": "https://staging.vircadia.com/O12OR634/UA92/Elevator.glb",
-    "blendshapeCoefficients": "{\n}\n",
-    "useOriginalPivot": true,
-    "animation": {
-        "allowTranslation": false
-    },
-    "clientOnly": false,
-    "avatarEntity": false,
-    "localEntity": false,
-    "faceCamera": false,
-    "isFacingAvatar": false
-},
-    {
-    "id": "{31e9b402-c20b-4161-aa78-c9cc51fa675e}",
-    "type": "Model",
-    "lastEdited": 1661136423648868,
-    "name": "Furniture",
-    "position": {
-        "x": 1.104217529296875,
-        "y": 0,
-        "z": 0
-    },
-    "dimensions": {
-        "x": 20.595062255859375,
-        "y": 1.8694030046463013,
-        "z": 42.98998260498047
-    },
-    "rotation": {
-        "x": -0.0000152587890625,
-        "y": -0.0000152587890625,
-        "z": -0.0000152587890625,
-        "w": 1
-    },
-    "created": 1660184845877248,
-    "lastEditedBy": "{506bb411-58a4-473d-acb2-8d858f877f28}",
-    "queryAACube": {
-        "x": -22.748401641845703,
-        "y": -23.852619171142578,
-        "z": -23.852619171142578,
-        "scale": 47.705238342285156
-    },
-    "grab": {
-        "grabbable": false,
-        "equippableLeftRotation": {
-            "x": -0.0000152587890625,
-            "y": -0.0000152587890625,
-            "z": -0.0000152587890625,
-            "w": 1
-        },
-        "equippableRightRotation": {
-            "x": -0.0000152587890625,
-            "y": -0.0000152587890625,
-            "z": -0.0000152587890625,
-            "w": 1
-        }
-    },
-    "damping": 0,
-    "angularDamping": 0,
-    "collisionMask": 1,
-    "collidesWith": "static,",
-    "modelURL": "https://staging.vircadia.com/O12OR634/UA92/Furniture.glb",
-    "blendshapeCoefficients": "{\n}\n",
-    "useOriginalPivot": true,
-    "animation": {
-        "allowTranslation": false
-    },
-    "clientOnly": false,
-    "avatarEntity": false,
-    "localEntity": false,
-    "faceCamera": false,
-    "isFacingAvatar": false
-},
-    {
     "id": "{2ff4adaa-4b38-467f-9385-618c603a0cfe}",
     "type": "Zone",
-    "lastEdited": 1661136423645808,
+    "lastEdited": 1661246378977932,
     "name": "Building_platform_zone",
-    "userData": "{\n    \"grabbableKey\": {\n        \"grabbable\": false\n    }\n}",
+    "userData": "{\"environment\":{\"environmentTexture\":\"https://assets.babylonjs.com/textures/country.env\"},\"renderingPipeline\":{\"fxaaEnabled\":true}}",
     "position": {
         "x": 0,
         "y": 0,
@@ -266,7 +24,7 @@
         "w": 1
     },
     "created": 1474394358546432,
-    "lastEditedBy": "{da293c44-1084-499c-8d4d-a31f6aba106a}",
+    "lastEditedBy": "{d20025ed-4676-430f-85cc-52660d46e532}",
     "queryAACube": {
         "x": -434.1169128417969,
         "y": -433.0126953125,
@@ -348,129 +106,9 @@
     "isFacingAvatar": false
 },
     {
-    "id": "{11ea1d8e-089a-4d72-923e-be035f4ac71b}",
-    "type": "Model",
-    "lastEdited": 1661136423648287,
-    "name": "Exterior",
-    "position": {
-        "x": 1.104217529296875,
-        "y": 0,
-        "z": 0
-    },
-    "dimensions": {
-        "x": 66.38568115234375,
-        "y": 23.3328857421875,
-        "z": 64.70588684082031
-    },
-    "rotation": {
-        "x": -0.0000152587890625,
-        "y": -0.0000152587890625,
-        "z": -0.0000152587890625,
-        "w": 1
-    },
-    "created": 1660117871230976,
-    "lastEditedBy": "{da293c44-1084-499c-8d4d-a31f6aba106a}",
-    "queryAACube": {
-        "x": -46.69309997558594,
-        "y": -47.79731750488281,
-        "z": -47.79731750488281,
-        "scale": 95.59463500976562
-    },
-    "grab": {
-        "grabbable": false,
-        "equippableLeftRotation": {
-            "x": -0.0000152587890625,
-            "y": -0.0000152587890625,
-            "z": -0.0000152587890625,
-            "w": 1
-        },
-        "equippableRightRotation": {
-            "x": -0.0000152587890625,
-            "y": -0.0000152587890625,
-            "z": -0.0000152587890625,
-            "w": 1
-        }
-    },
-    "damping": 0,
-    "angularDamping": 0,
-    "collisionMask": 7,
-    "collidesWith": "static,dynamic,kinematic,",
-    "modelURL": "https://staging.vircadia.com/O12OR634/UA92/Exterior.glb",
-    "blendshapeCoefficients": "{\n}\n",
-    "useOriginalPivot": true,
-    "animation": {
-        "allowTranslation": false
-    },
-    "clientOnly": false,
-    "avatarEntity": false,
-    "localEntity": false,
-    "faceCamera": false,
-    "isFacingAvatar": false
-},
-    {
-    "id": "{81db5719-86e9-4567-8d61-d8549a69cca1}",
-    "type": "Model",
-    "lastEdited": 1661136423647732,
-    "name": "Outdoors",
-    "position": {
-        "x": 1.104217529296875,
-        "y": 0,
-        "z": 0
-    },
-    "dimensions": {
-        "x": 301.1305236816406,
-        "y": 15.835662841796875,
-        "z": 229.55068969726562
-    },
-    "rotation": {
-        "x": -0.0000152587890625,
-        "y": -0.0000152587890625,
-        "z": -0.0000152587890625,
-        "w": 1
-    },
-    "created": 1660117468577792,
-    "lastEditedBy": "{7b244ad2-a957-450f-a8af-a0715e308f9a}",
-    "queryAACube": {
-        "x": -188.38449096679688,
-        "y": -189.48870849609375,
-        "z": -189.48870849609375,
-        "scale": 378.9774169921875
-    },
-    "grab": {
-        "grabbable": false,
-        "equippableLeftRotation": {
-            "x": -0.0000152587890625,
-            "y": -0.0000152587890625,
-            "z": -0.0000152587890625,
-            "w": 1
-        },
-        "equippableRightRotation": {
-            "x": -0.0000152587890625,
-            "y": -0.0000152587890625,
-            "z": -0.0000152587890625,
-            "w": 1
-        }
-    },
-    "damping": 0,
-    "angularDamping": 0,
-    "collisionMask": 7,
-    "collidesWith": "static,dynamic,kinematic,",
-    "modelURL": "https://staging.vircadia.com/O12OR634/UA92/Outdoors.glb",
-    "blendshapeCoefficients": "{\n}\n",
-    "useOriginalPivot": true,
-    "animation": {
-        "allowTranslation": false
-    },
-    "clientOnly": false,
-    "avatarEntity": false,
-    "localEntity": false,
-    "faceCamera": false,
-    "isFacingAvatar": false
-},
-    {
     "id": "{dff20fc0-a238-4bd1-ab31-5ca628f23959}",
     "type": "Model",
-    "lastEdited": 1661136423648997,
+    "lastEdited": 1661238408618921,
     "name": "Support",
     "position": {
         "x": 1.104217529296875,
@@ -530,7 +168,7 @@
     {
     "id": "{e2f25676-8bde-465b-a473-b7927e801bc5}",
     "type": "Model",
-    "lastEdited": 1661136423648085,
+    "lastEdited": 1661238408616332,
     "name": "FirstFloor",
     "position": {
         "x": 1.104217529296875,
@@ -588,9 +226,311 @@
     "isFacingAvatar": false
 },
     {
+    "id": "{3709ea46-dbde-46b3-a408-e7403f21c0a6}",
+    "type": "Model",
+    "lastEdited": 1661238408619293,
+    "name": "UpperFloors",
+    "position": {
+        "x": 1.104217529296875,
+        "y": 0,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 65.1016845703125,
+        "y": 8.603124618530273,
+        "z": 62.820472717285156
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1660184980094976,
+    "lastEditedBy": "{7b244ad2-a957-450f-a8af-a0715e308f9a}",
+    "queryAACube": {
+        "x": -44.334354400634766,
+        "y": -45.43857192993164,
+        "z": -45.43857192993164,
+        "scale": 90.87714385986328
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 7,
+    "collidesWith": "static,dynamic,kinematic,",
+    "modelURL": "https://staging.vircadia.com/O12OR634/UA92/UpperFloors.glb",
+    "blendshapeCoefficients": "{\n}\n",
+    "useOriginalPivot": true,
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{31e9b402-c20b-4161-aa78-c9cc51fa675e}",
+    "type": "Model",
+    "lastEdited": 1661238408618438,
+    "name": "Furniture",
+    "position": {
+        "x": 1.104217529296875,
+        "y": 0,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 20.595062255859375,
+        "y": 1.8694030046463013,
+        "z": 42.98998260498047
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1660184845877248,
+    "lastEditedBy": "{506bb411-58a4-473d-acb2-8d858f877f28}",
+    "queryAACube": {
+        "x": -22.748401641845703,
+        "y": -23.852619171142578,
+        "z": -23.852619171142578,
+        "scale": 47.705238342285156
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 1,
+    "collidesWith": "static,",
+    "modelURL": "https://staging.vircadia.com/O12OR634/UA92/Furniture.glb",
+    "blendshapeCoefficients": "{\n}\n",
+    "useOriginalPivot": true,
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{81db5719-86e9-4567-8d61-d8549a69cca1}",
+    "type": "Model",
+    "lastEdited": 1661238408615853,
+    "name": "Outdoors",
+    "position": {
+        "x": 1.104217529296875,
+        "y": 0,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 301.1305236816406,
+        "y": 15.835662841796875,
+        "z": 229.55068969726562
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1660117468577792,
+    "lastEditedBy": "{7b244ad2-a957-450f-a8af-a0715e308f9a}",
+    "queryAACube": {
+        "x": -188.38449096679688,
+        "y": -189.48870849609375,
+        "z": -189.48870849609375,
+        "scale": 378.9774169921875
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 7,
+    "collidesWith": "static,dynamic,kinematic,",
+    "modelURL": "https://staging.vircadia.com/O12OR634/UA92/Outdoors.glb",
+    "blendshapeCoefficients": "{\n}\n",
+    "useOriginalPivot": true,
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{7fae14cd-e7af-44c1-9dff-7608c7b1a6c6}",
+    "type": "Model",
+    "lastEdited": 1661238408617290,
+    "visible": false,
+    "name": "Collision",
+    "position": {
+        "x": 0.8394737243652344,
+        "y": 0,
+        "z": 0.23493194580078125
+    },
+    "dimensions": {
+        "x": 104.40375518798828,
+        "y": 5.013250350952148,
+        "z": 94.15046691894531
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1660118273884160,
+    "lastEditedBy": "{506bb411-58a4-473d-acb2-8d858f877f28}",
+    "queryAACube": {
+        "x": -69.49826049804688,
+        "y": -70.33773803710938,
+        "z": -70.1028060913086,
+        "scale": 140.67547607421875
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 8,
+    "collidesWith": "myAvatar,",
+    "shapeType": "static-mesh",
+    "modelURL": "https://staging.vircadia.com/O12OR634/UA92/Collisions.glb",
+    "blendshapeCoefficients": "{\n}\n",
+    "useOriginalPivot": true,
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{8aa421f6-effd-4f5c-9631-b4c5f27a1953}",
+    "type": "Model",
+    "lastEdited": 1661238408618093,
+    "name": "Elevator",
+    "position": {
+        "x": 1.104217529296875,
+        "y": 0,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 3.563272476196289,
+        "y": 2.0460000038146973,
+        "z": 3.70428466796875
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1660184711659520,
+    "lastEditedBy": "{7b244ad2-a957-450f-a8af-a0715e308f9a}",
+    "queryAACube": {
+        "x": -1.661860466003418,
+        "y": -2.766077995300293,
+        "z": -2.766077995300293,
+        "scale": 5.532155990600586
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 7,
+    "collidesWith": "static,dynamic,kinematic,",
+    "modelURL": "https://staging.vircadia.com/O12OR634/UA92/Elevator.glb",
+    "blendshapeCoefficients": "{\n}\n",
+    "useOriginalPivot": true,
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
     "id": "{88c3c111-b9ec-4e94-94f5-79b457097c0c}",
     "type": "Model",
-    "lastEdited": 1661136423648591,
+    "lastEdited": 1661238408617670,
     "name": "Atirum",
     "position": {
         "x": 1.104217529296875,
@@ -646,8 +586,68 @@
     "localEntity": false,
     "faceCamera": false,
     "isFacingAvatar": false
+},
+    {
+    "id": "{11ea1d8e-089a-4d72-923e-be035f4ac71b}",
+    "type": "Model",
+    "lastEdited": 1661241370715637,
+    "name": "Exterior",
+    "position": {
+        "x": 1.104217529296875,
+        "y": 0,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 66.38568115234375,
+        "y": 23.3328857421875,
+        "z": 64.70588684082031
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1660117871230976,
+    "lastEditedBy": "{7a38fda3-2e7b-4fd8-b323-fd3ad37a7889}",
+    "queryAACube": {
+        "x": -46.69309997558594,
+        "y": -47.79731750488281,
+        "z": -47.79731750488281,
+        "scale": 95.59463500976562
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 7,
+    "collidesWith": "static,dynamic,kinematic,",
+    "modelURL": "https://staging.vircadia.com/O12OR634/UA92/Exterior.glb",
+    "blendshapeCoefficients": "{\n}\n",
+    "useOriginalPivot": true,
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
 }
     ],
-  "Id": "{490784d5-934b-44b5-992a-86b10d681183}",
+  "Id": "{226a4541-3abc-4cd4-adca-a4ced2fa12ea}",
   "Version": 133
 }
