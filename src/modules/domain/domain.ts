@@ -9,7 +9,7 @@
 // Allow 'get' lines to be compact
 /* eslint-disable @typescript-eslint/brace-style */
 
-import { DomainServer, SignalEmitter, Camera } from "@vircadia/web-sdk";
+import { DomainServer, SignalEmitter, Camera, EntityServer } from "@vircadia/web-sdk";
 import { DomainAudio } from "@Modules/domain/audio";
 import { DomainMessage } from "@Modules/domain/message";
 import { DomainAvatar } from "@Modules/domain/avatar";
@@ -62,11 +62,13 @@ export class Domain {
     #_messageClient: Nullable<DomainMessage>;
     #_avatarClient: Nullable<DomainAvatar>;
     #_camera:Nullable<Camera>;
+    #_entityClient : Nullable<EntityServer>;
 
     public get DomainClient(): Nullable<DomainServer> { return this.#_domain; }
     public get AudioClient(): Nullable<DomainAudio> { return this.#_audioClient; }
     public get MessageClient(): Nullable<DomainMessage> { return this.#_messageClient; }
     public get AvatarClient(): Nullable<DomainAvatar> { return this.#_avatarClient; }
+    public get EntityClient(): Nullable<EntityServer> { return this.#_entityClient; }
 
     // Return domain's contextID or zero
     public get ContextId(): number { return this.#_domain?.contextID ?? 0; }
@@ -117,6 +119,8 @@ export class Domain {
 
         this.#_audioClient = new DomainAudio(this);
 
+        this.#_entityClient = new EntityServer(this.ContextId);
+
         // connect to the domain. The 'connected' event will say if the connection as made.
         Log.debug(Log.types.COMM, `Connecting to domain at ${this.#_domainUrl}`);
         this.#_domain.onStateChanged = this._handleOnDomainStateChange.bind(this);
@@ -130,6 +134,10 @@ export class Domain {
         if (this.#_domain) {
             this.#_domain.disconnect();
             this.#_domain = undefined;
+        }
+
+        if (this.#_entityClient) {
+            this.#_entityClient = undefined;
         }
     }
 
@@ -220,6 +228,10 @@ export class Domain {
     public update() : void {
         if (this.#_avatarClient) {
             this.#_avatarClient.update();
+        }
+
+        if (this.#_entityClient) {
+            this.#_entityClient.update();
         }
     }
 }
