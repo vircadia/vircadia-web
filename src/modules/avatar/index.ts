@@ -11,3 +11,4 @@
 
 export { AvatarController } from "./AvatarController";
 export { ScriptAvatarController } from "./ScriptAvatarController";
+export { MyAvatarController } from "./MyAvatarController";

@@ -10,23 +10,25 @@
 //
 
 import {
-    Node,
     TransformNode
 } from "@babylonjs/core";
 
-import { AvatarMapper } from "./AvatarMapper";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable new-cap */
+import { AvatarMapper, BoneType } from "./AvatarMapper";
 import { ScriptComponent, inspectorAccessor } from "@Modules/script";
 
 // Domain Modules
 import { MyAvatarInterface, SkeletonJoint } from "@vircadia/web-sdk";
+import Log from "@Modules/debugging/log";
+import { JointNames } from "./joint";
 
 export class MyAvatarController extends ScriptComponent {
     private _myAvatar : Nullable<MyAvatarInterface> = null;
-    private _skeletonNodes: Array<TransformNode>;
+    private _skeletonNodes: Map<string, TransformNode> = new Map<string, TransformNode>();
 
     constructor() {
         super("MyAvatarController");
-        this._skeletonNodes = new Array<TransformNode>();
     }
 
     @inspectorAccessor()
@@ -47,12 +49,9 @@ export class MyAvatarController extends ScriptComponent {
             return;
         }
 
-        this._myAvatar.scale = AvatarMapper.mapToJointScale(this._gameObject.scaling);
+        this._myAvatar.scale = AvatarMapper.mapToDomainScale(this._gameObject.scaling);
 
-        const rootNode = this._gameObject.getChildren()[0];
-        const skeleton = new Array<SkeletonJoint>();
-        this._collectJointData(rootNode, -1, skeleton);
-        this._myAvatar.skeleton = skeleton;
+        this._collectJoints();
     }
 
     @inspectorAccessor()
@@ -83,34 +82,89 @@ export class MyAvatarController extends ScriptComponent {
     public onUpdate():void {
         if (this._gameObject && this._myAvatar) {
             // sync position
-            this._myAvatar.position = AvatarMapper.mapToJointPosition(this._gameObject.position);
+            this._myAvatar.position = AvatarMapper.mapToDomainPosition(this._gameObject.position);
             // sync orientation
-            this._myAvatar.orientation = AvatarMapper.mapToJointQuaternion(this._gameObject.rotationQuaternion);
+            this._myAvatar.orientation = AvatarMapper.mapToDomainOrientation(this._gameObject.rotationQuaternion);
 
-            // sync joint data
-            for (let i = 0; i < this._myAvatar.jointRotations.length; i++) {
-                this._myAvatar.jointTranslations[i]
-                        = AvatarMapper.mapToJointPosition(this._skeletonNodes[i].position);
-                this._myAvatar.jointRotations[i]
-                        = AvatarMapper.mapToJointQuaternion(this._skeletonNodes[i].rotationQuaternion);
-            }
+            this._syncPoseToDomain();
         }
     }
 
-    private _collectJointData(node:Node, parentIndex: number, joints: SkeletonJoint[]) : void {
-        let jointIndex = parentIndex;
-        if (node.name === "__root__" || node.getClassName() === "TransformNode") {
-            const transNode = node as TransformNode;
-            this._skeletonNodes.push(transNode);
-
-            jointIndex = joints.length;
-            const joint = AvatarMapper.mapToJoint(transNode, jointIndex, parentIndex);
-            joints.push(joint);
+    private _collectJoints() {
+        if (!this._myAvatar) {
+            return;
         }
 
-        const children = node.getChildren();
-        children.forEach((child) => {
-            this._collectJointData(child, jointIndex, joints);
+        const skeleton = new Array<SkeletonJoint>();
+
+        const nodes = this._gameObject?.getChildren((node) => node.getClassName() === "TransformNode", false);
+        nodes?.forEach((node) => {
+            this._skeletonNodes.set(node.name, node as TransformNode);
+        });
+
+        JointNames.forEach((jointName, index) => {
+            const node = this._skeletonNodes.get(jointName);
+            if (node) {
+                const parentIndex = node.parent ? JointNames.findIndex((value) => value === node.parent?.name) : -1;
+                let rotation = node.rotationQuaternion;
+                if (parentIndex > 0 && parentIndex < skeleton.length && rotation) {
+                    const parentRotation = AvatarMapper.mapJointRotation(skeleton[parentIndex].defaultRotation);
+                    rotation = parentRotation.multiply(rotation);
+                }
+
+                let boneType = BoneType.SkeletonChild;
+                if (index === 0) {
+                    boneType = BoneType.NonSkeletonRoot;
+                // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+                } else if (index >= 2 && index <= 10) {
+                    boneType = BoneType.NonSkeletonChild;
+                }
+
+                const joint = {
+                    jointName: node.name,
+                    jointIndex: index,
+                    parentIndex,
+                    boneType,
+                    defaultTranslation: AvatarMapper.mapToJointTranslation(node.position),
+                    defaultRotation: AvatarMapper.mapToJointRotation(rotation),
+                    defaultScale: AvatarMapper.mapToDomainScale(node.scaling)
+                };
+
+                skeleton.push(joint);
+            }
+        });
+
+        this._myAvatar.skeleton = skeleton;
+    }
+
+    private _syncPoseToDomain() {
+        if (!this._gameObject || !this._myAvatar) {
+            return;
+        }
+
+        this._myAvatar.skeleton.forEach((joint) => {
+            if (!this._myAvatar) {
+                return;
+            }
+            const node = this._skeletonNodes.get(joint.jointName);
+
+            if (node) {
+                this._myAvatar.jointTranslations[joint.jointIndex]
+                   = AvatarMapper.mapToJointTranslation(node.position);
+
+                let rotation = node.rotationQuaternion;
+                if (rotation) {
+                    if (joint.parentIndex >= 0) {
+                        const q = this._myAvatar.jointRotations[joint.parentIndex];
+                        if (q) {
+                            const parentRotation = AvatarMapper.mapJointRotation(q);
+                            rotation = parentRotation.multiply(rotation);
+                        }
+                    }
+
+                    this._myAvatar.jointRotations[joint.jointIndex] = AvatarMapper.mapToJointRotation(rotation);
+                }
+            }
         });
     }
 }

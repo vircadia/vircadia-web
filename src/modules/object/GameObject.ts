@@ -15,8 +15,6 @@
 /* eslint-disable new-cap */
 
 import {
-    TransformNode,
-    Node,
     Scene,
     Mesh
 } from "@babylonjs/core";
@@ -24,6 +22,7 @@ import {
 import { IComponent } from "./component";
 
 import Log from "@Modules/debugging/log";
+import { Icon } from "@babylonjs/inspector/components/Icon";
 
 /**
  * Base class for all objects in scenes.
@@ -31,13 +30,22 @@ import Log from "@Modules/debugging/log";
 export class GameObject extends Mesh {
     _components : Map<string, IComponent>;
 
+    static _gameObjects : Array<GameObject> = new Array<GameObject>();
+    static _dontDestroyOnLoadList : Array<GameObject> = new Array<GameObject>();
+
     constructor(name: string, scene?: Nullable<Scene>) {
         super(name, scene);
         this._components = new Map<string, IComponent>();
+
+        GameObject._addGameObject(this);
     }
 
     public get type():string {
         return "GameObject";
+    }
+
+    public get components() : Map<string, IComponent> {
+        return this._components;
     }
 
     /**
@@ -55,6 +63,10 @@ export class GameObject extends Mesh {
         return this._components.get(componentType);
     }
 
+    public hasComponent(componentType : string) : boolean {
+        return this._components.has(componentType);
+    }
+
     /**
     * Removes the component of specific type from this game object.
     * @param dispose true will also dispose the componet when remove it.
@@ -69,5 +81,44 @@ export class GameObject extends Mesh {
             return this._components["delete"](componentType);
         }
         return false;
+    }
+
+    /**
+     * Releases resources associated with this node.
+     * @param doNotRecurse Set to true to not recurse into each children (recurse into each children by default)
+     * @param disposeMaterialAndTextures Set to true to also dispose referenced materials and textures (false by default)
+     */
+    public dispose(doNotRecurse?: boolean, disposeMaterialAndTextures = false): void {
+        super.dispose(doNotRecurse, disposeMaterialAndTextures);
+        GameObject._removeGameObject(this);
+    }
+
+    public static getGameObjectByID(id:string) : GameObject | undefined {
+        return this._gameObjects.find((value) => value.id === id);
+    }
+
+    public static get gameObjects() : GameObject[] {
+        return this._gameObjects;
+    }
+
+    public static get dontDestroyOnLoadList() : GameObject[] {
+        return this._dontDestroyOnLoadList;
+    }
+
+    public static dontDestroyOnLoad(target: GameObject) : void {
+        this._dontDestroyOnLoadList.push(target);
+    }
+
+    private static _addGameObject(target: GameObject) {
+        this._gameObjects.push(target);
+    }
+
+    private static _removeGameObject(target: GameObject) {
+        const index = this._gameObjects.indexOf(target);
+        if (index !== -1) {
+            // Remove from the scene if mesh found
+            this._gameObjects[index] = this._gameObjects[this._gameObjects.length - 1];
+            this._gameObjects.pop();
+        }
     }
 }
