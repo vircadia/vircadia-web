@@ -14,9 +14,9 @@
 import Log from "@Modules/debugging/log";
 // Domain Modules
 import { EntityController } from "./EntityController";
-import { ILightEntity } from "../Entities";
+import { ILightEntity } from "../../EntityInterfaces";
 import { LightComponent } from "@Base/modules/object";
-import { LightEntityBuilder } from "../builders";
+import { LightEntityBuilder } from "../../builders";
 
 export class LightEntityController extends EntityController {
     // domain properties

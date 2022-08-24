@@ -9,6 +9,39 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
+
+export type EntityType =
+"Unknown" | "Box" | "Sphere" | "Shape" | "Model" |
+"Text" | "Image" | "Web" | "ParticleEffect" |
+"Line" | "PolyLine" | "PolyVox" | "Grid" | "Gizmo" |
+"Light" | "Zone" | "Material";
+
+export type Shape =
+"Circle" | "Cone" | "Cube" | "Cylinder" | "Dodecahedron" |
+"Hexagon" | "Icosahedron" | "Octagon" | "Octahedron" |
+"Quad" | "Sphere" | "Tetrahedron" | "Torus" | "Triangle";
+
+export type ShapeType = "none" | "box" | "sphere" | "cylinder" |
+"capsule-x" | "capsule-y" | "capsule-z" | "cylinder-x" | "cylinder-y" | "cylinder-z" |
+"hull" | "compound" | "simple-hull" | "simple-compound" | "static-mesh" |
+"plane" | "ellipsoid" | "circle" | "multisphere";
+
+export enum CollisionMask {
+    None = 0,
+    Static = 1,
+    Dynamic = 2,
+    Kinematic = 4,
+    MyAvatar = 8,
+    OtherAvatar = 16
+}
+
+export type CollisionTarget = "static" | "dynamic" | "kinematic" | "myAvatar" | "otherAvatar";
+
+export type ComponentMode = "inherit" | "disabled" | "enabled";
+
+export type AvatarPriorityMode = "inherit" | "crowd" | "hero";
+
+
 export interface IVector3Property {
     x: number;
     y: number;
@@ -76,36 +109,12 @@ export interface IGrabProperty {
     equippableRightRotation?: IQuaternionProperty;
 }
 
-export type EntityType =
-"Unknown" | "Box" | "Sphere" | "Shape" | "Model" |
-"Text" | "Image" | "Web" | "ParticleEffect" |
-"Line" | "PolyLine" | "PolyVox" | "Grid" | "Gizmo" |
-"Light" | "Zone" | "Material";
-
-export type Shape =
-"Circle" | "Cone" | "Cube" | "Cylinder" | "Dodecahedron" |
-"Hexagon" | "Icosahedron" | "Octagon" | "Octahedron" |
-"Quad" | "Sphere" | "Tetrahedron" | "Torus" | "Triangle";
-
-export type ShapeType = "none" | "box" | "sphere" | "cylinder" |
-"capsule-x" | "capsule-y" | "capsule-z" | "cylinder-x" | "cylinder-y" | "cylinder-z" |
-"hull" | "compound" | "simple-hull" | "simple-compound" | "static-mesh" |
-"plane" | "ellipsoid" | "circle" | "multisphere";
-
-export enum CollisionMask {
-    None = 0,
-    Static = 1,
-    Dynamic = 2,
-    Kinematic = 4,
-    MyAvatar = 8,
-    OtherAvatar = 16
+export interface IRectProperty {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
 }
-
-export type CollisionTarget = "static" | "dynamic" | "kinematic" | "myAvatar" | "otherAvatar";
-
-export type ComponentMode = "inherit" | "disabled" | "enabled";
-
-export type AvatarPriorityMode = "inherit" | "crowd" | "hero";
 
 export interface ISpatialProperties {
     position?: IVector3Property | undefined;
@@ -173,5 +182,15 @@ export interface IEntityProperties {
     lastEditedBy?: Date;
     parentID?: string | undefined;
     visible?: boolean | undefined;
+    script?: string | undefined;
     userData?: string | undefined;
+}
+
+export interface IImageProperties {
+    imageURL?: string | undefined;
+    emissive?: boolean | undefined;
+    keepAspectRatio?: boolean | undefined;
+    subImage?: IRectProperty | undefined;
+    color?: IColorProperty | undefined;
+    alpha?: number | undefined;
 }

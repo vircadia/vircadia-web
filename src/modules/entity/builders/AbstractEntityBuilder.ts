@@ -17,7 +17,7 @@ import {
 
 import { GameObject, MeshComponent } from "@Modules/object";
 import { EntityMapper } from "../package/EntityMapper";
-import { IEntity } from "../Entities";
+import { IEntity } from "../EntityInterfaces";
 
 export abstract class AbstractEntityBuilder {
     public abstract build(gameObject:GameObject, entity: IEntity) : void;
