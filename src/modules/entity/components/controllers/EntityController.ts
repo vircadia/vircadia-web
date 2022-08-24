@@ -17,6 +17,8 @@ import { ScriptComponent } from "@Modules/script";
 import { IEntity } from "../../EntityInterfaces";
 import { EntityMapper } from "../../builders";
 import { GameObject, MeshComponent } from "@Base/modules/object";
+import { NFTSpinController } from "../scripts/NFTSpinController";
+
 
 export class EntityController extends ScriptComponent {
     // domain properties
@@ -38,13 +40,14 @@ export class EntityController extends ScriptComponent {
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
     public onInitialize(): void {
-        this._entity.onCommonPropertiesChanged?.add(this._handleCommonPropertiesChanged.bind(this));
-        this._entity.onPositionAndRotationChanged?.add(this._handlePositionAndRotationChanged.bind(this));
+        this._entity.onCommonPropertiesChanged?.add(this._updateCommonProperties.bind(this));
+        this._entity.onPositionAndRotationChanged?.add(this._updatePositionAndRotation.bind(this));
     }
 
     public onStart(): void {
-        this._handleCommonPropertiesChanged();
-        this._handlePositionAndRotationChanged();
+        this._updateCommonProperties();
+        this._updatePositionAndRotation();
+        this._updateScript();
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
@@ -52,14 +55,14 @@ export class EntityController extends ScriptComponent {
 
     }
 
-    private _handlePositionAndRotationChanged(): void {
+    protected _updatePositionAndRotation(): void {
         if (this._gameObject) {
             this._gameObject.position = EntityMapper.mapToVector3(this._entity.position);
             this._gameObject.rotationQuaternion = EntityMapper.mapToQuaternion(this._entity.rotation);
         }
     }
 
-    private _handleCommonPropertiesChanged(): void {
+    protected _updateCommonProperties(): void {
         if (this._gameObject) {
             this._gameObject.id = this._entity.id;
 
@@ -85,4 +88,13 @@ export class EntityController extends ScriptComponent {
         }
     }
 
+    protected _updateScript(): void {
+        if (this._gameObject && this._entity.script) {
+            Log.debug(Log.types.ENTITIES, `Load script ${this._entity.script}`);
+            if (this._entity.script === NFTSpinController.typeName) {
+                const comp = new NFTSpinController();
+                this._gameObject.addComponent(comp);
+            }
+        }
+    }
 }

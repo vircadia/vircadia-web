@@ -646,6 +646,387 @@
     "localEntity": false,
     "faceCamera": false,
     "isFacingAvatar": false
+},
+{
+    "id": "{69d6f766-05f9-4004-a57d-4e3f82b8ab0f}",
+    "type": "Image",
+    "lastEdited": 1661327724315551,
+    "parentID": "{787606b0-f9a5-4465-bae9-dfb5ba79e724}",
+    "name": "NFT03",
+    "position": {
+        "x": 0,
+        "y": 0,
+        "z": -9.487848728895187e-8
+    },
+    "dimensions": {
+        "x": 1,
+        "y": 1,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1661327493606580,
+    "lastEditedBy": "{6b2e59d2-1d1a-42f5-a1dc-42899b1dbe6f}",
+    "queryAACube": {
+        "x": -10.254796981811523,
+        "y": 0.36720091104507446,
+        "z": 4.9847564697265625,
+        "scale": 1.4142488241195679
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionless": true,
+    "ignoreForCollisions": true,
+    "color": {
+        "red": 209,
+        "green": 159,
+        "blue": 159
+    },
+    "imageURL": "/assets/textures/nft/001.png",
+    "textures": {
+        "tex.picture": "https://cdn-1.vircadia.com/us-e-1/Bazaar/Assets/Textures/Defaults/Interface/default_image.jpg"
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{61e53538-8b7c-4f9c-a0f5-8afa9ab9a1f8}",
+    "type": "Image",
+    "lastEdited": 1661327623110823,
+    "parentID": "{787606b0-f9a5-4465-bae9-dfb5ba79e724}",
+    "name": "NFT02",
+    "position": {
+        "x": -1.5,
+        "y": 0,
+        "z": -9.487848728895187e-8
+    },
+    "dimensions": {
+        "x": 1,
+        "y": 1,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1661327319326498,
+    "lastEditedBy": "{6b2e59d2-1d1a-42f5-a1dc-42899b1dbe6f}",
+    "queryAACube": {
+        "x": -11.754796981811523,
+        "y": 0.36724668741226196,
+        "z": 4.984710693359375,
+        "scale": 1.4142488241195679
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionless": true,
+    "ignoreForCollisions": true,
+    "color": {
+        "red": 209,
+        "green": 159,
+        "blue": 159
+    },
+    "imageURL": "/assets/textures/nft/002.png",
+    "textures": {
+        "tex.picture": "https://cdn-1.vircadia.com/us-e-1/Bazaar/Assets/Textures/Defaults/Interface/default_image.jpg"
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{380330ee-5cfd-4765-8f44-ce50e38d3060}",
+    "type": "Image",
+    "lastEdited": 1661327743019183,
+    "parentID": "{787606b0-f9a5-4465-bae9-dfb5ba79e724}",
+    "name": "NFT01",
+    "position": {
+        "x": -3,
+        "y": 0.00002574920654296875,
+        "z": -9.339419193565845e-8
+    },
+    "dimensions": {
+        "x": 1,
+        "y": 1,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1661310664179712,
+    "lastEditedBy": "{6b2e59d2-1d1a-42f5-a1dc-42899b1dbe6f}",
+    "queryAACube": {
+        "x": -13.254796981811523,
+        "y": 0.36731821298599243,
+        "z": 4.9846649169921875,
+        "scale": 1.4142488241195679
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionless": true,
+    "ignoreForCollisions": true,
+    "color": {
+        "red": 209,
+        "green": 159,
+        "blue": 159
+    },
+    "imageURL": "/assets/textures/nft/003.png",
+    "textures": {
+        "tex.picture": "https://cdn-1.vircadia.com/us-e-1/Bazaar/Assets/Textures/Defaults/Interface/default_image.jpg"
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{58efcccf-0258-416e-a247-e82a7c7ad173}",
+    "type": "Image",
+    "lastEdited": 1661327764072496,
+    "parentID": "{787606b0-f9a5-4465-bae9-dfb5ba79e724}",
+    "name": "NFT05",
+    "position": {
+        "x": 3,
+        "y": 0,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 1,
+        "y": 1,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1661327648395911,
+    "lastEditedBy": "{6b2e59d2-1d1a-42f5-a1dc-42899b1dbe6f}",
+    "queryAACube": {
+        "x": -7.254796504974365,
+        "y": 0.36710935831069946,
+        "z": 4.9848480224609375,
+        "scale": 1.4142488241195679
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionless": true,
+    "ignoreForCollisions": true,
+    "color": {
+        "red": 209,
+        "green": 159,
+        "blue": 159
+    },
+    "imageURL": "/assets/textures/nft/004.png",
+    "textures": {
+        "tex.picture": "https://cdn-1.vircadia.com/us-e-1/Bazaar/Assets/Textures/Defaults/Interface/default_image.jpg"
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{13db45b3-294b-41a6-9db6-02893a8bdf0f}",
+    "type": "Image",
+    "lastEdited": 1661327784020855,
+    "parentID": "{787606b0-f9a5-4465-bae9-dfb5ba79e724}",
+    "name": "NFT04",
+    "position": {
+        "x": 1.5,
+        "y": 0,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 1,
+        "y": 1,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1661327653194445,
+    "lastEditedBy": "{6b2e59d2-1d1a-42f5-a1dc-42899b1dbe6f}",
+    "queryAACube": {
+        "x": -8.754796981811523,
+        "y": 0.36715513467788696,
+        "z": 4.98480224609375,
+        "scale": 1.4142488241195679
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionless": true,
+    "ignoreForCollisions": true,
+    "color": {
+        "red": 209,
+        "green": 159,
+        "blue": 159
+    },
+    "imageURL": "/assets/textures/nft/005.png",
+    "textures": {
+        "tex.picture": "https://cdn-1.vircadia.com/us-e-1/Bazaar/Assets/Textures/Defaults/Interface/default_image.jpg"
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{787606b0-f9a5-4465-bae9-dfb5ba79e724}",
+    "type": "Box",
+    "lastEdited": 1661327090098367,
+    "visible": false,
+    "name": "NFTController",
+    "position": {
+        "x": -24,
+        "y": 3,
+        "z": 25
+    },
+    "dimensions": {
+        "x": 0.20000000298023224,
+        "y": 0.20000000298023224,
+        "z": 0.20000000298023224
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1661326683257241,
+    "lastEditedBy": "{6b2e59d2-1d1a-42f5-a1dc-42899b1dbe6f}",
+    "queryAACube": {
+        "x": -0.17320507764816284,
+        "y": -0.17320507764816284,
+        "z": -0.17320507764816284,
+        "scale": 0.3464101552963257
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "script": "NFTSpinController",
+    "scriptTimestamp": 1661328755707,
+    "color": {
+        "red": 0,
+        "green": 180,
+        "blue": 239
+    },
+    "shape": "Cube",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
 }
     ],
   "Id": "{226a4541-3abc-4cd4-adca-a4ced2fa12ea}",
