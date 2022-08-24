@@ -899,7 +899,7 @@
       "type": "Zone",
       "lastEdited": 1655773630838657,
       "name": "Main",
-      "userData": "{\n    \"grabbableKey\": {\n        \"grabbable\": false,\n        \"ignoreIK\": false\n    }\n}",
+      "userData": "{\n  \"environment\": {\n    \"environmentTexture\": \"https://assets.babylonjs.com/textures/night.env\"\n  },\n  \"renderingPipeline\": {\n    \"fxaaEnabled\": true,\n    \"glowLayerEnabled\": true,\n    \"glowLayer\": {\n      \"blurKernelSize\": 16,\n      \"intensity\": 0.5\n    }\n  }\n}",
       "dimensions": {
           "x": 1024,
           "y": 256,
@@ -938,7 +938,7 @@
       "shapeType": "box",
       "ambientLight": {
           "ambientIntensity": 0.20000000298023224,
-          "ambientURL": "https://aitolda.s3.amazonaws.com/Vircadia/DemoWorld/Skybox/Forest360.jpg"
+          "ambientURL": ""
       },
       
       "keyLightMode": "enabled",

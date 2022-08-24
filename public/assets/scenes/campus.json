@@ -5,7 +5,7 @@
     "id": "{2ff4adaa-4b38-467f-9385-618c603a0cfe}",
     "type": "Zone",
     "lastEdited": 1661246378977932,
-    "name": "Building_platform_zone",
+    "name": "Main",
     "userData": "{\"environment\":{\"environmentTexture\":\"https://assets.babylonjs.com/textures/country.env\"},\"renderingPipeline\":{\"fxaaEnabled\":true}}",
     "position": {
         "x": 0,
