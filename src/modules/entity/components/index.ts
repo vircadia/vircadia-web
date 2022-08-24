@@ -9,12 +9,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-export { EntityController } from "./EntityController";
-export { ShapeEntityController } from "./ShapeEntityController";
-export { ModelEntityController } from "./ModelEntityController";
-export { LightEntityController } from "./LightEntityController";
-export { ZoneEntityController } from "./ZoneEntityController";
-export { KeyLightComponent } from "./KeyLight";
-export { HazeComponent } from "./Haze";
-export { SkyboxComponent } from "./skybox";
-export { ModelComponent } from "./model";
+export { EntityController, ShapeEntityController, ModelEntityController,
+    LightEntityController, ZoneEntityController, ImageEntityController } from "./controllers";
+export { KeyLightComponent, HazeComponent, SkyboxComponent, ModelComponent } from "./components";

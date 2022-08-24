@@ -15,7 +15,7 @@ import {
     Scene, Vector3
 } from "@babylonjs/core";
 
-import { IEntity, ILightEntity } from "../Entities";
+import { IEntity, ILightEntity } from "../EntityInterfaces";
 import { EntityMapper } from "../package/EntityMapper";
 import { AbstractEntityBuilder } from "./AbstractEntityBuilder";
 import { GameObject, LightComponent } from "@Base/modules/object";

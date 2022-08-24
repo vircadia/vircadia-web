@@ -11,7 +11,7 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { IVector3Property, IQuaternionProperty, EntityType } from "../EntityProperties";
-import { IEntity } from "../Entities";
+import { IEntity } from "../EntityInterfaces";
 import { Observable } from "@babylonjs/core";
 import { EntityProperties } from "@vircadia/web-sdk";
 import Log from "@Base/modules/debugging/log";
@@ -43,15 +43,17 @@ export abstract class Entity implements IEntity {
     protected _position: IVector3Property | undefined;
     protected _rotation: IQuaternionProperty | undefined;
     protected _dimensions: IVector3Property | undefined;
+    protected _script: string | undefined;
     protected _userData: string | undefined;
     protected _collisionMask : number | undefined;
     protected _propertyChangeObservables : Array<EntityPropertyChangeObservable<IEntity>>;
 
-    private _onCommonPropertiesChanged : EntityPropertyChangeObservable<IEntity>;
-    private _onPositionAndRotationChanged : EntityPropertyChangeObservable<IEntity>;
-    private _onDimensionChanged : EntityPropertyChangeObservable<IEntity>;
-    private _onCollisionPropertiesChanged : EntityPropertyChangeObservable<IEntity>;
-    private _onUserDataChanged : EntityPropertyChangeObservable<IEntity>;
+    protected _onCommonPropertiesChanged : EntityPropertyChangeObservable<IEntity>;
+    protected _onPositionAndRotationChanged : EntityPropertyChangeObservable<IEntity>;
+    protected _onDimensionChanged : EntityPropertyChangeObservable<IEntity>;
+    protected _onCollisionPropertiesChanged : EntityPropertyChangeObservable<IEntity>;
+    protected _onScriptChanged : EntityPropertyChangeObservable<IEntity>;
+    protected _onUserDataChanged : EntityPropertyChangeObservable<IEntity>;
 
 
     constructor(id : string, type : EntityType) {
@@ -64,6 +66,7 @@ export abstract class Entity implements IEntity {
         this._onPositionAndRotationChanged = this.createPropertyChangeObservable();
         this._onDimensionChanged = this.createPropertyChangeObservable();
         this._onCollisionPropertiesChanged = this.createPropertyChangeObservable();
+        this._onScriptChanged = this.createPropertyChangeObservable();
         this._onUserDataChanged = this.createPropertyChangeObservable();
     }
 
@@ -147,6 +150,17 @@ export abstract class Entity implements IEntity {
         }
     }
 
+    public get script(): string | undefined {
+        return this._script;
+    }
+
+    public set script(value: string | undefined) {
+        if (value && this._script !== value) {
+            this._script = value;
+            this._onScriptChanged.isDirty = true;
+        }
+    }
+
     public get userData(): string | undefined {
         return this._userData;
     }
@@ -185,6 +199,10 @@ export abstract class Entity implements IEntity {
         return this._onCollisionPropertiesChanged.observable;
     }
 
+    public get onScriptChanged(): Observable<IEntity> {
+        return this._onScriptChanged.observable;
+    }
+
     public get onUserDataChanged(): Observable<IEntity> {
         return this._onUserDataChanged.observable;
     }
@@ -202,6 +220,7 @@ export abstract class Entity implements IEntity {
         this.dimensions = props.dimensions;
         this.parentID = props.parentID?.stringify();
         this.visible = props.visible;
+        this.script = props.script;
         this.userData = props.userData;
         this.collisionMask = props.collisionMask;
     }

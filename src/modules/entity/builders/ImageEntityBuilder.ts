@@ -1,7 +1,7 @@
 //
-//  ModelEntityBuilder.ts
+//  ImageEntityBuilder.ts
 //
-//  Created by Nolan Huang on 26 Jul 2022.
+//  Created by Nolan Huang on 24 Aug 2022.
 //  Copyright 2022 Vircadia contributors.
 //  Copyright 2022 DigiSomni LLC.
 //
@@ -10,21 +10,21 @@
 //
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { IEntity, IModelEntity } from "../EntityInterfaces";
+import { IEntity, IImageEntity } from "../EntityInterfaces";
 import { AbstractEntityBuilder } from "./AbstractEntityBuilder";
 
 
 import { GameObject } from "@Base/modules/object";
-import { ModelEntityController } from "../components";
+import { ImageEntityController } from "../components";
 
-export class ModelEntityBuilder extends AbstractEntityBuilder {
+export class ImageEntityBuilder extends AbstractEntityBuilder {
 
     // eslint-disable-next-line class-methods-use-this
     public build(gameObject: GameObject, entity: IEntity) : void {
-        const modelEntity = entity as IModelEntity;
+        const imageEntity = entity as IImageEntity;
 
-        if (!gameObject.getComponent("ModelEntityController")) {
-            gameObject.addComponent(new ModelEntityController(modelEntity));
+        if (!gameObject.getComponent("ImageEntityController")) {
+            gameObject.addComponent(new ImageEntityController(imageEntity));
         }
     }
 

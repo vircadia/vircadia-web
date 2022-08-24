@@ -1,5 +1,5 @@
 //
-//  ShapeEntityController.ts
+//  ModelEntityController.ts
 //
 //  Created by Nolan Huang on 4 Aug 2022.
 //  Copyright 2022 Vircadia contributors.
@@ -12,8 +12,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // Domain Modules
 import { EntityController } from "./EntityController";
-import { IModelEntity } from "../Entities";
-import { ModelComponent } from "../components";
+import { IModelEntity } from "../../EntityInterfaces";
+import { ModelComponent } from "../../components";
 import Log from "@Base/modules/debugging/log";
 
 export class ModelEntityController extends EntityController {

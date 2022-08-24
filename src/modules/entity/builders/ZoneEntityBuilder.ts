@@ -11,7 +11,7 @@
 
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { IEntity, IZoneEntity } from "../Entities";
+import { IEntity, IZoneEntity } from "../EntityInterfaces";
 import { GameObject } from "@Base/modules/object";
 import { ZoneEntityController } from "../components";
 

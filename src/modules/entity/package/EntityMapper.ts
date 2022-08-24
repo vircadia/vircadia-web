@@ -18,7 +18,7 @@ import {
 import { IVector3Property, IQuaternionProperty, IColorProperty,
     ShapeType, IAmbientLightProperty, IHazeProperty, IBloomProperty,
     ComponentMode } from "../EntityProperties";
-import { IEntity } from "../Entities";
+import { IEntity } from "../EntityInterfaces";
 
 import { ShapeType as PackageShapeType,
     ComponentMode as PackageComponentMode } from "./DomainProperties";

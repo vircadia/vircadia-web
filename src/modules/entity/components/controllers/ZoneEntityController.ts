@@ -15,10 +15,8 @@
 import Log from "@Modules/debugging/log";
 // Domain Modules
 import { EntityController } from "./EntityController";
-import { IZoneEntity } from "../Entities";
-import { SkyboxComponent } from "./skybox";
-import { KeyLightComponent } from "./KeyLight";
-import { HazeComponent } from "./Haze";
+import { IZoneEntity } from "../../EntityInterfaces";
+import { SkyboxComponent, KeyLightComponent, HazeComponent } from "../components";
 import { AmbientLightComponent } from "@Base/modules/object";
 
 import {

@@ -14,8 +14,8 @@
 import Log from "@Modules/debugging/log";
 // Domain Modules
 import { ScriptComponent } from "@Modules/script";
-import { IEntity } from "../Entities";
-import { EntityMapper } from "../builders";
+import { IEntity } from "../../EntityInterfaces";
+import { EntityMapper } from "../../builders";
 import { GameObject, MeshComponent } from "@Base/modules/object";
 
 export class EntityController extends ScriptComponent {

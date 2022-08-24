@@ -540,7 +540,23 @@ declare module "@vircadia/web-sdk" {
 
     export type TextEntityProperties = CommonEntityProperties;
 
-    export type ImageEntityProperties = CommonEntityProperties;
+    export type rect = {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+    };
+
+    export type ImageEntitySubclassProperties = {
+        imageURL: string | undefined;
+        emissive: boolean | undefined;
+        keepAspectRatio: boolean | undefined;
+        subImage: rect | undefined;
+        color: color | undefined;
+        alpha: number | undefined;
+    };
+
+    export type ImageEntityProperties = CommonEntityProperties & ImageEntitySubclassProperties;
 
     export type WebEntityProperties = CommonEntityProperties;
 
