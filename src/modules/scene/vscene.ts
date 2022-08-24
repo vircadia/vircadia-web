@@ -169,22 +169,7 @@ export class VScene {
 
     public async loadSceneSpaceStation(): Promise<void> {
         await this.load("/assets/scenes/spacestation.json",
-            new Vector3(0, 50.6, 0), undefined,
-            () => {
-                this._scene.createDefaultEnvironment(
-                    { createGround: false,
-                        createSkybox: false,
-                        environmentTexture: "https://assets.babylonjs.com/textures/night.env" });
-
-                const defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);
-                defaultPipeline.fxaaEnabled = true;
-
-                defaultPipeline.glowLayerEnabled = true;
-                if (defaultPipeline.glowLayer) {
-                    defaultPipeline.glowLayer.blurKernelSize = 16;
-                    defaultPipeline.glowLayer.intensity = 0.5;
-                }
-            });
+            new Vector3(0, 50, 0));
     }
 
     public async loadSceneUA92Campus(): Promise<void> {
