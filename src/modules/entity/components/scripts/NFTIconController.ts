@@ -17,17 +17,17 @@ import {
     Vector3,
     Scalar
 } from "@babylonjs/core";
-import { GameObject } from "@Base/modules/object";
+import { GameObject } from "@Modules/object";
 import Log from "@Modules/debugging/log";
 // Domain Modules
 import { ScriptComponent, inspector } from "@Modules/script";
 
-export class NFTSpinController extends ScriptComponent {
+export class NFTIconController extends ScriptComponent {
 
     _nfts : Array<GameObject> = new Array<GameObject>();
     _currentIndex = 0;
     @inspector({ min: 0.1, max: 2 * Math.PI })
-    _rotationSpeed = 50 * Math.PI / 180;
+    _rotationSpeed = 0.5 * Math.PI;
 
     _currentRotationSpeed = 0;
 
@@ -37,7 +37,7 @@ export class NFTSpinController extends ScriptComponent {
     _switchDuration = 10;
 
     constructor() {
-        super("NFTSpinController");
+        super(NFTIconController.typeName);
     }
 
     // domain properties
@@ -47,11 +47,11 @@ export class NFTSpinController extends ScriptComponent {
     */
     // eslint-disable-next-line class-methods-use-this
     public get componentType():string {
-        return NFTSpinController.typeName;
+        return NFTIconController.typeName;
     }
 
     static get typeName(): string {
-        return "NFTSpinController";
+        return "NFTIconController";
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
@@ -83,6 +83,4 @@ export class NFTSpinController extends ScriptComponent {
             this._currentIndex = Math.floor(Math.random() * this._nfts.length);
         }
     }
-
-
 }
