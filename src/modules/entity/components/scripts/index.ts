@@ -9,4 +9,4 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-export { NFTSpinController } from "./NFTSpinController";
+export { NFTIconController as NFTSpinController } from "./NFTIconController";
