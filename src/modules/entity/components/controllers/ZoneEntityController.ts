@@ -15,15 +15,33 @@
 import Log from "@Modules/debugging/log";
 // Domain Modules
 import { EntityController } from "./EntityController";
-import { IZoneEntity } from "../Entities";
-import { SkyboxComponent } from "./skybox";
-import { KeyLightComponent } from "./KeyLight";
-import { HazeComponent } from "./Haze";
+import { IZoneEntity } from "../../EntityInterfaces";
+import { SkyboxComponent, KeyLightComponent, HazeComponent } from "../components";
 import { AmbientLightComponent } from "@Base/modules/object";
 
 import {
-    HemisphericLight, Vector3
+    HemisphericLight, Vector3, DefaultRenderingPipeline, CubeTexture
 } from "@babylonjs/core";
+
+type EnvironmentSettings = {
+    environmentTexture?: string | undefined,
+};
+
+type glowLayerSettings = {
+    blurKernelSize?: number | undefined,
+    intensity?: number | undefined
+};
+
+type RenderingPipelineSettings = {
+    fxaaEnabled?: boolean | undefined,
+    glowLayerEnabled?: boolean | undefined,
+    glowLayer?: glowLayerSettings | undefined
+};
+
+type ZoneExtensions = {
+    environment?: EnvironmentSettings | undefined,
+    renderingPipeline?: RenderingPipelineSettings | undefined,
+};
 
 export class ZoneEntityController extends EntityController {
     // domain properties
@@ -61,6 +79,7 @@ export class ZoneEntityController extends EntityController {
         this._zoneEntity.onAmbientLightPropertiesChanged?.add(this.updateAmbientLight.bind(this));
         this._zoneEntity.onKeyLightPropertiesChanged?.add(this.updateKeyLight.bind(this));
         this._zoneEntity.onHazePropertiesChanged?.add(this.updateHaze.bind(this));
+        this._zoneEntity.onUserDataChanged?.add(this._updateUserData.bind(this));
 
         // this._zoneEntity.onDimensionChanged?.add(this._handleLightPropertiesChanged.bind(this));
     }
@@ -71,6 +90,7 @@ export class ZoneEntityController extends EntityController {
         this.updateAmbientLight();
         this.updateKeyLight();
         this.updateHaze();
+        this._updateUserData();
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
@@ -139,6 +159,48 @@ export class ZoneEntityController extends EntityController {
             this._haze.enable = true;
         } else if (this._haze) {
             this._haze.enable = false;
+        }
+    }
+
+    protected _updateUserData() : void {
+        if (this._zoneEntity.userData) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const userData = JSON.parse(this._zoneEntity.userData) as ZoneExtensions;
+
+            if (userData.environment && userData.environment.environmentTexture) {
+                if (this._scene.environmentTexture
+                    && this._scene.environmentTexture.name !== userData.environment.environmentTexture) {
+                    this._scene.environmentTexture.dispose();
+                }
+                this._scene.environmentTexture = new CubeTexture(userData.environment.environmentTexture, this._scene);
+            }
+
+            if (userData.renderingPipeline) {
+                let defaultPipeline = this._scene.postProcessRenderPipelineManager.supportedPipelines
+                    .find((value) => value.name === "default") as DefaultRenderingPipeline;
+                if (!defaultPipeline) {
+                    defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);
+                }
+
+                if (userData.renderingPipeline.fxaaEnabled !== undefined) {
+                    defaultPipeline.fxaaEnabled = userData.renderingPipeline.fxaaEnabled;
+                }
+
+                if (userData.renderingPipeline.glowLayerEnabled !== undefined) {
+                    defaultPipeline.glowLayerEnabled = userData.renderingPipeline.glowLayerEnabled;
+                }
+
+                const glowLayer = userData.renderingPipeline.glowLayer;
+                if (glowLayer && defaultPipeline.glowLayer) {
+                    if (glowLayer.blurKernelSize) {
+                        defaultPipeline.glowLayer.blurKernelSize = glowLayer.blurKernelSize;
+                    }
+
+                    if (glowLayer.intensity) {
+                        defaultPipeline.glowLayer.intensity = glowLayer.intensity;
+                    }
+                }
+            }
         }
     }
 }

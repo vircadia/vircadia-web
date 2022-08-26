@@ -10,6 +10,7 @@
 //
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { ScriptComponent, inspectorAccessor } from "@Modules/script";
 
 // General Modules
@@ -25,6 +26,7 @@ import { AvatarMixer, Uuid, ScriptAvatar, DomainServer,
     EntityServer } from "@vircadia/web-sdk";
 import { EntityManager, IEntity } from "@Modules/entity";
 import { VScene } from "./vscene";
+import { Quaternion, Vector3 } from "@babylonjs/core";
 
 
 const DefaultAvatarUrl = "https://staging.vircadia.com/O12OR634/UA92/sara.glb";
@@ -132,7 +134,31 @@ export class DomainController extends ScriptComponent {
             this._entityServer.onStateChanged = this._handleOnEntityServerStateChanged.bind(this);
         }
 
-        await this._vscene?.load();
+        const url = new URL(pDomain.DomainUrl);
+        Log.debug(Log.types.COMM, `connected to: ${pDomain.DomainUrl}`);
+        let postion = undefined;
+        let rotationQuat = undefined;
+
+        if (url.pathname.length > 1) {
+            const index1 = url.pathname.indexOf("/");
+            let index2 = url.pathname.lastIndexOf("/");
+            // prevent no quaternion string
+            index2 = index2 === index1 ? url.pathname.length : index2;
+
+            const posStr = url.pathname.substring(index1 + 1, index2);
+            const vec3 = posStr.split(",").map((value) => Number(value));
+            if (vec3.length >= 3) {
+                postion = new Vector3(...vec3);
+            }
+
+            const orientStr = url.pathname.substring(index2 + 1);
+            const vec4 = orientStr.split(",").map((value) => Number(value));
+            if (vec4.length >= 4) {
+                rotationQuat = new Quaternion(...vec4);
+            }
+        }
+
+        await this._vscene?.load(undefined, postion, rotationQuat);
 
         const sessionID = pDomain.DomainClient?.sessionUUID;
         if (sessionID) {

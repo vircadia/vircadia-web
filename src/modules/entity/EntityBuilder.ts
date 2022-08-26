@@ -14,10 +14,10 @@ import {
 } from "@babylonjs/core";
 
 import { GameObject } from "@Modules/object";
-import { IEntity } from "./Entities";
+import { IEntity } from "./EntityInterfaces";
 import { EntityType } from "./EntityProperties";
 import { AbstractEntityBuilder, ShapeEntityBuilder, LightEntityBuilder, ZoneEntityBuilder, ModelEntityBuilder,
-    EntityMapper } from "./builders";
+    ImageEntityBuilder, EntityMapper } from "./builders";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
 
@@ -44,6 +44,8 @@ export class EntityBuilder {
         this._builders.set("Light", new LightEntityBuilder());
         this._builders.set("Model", new ModelEntityBuilder());
         this._builders.set("Zone", new ZoneEntityBuilder());
+        this._builders.set("Image", new ImageEntityBuilder());
+
     }
 
     public buildEntity(entity: IEntity, scene: Nullable<Scene>, gameObj ?: GameObject) : GameObject {

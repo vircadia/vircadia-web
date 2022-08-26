@@ -12,8 +12,8 @@
 
 import { GenericNodeComponent } from "@Modules/object";
 import { Scene, TransformNode } from "@babylonjs/core";
-import { IHazeProperty } from "../EntityProperties";
-import { EntityMapper } from "../package";
+import { IHazeProperty } from "../../EntityProperties";
+import { EntityMapper } from "../../package";
 
 /* eslint-disable new-cap */
 

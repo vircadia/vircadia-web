@@ -13,9 +13,9 @@
 import { GenericNodeComponent } from "@Modules/object";
 import { Mesh, Scene, MeshBuilder, StandardMaterial,
     Texture, CubeTexture, EquiRectangularCubeTexture, BaseTexture } from "@babylonjs/core";
-import { ISkyboxProperty } from "../EntityProperties";
-import { EntityMapper } from "../package";
-import { AssetUrl } from "../builders/asset";
+import { ISkyboxProperty } from "../../EntityProperties";
+import { EntityMapper } from "../../package";
+import { AssetUrl } from "../../builders/asset";
 
 /* eslint-disable new-cap */
 
