@@ -36,9 +36,14 @@
                 class="col"
                 style="height: 100%"
             >
-                <q-list>
-                    <q-item v-for="avaInfo in $store.state.avatars.avatarsInfo.values()"
-                        :key="avaInfo.sessionId" class="q-mb-sm" clickable v-ripple>
+                <q-list v-if="$store.state.avatars.avatarsInfo.values().length > 0">
+                    <q-item
+                        v-for="avaInfo in $store.state.avatars.avatarsInfo.values()"
+                        :key="avaInfo.sessionId"
+                        class="q-mb-sm"
+                        clickable
+                        v-ripple
+                    >
                         <q-item-section avatar>
                             <q-avatar color="primary">
                                 <img v-if="getProfilePicture(avaInfo)"
@@ -70,6 +75,7 @@
                         -->
                     </q-item>
                 </q-list>
+                <p v-else class="text-subtitle1 text-grey text-center q-mt-md">There is no one else in this server.</p>
             </q-scroll-area>
         </q-card>
         <!-- <q-inner-loading :showing="">
