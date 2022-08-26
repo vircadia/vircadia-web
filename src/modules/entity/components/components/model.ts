@@ -12,10 +12,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable class-methods-use-this */
 import { MeshComponent } from "@Modules/object";
-import { Scene, SceneLoader, AbstractMesh } from "@babylonjs/core";
-import { IModelEntity } from "../Entities";
-import { EntityMapper } from "../package";
-import { CollisionMask } from "../EntityProperties";
+import { SceneLoader, AbstractMesh } from "@babylonjs/core";
+import { IModelEntity } from "../../EntityInterfaces";
+import { CollisionMask } from "../../EntityProperties";
 import Log from "@Modules/debugging/log";
 
 /* eslint-disable new-cap */

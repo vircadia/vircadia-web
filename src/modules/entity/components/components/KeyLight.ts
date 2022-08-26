@@ -12,8 +12,8 @@
 
 import { GenericNodeComponent } from "@Modules/object";
 import { DirectionalLight, Scene, Vector3 } from "@babylonjs/core";
-import { IKeyLightProperty } from "../EntityProperties";
-import { EntityMapper } from "../package";
+import { IKeyLightProperty } from "../../EntityProperties";
+import { EntityMapper } from "../../package";
 
 /* eslint-disable new-cap */
 

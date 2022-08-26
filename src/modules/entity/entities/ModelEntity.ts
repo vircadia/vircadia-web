@@ -9,7 +9,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { IEntity, IModelEntity } from "../Entities";
+import { IEntity, IModelEntity } from "../EntityInterfaces";
 import { Observable } from "@babylonjs/core";
 import { Entity, EntityPropertyChangeObservable } from "./Entity";
 import { EntityProperties, ModelEntityProperties } from "@vircadia/web-sdk";

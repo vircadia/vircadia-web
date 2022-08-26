@@ -9,12 +9,12 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { IEntity } from "./Entities";
+import { IEntity } from "./EntityInterfaces";
 import { Observable } from "@babylonjs/core";
 import { EntityServer, EntityProperties } from "@vircadia/web-sdk";
 import { EntityType as PackageEntityType } from "./package/DomainProperties";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Entity, ShapeEntity, ModelEntity, LightEntity, ZoneEntity } from "./implements";
+import { Entity, ShapeEntity, ModelEntity, LightEntity, ZoneEntity } from "./entities";
 import Log from "@Modules/debugging/log";
 
 type EntityFactory = (id:string) => Entity;

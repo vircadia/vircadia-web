@@ -12,7 +12,7 @@
 import { ShapeType, IAmbientLightProperty, IKeyLightProperty,
     ISkyboxProperty, IHazeProperty, IBloomProperty, ComponentMode,
     AvatarPriorityMode } from "../EntityProperties";
-import { IEntity, IZoneEntity } from "../Entities";
+import { IEntity, IZoneEntity } from "../EntityInterfaces";
 import { Entity, EntityPropertyChangeObservable } from "./Entity";
 import { EntityProperties, ZoneEntityProperties } from "@vircadia/web-sdk";
 import { Observable } from "@babylonjs/core";

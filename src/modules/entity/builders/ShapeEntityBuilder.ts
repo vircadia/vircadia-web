@@ -17,7 +17,7 @@ import {
 } from "@babylonjs/core";
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { IEntity, IShapeEntity } from "../Entities";
+import { IEntity, IShapeEntity } from "../EntityInterfaces";
 import { EntityMapper } from "../package/EntityMapper";
 import { AbstractEntityBuilder } from "./AbstractEntityBuilder";
 

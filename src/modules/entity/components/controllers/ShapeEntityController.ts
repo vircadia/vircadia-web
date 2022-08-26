@@ -14,9 +14,9 @@
 import Log from "@Modules/debugging/log";
 // Domain Modules
 import { EntityController } from "./EntityController";
-import { IShapeEntity } from "../Entities";
+import { IShapeEntity } from "../../EntityInterfaces";
 import { MeshComponent } from "@Base/modules/object";
-import { ShapeEntityBuilder } from "../builders";
+import { ShapeEntityBuilder } from "../../builders";
 
 export class ShapeEntityController extends EntityController {
     // domain properties

@@ -10,7 +10,7 @@
 //
 import { IEntityProperties, ISpatialProperties, IBehaviorProperties,
     IModelEProperties, IShapeProperties, ILightProperties,
-    IZoneProperties } from "./EntityProperties";
+    IZoneProperties, IImageProperties } from "./EntityProperties";
 import { Observable } from "@babylonjs/core";
 
 export interface IEntity extends
@@ -21,7 +21,9 @@ export interface IEntity extends
     onCommonPropertiesChanged ?: Observable<IEntity>;
     onPositionAndRotationChanged ?: Observable<IEntity>;
     onDimensionChanged ?: Observable<IEntity>;
-    onCollisionPropertiesChanged ?: Observable<IEntity>
+    onCollisionPropertiesChanged ?: Observable<IEntity>;
+    onScriptChanged ?: Observable<IEntity>;
+    onUserDataChanged ?: Observable<IEntity>;
 }
 
 export interface IModelEntity extends
@@ -57,4 +59,12 @@ export interface IZoneEntity extends
     onSkyboxPropertiesChanged : Observable<IEntity>;
     onHazePropertiesChanged : Observable<IEntity>;
     onBloomPropertiesChanged : Observable<IEntity>;
+}
+
+export interface IImageEntity extends
+    IEntity,
+    IImageProperties {
+
+    onColorChanged : Observable<IEntity>;
+    onImageURLChanged : Observable<IEntity>
 }
