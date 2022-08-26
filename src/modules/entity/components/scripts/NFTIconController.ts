@@ -71,16 +71,18 @@ export class NFTIconController extends ScriptComponent {
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
     public onUpdate():void {
-        const nft = this._nfts[this._currentIndex];
+        if (this._currentIndex < this._nfts.length) {
+            const nft = this._nfts[this._currentIndex];
 
-        const dt = this._scene.getEngine().getDeltaTime() / 1000;
-        this._currentRotationSpeed = Scalar.Lerp(this._currentRotationSpeed, this._rotationSpeed, 0.1);
-        nft.rotate(Vector3.Up(), this._currentRotationSpeed * dt);
+            const dt = this._scene.getEngine().getDeltaTime() / 1000;
+            this._currentRotationSpeed = Scalar.Lerp(this._currentRotationSpeed, this._rotationSpeed, 0.1);
+            nft.rotate(Vector3.Up(), this._currentRotationSpeed * dt);
 
-        this._rotationDuration += dt;
-        if (this._rotationDuration > this._switchDuration) {
-            this._rotationDuration -= this._switchDuration;
-            this._currentIndex = Math.floor(Math.random() * this._nfts.length);
+            this._rotationDuration += dt;
+            if (this._rotationDuration > this._switchDuration) {
+                this._rotationDuration -= this._switchDuration;
+                this._currentIndex = Math.floor(Math.random() * this._nfts.length);
+            }
         }
     }
 }
