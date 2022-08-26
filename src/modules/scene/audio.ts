@@ -218,6 +218,7 @@ export const AudioMgr = {
 
         // Remember the last selected input device for next session
         if (pDeviceInfo) {
+            Log.debug(Log.types.AUDIO, `store user AudioInputStream: ${pDeviceInfo.label}`);
             Config.setItem(USER_AUDIO_INPUT, pDeviceInfo.deviceId);
         }
 
@@ -304,6 +305,7 @@ export const AudioMgr = {
         });
         // Remember the last selected input device for next session
         if (pDeviceInfo) {
+            Log.debug(Log.types.AUDIO, `store user AudioOutputStream: ${pDeviceInfo.label}`);
             Config.setItem(USER_AUDIO_OUTPUT, pDeviceInfo.deviceId);
         }
 
@@ -415,7 +417,7 @@ export const AudioMgr = {
      * @param {MediaStream} pInitial an optional stream to prefer when selecting input device
      */
     async setInitialInputAudioDevice(pInitial?: MediaStream): Promise<void> {
-        Log.debug(Log.types.AUDIO, `AudioMgr.getInitialInputAudioDevice`);
+        Log.debug(Log.types.AUDIO, `AudioMgr.setInitialInputAudioDevice`);
         try {
             Log.debug(Log.types.AUDIO, `AudioMgr: set inital Input audio device`);
             if (pInitial) {
@@ -433,7 +435,7 @@ export const AudioMgr = {
 
     // eslint-disable-next-line @typescript-eslint/require-await
     async setInitialOutputAudioDevice(): Promise<void> {
-        Log.debug(Log.types.AUDIO, `AudioMgr.getInitialOutputAudioDevice`);
+        Log.debug(Log.types.AUDIO, `AudioMgr.setInitialOutputAudioDevice`);
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const lastSessionOutput = Config.getItem(USER_AUDIO_OUTPUT, "none");
         try {
