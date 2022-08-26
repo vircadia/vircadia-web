@@ -62,12 +62,22 @@
                         round
                         dense
                         fab-mini
-                        tooltip="mute/unmute mic"
-                        :icon="$store.state.audio.user.muted ? 'mic_off' : 'mic'"
-                        :color="$store.state.audio.user.hasInputAccess ? 'primary' : 'red'"
+                        :title="$store.state.audio.user.muted ? 'Unmute microphone' : 'Mute microphone'"
+                        :icon="$store.state.audio.user.muted || !$store.state.audio.user.hasInputAccess ? 'mic_off' : 'mic'"
+                        :color="determineMicColor()"
                         @click="micToggled"
                         class="q-mr-sm q-ml-sm"
-                    />
+                        :style="{
+                            backgroundColor: $q.dark.isActive ? '#282828' : '#e8e8e8'
+                        }"
+                    >
+                        <q-tooltip
+                            v-if="!$store.state.audio.user.hasInputAccess"
+                            class="bg-black"
+                            transition-show="jump-down"
+                            transition-hide="jump-up"
+                        >Please allow microphone access.</q-tooltip>
+                    </q-btn>
 
                     <q-toolbar-title>
                         <q-item-section>
@@ -471,6 +481,15 @@ export default defineComponent({
             if (this.$store.state.audio.user.hasInputAccess === true) {
                 AudioMgr.muteAudio();
             }
+        },
+        determineMicColor: function(): string {
+            if (!this.$store.state.audio.user.hasInputAccess) {
+                return "grey-6";
+            }
+            if (this.$store.state.audio.user.muted) {
+                return "red";
+            }
+            return "primary";
         }
     },
     mounted: async function() {
