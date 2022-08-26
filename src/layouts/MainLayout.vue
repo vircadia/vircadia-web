@@ -62,12 +62,19 @@
                         round
                         dense
                         fab-mini
-                        tooltip="mute/unmute mic"
+                        :title="$store.state.audio.user.muted ? 'Unmute microphone' : 'Mute microphone'"
                         :icon="$store.state.audio.user.muted || !$store.state.audio.user.hasInputAccess ? 'mic_off' : 'mic'"
                         :color="determineMicColor()"
                         @click="micToggled"
                         class="q-mr-sm q-ml-sm"
-                    />
+                    >
+                        <q-tooltip
+                            v-if="!$store.state.audio.user.hasInputAccess"
+                            class="bg-black"
+                            transition-show="jump-down"
+                            transition-hide="jump-up"
+                        >Please allow microphone access.</q-tooltip>
+                    </q-btn>
 
                     <q-toolbar-title>
                         <q-item-section>
