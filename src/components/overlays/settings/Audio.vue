@@ -56,7 +56,7 @@
 
                             <div class=".col-8 row items-center">
                                 <span
-                                    v-if="selectedInputStore"
+                                    v-if="selectedInputStore !== 'None selected'"
                                     class="text-subtitle1 items-center"
                                 >
                                     Using {{ selectedInputStore }}
