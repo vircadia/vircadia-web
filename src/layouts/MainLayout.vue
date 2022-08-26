@@ -63,8 +63,8 @@
                         dense
                         fab-mini
                         tooltip="mute/unmute mic"
-                        :icon="$store.state.audio.user.muted ? 'mic_off' : 'mic'"
-                        :color="$store.state.audio.user.hasInputAccess ? 'primary' : 'red'"
+                        :icon="$store.state.audio.user.muted || !$store.state.audio.user.hasInputAccess ? 'mic_off' : 'mic'"
+                        :color="determineMicColor()"
                         @click="micToggled"
                         class="q-mr-sm q-ml-sm"
                     />
@@ -471,6 +471,15 @@ export default defineComponent({
             if (this.$store.state.audio.user.hasInputAccess === true) {
                 AudioMgr.muteAudio();
             }
+        },
+        determineMicColor: function(): string {
+            if (!this.$store.state.audio.user.hasInputAccess) {
+                return "grey-6";
+            }
+            if (this.$store.state.audio.user.muted) {
+                return "red";
+            }
+            return "primary";
         }
     },
     mounted: async function() {
