@@ -67,6 +67,9 @@
                         :color="determineMicColor()"
                         @click="micToggled"
                         class="q-mr-sm q-ml-sm"
+                        :style="{
+                            backgroundColor: $q.dark.isActive ? '#282828' : '#e8e8e8'
+                        }"
                     >
                         <q-tooltip
                             v-if="!$store.state.audio.user.hasInputAccess"
