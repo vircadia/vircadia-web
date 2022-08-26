@@ -13,7 +13,6 @@ import { IEntity } from "./EntityInterfaces";
 import { Observable } from "@babylonjs/core";
 import { EntityServer, EntityProperties } from "@vircadia/web-sdk";
 import { EntityType as PackageEntityType } from "./package/DomainProperties";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Entity, ShapeEntity, ModelEntity, LightEntity, ZoneEntity } from "./entities";
 import Log from "@Modules/debugging/log";
 
