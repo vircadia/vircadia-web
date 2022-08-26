@@ -23,47 +23,256 @@
               "z": 0,
               "w": 1
           },
-          "created": 1639672618942464,
-          "lastEditedBy": "{5074da71-ac10-4d4c-96ca-2bebd5bf0178}",
-          "queryAACube": {
-              "x": -39.0230712890625,
-              "y": 6.703355312347412,
-              "z": -36.402408599853516,
-              "scale": 3.527052879333496
-          },
-          "grab": {
-              "grabbable": false,
-              "equippableLeftRotation": {
-                  "x": -0.0000152587890625,
-                  "y": -0.0000152587890625,
-                  "z": -0.0000152587890625,
-                  "w": 1
-              },
-              "equippableRightRotation": {
-                  "x": -0.0000152587890625,
-                  "y": -0.0000152587890625,
-                  "z": -0.0000152587890625,
-                  "w": 1
-              }
-          },
-          "damping": 0,
-          "angularDamping": 0,
           "collisionMask": 24,
           "collidesWith": "myAvatar,otherAvatar,",
           "shapeType": "static-mesh",
-          "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/Collision_Station_Inside.glb",
-          "blendshapeCoefficients": "{\n}\n",
+          "modelURL": "/assets/scenes/spacestation/Collision_Station_Inside.glb",
           "useOriginalPivot": true,
-          "animation": {
-              "allowTranslation": false
-          },
-          "clientOnly": false,
-          "avatarEntity": false,
-          "localEntity": false,
-          "faceCamera": false,
-          "isFacingAvatar": false,
           "visible": false
       },
+      {
+        "id": "{0426c281-c6b7-4d03-9a52-a0926e19ee2f}",
+        "type": "Model",
+        "lastEdited": 1655773630796121,
+        "name": "Inside_Teleportation_A_01",
+        "locked": true,
+        "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "dimensions": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+        },
+        "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0,
+            "w": 1
+        },
+        "shapeType": "static-mesh",
+        "modelURL": "/assets/scenes/spacestation/Inside_Teleportation_A_01.glb",
+        "useOriginalPivot": true,
+        "visible": true
+    },
+    {
+        "id": "{0426c281-c6b7-4d03-9a52-a0926e19ee2f}",
+        "type": "Model",
+        "lastEdited": 1655773630796121,
+        "name": "Inside_B_Desk",
+        "locked": true,
+        "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "dimensions": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+        },
+        "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0,
+            "w": 1
+        },
+        "shapeType": "static-mesh",
+        "modelURL": "/assets/scenes/spacestation/Inside_B/Inside_B_Desk.glb",
+        "useOriginalPivot": true,
+        "visible": true
+    },
+    {
+        "id": "{0426c281-c6b7-4d03-9a52-a0926e19ee2f}",
+        "type": "Model",
+        "lastEdited": 1655773630796121,
+        "name": "Inside_B_Elevator_a",
+        "locked": true,
+        "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "dimensions": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+        },
+        "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0,
+            "w": 1
+        },
+        "shapeType": "static-mesh",
+        "modelURL": "/assets/scenes/spacestation/Inside_B/Inside_B_Elevator_a.glb",
+        "useOriginalPivot": true,
+        "visible": true
+    },
+    {
+        "id": "{0426c281-c6b7-4d03-9a52-a0926e19ee2f}",
+        "type": "Model",
+        "lastEdited": 1655773630796121,
+        "name": "Inside_B_Elevator_b",
+        "locked": true,
+        "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "dimensions": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+        },
+        "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0,
+            "w": 1
+        },
+        "shapeType": "static-mesh",
+        "modelURL": "/assets/scenes/spacestation/Inside_B/Inside_B_Elevator_b.glb",
+        "useOriginalPivot": true,
+        "visible": true
+    },
+    {
+        "id": "{0426c281-c6b7-4d03-9a52-a0926e19ee2f}",
+        "type": "Model",
+        "lastEdited": 1655773630796121,
+        "name": "Inside_B_Light",
+        "locked": true,
+        "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "dimensions": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+        },
+        "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0,
+            "w": 1
+        },
+        "shapeType": "static-mesh",
+        "modelURL": "/assets/scenes/spacestation/Inside_B/Inside_B_Light.glb",
+        "useOriginalPivot": true,
+        "visible": true
+    },
+    {
+        "id": "{0426c281-c6b7-4d03-9a52-a0926e19ee2f}",
+        "type": "Model",
+        "lastEdited": 1655773630796121,
+        "name": "Inside_B_Part",
+        "locked": true,
+        "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "dimensions": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+        },
+        "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0,
+            "w": 1
+        },
+        "shapeType": "static-mesh",
+        "modelURL": "/assets/scenes/spacestation/Inside_B/Inside_B_Part.glb",
+        "useOriginalPivot": true,
+        "visible": true
+    },
+    {
+        "id": "{0426c281-c6b7-4d03-9a52-a0926e19ee2f}",
+        "type": "Model",
+        "lastEdited": 1655773630796121,
+        "name": "Inside_B_Sofa",
+        "locked": true,
+        "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "dimensions": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+        },
+        "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0,
+            "w": 1
+        },
+        "shapeType": "static-mesh",
+        "modelURL": "/assets/scenes/spacestation/Inside_B/Inside_B_Sofa.glb",
+        "useOriginalPivot": true,
+        "visible": true
+    },
+    {
+        "id": "{0426c281-c6b7-4d03-9a52-a0926e19ee2f}",
+        "type": "Model",
+        "lastEdited": 1655773630796121,
+        "name": "Inside_B_Tableware",
+        "locked": true,
+        "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "dimensions": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+        },
+        "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0,
+            "w": 1
+        },
+        "shapeType": "static-mesh",
+        "modelURL": "/assets/scenes/spacestation/Inside_B/Inside_B_Tableware.glb",
+        "useOriginalPivot": true,
+        "visible": true
+    },
+    {
+        "id": "{0426c281-c6b7-4d03-9a52-a0926e19ee2f}",
+        "type": "Model",
+        "lastEdited": 1655773630796121,
+        "name": "Inside_B_Teleportation",
+        "locked": true,
+        "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "dimensions": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+        },
+        "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0,
+            "w": 1
+        },
+        "shapeType": "static-mesh",
+        "modelURL": "/assets/scenes/spacestation/Inside_B/Inside_B_Teleportation.glb",
+        "useOriginalPivot": true,
+        "visible": true
+    },
       {
       "id": "{0426c281-c6b7-4d03-9a52-a0926e19ee2f}",
       "type": "Model",
@@ -112,7 +321,7 @@
       "damping": 0,
       "angularDamping": 0,
       "shapeType": "static-mesh",
-      "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Inside_Floor.glb",
+      "modelURL": "/assets/scenes/spacestation/SpaceStation_Inside_Floor.glb",
       "blendshapeCoefficients": "{\n}\n",
       "useOriginalPivot": true,
       "animation": {
@@ -172,7 +381,7 @@
       "damping": 0,
       "angularDamping": 0,
       "shapeType": "static-mesh",
-      "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_HDRI.glb",
+      "modelURL": "/assets/scenes/spacestation/SpaceStation_HDRI.glb",
       "blendshapeCoefficients": "{\n}\n",
       "useOriginalPivot": true,
       "animation": {
@@ -232,7 +441,7 @@
       "damping": 0,
       "angularDamping": 0,
       "shapeType": "static-mesh",
-      "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Inside_Desk.glb",
+      "modelURL": "/assets/scenes/spacestation/SpaceStation_Inside_Desk.glb",
       "blendshapeCoefficients": "{\n}\n",
       "useOriginalPivot": true,
       "animation": {
@@ -292,7 +501,7 @@
       "damping": 0,
       "angularDamping": 0,
       "shapeType": "static-mesh",
-      "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Inside_Furniture.glb",
+      "modelURL": "/assets/scenes/spacestation/SpaceStation_Inside_Furniture.glb",
       "blendshapeCoefficients": "{\n}\n",
       "useOriginalPivot": true,
       "animation": {
@@ -351,7 +560,7 @@
       "damping": 0,
       "angularDamping": 0,
       "shapeType": "static-mesh",
-      "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Inside_Light.glb",
+      "modelURL": "/assets/scenes/spacestation/SpaceStation_Inside_Light.glb",
       "blendshapeCoefficients": "{\n}\n",
       "useOriginalPivot": true,
       "animation": {
@@ -410,7 +619,7 @@
       "damping": 0,
       "angularDamping": 0,
       "shapeType": "static-mesh",
-      "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Inside_Tableware.glb",
+      "modelURL": "/assets/scenes/spacestation/SpaceStation_Inside_Tableware.glb",
       "blendshapeCoefficients": "{\n}\n",
       "useOriginalPivot": true,
       "animation": {
@@ -469,7 +678,7 @@
       "damping": 0,
       "angularDamping": 0,
       "shapeType": "static-mesh",
-      "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Light.glb",
+      "modelURL": "/assets/scenes/spacestation/SpaceStation_Light.glb",
       "blendshapeCoefficients": "{\n}\n",
       "useOriginalPivot": true,
       "animation": {
@@ -528,7 +737,7 @@
       "damping": 0,
       "angularDamping": 0,
       "shapeType": "static-mesh",
-      "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Planet_A.glb",
+      "modelURL": "/assets/scenes/spacestation/SpaceStation_Planet_A.glb",
       "blendshapeCoefficients": "{\n}\n",
       "useOriginalPivot": true,
       "animation": {
@@ -587,7 +796,7 @@
     "damping": 0,
     "angularDamping": 0,
     "shapeType": "static-mesh",
-    "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Planet_B.glb",
+    "modelURL": "/assets/scenes/spacestation/SpaceStation_Planet_B.glb",
     "blendshapeCoefficients": "{\n}\n",
     "useOriginalPivot": true,
     "animation": {
@@ -646,7 +855,7 @@
     "damping": 0,
     "angularDamping": 0,
     "shapeType": "static-mesh",
-    "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Station_Body_01.glb",
+    "modelURL": "/assets/scenes/spacestation/SpaceStation_Station_Body_01.glb",
     "blendshapeCoefficients": "{\n}\n",
     "useOriginalPivot": true,
     "animation": {
@@ -705,7 +914,7 @@
     "damping": 0,
     "angularDamping": 0,
     "shapeType": "static-mesh",
-    "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Station_Body_02.glb",
+    "modelURL": "/assets/scenes/spacestation/SpaceStation_Station_Body_02.glb",
     "blendshapeCoefficients": "{\n}\n",
     "useOriginalPivot": true,
     "animation": {
@@ -764,7 +973,7 @@
     "damping": 0,
     "angularDamping": 0,
     "shapeType": "static-mesh",
-    "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Station_Station_Part.glb",
+    "modelURL": "/assets/scenes/spacestation/SpaceStation_Station_Station_Part.glb",
     "blendshapeCoefficients": "{\n}\n",
     "useOriginalPivot": true,
     "animation": {
@@ -823,7 +1032,7 @@
     "damping": 0,
     "angularDamping": 0,
     "shapeType": "static-mesh",
-    "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Stone.glb",
+    "modelURL": "/assets/scenes/spacestation/SpaceStation_Stone.glb",
     "blendshapeCoefficients": "{\n}\n",
     "useOriginalPivot": true,
     "animation": {
@@ -882,7 +1091,7 @@
     "damping": 0,
     "angularDamping": 0,
     "shapeType": "static-mesh",
-    "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Ship.glb",
+    "modelURL": "/assets/scenes/spacestation/SpaceStation_Ship.glb",
     "blendshapeCoefficients": "{\n}\n",
     "useOriginalPivot": true,
     "animation": {
@@ -938,7 +1147,7 @@
       "shapeType": "box",
       "ambientLight": {
           "ambientIntensity": 0.20000000298023224,
-          "ambientURL": ""
+          "ambientURL": "https://aitolda.s3.amazonaws.com/Vircadia/DemoWorld/Skybox/Forest360.jpg"
       },
       
       "keyLightMode": "enabled",
