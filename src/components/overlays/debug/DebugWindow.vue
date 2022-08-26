@@ -81,6 +81,8 @@
 
 import { defineComponent } from "vue";
 import { AMessage, FloofChatMessage } from "@Modules/domain/message";
+import { Renderer } from "@Modules/scene";
+
 
 // import Log from "@Modules/debugging/log";
 
@@ -140,6 +142,9 @@ export default defineComponent({
         },
         switchDomain(): void {
             // Switch domain.
+            const scene = Renderer.getScene();
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            scene.switchDomain();
         }
     }
 
