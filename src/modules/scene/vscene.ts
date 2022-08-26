@@ -14,8 +14,7 @@
 
 import { AnimationGroup, Engine, Scene,
     ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, StandardMaterial,
-    Mesh, DefaultRenderingPipeline, Camera, AbstractMesh,
-    TransformNode, CubeTexture } from "@babylonjs/core";
+    Mesh, Camera } from "@babylonjs/core";
 
 import { Quaternion, Vector3 } from "@babylonjs/core/Maths/math";
 import "@babylonjs/loaders/glTF";
@@ -37,6 +36,7 @@ const DefaultAvatarUrl = "https://staging.vircadia.com/O12OR634/UA92/sara.glb";
 const AvatarAnimationUrl = "https://staging.vircadia.com/O12OR634/UA92/AnimationsBasic.glb";
 const DefaultSceneUrl = "/assets/scenes/default.json";
 
+type DomainName = "Campus" | "SpaceStation";
 
 /**
  * VScene is the interface to a single scene's state, entities, and operations.
@@ -55,6 +55,7 @@ export class VScene {
     _rootUrl = "";
     _domainController : Nullable<DomainController> = null;
     _sceneManager : Nullable<GameObject> = null;
+    _currentDomain: DomainName = "Campus";
 
     constructor(pEngine: Engine, pSceneId = 0) {
         if (process.env.NODE_ENV === "development") {
@@ -168,13 +169,25 @@ export class VScene {
     }
 
     public async loadSceneSpaceStation(): Promise<void> {
+        this._currentDomain = "SpaceStation";
+
         await this.load("/assets/scenes/spacestation.json",
             new Vector3(0, 50, 0));
     }
 
     public async loadSceneUA92Campus(): Promise<void> {
+        this._currentDomain = "Campus";
+
         await this.load("/assets/scenes/campus.json",
             new Vector3(25, 1, 30));
+    }
+
+    public async switchDomain(): Promise<void> {
+        if (this._currentDomain === "Campus") {
+            await this.loadSceneSpaceStation();
+        } else {
+            await this.loadSceneUA92Campus();
+        }
     }
 
     public async loadMyAvatar(modelURL ?: string) : Promise<Nullable<GameObject>> {
@@ -336,14 +349,12 @@ export class VScene {
                 }
                 break;
             case "Space":
-                if (process.env.NODE_ENV === "development"
-                    && evt.sourceEvent.shiftKey) {
+                if (evt.sourceEvent.shiftKey) {
                     await this.loadSceneSpaceStation();
                 }
                 break;
             case "KeyU":
-                if (process.env.NODE_ENV === "development"
-                        && evt.sourceEvent.shiftKey) {
+                if (evt.sourceEvent.shiftKey) {
                     await this.loadSceneUA92Campus();
                 }
                 break;
