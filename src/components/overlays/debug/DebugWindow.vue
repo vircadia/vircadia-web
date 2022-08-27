@@ -32,15 +32,33 @@
         <q-tabs
             v-model="tab"
             dense
-            >
+        >
+            <q-tab name="Domains" icon="travel_explore" label="Domains" />
             <q-tab name="Messages" icon="chat" label="Messages" />
             <q-tab name="Avatars" icon="people" label="Avatars" />
         </q-tabs>
         <q-tab-panels v-model="tab" animated>
+            <q-tab-panel name="Domains">
+                <q-btn
+                    :class="{
+                        'bg-grey-9': $q.dark.isActive,
+                        'bg-grey-4': !$q.dark.isActive
+                    }"
+                    @click="switchDomain()"
+                >Switch domain</q-btn>
+            </q-tab-panel>
             <q-tab-panel name="Messages">
-                <q-list v-for="msg in $store.state.messages.messages" :key="msg.id">
-                    <div> {{ msgSender(msg) }} : {{ msgText(msg) }} </div>
+                <q-list
+                    v-if="$store.state.messages.messages.length > 0"
+                >
+                    <div
+                        v-for="msg in $store.state.messages.messages"
+                        :key="msg.id"
+                    >
+                        {{ msgSender(msg) }} : {{ msgText(msg) }}
+                    </div>
                 </q-list>
+                <p v-else class="text-subtitle1 text-grey text-center q-mt-md">There are no messages to show.</p>
             </q-tab-panel>
             <q-tab-panel name="Avatars">
                 <div>DisplayName: {{ $store.state.avatar.displayName }}</div>
@@ -63,6 +81,8 @@
 
 import { defineComponent } from "vue";
 import { AMessage, FloofChatMessage } from "@Modules/domain/message";
+import { Renderer } from "@Modules/scene";
+
 
 // import Log from "@Modules/debugging/log";
 
@@ -119,6 +139,12 @@ export default defineComponent({
                 return fMsg.message;
             }
             return pMsg.message;
+        },
+        switchDomain(): void {
+            // Switch domain.
+            const scene = Renderer.getScene();
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            scene.switchDomain();
         }
     }
 
