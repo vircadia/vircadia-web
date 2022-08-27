@@ -27,6 +27,7 @@
             ref="renderCanvas"
             class="renderCanvas"
         />
+        <LoadingScreen ref="loadingScreen" />
         <slot name="manager" />
     </q-page>
 </template>
@@ -38,6 +39,8 @@ import { Mutations as StoreMutations } from "@Store/index";
 import { AudioMgr } from "@Modules/scene/audio";
 import { Renderer } from "@Modules/scene/renderer";
 // import Log from "@Modules/debugging/log";
+
+import LoadingScreen from "@Components/LoadingScreen.vue";
 
 type Nullable<T> = T | null | undefined;
 
@@ -53,6 +56,10 @@ export default defineComponent({
             type: Boolean,
             required: true
         }
+    },
+
+    components: {
+        LoadingScreen
     },
 
     $refs!: {   // definition to make this.$ref work with TypeScript
@@ -98,7 +105,9 @@ export default defineComponent({
     mounted: async function() {
         // Initialize the graphics display
         const canvas = this.$refs.renderCanvas as HTMLCanvasElement;
-        await Renderer.initialize(canvas);
+        const loadingScreenComponent = this.$refs.loadingScreen as typeof LoadingScreen;
+        const loadingScreenElement = loadingScreenComponent.$el as HTMLElement;
+        await Renderer.initialize(canvas, loadingScreenElement);
         this.$store.commit(StoreMutations.MUTATE, {
             property: "renderer/focusSceneId",
             value: 0
