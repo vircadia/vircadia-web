@@ -20,8 +20,8 @@
         icon="directions_run"
         title="Avatar"
         :managerProps="propsToPass"
-        :defaultHeight="400"
-        :defaultWidth="400"
+        :defaultHeight="450"
+        :defaultWidth="350"
         :defaultLeft="300"
         :hoverShowBar="false"
         :style="{
