@@ -127,18 +127,18 @@ export default defineComponent({
             {
                 name: "Avatar 1",
                 id: "HTP45FSQ",
-                image: "https://vircadia-avatar.s3.amazonaws.com/diamond-sword-light/DS_Light_12.jpg",
-                starred: false
+                image: "https://vircadia.com/img/kalilaLang-2.9ab98e2c.webp",
+                starred: true
             },
             {
                 name: "Avatar 2",
-                id: "HTP45FSQ",
-                image: "https://vircadia-avatar.s3.amazonaws.com/diamond-sword-light/DS_Light_12.jpg",
+                id: "U7RLFE2D",
+                image: "https://vircadia.com/img/ry.3ec4f6e3.jpg",
                 starred: false
             },
             {
                 name: "Avatar 3",
-                id: "HTP45FSQ",
+                id: "PA245FE2",
                 image: "https://vircadia-avatar.s3.amazonaws.com/diamond-sword-light/DS_Light_12.jpg",
                 starred: false
             }
