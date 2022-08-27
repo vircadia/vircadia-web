@@ -19,6 +19,7 @@ import { DomainMgr } from "@Modules/domain";
 
 // General Modules
 import { VScene } from "@Modules/scene/vscene";
+import { CustomLoadingScreen } from "@Modules/scene/LoadingScreen";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
@@ -29,7 +30,7 @@ export const Renderer = {
     _webgpuSupported: false,
 
     // eslint-disable-next-line @typescript-eslint/require-await
-    async initialize(pCanvas: HTMLCanvasElement): Promise<void> {
+    async initialize(pCanvas: HTMLCanvasElement, pLoadingScreen: HTMLElement): Promise<void> {
 
         this._webgpuSupported = await WebGPUEngine.IsSupportedAsync;
         if (this._webgpuSupported) {
@@ -48,9 +49,13 @@ export const Renderer = {
                     ]
                 }
             });
+            Renderer._engine.loadingScreen = new CustomLoadingScreen(pLoadingScreen);
             await (Renderer._engine as WebGPUEngine).initAsync();
+            Renderer._engine.displayLoadingUI();
         } else {
             Renderer._engine = new Engine(pCanvas, true);
+            Renderer._engine.loadingScreen = new CustomLoadingScreen(pLoadingScreen);
+            Renderer._engine.displayLoadingUI();
         }
 
         this._renderingScenes = new Array<VScene>();
