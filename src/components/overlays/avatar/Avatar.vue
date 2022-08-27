@@ -70,7 +70,7 @@
                                     fab-mini
                                     ripple
                                     :icon="avatar.starred ? 'star' : 'star_outline'"
-                                    :text-color="avatar.starred ? 'yellow' : 'white'"
+                                    :text-color="avatar.starred ? 'yellow' : $q.dark.isActive ? 'white' : 'dark'"
                                     title="Favorite"
                                     @click.stop="avatar.starred = !avatar.starred"
                                 />
