@@ -11,11 +11,11 @@
 
 import { ScriptComponent } from "@Modules/script";
 import { NFTIconController, TeleportController } from ".";
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { EntityScriptComponent } from "./EntityScript";
+import { IEntity } from "../../EntityInterfaces";
 import Log from "@Modules/debugging/log";
 
-type EntityScriptFactory = () => ScriptComponent;
+type EntityScriptFactory = () => EntityScriptComponent;
 
 class EntityScriptManagerImpl {
     _factories : Map<string, EntityScriptFactory>;
@@ -31,7 +31,7 @@ class EntityScriptManagerImpl {
         this._factories.set(script, factroy);
     }
 
-    public createScript(script: string) : Nullable<ScriptComponent> {
+    public createScript(script: string, entity: IEntity) : Nullable<ScriptComponent> {
         const factory = this._factories.get(script);
 
         if (!factory) {
@@ -39,7 +39,10 @@ class EntityScriptManagerImpl {
             return undefined;
         }
 
-        return factory();
+        const entityScript = factory();
+        entityScript.entity = entity;
+
+        return entityScript;
     }
 }
 
