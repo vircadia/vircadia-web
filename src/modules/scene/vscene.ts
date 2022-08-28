@@ -81,6 +81,10 @@ export class VScene {
         this._scene.cameras[pCameraId].position.set(pLoc.x, pLoc.y, pLoc.z);
     }
 
+    getMyAvatar() : Nullable<GameObject> {
+        return this._myAvatar;
+    }
+
     render():void {
         this._scene.render();
     }
@@ -137,8 +141,7 @@ export class VScene {
     }
 
     public loadEntity(entity: IEntity) : void {
-        const entityBuilder = new EntityBuilder();
-        entityBuilder.buildEntity(entity, this._scene);
+        EntityBuilder.createEntity(entity, this._scene);
     }
 
     public removeEntity(id: string) : void {
@@ -160,9 +163,8 @@ export class VScene {
 
         Log.info(Log.types.ENTITIES, "Create Entities.");
         // create entities
-        const entityBuilder = new EntityBuilder();
         entityDescription.Entities.forEach((props) => {
-            entityBuilder.buildEntity(props, this._scene);
+            EntityBuilder.createEntity(props, this._scene);
         });
 
         Log.info(Log.types.ENTITIES, "Load Entities done.");
@@ -180,6 +182,14 @@ export class VScene {
 
         await this.load("/assets/scenes/campus.json",
             new Vector3(25, 1, 30));
+    }
+
+    public async goToDomain(dest: string): Promise<void> {
+        if (dest === "Campus") {
+            await this.loadSceneUA92Campus();
+        } else {
+            await this.loadSceneSpaceStation();
+        }
     }
 
     public async switchDomain(): Promise<void> {
