@@ -9,4 +9,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-export { NFTIconController as NFTSpinController } from "./NFTIconController";
+export { NFTIconController } from "./NFTIconController";
+export { TeleportController } from "./TeleportController";
+export { EntityScriptManager } from "./EntityScriptManager";

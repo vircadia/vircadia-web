@@ -21,19 +21,7 @@ import { AbstractEntityBuilder, ShapeEntityBuilder, LightEntityBuilder, ZoneEnti
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
 
-export interface IEntityBuildResult {
-    gameObject: Nullable<GameObject>;
-}
-
-export interface IEntityMetaData {
-    parentID?: string;
-}
-
-
-export class EntityBuilder {
-    _gameObject: Nullable<GameObject>;
-    _scene : Nullable<Scene>;
-    _entity: Nullable<IEntity>;
+class EntityBuilderManager {
     _builders : Map<EntityType, AbstractEntityBuilder>;
 
     constructor() {
@@ -48,16 +36,19 @@ export class EntityBuilder {
 
     }
 
-    public buildEntity(entity: IEntity, scene: Nullable<Scene>, gameObj ?: GameObject) : GameObject {
-        const gameObject = gameObj ?? new GameObject(EntityMapper.getEntityName(entity), scene);
-        gameObject.id = entity.id;
-
+    public createEntity(entity: IEntity, scene: Nullable<Scene>) : Nullable<GameObject> {
         const builder = this._builders.get(entity.type);
         if (builder) {
+            const gameObject = new GameObject(EntityMapper.getEntityName(entity), scene);
+            gameObject.id = entity.id;
             builder.build(gameObject, entity);
+
+            return gameObject;
         }
 
-        return gameObject;
+        Log.error(Log.types.ENTITIES, `Fail to create entity. Unknow entity type: ${entity.type}`);
+        return undefined;
     }
-
 }
+
+export const EntityBuilder = new EntityBuilderManager();
