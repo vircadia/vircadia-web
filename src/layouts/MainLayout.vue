@@ -199,6 +199,17 @@
                             </q-item>
                             <q-item>
                                 <q-item-section>
+                                    <q-btn
+                                        :class="{
+                                            'bg-grey-9': $q.dark.isActive,
+                                            'bg-grey-4': !$q.dark.isActive
+                                        }"
+                                        @click="switchDomain()"
+                                    >Switch domain</q-btn>
+                                </q-item-section>
+                            </q-item>
+                            <q-item>
+                                <q-item-section>
                                     <q-item-label>Metaverse</q-item-label>
                                     <q-item-label caption>{{ getMetaverseServerState }}</q-item-label>
                                 </q-item-section>
@@ -253,6 +264,7 @@ import { Store, Mutations as StoreMutations, Actions as StoreActions } from "@St
 import { Utility } from "@Modules/utility";
 import { Account } from "@Modules/account";
 import { AudioMgr } from "@Modules/scene/audio";
+import { Renderer } from "@Modules/scene";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
@@ -490,6 +502,12 @@ export default defineComponent({
                 return "red";
             }
             return "primary";
+        },
+        switchDomain(): void {
+            // Switch domain.
+            const scene = Renderer.getScene();
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            scene.switchDomain();
         }
     },
     mounted: async function() {
