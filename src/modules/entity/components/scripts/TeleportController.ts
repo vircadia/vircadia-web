@@ -18,10 +18,17 @@ import {
 import { GameObject } from "@Modules/object";
 import Log from "@Modules/debugging/log";
 // Domain Modules
-import { ScriptComponent, inspector } from "@Modules/script";
+import { inspector } from "@Modules/script";
 import { Renderer, VScene } from "@Modules/scene";
+import { EntityScriptComponent } from "./EntityScript";
 
-export class TeleportController extends ScriptComponent {
+
+type ScriptParameters = {
+    destination?: string | undefined,
+};
+
+
+export class TeleportController extends EntityScriptComponent {
     @inspector()
     _destination = "";
 
@@ -48,15 +55,21 @@ export class TeleportController extends ScriptComponent {
     }
 
     public onInitialize(): void {
-        super.onInitialize();
-
         this.triggerTarget = this._vscene.getMyAvatar();
+
+        if (this.entity && this.entity.userData) {
+            const param = JSON.parse(this.entity.userData) as ScriptParameters;
+            if (param.destination) {
+                this._destination = param.destination;
+                Log.debug(Log.types.ENTITIES, `Teleport destination: ${this._destination}`);
+            } else {
+                Log.error(Log.types.ENTITIES, "No Teleport destination of TeleportController");
+            }
+        }
     }
 
     // eslint-disable-next-line class-methods-use-this
     public onTriggerEnter() : void {
-        Log.debug(Log.types.ENTITIES, `onTriggerEnter:`);
-
         if (this._vscene && this._destination.length > 0) {
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this._vscene.goToDomain(this._destination);

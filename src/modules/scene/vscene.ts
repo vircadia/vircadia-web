@@ -185,7 +185,9 @@ export class VScene {
     }
 
     public async goToDomain(dest: string): Promise<void> {
-        if (dest === "Campus") {
+        Log.info(Log.types.ENTITIES, `Go to domain: ${dest}`);
+        const domain = dest.toLocaleUpperCase();
+        if (domain.includes("campus")) {
             await this.loadSceneUA92Campus();
         } else {
             await this.loadSceneSpaceStation();
