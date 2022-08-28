@@ -10,30 +10,50 @@
 //
 
 import { IComponent, GameObject } from "@Modules/object";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { inspectorAccessor } from "./decorators";
 
 import {
-    // Scene,
-    TransformNode
+    AbstractMesh,
+    ActionManager,
+    TransformNode,
+    ExecuteCodeAction,
+    IAction
 } from "@babylonjs/core";
 
 /* eslint-disable class-methods-use-this */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-empty-function */
+
 /**
  * The base class from which every script derives
  */
 export abstract class ScriptComponent extends TransformNode implements IComponent {
-    _gameObject:Nullable<GameObject> = null;
+    protected _gameObject: Nullable<GameObject> = null;
+    protected _triggerTarget: Nullable<AbstractMesh> = null;
+    protected _triggerAction : Nullable<IAction> = null;
 
     public attach(gameObject:GameObject):void {
         this._gameObject = gameObject;
         this.parent = gameObject;
+
+        if (this._triggerTarget && !this._triggerAction) {
+            this._registerTriggerEvents();
+        }
     }
 
     public detatch():void {
         this.parent = null;
         this._gameObject = null;
     }
+
+    public set triggerTarget(mesh: Nullable<AbstractMesh>) {
+        this._triggerTarget = mesh;
+
+        if (this._gameObject) {
+            this._registerTriggerEvents();
+        }
+    }
+
 
     /**
     * Gets a string identifying the type of this Component
@@ -71,5 +91,58 @@ export abstract class ScriptComponent extends TransformNode implements IComponen
      */
     public onStop(): void {
     // ...
+    }
+
+    /**
+     * When the GameObject collides with targe GameObject.
+     */
+    public onTriggerEnter() : void {
+
+    }
+
+    public onTriggerExit() : void {
+
+    }
+
+    private _registerTriggerEvents() : void {
+        if (!this._gameObject || !this._triggerTarget || this._triggerAction) {
+            return;
+        }
+
+        const meshes = this._gameObject.getChildMeshes(true);
+        if (meshes.length <= 0) {
+            return;
+        }
+
+        const mesh = meshes[0];
+        if (!mesh.actionManager) {
+            mesh.actionManager = new ActionManager(this._gameObject.getScene());
+        }
+        const actionManager = mesh.actionManager;
+
+        this._triggerAction = actionManager.registerAction(
+            new ExecuteCodeAction(
+                {
+                    trigger: ActionManager.OnIntersectionEnterTrigger,
+                    parameter: this._triggerTarget
+                },
+                () => {
+                    this.onTriggerEnter();
+                }
+            )
+        );
+
+        actionManager.registerAction(
+            new ExecuteCodeAction(
+                {
+                    trigger: ActionManager.OnIntersectionExitTrigger,
+                    parameter: this._triggerTarget
+                },
+                () => {
+                    this.onTriggerExit();
+                }
+            )
+        );
+
     }
 }
