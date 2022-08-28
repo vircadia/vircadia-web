@@ -48,14 +48,12 @@
                             v-ripple
                         >
                             <q-item-section avatar>
-                                <img
+                                <q-img
                                     :src="avatar.image"
                                     draggable="false"
-                                    alt=""
-                                    width="56"
-                                    height="56"
+                                    ratio="1"
                                     style="border-radius: 7px;"
-                                >
+                                />
                             </q-item-section>
                             <q-item-section>
                                 {{ avatar.name }}
