@@ -106,6 +106,7 @@ export interface AvatarEntry {
     name: string,
     id: string,
     image: string,
+    file: string,
     starred: boolean
 }
 
@@ -123,23 +124,28 @@ export default defineComponent({
 
     data: () => ({
         // The following is demo data:
+        playerName: "Player",
+        activeAvatar: "PA245FE2",
         avatarList: [
             {
                 name: "Avatar 1",
                 id: "HTP45FSQ",
                 image: "https://vircadia.com/img/kalilaLang-2.9ab98e2c.webp",
+                file: "https://vircadia.com/img/kalilaLang-2.9ab98e2c.webp",
                 starred: true
             },
             {
                 name: "Avatar 2",
                 id: "U7RLFE2D",
                 image: "https://vircadia.com/img/ry.3ec4f6e3.jpg",
+                file: "https://vircadia.com/img/ry.3ec4f6e3.jpg",
                 starred: false
             },
             {
                 name: "Avatar 3",
                 id: "PA245FE2",
                 image: "https://vircadia-avatar.s3.amazonaws.com/diamond-sword-light/DS_Light_12.jpg",
+                file: "https://vircadia-avatar.s3.amazonaws.com/diamond-sword-light/DS_Light_12.glb",
                 starred: false
             }
         ] as AvatarEntry[]
