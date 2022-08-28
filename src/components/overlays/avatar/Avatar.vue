@@ -21,7 +21,7 @@
         title="Avatar"
         :managerProps="propsToPass"
         :defaultHeight="450"
-        :defaultWidth="350"
+        :defaultWidth="380"
         :defaultLeft="300"
         :hoverShowBar="false"
         :style="{
@@ -35,7 +35,7 @@
         >
             <q-scroll-area
                 class="col"
-                style="height: 100%"
+                style="height: 100%;"
             >
                 <template v-if="avatarList.length > 0">
                     <p class="text-subtitle1 text-left q-pl-md q-mt-md q-mb-xs">Your avatars:</p>
