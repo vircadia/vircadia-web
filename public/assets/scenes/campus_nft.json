@@ -646,7 +646,125 @@
       "localEntity": false,
       "faceCamera": false,
       "isFacingAvatar": false
-  },
+  },{
+    "id": "{11ea1d8e-089a-4d72-923e-be035f4ac71b}",
+    "type": "Model",
+    "lastEdited": 1661241370715637,
+    "name": "LightFixtures",
+    "position": {
+        "x": 1.104217529296875,
+        "y": 0,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 66.38568115234375,
+        "y": 23.3328857421875,
+        "z": 64.70588684082031
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1660117871230976,
+    "lastEditedBy": "{7a38fda3-2e7b-4fd8-b323-fd3ad37a7889}",
+    "queryAACube": {
+        "x": -46.69309997558594,
+        "y": -47.79731750488281,
+        "z": -47.79731750488281,
+        "scale": 95.59463500976562
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 7,
+    "collidesWith": "static,dynamic,kinematic,",
+    "modelURL": "https://staging.vircadia.com/O12OR634/UA92/LightFixtures.glb",
+    "blendshapeCoefficients": "{\n}\n",
+    "useOriginalPivot": true,
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},{
+    "id": "{11ea1d8e-089a-4d72-923e-be035f4ac71b}",
+    "type": "Model",
+    "lastEdited": 1661241370715637,
+    "name": "Decals",
+    "position": {
+        "x": 1.104217529296875,
+        "y": 0,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 66.38568115234375,
+        "y": 23.3328857421875,
+        "z": 64.70588684082031
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1660117871230976,
+    "lastEditedBy": "{7a38fda3-2e7b-4fd8-b323-fd3ad37a7889}",
+    "queryAACube": {
+        "x": -46.69309997558594,
+        "y": -47.79731750488281,
+        "z": -47.79731750488281,
+        "scale": 95.59463500976562
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 7,
+    "collidesWith": "static,dynamic,kinematic,",
+    "modelURL": "https://staging.vircadia.com/O12OR634/UA92/Decals.glb",
+    "blendshapeCoefficients": "{\n}\n",
+    "useOriginalPivot": true,
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
   {
       "id": "{69d6f766-05f9-4004-a57d-4e3f82b8ab0f}",
       "type": "Image",
@@ -967,7 +1085,7 @@
       "faceCamera": false,
       "isFacingAvatar": false
   },
-      {
+  {
       "id": "{787606b0-f9a5-4465-bae9-dfb5ba79e724}",
       "type": "Box",
       "lastEdited": 1661327090098367,
@@ -1027,7 +1145,69 @@
       "localEntity": false,
       "faceCamera": false,
       "isFacingAvatar": false
-  }
+  },
+    {
+        "id": "{787606b0-f9a5-4465-bae9-dfb5ba79e724}",
+        "type": "Box",
+        "lastEdited": 1661327090098367,
+        "visible": true,
+        "name": "Teleporter",
+        "position": {
+            "x": -25,
+            "y": 0.5,
+            "z": 28
+        },
+        "dimensions": {
+            "x": 0.50000000298023224,
+            "y": 1.20000000298023224,
+            "z": 0.50000000298023224
+        },
+        "rotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "created": 1661326683257241,
+        "lastEditedBy": "{6b2e59d2-1d1a-42f5-a1dc-42899b1dbe6f}",
+        "queryAACube": {
+            "x": -0.17320507764816284,
+            "y": -0.17320507764816284,
+            "z": -0.17320507764816284,
+            "scale": 0.3464101552963257
+        },
+        "grab": {
+            "grabbable": false,
+            "equippableLeftRotation": {
+                "x": -0.0000152587890625,
+                "y": -0.0000152587890625,
+                "z": -0.0000152587890625,
+                "w": 1
+            },
+            "equippableRightRotation": {
+                "x": -0.0000152587890625,
+                "y": -0.0000152587890625,
+                "z": -0.0000152587890625,
+                "w": 1
+            }
+        },
+        "damping": 0,
+        "angularDamping": 0,
+        "script": "TeleportController",
+        "scriptTimestamp": 1661328755707,
+        "userData": "{\"destination\":\"/assets/scenes/spacestation.json\"}",
+        "color": {
+            "red": 0,
+            "green": 180,
+            "blue": 239
+        },
+        "shape": "Cube",
+        "clientOnly": false,
+        "avatarEntity": false,
+        "localEntity": false,
+        "faceCamera": false,
+        "isFacingAvatar": false
+    }
       ],
     "Id": "{226a4541-3abc-4cd4-adca-a4ced2fa12ea}",
     "Version": 133
