@@ -183,6 +183,7 @@ export interface AvatarEntry {
     id: string,
     image: string,
     file: string,
+    scale: number,
     starred: boolean
 }
 
@@ -201,27 +202,62 @@ export default defineComponent({
     data: () => ({
         // The following is demo data:
         playerName: "Player",
-        activeAvatar: "PA245FE2",
+        activeAvatar: "HTP45FSQ",
         avatarList: [
             {
-                name: "Avatar 1",
-                id: "HTP45FSQ",
-                image: "https://vircadia.com/img/kalilaLang-2.9ab98e2c.webp",
-                file: "https://vircadia.com/img/kalilaLang-2.9ab98e2c.webp",
+                name: "Woody",
+                id: "OC9RB9SH",
+                image: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Woody/img/icon.png",
+                file: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Woody/fbx/Woody.fst",
+                scale: 1,
                 starred: true
             },
             {
-                name: "Avatar 2",
-                id: "U7RLFE2D",
-                image: "https://vircadia.com/img/ry.3ec4f6e3.jpg",
-                file: "https://vircadia.com/img/ry.3ec4f6e3.jpg",
+                name: "Kim",
+                id: "HTP45FSQ",
+                image: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Kim/img/icon.png",
+                file: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Kim/fbx/Kim.fst",
+                scale: 1,
+                starred: true
+            },
+            {
+                name: "Mason",
+                id: "D14RUU5V",
+                image: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Mason/img/icon.png",
+                file: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Mason/fbx/Mason.fst",
+                scale: 1,
                 starred: false
             },
             {
-                name: "Avatar 3",
-                id: "PA245FE2",
-                image: "https://vircadia-avatar.s3.amazonaws.com/diamond-sword-light/DS_Light_12.jpg",
-                file: "https://vircadia-avatar.s3.amazonaws.com/diamond-sword-light/DS_Light_12.glb",
+                name: "Mike",
+                id: "WNURE8HN",
+                image: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Mike/img/icon.png",
+                file: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Mike/fbx/Mike.fst",
+                scale: 1,
+                starred: false
+            },
+            {
+                name: "Sean",
+                id: "WENLVB35",
+                image: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Sean/img/icon.png",
+                file: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Sean/fbx/Sean.fst",
+                scale: 1,
+                starred: false
+            },
+            {
+                name: "Summer",
+                id: "UFMXDIRC",
+                image: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Summer/img/icon.png",
+                file: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Summer/fbx/Summer.fst",
+                scale: 1,
+                starred: false
+            },
+            {
+                name: "Tanya",
+                id: "A9LB4T5D",
+                image: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Tanya/img/icon.png",
+                file: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Tanya/fbx/Tanya.fst",
+                scale: 1,
                 starred: false
             }
         ] as AvatarEntry[]
@@ -236,7 +272,7 @@ export default defineComponent({
             }
             return false;
         },
-        getAvatarDataFromId(id: string, value?: keyof AvatarEntry): AvatarEntry | string | boolean {
+        getAvatarDataFromId(id: string, value?: keyof AvatarEntry): AvatarEntry | string | boolean | number {
             let avatarData = {} as AvatarEntry;
 
             for (const avatar of this.avatarList) {
