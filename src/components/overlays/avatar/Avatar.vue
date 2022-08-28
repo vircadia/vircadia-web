@@ -74,6 +74,15 @@
                                 />
                             </q-item-section>
                         </q-item>
+                        <q-item class="q-mb-sm">
+                            <q-item-section>
+                                <q-btn
+                                    title="Add another avatar"
+                                >
+                                    <q-icon name="add" />
+                                </q-btn>
+                            </q-item-section>
+                        </q-item>
                     </q-list>
                 </template>
                 <p v-else class="text-subtitle1 text-grey text-center q-mt-md">You have no saved avatars.</p>
