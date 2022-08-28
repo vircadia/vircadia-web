@@ -20,9 +20,10 @@ import {
 import { GameObject } from "@Modules/object";
 import Log from "@Modules/debugging/log";
 // Domain Modules
-import { ScriptComponent, inspector } from "@Modules/script";
+import { inspector } from "@Modules/script";
+import { EntityScriptComponent } from "./EntityScript";
 
-export class NFTIconController extends ScriptComponent {
+export class NFTIconController extends EntityScriptComponent {
 
     _nfts : Array<GameObject> = new Array<GameObject>();
     _currentIndex = 0;
@@ -52,10 +53,6 @@ export class NFTIconController extends ScriptComponent {
 
     static get typeName(): string {
         return "NFTIconController";
-    }
-
-    public onInitialize(): void {
-        super.onInitialize();
     }
 
     public onStart(): void {
