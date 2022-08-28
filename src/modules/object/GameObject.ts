@@ -16,19 +16,21 @@
 
 import {
     Scene,
-    Mesh
+    Mesh,
+    AbstractMesh
 } from "@babylonjs/core";
 
 import { IComponent } from "./component";
 
 import Log from "@Modules/debugging/log";
-import { Icon } from "@babylonjs/inspector/components/Icon";
+
 
 /**
  * Base class for all objects in scenes.
  */
 export class GameObject extends Mesh {
     _components : Map<string, IComponent>;
+    private _trigger: Nullable<AbstractMesh> = undefined;
 
     static _gameObjects : Array<GameObject> = new Array<GameObject>();
     static _dontDestroyOnLoadList : Array<GameObject> = new Array<GameObject>();
