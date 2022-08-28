@@ -37,6 +37,74 @@
                 class="col"
                 style="height: 100%;"
             >
+                <div class="row q-mb-md q-px-md">
+                    <q-img
+                        :src="getAvatarDataFromId(activeAvatar, 'image')"
+                        draggable="false"
+                        width="100px"
+                        height="100px"
+                        ratio="1"
+                        class="q-mt-md q-mb-xs"
+                        style="border-radius: 7px;"
+                    />
+                    <div class="col">
+                        <div
+                            title="Display name"
+                            class="text-h5 text-left q-pl-md q-mt-md q-mb-sm cursor-pointer"
+                        >
+                            {{ playerName }}
+                            <q-icon
+                                title="Edit display name"
+                                v-ripple
+                                q-hoverable
+                                name="edit"
+                                class="text-grey q-ml-sm"
+                            >
+                                <span class="q-focus-helper"></span>
+                            </q-icon>
+                            <q-popup-edit v-model="playerName" auto-save v-slot="scope">
+                                <q-input v-model="scope.value" dense autofocus counter @keyup.enter="scope.set" />
+                            </q-popup-edit>
+                        </div>
+                        <div class="row q-ml-md q-pl-xs" style="border: 1px solid #8888;border-radius: 7px;">
+                            <div class="text-caption q-mr-sm q-mt-sm">
+                                <q-btn
+                                    flat
+                                    round
+                                    dense
+                                    fab-mini
+                                    ripple
+                                    :icon="getAvatarDataFromId(activeAvatar, 'starred') ? 'star' : 'star_outline'"
+                                    :text-color="
+                                        getAvatarDataFromId(activeAvatar, 'starred') ?
+                                        'yellow' : $q.dark.isActive ? 'white' : 'dark'
+                                    "
+                                    title="Favorite"
+                                    @click.stop="
+                                        setAvatarDataFromId(
+                                            activeAvatar,
+                                            'starred',
+                                            !getAvatarDataFromId(activeAvatar, 'starred')
+                                        )
+                                    "
+                                />
+                            </div>
+                            <div class="col">
+                                <p class="text-subtitle1 q-mb-none">
+                                    {{ getAvatarDataFromId(activeAvatar, 'name') }}
+                                </p>
+                                <div
+                                    :title="getAvatarDataFromId(activeAvatar, 'file')"
+                                    class="text-caption ellipsis q-mb-xs"
+                                    style="max-width: 27ch;"
+                                >
+                                    {{ getAvatarDataFromId(activeAvatar, 'file') }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <q-separator inset spaced />
                 <template v-if="avatarList.length > 0">
                     <p class="text-subtitle1 text-left q-pl-md q-mt-md q-mb-xs">Your avatars:</p>
                     <q-list>
@@ -46,6 +114,7 @@
                             class="q-mb-sm"
                             clickable
                             v-ripple
+                            @click="selectAvatar(avatar.id)"
                         >
                             <q-item-section avatar>
                                 <q-img
@@ -159,6 +228,43 @@ export default defineComponent({
     }),
 
     methods: {
+        checkIfAvatarExists(id: string): boolean {
+            for (const avatar of this.avatarList) {
+                if (avatar.id === id) {
+                    return true;
+                }
+            }
+            return false;
+        },
+        getAvatarDataFromId(id: string, value?: keyof AvatarEntry): AvatarEntry | string | boolean {
+            let avatarData = {} as AvatarEntry;
+
+            for (const avatar of this.avatarList) {
+                if (avatar.id === id) {
+                    if (value && value in avatar) {
+                        return avatar[value];
+                    }
+                    avatarData = avatar;
+                    return avatarData;
+                }
+            }
+
+            return false;
+        },
+        setAvatarDataFromId(id: string, key: keyof AvatarEntry, value: never): void {
+            for (const avatar of this.avatarList) {
+                if (avatar.id === id) {
+                    if (key && key in avatar) {
+                        avatar[key] = value;
+                    }
+                }
+            }
+        },
+        selectAvatar(id: string): void {
+            if (this.checkIfAvatarExists(id)) {
+                this.activeAvatar = id;
+            }
+        }
     }
 });
 </script>
