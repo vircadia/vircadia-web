@@ -1,5 +1,5 @@
 //
-//  NFTSpinController.ts
+//  NFTIconController.ts
 //
 //  Created by Nolan Huang on 24 Aug 2022.
 //  Copyright 2022 Vircadia contributors.
@@ -54,12 +54,10 @@ export class NFTIconController extends ScriptComponent {
         return "NFTIconController";
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
     public onInitialize(): void {
         super.onInitialize();
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
     public onStart(): void {
         if (this._gameObject) {
             const gameObjects = this._gameObject.getChildMeshes(false, (node) => node instanceof GameObject);
