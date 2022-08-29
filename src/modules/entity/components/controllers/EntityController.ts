@@ -92,7 +92,7 @@ export class EntityController extends ScriptComponent {
         if (this._gameObject && this._entity.script && this._entity.script.length > 0) {
             Log.debug(Log.types.ENTITIES, `Load script ${this._entity.script}`);
 
-            const script = EntityScriptManager.createScript(this._entity.script);
+            const script = EntityScriptManager.createScript(this._entity.script, this._entity);
             if (script) {
                 this._gameObject.addComponent(script);
             }
