@@ -1,5 +1,5 @@
 //
-//  NFTSpinController.ts
+//  NFTIconController.ts
 //
 //  Created by Nolan Huang on 24 Aug 2022.
 //  Copyright 2022 Vircadia contributors.
@@ -20,9 +20,10 @@ import {
 import { GameObject } from "@Modules/object";
 import Log from "@Modules/debugging/log";
 // Domain Modules
-import { ScriptComponent, inspector } from "@Modules/script";
+import { inspector } from "@Modules/script";
+import { EntityScriptComponent } from "./EntityScript";
 
-export class NFTIconController extends ScriptComponent {
+export class NFTIconController extends EntityScriptComponent {
 
     _nfts : Array<GameObject> = new Array<GameObject>();
     _currentIndex = 0;
@@ -54,12 +55,6 @@ export class NFTIconController extends ScriptComponent {
         return "NFTIconController";
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
-    public onInitialize(): void {
-        super.onInitialize();
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
     public onStart(): void {
         if (this._gameObject) {
             const gameObjects = this._gameObject.getChildMeshes(false, (node) => node instanceof GameObject);
