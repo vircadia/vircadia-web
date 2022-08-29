@@ -117,6 +117,14 @@ export default defineComponent({
                 action: undefined
             },
             {
+                icon: "directions_run",
+                label: "Avatar",
+                link: "",
+                isCategory: false,
+                separator: true,
+                action: undefined
+            },
+            {
                 icon: "directions_bus",
                 label: "Debug",
                 link: "DebugWindow",

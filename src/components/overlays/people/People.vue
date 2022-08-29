@@ -36,7 +36,7 @@
                 class="col"
                 style="height: 100%"
             >
-                <q-list v-if="$store.state.avatars.avatarsInfo.values().length > 0">
+                <q-list v-if="Array.from($store.state.avatars.avatarsInfo.keys()).length > 0">
                     <q-item
                         v-for="avaInfo in $store.state.avatars.avatarsInfo.values()"
                         :key="avaInfo.sessionId"
