@@ -158,7 +158,14 @@ export class DomainController extends ScriptComponent {
             }
         }
 
-        await this._vscene?.load(undefined, postion, rotationQuat);
+        let sceneUrl = undefined;
+        if (pDomain.DomainUrl.includes("ua92-1.vircadia.com")) {
+            sceneUrl = "/assets/scenes/campus.json";
+        } else if (pDomain.DomainUrl.includes("ua92-2.vircadia.com")) {
+            sceneUrl = "/assets/scenes/spacestation.json";
+        }
+
+        await this._vscene?.load(sceneUrl, postion, rotationQuat);
 
         const sessionID = pDomain.DomainClient?.sessionUUID;
         if (sessionID) {
