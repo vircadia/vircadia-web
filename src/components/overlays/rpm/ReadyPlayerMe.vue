@@ -116,7 +116,6 @@ export default defineComponent({
                 const avatarUrl = json.data.url;
                 console.log(`Avatar URL: ${avatarUrl}`);
                 this.setAvatar(avatarUrl);
-                // document.getElementById("frame").hidden = true;
             }
 
             // Get user id
