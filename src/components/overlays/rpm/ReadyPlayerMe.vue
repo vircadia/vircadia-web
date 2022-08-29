@@ -131,6 +131,7 @@ export default defineComponent({
                 // .catch is a syntax error!?
                 // eslint-disable-next-line @typescript-eslint/dot-notation
                 .catch((err) => console.log("Failed to load avatar:", err));
+            this.$emit("overlay-action", "close");
         }
     },
 
