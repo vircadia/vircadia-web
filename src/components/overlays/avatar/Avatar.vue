@@ -40,7 +40,7 @@
                 <div class="row q-mb-md q-px-md">
                     <q-img
                         :src="getAvatarDataFromId(activeAvatar, 'image')"
-                        draggable="false"
+                        :draggable="false"
                         width="100px"
                         height="100px"
                         ratio="1"
@@ -119,7 +119,7 @@
                             <q-item-section avatar>
                                 <q-img
                                     :src="avatar.image"
-                                    draggable="false"
+                                    :draggable="false"
                                     ratio="1"
                                     style="border-radius: 7px;"
                                 />
