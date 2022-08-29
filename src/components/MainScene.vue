@@ -38,14 +38,14 @@ import { defineComponent } from "vue";
 import { Mutations as StoreMutations } from "@Store/index";
 import { AudioMgr } from "@Modules/scene/audio";
 import { Renderer } from "@Modules/scene/renderer";
-import { Utility } from "@Modules/utility";
+// import { Utility } from "@Modules/utility";
 // import Log from "@Modules/debugging/log";
 
 import LoadingScreen from "@Components/LoadingScreen.vue";
 
 type Nullable<T> = T | null | undefined;
 
-const DEFAULT_DOMAIN_URL = "wss://ua92-1.vircadia.com/25,1,30/0,0,0,1";
+// const DEFAULT_DOMAIN_URL = "wss://ua92-1.vircadia.com/25,1,30/0,0,0,1";
 
 export interface ResizeShape {
     height: number,
@@ -121,9 +121,10 @@ export default defineComponent({
 
         const scene = Renderer.createScene();
 
-        await scene.load("");
+        await scene.loadSceneUA92Campus();
+        // await scene.load("");
 
-        await Utility.connectionSetup(DEFAULT_DOMAIN_URL);
+        // await Utility.connectionSetup(DEFAULT_DOMAIN_URL);
 
         Renderer.startRenderLoop([scene]);
     }
