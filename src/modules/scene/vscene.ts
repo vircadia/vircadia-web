@@ -47,6 +47,9 @@ export class VScene {
     _scene: Scene;
     _preScene: Nullable<Scene> = null;
     _myAvatar: Nullable<GameObject> = null;
+    _myAvatarSpwanPosition:Vector3 = Vector3.Zero();
+    _myAvatarSpwanOrientation:Quaternion = Quaternion.Identity();
+
     _avatarList : Map<string, GameObject>;
     _camera : Nullable<Camera> = null;
     _avatarAnimationGroups : AnimationGroup[] = [];
@@ -81,6 +84,10 @@ export class VScene {
         this._scene.cameras[pCameraId].position.set(pLoc.x, pLoc.y, pLoc.z);
     }
 
+    getMyAvatar() : Nullable<GameObject> {
+        return this._myAvatar;
+    }
+
     render():void {
         this._scene.render();
     }
@@ -101,6 +108,9 @@ export class VScene {
         if (this._myAvatar) {
             this._myAvatar.position = avatarPos ?? new Vector3(0, 1, 0);
             this._myAvatar.rotationQuaternion = avatarQuat ?? Quaternion.Identity();
+
+            this._myAvatarSpwanPosition = this._myAvatar.position.clone();
+            this._myAvatarSpwanOrientation = this._myAvatar.rotationQuaternion.clone();
         }
 
         // setup camera
@@ -136,9 +146,15 @@ export class VScene {
         this._engine.hideLoadingUI();
     }
 
+    public resetMyAvatarPosiotionAndOreintation() : void {
+        if (this._myAvatar) {
+            this._myAvatar.position = this._myAvatarSpwanPosition.clone();
+            this._myAvatar.rotationQuaternion = this._myAvatarSpwanOrientation.clone();
+        }
+    }
+
     public loadEntity(entity: IEntity) : void {
-        const entityBuilder = new EntityBuilder();
-        entityBuilder.buildEntity(entity, this._scene);
+        EntityBuilder.createEntity(entity, this._scene);
     }
 
     public removeEntity(id: string) : void {
@@ -160,9 +176,8 @@ export class VScene {
 
         Log.info(Log.types.ENTITIES, "Create Entities.");
         // create entities
-        const entityBuilder = new EntityBuilder();
         entityDescription.Entities.forEach((props) => {
-            entityBuilder.buildEntity(props, this._scene);
+            EntityBuilder.createEntity(props, this._scene);
         });
 
         Log.info(Log.types.ENTITIES, "Load Entities done.");
@@ -180,6 +195,16 @@ export class VScene {
 
         await this.load("/assets/scenes/campus.json",
             new Vector3(25, 1, 30));
+    }
+
+    public async goToDomain(dest: string): Promise<void> {
+        Log.info(Log.types.ENTITIES, `Go to domain: ${dest}`);
+        const domain = dest.toLocaleUpperCase();
+        if (domain.includes("campus")) {
+            await this.loadSceneUA92Campus();
+        } else {
+            await this.loadSceneSpaceStation();
+        }
     }
 
     public async switchDomain(): Promise<void> {
@@ -346,6 +371,12 @@ export class VScene {
                     } else {
                         await this._scene.debugLayer.show({ overlay: true });
                     }
+                }
+                break;
+            case "KeyR":
+                if (process.env.NODE_ENV === "development"
+                && evt.sourceEvent.shiftKey) {
+                    this.resetMyAvatarPosiotionAndOreintation();
                 }
                 break;
             case "Space":
