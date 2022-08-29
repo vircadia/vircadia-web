@@ -45,34 +45,36 @@
                         v-ripple
                     >
                         <q-item-section avatar>
-                            <q-avatar color="primary">
+                            <q-avatar class="q-mb-sm" color="primary">
                                 <img v-if="getProfilePicture(avaInfo)"
                                     :src="getProfilePicture(avaInfo)">
                                 <span v-else>{{ getDisplayName(avaInfo) }}</span>
                             </q-avatar>
                         </q-item-section>
-
                         <q-item-section>
-                            <q-item-label>{{ getDisplayName(avaInfo) }}</q-item-label>
-                            <q-item-label v-if="avaInfo.isAdmin" caption lines="1">Admin</q-item-label>
+                            <div class="col q-pt-sm">
+                                <q-item-label>{{ getDisplayName(avaInfo) }}</q-item-label>
+                                <q-item-label v-if="avaInfo.isAdmin" caption lines="1">Admin</q-item-label>
+                                <div class="row" style="align-items: center;gap: 16px;">
+                                    <q-slider
+                                        v-model="avaInfo.volume"
+                                        :min="0"
+                                        :max="100"
+                                        step="10"
+                                        snap
+                                        :color="avaInfo.muted || avaInfo.volume === 0 ? 'red' : 'primary'"
+                                        style="width: calc(100% - 48px);"
+                                    />
+                                    <q-icon
+                                        size="sm"
+                                        round
+                                        @click='complementMuted(avaInfo)'
+                                        :color="avaInfo.muted || avaInfo.volume === 0 ? 'red' : 'primary'"
+                                        :name="avaInfo.muted || avaInfo.volume === 0 ? 'volume_off' : 'volume_up'"
+                                    />
+                                </div>
+                            </div>
                         </q-item-section>
-                        <q-item-section avatar>
-                            <q-icon
-                                @click='complementMuted(avaInfo)'
-                                :color="avaInfo.muted ? 'red' : 'primary'"
-                                :name="avaInfo.muted ? 'volume_off' : 'volume_up'"
-                            />
-                        </q-item-section>
-                        <!-- this slider does not work. Now to modify volume? Maybe a child component for slider?
-                        <q-item-section>
-                            <q-slider
-                                v-model="avaInfo.volume"
-                                :min="0"
-                                :max="100"
-                                :color="avaInfo.muted ? 'red' : 'primary'"
-                            />
-                        </q-item-section>
-                        -->
                     </q-item>
                 </q-list>
                 <p v-else class="text-subtitle1 text-grey text-center q-mt-md">There is no one else in this server.</p>
