@@ -150,7 +150,7 @@ export class VScene {
         this._engine.hideLoadingUI();
     }
 
-    public resetMyAvatarPosiotionAndOreintation() : void {
+    public resetMyAvatarPositionAndOrientation() : void {
         if (this._myAvatar) {
             this._myAvatar.position = this._myAvatarSpwanPosition.clone();
             this._myAvatar.rotationQuaternion = this._myAvatarSpwanOrientation.clone();
@@ -399,7 +399,7 @@ export class VScene {
                 break;
             case "KeyR":
                 if (evt.sourceEvent.shiftKey) {
-                    this.resetMyAvatarPosiotionAndOreintation();
+                    this.resetMyAvatarPositionAndOrientation();
                 }
                 break;
             case "Space":
