@@ -47,6 +47,9 @@ export class VScene {
     _scene: Scene;
     _preScene: Nullable<Scene> = null;
     _myAvatar: Nullable<GameObject> = null;
+    _myAvatarSpwanPosition:Vector3 = Vector3.Zero();
+    _myAvatarSpwanOrientation:Quaternion = Quaternion.Identity();
+
     _avatarList : Map<string, GameObject>;
     _camera : Nullable<Camera> = null;
     _avatarAnimationGroups : AnimationGroup[] = [];
@@ -105,6 +108,9 @@ export class VScene {
         if (this._myAvatar) {
             this._myAvatar.position = avatarPos ?? new Vector3(0, 1, 0);
             this._myAvatar.rotationQuaternion = avatarQuat ?? Quaternion.Identity();
+
+            this._myAvatarSpwanPosition = this._myAvatar.position.clone();
+            this._myAvatarSpwanOrientation = this._myAvatar.rotationQuaternion.clone();
         }
 
         // setup camera
@@ -138,6 +144,13 @@ export class VScene {
         }
 
         this._engine.hideLoadingUI();
+    }
+
+    public resetMyAvatarPosiotionAndOreintation() : void {
+        if (this._myAvatar) {
+            this._myAvatar.position = this._myAvatarSpwanPosition.clone();
+            this._myAvatar.rotationQuaternion = this._myAvatarSpwanOrientation.clone();
+        }
     }
 
     public loadEntity(entity: IEntity) : void {
@@ -185,7 +198,9 @@ export class VScene {
     }
 
     public async goToDomain(dest: string): Promise<void> {
-        if (dest === "Campus") {
+        Log.info(Log.types.ENTITIES, `Go to domain: ${dest}`);
+        const domain = dest.toLocaleUpperCase();
+        if (domain.includes("campus")) {
             await this.loadSceneUA92Campus();
         } else {
             await this.loadSceneSpaceStation();
@@ -356,6 +371,12 @@ export class VScene {
                     } else {
                         await this._scene.debugLayer.show({ overlay: true });
                     }
+                }
+                break;
+            case "KeyR":
+                if (process.env.NODE_ENV === "development"
+                && evt.sourceEvent.shiftKey) {
+                    this.resetMyAvatarPosiotionAndOreintation();
                 }
                 break;
             case "Space":
