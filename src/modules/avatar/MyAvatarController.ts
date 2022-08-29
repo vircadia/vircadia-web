@@ -42,7 +42,7 @@ export class MyAvatarController extends ScriptComponent {
         }
     }
 
-    public set myAvatar(avatar : MyAvatarInterface | null) {
+    public set myAvatar(avatar : Nullable<MyAvatarInterface>) {
         this._myAvatar = avatar;
 
         if (!this._gameObject || !this._myAvatar) {
@@ -52,6 +52,10 @@ export class MyAvatarController extends ScriptComponent {
         this._myAvatar.scale = AvatarMapper.mapToDomainScale(this._gameObject.scaling);
 
         this._collectJoints();
+    }
+
+    public get myAvatar() : Nullable<MyAvatarInterface> {
+        return this._myAvatar;
     }
 
     @inspectorAccessor()
@@ -76,6 +80,10 @@ export class MyAvatarController extends ScriptComponent {
     */
     // eslint-disable-next-line class-methods-use-this
     public get componentType():string {
+        return MyAvatarController.typeName;
+    }
+
+    static get typeName(): string {
         return "MyAvatarController";
     }
 
