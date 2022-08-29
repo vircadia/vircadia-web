@@ -40,7 +40,7 @@
                 <div class="row q-mb-md q-px-md">
                     <q-img
                         :src="getAvatarDataFromId(activeAvatar, 'image')"
-                        draggable="false"
+                        :draggable="false"
                         width="100px"
                         height="100px"
                         ratio="1"
@@ -52,7 +52,7 @@
                             title="Display name"
                             class="text-h5 text-left q-pl-md q-mt-md q-mb-sm cursor-pointer"
                         >
-                            {{ playerName }}
+                            {{ $store.state.avatar.displayName }}
                             <q-icon
                                 title="Edit display name"
                                 v-ripple
@@ -62,7 +62,7 @@
                             >
                                 <span class="q-focus-helper"></span>
                             </q-icon>
-                            <q-popup-edit v-model="playerName" auto-save v-slot="scope">
+                            <q-popup-edit v-model="$store.state.avatar.displayName" auto-save v-slot="scope">
                                 <q-input v-model="scope.value" dense autofocus counter @keyup.enter="scope.set" />
                             </q-popup-edit>
                         </div>
@@ -119,7 +119,7 @@
                             <q-item-section avatar>
                                 <q-img
                                     :src="avatar.image"
-                                    draggable="false"
+                                    :draggable="false"
                                     ratio="1"
                                     style="border-radius: 7px;"
                                 />
@@ -177,6 +177,7 @@
 import { defineComponent } from "vue";
 
 import OverlayShell from "../OverlayShell.vue";
+import { Renderer } from "@Modules/scene";
 
 export interface AvatarEntry {
     name: string,
@@ -205,60 +206,12 @@ export default defineComponent({
         activeAvatar: "HTP45FSQ",
         avatarList: [
             {
-                name: "Woody",
-                id: "OC9RB9SH",
-                image: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Woody/img/icon.png",
-                file: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Woody/fbx/Woody.fst",
-                scale: 1,
-                starred: true
-            },
-            {
-                name: "Kim",
+                name: "Sara",
                 id: "HTP45FSQ",
-                image: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Kim/img/icon.png",
-                file: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Kim/fbx/Kim.fst",
+                image: "https://staging.vircadia.com/O12OR634/UA92/sara-cropped-small.webp",
+                file: "https://staging.vircadia.com/O12OR634/UA92/sara.glb",
                 scale: 1,
                 starred: true
-            },
-            {
-                name: "Mason",
-                id: "D14RUU5V",
-                image: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Mason/img/icon.png",
-                file: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Mason/fbx/Mason.fst",
-                scale: 1,
-                starred: false
-            },
-            {
-                name: "Mike",
-                id: "WNURE8HN",
-                image: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Mike/img/icon.png",
-                file: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Mike/fbx/Mike.fst",
-                scale: 1,
-                starred: false
-            },
-            {
-                name: "Sean",
-                id: "WENLVB35",
-                image: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Sean/img/icon.png",
-                file: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Sean/fbx/Sean.fst",
-                scale: 1,
-                starred: false
-            },
-            {
-                name: "Summer",
-                id: "UFMXDIRC",
-                image: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Summer/img/icon.png",
-                file: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Summer/fbx/Summer.fst",
-                scale: 1,
-                starred: false
-            },
-            {
-                name: "Tanya",
-                id: "A9LB4T5D",
-                image: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Tanya/img/icon.png",
-                file: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Tanya/fbx/Tanya.fst",
-                scale: 1,
-                starred: false
             }
         ] as AvatarEntry[]
     }),
@@ -299,6 +252,11 @@ export default defineComponent({
         selectAvatar(id: string): void {
             if (this.checkIfAvatarExists(id)) {
                 this.activeAvatar = id;
+                const scene = Renderer.getScene();
+                scene.loadMyAvatar(this.getAvatarDataFromId(id, "file") as string)
+                    // .catch is a syntax error!?
+                    // eslint-disable-next-line @typescript-eslint/dot-notation
+                    .catch((err) => console.log("Failed to load avatar:", err));
             }
         }
     }
