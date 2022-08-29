@@ -374,8 +374,7 @@ export class VScene {
                 }
                 break;
             case "KeyR":
-                if (process.env.NODE_ENV === "development"
-                && evt.sourceEvent.shiftKey) {
+                if (evt.sourceEvent.shiftKey) {
                     this.resetMyAvatarPosiotionAndOreintation();
                 }
                 break;
