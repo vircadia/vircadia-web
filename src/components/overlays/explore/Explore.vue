@@ -126,6 +126,17 @@
                     </q-item>
                 </q-list>
             </q-scroll-area>
+            <div
+                class="row absolute-bottom q-px-md q-py-sm"
+                style="align-items: center;gap: 16px;border-top: 1px solid #8888;"
+            >
+                <p class="q-ma-none">Stuck?</p>
+                <q-btn
+                    size="sm"
+                    color="purple"
+                    @click="resetPosition()"
+                >Reset position</q-btn>
+            </div>
         </q-card>
         <q-inner-loading :showing="loading">
             <q-spinner-gears size="50px" color="primary" />
@@ -137,6 +148,7 @@
 import { defineComponent } from "vue";
 import { Utility } from "@Modules/utility";
 import { Places, PlaceEntry } from "@Modules/places";
+import { Renderer } from "@Modules/scene";
 import Log from "@Modules/debugging/log";
 
 import OverlayShell from "../OverlayShell.vue";
@@ -209,6 +221,12 @@ export default defineComponent({
             if (this.filterText !== "") {
                 await this.openLocation(this.filterText);
             }
+        },
+
+        resetPosition(): void {
+            // Reset the player's position back to the world's spawn point.
+            const scene = Renderer.getScene();
+            scene.resetMyAvatarPosiotionAndOreintation();
         }
     },
 
