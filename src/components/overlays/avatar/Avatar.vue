@@ -205,60 +205,12 @@ export default defineComponent({
         activeAvatar: "HTP45FSQ",
         avatarList: [
             {
-                name: "Woody",
-                id: "OC9RB9SH",
-                image: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Woody/img/icon.png",
-                file: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Woody/fbx/Woody.fst",
-                scale: 1,
-                starred: true
-            },
-            {
-                name: "Kim",
+                name: "Sara",
                 id: "HTP45FSQ",
-                image: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Kim/img/icon.png",
-                file: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Kim/fbx/Kim.fst",
+                image: "https://staging.vircadia.com/O12OR634/UA92/sara-cropped-small.webp",
+                file: "https://staging.vircadia.com/O12OR634/UA92/sara.glb",
                 scale: 1,
                 starred: true
-            },
-            {
-                name: "Mason",
-                id: "D14RUU5V",
-                image: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Mason/img/icon.png",
-                file: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Mason/fbx/Mason.fst",
-                scale: 1,
-                starred: false
-            },
-            {
-                name: "Mike",
-                id: "WNURE8HN",
-                image: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Mike/img/icon.png",
-                file: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Mike/fbx/Mike.fst",
-                scale: 1,
-                starred: false
-            },
-            {
-                name: "Sean",
-                id: "WENLVB35",
-                image: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Sean/img/icon.png",
-                file: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Sean/fbx/Sean.fst",
-                scale: 1,
-                starred: false
-            },
-            {
-                name: "Summer",
-                id: "UFMXDIRC",
-                image: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Summer/img/icon.png",
-                file: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Summer/fbx/Summer.fst",
-                scale: 1,
-                starred: false
-            },
-            {
-                name: "Tanya",
-                id: "A9LB4T5D",
-                image: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Tanya/img/icon.png",
-                file: "https://cdn-1.vircadia.com/us-e-1/Bazaar/Avatars/Tanya/fbx/Tanya.fst",
-                scale: 1,
-                starred: false
             }
         ] as AvatarEntry[]
     }),
