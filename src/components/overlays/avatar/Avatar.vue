@@ -177,6 +177,7 @@
 import { defineComponent } from "vue";
 
 import OverlayShell from "../OverlayShell.vue";
+import { Renderer } from "@Modules/scene";
 
 export interface AvatarEntry {
     name: string,
@@ -251,6 +252,11 @@ export default defineComponent({
         selectAvatar(id: string): void {
             if (this.checkIfAvatarExists(id)) {
                 this.activeAvatar = id;
+                const scene = Renderer.getScene();
+                scene.loadMyAvatar(this.getAvatarDataFromId(id, "file") as string)
+                    // .catch is a syntax error!?
+                    // eslint-disable-next-line @typescript-eslint/dot-notation
+                    .catch((err) => console.log("Failed to load avatar:", err));
             }
         }
     }
