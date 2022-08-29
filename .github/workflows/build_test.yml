@@ -1,0 +1,25 @@
+# Test the latest changes.
+on:
+  # Triggers the workflow on push events but only for the "master" branch.
+  pull_request:
+    branches: [ "master" ]
+
+  # Allows this workflow to be run manually from the Actions tab.
+  workflow_dispatch:
+
+name: ⚙️ Build Test
+jobs:
+  build-test:
+    name: ⚒️ Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v2
+
+    - uses: actions/setup-node@master
+      
+    - name: 📥 Install project dependencies
+      run: npm install
+      
+    - name: ⚒️ Build the project
+      run: npm run build
