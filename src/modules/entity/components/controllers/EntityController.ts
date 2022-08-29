@@ -17,7 +17,7 @@ import { ScriptComponent } from "@Modules/script";
 import { IEntity } from "../../EntityInterfaces";
 import { EntityMapper } from "../../builders";
 import { GameObject, MeshComponent } from "@Modules/object";
-import { NFTSpinController } from "../scripts";
+import { EntityScriptManager } from "../scripts";
 
 
 export class EntityController extends ScriptComponent {
@@ -92,10 +92,11 @@ export class EntityController extends ScriptComponent {
         if (this._gameObject && this._entity.script && this._entity.script.length > 0) {
             Log.debug(Log.types.ENTITIES, `Load script ${this._entity.script}`);
 
-            if (this._entity.script === NFTSpinController.typeName) {
-                const comp = new NFTSpinController();
-                this._gameObject.addComponent(comp);
+            const script = EntityScriptManager.createScript(this._entity.script, this._entity);
+            if (script) {
+                this._gameObject.addComponent(script);
             }
+
         }
     }
 }
