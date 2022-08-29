@@ -52,7 +52,7 @@
                             title="Display name"
                             class="text-h5 text-left q-pl-md q-mt-md q-mb-sm cursor-pointer"
                         >
-                            {{ playerName }}
+                            {{ $store.state.avatar.displayName }}
                             <q-icon
                                 title="Edit display name"
                                 v-ripple
@@ -62,7 +62,7 @@
                             >
                                 <span class="q-focus-helper"></span>
                             </q-icon>
-                            <q-popup-edit v-model="playerName" auto-save v-slot="scope">
+                            <q-popup-edit v-model="$store.state.avatar.displayName" auto-save v-slot="scope">
                                 <q-input v-model="scope.value" dense autofocus counter @keyup.enter="scope.set" />
                             </q-popup-edit>
                         </div>
