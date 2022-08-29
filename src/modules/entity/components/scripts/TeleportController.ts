@@ -11,16 +11,12 @@
 
 /* eslint-disable new-cap */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-// General Modules
-import {
-    AbstractMesh
-} from "@babylonjs/core";
-import { GameObject } from "@Modules/object";
 import Log from "@Modules/debugging/log";
 // Domain Modules
 import { inspector } from "@Modules/script";
 import { Renderer, VScene } from "@Modules/scene";
 import { EntityScriptComponent } from "./EntityScript";
+import { Utility } from "@Modules/utility";
 
 
 type ScriptParameters = {
@@ -38,7 +34,6 @@ export class TeleportController extends EntityScriptComponent {
         super(TeleportController.typeName);
 
         this._vscene = Renderer.getScene();
-        this._destination = "SpaceStationt";
     }
 
     /**
@@ -61,7 +56,6 @@ export class TeleportController extends EntityScriptComponent {
             const param = JSON.parse(this.entity.userData) as ScriptParameters;
             if (param.destination) {
                 this._destination = param.destination;
-                Log.debug(Log.types.ENTITIES, `Teleport destination: ${this._destination}`);
             } else {
                 Log.error(Log.types.ENTITIES, "No Teleport destination of TeleportController");
             }
@@ -70,9 +64,12 @@ export class TeleportController extends EntityScriptComponent {
 
     // eslint-disable-next-line class-methods-use-this
     public onTriggerEnter() : void {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        Utility.connectionSetup(this._destination);
+        /*
         if (this._vscene && this._destination.length > 0) {
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this._vscene.goToDomain(this._destination);
-        }
+        } */
     }
 }
