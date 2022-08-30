@@ -30,7 +30,25 @@
             class="column no-wrap items-stretch full-height"
             style="background: transparent; box-shadow: none;"
         >
+            <div
+                v-if="loading && !error"
+                class="absolute-center"
+                style="display: flex;flex-flow: column nowrap;align-items: center;gap: 10px;text-align: center;"
+            >
+                <q-spinner
+                    size="xl"
+                    class="q-ma-none"
+                    style="margin-left: -16px;"
+                ></q-spinner>
+                <p v-if="longLoad">This is taking longer than usual. Hang on...</p>
+                <p v-else>Loading avatar...</p>
+            </div>
+            <p
+                v-if="error"
+                class="absolute-center bg-negative q-px-md q-py-sm rounded-borders"
+            >Something went wrong. Please try again.</p>
             <iframe
+                v-show="!loading && !error"
                 id="rpm_frame"
                 title="Ready Player Me"
                 name="ReadyPlayerMe"
@@ -78,6 +96,9 @@ export default defineComponent({
 
     data() {
         return {
+            loading: false,
+            longLoad: false,
+            error: false,
             frame: {} as HTMLIFrameElement,
             subdomain: "vircadia"
         };
@@ -126,10 +147,34 @@ export default defineComponent({
 
         setAvatar(url: string): void {
             const scene = Renderer.getScene();
+            this.loading = true;
+            const longLoadTimeout = window.setTimeout(() => {
+                this.longLoad = true;
+            // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+            }, 10000);
             scene.loadMyAvatar(url)
+                .then(() => {
+                    this.loading = false;
+                    window.clearTimeout(longLoadTimeout);
+                    this.longLoad = false;
+                    this.closeOverlay();
+                })
                 // .catch is a syntax error!?
                 // eslint-disable-next-line @typescript-eslint/dot-notation
-                .catch((err) => console.log("Failed to load avatar:", err));
+                .catch((err) => {
+                    console.warn("Failed to load RPM avatar:", err);
+                    this.loading = false;
+                    window.clearTimeout(longLoadTimeout);
+                    this.longLoad = false;
+                    this.error = true;
+                    window.setTimeout(() => {
+                        this.error = false;
+                    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+                    }, 1000);
+                });
+        },
+
+        closeOverlay(): void {
             this.$emit("overlay-action", "close");
         }
     },
