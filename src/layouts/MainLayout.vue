@@ -57,42 +57,49 @@
                         class="q-mr-sm q-ml-sm"
                     />
 
-                    <q-btn-dropdown
-                        split
-                        flat
-                        round
-                        dense
-                        fab-mini
-                        :title="$store.state.audio.user.muted ? 'Unmute microphone' : 'Mute microphone'"
-                        :icon="$store.state.audio.user.muted || !$store.state.audio.user.hasInputAccess ? 'mic_off' : 'mic'"
-                        :color="determineMicColor()"
-                        @click="micToggled"
-                        class="q-mr-sm q-ml-sm"
-                        :style="{
-                            backgroundColor: $q.dark.isActive ? '#282828' : '#e8e8e8'
-                        }"
-                    >
+                    <div>
+                        <q-btn-dropdown
+                            split
+                            flat
+                            round
+                            dense
+                            fab-mini
+                            :title="
+                                !$store.state.audio.user.hasInputAccess ?
+                                undefined :
+                                $store.state.audio.user.muted ?
+                                'Unmute microphone' :
+                                'Mute microphone'"
+                            :icon="$store.state.audio.user.muted || !$store.state.audio.user.hasInputAccess ? 'mic_off' : 'mic'"
+                            :color="determineMicColor()"
+                            @click="micToggled"
+                            class="q-mr-sm q-ml-sm"
+                            :style="{
+                                backgroundColor: $q.dark.isActive ? '#282828' : '#e8e8e8'
+                            }"
+                            :disable-dropdown="!$store.state.audio.user.hasInputAccess"
+                        >
+                            <q-list style="max-width: 300px;">
+                                <q-item v-for="input in $store.state.audio.inputsList" :key="input.deviceId">
+                                    <q-radio
+                                        @click="requestInputAccess(input.deviceId)"
+                                        v-model="selectedInputStore"
+                                        :val="input.label"
+                                        :label="input.label"
+                                        :title="input.label"
+                                        color="teal"
+                                        class="ellipsis"
+                                    />
+                                </q-item>
+                            </q-list>
+                        </q-btn-dropdown>
                         <q-tooltip
                             v-if="!$store.state.audio.user.hasInputAccess"
                             class="bg-black"
                             transition-show="jump-down"
                             transition-hide="jump-up"
                         >Please allow microphone access.</q-tooltip>
-
-                        <q-list style="max-width: 300px;">
-                            <q-item v-for="input in $store.state.audio.inputsList" :key="input.deviceId">
-                                <q-radio
-                                    @click="requestInputAccess(input.deviceId)"
-                                    v-model="selectedInputStore"
-                                    :val="input.label"
-                                    :label="input.label"
-                                    :title="input.label"
-                                    color="teal"
-                                    class="ellipsis"
-                                />
-                            </q-item>
-                        </q-list>
-                    </q-btn-dropdown>
+                    </div>
 
                     <q-toolbar-title>
                         <q-item-section>
