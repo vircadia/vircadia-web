@@ -103,6 +103,22 @@ export class VScene {
             beforeLoading();
         }
 
+        // create camera
+        const camera = new ArcRotateCamera(
+            "Camera", -Math.PI / 2, Math.PI / 2, 6,
+            new Vector3(0, 1, 0), this._scene);
+
+        // This attaches the camera to the canvas
+        camera.attachControl(this._scene.getEngine().getRenderingCanvas(), false);
+        camera.wheelPrecision = 50;
+        camera.minZ = 1;
+        camera.maxZ = 250000;
+        camera.alpha = Math.PI / 2;
+        camera.beta = Math.PI / 2;
+
+        this._scene.activeCamera = camera;
+        this._camera = camera;
+
         await this.loadMyAvatar();
         // setup avatar
         if (this._myAvatar) {
@@ -111,18 +127,6 @@ export class VScene {
 
             this._myAvatarSpwanPosition = this._myAvatar.position.clone();
             this._myAvatarSpwanOrientation = this._myAvatar.rotationQuaternion.clone();
-        }
-
-        // setup camera
-        const camera = this._camera as ArcRotateCamera;
-        if (camera) {
-            // camera.minZ = 0.1;
-            // camera.maxZ = 2500;
-            camera.minZ = 1;
-            camera.maxZ = 250000;
-            camera.alpha = Math.PI / 2;
-            camera.beta = Math.PI / 2;
-            camera.parent = this._myAvatar as Mesh;
         }
 
         if (sceneUrl) {
@@ -146,7 +150,7 @@ export class VScene {
         this._engine.hideLoadingUI();
     }
 
-    public resetMyAvatarPosiotionAndOreintation() : void {
+    public resetMyAvatarPositionAndOrientation() : void {
         if (this._myAvatar) {
             this._myAvatar.position = this._myAvatarSpwanPosition.clone();
             this._myAvatar.rotationQuaternion = this._myAvatarSpwanOrientation.clone();
@@ -216,18 +220,6 @@ export class VScene {
     }
 
     public async loadMyAvatar(modelURL ?: string) : Promise<Nullable<GameObject>> {
-        // Creates, angles, distances and targets the camera
-        const camera = new ArcRotateCamera(
-            "Camera", -Math.PI / 2, Math.PI / 2, 6,
-            new Vector3(0, 1, 0), this._scene);
-
-        // This attaches the camera to the canvas
-        camera.attachControl(this._scene.getEngine().getRenderingCanvas(), false);
-        camera.wheelPrecision = 50;
-
-        this._scene.activeCamera = camera;
-        this._camera = camera;
-
         if (this._resourceManager) {
             if (this._avatarAnimationGroups.length === 0) {
 
@@ -235,7 +227,30 @@ export class VScene {
                 this._avatarAnimationGroups = result.animGroups;
             }
 
+
+            let prevPos = undefined;
+            let prevQuat = null;
+            let prevMyAvatarInterface = undefined;
+            if (this._myAvatar) {
+                prevPos = this._myAvatar.position.clone();
+                if (this._myAvatar.rotationQuaternion) {
+                    prevQuat = this._myAvatar.rotationQuaternion.clone();
+                }
+
+                const controller = this._myAvatar.getComponent(MyAvatarController.typeName) as MyAvatarController;
+                prevMyAvatarInterface = controller.myAvatar;
+                if (this._camera) {
+                    this._camera.parent = null;
+                }
+
+                this._myAvatar.dispose();
+            }
+
             this._myAvatar = new GameObject("MyAvatar", this._scene);
+            if (prevPos) {
+                this._myAvatar.position = prevPos;
+                this._myAvatar.rotationQuaternion = prevQuat;
+            }
 
             const mesh = await this._resourceManager.loadMyAvatar(modelURL ?? DefaultAvatarUrl);
             if (mesh) {
@@ -247,7 +262,16 @@ export class VScene {
             avatarController.animGroups = this._avatarAnimationGroups;
             this._myAvatar.addComponent(avatarController);
 
-            this._myAvatar.addComponent(new MyAvatarController());
+            const myAvatarController = new MyAvatarController();
+            this._myAvatar.addComponent(myAvatarController);
+            if (prevMyAvatarInterface) {
+                myAvatarController.myAvatar = prevMyAvatarInterface;
+            }
+
+            if (this._camera) {
+                this._camera.parent = this._myAvatar;
+            }
+
         }
 
         return this._myAvatar;
@@ -374,9 +398,8 @@ export class VScene {
                 }
                 break;
             case "KeyR":
-                if (process.env.NODE_ENV === "development"
-                && evt.sourceEvent.shiftKey) {
-                    this.resetMyAvatarPosiotionAndOreintation();
+                if (evt.sourceEvent.shiftKey) {
+                    this.resetMyAvatarPositionAndOrientation();
                 }
                 break;
             case "Space":
@@ -387,6 +410,11 @@ export class VScene {
             case "KeyU":
                 if (evt.sourceEvent.shiftKey) {
                     await this.loadSceneUA92Campus();
+                }
+                break;
+            case "KeyM":
+                if (process.env.NODE_ENV === "development" && evt.sourceEvent.shiftKey) {
+                    await this.loadMyAvatar();
                 }
                 break;
             default:

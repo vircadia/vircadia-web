@@ -532,7 +532,7 @@
     "id": "{88c3c111-b9ec-4e94-94f5-79b457097c0c}",
     "type": "Model",
     "lastEdited": 1661238408617670,
-    "name": "Atirum",
+    "name": "Atrium",
     "position": {
         "x": 0,
         "y": 0,
@@ -576,7 +576,7 @@
     "angularDamping": 0,
     "collisionMask": 0,
     "collidesWith": "",
-    "modelURL": "https://staging.vircadia.com/O12OR634/UA92/Atirum.glb",
+    "modelURL": "https://staging.vircadia.com/O12OR634/UA92/Atrium.glb",
     "blendshapeCoefficients": "{\n}\n",
     "useOriginalPivot": true,
     "animation": {
@@ -827,6 +827,68 @@
 "localEntity": false,
 "faceCamera": false,
 "isFacingAvatar": false
+},
+{
+    "id": "{787606b0-f9a5-4465-bae9-dfb5ba79e724}",
+    "type": "Box",
+    "lastEdited": 1661327090098367,
+    "visible": false,
+    "name": "Teleporter",
+    "position": {
+        "x": -28.6,
+        "y": 0.5,
+        "z": -30.5
+    },
+    "dimensions": {
+        "x": 1.00000000298023224,
+        "y": 1.20000000298023224,
+        "z": 1.00000000298023224
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": 0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1661326683257241,
+    "lastEditedBy": "{6b2e59d2-1d1a-42f5-a1dc-42899b1dbe6f}",
+    "queryAACube": {
+        "x": -0.17320507764816284,
+        "y": -0.17320507764816284,
+        "z": -0.17320507764816284,
+        "scale": 0.3464101552963257
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "script": "TeleportController",
+    "scriptTimestamp": 1661328755707,
+    "userData": "{\"destination\":\"wss://ua92-2.vircadia.com/0,50,0/0,0,0,1\"}",
+    "color": {
+        "red": 0,
+        "green": 180,
+        "blue": 239
+    },
+    "shape": "Cube",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
 }
     ],
   "Id": "{226a4541-3abc-4cd4-adca-a4ced2fa12ea}",

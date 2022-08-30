@@ -226,7 +226,7 @@ export default defineComponent({
         resetPosition(): void {
             // Reset the player's position back to the world's spawn point.
             const scene = Renderer.getScene();
-            scene.resetMyAvatarPosiotionAndOreintation();
+            scene.resetMyAvatarPositionAndOrientation();
         }
     },
 
