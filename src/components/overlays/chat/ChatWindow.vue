@@ -24,6 +24,7 @@
         :defaultWidth="600"
         :defaultLeft="0"
         :defaultTop="400"
+        spawnSnappedTo="bottom"
         :hoverShowBar="true"
         :transparentOnIdle="true"
         :style="{
