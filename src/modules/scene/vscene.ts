@@ -273,6 +273,7 @@ export class VScene {
             if (prevMyAvatarInterface) {
                 myAvatarController.myAvatar = prevMyAvatarInterface;
             }
+            myAvatarController.skeletonModelURL = modelURL;
 
             if (this._camera) {
                 this._camera.parent = this._myAvatar;
