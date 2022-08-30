@@ -52,7 +52,7 @@
                             title="Display name"
                             class="text-h5 text-left q-pl-md q-mt-md q-mb-sm cursor-pointer"
                         >
-                            {{ $store.state.avatar.displayName }}
+                            {{ displayName }}
                             <q-icon
                                 title="Edit display name"
                                 v-ripple
@@ -62,7 +62,7 @@
                             >
                                 <span class="q-focus-helper"></span>
                             </q-icon>
-                            <q-popup-edit v-model="$store.state.avatar.displayName" auto-save v-slot="scope">
+                            <q-popup-edit v-model="displayNameStore" auto-save v-slot="scope">
                                 <q-input v-model="scope.value" dense autofocus counter @keyup.enter="scope.set" />
                             </q-popup-edit>
                         </div>
@@ -179,6 +179,8 @@ import { defineComponent } from "vue";
 import OverlayShell from "../OverlayShell.vue";
 import { Renderer } from "@Modules/scene";
 
+import Log from "@Modules/debugging/log";
+
 export interface AvatarEntry {
     name: string,
     id: string,
@@ -202,7 +204,7 @@ export default defineComponent({
 
     data: () => ({
         // The following is demo data:
-        playerName: "Player",
+        displayName: "",
         activeAvatar: "HTP45FSQ",
         avatarList: [
             {
@@ -215,6 +217,18 @@ export default defineComponent({
             }
         ] as AvatarEntry[]
     }),
+
+    computed: {
+        displayNameStore: {
+            get: function(): string {
+                return this.$store.state.avatar.displayName;
+            },
+            set: function(pVal: string): void {
+                Log.debug(Log.types.AVATAR, `Avatar.vue: set displayNameStore. inputInfo=${pVal}`);
+                this.displayName = pVal;
+            }
+        }
+    },
 
     methods: {
         checkIfAvatarExists(id: string): boolean {
@@ -259,6 +273,10 @@ export default defineComponent({
                     .catch((err) => console.log("Failed to load avatar:", err));
             }
         }
+    },
+
+    mounted(): void {
+        this.displayName = this.$store.state.avatar.displayName;
     }
 });
 </script>
