@@ -57,7 +57,8 @@
                         class="q-mr-sm q-ml-sm"
                     />
 
-                    <q-btn
+                    <q-btn-dropdown
+                        split
                         flat
                         round
                         dense
@@ -77,7 +78,21 @@
                             transition-show="jump-down"
                             transition-hide="jump-up"
                         >Please allow microphone access.</q-tooltip>
-                    </q-btn>
+
+                        <q-list style="max-width: 300px;">
+                            <q-item v-for="input in $store.state.audio.inputsList" :key="input.deviceId">
+                                <q-radio
+                                    @click="requestInputAccess(input.deviceId)"
+                                    v-model="selectedInputStore"
+                                    :val="input.label"
+                                    :label="input.label"
+                                    :title="input.label"
+                                    color="teal"
+                                    class="ellipsis"
+                                />
+                            </q-item>
+                        </q-list>
+                    </q-btn-dropdown>
 
                     <q-toolbar-title>
                         <q-item-section>
