@@ -271,6 +271,10 @@ export class VScene {
             const myAvatarController = new MyAvatarController();
             this._myAvatar.addComponent(myAvatarController);
             if (prevMyAvatarInterface) {
+
+                if (prevMyAvatarInterface.skeletonModelURL && modelURL) {
+                    prevMyAvatarInterface.skeletonModelURL = modelURL;
+                }
                 myAvatarController.myAvatar = prevMyAvatarInterface;
             }
 
