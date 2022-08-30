@@ -191,6 +191,7 @@ export default defineComponent({
         canResizeWidth: { type: Boolean, default: true },
         canResizeHeight: { type: Boolean, default: true },
         dragMoveDebounce: { type: Number, default: 10 },
+        spawnSnappedTo: { type: String, default: undefined },
         // Info from parent/manager
         managerProps: { type: Object, default: () => ({}) }
         // parentSize: { type: Object, required: true }
@@ -380,6 +381,18 @@ export default defineComponent({
             event.stopPropagation();
         },
 
+        snapTo(side: string | undefined): void {
+            if (side === "top") {
+                this.top = 0;
+            } else if (side === "right") {
+                this.left = this.windowCache.innerWidth;
+            } else if (side === "bottom") {
+                this.top = this.windowCache.innerHeight;
+            } else if (side === "left") {
+                this.left = 0;
+            }
+        },
+
         cacheWindowParams(): void {
             // Cache some necessary properties of the global window object.
             this.windowCache = {
@@ -410,6 +423,7 @@ export default defineComponent({
 
     mounted() {
         this.cacheWindowParams();
+        this.snapTo(this.spawnSnappedTo);
         this.refinePosition();
     },
 
