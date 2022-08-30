@@ -67,7 +67,7 @@
     "type": "Zone",
     "lastEdited": 1661246378977932,
     "name": "Main",
-    "userData": "{\"environment\":{\"environmentTexture\":\"https://assets.babylonjs.com/textures/country.env\"},\"renderingPipeline\":{\"fxaaEnabled\":true}}",
+    "userData": "{\"environment\":{\"environmentTexture\":\"https://staging.vircadia.com/O12OR634/UA92/StreetView360_2.hdr\"},\"renderingPipeline\":{\"fxaaEnabled\":true}}",
     "position": {
         "x": 0,
         "y": 0,
