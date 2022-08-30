@@ -408,6 +408,11 @@ export default defineComponent({
         }
     },
 
+    mounted() {
+        this.cacheWindowParams();
+        this.refinePosition();
+    },
+
     unmounted() {
         if (this.mouseCaptured) {
             // eslint-disable-next-line @typescript-eslint/unbound-method
