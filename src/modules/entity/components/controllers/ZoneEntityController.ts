@@ -18,9 +18,10 @@ import { EntityController } from "./EntityController";
 import { IZoneEntity } from "../../EntityInterfaces";
 import { SkyboxComponent, KeyLightComponent, HazeComponent } from "../components";
 import { AmbientLightComponent } from "@Base/modules/object";
+import { AssetUrl } from "../../builders";
 
 import {
-    HemisphericLight, Vector3, DefaultRenderingPipeline, CubeTexture
+    HemisphericLight, Vector3, DefaultRenderingPipeline, CubeTexture, HDRCubeTexture
 } from "@babylonjs/core";
 
 type EnvironmentSettings = {
@@ -172,7 +173,19 @@ export class ZoneEntityController extends EntityController {
                     && this._scene.environmentTexture.name !== userData.environment.environmentTexture) {
                     this._scene.environmentTexture.dispose();
                 }
-                this._scene.environmentTexture = new CubeTexture(userData.environment.environmentTexture, this._scene);
+
+                const url = new AssetUrl(userData.environment.environmentTexture);
+
+                if (url.fileExtension === "hdr") {
+                    this._scene.environmentTexture = new HDRCubeTexture(userData.environment.environmentTexture,
+                        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+                        this._scene, 512, false, true, false, true);
+
+                } else if (url.fileExtension === "env") {
+                    this._scene.environmentTexture = new CubeTexture(userData.environment.environmentTexture, this._scene);
+                }
+
+
             }
 
             if (userData.renderingPipeline) {
