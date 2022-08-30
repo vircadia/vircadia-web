@@ -271,12 +271,9 @@ export class VScene {
             const myAvatarController = new MyAvatarController();
             this._myAvatar.addComponent(myAvatarController);
             if (prevMyAvatarInterface) {
-
-                if (prevMyAvatarInterface.skeletonModelURL && modelURL) {
-                    prevMyAvatarInterface.skeletonModelURL = modelURL;
-                }
                 myAvatarController.myAvatar = prevMyAvatarInterface;
             }
+            myAvatarController.skeletonModelURL = modelURL;
 
             if (this._camera) {
                 this._camera.parent = this._myAvatar;
