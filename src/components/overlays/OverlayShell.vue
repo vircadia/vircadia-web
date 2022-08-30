@@ -85,7 +85,9 @@
 
             // eslint-disable-next-line max-len
             left: `${isMaximized ? 0 : left < 0 ? 0 : left > windowCache.innerWidth - width ? windowCache.innerWidth - width : left}px`,
+            background: $props.transparentOnIdle && !hovered ? '#0002' : $q.dark.isActive ? '#1D1D1D' : '#fff',
             borderRadius: '5px',
+            transition: '0.2s ease background',
             overflow: 'hidden'
         }"
     >
@@ -171,6 +173,7 @@ export default defineComponent({
         icon: { type: String, required: true },
         title: { type: String, required: true },
         hoverShowBar: { type: Boolean, default: false },
+        transparentOnIdle: { type: Boolean, default: false },
         // Dimensions
         defaultHeight: { type: Number, required: true, default: 400 },
         defaultWidth: { type: Number, default: 300 },
