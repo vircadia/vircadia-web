@@ -117,7 +117,9 @@ export class DomainController extends ScriptComponent {
 
             if (this._vscene && this._vscene._myAvatar) {
                 const myAvatarController = this._vscene._myAvatar.getComponent("MyAvatarController") as MyAvatarController;
-                myAvatarController.myAvatar = null;
+                if (myAvatarController && myAvatarController.myAvatar) {
+                    myAvatarController.myAvatar = null;
+                }
             }
 
             this._avatarMixer = null;
@@ -158,14 +160,13 @@ export class DomainController extends ScriptComponent {
             }
         }
 
-        let sceneUrl = undefined;
         if (pDomain.DomainUrl.includes("ua92-1.vircadia.com")) {
-            sceneUrl = "/assets/scenes/campus.json";
+            await this._vscene?.loadSceneUA92Campus();
         } else if (pDomain.DomainUrl.includes("ua92-2.vircadia.com")) {
-            sceneUrl = "/assets/scenes/spacestation.json";
+            await this._vscene?.loadSceneSpaceStation();
+        } else {
+            await this._vscene?.load(undefined, postion, rotationQuat);
         }
-
-        await this._vscene?.load(sceneUrl, postion, rotationQuat);
 
         const sessionID = pDomain.DomainClient?.sessionUUID;
         if (sessionID) {
