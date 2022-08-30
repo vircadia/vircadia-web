@@ -65,7 +65,18 @@
                 v-model="messageInput"
                 :dense="true"
                 @keydown.enter.prevent="submitMessage"
-            />
+            >
+                <template v-slot:append>
+                    <q-btn
+                        title="Click, or press Enter to send."
+                        round
+                        dense
+                        @click.stop="submitMessage"
+                    >
+                        <q-icon name="send" color="primary"></q-icon>
+                    </q-btn>
+                </template>
+            </q-input>
         </q-card>
         <!-- <q-inner-loading :showing="">
             <q-spinner-gears size="50px" color="primary" />
