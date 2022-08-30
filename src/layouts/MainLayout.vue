@@ -543,6 +543,8 @@ export default defineComponent({
         // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
         (this.$refs.OverlayManager as typeof OverlayManager).openOverlay("menu");
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+        (this.$refs.OverlayManager as typeof OverlayManager).openOverlay("chatwindow");
     }
 });
 </script>
