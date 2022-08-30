@@ -425,6 +425,11 @@ export default defineComponent({
         this.cacheWindowParams();
         this.snapTo(this.spawnSnappedTo);
         this.refinePosition();
+
+        window.addEventListener("resize", () => {
+            this.cacheWindowParams();
+            this.refinePosition();
+        });
     },
 
     unmounted() {
