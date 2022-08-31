@@ -53,9 +53,6 @@
         "modelURL": "https://staging.vircadia.com/O12OR634/UA92/Outdoors.glb",
         "blendshapeCoefficients": "{\n}\n",
         "useOriginalPivot": true,
-        "animation": {
-            "allowTranslation": false
-        },
         "clientOnly": false,
         "avatarEntity": false,
         "localEntity": false,
@@ -217,9 +214,6 @@
     "modelURL": "https://staging.vircadia.com/O12OR634/UA92/Support.glb",
     "blendshapeCoefficients": "{\n}\n",
     "useOriginalPivot": true,
-    "animation": {
-        "allowTranslation": false
-    },
     "clientOnly": false,
     "avatarEntity": false,
     "localEntity": false,
@@ -277,9 +271,6 @@
     "modelURL": "https://staging.vircadia.com/O12OR634/UA92/FirstFloor.glb",
     "blendshapeCoefficients": "{\n}\n",
     "useOriginalPivot": true,
-    "animation": {
-        "allowTranslation": false
-    },
     "clientOnly": false,
     "avatarEntity": false,
     "localEntity": false,
@@ -337,9 +328,6 @@
     "modelURL": "https://staging.vircadia.com/O12OR634/UA92/UpperFloors.glb",
     "blendshapeCoefficients": "{\n}\n",
     "useOriginalPivot": true,
-    "animation": {
-        "allowTranslation": false
-    },
     "clientOnly": false,
     "avatarEntity": false,
     "localEntity": false,
@@ -397,9 +385,6 @@
     "modelURL": "https://staging.vircadia.com/O12OR634/UA92/Furniture.glb",
     "blendshapeCoefficients": "{\n}\n",
     "useOriginalPivot": true,
-    "animation": {
-        "allowTranslation": false
-    },
     "clientOnly": false,
     "avatarEntity": false,
     "localEntity": false,
@@ -459,9 +444,6 @@
     "modelURL": "https://staging.vircadia.com/O12OR634/UA92/Collisions.glb",
     "blendshapeCoefficients": "{\n}\n",
     "useOriginalPivot": true,
-    "animation": {
-        "allowTranslation": false
-    },
     "clientOnly": false,
     "avatarEntity": false,
     "localEntity": false,
@@ -519,9 +501,6 @@
     "modelURL": "https://staging.vircadia.com/O12OR634/UA92/ElevatorRight.glb",
     "blendshapeCoefficients": "{\n}\n",
     "useOriginalPivot": true,
-    "animation": {
-        "allowTranslation": false
-    },
     "clientOnly": false,
     "avatarEntity": false,
     "localEntity": false,
@@ -579,9 +558,6 @@
     "modelURL": "https://staging.vircadia.com/O12OR634/UA92/ElevatorLeft.glb",
     "blendshapeCoefficients": "{\n}\n",
     "useOriginalPivot": true,
-    "animation": {
-        "allowTranslation": false
-    },
     "clientOnly": false,
     "avatarEntity": false,
     "localEntity": false,
@@ -639,9 +615,6 @@
     "modelURL": "https://staging.vircadia.com/O12OR634/UA92/Atrium.glb",
     "blendshapeCoefficients": "{\n}\n",
     "useOriginalPivot": true,
-    "animation": {
-        "allowTranslation": false
-    },
     "clientOnly": false,
     "avatarEntity": false,
     "localEntity": false,
@@ -699,9 +672,6 @@
     "modelURL": "https://staging.vircadia.com/O12OR634/UA92/Exterior.glb",
     "blendshapeCoefficients": "{\n}\n",
     "useOriginalPivot": true,
-    "animation": {
-        "allowTranslation": false
-    },
     "clientOnly": false,
     "avatarEntity": false,
     "localEntity": false,
@@ -759,9 +729,6 @@
 "modelURL": "https://staging.vircadia.com/O12OR634/UA92/Decals.glb",
 "blendshapeCoefficients": "{\n}\n",
 "useOriginalPivot": true,
-"animation": {
-    "allowTranslation": false
-},
 "clientOnly": false,
 "avatarEntity": false,
 "localEntity": false,
@@ -819,9 +786,6 @@
 "modelURL": "https://staging.vircadia.com/O12OR634/UA92/LightFixtures.glb",
 "blendshapeCoefficients": "{\n}\n",
 "useOriginalPivot": true,
-"animation": {
-    "allowTranslation": false
-},
 "clientOnly": false,
 "avatarEntity": false,
 "localEntity": false,
@@ -879,9 +843,6 @@
 "modelURL": "https://staging.vircadia.com/O12OR634/UA92/Pedestals.glb",
 "blendshapeCoefficients": "{\n}\n",
 "useOriginalPivot": true,
-"animation": {
-    "allowTranslation": false
-},
 "clientOnly": false,
 "avatarEntity": false,
 "localEntity": false,
