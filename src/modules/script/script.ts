@@ -30,13 +30,14 @@ import {
 export abstract class ScriptComponent extends TransformNode implements IComponent {
     protected _gameObject: Nullable<GameObject> = null;
     protected _triggerTarget: Nullable<AbstractMesh> = null;
-    protected _triggerAction : Nullable<IAction> = null;
+    protected _triggerOnEnterAction : Nullable<IAction> = null;
+    protected _triggerOnExitAction : Nullable<IAction> = null;
 
     public attach(gameObject:GameObject):void {
         this._gameObject = gameObject;
         this.parent = gameObject;
 
-        if (this._triggerTarget && !this._triggerAction) {
+        if (this._triggerTarget) {
             this._registerTriggerEvents();
         }
     }
@@ -105,7 +106,7 @@ export abstract class ScriptComponent extends TransformNode implements IComponen
     }
 
     private _registerTriggerEvents() : void {
-        if (!this._gameObject || !this._triggerTarget || this._triggerAction) {
+        if (!this._gameObject || !this._triggerTarget) {
             return;
         }
 
@@ -120,7 +121,10 @@ export abstract class ScriptComponent extends TransformNode implements IComponen
         }
         const actionManager = mesh.actionManager;
 
-        this._triggerAction = actionManager.registerAction(
+        if (this._triggerOnEnterAction) {
+            actionManager.unregisterAction(this._triggerOnEnterAction);
+        }
+        this._triggerOnEnterAction = actionManager.registerAction(
             new ExecuteCodeAction(
                 {
                     trigger: ActionManager.OnIntersectionEnterTrigger,
@@ -132,7 +136,10 @@ export abstract class ScriptComponent extends TransformNode implements IComponen
             )
         );
 
-        actionManager.registerAction(
+        if (this._triggerOnExitAction) {
+            actionManager.unregisterAction(this._triggerOnExitAction);
+        }
+        this._triggerOnExitAction = actionManager.registerAction(
             new ExecuteCodeAction(
                 {
                     trigger: ActionManager.OnIntersectionExitTrigger,
