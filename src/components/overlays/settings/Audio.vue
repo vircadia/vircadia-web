@@ -48,7 +48,8 @@
                                 <q-btn
                                     fab
                                     class="q-mr-sm"
-                                    :color="$store.state.audio.user.hasInputAccess ? 'primary' : 'red'"
+                                    :color="!$store.state.audio.user.hasInputAccess ?
+                                        'grey' : $store.state.audio.user.muted ? 'red' : 'primary'"
                                     :icon="$store.state.audio.user.muted ? 'mic_off' : 'mic'"
                                     @click="micToggled"
                                 />
