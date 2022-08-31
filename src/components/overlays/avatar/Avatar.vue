@@ -178,6 +178,7 @@ import { defineComponent } from "vue";
 
 import OverlayShell from "../OverlayShell.vue";
 import { Renderer } from "@Modules/scene";
+import { MyAvatarController } from "@Modules/avatar";
 
 import Log from "@Modules/debugging/log";
 
@@ -226,6 +227,11 @@ export default defineComponent({
             set: function(pVal: string): void {
                 Log.debug(Log.types.AVATAR, `Avatar.vue: set displayNameStore. inputInfo=${pVal}`);
                 this.displayName = pVal;
+                const scene = Renderer.getScene();
+                const avatarController = scene._myAvatar?.getComponent(MyAvatarController.typeName) as MyAvatarController;
+                if (avatarController) {
+                    avatarController.displayName = pVal;
+                }
             }
         }
     },
