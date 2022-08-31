@@ -531,7 +531,7 @@ export const Store = createStore<IRootState>({
 
             // Log.debug(Log.types.OTHER, `StoreAction.UpdateAvatarInfo`);
 
-            const domainLoc = pPayload.domain.DomainClient?.location ?? "Unconnected";
+            const domainLoc = pPayload.domain.DomainClient?.location ?? "Disconnected";
             // If we have information on my avatar, update same
             if (pPayload.domainAvatar) {
                 const myAvaInfo = pPayload.domainAvatar.MyAvatar;
