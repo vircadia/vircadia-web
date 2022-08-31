@@ -55,6 +55,10 @@ export abstract class ScriptComponent extends TransformNode implements IComponen
         }
     }
 
+    public get triggerTarget() : Nullable<AbstractMesh> {
+        return this._triggerTarget;
+    }
+
 
     /**
     * Gets a string identifying the type of this Component
