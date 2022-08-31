@@ -62,8 +62,20 @@
                             >
                                 <span class="q-focus-helper"></span>
                             </q-icon>
-                            <q-popup-edit v-model="displayNameStore" auto-save v-slot="scope">
-                                <q-input v-model="scope.value" dense autofocus counter @keyup.enter="scope.set" />
+                            <q-popup-edit
+                                v-model="displayNameStore"
+                                auto-save
+                                v-slot="scope"
+                                :validate="validateDisplayName"
+                                >
+                                <q-input
+                                    v-model="scope.value"
+                                    dense
+                                    autofocus
+                                    counter
+                                    :color="validateDisplayName(scope.value) ? 'primary' : 'negative'"
+                                    @keyup.enter="scope.set"
+                                />
                             </q-popup-edit>
                         </div>
                         <div class="row q-ml-md q-pl-xs" style="border: 1px solid #8888;border-radius: 7px;">
@@ -278,6 +290,15 @@ export default defineComponent({
                     // eslint-disable-next-line @typescript-eslint/dot-notation
                     .catch((err) => console.log("Failed to load avatar:", err));
             }
+        },
+        validateDisplayName(value: string): boolean {
+            // Validates against:
+            // 1. Only contains alphanumeric characters, underscore, hyphen, and dot.
+            // 2. Underscore, hyphen, and dot can't be at the start or end of a username.
+            // 3. Underscore, hyphen, and dot can't be next to each other (e.g user_.name).
+            // 4. Underscore, hyphen, or dot can't be used multiple times in a row (e.g user__name / user..name).
+            // 5. Number of characters must be between 2 and 20.
+            return (/^(?=[a-z0-9._-]{2,20}$)(?!.*[-_.]{2})[^-_.].*[^-_.]$/iu).test(value);
         }
     },
 
