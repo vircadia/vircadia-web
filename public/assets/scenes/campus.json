@@ -937,7 +937,7 @@
     "angularDamping": 0,
     "script": "TeleportController",
     "scriptTimestamp": 1661328755707,
-    "userData": "{\"destination\":\"wss://ua92-2.vircadia.com/0,50,0/0,0,0,1\"}",
+    "userData": "{\"destination\":\"wss://ua92-2.vircadia.com/0,58,0/0,0,0,1\"}",
     "color": {
         "red": 0,
         "green": 180,
