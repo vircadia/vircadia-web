@@ -119,6 +119,16 @@
                                     @click="disconnect()"
                                     :label="getDisconnectLabel"
                                 />
+                                <q-btn
+                                    v-show="getShowConnect"
+                                    dense
+                                    color="purple"
+                                    size="sm"
+                                    class="q-ml-sm absolute"
+                                    style="margin-top: -4px;"
+                                    @click="connectToLastAddress()"
+                                    label="Connect"
+                                />
                             </q-item-label>
                         </q-item-section>
                     </q-toolbar-title>
@@ -347,7 +357,8 @@ export default defineComponent({
                 }
             ],
             aMenuIsOpen: false,
-            defaultProductLogo: "assets/vircadia-icon.svg"
+            defaultProductLogo: "assets/vircadia-icon.svg",
+            lastConnectedDomain: undefined as string | undefined
         };
     },
 
@@ -387,6 +398,13 @@ export default defineComponent({
                 return this.$store.state.account.images.thumbnail;
             }
             return "account_circle";
+        },
+        getShowConnect: function() : boolean {
+            if (this.$store.state.domain.url && this.$store.state.domain.url.length > 0
+                    && this.$store.state.domain.connectionState === "DISCONNECTED" && this.lastConnectedDomain) {
+                return true;
+            }
+            return false;
         },
         getShowDisconnect: function() : boolean {
             if (this.$store.state.domain.url && this.$store.state.domain.url.length > 0
@@ -443,15 +461,22 @@ export default defineComponent({
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             await this.connectToAddress(this.locationInput);
         },
+        connectToLastAddress: async function() {
+            if (this.lastConnectedDomain) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                await this.connectToAddress(this.lastConnectedDomain);
+            }
+        },
         connectToAddress: async function(locationAddress: string) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            Log.info(Log.types.UI, `Connecting to...${locationAddress}`);
+            Log.info(Log.types.UI, `Connecting to... ${locationAddress}`);
             // eslint-disable-next-line @typescript-eslint/unbound-method
             await Utility.connectionSetup(locationAddress);
         },
 
         disconnect: async function() {
-            Log.info(Log.types.UI, `Disconnecting from to...${this.$store.state.avatar.location}`);
+            Log.info(Log.types.UI, `Disconnecting from... ${this.$store.state.avatar.location}`);
+            this.lastConnectedDomain = this.$store.state.avatar.location;
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             await Utility.disconnectActiveDomain();
         },
