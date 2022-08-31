@@ -50,10 +50,13 @@
                             :name="msgSender(msg)"
                             :stamp="msgTime(msg)"
                             text-color="white"
-                            bg-color="primary"
+                            :bg-color="msgIsFromThisClient(msg.senderId) ? 'primary' : 'grey-9'"
                         >
                             <template v-slot:avatar>
-                                <q-avatar color="primary" class="q-mr-xs">
+                                <q-avatar
+                                    :color="msgIsFromThisClient(msg.senderId) ? 'primary' : 'grey-9'"
+                                    class="q-mr-xs"
+                                >
                                     <img v-if="getProfilePicture(msgSender(msg))" :src="getProfilePicture(msgSender(msg))">
                                     <span v-else>{{ msgSender(msg).charAt(0) }}</span>
                                 </q-avatar>
@@ -94,6 +97,7 @@ import OverlayShell from "../OverlayShell.vue";
 
 import { AMessage, DomainMessage, FloofChatMessage } from "@Modules/domain/message";
 import { DomainMgr } from "@Modules/domain";
+import { Uuid } from "@vircadia/web-sdk";
 
 // import Log from "@Modules/debugging/log";
 
@@ -219,6 +223,15 @@ export default defineComponent({
         msgSentBySelf(pMsg: AMessage): boolean {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return pMsg.self ?? false;
+        },
+        msgIsFromThisClient(senderId: Uuid): boolean {
+            if (DomainMgr.ActiveDomain) {
+                const ID = DomainMgr.ActiveDomain.DomainClient?.sessionUUID;
+                if (ID?.value() === senderId?.value()) {
+                    return true;
+                }
+            }
+            return false;
         },
         submitMessage(): void {
             if (DomainMgr.ActiveDomain) {
