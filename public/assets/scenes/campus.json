@@ -469,10 +469,10 @@
     "isFacingAvatar": false
 },
     {
-    "id": "{8aa421f6-effd-4f5c-9631-b4c5f27a1953}",
+    "id": "{8aa421f6-effd-4f5c-9631-b4c5f27a1952}",
     "type": "Model",
     "lastEdited": 1661238408618093,
-    "name": "Elevator",
+    "name": "ElevatorRight",
     "position": {
         "x": 0,
         "y": 0,
@@ -516,7 +516,67 @@
     "angularDamping": 0,
     "collisionMask": 7,
     "collidesWith": "static,dynamic,kinematic,",
-    "modelURL": "https://staging.vircadia.com/O12OR634/UA92/Elevator.glb",
+    "modelURL": "https://staging.vircadia.com/O12OR634/UA92/ElevatorRight.glb",
+    "blendshapeCoefficients": "{\n}\n",
+    "useOriginalPivot": true,
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+{
+    "id": "{8aa421f6-effd-5f5c-9631-b4c5f27a1953}",
+    "type": "Model",
+    "lastEdited": 1661238408618093,
+    "name": "ElevatorLeft",
+    "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 3.563272476196289,
+        "y": 2.0460000038146973,
+        "z": 3.70428466796875
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "created": 1660184711659520,
+    "lastEditedBy": "{7b244ad2-a957-450f-a8af-a0715e308f9a}",
+    "queryAACube": {
+        "x": -1.661860466003418,
+        "y": -2.766077995300293,
+        "z": -2.766077995300293,
+        "scale": 5.532155990600586
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "collisionMask": 7,
+    "collidesWith": "static,dynamic,kinematic,",
+    "modelURL": "https://staging.vircadia.com/O12OR634/UA92/ElevatorLeft.glb",
     "blendshapeCoefficients": "{\n}\n",
     "useOriginalPivot": true,
     "animation": {
