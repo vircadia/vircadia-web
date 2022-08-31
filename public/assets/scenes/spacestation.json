@@ -136,7 +136,11 @@
         "shapeType": "static-mesh",
         "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/Inside_B_Elevator_b.glb",
         "useOriginalPivot": true,
-        "visible": true
+        "visible": true,
+        "animation": {
+            "running": true,
+            "loop": false
+        }
     },
     {
         "id": "{0426c281-c6b7-4d03-9a52-a0926e19ee2f}",
@@ -324,9 +328,6 @@
       "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Inside_Floor.glb",
       "blendshapeCoefficients": "{\n}\n",
       "useOriginalPivot": true,
-      "animation": {
-          "allowTranslation": false
-      },
       "clientOnly": false,
       "avatarEntity": false,
       "localEntity": false,
@@ -384,9 +385,6 @@
       "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_HDRI.glb",
       "blendshapeCoefficients": "{\n}\n",
       "useOriginalPivot": true,
-      "animation": {
-          "allowTranslation": false
-      },
       "clientOnly": false,
       "avatarEntity": false,
       "localEntity": false,
@@ -444,9 +442,6 @@
       "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Inside_Desk.glb",
       "blendshapeCoefficients": "{\n}\n",
       "useOriginalPivot": true,
-      "animation": {
-          "allowTranslation": false
-      },
       "clientOnly": false,
       "avatarEntity": false,
       "localEntity": false,
@@ -504,9 +499,6 @@
       "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Inside_Furniture.glb",
       "blendshapeCoefficients": "{\n}\n",
       "useOriginalPivot": true,
-      "animation": {
-          "allowTranslation": false
-      },
       "clientOnly": false,
       "avatarEntity": false,
       "localEntity": false,
@@ -563,9 +555,6 @@
       "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Inside_Light.glb",
       "blendshapeCoefficients": "{\n}\n",
       "useOriginalPivot": true,
-      "animation": {
-          "allowTranslation": false
-      },
       "clientOnly": false,
       "avatarEntity": false,
       "localEntity": false,
@@ -622,9 +611,6 @@
       "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Inside_Tableware.glb",
       "blendshapeCoefficients": "{\n}\n",
       "useOriginalPivot": true,
-      "animation": {
-          "allowTranslation": false
-      },
       "clientOnly": false,
       "avatarEntity": false,
       "localEntity": false,
@@ -681,9 +667,6 @@
       "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Light.glb",
       "blendshapeCoefficients": "{\n}\n",
       "useOriginalPivot": true,
-      "animation": {
-          "allowTranslation": false
-      },
       "clientOnly": false,
       "avatarEntity": false,
       "localEntity": false,
@@ -740,9 +723,6 @@
       "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Planet_A.glb",
       "blendshapeCoefficients": "{\n}\n",
       "useOriginalPivot": true,
-      "animation": {
-          "allowTranslation": false
-      },
       "clientOnly": false,
       "avatarEntity": false,
       "localEntity": false,
@@ -799,9 +779,6 @@
     "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Planet_B.glb",
     "blendshapeCoefficients": "{\n}\n",
     "useOriginalPivot": true,
-    "animation": {
-        "allowTranslation": false
-    },
     "clientOnly": false,
     "avatarEntity": false,
     "localEntity": false,
@@ -858,9 +835,6 @@
     "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Station_Body_01.glb",
     "blendshapeCoefficients": "{\n}\n",
     "useOriginalPivot": true,
-    "animation": {
-        "allowTranslation": false
-    },
     "clientOnly": false,
     "avatarEntity": false,
     "localEntity": false,
@@ -917,9 +891,6 @@
     "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Station_Body_02.glb",
     "blendshapeCoefficients": "{\n}\n",
     "useOriginalPivot": true,
-    "animation": {
-        "allowTranslation": false
-    },
     "clientOnly": false,
     "avatarEntity": false,
     "localEntity": false,
@@ -976,9 +947,6 @@
     "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Station_Station_Part.glb",
     "blendshapeCoefficients": "{\n}\n",
     "useOriginalPivot": true,
-    "animation": {
-        "allowTranslation": false
-    },
     "clientOnly": false,
     "avatarEntity": false,
     "localEntity": false,
@@ -1035,9 +1003,6 @@
     "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Stone.glb",
     "blendshapeCoefficients": "{\n}\n",
     "useOriginalPivot": true,
-    "animation": {
-        "allowTranslation": false
-    },
     "clientOnly": false,
     "avatarEntity": false,
     "localEntity": false,
@@ -1094,9 +1059,6 @@
     "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Ship.glb",
     "blendshapeCoefficients": "{\n}\n",
     "useOriginalPivot": true,
-    "animation": {
-        "allowTranslation": false
-    },
     "clientOnly": false,
     "avatarEntity": false,
     "localEntity": false,
