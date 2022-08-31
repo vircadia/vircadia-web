@@ -16,3 +16,4 @@ export { LightEntityBuilder } from "./LightEntityBuilder";
 export { ModelEntityBuilder } from "./ModelEntityBuilder";
 export { ZoneEntityBuilder } from "./ZoneEntityBuilder";
 export { ImageEntityBuilder } from "./ImageEntityBuilder";
+export { AssetUrl } from "./asset";
