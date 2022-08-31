@@ -11,6 +11,7 @@
 
 /* eslint-disable new-cap */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import Log from "@Modules/debugging/log";
 // Domain Modules
 import { inspector } from "@Modules/script";
@@ -18,15 +19,23 @@ import { Renderer, VScene } from "@Modules/scene";
 import { EntityScriptComponent } from "./EntityScript";
 import { Utility } from "@Modules/utility";
 
+import {
+    Vector3, Quaternion
+} from "@babylonjs/core";
+
 
 type ScriptParameters = {
     destination?: string | undefined,
+    enabledAfterTriggerExit?: boolean | undefined
 };
 
 
 export class TeleportController extends EntityScriptComponent {
     @inspector()
     _destination = "";
+
+    @inspector()
+    _isTelelportEnabled = true;
 
     private _vscene: VScene;
 
@@ -59,17 +68,58 @@ export class TeleportController extends EntityScriptComponent {
             } else {
                 Log.error(Log.types.ENTITIES, "No Teleport destination of TeleportController");
             }
+
+            if (param.enabledAfterTriggerExit) {
+                this._isTelelportEnabled = !param.enabledAfterTriggerExit;
+            }
         }
     }
 
     // eslint-disable-next-line class-methods-use-this
     public onTriggerEnter() : void {
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        Utility.connectionSetup(this._destination);
-        /*
-        if (this._vscene && this._destination.length > 0) {
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this._vscene.goToDomain(this._destination);
-        } */
+        Log.debug(Log.types.ENTITIES, "onTriggerEnter");
+        if (this._isTelelportEnabled) {
+            if (this._destination.includes("wss://") || this._destination.includes("ws://")) {
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                Utility.connectionSetup(this._destination);
+            } else {
+                const index1 = this._destination.indexOf("/");
+                let index2 = this._destination.lastIndexOf("/");
+                // prevent no quaternion string
+                index2 = index2 === index1 ? this._destination.length : index2;
+
+                let position = undefined;
+                let rotationQuat = undefined;
+                const posStr = this._destination.substring(index1 + 1, index2);
+                const vec3 = posStr.split(",").map((value) => Number(value));
+                if (vec3.length >= 3) {
+                    position = new Vector3(...vec3);
+                }
+
+                const orientStr = this._destination.substring(index2 + 1);
+                const vec4 = orientStr.split(",").map((value) => Number(value));
+                if (vec4.length >= 4) {
+                    rotationQuat = new Quaternion(...vec4);
+                }
+
+                const avatar = this._vscene.getMyAvatar();
+                if (avatar) {
+                    if (position) {
+                        avatar.position = position;
+                    }
+                    if (rotationQuat) {
+                        avatar.rotationQuaternion = rotationQuat;
+                    }
+                }
+            }
+        }
     }
+
+    // eslint-disable-next-line class-methods-use-this
+    public onTriggerExit() : void {
+        Log.debug(Log.types.ENTITIES, "onTriggerExit");
+
+        this._isTelelportEnabled = true;
+    }
+
 }

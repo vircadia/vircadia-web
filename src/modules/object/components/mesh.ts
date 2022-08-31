@@ -13,14 +13,15 @@
 import { GenericNodeComponent } from "../component";
 
 import {
-    AbstractMesh
+    AbstractMesh, AnimationGroup, Nullable
 } from "@babylonjs/core";
 
 /**
  * A mesh component.
  */
 export class MeshComponent extends GenericNodeComponent<AbstractMesh> {
-    protected _mesh: Nullable<AbstractMesh>;
+    protected _mesh: Nullable<AbstractMesh> = null;
+    protected _animationGroups: Nullable<AnimationGroup[]> = null;
 
     public get mesh(): Nullable<AbstractMesh> {
         return this._mesh;
@@ -29,6 +30,14 @@ export class MeshComponent extends GenericNodeComponent<AbstractMesh> {
     public set mesh(value: Nullable<AbstractMesh>) {
         this._mesh = value;
         this.node = value;
+    }
+
+    public get animationGroups(): Nullable<AnimationGroup[]> {
+        return this._animationGroups;
+    }
+
+    public set animationGroups(value: Nullable<AnimationGroup[]>) {
+        this._animationGroups = value;
     }
 
     public set node(value: Nullable<AbstractMesh>) {
