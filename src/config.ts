@@ -38,6 +38,10 @@ export const DefaultConfig: { [key: string]: string } = {
     "Default_Domain_Port": "40102"
 };
 
+export const CAMPUS_URL = "wss://ua92-1.vircadia.com/25,1,30/0,0,0,1";
+export const SPACE_STATION_URL = "wss://ua92-2.vircadia.com/0,58,0/0,0,0,1";
+export const DEFAULT_DOMAIN_URL = CAMPUS_URL;
+
 export const Config = {
     // Entries can be prefixed with a qualifier.
     // This is often the account name to allow multiple accounts on one computer
