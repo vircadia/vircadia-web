@@ -47,8 +47,8 @@ export class VScene {
     _scene: Scene;
     _preScene: Nullable<Scene> = null;
     _myAvatar: Nullable<GameObject> = null;
-    _myAvatarSpwanPosition:Vector3 = Vector3.Zero();
-    _myAvatarSpwanOrientation:Quaternion = Quaternion.Identity();
+    _myAvatarSpawnPosition:Vector3 = Vector3.Zero();
+    _myAvatarSpawnOrientation:Quaternion = Quaternion.Identity();
 
     _avatarList : Map<string, GameObject>;
     _camera : Nullable<Camera> = null;
@@ -125,8 +125,8 @@ export class VScene {
             this._myAvatar.position = avatarPos ?? new Vector3(0, 1, 0);
             this._myAvatar.rotationQuaternion = avatarQuat ?? Quaternion.Identity();
 
-            this._myAvatarSpwanPosition = this._myAvatar.position.clone();
-            this._myAvatarSpwanOrientation = this._myAvatar.rotationQuaternion.clone();
+            this._myAvatarSpawnPosition = this._myAvatar.position.clone();
+            this._myAvatarSpawnOrientation = this._myAvatar.rotationQuaternion.clone();
         }
 
         if (sceneUrl) {
@@ -152,8 +152,14 @@ export class VScene {
 
     public resetMyAvatarPositionAndOrientation() : void {
         if (this._myAvatar) {
-            this._myAvatar.position = this._myAvatarSpwanPosition.clone();
-            this._myAvatar.rotationQuaternion = this._myAvatarSpwanOrientation.clone();
+            this._myAvatar.position = this._myAvatarSpawnPosition.clone();
+            this._myAvatar.rotationQuaternion = this._myAvatarSpawnOrientation.clone();
+        }
+    }
+
+    public setMyAvatarPosition(position: Vector3) : void {
+        if (this._myAvatar) {
+            this._myAvatar.position = position;
         }
     }
 
@@ -174,7 +180,7 @@ export class VScene {
         const entityDescription = json as IEntityDescription;
         Log.info(Log.types.ENTITIES, `Load Entities from ${url}`);
         Log.info(Log.types.ENTITIES,
-            `DataVersion: ${entityDescription.DataVersion} 
+            `DataVersion: ${entityDescription.DataVersion}
              Id: ${entityDescription.Id}
              Version: ${entityDescription.Version}`);
 
@@ -267,6 +273,7 @@ export class VScene {
             if (prevMyAvatarInterface) {
                 myAvatarController.myAvatar = prevMyAvatarInterface;
             }
+            myAvatarController.skeletonModelURL = modelURL;
 
             if (this._camera) {
                 this._camera.parent = this._myAvatar;
