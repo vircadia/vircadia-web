@@ -11,6 +11,7 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable class-methods-use-this */
 
 import { AnimationGroup, Engine, Scene,
     ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, Camera, Observable } from "@babylonjs/core";
@@ -25,6 +26,8 @@ import { ScriptComponent, requireScript, requireScripts, reattachScript } from "
 import { AvatarController, MyAvatarController, ScriptAvatarController } from "@Modules/avatar";
 import { IEntity, IEntityDescription, EntityBuilder } from "@Modules/entity";
 import { ScriptAvatar } from "@vircadia/web-sdk";
+import { CAMPUS_URL, SPACE_STATION_URL } from "@Base/config";
+import { Utility } from "@Modules/utility";
 
 // General Modules
 import Log from "@Modules/debugging/log";
@@ -215,17 +218,17 @@ export class VScene {
         Log.info(Log.types.ENTITIES, `Go to domain: ${dest}`);
         const domain = dest.toLocaleUpperCase();
         if (domain.includes("campus")) {
-            await this.loadSceneUA92Campus();
+            await Utility.connectionSetup(CAMPUS_URL);
         } else {
-            await this.loadSceneSpaceStation();
+            await Utility.connectionSetup(SPACE_STATION_URL);
         }
     }
 
     public async switchDomain(): Promise<void> {
         if (this._currentDomain === "Campus") {
-            await this.loadSceneSpaceStation();
+            await Utility.connectionSetup(SPACE_STATION_URL);
         } else {
-            await this.loadSceneUA92Campus();
+            await Utility.connectionSetup(CAMPUS_URL);
         }
     }
 
