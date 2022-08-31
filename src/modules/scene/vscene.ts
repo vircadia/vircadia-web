@@ -197,7 +197,7 @@ export class VScene {
         this._currentDomain = "SpaceStation";
 
         await this.load("/assets/scenes/spacestation.json",
-            new Vector3(0, 50, 0));
+            new Vector3(0, 58, 0));
     }
 
     public async loadSceneUA92Campus(): Promise<void> {
