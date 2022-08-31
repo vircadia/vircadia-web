@@ -116,6 +116,18 @@ export interface IRectProperty {
     height: number;
 }
 
+export interface IAnimationProperties {
+    url?: string | undefined;
+    allowTranslation?: boolean | undefined;
+    fps?: number | undefined;
+    firstFrame?: number | undefined;
+    lastFrame?: number | undefined;
+    currentFrame?: number | undefined;
+    running?: boolean | undefined;
+    loop?: boolean | undefined;
+    hold?: boolean | undefined;
+}
+
 export interface ISpatialProperties {
     position?: IVector3Property | undefined;
     rotation?: IQuaternionProperty | undefined;
@@ -141,7 +153,9 @@ export interface IShapeProperties {
 
 export interface IModelEProperties {
     modelURL: string | undefined;
-    shapeType: string | undefined;
+    modelScale?: IVector3Property;
+    shapeType?: string | undefined;
+    animation?: IAnimationProperties | undefined;
 }
 
 export interface ILightProperties {
