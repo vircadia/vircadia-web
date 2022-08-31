@@ -52,7 +52,7 @@
                             title="Display name"
                             class="text-h5 text-left q-pl-md q-mt-md q-mb-sm cursor-pointer"
                         >
-                            {{ displayName }}
+                            {{ displayNameStore }}
                             <q-icon
                                 title="Edit display name"
                                 v-ripple
@@ -191,6 +191,7 @@ import { defineComponent } from "vue";
 import OverlayShell from "../OverlayShell.vue";
 import { Renderer } from "@Modules/scene";
 import { MyAvatarController } from "@Modules/avatar";
+import { saveLocalValue } from "@Modules/localStorage";
 
 import Log from "@Modules/debugging/log";
 
@@ -244,6 +245,7 @@ export default defineComponent({
                 if (avatarController) {
                     avatarController.displayName = pVal;
                 }
+                saveLocalValue("displayName", pVal);
             }
         }
     },
