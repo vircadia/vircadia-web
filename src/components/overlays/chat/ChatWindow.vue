@@ -37,21 +37,26 @@
             style="background: transparent; box-shadow: none;"
         >
             <q-scroll-area
+                ref="listOfChats"
                 class="col"
                 style="height: 100%"
+                @scroll="scrollToLatestMessage"
             >
                 <q-card-section class="q-pt-none">
                     <div v-for="msg in $store.state.messages.messages" :key="msg.whenReceived">
                         <q-chat-message
                             :text="[ msgText(msg) ]"
-                            :sent="msgSentBySelf(msg)"
-                            :name="msgSender(msg)"
+                            :sent="msgIsFromThisClient(msg.senderId)"
+                            :name="msgIsFromThisClient(msg.senderId) ? `${msgSender(msg)} (you)` : msgSender(msg)"
                             :stamp="msgTime(msg)"
                             text-color="white"
-                            bg-color="primary"
+                            :bg-color="msgIsFromThisClient(msg.senderId) ? 'primary' : 'grey-9'"
                         >
                             <template v-slot:avatar>
-                                <q-avatar color="primary">
+                                <q-avatar
+                                    :color="msgIsFromThisClient(msg.senderId) ? 'primary' : 'grey-9'"
+                                    class="q-mx-xs"
+                                >
                                     <img v-if="getProfilePicture(msgSender(msg))" :src="getProfilePicture(msgSender(msg))">
                                     <span v-else>{{ msgSender(msg).charAt(0) }}</span>
                                 </q-avatar>
@@ -87,12 +92,12 @@
 </template>
 
 <script lang="ts">
-
 import { defineComponent } from "vue";
 import OverlayShell from "../OverlayShell.vue";
 
 import { AMessage, DomainMessage, FloofChatMessage } from "@Modules/domain/message";
 import { DomainMgr } from "@Modules/domain";
+import { Uuid } from "@vircadia/web-sdk";
 
 // import Log from "@Modules/debugging/log";
 
@@ -144,7 +149,10 @@ export default defineComponent({
                 timestamp: new Date().toString(),
                 message: "you know the life."
             }
-        ]
+        ],
+
+        previousScrollPos: 0,
+        scrollIsAtBottom: true
     }),
 
     computed: {
@@ -216,6 +224,15 @@ export default defineComponent({
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return pMsg.self ?? false;
         },
+        msgIsFromThisClient(senderId: Uuid): boolean {
+            if (DomainMgr.ActiveDomain) {
+                const ID = DomainMgr.ActiveDomain.DomainClient?.sessionUUID;
+                if (ID?.value() === senderId?.value()) {
+                    return true;
+                }
+            }
+            return false;
+        },
         submitMessage(): void {
             if (DomainMgr.ActiveDomain) {
                 const msger = DomainMgr.ActiveDomain.MessageClient;
@@ -231,15 +248,48 @@ export default defineComponent({
                     msger.sendMessage(DomainMessage.DefaultChatChannel, JSON.stringify(msg));
                     // clear the input field
                     this.messageInput = "";
+                    // Scroll to the bottom of the mesage window.
+                    this.scrollToBottom(false);
                 }
             }
+        },
+        scrollToLatestMessage({ verticalPosition }: { verticalPosition: number }, smooth = true): void {
+            const listOfChats = this.$refs.listOfChats as { $el: HTMLElement };
+            const scrollElem = listOfChats.$el.querySelector(".scroll") as HTMLElement;
+            const scrollHeight = scrollElem.scrollHeight;
+            const scrollMargin = 20;
+            // A new message will trigger the scroll event without changing the scroll position.
+            const newMessage = verticalPosition === this.previousScrollPos;
+            if (newMessage) {
+                if (newMessage && this.scrollIsAtBottom) {
+                    scrollElem.scrollTo({
+                        top: scrollHeight,
+                        left: 0,
+                        behavior: smooth ? "smooth" : "auto"
+                    });
+                }
+            } else if (verticalPosition < scrollHeight - scrollElem.clientHeight - scrollMargin) {
+                this.scrollIsAtBottom = false;
+            } else {
+                this.scrollIsAtBottom = true;
+            }
+            this.previousScrollPos = verticalPosition;
+        },
+        scrollToBottom(smooth = true): void {
+            const listOfChats = this.$refs.listOfChats as { $el: HTMLElement };
+            const scrollElem = listOfChats.$el.querySelector(".scroll") as HTMLElement;
+            const scrollHeight = scrollElem.scrollHeight;
+            scrollElem.scrollTo({
+                top: scrollHeight,
+                left: 0,
+                behavior: smooth ? "smooth" : "auto"
+            });
+            this.scrollIsAtBottom = true;
         }
+    },
+
+    mounted() {
+        this.scrollToBottom(false);
     }
-
-    // created: function() {
-    // }
-
-    // mounted: function () {
-    // }
 });
 </script>

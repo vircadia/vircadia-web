@@ -60,7 +60,7 @@
                                         v-model="avaInfo.volume"
                                         :min="0"
                                         :max="100"
-                                        step="10"
+                                        :step="10"
                                         snap
                                         :color="avaInfo.muted || avaInfo.volume === 0 ? 'red' : 'primary'"
                                         style="width: calc(100% - 48px);"
