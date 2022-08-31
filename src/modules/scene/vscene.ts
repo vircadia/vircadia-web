@@ -13,8 +13,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
 import { AnimationGroup, Engine, Scene,
-    ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, StandardMaterial,
-    Mesh, Camera } from "@babylonjs/core";
+    ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, Camera, Observable } from "@babylonjs/core";
 
 import { Quaternion, Vector3 } from "@babylonjs/core/Maths/math";
 import "@babylonjs/loaders/glTF";
@@ -59,6 +58,11 @@ export class VScene {
     _domainController : Nullable<DomainController> = null;
     _sceneManager : Nullable<GameObject> = null;
     _currentDomain: DomainName = "Campus";
+    private _myAvatarModelChangedObservable: Observable<GameObject> = new Observable<GameObject>();
+
+    public get myAvatarModelChangedObservable(): Observable<GameObject> {
+        return this._myAvatarModelChangedObservable;
+    }
 
     constructor(pEngine: Engine, pSceneId = 0) {
         if (process.env.NODE_ENV === "development") {
@@ -279,6 +283,7 @@ export class VScene {
                 this._camera.parent = this._myAvatar;
             }
 
+            this._myAvatarModelChangedObservable.notifyObservers(this._myAvatar);
         }
 
         return this._myAvatar;

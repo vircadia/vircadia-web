@@ -73,6 +73,10 @@ export class TeleportController extends EntityScriptComponent {
                 this._isTelelportEnabled = !param.enabledAfterTriggerExit;
             }
         }
+
+        this._vscene.myAvatarModelChangedObservable.add((myAvatar) => {
+            this.triggerTarget = myAvatar;
+        });
     }
 
     // eslint-disable-next-line class-methods-use-this
@@ -112,6 +116,7 @@ export class TeleportController extends EntityScriptComponent {
                     }
                 }
             }
+            this._isTelelportEnabled = false;
         }
     }
 
