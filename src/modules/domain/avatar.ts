@@ -63,7 +63,7 @@ export class DomainAvatar extends Client {
     // Return the state of the underlying assignment client
     public get clientState(): AssignmentClientState { return this.#_avaMixer?.state ?? AssignmentClientState.DISCONNECTED; }
 
-    // Called piriodically to update avatar information
+    // Called periodically to update avatar information
     public update(): void {
         if (this.#_avaMixer) {
             this.#_avaMixer.update();

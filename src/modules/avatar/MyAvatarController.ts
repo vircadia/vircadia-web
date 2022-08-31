@@ -26,27 +26,32 @@ import { JointNames } from "./joint";
 export class MyAvatarController extends ScriptComponent {
     private _myAvatar : Nullable<MyAvatarInterface> = null;
     private _skeletonNodes: Map<string, TransformNode> = new Map<string, TransformNode>();
+    private _modelURL : string | undefined;
 
     constructor() {
         super("MyAvatarController");
     }
 
     @inspectorAccessor()
-    public get skeletonModelURL() : string {
-        return this._myAvatar ? this._myAvatar.skeletonModelURL : "";
+    public get skeletonModelURL() : string | undefined {
+        return this._modelURL;
     }
 
-    public set skeletonModelURL(value:string) {
-        if (this._myAvatar) {
+    public set skeletonModelURL(value:string | undefined) {
+        this._modelURL = value;
+        if (this._myAvatar && value) {
             this._myAvatar.skeletonModelURL = value;
         }
     }
 
     public set myAvatar(avatar : Nullable<MyAvatarInterface>) {
         this._myAvatar = avatar;
-
         if (!this._gameObject || !this._myAvatar) {
             return;
+        }
+
+        if (this._modelURL) {
+            this._myAvatar.skeletonModelURL = this._modelURL;
         }
 
         this._myAvatar.scale = AvatarMapper.mapToDomainScale(this._gameObject.scaling);
