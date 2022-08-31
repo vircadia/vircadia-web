@@ -1119,6 +1119,40 @@
       "localEntity": false,
       "faceCamera": false,
       "isFacingAvatar": false
+  },
+  {
+      "id": "{787606b0-f9a5-4465-bae9-dfb5ba79e724}",
+      "type": "Box",
+      "lastEdited": 1661327090098367,
+      "visible": false,
+      "name": "Campus_Teleporter",
+      "position": {
+          "x": 0,
+          "y": 58,
+          "z": 0
+      },
+      "dimensions": {
+          "x": 1.00000000298023224,
+          "y": 1.20000000298023224,
+          "z": 1.00000000298023224
+      },
+      "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+      },
+      "created": 1661326683257241,
+      "lastEditedBy": "{6b2e59d2-1d1a-42f5-a1dc-42899b1dbe6f}",
+      "script": "TeleportController",
+      "scriptTimestamp": 1661328755707,
+      "userData": "{\"destination\":\"wss://ua92-1.vircadia.com/25,1,30/0,0,0,1\", \"enabledAfterTriggerExit\":\"true\"}",
+      "color": {
+          "red": 0,
+          "green": 180,
+          "blue": 239
+      },
+      "shape": "Cube"
   }
   ],
     "Id": "{91449683-665f-487b-985b-30a7846b5ccc}",
