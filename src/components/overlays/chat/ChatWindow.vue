@@ -46,8 +46,8 @@
                     <div v-for="msg in $store.state.messages.messages" :key="msg.whenReceived">
                         <q-chat-message
                             :text="[ msgText(msg) ]"
-                            :sent="msgSentBySelf(msg)"
-                            :name="msgSender(msg)"
+                            :sent="msgIsFromThisClient(msg.senderId)"
+                            :name="msgIsFromThisClient(msg.senderId) ? `${msgSender(msg)} (you)` : msgSender(msg)"
                             :stamp="msgTime(msg)"
                             text-color="white"
                             :bg-color="msgIsFromThisClient(msg.senderId) ? 'primary' : 'grey-9'"
@@ -55,7 +55,7 @@
                             <template v-slot:avatar>
                                 <q-avatar
                                     :color="msgIsFromThisClient(msg.senderId) ? 'primary' : 'grey-9'"
-                                    class="q-mr-xs"
+                                    class="q-mx-xs"
                                 >
                                     <img v-if="getProfilePicture(msgSender(msg))" :src="getProfilePicture(msgSender(msg))">
                                     <span v-else>{{ msgSender(msg).charAt(0) }}</span>
