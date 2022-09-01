@@ -297,6 +297,8 @@ import { Utility } from "@Modules/utility";
 import { Account } from "@Modules/account";
 import { AudioMgr } from "@Modules/scene/audio";
 import { Renderer } from "@Modules/scene";
+import { MyAvatarController } from "@Modules/avatar";
+import { loadLocalValue } from "@Modules/localStorage";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
@@ -555,6 +557,24 @@ export default defineComponent({
             const scene = Renderer.getScene();
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             scene.switchDomain();
+        },
+
+        loadUserSettingsFromLocal(): void {
+            // Display name.
+            const displayName = loadLocalValue("displayName");
+            if (displayName) {
+                this.$store.commit(StoreMutations.MUTATE, {
+                    property: "avatar.displayName",
+                    value: displayName
+                });
+                const scene = Renderer.getScene();
+                const avatarController = scene._myAvatar?.getComponent(MyAvatarController.typeName) as MyAvatarController;
+                if (avatarController) {
+                    avatarController.displayName = displayName;
+                }
+            }
+
+            // Avatar model.
         }
     },
     mounted: async function() {
@@ -570,6 +590,15 @@ export default defineComponent({
         (this.$refs.OverlayManager as typeof OverlayManager).openOverlay("menu");
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
         (this.$refs.OverlayManager as typeof OverlayManager).openOverlay("chatwindow");
+
+        // Wait 10 seconds for the domain auto-connect to happen before loading settings from local storage.
+        // This is a bad solution as it will fail on slow connections.
+        // Should be replaced with some kind of listener that can react to the domain connection.
+        window.setTimeout(() => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            this.loadUserSettingsFromLocal();
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        }, 10000);
     }
 });
 </script>
