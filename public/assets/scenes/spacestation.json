@@ -136,7 +136,11 @@
         "shapeType": "static-mesh",
         "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/Inside_B_Elevator_b.glb",
         "useOriginalPivot": true,
-        "visible": true
+        "visible": true,
+        "animation": {
+            "running": true,
+            "loop": false
+        }
     },
     {
         "id": "{0426c281-c6b7-4d03-9a52-a0926e19ee2f}",
@@ -324,9 +328,6 @@
       "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Inside_Floor.glb",
       "blendshapeCoefficients": "{\n}\n",
       "useOriginalPivot": true,
-      "animation": {
-          "allowTranslation": false
-      },
       "clientOnly": false,
       "avatarEntity": false,
       "localEntity": false,
@@ -384,9 +385,6 @@
       "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_HDRI.glb",
       "blendshapeCoefficients": "{\n}\n",
       "useOriginalPivot": true,
-      "animation": {
-          "allowTranslation": false
-      },
       "clientOnly": false,
       "avatarEntity": false,
       "localEntity": false,
@@ -444,9 +442,6 @@
       "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Inside_Desk.glb",
       "blendshapeCoefficients": "{\n}\n",
       "useOriginalPivot": true,
-      "animation": {
-          "allowTranslation": false
-      },
       "clientOnly": false,
       "avatarEntity": false,
       "localEntity": false,
@@ -504,9 +499,6 @@
       "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Inside_Furniture.glb",
       "blendshapeCoefficients": "{\n}\n",
       "useOriginalPivot": true,
-      "animation": {
-          "allowTranslation": false
-      },
       "clientOnly": false,
       "avatarEntity": false,
       "localEntity": false,
@@ -563,9 +555,6 @@
       "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Inside_Light.glb",
       "blendshapeCoefficients": "{\n}\n",
       "useOriginalPivot": true,
-      "animation": {
-          "allowTranslation": false
-      },
       "clientOnly": false,
       "avatarEntity": false,
       "localEntity": false,
@@ -622,9 +611,6 @@
       "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Inside_Tableware.glb",
       "blendshapeCoefficients": "{\n}\n",
       "useOriginalPivot": true,
-      "animation": {
-          "allowTranslation": false
-      },
       "clientOnly": false,
       "avatarEntity": false,
       "localEntity": false,
@@ -681,9 +667,6 @@
       "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Light.glb",
       "blendshapeCoefficients": "{\n}\n",
       "useOriginalPivot": true,
-      "animation": {
-          "allowTranslation": false
-      },
       "clientOnly": false,
       "avatarEntity": false,
       "localEntity": false,
@@ -740,9 +723,6 @@
       "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Planet_A.glb",
       "blendshapeCoefficients": "{\n}\n",
       "useOriginalPivot": true,
-      "animation": {
-          "allowTranslation": false
-      },
       "clientOnly": false,
       "avatarEntity": false,
       "localEntity": false,
@@ -799,9 +779,6 @@
     "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Planet_B.glb",
     "blendshapeCoefficients": "{\n}\n",
     "useOriginalPivot": true,
-    "animation": {
-        "allowTranslation": false
-    },
     "clientOnly": false,
     "avatarEntity": false,
     "localEntity": false,
@@ -858,9 +835,6 @@
     "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Station_Body_01.glb",
     "blendshapeCoefficients": "{\n}\n",
     "useOriginalPivot": true,
-    "animation": {
-        "allowTranslation": false
-    },
     "clientOnly": false,
     "avatarEntity": false,
     "localEntity": false,
@@ -917,9 +891,6 @@
     "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Station_Body_02.glb",
     "blendshapeCoefficients": "{\n}\n",
     "useOriginalPivot": true,
-    "animation": {
-        "allowTranslation": false
-    },
     "clientOnly": false,
     "avatarEntity": false,
     "localEntity": false,
@@ -976,9 +947,6 @@
     "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Station_Station_Part.glb",
     "blendshapeCoefficients": "{\n}\n",
     "useOriginalPivot": true,
-    "animation": {
-        "allowTranslation": false
-    },
     "clientOnly": false,
     "avatarEntity": false,
     "localEntity": false,
@@ -1035,9 +1003,6 @@
     "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Stone.glb",
     "blendshapeCoefficients": "{\n}\n",
     "useOriginalPivot": true,
-    "animation": {
-        "allowTranslation": false
-    },
     "clientOnly": false,
     "avatarEntity": false,
     "localEntity": false,
@@ -1094,9 +1059,6 @@
     "modelURL": "https://staging.vircadia.com/O12OR634/SpaceStation/SpaceStation_Ship.glb",
     "blendshapeCoefficients": "{\n}\n",
     "useOriginalPivot": true,
-    "animation": {
-        "allowTranslation": false
-    },
     "clientOnly": false,
     "avatarEntity": false,
     "localEntity": false,
@@ -1157,6 +1119,176 @@
       "localEntity": false,
       "faceCamera": false,
       "isFacingAvatar": false
+  },
+  {
+      "id": "{787606b0-f9a5-4465-bae9-dfb5ba79e724}",
+      "type": "Box",
+      "lastEdited": 1661327090098367,
+      "visible": false,
+      "name": "Campus_Teleporter",
+      "position": {
+          "x": 0,
+          "y": 58,
+          "z": 0
+      },
+      "dimensions": {
+          "x": 1.00000000298023224,
+          "y": 1.20000000298023224,
+          "z": 1.00000000298023224
+      },
+      "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+      },
+      "created": 1661326683257241,
+      "lastEditedBy": "{6b2e59d2-1d1a-42f5-a1dc-42899b1dbe6f}",
+      "script": "TeleportController",
+      "scriptTimestamp": 1661328755707,
+      "userData": "{\"destination\":\"wss://ua92-1.vircadia.com/25,1,30/0,0,0,1\", \"enabledAfterTriggerExit\":\"true\"}",
+      "color": {
+          "red": 0,
+          "green": 180,
+          "blue": 239
+      },
+      "shape": "Cube"
+  },
+  {
+      "id": "{986606b0-f9a5-4465-bae9-dfb5ba79e724}",
+      "type": "Box",
+      "lastEdited": 1661327090098367,
+      "visible": false,
+      "name": "Floor1_Teleporter_1",
+      "position": {
+          "x": 0.2,
+          "y": 58,
+          "z": -15.5
+      },
+      "dimensions": {
+          "x": 1.00000000298023224,
+          "y": 1.20000000298023224,
+          "z": 1.00000000298023224
+      },
+      "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+      },
+      "created": 1661326683257241,
+      "lastEditedBy": "{6b2e59d2-1d1a-42f5-a1dc-42899b1dbe6f}",
+      "script": "TeleportController",
+      "scriptTimestamp": 1661328755707,
+      "userData": "{\"destination\":\"/-3,50,-15/0,0,0,1\"}",
+      "color": {
+          "red": 0,
+          "green": 180,
+          "blue": 239
+      },
+      "shape": "Cube"
+  },
+  {
+      "id": "{986606b0-f9a5-4466-bae0-dfb5ba79e724}",
+      "type": "Box",
+      "lastEdited": 1661327090098367,
+      "visible": false,
+      "name": "Floor1_Teleporter_2",
+      "position": {
+          "x": 0,
+          "y": 58,
+          "z": 15
+      },
+      "dimensions": {
+          "x": 1.00000000298023224,
+          "y": 1.20000000298023224,
+          "z": 1.00000000298023224
+      },
+      "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+      },
+      "created": 1661326683257241,
+      "lastEditedBy": "{6b2e59d2-1d1a-42f5-a1dc-42899b1dbe6f}",
+      "script": "TeleportController",
+      "scriptTimestamp": 1661328755707,
+      "userData": "{\"destination\":\"/3,50,15/0,0,0,1\"}",
+      "color": {
+          "red": 0,
+          "green": 180,
+          "blue": 239
+      },
+      "shape": "Cube"
+  },
+  {
+      "id": "{976606b0-f9a5-4466-bae0-efb5ba79e724}",
+      "type": "Box",
+      "lastEdited": 1661327090098367,
+      "visible": false,
+      "name": "Floor2_Teleporter_1",
+      "position": {
+          "x": 3,
+          "y": 50.5,
+          "z": -17
+      },
+      "dimensions": {
+          "x": 1.00000000298023224,
+          "y": 1.20000000298023224,
+          "z": 1.00000000298023224
+      },
+      "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+      },
+      "created": 1661326683257241,
+      "lastEditedBy": "{6b2e59d2-1d1a-42f5-a1dc-42899b1dbe6f}",
+      "script": "TeleportController",
+      "scriptTimestamp": 1661328755707,
+      "userData": "{\"destination\":\"/0,58,-17/0,0,0,1\"}",
+      "color": {
+          "red": 0,
+          "green": 180,
+          "blue": 239
+      },
+      "shape": "Cube"
+  },
+  {
+      "id": "{976616b0-f9a5-4466-bae0-efa5ba79e724}",
+      "type": "Box",
+      "lastEdited": 1661327090098367,
+      "visible": false,
+      "name": "Floor2_Teleporter_2",
+      "position": {
+          "x": -3,
+          "y": 50.5,
+          "z": 17
+      },
+      "dimensions": {
+          "x": 1.00000000298023224,
+          "y": 1.20000000298023224,
+          "z": 1.00000000298023224
+      },
+      "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 1
+      },
+      "created": 1661326683257241,
+      "lastEditedBy": "{6b2e59d2-1d1a-42f5-a1dc-42899b1dbe6f}",
+      "script": "TeleportController",
+      "scriptTimestamp": 1661328755707,
+      "userData": "{\"destination\":\"/0,58,17/0,0,0,1\"}",
+      "color": {
+          "red": 0,
+          "green": 180,
+          "blue": 239
+      },
+      "shape": "Cube"
   }
   ],
     "Id": "{91449683-665f-487b-985b-30a7846b5ccc}",

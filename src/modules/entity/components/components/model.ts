@@ -44,15 +44,27 @@ export class ModelComponent extends MeshComponent {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         SceneLoader.ImportMeshAsync("", entity.modelURL, undefined, this._gameObject.getScene())
             .then((result) => {
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const meshes = result.meshes;
                 this.mesh = meshes[0];
+
+                if (entity.animation && result.animationGroups.length > 0) {
+                    this.animationGroups = result.animationGroups;
+                    const anim = result.animationGroups[0];
+                    // stop all defaul animations
+                    anim.stop();
+
+                    if (entity.animation.running) {
+                        anim.start(entity.animation.loop, 1, entity.animation.currentFrame);
+                    }
+                }
 
                 if (entity.visible !== undefined) {
                     this.visible = entity.visible;
                 }
 
                 this._updateCollisionProperties(meshes, entity);
+
+                Log.debug(Log.types.ENTITIES, `ModelComponent model ${entity.modelURL as string} loaded`);
 
             })
             // eslint-disable-next-line @typescript-eslint/dot-notation
