@@ -39,8 +39,8 @@
             >
                 <div class="row q-mb-md q-px-md">
                     <q-img
-                        v-if="!!(getActiveModelData('image'))"
-                        :src="getActiveModelData('image')"
+                        v-if="!!(AvatarStoreInterface.getActiveModelData('image'))"
+                        :src="AvatarStoreInterface.getActiveModelData('image')"
                         :draggable="false"
                         width="100px"
                         height="100px"
@@ -81,7 +81,7 @@
                                     dense
                                     autofocus
                                     counter
-                                    :color="validateDisplayName(scope.value) ? 'primary' : 'negative'"
+                                    :color="AvatarStoreInterface.validateDisplayName(scope.value) ? 'primary' : 'negative'"
                                     @keyup.enter="scope.set"
                                 />
                             </q-popup-edit>
@@ -94,27 +94,28 @@
                                     dense
                                     fab-mini
                                     ripple
-                                    :icon="getActiveModelData('starred') ? 'star' : 'star_outline'"
-                                    :text-color="getActiveModelData('starred') ? 'yellow' : $q.dark.isActive ? 'white' : 'dark'"
+                                    :icon="AvatarStoreInterface.getActiveModelData('starred') ? 'star' : 'star_outline'"
+                                    :text-color="AvatarStoreInterface.getActiveModelData('starred') ?
+                                        'yellow' : $q.dark.isActive ? 'white' : 'dark'"
                                     title="Favorite"
                                     @click.stop="
-                                        setActiveModelData(
+                                        AvatarStoreInterface.setActiveModelData(
                                             'starred',
-                                            !getActiveModelData('starred')
+                                            !AvatarStoreInterface.getActiveModelData('starred')
                                         )
                                     "
                                 />
                             </div>
                             <div class="col">
                                 <p class="text-subtitle1 q-mb-none">
-                                    {{ getActiveModelData('name') }}
+                                    {{ AvatarStoreInterface.getActiveModelData('name') }}
                                 </p>
                                 <div
-                                    :title="getActiveModelData('file')"
+                                    :title="AvatarStoreInterface.getActiveModelData('file')"
                                     class="text-caption ellipsis q-mb-xs"
                                     style="max-width: 27ch;"
                                 >
-                                    {{ getActiveModelData('file') }}
+                                    {{ AvatarStoreInterface.getActiveModelData('file') }}
                                 </div>
                             </div>
                         </div>
@@ -161,7 +162,7 @@
                                     :icon="avatar.starred ? 'star' : 'star_outline'"
                                     :text-color="avatar.starred ? 'yellow' : $q.dark.isActive ? 'white' : 'dark'"
                                     title="Favorite"
-                                    @click.stop="setModelData(id, 'starred', !avatar.starred)"
+                                    @click.stop="AvatarStoreInterface.setModelData(id, 'starred', !avatar.starred)"
                                 />
                             </q-item-section>
                         </q-item>
@@ -199,9 +200,9 @@
 import { defineComponent } from "vue";
 
 import OverlayShell from "../OverlayShell.vue";
-import { Mutations as StoreMutations } from "@Store/index";
 import { Renderer } from "@Modules/scene";
 import { MyAvatarController } from "@Modules/avatar";
+import { AvatarStoreInterface } from "@Modules/avatar/StoreInterface";
 import { saveLocalValue } from "@Modules/localStorage";
 
 import Log from "@Modules/debugging/log";
@@ -226,8 +227,11 @@ export default defineComponent({
         OverlayShell
     },
 
-    data: () => ({
-    }),
+    data() {
+        return {
+            AvatarStoreInterface
+        };
+    },
 
     computed: {
         displayNameStore: {
@@ -247,45 +251,11 @@ export default defineComponent({
     },
 
     methods: {
-        getActiveModelData(key: keyof AvatarEntry): string | number | boolean | undefined {
-            const models = this.$store.state.avatar.models as { [key: string]: AvatarEntry };
-            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-            const activeModel = this.$store.state.avatar.activeModel as string;
-            if (activeModel in models) {
-                const model = models[activeModel];
-                return model[key];
-            }
-            return undefined;
-        },
-        getModelData(modelId: string, key?: keyof AvatarEntry): AvatarEntry | string | number | boolean {
-            const models = this.$store.state.avatar.models as { [key: string]: AvatarEntry };
-            if (key && key in models[modelId]) {
-                return models[modelId][key];
-            }
-            return models[modelId];
-        },
-        setActiveModelData(key: keyof AvatarEntry, value: string | number | boolean): void {
-            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-            const activeModel = this.$store.state.avatar.activeModel as string;
-            this.$store.commit(StoreMutations.MUTATE, {
-                property: `avatar.models.${activeModel}.${key}`,
-                value
-            });
-        },
-        setModelData(modelId: string, key: keyof AvatarEntry, value: string | number | boolean): void {
-            this.$store.commit(StoreMutations.MUTATE, {
-                property: `avatar.models.${modelId}.${key}`,
-                value
-            });
-        },
         selectAvatar(modelId: string): void {
             if (modelId in this.$store.state.avatar.models) {
-                this.$store.commit(StoreMutations.MUTATE, {
-                    property: "avatar.activeModel",
-                    value: modelId
-                });
+                AvatarStoreInterface.setActiveModel(modelId);
                 const scene = Renderer.getScene();
-                scene.loadMyAvatar(this.getModelData(modelId, "file") as string)
+                scene.loadMyAvatar(AvatarStoreInterface.getModelData(modelId, "file") as string)
                     // .catch is a syntax error!?
                     // eslint-disable-next-line @typescript-eslint/dot-notation
                     .catch((err) => console.warn("Failed to load avatar:", err));
