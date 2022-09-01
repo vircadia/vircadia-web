@@ -67,8 +67,17 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { Renderer } from "@Modules/scene";
+import { Mutations as StoreMutations } from "@Store/index";
 
 import OverlayShell from "../OverlayShell.vue";
+
+export interface AvatarEntry {
+    name: string,
+    image: string,
+    file: string,
+    scale: number,
+    starred: boolean
+}
 
 interface RPMEvent extends MessageEvent {
     data: string
@@ -152,6 +161,7 @@ export default defineComponent({
                 this.longLoad = true;
             // eslint-disable-next-line @typescript-eslint/no-magic-numbers
             }, 10000);
+            this.addNewAvatarToStore(url);
             scene.loadMyAvatar(url)
                 .then(() => {
                     this.loading = false;
@@ -172,6 +182,45 @@ export default defineComponent({
                     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
                     }, 1000);
                 });
+        },
+
+        generateID(): string {
+            // eslint-disable-next-line max-len
+            const chars = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+            const idLength = 8;
+            let ID = "";
+            for (let i = 0; i < idLength; i += 1) {
+                ID += chars[Math.floor(Math.random() * chars.length)];
+            }
+            return ID;
+        },
+
+        addNewAvatarToStore(url: string): void {
+            let ID = this.generateID();
+            // Ensure that the model ID doesn't already exist.
+            while (ID in this.$store.state.avatar.models) {
+                ID = this.generateID();
+            }
+
+            const currentModels = { ...this.$store.state.avatar.models };
+            const newModel = {
+                name: "New Avatar",
+                image: "",
+                file: url,
+                scale: 1,
+                starred: false
+            } as AvatarEntry;
+            currentModels[ID] = newModel;
+
+            this.$store.commit(StoreMutations.MUTATE, {
+                property: `avatar.models`,
+                value: currentModels
+            });
+
+            this.$store.commit(StoreMutations.MUTATE, {
+                property: `avatar.activeModel`,
+                value: ID
+            });
         },
 
         closeOverlay(): void {
