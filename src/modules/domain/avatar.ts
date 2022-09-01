@@ -14,6 +14,7 @@ import { Store, Actions as StoreActions, UpdateAvatarInfoPayload } from "@Store/
 import { AvatarMixer, SignalEmitter, vec3, Uuid, MyAvatarInterface, ScriptAvatar, Vec3 } from "@vircadia/web-sdk";
 
 import Log from "@Modules/debugging/log";
+import { loadLocalValue } from "@Modules/localStorage";
 
 // Allow 'get' lines to be compact
 /* eslint-disable @typescript-eslint/brace-style */
@@ -43,6 +44,7 @@ export class DomainAvatar extends Client {
         this.#_gameLoopFunction = undefined;
 
         this.#_avaMixer = new AvatarMixer(pD.ContextId);
+        this.#_avaMixer.myAvatar.displayName = loadLocalValue("displayName") ?? "anonymous";
         this.onStateChange = new SignalEmitter();
         this.#_avaMixer.onStateChanged = this._handleOnStateChanged.bind(this);
 

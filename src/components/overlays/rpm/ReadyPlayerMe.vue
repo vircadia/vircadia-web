@@ -69,6 +69,8 @@ import { defineComponent } from "vue";
 import { Renderer } from "@Modules/scene";
 
 import OverlayShell from "../OverlayShell.vue";
+import { AvatarEntry, AvatarStoreInterface } from "@Base/modules/avatar/StoreInterface";
+import { saveLocalValue } from "@Modules/localStorage";
 
 interface RPMEvent extends MessageEvent {
     data: string
@@ -151,7 +153,19 @@ export default defineComponent({
             const longLoadTimeout = window.setTimeout(() => {
                 this.longLoad = true;
             // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-            }, 10000);
+            }, 15000);
+
+            const newModel = {
+                name: "New Avatar",
+                image: "",
+                file: url,
+                scale: 1,
+                starred: false
+            } as AvatarEntry;
+            const ID = AvatarStoreInterface.createNewModel(newModel);
+            saveLocalValue("activeModel", ID);
+            saveLocalValue("avatarModels", AvatarStoreInterface.getAllModelsJSON());
+
             scene.loadMyAvatar(url)
                 .then(() => {
                     this.loading = false;
