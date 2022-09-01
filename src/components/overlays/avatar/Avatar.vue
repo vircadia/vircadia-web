@@ -39,7 +39,8 @@
             >
                 <div class="row q-mb-md q-px-md">
                     <q-img
-                        :src="getAvatarDataFromId(activeAvatar, 'image')"
+                        v-if="!!(getActiveModelData('image'))"
+                        :src="getActiveModelData('image')"
                         :draggable="false"
                         width="100px"
                         height="100px"
@@ -47,6 +48,13 @@
                         class="q-mt-md q-mb-xs"
                         style="border-radius: 7px;"
                     />
+                    <q-icon
+                        v-else
+                        name="mood"
+                        size="xl"
+                        class="q-pt-md q-pb-xs"
+                        style="width: 100px;height: 100px;"
+                    ></q-icon>
                     <div class="col">
                         <div
                             title="Display name"
@@ -126,11 +134,17 @@
                         >
                             <q-item-section avatar>
                                 <q-img
+                                    v-if="!!avatar.image"
                                     :src="avatar.image"
                                     :draggable="false"
                                     ratio="1"
                                     style="border-radius: 7px;"
                                 />
+                                <q-icon
+                                    v-else
+                                    name="mood"
+                                    size="lg"
+                                ></q-icon>
                             </q-item-section>
                             <q-item-section>
                                 {{ avatar.name }}
