@@ -910,6 +910,209 @@
     "localEntity": false,
     "faceCamera": false,
     "isFacingAvatar": false
+},
+{
+    "id": "{567606b0-f9a5-4465-bae9-dfb5ba79e724}",
+    "type": "Box",
+    "visible": false,
+    "name": "NFTIconController_1",
+    "position": {
+        "x": -24.18,
+        "y": 1.3,
+        "z": -29.45
+    },
+    "dimensions": {
+        "x": 0.20000000298023224,
+        "y": 0.20000000298023224,
+        "z": 0.20000000298023224
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "script": "NFTIconController",
+    "color": {
+        "red": 0,
+        "green": 180,
+        "blue": 239
+    },
+    "shape": "Cube"
+},
+{
+    "id": "{69d6f766-05f9-4004-a57d-4e3f82b8ab0f}",
+    "type": "Image",
+    "parentID": "{567606b0-f9a5-4465-bae9-dfb5ba79e724}",
+    "name": "NFT01",
+    "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 0.5,
+        "y": 0.5,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "color": {
+        "red": 255,
+        "green": 255,
+        "blue": 255
+    },
+    "emissive" : true,
+    "imageURL": "https://staging.vircadia.com/O12OR634/NFTTextures/001.png"
+},
+{
+    "id": "{69d6f766-05f9-4004-a57d-4e3f82b8ab20}",
+    "type": "Image",
+    "parentID": "{567606b0-f9a5-4465-bae9-dfb5ba79e724}",
+    "name": "NFT02",
+    "position": {
+        "x": -0.75,
+        "y": 0,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 0.5,
+        "y": 0.5,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "color": {
+        "red": 255,
+        "green": 255,
+        "blue": 255
+    },
+    "emissive" : true,
+    "imageURL": "https://staging.vircadia.com/O12OR634/NFTTextures/002.png"
+},
+{
+    "id": "{69d6f766-05f9-4004-a57d-4e3f82b8ab30}",
+    "type": "Image",
+    "parentID": "{567606b0-f9a5-4465-bae9-dfb5ba79e724}",
+    "name": "NFT03",
+    "position": {
+        "x": 0.75,
+        "y": 0,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 0.5,
+        "y": 0.5,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "color": {
+        "red": 255,
+        "green": 255,
+        "blue": 255
+    },
+    "emissive" : true,
+    "imageURL": "https://staging.vircadia.com/O12OR634/NFTTextures/003.png"
+},
+{
+    "id": "{567696b0-f9a5-4465-bae9-dfb5ba79e824}",
+    "type": "Box",
+    "visible": false,
+    "name": "NFTIconController_2",
+    "position": {
+        "x": -17.69,
+        "y": 1.3,
+        "z": -25.28
+    },
+    "dimensions": {
+        "x": 0.20000000298023224,
+        "y": 0.20000000298023224,
+        "z": 0.20000000298023224
+    },
+    "rotation": {
+        "x": -0.000021579186437577742,
+        "y": -0.7071175707797662,
+        "z": -1.6940658945086007e-21,
+        "w": 0.7070959915933288
+    },
+    "script": "NFTIconController",
+    "color": {
+        "red": 0,
+        "green": 180,
+        "blue": 239
+    },
+    "shape": "Cube"
+},
+{
+    "id": "{69d6f766-05f9-4004-a57d-4e3f82b8ab4f}",
+    "type": "Image",
+    "parentID": "{567696b0-f9a5-4465-bae9-dfb5ba79e824}",
+    "name": "NFT04",
+    "position": {
+        "x": -0.37,
+        "y": 0,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 0.5,
+        "y": 0.5,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "color": {
+        "red": 255,
+        "green": 255,
+        "blue": 255
+    },
+    "emissive" : true,
+    "imageURL": "https://staging.vircadia.com/O12OR634/NFTTextures/004.png"
+},
+{
+    "id": "{69d6f766-05f9-4004-a57d-4e3f82b8ab5f}",
+    "type": "Image",
+    "parentID": "{567696b0-f9a5-4465-bae9-dfb5ba79e824}",
+    "name": "NFT05",
+    "position": {
+        "x": 0.37,
+        "y": 0,
+        "z": 0
+    },
+    "dimensions": {
+        "x": 0.5,
+        "y": 0.5,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "color": {
+        "red": 255,
+        "green": 255,
+        "blue": 255
+    },
+    "emissive" : true,
+    "imageURL": "https://staging.vircadia.com/O12OR634/NFTTextures/005.png"
 }
     ],
   "Id": "{226a4541-3abc-4cd4-adca-a4ced2fa12ea}",
