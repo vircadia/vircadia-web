@@ -159,14 +159,28 @@ export class VScene {
 
     public resetMyAvatarPositionAndOrientation() : void {
         if (this._myAvatar) {
-            this._myAvatar.position = this._myAvatarSpawnPosition.clone();
-            this._myAvatar.rotationQuaternion = this._myAvatarSpawnOrientation.clone();
+            this.teleportMyAvatar(this._myAvatarSpawnPosition.clone(),
+                this._myAvatarSpawnOrientation.clone());
         }
     }
 
     public setMyAvatarPosition(position: Vector3) : void {
         if (this._myAvatar) {
             this._myAvatar.position = position;
+        }
+    }
+
+    public teleportMyAvatar(position: Vector3 | undefined, rotation: Quaternion | undefined) : void {
+        if (this._myAvatar) {
+            this._scene.detachControl();
+
+            this._myAvatar.position = position ?? Vector3.Zero();
+            this._myAvatar.rotationQuaternion = rotation ?? Quaternion.Identity();
+
+            const controller = this._myAvatar.getComponent(AvatarController.typeName) as AvatarController;
+            controller.isTeleported = true;
+
+            this._scene.attachControl();
         }
     }
 
