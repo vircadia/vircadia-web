@@ -1113,6 +1113,34 @@
     },
     "emissive" : true,
     "imageURL": "https://staging.vircadia.com/O12OR634/NFTTextures/005.png"
+},
+{
+    "id": "{69d6f766-1001-4004-a57d-4e3f82b8ab5f}",
+    "type": "Image",
+    "name": "Video",
+    "position": {
+        "x": -21.33,
+        "y": 1.9,
+        "z": -29.83
+    },
+    "dimensions": {
+        "x": 3.4,
+        "y": 2,
+        "z": 0.009999999776482582
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": -0.0000152587890625,
+        "z": -0.0000152587890625,
+        "w": 1
+    },
+    "color": {
+        "red": 255,
+        "green": 255,
+        "blue": 255
+    },
+    "emissive" : true,
+    "imageURL": "https://staging.vircadia.com/O12OR634/UA92/01_UA92_NFT_TEST.mp4"
 }
     ],
   "Id": "{226a4541-3abc-4cd4-adca-a4ced2fa12ea}",
