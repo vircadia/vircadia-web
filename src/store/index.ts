@@ -172,7 +172,17 @@ export interface IRootState {
     avatar: {
         displayName: string,
         position: vec3,
-        location: string    // displayable, string form of position coordinates
+        location: string,   // displayable, string form of position coordinates
+        models: {
+            [key: string]: {
+                name: string,
+                image: string,
+                file: string,
+                scale: number,
+                starred: boolean
+            }
+        },
+        activeModel: string
     },
     // Chat information. Updated when the MessageClient connection state changes
     messages: {
@@ -265,9 +275,19 @@ export const Store = createStore<IRootState>({
             avatarsInfo: new Map<Uuid, AvatarInfo>()
         },
         avatar: {
-            displayName: "Anonymous",
+            displayName: "anonymous",
             position: Vec3.ZERO,
-            location: "0,0,0"
+            location: "0,0,0",
+            models: {
+                HTP45FSQ: {
+                    name: "Sara",
+                    image: "https://staging.vircadia.com/O12OR634/UA92/sara-cropped-small.webp",
+                    file: "https://staging.vircadia.com/O12OR634/UA92/sara.glb",
+                    scale: 1,
+                    starred: true
+                }
+            },
+            activeModel: "HTP45FSQ"
         },
         messages: {
             messages: [],
