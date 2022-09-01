@@ -11,10 +11,10 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable class-methods-use-this */
 
 import { AnimationGroup, Engine, Scene,
-    ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, StandardMaterial,
-    Mesh, Camera } from "@babylonjs/core";
+    ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, Camera, Observable } from "@babylonjs/core";
 
 import { Quaternion, Vector3 } from "@babylonjs/core/Maths/math";
 import "@babylonjs/loaders/glTF";
@@ -26,6 +26,8 @@ import { ScriptComponent, requireScript, requireScripts, reattachScript } from "
 import { AvatarController, MyAvatarController, ScriptAvatarController } from "@Modules/avatar";
 import { IEntity, IEntityDescription, EntityBuilder } from "@Modules/entity";
 import { ScriptAvatar } from "@vircadia/web-sdk";
+import { CAMPUS_URL, SPACE_STATION_URL } from "@Base/config";
+import { Utility } from "@Modules/utility";
 
 // General Modules
 import Log from "@Modules/debugging/log";
@@ -59,6 +61,11 @@ export class VScene {
     _domainController : Nullable<DomainController> = null;
     _sceneManager : Nullable<GameObject> = null;
     _currentDomain: DomainName = "Campus";
+    private _myAvatarModelChangedObservable: Observable<GameObject> = new Observable<GameObject>();
+
+    public get myAvatarModelChangedObservable(): Observable<GameObject> {
+        return this._myAvatarModelChangedObservable;
+    }
 
     constructor(pEngine: Engine, pSceneId = 0) {
         if (process.env.NODE_ENV === "development") {
@@ -197,7 +204,7 @@ export class VScene {
         this._currentDomain = "SpaceStation";
 
         await this.load("/assets/scenes/spacestation.json",
-            new Vector3(0, 50, 0));
+            new Vector3(0, 58, 0));
     }
 
     public async loadSceneUA92Campus(): Promise<void> {
@@ -211,17 +218,17 @@ export class VScene {
         Log.info(Log.types.ENTITIES, `Go to domain: ${dest}`);
         const domain = dest.toLocaleUpperCase();
         if (domain.includes("campus")) {
-            await this.loadSceneUA92Campus();
+            await Utility.connectionSetup(CAMPUS_URL);
         } else {
-            await this.loadSceneSpaceStation();
+            await Utility.connectionSetup(SPACE_STATION_URL);
         }
     }
 
     public async switchDomain(): Promise<void> {
         if (this._currentDomain === "Campus") {
-            await this.loadSceneSpaceStation();
+            await Utility.connectionSetup(SPACE_STATION_URL);
         } else {
-            await this.loadSceneUA92Campus();
+            await Utility.connectionSetup(CAMPUS_URL);
         }
     }
 
@@ -279,6 +286,7 @@ export class VScene {
                 this._camera.parent = this._myAvatar;
             }
 
+            this._myAvatarModelChangedObservable.notifyObservers(this._myAvatar);
         }
 
         return this._myAvatar;
