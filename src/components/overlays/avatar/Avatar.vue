@@ -81,7 +81,7 @@
                                     dense
                                     autofocus
                                     counter
-                                    :color="AvatarStoreInterface.validateDisplayName(scope.value) ? 'primary' : 'negative'"
+                                    :color="validateDisplayName(scope.value) ? 'primary' : 'negative'"
                                     @keyup.enter="scope.set"
                                 />
                             </q-popup-edit>
@@ -206,14 +206,6 @@ import { AvatarStoreInterface } from "@Modules/avatar/StoreInterface";
 import { saveLocalValue } from "@Modules/localStorage";
 
 import Log from "@Modules/debugging/log";
-
-export interface AvatarEntry {
-    name: string,
-    image: string,
-    file: string,
-    scale: number,
-    starred: boolean
-}
 
 export default defineComponent({
     name: "Avatar",
