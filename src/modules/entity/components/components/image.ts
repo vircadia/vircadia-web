@@ -12,11 +12,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable class-methods-use-this */
 import { MeshComponent } from "@Modules/object";
-import { MeshBuilder, AbstractMesh, Mesh, Texture, StandardMaterial, Color3 } from "@babylonjs/core";
+import { MeshBuilder, Mesh, Texture, StandardMaterial, Color3,
+    VideoTexture } from "@babylonjs/core";
 import { IImageEntity } from "../../EntityInterfaces";
-import { CollisionMask } from "../../EntityProperties";
 import Log from "@Modules/debugging/log";
 import { EntityMapper } from "../../package";
+import { AssetUrl } from "../../builders/asset";
 
 /* eslint-disable new-cap */
 
@@ -100,13 +101,23 @@ export class ImageComponent extends MeshComponent {
                 this._mesh.material.dispose();
             }
 
+            const assetURL = new AssetUrl(entity.imageURL);
+
             const name = entity.name ? entity.name + "_" + entity.id : entity.id;
             const mat = new StandardMaterial(name);
 
-            const texture = new Texture(entity.imageURL);
-            mat.specularTexture = texture;
-            mat.diffuseTexture = texture;
+            if (assetURL.fileExtension === "mp4"
+                || assetURL.fileExtension === "webm"
+                || assetURL.fileExtension === "ogv") {
 
+                const scene = this._gameObject ? this._gameObject._scene : null;
+                const texture = new VideoTexture(name, entity.imageURL, scene);
+                mat.diffuseTexture = texture;
+            } else {
+                const texture = new Texture(entity.imageURL);
+                mat.specularTexture = texture;
+                mat.diffuseTexture = texture;
+            }
             this._mesh.material = mat;
             this._mesh.isVisible = entity.visible ?? true;
 
