@@ -81,7 +81,7 @@
                                     dense
                                     autofocus
                                     counter
-                                    :color="AvatarStoreInterface.validateDisplayName(scope.value) ? 'primary' : 'negative'"
+                                    :color="validateDisplayName(scope.value) ? 'primary' : 'negative'"
                                     @keyup.enter="scope.set"
                                 />
                             </q-popup-edit>
