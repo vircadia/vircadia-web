@@ -207,14 +207,6 @@ import { saveLocalValue } from "@Modules/localStorage";
 
 import Log from "@Modules/debugging/log";
 
-export interface AvatarEntry {
-    name: string,
-    image: string,
-    file: string,
-    scale: number,
-    starred: boolean
-}
-
 export default defineComponent({
     name: "Avatar",
 
