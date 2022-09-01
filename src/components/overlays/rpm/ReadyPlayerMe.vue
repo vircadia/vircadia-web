@@ -160,7 +160,7 @@ export default defineComponent({
             const longLoadTimeout = window.setTimeout(() => {
                 this.longLoad = true;
             // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-            }, 10000);
+            }, 15000);
             this.addNewAvatarToStore(url);
             scene.loadMyAvatar(url)
                 .then(() => {
