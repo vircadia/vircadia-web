@@ -44,6 +44,10 @@ export const AvatarStoreInterface = {
         return this.getModelData(activeModel, key);
     },
 
+    getAllModelsJSON(): string {
+        return JSON.stringify(Store.state.avatar.models);
+    },
+
     setModelData(modelId: string, key: keyof AvatarEntry, value: string | number | boolean): void {
         if (modelId in Store.state.avatar.models) {
             Store.commit(StoreMutations.MUTATE, {
