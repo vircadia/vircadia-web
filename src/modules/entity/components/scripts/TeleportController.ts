@@ -106,15 +106,17 @@ export class TeleportController extends EntityScriptComponent {
                 }
 
                 // const avatar = this.triggerTarget;
-                // if (avatar) {
+                /*
+                if (avatar) {
                 if (position) {
-                    // avatar.position = position;
-                    this._vscene.setMyAvatarPosition(position);
+                    avatar.position = position;
                 }
                 if (rotationQuat) {
                     avatar.rotationQuaternion = rotationQuat;
                 }
-                // }
+                }
+                */
+                this._vscene.teleportMyAvatar(position, rotationQuat);
             }
 
             // controller.isTeleported = true;
