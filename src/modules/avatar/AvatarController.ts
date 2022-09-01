@@ -51,6 +51,9 @@ export class AvatarController extends ScriptComponent {
     private _keyUpAction:Nullable<IAction> = null;
     private _animController: Nullable<AnimationController> = null;
 
+    @inspector()
+    private _isTeleported = true;
+
     constructor() {
         super("AvatarController");
         this._movement = new Vector3();
@@ -71,12 +74,31 @@ export class AvatarController extends ScriptComponent {
         this._animGroups = value;
     }
 
+    public get isTeleported() : boolean {
+        return this._isTeleported;
+    }
+
+    public set isTeleported(value : boolean) {
+        this._isTeleported = value;
+        this._movement = Vector3.Zero();
+        this._rot = 0;
+        if (this._animController) {
+            this._animController.play("idle02");
+        }
+
+        this._inputMap = {};
+    }
+
     /**
     * Gets a string identifying the type of this Component
     * @returns "AvatarController" string
     */
     // eslint-disable-next-line class-methods-use-this
     public get componentType():string {
+        return AvatarController.typeName;
+    }
+
+    static get typeName(): string {
         return "AvatarController";
     }
 
@@ -173,8 +195,12 @@ export class AvatarController extends ScriptComponent {
         }
 
         const dt = this._scene.getEngine().getDeltaTime() / 1000;
-        const movement = this._gameObject.calcMovePOV(this._movement.x, 0, this._movement.z).scale(dt);
-        this._gameObject.moveWithCollisions(movement);
+        if (this._movement.x !== 0 || this._movement.z !== 0) {
+            const movement = this._gameObject.calcMovePOV(this._movement.x, 0, this._movement.z).scale(dt);
+            this._gameObject.moveWithCollisions(movement);
+
+            this._isTeleported = false;
+        }
 
         const rot = this._rot * dt;
         this._gameObject.rotate(Vector3.Up(), rot);
