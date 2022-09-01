@@ -19,23 +19,19 @@ import { Renderer, VScene } from "@Modules/scene";
 import { EntityScriptComponent } from "./EntityScript";
 import { Utility } from "@Modules/utility";
 
-import {
-    Vector3, Quaternion
-} from "@babylonjs/core";
+import { Vector3, Quaternion } from "@babylonjs/core";
+import { GameObject } from "@Modules/object";
+import { AvatarController } from "@Modules/avatar";
 
 
 type ScriptParameters = {
-    destination?: string | undefined,
-    enabledAfterTriggerExit?: boolean | undefined
+    destination?: string | undefined
 };
 
 
 export class TeleportController extends EntityScriptComponent {
     @inspector()
     _destination = "";
-
-    @inspector()
-    _isTelelportEnabled = true;
 
     private _vscene: VScene;
 
@@ -68,12 +64,7 @@ export class TeleportController extends EntityScriptComponent {
             } else {
                 Log.error(Log.types.ENTITIES, "No Teleport destination of TeleportController");
             }
-
-            if (param.enabledAfterTriggerExit) {
-                this._isTelelportEnabled = !param.enabledAfterTriggerExit;
-            }
         }
-
         this._vscene.myAvatarModelChangedObservable.add((myAvatar) => {
             this.triggerTarget = myAvatar;
         });
@@ -82,7 +73,15 @@ export class TeleportController extends EntityScriptComponent {
     // eslint-disable-next-line class-methods-use-this
     public onTriggerEnter() : void {
         Log.debug(Log.types.ENTITIES, "onTriggerEnter");
-        if (this._isTelelportEnabled) {
+
+        const avatar = this.triggerTarget as GameObject;
+        if (!avatar) {
+            return;
+        }
+
+        const controller = avatar.getComponent(AvatarController.typeName) as AvatarController;
+
+        if (controller && !controller.isTeleported) {
             if (this._destination.includes("wss://") || this._destination.includes("ws://")) {
                 // eslint-disable-next-line @typescript-eslint/no-floating-promises
                 Utility.connectionSetup(this._destination);
@@ -106,25 +105,22 @@ export class TeleportController extends EntityScriptComponent {
                     rotationQuat = new Quaternion(...vec4);
                 }
 
-                const avatar = this._vscene.getMyAvatar();
+                // const avatar = this.triggerTarget;
+                /*
                 if (avatar) {
-                    if (position) {
-                        avatar.position = position;
-                    }
-                    if (rotationQuat) {
-                        avatar.rotationQuaternion = rotationQuat;
-                    }
+                if (position) {
+                    avatar.position = position;
                 }
+                if (rotationQuat) {
+                    avatar.rotationQuaternion = rotationQuat;
+                }
+                }
+                */
+                this._vscene.teleportMyAvatar(position, rotationQuat);
             }
-            this._isTelelportEnabled = false;
+
+            // controller.isTeleported = true;
         }
-    }
-
-    // eslint-disable-next-line class-methods-use-this
-    public onTriggerExit() : void {
-        Log.debug(Log.types.ENTITIES, "onTriggerExit");
-
-        this._isTelelportEnabled = true;
     }
 
 }
