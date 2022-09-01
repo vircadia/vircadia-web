@@ -27,9 +27,11 @@ import { AssignmentClientState } from "@Modules/domain/client";
 import { DomainAvatar } from "@Modules/domain/avatar";
 import { AMessage } from "@Modules/domain/message";
 import { onAccessTokenChangePayload, onAttributeChangePayload } from "@Modules/account";
+import { defaultActiveAvatarModel, defaultAvatarModels } from "@Modules/avatar/DefaultModels";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
+import { AvatarEntryMap } from "@Modules/avatar/StoreInterface";
 // import { toJSON } from "@Modules/debugging";
 
 /**
@@ -173,15 +175,7 @@ export interface IRootState {
         displayName: string,
         position: vec3,
         location: string,   // displayable, string form of position coordinates
-        models: {
-            [key: string]: {
-                name: string,
-                image: string,
-                file: string,
-                scale: number,
-                starred: boolean
-            }
-        },
+        models: AvatarEntryMap,
         activeModel: string
     },
     // Chat information. Updated when the MessageClient connection state changes
@@ -278,16 +272,8 @@ export const Store = createStore<IRootState>({
             displayName: "anonymous",
             position: Vec3.ZERO,
             location: "0,0,0",
-            models: {
-                HTP45FSQ: {
-                    name: "Sara",
-                    image: "https://staging.vircadia.com/O12OR634/UA92/sara-cropped-small.webp",
-                    file: "https://staging.vircadia.com/O12OR634/UA92/sara.glb",
-                    scale: 1,
-                    starred: true
-                }
-            },
-            activeModel: "HTP45FSQ"
+            models: defaultAvatarModels(),
+            activeModel: defaultActiveAvatarModel()
         },
         messages: {
             messages: [],
