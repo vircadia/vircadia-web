@@ -49,73 +49,80 @@ export function defaultAvatarModels(): AvatarEntryMap {
         } as AvatarEntry,
         EPS62RC9: {
             name: "Tiffany",
-            image: "",
+            image: "https://staging.vircadia.com/O12OR634/Avatars/Tiffany-small.webp",
             file: "https://staging.vircadia.com/O12OR634/Avatars/Tiffany.glb",
             scale: 1,
-            starred: true
+            starred: false
         } as AvatarEntry,
         AIOUPXVY: {
             name: "Martha",
-            image: "",
+            image: "https://staging.vircadia.com/O12OR634/Avatars/Martha-small.webp",
             file: "https://staging.vircadia.com/O12OR634/Avatars/Martha.glb",
             scale: 1,
-            starred: true
+            starred: false
         } as AvatarEntry,
         LRX76LNL: {
             name: "Miles",
-            image: "",
+            image: "https://staging.vircadia.com/O12OR634/Avatars/Miles-small.webp",
             file: "https://staging.vircadia.com/O12OR634/Avatars/Miles.glb",
             scale: 1,
-            starred: true
+            starred: false
         } as AvatarEntry,
         QIA9XG4G: {
             name: "Victor",
-            image: "",
+            image: "https://staging.vircadia.com/O12OR634/Avatars/Victor-small.webp",
             file: "https://staging.vircadia.com/O12OR634/Avatars/Victor.glb",
             scale: 1,
-            starred: true
+            starred: false
         } as AvatarEntry,
         N5PBHE7C: {
             name: "Audrey",
             image: "",
             file: "https://staging.vircadia.com/O12OR634/Avatars/Audrey.glb",
             scale: 1,
-            starred: true
+            starred: false
         } as AvatarEntry,
         HYGME2O8: {
             name: "Jack",
             image: "",
             file: "https://staging.vircadia.com/O12OR634/Avatars/Jack.glb",
             scale: 1,
-            starred: true
+            starred: false
         } as AvatarEntry,
         ZPNSHHIJ: {
             name: "Mark",
             image: "",
             file: "https://staging.vircadia.com/O12OR634/Avatars/Mark.glb",
             scale: 1,
-            starred: true
+            starred: false
         } as AvatarEntry,
         E7RCM559: {
             name: "Kristine",
             image: "",
             file: "https://staging.vircadia.com/O12OR634/Avatars/Kristine.glb",
             scale: 1,
-            starred: true
+            starred: false
         } as AvatarEntry,
         SG35OH2Y: {
             name: "William",
             image: "",
             file: "https://staging.vircadia.com/O12OR634/Avatars/William.glb",
             scale: 1,
-            starred: true
+            starred: false
         } as AvatarEntry,
         JKV34GST: {
             name: "Erica",
             image: "",
             file: "https://staging.vircadia.com/O12OR634/Avatars/Erica.glb",
             scale: 1,
-            starred: true
+            starred: false
+        } as AvatarEntry,
+        X5AII7GT: {
+            name: "Samantha",
+            image: "",
+            file: "https://staging.vircadia.com/O12OR634/Avatars/Samantha.glb",
+            scale: 1,
+            starred: false
         } as AvatarEntry
     } as AvatarEntryMap;
 
