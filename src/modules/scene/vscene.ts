@@ -28,13 +28,14 @@ import { IEntity, IEntityDescription, EntityBuilder } from "@Modules/entity";
 import { ScriptAvatar } from "@vircadia/web-sdk";
 import { CAMPUS_URL, SPACE_STATION_URL } from "@Base/config";
 import { Utility } from "@Modules/utility";
+import { defaultActiveAvatarUrl } from "@Modules/avatar/DefaultModels";
 
 // General Modules
 import Log from "@Modules/debugging/log";
 // System Modules
 import { VVector3 } from ".";
 
-const DefaultAvatarUrl = "https://staging.vircadia.com/O12OR634/UA92/sara.glb";
+const DefaultAvatarUrl = defaultActiveAvatarUrl();
 const AvatarAnimationUrl = "https://staging.vircadia.com/O12OR634/UA92/AnimationsBasic.glb";
 const DefaultSceneUrl = "/assets/scenes/default.json";
 
