@@ -61,6 +61,7 @@ export class VScene {
     _domainController : Nullable<DomainController> = null;
     _sceneManager : Nullable<GameObject> = null;
     _currentDomain: DomainName = "Campus";
+    _currentSceneURL = "";
     private _myAvatarModelChangedObservable: Observable<GameObject> = new Observable<GameObject>();
 
     public get myAvatarModelChangedObservable(): Observable<GameObject> {
@@ -101,6 +102,12 @@ export class VScene {
 
     public async load(sceneUrl ?: string, avatarPos ?: Vector3, avatarQuat ?: Quaternion,
         beforeLoading ?: ()=> void, afterLoading ?: ()=> void) : Promise<void> {
+        if (this._currentSceneURL === sceneUrl) {
+            return;
+        }
+
+        this._currentSceneURL = sceneUrl ?? "";
+
         this._engine.displayLoadingUI();
         this._scene.detachControl();
         this._preScene = this._scene;
