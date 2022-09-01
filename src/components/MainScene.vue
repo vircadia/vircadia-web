@@ -34,6 +34,7 @@
 
 <script lang="ts">
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { defineComponent } from "vue";
 
 import { Mutations as StoreMutations } from "@Store/index";
@@ -117,13 +118,13 @@ export default defineComponent({
             value: 0
         });
 
+        // Disable audio temporary
         // Initialize the audio for the scene
-        await AudioMgr.initialize(this.setOutputStream.bind(this));
+        // await AudioMgr.initialize(this.setOutputStream.bind(this));
 
         const scene = Renderer.createScene();
 
         // await scene.loadSceneUA92Campus();
-
         await scene.load("");
 
         await Utility.connectionSetup(DEFAULT_DOMAIN_URL);
