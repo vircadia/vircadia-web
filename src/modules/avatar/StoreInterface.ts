@@ -58,7 +58,7 @@ export const AvatarStoreInterface = {
         this.setModelData(activeModel, key, value);
     },
 
-    createNewModel(modelData: AvatarEntry): string {
+    createNewModel(modelData: AvatarEntry, setToActive = true): string {
         let ID = generateID();
         // Ensure that the model ID doesn't already exist.
         while (ID in Store.state.avatar.models) {
@@ -73,10 +73,12 @@ export const AvatarStoreInterface = {
             value: currentModels
         });
 
-        Store.commit(StoreMutations.MUTATE, {
-            property: `avatar.activeModel`,
-            value: ID
-        });
+        if (setToActive) {
+            Store.commit(StoreMutations.MUTATE, {
+                property: `avatar.activeModel`,
+                value: ID
+            });
+        }
 
         return ID;
     },
