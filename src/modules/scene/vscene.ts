@@ -28,13 +28,31 @@ import { IEntity, IEntityDescription, EntityBuilder } from "@Modules/entity";
 import { ScriptAvatar } from "@vircadia/web-sdk";
 import { CAMPUS_URL, SPACE_STATION_URL } from "@Base/config";
 import { Utility } from "@Modules/utility";
+import { AvatarEntry } from "@Modules/avatar/StoreInterface";
+import { loadLocalValue } from "@Modules/localStorage";
 
 // General Modules
 import Log from "@Modules/debugging/log";
 // System Modules
 import { VVector3 } from ".";
 
-const DefaultAvatarUrl = "https://staging.vircadia.com/O12OR634/UA92/sara.glb";
+let DefaultAvatarUrl = "https://staging.vircadia.com/O12OR634/UA92/sara.glb";
+// Load the last-used avatar model from local storage (if it exists).
+{
+    const localAvatarModelList = loadLocalValue("avatarModels");
+    const localAvatarID = loadLocalValue("activeModel");
+    if (localAvatarModelList && localAvatarID) {
+        const parsedLocalAvatarModelList = JSON.parse(localAvatarModelList) as { [key: string]: AvatarEntry };
+        if (localAvatarID in parsedLocalAvatarModelList) {
+            Log.debug(
+                Log.types.AVATAR,
+                `Loading avatar model from local storage: ${parsedLocalAvatarModelList[localAvatarID].file}`
+            );
+            DefaultAvatarUrl = parsedLocalAvatarModelList[localAvatarID].file;
+        }
+    }
+}
+
 const AvatarAnimationUrl = "https://staging.vircadia.com/O12OR634/UA92/AnimationsBasic.glb";
 const DefaultSceneUrl = "/assets/scenes/default.json";
 
