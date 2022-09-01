@@ -16,6 +16,17 @@ import { loadLocalValue } from "@Modules/localStorage";
 const localAvatarModelList = loadLocalValue("avatarModels");
 const localAvatarID = loadLocalValue("activeModel");
 
+export function defaultActiveAvatarUrl(): string {
+    let output = "https://staging.vircadia.com/O12OR634/UA92/sara.glb";
+    if (localAvatarModelList && localAvatarID) {
+        const parsedLocalAvatarModelList = JSON.parse(localAvatarModelList) as AvatarEntryMap;
+        if (localAvatarID in parsedLocalAvatarModelList) {
+            output = parsedLocalAvatarModelList[localAvatarID].file;
+        }
+    }
+    return output;
+}
+
 export function defaultActiveAvatarModel(): string {
     let output = "HTP45FSQ";
     if (localAvatarModelList && localAvatarID) {
