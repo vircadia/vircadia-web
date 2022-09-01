@@ -103,7 +103,7 @@ export class VScene {
 
     public async load(sceneUrl ?: string, avatarPos ?: Vector3, avatarQuat ?: Quaternion,
         beforeLoading ?: ()=> void, afterLoading ?: ()=> void) : Promise<void> {
-        if (this._currentSceneURL === sceneUrl) {
+        if (sceneUrl !== "" && this._currentSceneURL === sceneUrl) {
             return;
         }
 
