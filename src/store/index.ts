@@ -275,7 +275,7 @@ export const Store = createStore<IRootState>({
             avatarsInfo: new Map<Uuid, AvatarInfo>()
         },
         avatar: {
-            displayName: "Anonymous",
+            displayName: "anonymous",
             position: Vec3.ZERO,
             location: "0,0,0",
             models: {
