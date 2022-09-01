@@ -254,6 +254,7 @@ export default defineComponent({
         selectAvatar(modelId: string): void {
             if (modelId in this.$store.state.avatar.models) {
                 AvatarStoreInterface.setActiveModel(modelId);
+                saveLocalValue("activeModel", modelId);
                 const scene = Renderer.getScene();
                 scene.loadMyAvatar(AvatarStoreInterface.getModelData(modelId, "file") as string)
                     // .catch is a syntax error!?

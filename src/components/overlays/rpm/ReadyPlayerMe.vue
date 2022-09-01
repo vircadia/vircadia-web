@@ -70,6 +70,7 @@ import { Renderer } from "@Modules/scene";
 
 import OverlayShell from "../OverlayShell.vue";
 import { AvatarEntry, AvatarStoreInterface } from "@Base/modules/avatar/StoreInterface";
+import { saveLocalValue } from "@Modules/localStorage";
 
 interface RPMEvent extends MessageEvent {
     data: string
@@ -161,7 +162,9 @@ export default defineComponent({
                 scale: 1,
                 starred: false
             } as AvatarEntry;
-            AvatarStoreInterface.createNewModel(newModel);
+            const ID = AvatarStoreInterface.createNewModel(newModel);
+            saveLocalValue("activeModel", ID);
+            saveLocalValue("avatarModels", AvatarStoreInterface.getAllModelsJSON());
 
             scene.loadMyAvatar(url)
                 .then(() => {

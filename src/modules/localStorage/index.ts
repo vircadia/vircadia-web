@@ -10,7 +10,9 @@
 //
 
 interface LocalStorageContent {
-    displayName: string
+    displayName: string,
+    activeModel: string,
+    avatarModels: string
 }
 
 export function saveLocalValue(key: keyof LocalStorageContent, value: string): void {
