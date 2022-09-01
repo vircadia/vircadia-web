@@ -39,7 +39,8 @@
             >
                 <div class="row q-mb-md q-px-md">
                     <q-img
-                        :src="getAvatarDataFromId(activeAvatar, 'image')"
+                        v-if="!!(AvatarStoreInterface.getActiveModelData('image'))"
+                        :src="AvatarStoreInterface.getActiveModelData('image')"
                         :draggable="false"
                         width="100px"
                         height="100px"
@@ -47,6 +48,13 @@
                         class="q-mt-md q-mb-xs"
                         style="border-radius: 7px;"
                     />
+                    <q-icon
+                        v-else
+                        name="mood"
+                        size="xl"
+                        class="q-pt-md q-pb-xs"
+                        style="width: 100px;height: 100px;"
+                    ></q-icon>
                     <div class="col">
                         <div
                             title="Display name"
@@ -73,7 +81,7 @@
                                     dense
                                     autofocus
                                     counter
-                                    :color="validateDisplayName(scope.value) ? 'primary' : 'negative'"
+                                    :color="AvatarStoreInterface.validateDisplayName(scope.value) ? 'primary' : 'negative'"
                                     @keyup.enter="scope.set"
                                 />
                             </q-popup-edit>
@@ -86,55 +94,58 @@
                                     dense
                                     fab-mini
                                     ripple
-                                    :icon="getAvatarDataFromId(activeAvatar, 'starred') ? 'star' : 'star_outline'"
-                                    :text-color="
-                                        getAvatarDataFromId(activeAvatar, 'starred') ?
-                                        'yellow' : $q.dark.isActive ? 'white' : 'dark'
-                                    "
+                                    :icon="AvatarStoreInterface.getActiveModelData('starred') ? 'star' : 'star_outline'"
+                                    :text-color="AvatarStoreInterface.getActiveModelData('starred') ?
+                                        'yellow' : $q.dark.isActive ? 'white' : 'dark'"
                                     title="Favorite"
                                     @click.stop="
-                                        setAvatarDataFromId(
-                                            activeAvatar,
+                                        AvatarStoreInterface.setActiveModelData(
                                             'starred',
-                                            !getAvatarDataFromId(activeAvatar, 'starred')
+                                            !AvatarStoreInterface.getActiveModelData('starred')
                                         )
                                     "
                                 />
                             </div>
                             <div class="col">
                                 <p class="text-subtitle1 q-mb-none">
-                                    {{ getAvatarDataFromId(activeAvatar, 'name') }}
+                                    {{ AvatarStoreInterface.getActiveModelData('name') }}
                                 </p>
                                 <div
-                                    :title="getAvatarDataFromId(activeAvatar, 'file')"
+                                    :title="AvatarStoreInterface.getActiveModelData('file')"
                                     class="text-caption ellipsis q-mb-xs"
                                     style="max-width: 27ch;"
                                 >
-                                    {{ getAvatarDataFromId(activeAvatar, 'file') }}
+                                    {{ AvatarStoreInterface.getActiveModelData('file') }}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <q-separator inset spaced />
-                <template v-if="avatarList.length > 0">
+                <template v-if="Object.entries($store.state.avatar.models).length > 0">
                     <p class="text-subtitle1 text-left q-pl-md q-mt-md q-mb-xs">Your avatars:</p>
                     <q-list>
                         <q-item
-                            v-for="avatar in avatarList"
-                            :key="avatar.id"
+                            v-for="(avatar, id) in $store.state.avatar.models"
+                            :key="id"
                             class="q-mb-sm"
                             clickable
                             v-ripple
-                            @click="selectAvatar(avatar.id)"
+                            @click="selectAvatar(id)"
                         >
                             <q-item-section avatar>
                                 <q-img
+                                    v-if="!!avatar.image"
                                     :src="avatar.image"
                                     :draggable="false"
                                     ratio="1"
                                     style="border-radius: 7px;"
                                 />
+                                <q-icon
+                                    v-else
+                                    name="mood"
+                                    size="lg"
+                                ></q-icon>
                             </q-item-section>
                             <q-item-section>
                                 {{ avatar.name }}
@@ -151,7 +162,7 @@
                                     :icon="avatar.starred ? 'star' : 'star_outline'"
                                     :text-color="avatar.starred ? 'yellow' : $q.dark.isActive ? 'white' : 'dark'"
                                     title="Favorite"
-                                    @click.stop="avatar.starred = !avatar.starred"
+                                    @click.stop="AvatarStoreInterface.setModelData(id, 'starred', !avatar.starred)"
                                 />
                             </q-item-section>
                         </q-item>
@@ -169,7 +180,7 @@
                 <p v-else class="text-subtitle1 text-grey text-center q-mt-md">You have no saved avatars.</p>
                 <q-separator inset spaced />
                 <p class="text-subtitle1 text-center q-mt-md q-mb-xs">
-                    {{ avatarList.length > 0 ? 'Or c' : 'C' }}reate your own avatar with:
+                    {{ Object.entries(this.$store.state.avatar.models).length > 0 ? 'Or c' : 'C' }}reate your own avatar with:
                 </p>
                 <q-item class="q-pb-lg">
                     <q-item-section>
@@ -191,13 +202,13 @@ import { defineComponent } from "vue";
 import OverlayShell from "../OverlayShell.vue";
 import { Renderer } from "@Modules/scene";
 import { MyAvatarController } from "@Modules/avatar";
+import { AvatarStoreInterface } from "@Modules/avatar/StoreInterface";
 import { saveLocalValue } from "@Modules/localStorage";
 
 import Log from "@Modules/debugging/log";
 
 export interface AvatarEntry {
     name: string,
-    id: string,
     image: string,
     file: string,
     scale: number,
@@ -216,21 +227,11 @@ export default defineComponent({
         OverlayShell
     },
 
-    data: () => ({
-        // The following is demo data:
-        displayName: "",
-        activeAvatar: "HTP45FSQ",
-        avatarList: [
-            {
-                name: "Sara",
-                id: "HTP45FSQ",
-                image: "https://staging.vircadia.com/O12OR634/UA92/sara-cropped-small.webp",
-                file: "https://staging.vircadia.com/O12OR634/UA92/sara.glb",
-                scale: 1,
-                starred: true
-            }
-        ] as AvatarEntry[]
-    }),
+    data() {
+        return {
+            AvatarStoreInterface
+        };
+    },
 
     computed: {
         displayNameStore: {
@@ -239,7 +240,6 @@ export default defineComponent({
             },
             set: function(pVal: string): void {
                 Log.debug(Log.types.AVATAR, `Avatar.vue: set displayNameStore. inputInfo=${pVal}`);
-                this.displayName = pVal;
                 const scene = Renderer.getScene();
                 const avatarController = scene._myAvatar?.getComponent(MyAvatarController.typeName) as MyAvatarController;
                 if (avatarController) {
@@ -251,46 +251,15 @@ export default defineComponent({
     },
 
     methods: {
-        checkIfAvatarExists(id: string): boolean {
-            for (const avatar of this.avatarList) {
-                if (avatar.id === id) {
-                    return true;
-                }
-            }
-            return false;
-        },
-        getAvatarDataFromId(id: string, value?: keyof AvatarEntry): AvatarEntry | string | boolean | number {
-            let avatarData = {} as AvatarEntry;
-
-            for (const avatar of this.avatarList) {
-                if (avatar.id === id) {
-                    if (value && value in avatar) {
-                        return avatar[value];
-                    }
-                    avatarData = avatar;
-                    return avatarData;
-                }
-            }
-
-            return false;
-        },
-        setAvatarDataFromId(id: string, key: keyof AvatarEntry, value: never): void {
-            for (const avatar of this.avatarList) {
-                if (avatar.id === id) {
-                    if (key && key in avatar) {
-                        avatar[key] = value;
-                    }
-                }
-            }
-        },
-        selectAvatar(id: string): void {
-            if (this.checkIfAvatarExists(id)) {
-                this.activeAvatar = id;
+        selectAvatar(modelId: string): void {
+            if (modelId in this.$store.state.avatar.models) {
+                AvatarStoreInterface.setActiveModel(modelId);
+                saveLocalValue("activeModel", modelId);
                 const scene = Renderer.getScene();
-                scene.loadMyAvatar(this.getAvatarDataFromId(id, "file") as string)
+                scene.loadMyAvatar(AvatarStoreInterface.getModelData(modelId, "file") as string)
                     // .catch is a syntax error!?
                     // eslint-disable-next-line @typescript-eslint/dot-notation
-                    .catch((err) => console.log("Failed to load avatar:", err));
+                    .catch((err) => console.warn("Failed to load avatar:", err));
             }
         },
         validateDisplayName(value: string): boolean {
@@ -302,10 +271,6 @@ export default defineComponent({
             // 5. Number of characters must be between 2 and 20.
             return (/^(?=[a-z0-9._-]{2,20}$)(?!.*[-_.]{2})[^-_.].*[^-_.]$/iu).test(value);
         }
-    },
-
-    mounted(): void {
-        this.displayName = this.$store.state.avatar.displayName;
     }
 });
 </script>
