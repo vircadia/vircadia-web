@@ -50,6 +50,7 @@ export class VScene {
     _scene: Scene;
     _preScene: Nullable<Scene> = null;
     _myAvatar: Nullable<GameObject> = null;
+    _myAvatarModelURL = DefaultAvatarUrl;
     _myAvatarSpawnPosition:Vector3 = Vector3.Zero();
     _myAvatarSpawnOrientation:Quaternion = Quaternion.Identity();
 
@@ -57,8 +58,6 @@ export class VScene {
     _camera : Nullable<Camera> = null;
     _avatarAnimationGroups : AnimationGroup[] = [];
     _resourceManager : Nullable<ResourceManager> = null;
-    _incrementalMeshList : Nullable<Array<string>> = null;
-    _rootUrl = "";
     _domainController : Nullable<DomainController> = null;
     _sceneManager : Nullable<GameObject> = null;
     _currentDomain: DomainName = "Campus";
@@ -97,11 +96,15 @@ export class VScene {
         return this._myAvatar;
     }
 
+    public get myAvatarModelURL() : string {
+        return this._myAvatarModelURL;
+    }
+
     render():void {
         this._scene.render();
     }
 
-    public async load(sceneUrl ?: string, avatarPos ?: Vector3, avatarQuat ?: Quaternion,
+    public async load(sceneUrl ?: string, avatarModelURL ?: string, avatarPos ?: Vector3, avatarQuat ?: Quaternion,
         beforeLoading ?: ()=> void, afterLoading ?: ()=> void) : Promise<void> {
         if (sceneUrl !== "" && this._currentSceneURL === sceneUrl) {
             return;
@@ -134,7 +137,7 @@ export class VScene {
         this._scene.activeCamera = camera;
         this._camera = camera;
 
-        await this.loadMyAvatar();
+        await this.loadMyAvatar(avatarModelURL);
         // setup avatar
         if (this._myAvatar) {
             this._myAvatar.position = avatarPos ?? new Vector3(0, 1, 0);
@@ -225,14 +228,18 @@ export class VScene {
     public async loadSceneSpaceStation(): Promise<void> {
         this._currentDomain = "SpaceStation";
 
-        await this.load("/assets/scenes/spacestation.json",
+        await this.load(
+            "/assets/scenes/spacestation.json",
+            undefined,
             new Vector3(0, 58, 0));
     }
 
     public async loadSceneUA92Campus(): Promise<void> {
         this._currentDomain = "Campus";
 
-        await this.load("/assets/scenes/campus.json",
+        await this.load(
+            "/assets/scenes/campus.json",
+            undefined,
             new Vector3(25, 1, 30));
     }
 
@@ -257,11 +264,16 @@ export class VScene {
     public async loadMyAvatar(modelURL ?: string) : Promise<Nullable<GameObject>> {
         if (this._resourceManager) {
             if (this._avatarAnimationGroups.length === 0) {
-
                 const result = await this._resourceManager.loadAvatarAnimations(AvatarAnimationUrl);
                 this._avatarAnimationGroups = result.animGroups;
             }
 
+            if (modelURL) {
+                if (this._myAvatarModelURL === modelURL && this._myAvatar) {
+                    return this._myAvatar;
+                }
+                this._myAvatarModelURL = modelURL;
+            }
 
             let prevPos = undefined;
             let prevQuat = null;
@@ -287,7 +299,7 @@ export class VScene {
                 this._myAvatar.rotationQuaternion = prevQuat;
             }
 
-            const mesh = await this._resourceManager.loadMyAvatar(modelURL ?? DefaultAvatarUrl);
+            const mesh = await this._resourceManager.loadMyAvatar(this._myAvatarModelURL);
             if (mesh) {
                 const meshComponent = new MeshComponent();
                 meshComponent.mesh = mesh;
@@ -472,17 +484,6 @@ export class VScene {
                 });
             }
         });
-
-        if (this._incrementalMeshList) {
-            this._scene.onBeforeRenderObservable.addOnce(() => {
-                this._resourceManager?.addSceneObjectTasks("SceneIncrementalLoading",
-                    this._rootUrl, this._incrementalMeshList as string[]);
-                // eslint-disable-next-line no-void
-                void this._resourceManager?.loadAsync();
-
-                this._incrementalMeshList = null;
-            });
-        }
 
         if (!this._scene.activeCamera) {
             this._scene.createDefaultCamera(true, true, true);
