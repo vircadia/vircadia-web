@@ -174,6 +174,12 @@ export class AvatarController extends ScriptComponent {
             return;
         }
 
+        if (this._inputMap["Space"]) {
+            this._jumping = true;
+            this._movement = Vector3.Zero();
+            this._rot = 0;
+        }
+
         if (!this._jumping) {
             if (this._inputMap["KeyW"]) {
                 this._movement.z = Scalar.Lerp(this._movement.z, this._walkSpeed, 0.1);
@@ -199,10 +205,6 @@ export class AvatarController extends ScriptComponent {
                 this._movement.x = 0;
                 this._rot = 0;
             }
-        }
-
-        if (this._inputMap["Space"]) {
-            this._jumping = true;
         }
 
         const dt = this._scene.getEngine().getDeltaTime() / 1000;
