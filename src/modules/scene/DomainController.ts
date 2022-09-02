@@ -11,7 +11,7 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-import { ScriptComponent, inspectorAccessor } from "@Modules/script";
+import { ScriptComponent, inspectorAccessor, inspector } from "@Modules/script";
 
 // General Modules
 import Log from "@Modules/debugging/log";
@@ -41,6 +41,9 @@ export class DomainController extends ScriptComponent {
     _domainConnectionState : ConnectionState = ConnectionState.DISCONNECTED;
     _entityManager : Nullable<EntityManager> = null;
     _vscene : Nullable<VScene>;
+
+    @inspector()
+    _sessionID = "";
 
     constructor() {
         super("DomainController");
@@ -131,6 +134,10 @@ export class DomainController extends ScriptComponent {
     }
 
     private async _handleDomainConnected(pDomain: Domain): Promise<void> {
+        if (!this._vscene) {
+            return;
+        }
+
         this._entityServer = pDomain.EntityClient;
         if (this._entityServer) {
             this._entityServer.onStateChanged = this._handleOnEntityServerStateChanged.bind(this);
@@ -165,19 +172,20 @@ export class DomainController extends ScriptComponent {
         } else if (pDomain.DomainUrl.includes("ua92-2.vircadia.com")) {
             await this._vscene?.loadSceneSpaceStation();
         } else {
-            await this._vscene?.load(undefined, postion, rotationQuat);
+            await this._vscene?.load(undefined, undefined, postion, rotationQuat);
         }
 
-        const sessionID = pDomain.DomainClient?.sessionUUID;
-        if (sessionID) {
-            Log.debug(Log.types.AVATAR, `Session ID: ${sessionID.stringify()}`);
+        if (pDomain.DomainClient) {
+            this._sessionID = pDomain.DomainClient.sessionUUID.stringify();
         }
+        Log.debug(Log.types.AVATAR, `Session ID: ${this._sessionID}`);
 
         this._avatarMixer = pDomain.AvatarClient?.Mixer;
         const myAvatarInterface = pDomain.AvatarClient?.MyAvatar;
         if (myAvatarInterface) {
+            Log.debug(Log.types.AVATAR, `skeletonModelURL: ${myAvatarInterface.skeletonModelURL}`);
             if (myAvatarInterface.skeletonModelURL === "") {
-                myAvatarInterface.skeletonModelURL = DefaultAvatarUrl;
+                myAvatarInterface.skeletonModelURL = this._vscene.myAvatarModelURL;
             }
 
             const gameObject = this._vscene?._myAvatar;
