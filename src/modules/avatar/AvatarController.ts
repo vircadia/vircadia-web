@@ -52,6 +52,9 @@ export class AvatarController extends ScriptComponent {
     private _animController: Nullable<AnimationController> = null;
 
     @inspector()
+    private _jumping = false;
+
+    @inspector()
     private _isTeleported = true;
 
     constructor() {
@@ -110,6 +113,13 @@ export class AvatarController extends ScriptComponent {
             this._gameObject as GameObject,
             this._animGroups as AnimationGroup[]);
 
+        const jumpAnim = this._animController.getAnimationGroup("jumping_temp");
+        if (jumpAnim) {
+            jumpAnim.onAnimationEndObservable.add(() => {
+                this._jumping = false;
+            });
+        }
+
         this._animController.play("idle02");
     }
 
@@ -164,34 +174,35 @@ export class AvatarController extends ScriptComponent {
             return;
         }
 
-        if (this._inputMap["KeyW"]) {
-            this._movement.z = Scalar.Lerp(this._movement.z, this._walkSpeed, 0.1);
-        } else if (this._inputMap["KeyS"]) {
-            this._movement.z = Scalar.Lerp(this._movement.z, -this._walkSpeed, 0.1);
-        } else {
-            this._movement.z = 0;
+        if (!this._jumping) {
+            if (this._inputMap["KeyW"]) {
+                this._movement.z = Scalar.Lerp(this._movement.z, this._walkSpeed, 0.1);
+            } else if (this._inputMap["KeyS"]) {
+                this._movement.z = Scalar.Lerp(this._movement.z, -this._walkSpeed, 0.1);
+            } else {
+                this._movement.z = 0;
+            }
+
+            if (this._inputMap["KeyA"]) {
+                if (this._shiftKey) {
+                    this._movement.x = Scalar.Lerp(this._movement.x, -this._walkSpeed, 0.1);
+                } else {
+                    this._rot = Scalar.Lerp(this._rot, -this._rotationSpeed, 0.1);
+                }
+            } else if (this._inputMap["KeyD"]) {
+                if (this._shiftKey) {
+                    this._movement.x = Scalar.Lerp(this._movement.x, this._walkSpeed, 0.1);
+                } else {
+                    this._rot = Scalar.Lerp(this._rot, this._rotationSpeed, 0.1);
+                }
+            } else {
+                this._movement.x = 0;
+                this._rot = 0;
+            }
         }
 
-        if (this._inputMap["KeyA"]) {
-            if (this._shiftKey) {
-                this._movement.x = Scalar.Lerp(this._movement.x, -this._walkSpeed, 0.1);
-            } else {
-                this._rot = Scalar.Lerp(this._rot, -this._rotationSpeed, 0.1);
-            }
-        } else if (this._inputMap["KeyD"]) {
-            if (this._shiftKey) {
-                this._movement.x = Scalar.Lerp(this._movement.x, this._walkSpeed, 0.1);
-            } else {
-                this._rot = Scalar.Lerp(this._rot, this._rotationSpeed, 0.1);
-            }
-        } else {
-            this._movement.x = 0;
-            this._rot = 0;
-        }
-
-        // eslint-disable-next-line no-empty
         if (this._inputMap["Space"]) {
-
+            this._jumping = true;
         }
 
         const dt = this._scene.getEngine().getDeltaTime() / 1000;
@@ -214,24 +225,30 @@ export class AvatarController extends ScriptComponent {
             return;
         }
 
-        if (this._inputMap["KeyW"]) {
-            this._animController.play("walk_fwd");
-        } else if (this._inputMap["KeyS"]) {
-            this._animController.play("walk_bwd");
-        } else if (this._inputMap["KeyA"]) {
-            if (this._shiftKey) {
-                this._animController.play("walk_right");
+        if (!this._jumping) {
+            if (this._inputMap["KeyW"]) {
+                this._animController.play("walk_fwd");
+            } else if (this._inputMap["KeyS"]) {
+                this._animController.play("walk_bwd");
+            } else if (this._inputMap["KeyA"]) {
+                if (this._shiftKey) {
+                    this._animController.play("walk_right");
+                } else {
+                    this._animController.play("turn_left");
+                }
+            } else if (this._inputMap["KeyD"]) {
+                if (this._shiftKey) {
+                    this._animController.play("walk_left");
+                } else {
+                    this._animController.play("turn_right");
+                }
+            } else if (this._inputMap["KeyT"]) {
+                this._animController.play("sitting_crosslegged");
             } else {
-                this._animController.play("turn_left");
+                this._animController.play("idle02");
             }
-        } else if (this._inputMap["KeyD"]) {
-            if (this._shiftKey) {
-                this._animController.play("walk_left");
-            } else {
-                this._animController.play("turn_right");
-            }
-        } else {
-            this._animController.play("idle02");
+        } else if (this._inputMap["Space"]) {
+            this._animController.play("jumping_temp");
         }
 
         this._animController.update();
