@@ -11,6 +11,7 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
+
 import { ScriptComponent, inspectorAccessor, inspector } from "@Modules/script";
 
 // General Modules
