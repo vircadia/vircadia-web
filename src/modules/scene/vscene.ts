@@ -229,7 +229,7 @@ export class VScene {
         this._currentDomain = "SpaceStation";
 
         await this.load(
-            "/assets/scenes/spacestation.json",
+            "/assets/scenes/default.json",
             undefined,
             new Vector3(0, 58, 0));
     }
@@ -238,7 +238,7 @@ export class VScene {
         this._currentDomain = "Campus";
 
         await this.load(
-            "/assets/scenes/campus.json",
+            "/assets/scenes/default.json",
             undefined,
             new Vector3(25, 1, 30));
     }
