@@ -488,5 +488,9 @@ export class VScene {
         if (!this._scene.activeCamera) {
             this._scene.createDefaultCamera(true, true, true);
         }
+
+        if (!this._scene.activeCamera) {
+            this._scene.createDefaultCamera(true, true, true);
+        }
     }
 }
