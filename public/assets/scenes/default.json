@@ -47,7 +47,7 @@
         "ambientIntensity": 1.0
     },
         
-    "keyLightMode": "enabled",
+    "keyLightMode": "disabled",
     "ambientLightMode": "enabled",
     "skyboxMode": "enabled",
     "clientOnly": false,

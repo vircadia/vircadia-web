@@ -20,7 +20,7 @@ import {
 
 type AnimationName =
 "idle02" | "walk_fwd" | "walk_bwd" | "walk_left" | "walk_right" |
-"turn_left" | "turn_right";
+"turn_left" | "turn_right" | "jumping_temp" | "sitting_crosslegged";
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
@@ -43,7 +43,11 @@ export class AnimationController {
         }, false);
 
         animGroups.forEach((animGroup : AnimationGroup) => {
-            const newAnimGroup = AnimationController._cloneAnimGroup(animGroup, nodes);
+            let loopAnimation = true;
+            if (animGroup.name === "jumping_temp" || animGroup.name === "sitting_crosslegged") {
+                loopAnimation = false;
+            }
+            const newAnimGroup = AnimationController._cloneAnimGroup(animGroup, nodes, loopAnimation);
             this._animGroups.set(animGroup.name, newAnimGroup);
         });
 
@@ -56,13 +60,16 @@ export class AnimationController {
         }
     }
 
+    public getAnimationGroup(animName: AnimationName) : AnimationGroup | undefined {
+        return this._animGroups.get(animName);
+    }
+
     public update():void {
         if (this._currentAnim !== null && this._currentAnim !== this._prevAnim) {
             this._prevAnim?.stop();
             this._currentAnim.start(this._currentAnim.loopAnimation, 1.0, 2, this._currentAnim.to, false);
             this._prevAnim = this._currentAnim;
         }
-
     }
 
     static _cloneAnimGroup(sourceAnimGroup : AnimationGroup, nodes : Map<string, Node>, loop = true):AnimationGroup {
