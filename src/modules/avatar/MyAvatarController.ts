@@ -110,6 +110,7 @@ export class MyAvatarController extends ScriptComponent {
 
         const skeleton = new Array<SkeletonJoint>();
 
+        this._skeletonNodes.clear();
         const nodes = this._gameObject?.getChildren((node) => node.getClassName() === "TransformNode", false);
         nodes?.forEach((node) => {
             this._skeletonNodes.set(node.name, node as TransformNode);

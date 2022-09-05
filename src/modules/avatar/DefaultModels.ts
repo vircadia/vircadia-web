@@ -243,8 +243,6 @@ export function defaultAvatarModels(): AvatarEntryMap {
             scale: 1,
             starred: false
         } as AvatarEntry
-
-
     } as AvatarEntryMap;
 
     if (localAvatarModelList && localAvatarID) {

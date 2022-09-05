@@ -106,7 +106,6 @@ export class ScriptAvatarController extends ScriptComponent {
     }
 
     private _syncDefaultPoseFromDomain() {
-        // this._avatar.skeleton.forEach((joint) => {
         this._skeletonJointsCache.forEach((joint) => {
             const node = this._skeletonNodes.get(joint.jointName);
             if (node) {
