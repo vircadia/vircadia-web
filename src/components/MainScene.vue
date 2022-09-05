@@ -125,6 +125,7 @@ export default defineComponent({
         const scene = Renderer.createScene();
 
         // await scene.loadSceneUA92Campus();
+
         await scene.load("/assets/scenes/default.json");
 
         await Utility.connectionSetup(DEFAULT_DOMAIN_URL);
