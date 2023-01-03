@@ -393,11 +393,14 @@
                             </q-item>
                             <q-separator inset spaced />
                             <q-item-label header>About</q-item-label>
-                            <q-item-label></q-item-label>
                             <q-item>
                                 <q-item-section>
                                     <q-item-label>{{ $store.state.globalConsts.APP_NAME }}</q-item-label>
                                     <q-item-label caption>{{ $store.state.globalConsts.APP_VERSION_TAG }}</q-item-label>
+                                </q-item-section>
+                            </q-item>
+                            <q-item>
+                                <q-item-section>
                                     <q-item-label>Vircadia Web SDK</q-item-label>
                                     <q-item-label caption>{{ $store.state.globalConsts.SDK_VERSION_TAG }}</q-item-label>
                                 </q-item-section>
