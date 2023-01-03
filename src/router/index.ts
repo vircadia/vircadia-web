@@ -14,6 +14,11 @@ import {
 import { IRootState } from "../store";
 import routes from "./routes";
 
+function firstTimeSetupIsNeeded(): boolean {
+    const hasCompletedSetup = window.localStorage.getItem("hasCompletedSetup");
+    return !hasCompletedSetup;
+}
+
 /*
  * If not building with SSR mode, you can
  * directly export the Router instantiation;
@@ -40,6 +45,18 @@ export default route<IRootState>(function(/* { store, ssrContext } */) {
             // eslint-disable-next-line no-void
             process.env.MODE === "ssr" ? void 0 : process.env.VUE_ROUTER_BASE
         )
+    });
+
+    Router.beforeEach((to): { path: string } | undefined => {
+        if (
+            firstTimeSetupIsNeeded()
+            // Avoid an infinite redirect
+            && to.path !== "/first-time-setup"
+        ) {
+            // redirect the user to the login page
+            return { path: "/first-time-setup" };
+        }
+        return undefined;
     });
 
     return Router;

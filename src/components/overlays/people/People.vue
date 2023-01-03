@@ -9,18 +9,39 @@
 -->
 
 <style lang="scss" scoped>
-    .q-field {
-        background-color: rgba(0, 0, 0, 0.4);
+    .slide-left-enter-active,
+    .slide-left-leave-active {
+        transition: all 0.25s ease-out;
+    }
+
+    .slide-left-enter-active {
+        margin-left: 0px;
+    }
+
+    .slide-left-leave-active {
+        position: absolute;
+        // top: 18px;
+        // left: 4.5rem;
+    }
+
+    .slide-left-enter-from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+
+    .slide-left-leave-to {
+        opacity: 0;
+        transform: translateX(-30px);
     }
 </style>
 
 <template>
     <OverlayShell
         icon="people"
-        title="People"
+        :title="`People (${Array.from($store.state.avatars.avatarsInfo.keys()).length})`"
         :managerProps="propsToPass"
-        :defaultHeight="300"
-        :defaultWidth="300"
+        :defaultHeight="500"
+        :defaultWidth="350"
         :defaultLeft="300"
         :hoverShowBar="false"
         :style="{
@@ -39,40 +60,131 @@
                 <q-list v-if="Array.from($store.state.avatars.avatarsInfo.keys()).length > 0">
                     <q-item
                         v-for="avaInfo in $store.state.avatars.avatarsInfo.values()"
-                        :key="avaInfo.sessionId"
-                        class="q-mb-sm"
+                        :key="avaInfo.sessionId.stringify()"
+                        class="q-mb-none"
+                        dense
                         clickable
                         v-ripple
+                        @click="
+                            showMoreOptions[avaInfo.sessionId.stringify()] = !showMoreOptions[avaInfo.sessionId.stringify()]"
                     >
                         <q-item-section avatar>
-                            <q-avatar class="q-mb-sm" color="primary">
+                            <q-avatar class="q-mb-sm" color="primary" >
                                 <img v-if="getProfilePicture(avaInfo)"
-                                    :src="getProfilePicture(avaInfo)">
-                                <span v-else>{{ getDisplayName(avaInfo) }}</span>
+                                    :src="getProfilePicture(avaInfo)"
+                                    @click='complementMuted(avaInfo)'>
+                                <span v-else style="user-select: none;">{{ getDisplayName(avaInfo).substring(0, 2) }}</span>
                             </q-avatar>
                         </q-item-section>
                         <q-item-section>
-                            <div class="col q-pt-sm">
-                                <q-item-label>{{ getDisplayName(avaInfo) }}</q-item-label>
-                                <q-item-label v-if="avaInfo.isAdmin" caption lines="1">Admin</q-item-label>
+                            <div class="col q-pt-none">
                                 <div class="row" style="align-items: center;gap: 16px;">
-                                    <q-slider
-                                        v-model="avaInfo.volume"
-                                        :min="0"
-                                        :max="100"
-                                        :step="10"
-                                        snap
-                                        :color="avaInfo.muted || avaInfo.volume === 0 ? 'red' : 'primary'"
-                                        style="width: calc(100% - 48px);"
-                                    />
-                                    <q-icon
-                                        size="sm"
+                                    <q-item-label>{{ getDisplayName(avaInfo) }}</q-item-label>
+                                    <q-item-label v-if="avaInfo.isAdmin" caption lines="1">Admin</q-item-label>
+                                    <q-btn
+                                        flat
                                         round
-                                        @click='complementMuted(avaInfo)'
-                                        :color="avaInfo.muted || avaInfo.volume === 0 ? 'red' : 'primary'"
-                                        :name="avaInfo.muted || avaInfo.volume === 0 ? 'volume_off' : 'volume_up'"
+                                        dense
+                                        ripple
+                                        icon="more_horiz"
+                                        :text-color="$q.dark.isActive ? 'white' : 'dark'"
+                                        title="More options"
+                                        style="margin-left: auto;"
+                                        @click.stop="
+                                            showMoreOptions[avaInfo.sessionId.stringify()] =
+                                            !showMoreOptions[avaInfo.sessionId.stringify()]"
                                     />
                                 </div>
+                                <TransitionGroup name="slide-left">
+                                    <div
+                                        v-if="showMoreOptions[avaInfo.sessionId.stringify()]"
+                                        class="row q-mb-none q-pt-xs"
+                                        style="align-items: center;gap: 4px;width: 100%;"
+                                    >
+                                        <q-btn
+                                            icon="place"
+                                            text-color="primary"
+                                            flat
+                                            round
+                                            dense
+                                            ripple
+                                            :title="`Teleport to ${avaInfo.displayName}`"
+                                            @click.stop="teleportToAvatar(avaInfo)"
+                                        ></q-btn>
+                                        <q-btn
+                                            icon="person_add_alt_1"
+                                            text-color="primary"
+                                            flat
+                                            round
+                                            dense
+                                            ripple
+                                            title="Add friend"
+                                            disable
+                                            @click.stop=""
+                                        ></q-btn>
+                                        <template v-if="$store.state.account.isAdmin">
+                                            <!--Admin Controls-->
+                                            <q-btn
+                                                icon="volume_off"
+                                                text-color="negative"
+                                                flat
+                                                round
+                                                dense
+                                                ripple
+                                                title="Server mute"
+                                                @click.stop=""
+                                            ></q-btn>
+                                            <q-btn
+                                                icon="logout"
+                                                text-color="negative"
+                                                flat
+                                                round
+                                                dense
+                                                ripple
+                                                title="Kick player"
+                                                @click.stop=""
+                                            ></q-btn>
+                                            <q-btn
+                                                icon="remove_circle"
+                                                text-color="negative"
+                                                flat
+                                                round
+                                                dense
+                                                ripple
+                                                title="Ban player"
+                                                @click.stop=""
+                                            ></q-btn>
+                                        </template>
+                                    </div>
+                                    <div
+                                        v-else
+                                        class="row"
+                                        style="align-items: center;gap: 16px;min-width: 70%;"
+                                    >
+                                        <q-slider
+                                            :min="0"
+                                            :max="100"
+                                            :step="10"
+                                            snap
+                                            :color="avaInfo.muted || avaInfo.volume === 0 ? 'red' : 'primary'"
+                                            style="width: calc(100% - 48px);"
+                                            :model-value="avaInfo.volume"
+                                            @update:model-value="(value) => updateVolume(avaInfo.sessionId, value)"
+                                        />
+                                        <q-icon
+                                            role="button"
+                                            size="sm"
+                                            flat
+                                            round
+                                            ripple
+                                            :color="avaInfo.muted || avaInfo.volume === 0 ? 'red' : 'primary'"
+                                            :name="avaInfo.muted || avaInfo.volume === 0 ? 'volume_off' : 'volume_up'"
+                                            :title="avaInfo.muted || avaInfo.volume === 0 ?
+                                                `Unmute ${avaInfo.displayName}` : `Mute ${avaInfo.displayName}`"
+                                            @click.stop="complementMuted(avaInfo)"
+                                        />
+                                    </div>
+                                </TransitionGroup>
                             </div>
                         </q-item-section>
                     </q-item>
@@ -91,6 +203,8 @@ import { defineComponent } from "vue";
 
 import OverlayShell from "../OverlayShell.vue";
 import { Store, Mutations as StoreMutations, AvatarInfo } from "@Store/index";
+import { Renderer } from "@Modules/scene";
+import { Uuid } from "@vircadia/web-sdk";
 
 export interface PeopleEntry {
     displayName: string;
@@ -119,6 +233,7 @@ export default defineComponent({
     },
 
     data: () => ({
+        showMoreOptions: {} as { [key: string]: boolean },
         // Following is legacy test code. Can be removed when real stuff is working
         peopleList: [] as PeopleEntry[],
         testLocal: [
@@ -195,9 +310,6 @@ export default defineComponent({
         ]
     }),
 
-    computed: {
-    },
-
     methods: {
         // Load test data. Can be removed when real code is working
         loadPeopleList() {
@@ -212,10 +324,10 @@ export default defineComponent({
             }
         },
 
-        // Get the profile picture for this avatar or 'null' if none
+        // Get the profile picture for this avatar or 'undefined' if none
         // Note: can methods be async since fetching the profile picture is a network op
         // Note: is this fetched through the domain-server? Here we have sessionID, not accountID.
-        getProfilePicture(pAvaInfo: AvatarInfo): string | null {
+        getProfilePicture(pAvaInfo: AvatarInfo): string | undefined {
             // Should store profile pictures after retrieving and then pull each
             // subsequent one from cache instead of hitting metaverse every time.
 
@@ -225,16 +337,26 @@ export default defineComponent({
             if (dn && dn === "testerino") {
                 return "https://cdn.quasar.dev/img/avatar4.jpg";
             }
-            return null;
+            return undefined;
         },
 
         // Get the avatar's display name from the info.
         getDisplayName(pAvaInfo: AvatarInfo): string {
-            return pAvaInfo.displayName ?? "...";
+            return pAvaInfo.displayName ?? "anonymous";
         },
 
-        // complement the value of the muted data for this particular avatar
-        // Must be done with MUTATE since the value is in $store
+        // Update the volume of a given avatar.
+        updateVolume(sessionId: Uuid, value: number | null) {
+            if (value) {
+                Store.commit(StoreMutations.UPDATE_AVATAR_VALUE, {
+                    sessionId,
+                    field: "volume",
+                    value
+                });
+            }
+        },
+
+        // Complement the value of the muted data for this particular avatar.
         complementMuted(pAvaInfo: AvatarInfo): void {
             const newMute = !pAvaInfo.muted;
             Store.commit(StoreMutations.UPDATE_AVATAR_VALUE, {
@@ -242,6 +364,10 @@ export default defineComponent({
                 field: "muted",
                 value: newMute
             });
+        },
+
+        teleportToAvatar(pAvaInfo: AvatarInfo) {
+            Renderer.getScene().teleportMyAvatarToOtherPeople(pAvaInfo.sessionId.stringify());
         }
     },
 
@@ -251,8 +377,5 @@ export default defineComponent({
         // of friends, previews of users in worlds, etc.
         // this.loadPeopleList();
     }
-
-    // mounted: function () {
-    // }
 });
 </script>

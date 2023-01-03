@@ -14,11 +14,11 @@ import { DomainAudio } from "@Modules/domain/audio";
 import { DomainMessage } from "@Modules/domain/message";
 import { DomainAvatar } from "@Modules/domain/avatar";
 
-import { Store, Actions as StoreActions } from "@Store/index";
+import { Store, Actions } from "@Store/index";
 
-import { Config, DEFAULT_METAVERSE_URL, DEFAULT_DOMAIN_PROTOCOL, DEFAULT_DOMAIN_PORT } from "@Base/config";
 import Log from "@Modules/debugging/log";
 import { Client } from "./client";
+import { Location } from "./location";
 
 // Routines connected to the onStateChange Signal, receive calls of this format:
 export type OnDomainStateChangeCallback = (d: Domain, newState: string, info: string) => void;
@@ -54,8 +54,14 @@ export enum ConnectionState {
  * ```
  */
 export class Domain {
-    #_domainUrl = "UNKNOWN";
-    public get DomainUrl(): string { return this.#_domainUrl; }
+
+    // #_domainUrl = "UNKNOWN";
+    // public get DomainUrl(): string { return this.#_domainUrl; }
+
+    #_location = new Location("");
+    public get Location() : Location {
+        return this.#_location;
+    }
 
     #_domain: Nullable<DomainServer>;
     #_audioClient: Nullable<DomainAudio>;
@@ -69,6 +75,7 @@ export class Domain {
     public get MessageClient(): Nullable<DomainMessage> { return this.#_messageClient; }
     public get AvatarClient(): Nullable<DomainAvatar> { return this.#_avatarClient; }
     public get EntityClient(): Nullable<EntityServer> { return this.#_entityClient; }
+    public get Camera(): Nullable<Camera> { return this.#_camera; }
 
     // Return domain's contextID or zero
     public get ContextId(): number { return this.#_domain?.contextID ?? 0; }
@@ -85,7 +92,7 @@ export class Domain {
 
     constructor() {
         this.onStateChange = new SignalEmitter();
-        this.restorePersistentVariables();
+        // this.restorePersistentVariables();
     }
 
     public static get DISCONNECTED(): string { return DomainServer.stateToString(DomainServer.DISCONNECTED); }
@@ -105,14 +112,22 @@ export class Domain {
             throw new Error(`Attempt to connect to domain when already connected`);
         }
         // create domain instance from SDK
-        this.#_domainUrl = Domain.cleanDomainUrl(pUrl);
+        // this.#_domainUrl = Domain.cleanDomainUrl(pUrl);
+        this.#_location = new Location(pUrl);
+        if (this.#_location.protocol === "") {
+            this.#_location.protocol = Store.state.defaultConnectionConfig.DEFAULT_DOMAIN_PROTOCOL;
+        }
+        if (this.#_location.port === "") {
+            this.#_location.port = Store.state.defaultConnectionConfig.DEFAULT_DOMAIN_PORT;
+        }
+
         Log.debug(Log.types.COMM, `Creating a new DomainServer`);
         this.#_domain = new DomainServer();
 
         this.#_camera = new Camera(this.#_domain.contextID);
+        this.#_camera.centerRadius = 1000;
 
         // Get instances of all the possible clients
-
         this.#_avatarClient = new DomainAvatar(this);
 
         this.#_messageClient = new DomainMessage(this);
@@ -122,15 +137,19 @@ export class Domain {
         this.#_entityClient = new EntityServer(this.ContextId);
 
         // connect to the domain. The 'connected' event will say if the connection as made.
-        Log.debug(Log.types.COMM, `Connecting to domain at ${this.#_domainUrl}`);
+        // Log.debug(Log.types.COMM, `Connecting to domain at ${this.#_domainUrl}`);
+        Log.debug(Log.types.COMM, `Connecting to domain at ${this.#_location.href}`);
         this.#_domain.onStateChanged = this._handleOnDomainStateChange.bind(this);
-        this.#_domain.connect(this.#_domainUrl);
+
+        // this.#_domain.connect(this.#_domainUrl);
+        this.#_domain.connect(this.#_location.href);
         return this;
     }
 
     // eslint-disable-next-line @typescript-eslint/require-await
     async disconnect(): Promise<void> {
-        Log.info(Log.types.COMM, `Domain: disconnect of domain ${this.DomainUrl}`);
+        // Log.info(Log.types.COMM, `Domain: disconnect of domain ${this.DomainUrl}`);
+        Log.info(Log.types.COMM, `Domain: disconnect of domain ${this.#_location.href}`);
         if (this.#_domain) {
             this.#_domain.disconnect();
             this.#_domain = undefined;
@@ -146,7 +165,7 @@ export class Domain {
         this.onStateChange.emit(this, pState, pInfo);
 
         // eslint-disable-next-line no-void
-        void Store.dispatch(StoreActions.UPDATE_DOMAIN, {
+        void Store.dispatch(Actions.UPDATE_DOMAIN, {
             domain: this,
             newState: this.#_domain?.state,
             info: pInfo
@@ -175,7 +194,7 @@ export class Domain {
     // eslint-disable-next-line class-methods-use-this,@typescript-eslint/require-await
     async getMetaverseUrl(): Promise<string> {
         // Eventually need to talk to the domain-server to get the URL
-        return Config.getItem(DEFAULT_METAVERSE_URL);
+        return Store.state.defaultConnectionConfig.DEFAULT_METAVERSE_URL;
     }
 
     /**
@@ -196,12 +215,12 @@ export class Domain {
             url = url.substring(8);
         }
         if (!(url.startsWith("ws://") || url.startsWith("wss://"))) {
-            url = Config.getItem(DEFAULT_DOMAIN_PROTOCOL) + "//" + url;
+            url = Store.state.defaultConnectionConfig.DEFAULT_DOMAIN_PROTOCOL + "//" + url;
         }
 
         const fullUrl = new URL(url);
         if (fullUrl.port === "") {
-            fullUrl.port = Config.getItem(DEFAULT_DOMAIN_PORT);
+            fullUrl.port = Store.state.defaultConnectionConfig.DEFAULT_DOMAIN_PORT;
         }
 
         url = fullUrl.href;
@@ -219,18 +238,20 @@ export class Domain {
      * Some values persist across sessions so, the next time the user opens the app, the
      * previous known values are restored and connection is automatically made.
      */
-    storePersistentVariables(): void {
-        Config.setItem(DomainPersist.DOMAIN_URL, this.#_domainUrl);
-    }
+    // storePersistentVariables(): void {
+    //     // Config.setItem(DomainPersist.DOMAIN_URL, this.#_domainUrl);
+    //     Config.setItem(DomainPersist.DOMAIN_URL, this.#_location.href);
+    // }
 
     /**
      * Fetch and set persistantly stored variables.
      *
      * Note that this does not do any reactive pushing so this is best used to initialize.
      */
-    restorePersistentVariables(): void {
-        this.#_domainUrl = Config.getItem(DomainPersist.DOMAIN_URL, "UNKNOWN");
-    }
+    // restorePersistentVariables(): void {
+    //     // this.#_domainUrl = Config.getItem(DomainPersist.DOMAIN_URL, "UNKNOWN");
+    //     this.#_location = new Location(Config.getItem(DomainPersist.DOMAIN_URL, "UNKNOWN"));
+    // }
 
     public update() : void {
         if (this.#_avatarClient) {
@@ -240,5 +261,9 @@ export class Domain {
         if (this.#_entityClient) {
             this.#_entityClient.update();
         }
+        /*
+        if (this.#_camera) {
+            this.#_camera.update();
+        } */
     }
 }

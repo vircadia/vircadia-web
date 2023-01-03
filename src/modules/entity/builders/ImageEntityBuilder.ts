@@ -21,11 +21,7 @@ export class ImageEntityBuilder extends AbstractEntityBuilder {
 
     // eslint-disable-next-line class-methods-use-this
     public build(gameObject: GameObject, entity: IEntity) : void {
-        const imageEntity = entity as IImageEntity;
-
-        if (!gameObject.getComponent("ImageEntityController")) {
-            gameObject.addComponent(new ImageEntityController(imageEntity));
-        }
+        gameObject.addComponent(new ImageEntityController(entity as IImageEntity));
     }
 
 }

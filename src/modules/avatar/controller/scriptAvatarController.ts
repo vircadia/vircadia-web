@@ -15,7 +15,7 @@ import {
 } from "@babylonjs/core";
 // General Modules
 import Log from "@Modules/debugging/log";
-import { AvatarMapper } from "./AvatarMapper";
+import { AvatarMapper } from "../AvatarMapper";
 // Domain Modules
 import { ScriptAvatar, vec3, quat, SkeletonJoint } from "@vircadia/web-sdk";
 import { ScriptComponent, inspectorAccessor } from "@Modules/script";
@@ -56,23 +56,19 @@ export class ScriptAvatarController extends ScriptComponent {
     }
 
     public onInitialize(): void {
-        Log.debug(Log.types.AVATAR,
-            `${this.name} onInitialize`);
         const rootNode = this._gameObject?.getChildren()[0];
         if (rootNode) {
             this._collectSkeletonNode(rootNode);
         }
 
-        // NOTE:
-        // call this._avatar.skeleton hits performance.
-        // chace default joints value here.
-        this._avatar.skeleton.forEach((joint) => {
-            this._skeletonJointsCache.push(joint);
-        });
+        this._cacheJoints();
 
         this._syncDefaultPoseFromDomain();
 
         this._avatar.scaleChanged.connect(this._handleScaleChanged.bind(this));
+        this._avatar.skeletonChanged.connect(() => {
+            this._cacheJoints();
+        });
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
@@ -157,5 +153,23 @@ export class ScriptAvatarController extends ScriptComponent {
 
     private _isVaildParentIndex(index: number) : boolean {
         return index >= 0 && index < this._skeletonJointsCache.length;
+    }
+
+    // NOTE:
+    // call this._avatar.skeleton hits performance.
+    // chace default joints value here.
+    private _cacheJoints() : void {
+        this._skeletonJointsCache = [];
+        this._avatar.skeleton.forEach((joint) => {
+            this._skeletonJointsCache.push(joint);
+        });
+
+        if (this._avatar.skeleton.length <= 0) {
+            Log.error(Log.types.AVATAR, `skeleton of ${this._getGameObjectName()} is empty`);
+        }
+    }
+
+    private _getGameObjectName() : string {
+        return this._gameObject ? this._gameObject.name : "";
     }
 }

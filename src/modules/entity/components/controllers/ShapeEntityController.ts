@@ -9,73 +9,61 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
-
-// General Modules
 import Log from "@Modules/debugging/log";
-// Domain Modules
+
 import { EntityController } from "./EntityController";
 import { IShapeEntity } from "../../EntityInterfaces";
-import { MeshComponent } from "@Base/modules/object";
-import { ShapeEntityBuilder } from "../../builders";
+import { ShapeComponent } from "../components";
 
 export class ShapeEntityController extends EntityController {
-    // domain properties
     _shapeEntity : IShapeEntity;
+    _shapeComponent : Nullable<ShapeComponent> = null;
 
     constructor(entity : IShapeEntity) {
-        super(entity, "ShapeEntityController");
+        super(entity, ShapeEntityController.typeName);
         this._shapeEntity = entity;
+    }
+
+    static get typeName(): string {
+        return "ShapeEntityController";
     }
 
     /**
     * Gets a string identifying the type of this Component
-    * @returns "EntityController" string
+    * @returns "ShapeEntityController" string
     */
     // eslint-disable-next-line class-methods-use-this
     public get componentType():string {
-        return "ShapeEntityController";
+        return ShapeEntityController.typeName;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
     public onInitialize(): void {
         super.onInitialize();
-        this._shapeEntity.onShapeChanged?.add(this._handleShapeChanged.bind(this));
-        this._shapeEntity.onColorChanged?.add(this._handleColorChanged.bind(this));
-        this._shapeEntity.onDimensionChanged?.add(this._handleDimensionChanged.bind(this));
+
+        this._shapeComponent = new ShapeComponent();
+        this._gameObject?.addComponent(this._shapeComponent);
+
+        this._shapeEntity.onShapeChanged?.add(() => {
+            this._shapeComponent?.updateShape(this._shapeEntity);
+        });
+
+        this._shapeEntity.onColorChanged?.add(() => {
+            this._shapeComponent?.updateColor(this._shapeEntity);
+        });
+
+        this._shapeEntity.onDimensionChanged?.add(() => {
+            this._shapeComponent?.updateDimensions(this._shapeEntity);
+        });
+
+        this._shapeEntity.onCollisionPropertiesChanged?.add(() => {
+            this._shapeComponent?.updateCollisionProperties(this._shapeEntity);
+        });
     }
 
     public onStart(): void {
+        this._shapeComponent?.load(this._shapeEntity);
         super.onStart();
-        // this._handleShapeChanged();
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
-    public onUpdate():void {
-
-    }
-
-    private _handleShapeChanged(): void {
-        if (this._shapeEntity.shape && this._gameObject) {
-            ShapeEntityBuilder.buildMesh(this._gameObject, this._shapeEntity);
-        }
-    }
-
-    private _handleColorChanged(): void {
-        if (this._shapeEntity.color && this._gameObject) {
-            const comp = this._gameObject.getComponent("Mesh") as MeshComponent;
-            if (comp && comp.mesh) {
-                ShapeEntityBuilder.buildColor(comp.mesh, this._shapeEntity);
-            }
-        }
-    }
-
-    private _handleDimensionChanged(): void {
-        if (this._shapeEntity.color && this._gameObject) {
-            const comp = this._gameObject.getComponent("Mesh") as MeshComponent;
-            if (comp && comp.mesh) {
-                ShapeEntityBuilder.buildDimensions(comp.mesh, this._shapeEntity);
-            }
-        }
     }
 
 }

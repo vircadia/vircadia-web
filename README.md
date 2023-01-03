@@ -1,6 +1,23 @@
 # Vircadia Web
 
-Vircadia Web (*codename Aether*) is a web based client for accessing virtual worlds.
+## ⚠️ Early Developer Alpha ⚠️
+### The Vircadia web client is in Early Developer Alpha! There will be unimplemented features and bugs.
+***Please take a moment to check the list of issues and file an issue if one does not exist already.
+If you are able, please try to implement a feature or fix a bug yourself! The metaverse appreciates your assistance. 🙏***
+
+Vircadia Web (*codename Aether*) is an open source metaverse web client for accessing virtual worlds.
+
+## Compatibility
+
+This interface is tested and validated for the following browser platforms:
+* Mobile, Tablet, Desktop
+    * Chromium (Chrome, Brave, etc.)
+    * Webkit (Safari)
+    * Gecko (Firefox)
+* XR on Android *(COMING SOON!)*
+    * Quest 2/Quest Pro
+    * Pico 4
+    * Vive Focus 3
 
 ## Project Setup
 
@@ -8,17 +25,23 @@ Vircadia Web (*codename Aether*) is a web based client for accessing virtual wor
 
 We currently use the following:
 
-* Node `14.15.4`
-* NPM `6.14.10`
+* Node `16.18.1`
+* NPM `8.19.2`
 
-### Install Quasar CLI
+*(Use of Node versions greater than stated is untested and may not support all features.)*
 
-Install Quasar CLI using NPM [here](https://quasar.dev/start/quasar-cli).
+### Clone the Repo
+
+First, clone the repository to your machine with Git. Then, open a terminal in that directory.
 
 ### Install the dependencies
 
-```
+```sh
 npm i
+```
+or
+```sh
+yarn
 ```
 
 ## Run, Compile, and Test
@@ -27,31 +50,35 @@ npm i
 
 Development mode benefits from features like hot-code reloading, error reporting, etc.
 
-```
+```sh
 npm run dev
+```
+or
+```
+yarn run dev
 ```
 
 ### Lint the files
 
-```
+```sh
 npm run lint
 ```
 
 And fix lint issues automatically with
 
-```
+```sh
 npm run lint -- --fix
 ```
 
 ### Run tests
 
-```
+```sh
 npm run test
 ```
 
 ### Build the app for production
 
-```
+```sh
 npm run build
 ```
 
@@ -61,14 +88,6 @@ See [Configuring quasar.conf.js](https://v2.quasar.dev/quasar-cli/quasar-conf-js
 
 ### To Update Contributors
 
-Use git-authors-cli:
-
-```
-sudo  npm install git-authors-cli --global
-```
-
-Then inside the project directory run:
-
-```
-git-authors-cli
+```sh
+npm run update-contributors
 ```

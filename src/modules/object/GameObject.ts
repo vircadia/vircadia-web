@@ -17,7 +17,8 @@
 import {
     Scene,
     Mesh,
-    AbstractMesh
+    Observable,
+    Nullable
 } from "@babylonjs/core";
 
 import { IComponent } from "./component";
@@ -30,10 +31,12 @@ import Log from "@Modules/debugging/log";
  */
 export class GameObject extends Mesh {
     _components : Map<string, IComponent>;
-    private _trigger: Nullable<AbstractMesh> = undefined;
+    protected _childGameObjects: Array<GameObject> = new Array<GameObject>();
+    protected _onComponentAddedObservable: Observable<IComponent> = new Observable<IComponent>();
 
-    static _gameObjects : Array<GameObject> = new Array<GameObject>();
-    static _dontDestroyOnLoadList : Array<GameObject> = new Array<GameObject>();
+    private static _gameObjects : Array<GameObject> = new Array<GameObject>();
+    private static _dontDestroyOnLoadList : Array<GameObject> = new Array<GameObject>();
+    private static _onGameObjectAddedObservable: Observable<GameObject> = new Observable<GameObject>();
 
     constructor(name: string, scene?: Nullable<Scene>) {
         super(name, scene);
@@ -50,12 +53,17 @@ export class GameObject extends Mesh {
         return this._components;
     }
 
+    public get onComponentAddedObservable(): Observable<IComponent> {
+        return this._onComponentAddedObservable;
+    }
+
     /**
     * Adds a component to this game object.
     */
     public addComponent(component : IComponent) : void {
         this._components.set(component.componentType, component);
         component.attach(this);
+        this._onComponentAddedObservable.notifyObservers(component);
     }
 
     /**
@@ -67,6 +75,39 @@ export class GameObject extends Mesh {
 
     public hasComponent(componentType : string) : boolean {
         return this._components.has(componentType);
+    }
+
+    public addChildGameObject(gameObject: GameObject) : void {
+        if (gameObject.parent !== this) {
+            gameObject.parent = this;
+            this._childGameObjects.push(gameObject);
+        }
+    }
+
+    public getChildGameObjectByName(name: string) : GameObject | undefined {
+        return this._childGameObjects.find((gameObject) => gameObject.name === name);
+    }
+
+    public removeChildGameObject(gameObject: GameObject) : void {
+        if (gameObject.parent !== this) {
+            Log.warn(Log.types.ENTITIES, `GameObject ${this.name} does not has child ${gameObject.name}`);
+            return;
+        }
+
+        const index = this._childGameObjects.indexOf(gameObject);
+        if (index !== -1) {
+            this._childGameObjects.splice(index, 1);
+        }
+
+        gameObject.parent = null;
+    }
+
+    public getChildGameObjects() : GameObject[] {
+        return this._childGameObjects;
+    }
+
+    public getParent() : GameObject {
+        return this.parent as GameObject;
     }
 
     /**
@@ -91,8 +132,15 @@ export class GameObject extends Mesh {
      * @param disposeMaterialAndTextures Set to true to also dispose referenced materials and textures (false by default)
      */
     public dispose(doNotRecurse?: boolean, disposeMaterialAndTextures = false): void {
-        super.dispose(doNotRecurse, disposeMaterialAndTextures);
+        this._components.forEach((comp) => {
+            comp.dispose();
+        });
+
+        this._components.clear();
+
         GameObject._removeGameObject(this);
+
+        super.dispose(doNotRecurse, disposeMaterialAndTextures);
     }
 
     public static getGameObjectByID(id:string) : GameObject | undefined {
@@ -107,12 +155,17 @@ export class GameObject extends Mesh {
         return this._dontDestroyOnLoadList;
     }
 
+    public static get onGameObjectAddedObservable(): Observable<GameObject> {
+        return this._onGameObjectAddedObservable;
+    }
+
     public static dontDestroyOnLoad(target: GameObject) : void {
         this._dontDestroyOnLoadList.push(target);
     }
 
     private static _addGameObject(target: GameObject) {
         this._gameObjects.push(target);
+        this._onGameObjectAddedObservable.notifyObservers(target);
     }
 
     private static _removeGameObject(target: GameObject) {

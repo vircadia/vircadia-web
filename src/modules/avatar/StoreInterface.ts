@@ -9,7 +9,9 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
+import { fallbackAvatar, fallbackAvatarModel } from "./DefaultModels";
 import { Store, Mutations as StoreMutations } from "@Store/index";
+import { Renderer } from "@Modules/scene";
 
 export interface AvatarEntry {
     name: string,
@@ -25,7 +27,7 @@ export interface AvatarEntryMap {
 
 function generateID(): string {
     // eslint-disable-next-line max-len
-    const chars = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     const idLength = 8;
     let ID = "";
     for (let i = 0; i < idLength; i += 1) {
@@ -35,12 +37,12 @@ function generateID(): string {
 }
 
 export const AvatarStoreInterface = {
-    getModelData(modelId: string, key?: keyof AvatarEntry): AvatarEntry | string | number | boolean {
+    getModelData(modelId: string | number, key?: keyof AvatarEntry): AvatarEntry | string | number | boolean {
         const models = Store.state.avatar.models as { [key: string]: AvatarEntry };
-        if (key && key in models[modelId]) {
+        if (key && key in (models[modelId] || fallbackAvatar())) {
             return models[modelId][key];
         }
-        return models[modelId];
+        return models[modelId] || fallbackAvatar();
     },
 
     getActiveModelData(key?: keyof AvatarEntry): AvatarEntry | string | number | boolean {
@@ -52,12 +54,16 @@ export const AvatarStoreInterface = {
         return JSON.stringify(Store.state.avatar.models);
     },
 
-    setModelData(modelId: string, key: keyof AvatarEntry, value: string | number | boolean): void {
+    setModelData(modelId: string | number, key: keyof AvatarEntry, value: string | number | boolean): void {
         if (modelId in Store.state.avatar.models) {
             Store.commit(StoreMutations.MUTATE, {
                 property: `avatar.models.${modelId}.${key}`,
                 value
             });
+
+            if (key === "file") {
+                this.setActiveModel(modelId);
+            }
         }
     },
 
@@ -82,21 +88,44 @@ export const AvatarStoreInterface = {
         });
 
         if (setToActive) {
-            Store.commit(StoreMutations.MUTATE, {
-                property: `avatar.activeModel`,
-                value: ID
-            });
+            this.setActiveModel(ID);
         }
 
         return ID;
     },
 
-    setActiveModel(modelId: string): void {
+    removeModel(modelId: string | number): void {
+        if (modelId === Store.state.avatar.activeModel) {
+            this.setActiveModel(fallbackAvatarModel());
+        }
+        const currentModels = { ...Store.state.avatar.models };
+
+        if (modelId in currentModels) {
+            delete currentModels[modelId];
+        }
+
+        Store.commit(StoreMutations.MUTATE, {
+            property: `avatar.models`,
+            value: currentModels
+        });
+    },
+
+    setActiveModel(modelId: string | number): void {
         if (modelId in Store.state.avatar.models) {
             Store.commit(StoreMutations.MUTATE, {
                 property: "avatar.activeModel",
                 value: modelId
             });
+        }
+        try {
+            const scene = Renderer.getScene();
+            scene.loadMyAvatar(AvatarStoreInterface.getModelData(modelId, "file") as string)
+                // .catch is a syntax error!?
+                // eslint-disable-next-line @typescript-eslint/dot-notation
+                .catch((err) => console.warn("Failed to load avatar:", err));
+        } catch (error) {
+            console.warn(error);
+            console.warn("Cannot render active avatar model before the scene has been loaded.");
         }
     }
 };

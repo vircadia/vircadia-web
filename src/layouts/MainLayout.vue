@@ -1,3 +1,4 @@
+<!-- eslint-disable max-len -->
 <!--
 //  MainLayout.vue
 //
@@ -15,9 +16,41 @@
     The page top bar contains connected information.
     Overlay dialogs are controlled by $store.state.dialog settings.
 -->
+
+<style scoped lang="scss">
+.verticalAudioLevel {
+    position: relative;
+    display: block;
+    width: 0.7ch;
+    min-height: 40px;
+    color: $primary;
+    font-size: 1rem;
+    background-color: #8884;
+    border-radius: 0.7ch;
+    overflow: hidden;
+
+    > span {
+        position: absolute;
+        bottom: 0px;
+        display: block;
+        width: 100%;
+        height: 0%;
+        color: inherit;
+        background-color: currentColor;
+        border-radius: inherit;
+        transition: 0.05s ease height;
+    }
+}
+</style>
+
 <template>
     <q-layout class="full-height" id="mainLayout" view="lHh Lpr lFf">
-        <q-header id="header" elevated style="background-color: unset; color: unset;">
+        <q-header
+            id="header"
+            elevated
+            style="color: unset;background-color: unset;"
+            :style="{background: headerStyle}"
+        >
             <div class="row no-wrap">
 <!--
                 <q-toolbar
@@ -35,7 +68,7 @@
                         <div>{{ $store.state.globalConsts.APP_VERSION_TAG }}</div>
                     </div>
                 </q-toolbar> -->
-                <q-toolbar>
+                <q-toolbar :style="{ padding: isMobile ? '0px 0px 0px 8px' : '0px 12px' }">
                     <q-btn
                         flat
                         round
@@ -48,6 +81,7 @@
                     <q-separator dark vertical inset />
 
                     <q-btn
+                        v-if="isDesktop"
                         flat
                         round
                         dense
@@ -57,8 +91,16 @@
                         class="q-mr-sm q-ml-sm"
                     />
 
+                    <div class="verticalAudioLevel q-my-auto">
+                        <span
+                            :class="`text-${microphoneColor}`"
+                            :style="{ height: `${AudioIOInstance.inputLevel}%` }"
+                        ></span>
+                    </div>
+
                     <div>
                         <q-btn-dropdown
+                            v-if="isDesktop"
                             split
                             flat
                             round
@@ -71,19 +113,20 @@
                                 'Unmute microphone' :
                                 'Mute microphone'"
                             :icon="$store.state.audio.user.muted || !$store.state.audio.user.hasInputAccess ? 'mic_off' : 'mic'"
-                            :color="determineMicColor()"
-                            @click="micToggled"
+                            :color="microphoneColor"
                             class="q-mr-sm q-ml-sm"
                             :style="{
                                 backgroundColor: $q.dark.isActive ? '#282828' : '#e8e8e8'
                             }"
                             :disable-dropdown="!$store.state.audio.user.hasInputAccess"
+                            v-model="micMenuState"
+                            @click="toggleMicrophoneMute"
                         >
-                            <q-list style="max-width: 300px;">
+                            <q-list style="max-width: 300px;" @click.stop="">
                                 <q-item v-for="input in $store.state.audio.inputsList" :key="input.deviceId">
                                     <q-radio
-                                        @click="requestInputAccess(input.deviceId)"
-                                        v-model="selectedInputStore"
+                                        @click="AudioIOInstance.requestInputAccess(input.deviceId);micMenuState = false;"
+                                        v-model="AudioIOInstance.selectedInput"
                                         :val="input.label"
                                         :label="input.label"
                                         :title="input.label"
@@ -93,6 +136,27 @@
                                 </q-item>
                             </q-list>
                         </q-btn-dropdown>
+                        <q-btn
+                            v-else
+                            split
+                            flat
+                            round
+                            dense
+                            fab-mini
+                            :title="
+                                !$store.state.audio.user.hasInputAccess ?
+                                undefined :
+                                $store.state.audio.user.muted ?
+                                'Unmute microphone' :
+                                'Mute microphone'"
+                            :icon="$store.state.audio.user.muted || !$store.state.audio.user.hasInputAccess ? 'mic_off' : 'mic'"
+                            :color="microphoneColor"
+                            @click="toggleMicrophoneMute"
+                            class="q-mr-sm q-ml-sm"
+                            :style="{
+                                backgroundColor: $q.dark.isActive ? '#282828' : '#e8e8e8'
+                            }"
+                        />
                         <q-tooltip
                             v-if="!$store.state.audio.user.hasInputAccess"
                             class="bg-black"
@@ -103,75 +167,139 @@
 
                     <q-toolbar-title>
                         <q-item-section>
-                            <q-item-label>
-                                {{ getLocation }}
-                            </q-item-label>
-                            <q-item-label caption  class="text-grey">
+                            <q-item-label :style="{ fontSize: isMobile ? '0.8em' : 'inherit' }" :title="getDomainServerState">
                                 {{ getDomainServerState }}
-
-                                <q-btn
-                                    v-show="getShowDisconnect"
-                                    dense
-                                    color="purple"
-                                    size="sm"
-                                    class="q-ml-sm absolute"
-                                    style="margin-top: -4px;"
-                                    @click="disconnect()"
-                                    :label="getDisconnectLabel"
-                                />
-                                <q-btn
-                                    v-show="getShowConnect"
-                                    dense
-                                    color="purple"
-                                    size="sm"
-                                    class="q-ml-sm absolute"
-                                    style="margin-top: -4px;"
-                                    @click="connectToLastAddress()"
-                                    label="Connect"
+                                <q-spinner
+                                    v-if="getDomainServerState === 'CONNECTING'"
+                                    :size="isMobile ? 'xs' : 'sm'"
                                 />
                             </q-item-label>
                         </q-item-section>
                     </q-toolbar-title>
 
-                    <q-space />
+                    <template v-if="isDesktop">
+                        <q-item clickable v-ripple
+                            @click="$store.state.account.isLoggedIn ?
+                            onClickOpenOverlay('Account') : openDialog('Login', true)"
+                        >
+                            <q-item-section side>
+                                <q-avatar size="48px">
+                                    <q-icon :name="getProfilePicture" size="xl"/>
+                                </q-avatar>
+                            </q-item-section>
+                            <q-item-section>
+                                <q-item-label>
+                                    {{ $store.state.account.isLoggedIn ? $store.state.account.username : "Guest" }}
+                                </q-item-label>
+                                <q-item-label caption>
+                                    {{ $store.state.account.isLoggedIn ?
+                                    "Logged in" :
+                                    `Click to log in to the ${$store.state.theme.globalServiceTerm.toLowerCase()}.` }}
+                                </q-item-label>
+                            </q-item-section>
+                        </q-item>
 
-                    <q-item clickable v-ripple
-                        @click="$store.state.account.isLoggedIn ? onClickOpenOverlay('Account') : openDialog('Login', true)">
-                        <q-item-section side>
-                            <q-avatar size="48px">
-                                <q-icon :name="getProfilePicture" size="xl"/>
-                            </q-avatar>
-                        </q-item-section>
-                        <q-item-section>
-                            <q-item-label>
-                                {{ $store.state.account.isLoggedIn ? $store.state.account.username : "Guest" }}
-                            </q-item-label>
-                            <q-item-label caption>
-                                {{ $store.state.account.isLoggedIn ? "Logged in" : "Click to log in to metaverse" }}
-                            </q-item-label>
-                        </q-item-section>
-                    </q-item>
+                        <q-btn
+                            v-show="$store.state.account.isLoggedIn"
+                            flat
+                            round
+                            dense
+                            icon="logout"
+                            aria-label="Logout"
+                            @click="logout"
+                            class="q-mr-sm q-ml-sm"
+                        />
 
-                    <q-btn
-                        v-show="$store.state.account.isLoggedIn"
-                        flat
-                        round
-                        dense
-                        icon="logout"
-                        aria-label="Logout"
-                        @click="logout"
-                        class="q-mr-sm q-ml-sm"
-                    />
+                        <q-separator dark vertical/>
+                        <q-btn
+                            flat
+                            stretch
+                            icon="settings"
+                            aria-label="Settings Menu"
+                        >
+                            <q-menu v-model="settingsMenuState" @show="aMenuIsOpen = true">
+                                <q-list>
+                                    <template v-for="(menuItem, index) in settingsMenu" :key="index">
+                                        <q-item-label
+                                            v-if="menuItem.isCategory"
+                                            header
+                                        >
+                                            {{ menuItem.label }}
+                                        </q-item-label>
+                                        <q-item
+                                            v-else
+                                            clickable
+                                            v-ripple
+                                            @click="menuItem.action ? menuItem.action()
+                                                : onClickOpenOverlay(menuItem.link || menuItem.label)"
+                                        >
+                                            <q-item-section avatar>
+                                                <q-icon :name="menuItem.icon" />
+                                            </q-item-section>
+                                            <q-item-section>
+                                                {{ menuItem.label }}
+                                            </q-item-section>
+                                        </q-item>
+                                        <q-separator :key="'sep' + index" v-if="menuItem.separator" />
+                                    </template>
+                                </q-list>
+                            </q-menu>
+                        </q-btn>
+                    </template>
 
-                    <q-separator dark vertical/>
-                    <q-btn
-                        flat
+                    <q-separator dark vertical inset />
+
+                    <q-btn-dropdown
                         stretch
-                        icon="settings"
-                        aria-label="Settings Menu"
+                        flat
+                        :dense="isMobile"
+                        :class="{ 'q-ml-xs': isMobile }"
+                        :persistent="false"
+                        v-model="helpMenuState"
+                        @show="aMenuIsOpen = true"
                     >
-                        <q-menu ref="SettingsMenu" @show="aMenuIsOpen = true">
-                            <q-list>
+                        <template v-slot:label>
+                            <q-avatar rounded :size="isDesktop ? '48px' : '32px'">
+                                <img :src="$store.state.theme.logo">
+                            </q-avatar>
+                        </template>
+                        <q-list>
+                            <template v-if="isMobile">
+                                <q-item-label header>Account</q-item-label>
+                                <q-item clickable v-ripple
+                                    @click="$store.state.account.isLoggedIn ?
+                                    onClickOpenOverlay('Account') : openDialog('Login', true)"
+                                >
+                                    <q-item-section side>
+                                        <q-avatar size="48px">
+                                            <q-icon :name="getProfilePicture" size="xl"/>
+                                        </q-avatar>
+                                    </q-item-section>
+                                    <q-item-section>
+                                        <q-item-label>
+                                            {{ $store.state.account.isLoggedIn ? $store.state.account.username : "Guest" }}
+                                        </q-item-label>
+                                        <q-item-label caption>
+                                            {{ $store.state.account.isLoggedIn ?
+                                            "Logged in" :
+                                            `Click to log in to the ${$store.state.theme.globalServiceTerm.toLowerCase()}.` }}
+                                        </q-item-label>
+                                    </q-item-section>
+                                </q-item>
+                                <q-btn
+                                    v-show="$store.state.account.isLoggedIn"
+                                    flat
+                                    round
+                                    dense
+                                    icon="logout"
+                                    aria-label="Logout"
+                                    @click="logout"
+                                    class="q-mr-sm q-ml-sm"
+                                />
+
+                                <q-separator inset spaced />
+
+                                <q-item-label header>Settings</q-item-label>
                                 <template v-for="(menuItem, index) in settingsMenu" :key="index">
                                     <q-item-label
                                         v-if="menuItem.isCategory"
@@ -185,6 +313,7 @@
                                         v-ripple
                                         @click="menuItem.action ? menuItem.action()
                                             : onClickOpenOverlay(menuItem.link || menuItem.label)"
+                                        @touch-end="helpMenuState = false"
                                     >
                                         <q-item-section avatar>
                                             <q-icon :name="menuItem.icon" />
@@ -193,21 +322,10 @@
                                             {{ menuItem.label }}
                                         </q-item-section>
                                     </q-item>
-                                    <q-separator :key="'sep' + index" v-if="menuItem.separator" />
                                 </template>
-                            </q-list>
-                        </q-menu>
-                    </q-btn>
 
-                    <q-separator dark vertical inset />
-
-                    <q-btn-dropdown ref="HelpMenu" stretch flat :persistent="false" @show="aMenuIsOpen = true">
-                        <template v-slot:label>
-                            <q-avatar rounded size="48px">
-                                <img :src="defaultProductLogo">
-                            </q-avatar>
-                        </template>
-                        <q-list>
+                                <q-separator inset spaced />
+                            </template>
                             <q-item-label header>Help</q-item-label>
                             <q-item v-for="(menuItem, index) in helpMenu" :key="index"
                                 clickable
@@ -227,23 +345,50 @@
                                 <q-item-section>
                                     <q-item-label>Domain</q-item-label>
                                     <q-item-label caption>{{ getDomainServerState }}</q-item-label>
+                                    <q-item-label
+                                        caption
+                                        class="row"
+                                        style="align-items: center;"
+                                        :title="getLocation"
+                                    >
+                                        <p class="q-ma-none text-no-wrap ellipsis" style="max-width: 300px;">
+                                            {{ getLocation }}
+                                        </p>
+                                        <q-btn
+                                            flat
+                                            round
+                                            dense
+                                            :icon="domainLocationCopied ? 'done' : 'content_copy'"
+                                            :disable="domainLocationCopied"
+                                            title="Copy"
+                                            @click.stop="copyDomainLocationToClipboard()"
+                                        />
+                                    </q-item-label>
                                 </q-item-section>
                             </q-item>
                             <q-item>
                                 <q-item-section>
-                                    <q-btn
-                                        :class="{
-                                            'bg-grey-9': $q.dark.isActive,
-                                            'bg-grey-4': !$q.dark.isActive
-                                        }"
-                                        @click="switchDomain()"
-                                    >Switch domain</q-btn>
-                                </q-item-section>
-                            </q-item>
-                            <q-item>
-                                <q-item-section>
-                                    <q-item-label>Metaverse</q-item-label>
-                                    <q-item-label caption>{{ getMetaverseServerState }}</q-item-label>
+                                    <q-item-label>{{ $store.state.theme.globalServiceTerm }}</q-item-label>
+                                    <q-item-label caption>{{ getMetaverseServerState.toUpperCase() }}</q-item-label>
+                                    <q-item-label
+                                        caption
+                                        class="row"
+                                        style="align-items: center;"
+                                        :title="getMetaverseServerLocation"
+                                    >
+                                        <p class="q-ma-none text-no-wrap ellipsis" style="max-width: 300px;">
+                                            {{ getMetaverseServerLocation }}
+                                        </p>
+                                        <q-btn
+                                            flat
+                                            round
+                                            dense
+                                            :icon="metaverseLocationCopied ? 'done' : 'content_copy'"
+                                            :disable="metaverseLocationCopied"
+                                            title="Copy"
+                                            @click.stop="copyMetaverseLocationToClipboard()"
+                                        />
+                                    </q-item-label>
                                 </q-item-section>
                             </q-item>
                             <q-separator inset spaced />
@@ -264,7 +409,11 @@
         </q-header>
 
         <q-page-container class="full-height">
-            <MainScene :interactive="!aMenuIsOpen" @click="hideSettingsAndHelpMenus($event)">
+            <MainScene
+                :interactive="!aMenuIsOpen"
+                @click.prevent="hideSettingsAndHelpMenus()"
+                @joint-conference-room="joinConferenceRoom($event)"
+            >
                 <template v-slot:manager>
                     <OverlayManager ref="OverlayManager" />
                 </template>
@@ -286,17 +435,18 @@
 <script lang="ts">
 
 import { defineComponent } from "vue";
-import { openURL, QBtn, QBtnDropdown } from "quasar";
+import { openURL } from "quasar";
 
 // Components
 import MainScene from "@Components/MainScene.vue";
 import OverlayManager from "@Components/overlays/OverlayManager.vue";
 
-import { Store, Mutations as StoreMutations, Actions as StoreActions } from "@Store/index";
+import { Store, Mutations as StoreMutations, Actions as StoreActions, JitsiRoomInfo } from "@Store/index";
 import { Utility } from "@Modules/utility";
 import { Account } from "@Modules/account";
 import { AudioMgr } from "@Modules/scene/audio";
-import { Renderer } from "@Modules/scene";
+import { AudioIO } from "@Modules/ui/audioIO";
+
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
@@ -304,11 +454,9 @@ import Log from "@Modules/debugging/log";
 export default defineComponent({
     name: "MainLayout",
 
-    $refs!: {   // definition to make this.$ref work with TypeScript
+    $refs: {   // definition to make this.$ref work with TypeScript
         MainScene: HTMLFormElement,
-        OverlayManager: HTMLFormElement,
-        SettingsMenu: QBtn,
-        HelpMenu: QBtnDropdown
+        OverlayManager: HTMLFormElement
     },
 
     components: {
@@ -318,13 +466,45 @@ export default defineComponent({
 
     data() {
         return {
+            mobileBreakpoint: 800,
+            isDesktop: true,
+            isMobile: false,
             // Toolbar
+            micMenuState: false,
+            AudioIOInstance: new AudioIO(),
             locationInput: "",
             settingsMenu: [
                 {
                     icon: "headphones",
                     label: "Audio",
                     link: "",
+                    isCategory: false,
+                    separator: true
+                },
+                {
+                    icon: "gamepad",
+                    label: "Controls",
+                    link: "",
+                    isCategory: false,
+                    separator: true
+                },
+                {
+                    icon: "desktop_windows",
+                    label: "Graphics",
+                    link: "",
+                    isCategory: false,
+                    separator: true
+                },
+                {
+                    icon: "badge",
+                    label: "Nametags",
+                    action: () => {
+                        this.$store.commit(StoreMutations.MUTATE, {
+                            property: "avatar.showNametags",
+                            value: !this.$store.state.avatar.showNametags
+                        });
+                        Log.info(Log.types.OTHER, "Toggle Avatar Nametags");
+                    },
                     isCategory: false,
                     separator: true
                 },
@@ -339,6 +519,7 @@ export default defineComponent({
                     separator: true
                 }
             ],
+            settingsMenuState: false,
             helpMenu: [
                 {
                     icon: "chat",
@@ -356,9 +537,11 @@ export default defineComponent({
                     link: "https://docs.vircadia.com/"
                 }
             ],
+            helpMenuState: false,
             aMenuIsOpen: false,
-            defaultProductLogo: "assets/vircadia-icon.svg",
-            lastConnectedDomain: undefined as string | undefined
+            lastConnectedDomain: undefined as string | undefined,
+            domainLocationCopied: false,
+            metaverseLocationCopied: false
         };
     },
 
@@ -377,21 +560,18 @@ export default defineComponent({
         },
 
         getLocation: function(): string {
-            return this.$store.state.avatar.location ?? "Not currently connected to a domain";
+            return this.$store.state.avatar.location ?? "Not currently connected to a domain.";
         },
 
         // Displays the state of the domain server on the user interface
         getDomainServerState: function(): string {
-            if (this.$store.state.domain.url && this.$store.state.domain.url.length > 0) {
-                return `${this.$store.state.domain.connectionState} (${this.$store.state.domain.url})`;
-            }
-            return this.$store.state.domain.connectionState;
+            return this.$store.state.domain.connectionState ?? "DISCONNECTED";
         },
         getMetaverseServerState: function(): string {
-            if (this.$store.state.metaverse.server && this.$store.state.metaverse.server.length > 0) {
-                return `${this.$store.state.metaverse.connectionState} (${this.$store.state.metaverse.server})`;
-            }
             return this.$store.state.metaverse.connectionState;
+        },
+        getMetaverseServerLocation: function(): string {
+            return this.$store.state.metaverse.server ?? "Not currently connected to a metaverse server.";
         },
         getProfilePicture: function() {
             if (this.$store.state.account.images && this.$store.state.account.images.thumbnail) {
@@ -399,33 +579,40 @@ export default defineComponent({
             }
             return "account_circle";
         },
-        getShowConnect: function() : boolean {
-            if (this.$store.state.domain.url && this.$store.state.domain.url.length > 0
-                    && this.$store.state.domain.connectionState === "DISCONNECTED" && this.lastConnectedDomain) {
-                return true;
+
+        headerStyle: function(): string {
+            // Style the header bar based on the Theme config.
+            if (this.$store.state.theme.globalStyle === "none") {
+                return "unset";
             }
-            return false;
+            const opacities = {
+                "aero": "5c",
+                "mica": "30"
+            };
+            if (this.$store.state.theme.headerStyle === "none") {
+                return "unset";
+            }
+            const gradients = {
+                "gradient-left": "circle at 0% 50%",
+                "gradient-right": "circle at 100% 50%"
+            };
+            const gradient = gradients[this.$store.state.theme.headerStyle];
+            const primary = this.$store.state.theme.colors.primary;
+            const secondary = this.$store.state.theme.colors.secondary;
+            const end = this.$q.dark.isActive ? "#121212" : "#ffffff";
+            const opacity = opacities[this.$store.state.theme.globalStyle];
+            return `radial-gradient(${gradient}, ${secondary}${opacity} 15%, ${primary}${opacity} 40%, ${end}${opacity} 95%)`;
         },
-        getShowDisconnect: function() : boolean {
-            if (this.$store.state.domain.url && this.$store.state.domain.url.length > 0
-                    && this.$store.state.domain.connectionState.startsWith("CONNECT")) {
-                return true;
+
+        microphoneColor: function(): string {
+            if (!this.$store.state.audio.user.hasInputAccess) {
+                return "grey-6";
             }
-            return false;
-        },
-        getDisconnectLabel: function() : string {
-            if (this.$store.state.domain.connectionState === "CONNECTING") {
-                return "Cancel";
+            if (this.$store.state.audio.user.muted) {
+                return "red";
             }
-            if (this.$store.state.domain.connectionState === "CONNECTED") {
-                return "Disconnect";
-            }
-            return "false";
+            return "primary";
         }
-    },
-    watch: {
-        // call again the method if the route changes
-        "$route": "parseRouteParams"
     },
     methods: {
         setDialogState: function(newValue: boolean) {
@@ -442,15 +629,11 @@ export default defineComponent({
             (this.$refs.OverlayManager as typeof OverlayManager).toggleOverlay("menu");
         },
         // Settings & Help menus clickaway
-        hideSettingsAndHelpMenus: function(event: Event): void {
+        hideSettingsAndHelpMenus: function(): void {
             if (this.aMenuIsOpen) {
-                event.preventDefault();
                 this.aMenuIsOpen = false;
-                // TODO: figure out how to properly type $ref references. The following disables are a poor solution.
-                // eslint-disable-next-line
-                (this.$refs.SettingsMenu as typeof QBtn).hide();
-                // eslint-disable-next-line
-                (this.$refs.HelpMenu as typeof QBtnDropdown).hide();
+                this.settingsMenuState = false;
+                this.helpMenuState = false;
             }
         },
 
@@ -460,12 +643,6 @@ export default defineComponent({
         connect: async function() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             await this.connectToAddress(this.locationInput);
-        },
-        connectToLastAddress: async function() {
-            if (this.lastConnectedDomain) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                await this.connectToAddress(this.lastConnectedDomain);
-            }
         },
         connectToAddress: async function(locationAddress: string) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -486,6 +663,12 @@ export default defineComponent({
         logout: function() {
             // eslint-disable-next-line no-void
             void Account.logout();
+            this.$q.notify({
+                type: "positive",
+                textColor: "white",
+                icon: "cloud_done",
+                message: "Logged out."
+            });
         },
 
         // Dialog Handling
@@ -518,58 +701,77 @@ export default defineComponent({
             });
         },
         onClickOpenOverlay: function(pOverlay: string) {
-            // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution
+            // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution.
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             (this.$refs.OverlayManager as typeof OverlayManager).openOverlay(pOverlay);
+        },
+        joinConferenceRoom: function(room: JitsiRoomInfo) {
+            this.$store.commit(StoreMutations.JOIN_CONFERENCE_ROOM, room);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            (this.$refs.OverlayManager as typeof OverlayManager).toggleOverlay("Jitsi");
         },
         openUrl: function(pUrl: string) {
             openURL(pUrl);
         },
-        parseRouteParams: async function() {
-            Log.info(Log.types.UI, "Parse Route params");
-            const addressParam = this.$route.params.address as string;
-            if (addressParam && addressParam.length > 0) {
-                Log.info(Log.types.UI, `Connect to...${addressParam}`);
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                await this.connectToAddress(addressParam);
-                // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                this.$router.push({ path: "/" });
-            }
-        },
-        micToggled: function() {
-            if (this.$store.state.audio.user.hasInputAccess === true) {
+        toggleMicrophoneMute: function() {
+            if (this.$store.state.audio.user.hasInputAccess) {
                 AudioMgr.muteAudio();
             }
         },
-        determineMicColor: function(): string {
-            if (!this.$store.state.audio.user.hasInputAccess) {
-                return "grey-6";
-            }
-            if (this.$store.state.audio.user.muted) {
-                return "red";
-            }
-            return "primary";
+        async copyDomainLocationToClipboard(): Promise<void> {
+            this.domainLocationCopied = true;
+            await navigator.clipboard.writeText(this.getLocation);
+            const transitionTime = 1700;
+            window.setTimeout(() => {
+                this.domainLocationCopied = false;
+            }, transitionTime);
         },
-        switchDomain(): void {
-            // Switch domain.
-            const scene = Renderer.getScene();
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            scene.switchDomain();
+        async copyMetaverseLocationToClipboard(): Promise<void> {
+            this.metaverseLocationCopied = true;
+            await navigator.clipboard.writeText(this.getMetaverseServerLocation);
+            const transitionTime = 1700;
+            window.setTimeout(() => {
+                this.metaverseLocationCopied = false;
+            }, transitionTime);
         }
     },
-    mounted: async function() {
+    mounted: function() {
+        // Set the isDesktop and isMobile flags according to the window's width.
+        this.isMobile = window.innerWidth < this.mobileBreakpoint;
+        this.isDesktop = !this.isMobile;
+        window.addEventListener("resize", () => {
+            this.isMobile = window.innerWidth < this.mobileBreakpoint;
+            this.isDesktop = !this.isMobile;
+        });
+
         Account.onAttributeChange.connect(function(pPayload: { [key: string]: unknown }) {
             // eslint-disable-next-line no-void
             void Store.dispatch(StoreActions.UPDATE_ACCOUNT_INFO, pPayload);
         });
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        await this.parseRouteParams();
 
-        // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-        (this.$refs.OverlayManager as typeof OverlayManager).openOverlay("menu");
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-        (this.$refs.OverlayManager as typeof OverlayManager).openOverlay("chatwindow");
+        if (this.isDesktop) {
+            // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution.
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            (this.$refs.OverlayManager as typeof OverlayManager).openOverlay("menu");
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            (this.$refs.OverlayManager as typeof OverlayManager).openOverlay("ChatWindow");
+        }
+
+        // Set up event listeners for UI-based controls.
+        window.addEventListener("keydown", (event) => {
+            // Toggle the menu.
+            if (event.code === this.$store.state.controls.other.toggleMenu.keybind) {
+                // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution.
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+                (this.$refs.OverlayManager as typeof OverlayManager).toggleOverlay("menu");
+            }
+            // Open the chat.
+            if (event.code === this.$store.state.controls.other.openChat.keybind) {
+                // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution.
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+                (this.$refs.OverlayManager as typeof OverlayManager).openOverlay("ChatWindow");
+            }
+        });
     }
 });
 </script>

@@ -11,8 +11,9 @@
 
 <template>
     <q-form
-        @submit="onSubmit"
         class="q-gutter-md"
+        ref="registrationForm"
+        @submit="onSubmit"
     >
         <q-input
             v-model="username"
@@ -84,7 +85,6 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useQuasar } from "quasar";
 
 import { Account } from "@Modules/account";
 
@@ -101,47 +101,55 @@ export default defineComponent({
         loading: false
     }),
 
+    emits: ["register-success", "register-failure"],
+
     methods: {
         async onSubmit() {
             this.loading = true;
-            const $q = useQuasar();
             try {
-                const awaiting = await Account.createAccount(this.username, this.password, this.email);
-                const result = {        // TODO: temp to replace code above
-                    data: {
-                        accountWaitingVerification: awaiting
-                    }
-                };
-                this.$emit("register-success");
+                const result = await Account.createAccount(this.username, this.password, this.email);
+                this.loading = false;
 
-                if (result.data.accountWaitingVerification === true) {
+                if (!result) {
+                    this.$q.notify({
+                        type: "negative",
+                        textColor: "white",
+                        icon: "warning",
+                        message: "Something went wrong..."
+                    });
+                    console.log("Registration failed:", result);
+                    this.$emit("register-failure");
+                    return;
+                }
+
+                if (result.accountAwaitingVerification === true) {
                     this.$q.notify({
                         type: "info",
                         textColor: "white",
                         icon: "email",
                         timeout: 0,
-                        message: "Check your email " + this.email + " to complete registration.",
+                        message: `Check your email "${this.email}" to complete registration.`,
                         actions: [{ label: "Dismiss", color: "white", handler: () => { /* ... */ } }]
                     });
-                    this.loading = false;
                 } else {
                     this.$q.notify({
                         type: "positive",
                         textColor: "white",
                         icon: "cloud_done",
-                        message: "Successfully registered " + this.username + "."
+                        message: "Successfully registered."
                     });
-                    this.loading = false;
                 }
-            } catch (result) {
-                // TODO: what is the type of "result"?
-                $q.notify({
+                (this.$refs.registrationForm as HTMLFormElement).reset();
+                this.$emit("register-success");
+            } catch (error) {
+                this.$q.notify({
                     type: "negative",
                     textColor: "white",
                     icon: "warning",
-                    // message: "Failed to register: " + result.error
-                    message: "Failed to register: " + (result as string)
+                    message: "Something went wrong..."
                 });
+                console.log("Registration failed:", error);
+                this.$emit("register-failure");
                 this.loading = false;
             }
         }

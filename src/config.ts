@@ -9,6 +9,9 @@
  * Parameters are currently kept in a browser local "localStorage" but could
  * eventually be kept on in the cloud (some per-user storage). This interface
  * hides this detail from the application code.
+ *
+ * UPDATE: The majority of this functionality has been moved to the store.
+ * TODO: Rename this file to something-CONSTS, as it no longer pertains to user configuration, the Vue store handles that.
  */
 
 /**
@@ -32,15 +35,15 @@ export const LOG_LEVEL = "Log_Level";
 export const TrueValue = "true";
 export const FalseValue = "false";
 
-export const DefaultConfig: { [key: string]: string } = {
+export const DefaultConnectionConfig: { [key: string]: string } = {
     "Default_Metaverse_Url": "https://metaverse.vircadia.com/live",
     "Default_Domain_Protocol": "wss:",
-    "Default_Domain_Port": "40102"
+    "Default_Domain_Port": "40102",
+    "Default_Domain_Url": "ws://localhost/0,0,0/0,0,0,1"
 };
 
-export const CAMPUS_URL = "wss://ua92-1.vircadia.com/25,1,30/0,0,0,1";
-export const SPACE_STATION_URL = "wss://ua92-2.vircadia.com/0,58,0/0,0,0,1";
-export const DEFAULT_DOMAIN_URL = CAMPUS_URL;
+// FIXME: this should be removed at some point in favor of the above object.
+export const DEFAULT_DOMAIN_URL = "wss://antares.digisomni.com/0,0,0/0,0,0,1";
 
 export const Config = {
     // Entries can be prefixed with a qualifier.
@@ -104,8 +107,8 @@ export const Config = {
 
     /** Set the default values for configuration */
     _setDefaultValues(): void {
-        Object.keys(DefaultConfig).forEach((key) => {
-            localStorage.setItem(key, DefaultConfig[key]);
+        Object.keys(DefaultConnectionConfig).forEach((key) => {
+            localStorage.setItem(key, DefaultConnectionConfig[key]);
         });
     }
 };

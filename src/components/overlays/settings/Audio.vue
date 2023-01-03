@@ -51,16 +51,16 @@
                                     :color="!$store.state.audio.user.hasInputAccess ?
                                         'grey' : $store.state.audio.user.muted ? 'red' : 'primary'"
                                     :icon="$store.state.audio.user.muted ? 'mic_off' : 'mic'"
-                                    @click="micToggled"
+                                    @click="toggleMicrophoneMute"
                                 />
                             </div>
 
                             <div class=".col-8 row items-center">
                                 <span
-                                    v-if="selectedInputStore !== 'None selected'"
+                                    v-if="AudioIOInstance.selectedInput !== 'None selected'"
                                     class="text-subtitle1 items-center"
                                 >
-                                    Using {{ selectedInputStore }}
+                                    Using {{ AudioIOInstance.selectedInput }}
                                 </span>
 
                                 <span
@@ -107,7 +107,7 @@
                         <q-separator class="q-my-md" />
 
                         <div
-                            v-if="$store.state.audio.user.hasInputAccess === false"
+                            v-if="!$store.state.audio.user.hasInputAccess"
                             class="text-subtitle1 text-grey text-center"
                         >
                             Please grant mic access to the app in order to speak.
@@ -116,8 +116,8 @@
                         <q-list v-else>
                             <div v-for="input in $store.state.audio.inputsList" :key="input.deviceId">
                                 <q-radio
-                                    @click="requestInputAccess(input.deviceId)"
-                                    v-model="selectedInputStore"
+                                    @click="AudioIOInstance.requestInputAccess(input.deviceId)"
+                                    v-model="AudioIOInstance.selectedInput"
                                     :val="input.label"
                                     :label="input.label"
                                     color="teal"
@@ -129,10 +129,10 @@
                     <q-tab-panel name="output">
                         <div class=".col-8 row items-center">
                             <span
-                                v-if="selectedOutputStore"
+                                v-if="AudioIOInstance.selectedOutput"
                                 class="text-subtitle1 items-center"
                             >
-                                Using {{ selectedOutputStore }}
+                                Using {{ AudioIOInstance.selectedOutput }}
                             </span>
 
                             <span
@@ -148,8 +148,8 @@
                         <q-list>
                             <div v-for="output in $store.state.audio.outputsList" :key="output.deviceId">
                                 <q-radio
-                                    @click="requestOutputAccess(output.deviceId)"
-                                    v-model="selectedOutputStore"
+                                    @click="AudioIOInstance.requestOutputAccess(output.deviceId)"
+                                    v-model="AudioIOInstance.selectedOutput"
                                     :val="output.label"
                                     :label="output.label"
                                     color="teal"
@@ -172,19 +172,17 @@ import { defineComponent } from "vue";
 
 import OverlayShell from "@Components/overlays/OverlayShell.vue";
 
-import { Mutations as StoreMutations } from "@Store/index";
 import { AudioMgr } from "@Modules/scene/audio";
+import { AudioIO } from "@Modules/ui/audioIO";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
-import { toJSON } from "@Modules/debugging";
-
-type Nullable<T> = T | null | undefined;    // for some reason, global defns aren't in Vue files
 
 export default defineComponent({
     name: "Audio",
 
     // This is a solution mentioned on the net but it doesn't seem to work. More research needed.
-    $refs!: {   // definition to make this.$ref work with TypeScript
+    $refs: {   // definition to make this.$ref work with TypeScript
         audioInputFeedbackPlayer: HTMLMediaElement
     },
 
@@ -197,172 +195,19 @@ export default defineComponent({
     },
 
     data: () => ({
+        AudioIOInstance: new AudioIO(),
         tab: "input",
-        isListeningToFeedback: false,
-        selectedInputDevice: undefined as unknown as MediaDeviceInfo,
-        selectedOutputDevice: undefined as unknown as MediaDeviceInfo
+        isListeningToFeedback: false
     }),
 
-    computed: {
-        selectedInputStore: {
-            get: function(): string {
-                if (this.$store.state.audio.user.currentInputDevice) {
-                    return this.$store.state.audio.user.currentInputDevice.label;
-                }
-                return "None selected";
-            },
-            set: function(pVal: string): void {
-                // @click calls requestInputAccess() which sets $store, etc
-                const inputInfo = this.$store.state.audio.inputsList.filter((info) => info.label === pVal);
-                if (inputInfo.length === 1) {
-                    Log.debug(Log.types.AUDIO, `Audio.vue: set selectedInputStore. inputInfo=${toJSON(inputInfo[0])}`);
-                    this.selectedInputDevice = inputInfo[0];
-                    return;
-                }
-                Log.debug(Log.types.AUDIO, `Audio.vue: set selectedInputStore. no device selected`);
-            }
-        },
-        selectedOutputStore: {
-            get: function(): string {
-                if (this.$store.state.audio.user.currentOutputDevice) {
-                    return this.$store.state.audio.user.currentOutputDevice.label;
-                }
-                return "Default";
-            },
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            set: function(pVal: string): void {
-                // @click calls requestOutputAccess() which sets $store, etc
-                const outputInfo = this.$store.state.audio.outputsList.filter((info) => info.label === pVal);
-                if (outputInfo.length === 1) {
-                    Log.debug(Log.types.AUDIO, `Audio.vue: set selectedOutputStore. inputInfo=${toJSON(outputInfo[0])}`);
-                    this.selectedOutputDevice = outputInfo[0];
-                    return;
-                }
-                Log.debug(Log.types.AUDIO, `Audio.vue: set selectedOutputStore. no device selected`);
-            }
-        }
-    },
-
     methods: {
-        setAwaitingCapturePermissions(isAwaitingCapturePermissions: boolean): void {
-            this.$store.commit(StoreMutations.MUTATE, {
-                property: "audio.user.awaitingCapturePermissions",
-                value: isAwaitingCapturePermissions
-            });
-        },
-
-        /**
-         * Request access to a specific media device.
-         *
-         * This requests the media device from the browser and, if connected, updates the
-         * Vuex state and sets up the device for operation.
-         *
-         * If a stream is already connected, this function first disconnects it before requesting.
-         * the new device.
-         *
-         * There is some protection from being called twice while already waiting for a device.
-         *
-         * @param requestedDeviceId the deviceId from the MediaDeviceInfo structure of device to request access
-         * @returns {Promise<Nullable<MediaStream>>} the connected media stream or "null" if access refused
-         */
-        // eslint-disable-next-line @typescript-eslint/require-await
-        async requestInputAccess(pRequestedDeviceId?: string): Promise<Nullable<MediaStream>> {
-            // If a current stream is active, stop it
-            if (this.$store.state.audio.user.userInputStream) {
-                this.stopCurrentInputStream();
-            }
-
-            // we're either looking for a specific device or any audio device
-            const constraint = pRequestedDeviceId
-                ? { audio: { deviceId: { exact: pRequestedDeviceId } }, video: false }
-                : { audio: true, video: false };
-
-            if (this.$store.state.audio.user.awaitingCapturePermissions === true) {
-                Log.error(
-                    Log.types.AUDIO,
-                    `Failed to request specific input device ID ${pRequestedDeviceId ?? "audio"}`
-                    + ` due to an already awaiting request for input capture.`
-                );
-                return null;
-            }
-
-            this.setAwaitingCapturePermissions(true);
-            try {
-                Log.debug(Log.types.AUDIO, `Audio.vue: requestInputAccess waiting. Constraint=${toJSON(constraint)}`);
-                // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                const stream = await navigator.mediaDevices.getUserMedia(constraint);
-                if (stream) {
-                    Log.debug(Log.types.AUDIO, `Audio.vue: have stream id=${stream.id}`);
-
-                    // Audio inputs do not have labels if the permission has not been received.
-                    // Therefore, we update the list after success.
-                    await AudioMgr.getAvailableInputOutputDevices();
-
-                    // Find the MediaDeviceInfo for the input device
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                    await AudioMgr.setUserAudioInputStream(stream, this.selectedInputDevice);
-
-                    this.setAwaitingCapturePermissions(false);
-                }
-                return stream;
-            } catch (err) {
-                const errr = <MediaError>err;
-                this.setAwaitingCapturePermissions(false);
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                await AudioMgr.setUserAudioInputStream(undefined, undefined);
-                Log.error(Log.types.AUDIO, `Error getting capture permissions: ${errr.message}`);
-            }
-            return null;
-        },
-
-        // eslint-disable-next-line @typescript-eslint/require-await,@typescript-eslint/no-unused-vars
-        requestOutputAccess(pRequestedDeviceId: string): void {
-            if (this.$store.state.audio.user.userInputStream) {
-                this.stopCurrentOutputStream();
-            }
-
-            AudioMgr.setAudioOutputStream(this.selectedOutputDevice);
-        },
-
-        /**
-         * Stop all audio activities on the stream.
-         */
-        stopCurrentInputStream(): void {
-            if (this.$store.state.audio.user.userInputStream) {
-                this.$store.state.audio.user.userInputStream.getTracks().forEach((track) => {
-                    track.stop();
-                });
-            }
-            this.revokeCaptureAccess();
-        },
-
-        stopCurrentOutputStream(): void {
-            Log.debug(Log.types.AUDIO, `Audio.vue: stopCurrentOutputStream`);
-        },
-
-        /**
-         * Set the state of the audio device to disconnected and unallocated.
-         */
-        revokeCaptureAccess(): void {
-            this.$store.commit(StoreMutations.MUTATE, {
-                property: "audio.user",
-                with: {
-                    connected: false,
-                    currentInputDevice: undefined,
-                    userInputStream: undefined,
-                    hasInputAccess: false
-                }
-            });
-        },
-
         // Complement the state of the user's audio input device
-        micToggled: function() {
-            if (this.$store.state.audio.user.hasInputAccess === true) {
+        toggleMicrophoneMute(): void {
+            if (this.$store.state.audio.user.hasInputAccess) {
                 AudioMgr.muteAudio();
             }
         },
-
-        toggleInputFeedback: function() {
+        toggleInputFeedback(): void {
             this.isListeningToFeedback = !this.isListeningToFeedback;
 
             if (this.isListeningToFeedback === true) {
@@ -386,12 +231,6 @@ export default defineComponent({
             }
         }
     },
-
-    // created: function () {
-    // },
-
-    // mounted: function(): void {
-    // },
 
     // When the dialog is removed, make sure the audio test feature is off
     unmounted: function(): void {

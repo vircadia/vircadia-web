@@ -9,6 +9,9 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-export { AvatarController } from "./AvatarController";
-export { ScriptAvatarController } from "./ScriptAvatarController";
-export { MyAvatarController } from "./MyAvatarController";
+export { InputController } from "./controller/inputController";
+export { ScriptAvatarController } from "./controller/scriptAvatarController";
+export { MyAvatarController } from "./controller/myAvatarController";
+export { AvatarMapper } from "./AvatarMapper";
+export { defaultActiveAvatarUrl } from "./DefaultModels";
+export { AvatarStoreInterface } from "./StoreInterface";

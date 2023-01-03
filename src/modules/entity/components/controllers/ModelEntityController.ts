@@ -14,17 +14,21 @@
 import { EntityController } from "./EntityController";
 import { IModelEntity } from "../../EntityInterfaces";
 import { ModelComponent } from "../../components";
-import Log from "@Base/modules/debugging/log";
 
 export class ModelEntityController extends EntityController {
     // domain properties
     _modelEntity : IModelEntity;
-    _modelComponent : Nullable<ModelComponent>;
+    _modelComponent : Nullable<ModelComponent> = null;
 
     constructor(entity : IModelEntity) {
-        super(entity, "ModelEntityController");
+        super(entity, ModelEntityController.typeName);
         this._modelEntity = entity;
     }
+
+    static get typeName(): string {
+        return "ModelEntityController";
+    }
+
 
     /**
     * Gets a string identifying the type of this Component
@@ -32,7 +36,7 @@ export class ModelEntityController extends EntityController {
     */
     // eslint-disable-next-line class-methods-use-this
     public get componentType():string {
-        return "ModelEntityController";
+        return ModelEntityController.typeName;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
@@ -42,26 +46,22 @@ export class ModelEntityController extends EntityController {
         this._modelComponent = new ModelComponent();
         this._gameObject?.addComponent(this._modelComponent);
 
-        this._modelEntity.onModelURLChanged?.add(this._handleModelURLChanged.bind(this));
-        this._modelEntity.onCollisionPropertiesChanged?.add(this._handleCollisionPropertiesChanged.bind(this));
+        this._modelEntity.onModelURLChanged?.add(() => {
+            this._modelComponent?.load(this._modelEntity);
+        });
+        this._modelEntity.onCollisionPropertiesChanged?.add(() => {
+            this._modelComponent?.updateCollisionProperties(this._modelEntity);
+        });
+        this._modelEntity.onPhysicsPropertiesChanged?.add(() => {
+            this._modelComponent?.updatePhysicsProperties(this._modelEntity);
+        });
+        this._modelEntity.onAnimationChanged?.add(() => {
+            this._modelComponent?.updateAnimationProperties(this._modelEntity);
+        });
     }
 
     public onStart(): void {
+        this._modelComponent?.load(this._modelEntity);
         super.onStart();
-        this._modelComponent?.load(this._modelEntity);
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
-    public onUpdate():void {
-
-    }
-
-
-    private _handleModelURLChanged(): void {
-        this._modelComponent?.load(this._modelEntity);
-    }
-
-    private _handleCollisionPropertiesChanged(): void {
-        this._modelComponent?.updateCollisionProperties(this._modelEntity);
     }
 }

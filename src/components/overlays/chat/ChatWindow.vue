@@ -43,9 +43,9 @@
                 @scroll="scrollToLatestMessage"
             >
                 <q-card-section class="q-pt-none">
-                    <div v-for="msg in $store.state.messages.messages" :key="msg.whenReceived">
+                    <div v-for="(msg) in $store.state.messages.messages" :key="msg.whenReceived">
                         <q-chat-message
-                            :text="[ msgText(msg) ]"
+                            :text="msgText(msg)"
                             :sent="msgIsFromThisClient(msg.senderId)"
                             :name="msgIsFromThisClient(msg.senderId) ? `${msgSender(msg)} (you)` : msgSender(msg)"
                             :stamp="msgTime(msg)"
@@ -76,6 +76,7 @@
                 <template v-slot:append>
                     <q-btn
                         title="Click, or press Enter to send."
+                        flat
                         round
                         dense
                         @click.stop="submitMessage"
@@ -95,7 +96,7 @@
 import { defineComponent } from "vue";
 import OverlayShell from "../OverlayShell.vue";
 
-import { AMessage, DomainMessage, FloofChatMessage } from "@Modules/domain/message";
+import { AMessage, DomainMessage, DefaultChatMessage } from "@Modules/domain/message";
 import { DomainMgr } from "@Modules/domain";
 import { Uuid } from "@vircadia/web-sdk";
 
@@ -151,8 +152,10 @@ export default defineComponent({
             }
         ],
 
+        currentPrimaryMessages: [],
         previousScrollPos: 0,
-        scrollIsAtBottom: true
+        scrollIsAtBottom: true,
+        lastPrimaryMessageIndex: -1
     }),
 
     computed: {
@@ -165,7 +168,7 @@ export default defineComponent({
             if (DomainMgr.ActiveDomain) {
                 const msger = DomainMgr.ActiveDomain.MessageClient;
                 if (msger) {
-                    const msg: FloofChatMessage = {
+                    const msg: DefaultChatMessage = {
                         type: "TransmitChatMessage",
                         channel: DomainMessage.DefaultChatChannel,
                         message: val,
@@ -181,7 +184,7 @@ export default defineComponent({
     },
 
     methods: {
-        getProfilePicture(username: string): string | null {
+        getProfilePicture(username: string): string | undefined {
             // Should store profile pictures after retrieving and then pull each
             // subsequent one from cache instead of hitting metaverse every time.
 
@@ -189,34 +192,35 @@ export default defineComponent({
             if (username === "testerino") {
                 return "https://cdn.quasar.dev/img/avatar4.jpg";
             }
-            return null;
+            return undefined;
         },
         // Return the sender Id included in the message. Returns the ID string if no displayname
         msgSender(pMsg: AMessage): string {
             if (pMsg.messageJSON) {
                 // eslint-disable-next-line max-len
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unnecessary-type-assertion
-                const fMsg = <FloofChatMessage>pMsg.messageJSON;
+                const fMsg = <DefaultChatMessage>pMsg.messageJSON;
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
                 return fMsg.displayName;
             }
             return pMsg.senderId.stringify();
         },
         // Return the text of the messsage.
-        // This is where message format is checked. If FloofChat, use the text in the JSON packet
-        msgText(pMsg: AMessage): string {
+        // This is where message format is checked. If DefaultMessage, use the text in the JSON packet.
+        msgText(pMsg: AMessage): string[] {
             if (pMsg.messageJSON) {
                 // eslint-disable-next-line max-len
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unnecessary-type-assertion
-                const fMsg = <FloofChatMessage>pMsg.messageJSON;
+                const dMsg = <DefaultChatMessage>pMsg.messageJSON;
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
-                return fMsg.message;
+                return [dMsg.message];
             }
-            return pMsg.message;
+            return [pMsg.message];
         },
         // Return the printable time of the message.
         msgTime(pMsg: AMessage): string {
-            return pMsg.whenReceived.toUTCString();
+            // Messages loaded from persistent storage can contain broken timestamps.
+            return pMsg.whenReceived?.toUTCString();
         },
         // Return 'true' if the chat message was sent by this session
         // Relies of the message queuer to add the "self: true" to the added message
@@ -224,24 +228,30 @@ export default defineComponent({
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return pMsg.self ?? false;
         },
-        msgIsFromThisClient(senderId: Uuid): boolean {
+        msgIsFromThisClient(senderId: Uuid | string): boolean {
             if (DomainMgr.ActiveDomain) {
                 const ID = DomainMgr.ActiveDomain.DomainClient?.sessionUUID;
-                if (ID?.value() === senderId?.value()) {
+                if (
+                    senderId instanceof Uuid && ID?.value() === senderId?.value()
+                    || typeof senderId === "string" && ID?.value().toString() === senderId
+                ) {
                     return true;
                 }
             }
             return false;
         },
+        validateMessage(): boolean {
+            return this.messageInput.length > 0;
+        },
         submitMessage(): void {
             if (DomainMgr.ActiveDomain) {
                 const msger = DomainMgr.ActiveDomain.MessageClient;
-                if (msger) {
-                    const msg: FloofChatMessage = {
+                if (msger && this.validateMessage()) {
+                    const msg: DefaultChatMessage = {
                         type: "TransmitChatMessage",
                         channel: "Local",
                         message: this.messageInput,
-                        colour: { red: 255, blue: 204, green: 229 },    // orangish
+                        colour: { red: 255, blue: 204, green: 229 }, // orangish
                         displayName: this.$store.state.avatar.displayName,
                         position: this.$store.state.avatar.position
                     };
@@ -285,6 +295,27 @@ export default defineComponent({
                 behavior: smooth ? "smooth" : "auto"
             });
             this.scrollIsAtBottom = true;
+        },
+        relatedToPrimaryMessageEntry(pMsg: AMessage, index: number): boolean {
+            const lastPrimaryMessage = this.$store.state.messages.messages[this.lastPrimaryMessageIndex];
+
+            if (!lastPrimaryMessage) {
+                this.lastPrimaryMessageIndex = index;
+                return false;
+            }
+
+            if (pMsg.senderId !== lastPrimaryMessage.senderId) {
+                this.lastPrimaryMessageIndex = index;
+                return false;
+            }
+
+            // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+            if (Math.abs(lastPrimaryMessage.whenReceived.getTime() - pMsg.whenReceived.getTime()) > 5000) {
+                this.lastPrimaryMessageIndex = index;
+                return false;
+            }
+
+            return true;
         }
     },
 

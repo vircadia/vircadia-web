@@ -71,21 +71,18 @@ export const AudioMgr = {
     /**
      * Set audio muting to the passed value or, if nothing passed, complement muting.
      * This sets the muting for the input mic as well as muting the output stream.
-     * @param pMute 'true' if to mute. If not supplied, current mute state is complemented
-     * @returns new mute state
+     * @param pMute `true` to mute, `false` to unmute. If not supplied, current mute state is complemented.
+     * @returns The new mute state.
      */
     muteAudio(pMute?: boolean): boolean {
         const newMute = pMute ?? !Store.state.audio.user.muted;
-        // eslint-disable-next-line max-len
-        if (Store.state.audio.user.muted !== newMute) {
-            // eslint-disable-next-line no-void
-            void Store.commit(StoreMutations.MUTATE, {
-                property: "audio.user.muted",
-                value: newMute
-            });
-            AudioMgr.setDomainAudioMuted(newMute);
-            AudioMgr.setUserAudioMuted(newMute);
-        }
+        // eslint-disable-next-line no-void
+        void Store.commit(StoreMutations.MUTATE, {
+            property: "audio.user.muted",
+            value: newMute
+        });
+        AudioMgr.setDomainAudioMuted(newMute);
+        AudioMgr.setUserAudioMuted(newMute);
         return newMute;
     },
 
@@ -132,6 +129,7 @@ export const AudioMgr = {
             // If the audio state is now connected, let the user hear things
             if (pState === AssignmentClientState.CONNECTED) {
                 await AudioMgr._setupDomainAudio(pDomain);
+                AudioMgr._restoreMicrophoneMuteState();
             } else {
                 // Getting here means the audio connection to the domain is disconnected
                 AudioMgr._disconnectInputAndOutputStreams(pDomain);
@@ -140,14 +138,21 @@ export const AudioMgr = {
         })();
     },
 
+    /**
+     * Restore the microphone's muted/unmuted state from the store.
+     */
+    _restoreMicrophoneMuteState(): void {
+        AudioMgr.muteAudio(Store.state.audio.user.muted);
+    },
+
     // Utility routine called when DomainAudio is CONNECTED.
     // Copies audio information to Store and, if the user is ready, connects input and output streams.
     async _setupDomainAudio(pDomain: Domain): Promise<void> {
         Log.debug(Log.types.AUDIO, `AudioMgr._setupDomainAudio`);
         const mixer = pDomain.AudioClient?.Mixer;
         if (mixer) {
-            AudioMgr.setDomainAudioMuted(mixer.inputMuted);
             await AudioMgr._connectInputStreamsToOutputStreams(pDomain);
+            AudioMgr._restoreMicrophoneMuteState();
         }
     },
 
@@ -161,10 +166,6 @@ export const AudioMgr = {
                 await AudioMgr.setAudioToDomain(Store.state.audio.user.userInputStream);
             } else {
                 Log.debug(Log.types.AUDIO, `AudioMgr._connectInputAndOutputStreams. Have mixer but no user mic`);
-            }
-            // If there is a function to set the output, connect the domain to that output
-            if (AudioMgr._setAudioOutputFunction) {
-                AudioMgr._setAudioOutputFunction(pDomain.AudioClient.getDomainAudioStream());
             }
 
             // If there is a function to set the output, connect the domain to that output
@@ -212,9 +213,13 @@ export const AudioMgr = {
                 currentInputDevice: pDeviceInfo
             }
         });
+
         // If there is a stream, set up the muted state
-        const shouldBeMuted = typeof pStream === "undefined" || pStream === null;
-        AudioMgr.muteAudio(shouldBeMuted);
+        if (pStream) {
+            AudioMgr._restoreMicrophoneMuteState();
+        } else {
+            AudioMgr.muteAudio(true);
+        }
 
         // Remember the last selected input device for next session
         if (pDeviceInfo) {
@@ -284,7 +289,11 @@ export const AudioMgr = {
     setUserAudioMuted(pMute?: boolean): boolean {
         const newMute = pMute ?? !Store.state.audio.user.muted;
         Log.debug(Log.types.AUDIO, `AudioMgr.setUserAudioMuted: ${String(newMute)}`);
-        // TODO: figure out how to set muted state on Store.state.audio.user.userInputStream
+        // Disable all media tracks.
+        const mediaTracks = Store.state.audio.user.userInputStream?.getTracks();
+        mediaTracks?.forEach((track) => {
+            track.enabled = !newMute;
+        });
         return newMute;
     },
 

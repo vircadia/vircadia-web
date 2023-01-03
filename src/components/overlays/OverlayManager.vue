@@ -87,6 +87,9 @@ export default defineComponent({
                 case "openOverlay":
                     this.openOverlay(parameter);
                     break;
+                case "toggleOverlay":
+                    this.toggleOverlay(parameter);
+                    break;
                 default:
                     window.alert("Action not supported: " + action);
                     break;

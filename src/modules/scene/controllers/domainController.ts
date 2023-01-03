@@ -24,13 +24,11 @@ import { DomainMgr } from "@Modules/domain";
 import { Client, AssignmentClientState } from "@Modules/domain/client";
 import { Domain, ConnectionState } from "@Modules/domain/domain";
 import { AvatarMixer, Uuid, ScriptAvatar, DomainServer,
-    EntityServer } from "@vircadia/web-sdk";
-import { EntityManager, IEntity } from "@Modules/entity";
-import { VScene } from "./vscene";
-import { Quaternion, Vector3 } from "@babylonjs/core";
+    EntityServer, Camera as DomainCamera } from "@vircadia/web-sdk";
+import { EntityManager, IEntity, EntityMapper } from "@Modules/entity";
+import { VScene } from "../vscene";
+import { Camera } from "@babylonjs/core";
 
-
-const DefaultAvatarUrl = "https://staging.vircadia.com/O12OR634/UA92/sara.glb";
 
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -41,7 +39,9 @@ export class DomainController extends ScriptComponent {
     _entityServer : Nullable<EntityServer> = null;
     _domainConnectionState : ConnectionState = ConnectionState.DISCONNECTED;
     _entityManager : Nullable<EntityManager> = null;
+    _domainCamera : Nullable<DomainCamera> = null;
     _vscene : Nullable<VScene>;
+    _camera : Nullable<Camera> = null;
 
     @inspector()
     _sessionID = "";
@@ -100,6 +100,8 @@ export class DomainController extends ScriptComponent {
         if (this._entityManager) {
             this._entityManager.update();
         }
+
+        // this._syncCamera();
     }
 
     public onStop(): void {
@@ -120,15 +122,24 @@ export class DomainController extends ScriptComponent {
             this._vscene?.unloadAllAvatars();
 
             if (this._vscene && this._vscene._myAvatar) {
-                const myAvatarController = this._vscene._myAvatar.getComponent("MyAvatarController") as MyAvatarController;
-                if (myAvatarController && myAvatarController.myAvatar) {
+                const myAvatarController = this._vscene._myAvatar.getComponent(
+                    MyAvatarController.typeName) as MyAvatarController;
+                if (myAvatarController) {
                     myAvatarController.myAvatar = null;
                 }
+            }
+
+            const avatarList = this._avatarMixer?.avatarList;
+            if (avatarList) {
+                avatarList.avatarAdded.disconnect(this._handleAvatarAdded);
+                avatarList.avatarRemoved.disconnect(this._handleAvatarRemoved);
             }
 
             this._avatarMixer = null;
             this._entityServer = null;
             this._entityManager = null;
+            this._domainCamera = null;
+            this._camera = null;
         }
 
         this._domainConnectionState = pState;
@@ -144,37 +155,8 @@ export class DomainController extends ScriptComponent {
             this._entityServer.onStateChanged = this._handleOnEntityServerStateChanged.bind(this);
         }
 
-        const url = new URL(pDomain.DomainUrl);
-        Log.debug(Log.types.COMM, `connected to: ${pDomain.DomainUrl}`);
-        let postion = undefined;
-        let rotationQuat = undefined;
-
-        if (url.pathname.length > 1) {
-            const index1 = url.pathname.indexOf("/");
-            let index2 = url.pathname.lastIndexOf("/");
-            // prevent no quaternion string
-            index2 = index2 === index1 ? url.pathname.length : index2;
-
-            const posStr = url.pathname.substring(index1 + 1, index2);
-            const vec3 = posStr.split(",").map((value) => Number(value));
-            if (vec3.length >= 3) {
-                postion = new Vector3(...vec3);
-            }
-
-            const orientStr = url.pathname.substring(index2 + 1);
-            const vec4 = orientStr.split(",").map((value) => Number(value));
-            if (vec4.length >= 4) {
-                rotationQuat = new Quaternion(...vec4);
-            }
-        }
-
-        if (pDomain.DomainUrl.includes("ua92-1.vircadia.com")) {
-            await this._vscene?.loadSceneUA92Campus();
-        } else if (pDomain.DomainUrl.includes("ua92-2.vircadia.com")) {
-            await this._vscene?.loadSceneSpaceStation();
-        } else {
-            await this._vscene?.load(undefined, undefined, postion, rotationQuat);
-        }
+        await this._vscene.load();
+        this._vscene.teleportMyAvatar(pDomain.Location);
 
         if (pDomain.DomainClient) {
             this._sessionID = pDomain.DomainClient.sessionUUID.stringify();
@@ -184,23 +166,21 @@ export class DomainController extends ScriptComponent {
         this._avatarMixer = pDomain.AvatarClient?.Mixer;
         const myAvatarInterface = pDomain.AvatarClient?.MyAvatar;
         if (myAvatarInterface) {
-            Log.debug(Log.types.AVATAR, `skeletonModelURL: ${myAvatarInterface.skeletonModelURL}`);
             if (myAvatarInterface.skeletonModelURL === "") {
                 myAvatarInterface.skeletonModelURL = this._vscene.myAvatarModelURL;
             }
 
-            const gameObject = this._vscene?._myAvatar;
+            const gameObject = this._vscene._myAvatar;
             if (gameObject) {
-                const myAvatarController = gameObject.getComponent("MyAvatarController") as MyAvatarController;
+                const myAvatarController = gameObject.getComponent(MyAvatarController.typeName) as MyAvatarController;
                 myAvatarController.myAvatar = myAvatarInterface;
             }
         }
 
-
         const avatarList = this._avatarMixer?.avatarList;
         if (avatarList) {
-            avatarList.avatarAdded.connect(this._handleAvatarAdded.bind(this));
-            avatarList.avatarRemoved.connect(this._handleAvatarRemoved.bind(this));
+            avatarList.avatarAdded.connect(this._handleAvatarAdded);
+            avatarList.avatarRemoved.connect(this._handleAvatarRemoved);
 
             const uuids = avatarList.getAvatarIDs();
             const emptyId = new Uuid();
@@ -212,9 +192,13 @@ export class DomainController extends ScriptComponent {
                 }
             });
         }
+
+        this._camera = this._vscene.camera;
+        this._domainCamera = pDomain.Camera;
+        // this._syncCamera();
     }
 
-    private _handleAvatarAdded(sessionID:Uuid): void {
+    private _handleAvatarAdded = (sessionID: Uuid): void => {
         const avatarList = this._avatarMixer?.avatarList;
         if (avatarList) {
             Log.debug(Log.types.AVATAR,
@@ -230,14 +214,14 @@ export class DomainController extends ScriptComponent {
                 this._handleAvatarSkeletonModelURLChanged(sessionID, domain);
             });
         }
-    }
+    };
 
-    private _handleAvatarRemoved(sessionID:Uuid): void {
+    private _handleAvatarRemoved = (sessionID: Uuid): void => {
         Log.debug(Log.types.AVATAR,
             `handleAvatarRemoved. Session ID: ${sessionID.stringify()}`);
         this._vscene?.unloadAvatar(sessionID.stringify());
 
-    }
+    };
 
     private _handleAvatarSkeletonModelURLChanged(sessionID:Uuid, domain:ScriptAvatar): void {
         Log.debug(Log.types.AVATAR,
@@ -268,7 +252,6 @@ export class DomainController extends ScriptComponent {
         this._vscene?.loadEntity(entity);
     }
 
-    // eslint-disable-next-line class-methods-use-this
     private _handleOnEntityRemoved(entity : IEntity) {
         Log.debug(Log.types.ENTITIES,
             `Remove entity ${entity.id}
@@ -276,5 +259,12 @@ export class DomainController extends ScriptComponent {
             type: ${entity.type}`);
 
         this._vscene?.removeEntity(entity.id);
+    }
+
+    private _syncCamera() {
+        if (this._domainCamera && this._camera) {
+            this._domainCamera.position = EntityMapper.mapToVector3Property(this._camera.globalPosition);
+            this._domainCamera.orientation = EntityMapper.mapToQuaternionProperty(this._camera.absoluteRotation);
+        }
     }
 }

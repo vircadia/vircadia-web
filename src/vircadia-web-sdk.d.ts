@@ -16,6 +16,11 @@ declare module "@vircadia/web-sdk" {
     };
 
     // Vec3 and Quant ==========================
+    export type vec2 = {
+        x: number,
+        y: number,
+    };
+
     export type vec3 = {
         x: number;
         y: number;
@@ -172,6 +177,7 @@ declare module "@vircadia/web-sdk" {
 
     // AudioMixer ============================
     type AudioPositionGetter = () => vec3;
+    type AudioOrientationGetter = () => quat;
     export class AudioMixer extends AssignmentClient {
         constructor(contextID: number);
         get audioOutput(): MediaStream;  // out from domain server to go to user
@@ -179,6 +185,7 @@ declare module "@vircadia/web-sdk" {
         get inputMuted(): boolean;
         set inputMuted(inputMuted: boolean);
         set positionGetter(positionGetter: AudioPositionGetter);
+        set orientationGetter(orientationGetter: AudioOrientationGetter);
         get audioWorkletRelativePath(): string;
         set audioWorkletRelativePath(pPath: string);
         play(): Promise<void>;
@@ -556,9 +563,28 @@ declare module "@vircadia/web-sdk" {
         alpha: number | undefined;
     };
 
+    export enum WebInputMode {
+        // C++  enum class WebInputMode
+        TOUCH = 0,
+        MOUSE
+    }
+
+    export type WebEntitySubclassProperties = {
+        sourceURL: string | undefined,  // Renamed from native client's "sourceUrl".
+        color: color | undefined,
+        alpha: number | undefined,
+        dpi: number | undefined,
+        scriptURL: string | undefined,
+        maxFPS: number | undefined,
+        inputMode: WebInputMode | undefined,
+        showKeyboardFocusHighlight: boolean | undefined,
+        useBackground: boolean | undefined,
+        userAgent: string | undefined
+    };
+
     export type ImageEntityProperties = CommonEntityProperties & ImageEntitySubclassProperties;
 
-    export type WebEntityProperties = CommonEntityProperties;
+    export type WebEntityProperties = CommonEntityProperties & WebEntitySubclassProperties;
 
     export type ParticleEffectEntityProperties = CommonEntityProperties;
 
@@ -653,7 +679,27 @@ declare module "@vircadia/web-sdk" {
 
     export type ZoneEntityProperties = CommonEntityProperties & ZoneEntitySubclassProperties;
 
-    export type MaterialEntityProperties = CommonEntityProperties;
+    export enum MaterialMappingMode {
+        // C++  enum MaterialMappingMode
+        UV = 0,
+        PROJECTED,
+        // Put new mapping-modes before this line.
+        UNSET_MATERIAL_MAPPING_MODE
+    }
+
+    export type MaterialEntitySubclassProperties = {
+        materialURL: string | undefined,
+        materialData: string | undefined,
+        priority: number | undefined,
+        parentMaterialName: string | undefined,
+        materialMappingMode: MaterialMappingMode | undefined,
+        materialMappingPos: vec2 | undefined,
+        materialMappingScale: vec2 | undefined,
+        materialMappingRot: number | undefined,
+        materialRepeat: boolean | undefined
+    };
+
+    export type MaterialEntityProperties = CommonEntityProperties & MaterialEntitySubclassProperties;
 
     export type EntityProperties = ModelEntityProperties | ShapeEntityProperties | TextEntityProperties |
     ImageEntityProperties | WebEntityProperties | ParticleEffectEntityProperties | LineEntityProperties |

@@ -10,7 +10,7 @@
 //
 import { IEntityProperties, ISpatialProperties, IBehaviorProperties,
     IModelEProperties, IShapeProperties, ILightProperties,
-    IZoneProperties, IImageProperties } from "./EntityProperties";
+    IZoneProperties, IImageProperties, IMaterialProperties, IWebProperties } from "./EntityProperties";
 import { Observable } from "@babylonjs/core";
 
 export interface IEntity extends
@@ -19,11 +19,14 @@ export interface IEntity extends
     IBehaviorProperties {
 
     onCommonPropertiesChanged ?: Observable<IEntity>;
+    onParentChanged ?: Observable<IEntity>;
     onPositionAndRotationChanged ?: Observable<IEntity>;
     onDimensionChanged ?: Observable<IEntity>;
-    onCollisionPropertiesChanged ?: Observable<IEntity>;
+    onRenderModeChanged ?: Observable<IEntity>;
     onScriptChanged ?: Observable<IEntity>;
     onUserDataChanged ?: Observable<IEntity>;
+    onCollisionPropertiesChanged ?: Observable<IEntity>;
+    onPhysicsPropertiesChanged ?: Observable<IEntity>;
 }
 
 export interface IModelEntity extends
@@ -31,6 +34,25 @@ export interface IModelEntity extends
     IModelEProperties {
 
     onModelURLChanged ?: Observable<IEntity>;
+    onAnimationChanged ?: Observable<IEntity>
+}
+
+export type JitsiSettings = {
+    roomID: string;
+    roomName: string;
+};
+
+export type WebExtensions = {
+    jitsi: JitsiSettings | undefined
+};
+
+export interface IWebEntity extends
+    IEntity,
+    IWebProperties {
+
+    onColorChanged : Observable<IEntity>;
+    onSourceURLChanged : Observable<IEntity>;
+    onWebPropertiesChanged : Observable<IEntity>;
 }
 
 export interface IShapeEntity extends
@@ -67,4 +89,14 @@ export interface IImageEntity extends
 
     onColorChanged : Observable<IEntity>;
     onImageURLChanged : Observable<IEntity>
+}
+
+export interface IMaterialEntity extends
+    IEntity,
+    IMaterialProperties {
+
+    onMaterialDataChanged ?: Observable<IEntity>;
+    onMaterialMappingModeChanged ?: Observable<IEntity>;
+    onMaterialPriorityChanged ?: Observable<IEntity>;
+    onParentMaterialNameChanged ?: Observable<IEntity>;
 }

@@ -15,16 +15,10 @@ import { IEntity, IZoneEntity } from "../EntityInterfaces";
 import { GameObject } from "@Base/modules/object";
 import { ZoneEntityController } from "../components";
 
-const DefaultSkyBoxSize = 2000;
-const DefaultCubeMapSize = 1024;
 
 export class ZoneEntityBuilder {
     // eslint-disable-next-line class-methods-use-this
     public build(gameObject: GameObject, entity: IEntity) : void {
-        const zoneEnitiy = entity as IZoneEntity;
-
-        if (!gameObject.getComponent(ZoneEntityController.typeName)) {
-            gameObject.addComponent(new ZoneEntityController(zoneEnitiy));
-        }
+        gameObject.addComponent(new ZoneEntityController(entity as IZoneEntity));
     }
 }

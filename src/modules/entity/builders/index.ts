@@ -8,12 +8,12 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
-
-export { EntityMapper } from "../package/EntityMapper";
 export { AbstractEntityBuilder } from "./AbstractEntityBuilder";
 export { ShapeEntityBuilder } from "./ShapeEntityBuilder";
 export { LightEntityBuilder } from "./LightEntityBuilder";
 export { ModelEntityBuilder } from "./ModelEntityBuilder";
 export { ZoneEntityBuilder } from "./ZoneEntityBuilder";
 export { ImageEntityBuilder } from "./ImageEntityBuilder";
+export { MaterialEntityBuilder } from "./materialEntityBuilder";
+export { WebEntityBuilder } from "./webEntityBuilder";
 export { AssetUrl } from "./asset";

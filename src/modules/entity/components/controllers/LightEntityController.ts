@@ -15,12 +15,13 @@ import Log from "@Modules/debugging/log";
 // Domain Modules
 import { EntityController } from "./EntityController";
 import { ILightEntity } from "../../EntityInterfaces";
-import { LightComponent } from "@Base/modules/object";
-import { LightEntityBuilder } from "../../builders";
+import { LightEntityComponent } from "../components";
+
 
 export class LightEntityController extends EntityController {
     // domain properties
     _lightEntity : ILightEntity;
+    _lightComponent : Nullable<LightEntityComponent>;
 
     constructor(entity : ILightEntity) {
         super(entity, LightEntityController.typeName);
@@ -44,12 +45,25 @@ export class LightEntityController extends EntityController {
     public onInitialize(): void {
         super.onInitialize();
 
-        this._lightEntity.onLightTypeChanged?.add(this._handleLightTypeChanged.bind(this));
-        this._lightEntity.onLightPropertiesChanged?.add(this._handleLightPropertiesChanged.bind(this));
-        this._lightEntity.onDimensionChanged?.add(this._handleLightPropertiesChanged.bind(this));
+        this._lightComponent = new LightEntityComponent();
+        this._gameObject?.addComponent(this._lightComponent);
+
+        this._lightEntity.onLightTypeChanged?.add(() => {
+            this._lightComponent?.load(this._lightEntity);
+        });
+
+        this._lightEntity.onLightPropertiesChanged?.add(() => {
+            this._lightComponent?.updateProperties(this._lightEntity);
+        });
+
+        this._lightEntity.onDimensionChanged?.add(() => {
+            this._lightComponent?.updateDimensions(this._lightEntity);
+        });
+
     }
 
     public onStart(): void {
+        this._lightComponent?.load(this._lightEntity);
         super.onStart();
     }
 
@@ -57,20 +71,4 @@ export class LightEntityController extends EntityController {
     public onUpdate():void {
 
     }
-
-    private _handleLightPropertiesChanged(): void {
-        if (this._gameObject) {
-            const comp = this._gameObject.getComponent(LightComponent.typeName);
-            if (comp && comp instanceof LightComponent) {
-                LightEntityBuilder.buildLightProperties(comp.light, this._lightEntity);
-            }
-        }
-    }
-
-    private _handleLightTypeChanged(): void {
-        if (this._gameObject) {
-            LightEntityBuilder.buildLight(this._gameObject, this._lightEntity);
-        }
-    }
-
 }

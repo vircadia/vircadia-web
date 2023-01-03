@@ -16,6 +16,7 @@ export interface MetaverseInfoResp {
     "metaverse_name": string,
     "metaverse_nick_name": string,
     "metaverse_url": string,
+    "jitsi_server_domain": string,
     "ice_server_url": string,
     "metaverse_server_version": {
         "npm-package-version": string,

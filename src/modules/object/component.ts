@@ -12,7 +12,7 @@
 
 import { GameObject } from "./GameObject";
 import {
-    Node
+    Node, Nullable, Observable
 } from "@babylonjs/core";
 
 /**
@@ -23,6 +23,7 @@ export interface IComponent {
     detatch():void;
     dispose():void;
     get componentType():string;
+    get gameObject(): Nullable<GameObject>;
 }
 
 export abstract class AbstractComponent implements IComponent {
@@ -39,10 +40,14 @@ export abstract class AbstractComponent implements IComponent {
     public abstract dispose():void;
 
     public abstract get componentType():string;
+
+    public abstract get gameObject(): Nullable<GameObject>;
 }
 
 export abstract class GenericNodeComponent<T extends Node> extends AbstractComponent {
-    protected _node:Nullable<T> = undefined;
+    protected _node:Nullable<T> = null;
+
+    protected _onNodeAttachedObservable: Observable<T> = new Observable<T>();
 
     public get node() : Nullable<T> {
         return this._node;
@@ -53,6 +58,10 @@ export abstract class GenericNodeComponent<T extends Node> extends AbstractCompo
         if (this._gameObject) {
             this.attach(this._gameObject);
         }
+    }
+
+    public get onNodeAttachedObservable() : Observable<T> {
+        return this._onNodeAttachedObservable;
     }
 
     public get enable() : boolean {
@@ -67,6 +76,7 @@ export abstract class GenericNodeComponent<T extends Node> extends AbstractCompo
         super.attach(gameObject);
         if (this._node) {
             this._node.parent = gameObject;
+            this._onNodeAttachedObservable.notifyObservers(this._node);
         }
     }
 
@@ -79,6 +89,10 @@ export abstract class GenericNodeComponent<T extends Node> extends AbstractCompo
 
     public dispose():void {
         this._node?.dispose();
+    }
+
+    public get gameObject(): Nullable<GameObject> {
+        return this._gameObject;
     }
 
 }

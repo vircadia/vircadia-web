@@ -10,50 +10,34 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { AbstractComponent, GenericNodeComponent } from "../component";
-import { GameObject } from "../GameObject";
-
+import { GenericNodeComponent } from "../component";
 import {
-    DirectionalLight,
-    Light
+    DirectionalLight, Light, Nullable
 } from "@babylonjs/core";
 
 /**
  * A light component.
  */
-export class LightComponent extends AbstractComponent {
-    private _light: Light;
+export class LightComponent extends GenericNodeComponent<Light> {
+    // private _light: Light;
+    protected _light: Nullable<Light> = null;
 
-    constructor(light: Light) {
-        super();
-        this._light = light;
-    }
-
-    public get light(): Light {
+    public get light(): Nullable<Light> {
         return this._light;
     }
 
-    public set light(value: Light) {
+    public set light(value: Nullable<Light>) {
+        this.node = value;
+    }
+
+    public set node(value: Nullable<Light>) {
         this._light = value;
-    }
-
-    public attach(gameObject:GameObject):void {
-        super.attach(gameObject);
-        this._light.parent = gameObject;
-    }
-
-    public detatch():void {
-        this._light.parent = null;
-        super.detatch();
-    }
-
-    public dispose():void {
-        this._light.dispose();
+        super.node = value;
     }
 
     /**
     * Gets a string identifying the type of this Component
-    * @returns "Mesh" string
+    * @returns "Light" string
     */
     public get componentType():string {
         return LightComponent.typeName;

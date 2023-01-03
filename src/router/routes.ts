@@ -12,9 +12,13 @@ const routes: RouteRecordRaw[] = [
         component: () => import("layouts/MainLayout.vue"),
         children: [{ path: "", component: () => import("pages/Index.vue") }]
     },
-
     {
-        path: "/connect/:address",
+        path: "/first-time-setup",
+        component: () => import("pages/FirstTimeSetup.vue"),
+        children: [{ path: "", component: () => import("pages/Index.vue") }]
+    },
+    {
+        path: "/:location*",
         component: () => import("layouts/MainLayout.vue")
     },
 

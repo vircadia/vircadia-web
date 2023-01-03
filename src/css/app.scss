@@ -1,16 +1,34 @@
 // app global css in SCSS form
+@import url('https://fonts.googleapis.com/css2?family=Cairo&family=Poppins:wght@100;300;400;600&display=swap');
 
 html {
     overflow: hidden;
     height: 100%;
+    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
 }
 
 body {
     overflow: hidden;
     height: 100%;
+    font-family: inherit !important;
 }
 
 div#q-app {
     overflow: hidden;
     height: 100%;
+}
+
+// TODO: Is this how it should be done? This issue started when doing web entity updates.
+div#scene-explorer-host {
+    z-index: 9999;
+}
+
+div#inspector-host {
+    z-index: 9999;
+}
+
+h1,
+h2,
+h3 {
+    font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
 }

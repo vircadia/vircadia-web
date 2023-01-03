@@ -11,7 +11,7 @@ import axios from "axios";
 import { buildUrl, cleanMetaverseUrl, findErrorMsg } from "@Modules/metaverse/metaverseOps";
 import { MetaverseInfoResp, MetaverseInfoAPI } from "@Modules/metaverse/APIAccount";
 
-import { Store, Actions as StoreActions } from "@Store/index";
+import { Store, Actions } from "@Store/index";
 
 import { SignalEmitter } from "@vircadia/web-sdk";
 
@@ -57,7 +57,7 @@ export const MetaversePersist = {
  * ```
  */
 export class Metaverse {
-    #_metaverseUrl = Config.getItem(DEFAULT_METAVERSE_URL);
+    #_metaverseUrl = Store.state.defaultConnectionConfig.DEFAULT_METAVERSE_URL;
     public get MetaverseUrl(): string { return this.#_metaverseUrl; }
 
     #_connectionState: MetaverseState = MetaverseState.UNITIALIZED;
@@ -71,6 +71,9 @@ export class Metaverse {
 
     #_iceServer: Nullable<string> = undefined;
     public get IceServer(): Nullable<string> { return this.#_iceServer; }
+
+    #_jitsiServer: Nullable<string> = undefined;
+    public get JitsiServer(): Nullable<string> { return this.#_jitsiServer; }
 
     #_serverVersion = "V0.0.0";
     public get ServerVersion(): string { return this.#_serverVersion; }
@@ -114,6 +117,7 @@ export class Metaverse {
             this.#_metaverseName = data.metaverse_name;
             this.#_metaverseNickname = data.metaverse_nick_name ?? data.metaverse_name;
             this.#_iceServer = data.ice_server_url;
+            this.#_jitsiServer = data.jitsi_server_domain;
             this.#_serverVersion = data.metaverse_server_version["version-tag"];
 
             this.#_connectionState = MetaverseState.CONNECTED;
@@ -136,7 +140,7 @@ export class Metaverse {
         this.onStateChange.emit(this, pNewState);
 
         // eslint-disable-next-line no-void
-        void Store.dispatch(StoreActions.UPDATE_METAVERSE, {
+        void Store.dispatch(Actions.UPDATE_METAVERSE, {
             metaverse: this,
             newState: pNewState
         });

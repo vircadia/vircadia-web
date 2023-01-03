@@ -14,30 +14,34 @@
 /* eslint-disable class-methods-use-this */
 
 import { AnimationGroup, Engine, Scene,
-    ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, Camera, Observable } from "@babylonjs/core";
+    ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, Camera,
+    Observable, Nullable, AmmoJSPlugin, Quaternion, Vector3, BackgroundMaterial,
+    Mesh, MeshBuilder, DynamicTexture, Color4 } from "@babylonjs/core";
 
-import { Quaternion, Vector3 } from "@babylonjs/core/Maths/math";
 import "@babylonjs/loaders/glTF";
-import "@babylonjs/core/Meshes/meshBuilder";
 import { ResourceManager } from "./resource";
-import { DomainController } from "./DomainController";
-import { GameObject, MeshComponent } from "@Modules/object";
+import { DomainController, SceneController } from "./controllers";
+import { GameObject, MeshComponent, CapsuleColliderComponent, DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { ScriptComponent, requireScript, requireScripts, reattachScript } from "@Modules/script";
-import { AvatarController, MyAvatarController, ScriptAvatarController } from "@Modules/avatar";
-import { IEntity, IEntityDescription, EntityBuilder } from "@Modules/entity";
+import { InputController, MyAvatarController, ScriptAvatarController, AvatarMapper } from "@Modules/avatar";
+import { IEntity, IEntityDescription, EntityBuilder, EntityEvent } from "@Modules/entity";
 import { ScriptAvatar } from "@vircadia/web-sdk";
 import { CAMPUS_URL, SPACE_STATION_URL } from "@Base/config";
 import { Utility } from "@Modules/utility";
-import { defaultActiveAvatarUrl } from "@Modules/avatar/DefaultModels";
+import { Location } from "@Modules/domain/location";
+import { DataMapper } from "@Modules/domain/dataMapper";
+import { AvatarStoreInterface } from "@Modules/avatar/StoreInterface";
+import { Store } from "@Base/store";
+import { CSS3DRenderer } from "./css3DRenderer";
 
 // General Modules
 import Log from "@Modules/debugging/log";
 // System Modules
 import { VVector3 } from ".";
+import { DomainMgr } from "../domain";
 
-const DefaultAvatarUrl = defaultActiveAvatarUrl();
-const AvatarAnimationUrl = "https://staging.vircadia.com/O12OR634/UA92/AnimationsBasic.glb";
-const DefaultSceneUrl = "/assets/scenes/default.json";
+// TODO: Put this avatar (and any default scene models/animations/whatever) into the app code to be compiled with the app.
+const AvatarAnimationUrl = "https://digisomni.com/cloud/cdn/y7i2mX99WqT9LFb/download/AnimationsBasic.glb";
 
 type DomainName = "Campus" | "SpaceStation";
 
@@ -49,24 +53,23 @@ export class VScene {
     _engine: Engine;
     _scene: Scene;
     _preScene: Nullable<Scene> = null;
+    private _css3DRenderer: Nullable<CSS3DRenderer> = null;
     _myAvatar: Nullable<GameObject> = null;
-    _myAvatarModelURL = DefaultAvatarUrl;
-    _myAvatarSpawnPosition:Vector3 = Vector3.Zero();
-    _myAvatarSpawnOrientation:Quaternion = Quaternion.Identity();
+    _myAvatarModelURL = AvatarStoreInterface.getActiveModelData("file") as string;
 
     _avatarList : Map<string, GameObject>;
+    _avatarIsLoading = false;
+    _avatarLoadQueue = [] as (string | undefined)[];
     _camera : Nullable<Camera> = null;
     _avatarAnimationGroups : AnimationGroup[] = [];
     _resourceManager : Nullable<ResourceManager> = null;
     _domainController : Nullable<DomainController> = null;
+    _sceneController : Nullable<SceneController> = null;
     _sceneManager : Nullable<GameObject> = null;
     _currentDomain: DomainName = "Campus";
     _currentSceneURL = "";
-    private _myAvatarModelChangedObservable: Observable<GameObject> = new Observable<GameObject>();
-
-    public get myAvatarModelChangedObservable(): Observable<GameObject> {
-        return this._myAvatarModelChangedObservable;
-    }
+    private _onMyAvatarModelChangedObservable: Observable<GameObject> = new Observable<GameObject>();
+    private _onEntityEventObservable: Observable<EntityEvent> = new Observable<EntityEvent>();
 
     constructor(pEngine: Engine, pSceneId = 0) {
         if (process.env.NODE_ENV === "development") {
@@ -78,6 +81,8 @@ export class VScene {
         this._scene = new Scene(pEngine);
         this._sceneId = pSceneId;
         this._avatarList = new Map<string, GameObject>();
+        this._css3DRenderer = new CSS3DRenderer(pEngine.getRenderingCanvas() as HTMLCanvasElement);
+        this._css3DRenderer.scene = this._scene;
     }
 
     getSceneId(): number {
@@ -96,12 +101,50 @@ export class VScene {
         return this._myAvatar;
     }
 
+    public get onMyAvatarModelChangedObservable(): Observable<GameObject> {
+        return this._onMyAvatarModelChangedObservable;
+    }
+
+    public get onEntityEventObservable(): Observable<EntityEvent> {
+        return this._onEntityEventObservable;
+    }
+
+    public get camera() : Nullable<Camera> {
+        return this._camera;
+    }
+
     public get myAvatarModelURL() : string {
         return this._myAvatarModelURL;
     }
 
-    render():void {
+    public get currentDomain(): DomainName {
+        return this._currentDomain;
+    }
+
+    public set currentDomain(value: DomainName) {
+        this._currentDomain = value;
+    }
+
+    public get css3DRenderer(): Nullable<CSS3DRenderer> {
+        return this._css3DRenderer;
+    }
+
+    public render():void {
         this._scene.render();
+
+        if (this._camera) {
+            this._css3DRenderer?.render(this._camera);
+        }
+    }
+
+    public showLoadingUI() : void {
+        this._engine.displayLoadingUI();
+        this._scene.detachControl();
+    }
+
+    public hideLoadingUI() : void {
+        this._scene.attachControl();
+        this._engine.hideLoadingUI();
     }
 
     public async load(sceneUrl ?: string, avatarModelURL ?: string, avatarPos ?: Vector3, avatarQuat ?: Quaternion,
@@ -113,9 +156,9 @@ export class VScene {
         this._currentSceneURL = sceneUrl ?? "";
 
         this._engine.displayLoadingUI();
-        this._scene.detachControl();
         this._preScene = this._scene;
         this._createScene();
+        this._scene.detachControl();
 
         if (beforeLoading) {
             beforeLoading();
@@ -123,16 +166,11 @@ export class VScene {
 
         // create camera
         const camera = new ArcRotateCamera(
-            "Camera", -Math.PI / 2, Math.PI / 2, 6,
+            "MainCamera", -Math.PI / 2, Math.PI / 2, 6,
             new Vector3(0, 1, 0), this._scene);
 
-        // This attaches the camera to the canvas
-        camera.attachControl(this._scene.getEngine().getRenderingCanvas(), false);
-        camera.wheelPrecision = 50;
         camera.minZ = 1;
         camera.maxZ = 250000;
-        camera.alpha = Math.PI / 2;
-        camera.beta = Math.PI / 2;
 
         this._scene.activeCamera = camera;
         this._camera = camera;
@@ -142,9 +180,6 @@ export class VScene {
         if (this._myAvatar) {
             this._myAvatar.position = avatarPos ?? new Vector3(0, 1, 0);
             this._myAvatar.rotationQuaternion = avatarQuat ?? Quaternion.Identity();
-
-            this._myAvatarSpawnPosition = this._myAvatar.position.clone();
-            this._myAvatarSpawnOrientation = this._myAvatar.rotationQuaternion.clone();
         }
 
         if (sceneUrl) {
@@ -165,33 +200,71 @@ export class VScene {
             this._preScene = null;
         }
 
-        this._engine.hideLoadingUI();
+        this.hideLoadingUI();
+    }
+
+    public dispose() : void {
+        this._scene.dispose();
+        this._css3DRenderer?.removeAllCSS3DObjects();
     }
 
     public resetMyAvatarPositionAndOrientation() : void {
         if (this._myAvatar) {
-            this.teleportMyAvatar(this._myAvatarSpawnPosition.clone(),
-                this._myAvatarSpawnOrientation.clone());
+            const location = DomainMgr.ActiveDomain
+                ? DomainMgr.ActiveDomain?.Location
+                : new Location("/0,1.05,0/0,0,0,1");
+            this.teleportMyAvatar(location);
         }
     }
 
-    public setMyAvatarPosition(position: Vector3) : void {
-        if (this._myAvatar) {
-            this._myAvatar.position = position;
+    public teleportMyAvatar(location : Location) : void {
+        // keep the avatar's orientation when orientation is empty
+        const q = location.orientation.length > 0
+            ? AvatarMapper.mapDomainOrientation(DataMapper.mapStringToQuaternion(location.orientation))
+            : undefined;
+
+        this._teleportMyAvatar(
+            AvatarMapper.mapDomainPosition(DataMapper.mapStringToVec3(location.position)), q);
+    }
+
+    public teleportMyAvatarToOtherPeople(sessionId : string) : void {
+        Log.info(Log.types.AVATAR, `teleport MyAvatar to avatar ${sessionId}`);
+        const avatar = this._avatarList.get(sessionId);
+        if (avatar) {
+            const positionOffset = avatar.calcMovePOV(0, 0, 1.5);
+            const position = avatar.position.add(positionOffset);
+            this._teleportMyAvatar(position);
+
+            this._myAvatar?.lookAt(avatar.position, Math.PI);
         }
     }
 
-    public teleportMyAvatar(position: Vector3 | undefined, rotation: Quaternion | undefined) : void {
+    public stopMyAvatar() : void {
         if (this._myAvatar) {
-            this._scene.detachControl();
+            const controller = this._myAvatar.getComponent(InputController.typeName) as InputController;
+            if (controller) {
+                controller.isStopped = true;
+            }
+        }
+    }
 
-            this._myAvatar.position = position ?? Vector3.Zero();
-            this._myAvatar.rotationQuaternion = rotation ?? Quaternion.Identity();
+    // Note:
+    // The position and orientation coordinate of babylon.js and doamin are different.
+    // Replace this functin with teleportMyAvatar with location to prevent mess.
+    private _teleportMyAvatar(position: Vector3 | undefined, rotation?: Quaternion | undefined) : void {
+        if (this._myAvatar) {
+            if (position) {
+                this._myAvatar.position = position;
+            }
 
-            const controller = this._myAvatar.getComponent(AvatarController.typeName) as AvatarController;
-            controller.isTeleported = true;
+            if (rotation) {
+                this._myAvatar.rotationQuaternion = rotation;
+            }
 
-            this._scene.attachControl();
+            const controller = this._myAvatar.getComponent(InputController.typeName) as InputController;
+            if (controller) {
+                controller.isTeleported = true;
+            }
         }
     }
 
@@ -225,24 +298,6 @@ export class VScene {
         Log.info(Log.types.ENTITIES, "Load Entities done.");
     }
 
-    public async loadSceneSpaceStation(): Promise<void> {
-        this._currentDomain = "SpaceStation";
-
-        await this.load(
-            "/assets/scenes/default.json",
-            undefined,
-            new Vector3(0, 58, 0));
-    }
-
-    public async loadSceneUA92Campus(): Promise<void> {
-        this._currentDomain = "Campus";
-
-        await this.load(
-            "/assets/scenes/default.json",
-            undefined,
-            new Vector3(25, 1, 30));
-    }
-
     public async goToDomain(dest: string): Promise<void> {
         Log.info(Log.types.ENTITIES, `Go to domain: ${dest}`);
         const domain = dest.toLocaleUpperCase();
@@ -261,75 +316,114 @@ export class VScene {
         }
     }
 
-    public async loadMyAvatar(modelURL ?: string) : Promise<Nullable<GameObject>> {
-        if (this._resourceManager) {
+    /**
+     * Load an avatar model for the current player.
+     * @param modelURL The URL to load the model from.
+     * @param reload Whether the model is required to be re-downloaded
+     * (otherwise repeated attempts to load the same model will be ignored).
+     * @returns A reference to the player's avatar.
+     */
+    public async loadMyAvatar(modelURL?: string, reload?: boolean) : Promise<Nullable<GameObject>> {
+        this._avatarLoadQueue.push(modelURL); // Queue load requests.
+        if (!this._avatarIsLoading && this._resourceManager) {
+            this._avatarIsLoading = true;
+            const lastQueuedModelURL = this._avatarLoadQueue.pop(); // Only load the last model in the request queue.
             if (this._avatarAnimationGroups.length === 0) {
                 const result = await this._resourceManager.loadAvatarAnimations(AvatarAnimationUrl);
                 this._avatarAnimationGroups = result.animGroups;
             }
+            if (lastQueuedModelURL) {
+                // Ignore repeated attempts to load the same model, unless required.
+                if (this._myAvatarModelURL === lastQueuedModelURL && this._myAvatar && !reload) {
+                    // Prevent multiple avatar models from being equipped.
+                    this._avatarIsLoading = false;
+                    if (this._avatarLoadQueue.length > 1) {
+                        const finalModelURL = this._avatarLoadQueue.pop();
+                        this._avatarLoadQueue = [];
+                        await this.loadMyAvatar(finalModelURL);
+                    }
 
-            if (modelURL) {
-                if (this._myAvatarModelURL === modelURL && this._myAvatar) {
                     return this._myAvatar;
                 }
-                this._myAvatarModelURL = modelURL;
+                this._myAvatarModelURL = lastQueuedModelURL;
             }
 
-            let prevPos = undefined;
-            let prevQuat = null;
-            let prevMyAvatarInterface = undefined;
-            if (this._myAvatar) {
-                prevPos = this._myAvatar.position.clone();
-                if (this._myAvatar.rotationQuaternion) {
-                    prevQuat = this._myAvatar.rotationQuaternion.clone();
-                }
-
-                const controller = this._myAvatar.getComponent(MyAvatarController.typeName) as MyAvatarController;
-                prevMyAvatarInterface = controller.myAvatar;
-                if (this._camera) {
-                    this._camera.parent = null;
-                }
-
-                this._myAvatar.dispose();
-            }
-
+            Log.info(Log.types.AVATAR, `Load MyAvatar: ${this._myAvatarModelURL}`);
+            const previousAvatar = this._myAvatar;
             this._myAvatar = new GameObject("MyAvatar", this._scene);
-            if (prevPos) {
-                this._myAvatar.position = prevPos;
-                this._myAvatar.rotationQuaternion = prevQuat;
+            if (previousAvatar) {
+                this._myAvatar.position = previousAvatar.position;
+                this._myAvatar.rotationQuaternion = previousAvatar.rotationQuaternion;
+                previousAvatar.dispose();
             }
 
-            const mesh = await this._resourceManager.loadMyAvatar(this._myAvatarModelURL);
-            if (mesh) {
+            const result = await this._resourceManager.loadMyAvatar(this._myAvatarModelURL);
+            if (result.mesh) {
                 const meshComponent = new MeshComponent();
-                meshComponent.mesh = mesh;
+                meshComponent.mesh = result.mesh;
+                meshComponent.skeleton = result.skeleton;
                 this._myAvatar.addComponent(meshComponent);
             }
-            const avatarController = new AvatarController();
+
+            const capsuleCollider = new CapsuleColliderComponent(this._scene, 1, 3);
+            capsuleCollider.createCollider(0.3, 1.8, new Vector3(-0.03, -0.14, -0.04));
+            capsuleCollider.setAngularFactor(0, 1, 0);
+            if (capsuleCollider.collider) {
+                capsuleCollider.collider.isPickable = false;
+            }
+            this._myAvatar.addComponent(capsuleCollider);
+
+            const avatarController = new InputController();
             avatarController.animGroups = this._avatarAnimationGroups;
+            avatarController.camera = this._camera as ArcRotateCamera;
             this._myAvatar.addComponent(avatarController);
 
             const myAvatarController = new MyAvatarController();
             this._myAvatar.addComponent(myAvatarController);
-            if (prevMyAvatarInterface) {
-                myAvatarController.myAvatar = prevMyAvatarInterface;
+            if (DomainMgr.ActiveDomain && DomainMgr.ActiveDomain.AvatarClient?.MyAvatar) {
+                myAvatarController.myAvatar = DomainMgr.ActiveDomain.AvatarClient?.MyAvatar;
             }
-            myAvatarController.skeletonModelURL = modelURL;
+            myAvatarController.skeletonModelURL = lastQueuedModelURL;
 
-            if (this._camera) {
-                this._camera.parent = this._myAvatar;
+            this._onMyAvatarModelChangedObservable.notifyObservers(this._myAvatar);
+
+            let nametag = undefined as Mesh | undefined;
+            if (Store.state.avatar.showNametags) {
+                nametag = this._loadNametag(this._myAvatar, Store.state.avatar.displayName);
             }
+            // Update the nametag when the displayName is changed in the Store
+            Store.watch((state) => state.avatar.displayName, (value: string) => {
+                if (nametag) {
+                    this._unloadNametag(nametag);
+                    if (this._myAvatar && Store.state.avatar.showNametags) {
+                        nametag = this._loadNametag(this._myAvatar, value);
+                    }
+                }
+            });
+            // Show/Hide the nametag when showNametags is changed in the Store
+            Store.watch((state) => state.avatar.showNametags, (value: boolean) => {
+                if (nametag) {
+                    if (value && this._myAvatar) { // Nametags are enabled
+                        nametag = this._loadNametag(this._myAvatar, Store.state.avatar.displayName);
+                    } else { // Nametags are disabled
+                        this._unloadNametag(nametag);
+                    }
+                }
+            });
 
-            this._myAvatarModelChangedObservable.notifyObservers(this._myAvatar);
+            // Prevent multiple avatar models from being equipped.
+            this._avatarIsLoading = false;
+            if (this._avatarLoadQueue.length > 1) {
+                const finalModelURL = this._avatarLoadQueue.pop();
+                this._avatarLoadQueue = [];
+                await this.loadMyAvatar(finalModelURL);
+            }
         }
 
         return this._myAvatar;
     }
 
     public async loadAvatar(id: string, domain: ScriptAvatar) : Promise<Nullable<GameObject>> {
-        Log.debug(Log.types.AVATAR,
-            `Load avatar. id: ${id} url: ${domain.skeletonModelURL} `);
-
         let avatar = this._avatarList.get(id);
         if (avatar) {
             avatar.dispose();
@@ -337,15 +431,42 @@ export class VScene {
 
         if (this._resourceManager && domain.skeletonModelURL !== "") {
             avatar = new GameObject("ScriptAvatar_" + id, this._scene);
-            const mesh = await this._resourceManager.loadAvatar(domain.skeletonModelURL);
-            if (mesh) {
+            const result = await this._resourceManager.loadAvatar(domain.skeletonModelURL);
+            if (result.mesh) {
                 avatar.id = id;
                 const meshComponent = new MeshComponent();
-                meshComponent.node = mesh;
+                meshComponent.node = result.mesh;
+                meshComponent.skeleton = result.skeleton;
                 avatar.addComponent(meshComponent);
                 avatar.addComponent(new ScriptAvatarController(domain));
 
                 this._avatarList.set(id, avatar);
+
+                let nametag = undefined as Mesh | undefined;
+                if (Store.state.avatar.showNametags) {
+                    nametag = this._loadNametag(avatar, domain.displayName);
+                }
+                // Update the nametag when the displayName is changed
+                domain.displayNameChanged.connect(() => {
+                    if (nametag) {
+                        this._unloadNametag(nametag);
+                        const nametagAvatar = this._avatarList.get(id);
+                        if (nametagAvatar && Store.state.avatar.showNametags) {
+                            nametag = this._loadNametag(nametagAvatar, domain.displayName);
+                        }
+                    }
+                });
+                // Show/Hide the nametag when showNametags is changed in the Store
+                Store.watch((state) => state.avatar.showNametags, (value: boolean) => {
+                    if (nametag) {
+                        const nametagAvatar = this._avatarList.get(id);
+                        if (value && nametagAvatar) { // Nametags are enabled
+                            nametag = this._loadNametag(nametagAvatar, domain.displayName);
+                        } else { // Nametags are disabled
+                            this._unloadNametag(nametag);
+                        }
+                    }
+                });
             }
             return avatar;
         }
@@ -354,9 +475,6 @@ export class VScene {
     }
 
     public unloadAvatar(id: string) : void {
-        Log.debug(Log.types.AVATAR,
-            `Load avatar. id: ${id}`);
-
         const avatar = this._avatarList.get(id);
         if (avatar) {
             avatar.dispose();
@@ -373,8 +491,57 @@ export class VScene {
         this._avatarList.clear();
     }
 
+    // TODO: Move this code/set of code into its own module.
+    private _loadNametag(avatar: GameObject, name: string) : Mesh {
+        const characterWidth = 38.5;
+        const tagWidth = (name.length + 2) * characterWidth;
+
+        // Texture
+        const nametagTextureResolution = 100;
+        const nametagTexture = new DynamicTexture("NametagTexture", {
+            width: tagWidth,
+            height: nametagTextureResolution
+        }, this._scene);
+        nametagTexture.drawText(
+            name,
+            tagWidth / 2 - name.length / 2 * characterWidth, // Center the name on the tag
+            70,
+            "70px monospace",
+            "white",
+            "#121212",
+            true,
+            true
+        );
+
+        // Material
+        const nametagMaterial = new BackgroundMaterial("NametagMaterial", this._scene);
+        nametagMaterial.diffuseTexture = nametagTexture;
+
+        // Mesh
+        const nametagPlane = MeshBuilder.CreatePlane("Nametag", {
+            width: 0.1 * tagWidth / nametagTextureResolution,
+            height: 0.1,
+            sideOrientation: Mesh.DOUBLESIDE,
+            updatable: true
+        }, this._scene);
+        nametagPlane.position = new Vector3(0, 1, 0);
+        nametagPlane.material = nametagMaterial;
+        nametagPlane.billboardMode = Mesh.BILLBOARDMODE_Y;
+        nametagPlane.parent = avatar;
+        nametagPlane.isPickable = false;
+        nametagPlane.renderingGroupId = DEFAULT_MESH_RENDER_GROUP_ID;
+
+        return nametagPlane;
+    }
+
+    private _unloadNametag(nametag: Mesh) : void {
+        nametag.dispose();
+    }
+
     private _createScene() : void {
         this._scene = new Scene(this._engine);
+        // use right handed system to match vircadia coordinate system
+        this._scene.useRightHandedSystem = true;
         this._resourceManager = new ResourceManager(this._scene);
         this._scene.actionManager = new ActionManager(this._scene);
         this._scene.actionManager.registerAction(
@@ -387,6 +554,9 @@ export class VScene {
 
             this._domainController = new DomainController();
             this._sceneManager.addComponent(this._domainController);
+
+            this._sceneController = new SceneController(this);
+            this._sceneManager.addComponent(this._sceneController);
         }
 
         if (this._domainController) {
@@ -394,6 +564,23 @@ export class VScene {
         }
 
         this._scene.onReadyObservable.add(this._onSceneReady.bind(this));
+        this._scene.onReadyObservable.add(
+            () => {
+                this._sceneController?.onSceneReady();
+            });
+
+        // Enable physics
+        this._scene.enablePhysics(Vector3.Zero(), new AmmoJSPlugin());
+        // Prevent to clear the buffer of mask mesh render groud
+        this._scene.setRenderingAutoClearDepthStencil(DEFAULT_MESH_RENDER_GROUP_ID, false);
+        // Needs to be transparent for web entity to be seen
+        this._scene.clearColor = new Color4(0, 0.0, 0.0, 0);
+
+        if (this._css3DRenderer) {
+            this._css3DRenderer.removeAllCSS3DObjects();
+            this._css3DRenderer.scene = this._scene;
+        }
+        this._scene.collisionsEnabled = true;
     }
 
     private _handleDontDestroyOnLoadObjects() : void {
@@ -428,6 +615,7 @@ export class VScene {
         });
     }
 
+    // TODO: Move this code/set of code into its own module.
     private _onKeyUp(evt: ActionEvent) : void {
         // eslint-disable-next-line no-void
         void this._handleKeyUp(evt);
@@ -446,24 +634,24 @@ export class VScene {
                     }
                 }
                 break;
-            case "KeyR":
-                if (evt.sourceEvent.shiftKey) {
-                    this.resetMyAvatarPositionAndOrientation();
-                }
-                break;
-            case "Space":
-                if (evt.sourceEvent.shiftKey) {
-                    await this.loadSceneSpaceStation();
-                }
-                break;
-            case "KeyU":
-                if (evt.sourceEvent.shiftKey) {
-                    await this.loadSceneUA92Campus();
-                }
+            case Store.state.controls.other.resetPosition?.keybind:
+                this.resetMyAvatarPositionAndOrientation();
                 break;
             case "KeyM":
                 if (process.env.NODE_ENV === "development" && evt.sourceEvent.shiftKey) {
                     await this.loadMyAvatar();
+                }
+                break;
+            case "KeyG":
+                if (process.env.NODE_ENV === "development") {
+                    this._sceneController?.applyGravity();
+                }
+                break;
+            case "KeyP":
+                if (process.env.NODE_ENV === "development") {
+                    this._scene.meshes.forEach((mesh, index) => {
+                        console.log(`${mesh.name}:${index} `);
+                    });
                 }
                 break;
             default:
@@ -484,10 +672,6 @@ export class VScene {
                 });
             }
         });
-
-        if (!this._scene.activeCamera) {
-            this._scene.createDefaultCamera(true, true, true);
-        }
 
         if (!this._scene.activeCamera) {
             this._scene.createDefaultCamera(true, true, true);

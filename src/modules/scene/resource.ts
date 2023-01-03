@@ -10,13 +10,19 @@
 //
 
 import { AnimationGroup, Scene, SceneLoader, AssetsManager,
-    AbstractMesh, Vector3, Quaternion, MeshBuilder, StandardMaterial, Color3 } from "@babylonjs/core";
+    AbstractMesh, Vector3, Quaternion, MeshBuilder, StandardMaterial, Color3, Skeleton } from "@babylonjs/core";
+import { DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 // System Modules
 import { v4 as uuidv4 } from "uuid";
 // General Modules
 import Log from "@Modules/debugging/log";
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
+
+interface IAvatarResult {
+    mesh: AbstractMesh,
+    skeleton: Skeleton | null
+}
 
 interface IAvatarAnimationResult {
     mesh : AbstractMesh;
@@ -47,20 +53,17 @@ export class ResourceManager {
         return { rootUrl, filename };
     }
 
-    public async loadMyAvatar(modelUrl: string): Promise<Nullable<AbstractMesh>> {
+    public async loadMyAvatar(modelUrl: string): Promise<IAvatarResult> {
         return this._loadAvatar(modelUrl);
     }
 
-    public async loadAvatar(modelUrl: string): Promise<Nullable<AbstractMesh>> {
+    public async loadAvatar(modelUrl: string): Promise<IAvatarResult> {
         const avatar = await this._loadAvatar(modelUrl);
         return avatar;
     }
 
 
     public async loadAvatarAnimations(modelUrl: string): Promise<IAvatarAnimationResult> {
-        Log.info(Log.types.AVATAR,
-            `Load avatar animation url:${modelUrl}`);
-
         const result = await SceneLoader.ImportMeshAsync("", modelUrl, undefined, this._scene);
 
         const mesh = result.meshes[0].getChildren()[0] as AbstractMesh;
@@ -114,7 +117,7 @@ export class ResourceManager {
 
         return { mesh, animGroups: animationGroups };
     }
-
+    /*
     public addSceneObjectTasks(taskName:string, rootUrl:string, meshList:string[]): void {
         meshList.forEach((filename) => {
             const task = this._assetsManager.addMeshTask(taskName, "", rootUrl, filename);
@@ -129,24 +132,27 @@ export class ResourceManager {
                 Log.error(Log.types.ENTITIES, `fail to load scene object: ${rootUrl}${filename}`);
             };
         });
-    }
+    } */
 
     public loadAsync(): Promise<void> {
         return this._assetsManager.loadAsync();
     }
 
-    private async _loadAvatar(modelUrl: string): Promise<Nullable<AbstractMesh>> {
+    private async _loadAvatar(modelUrl: string): Promise<IAvatarResult> {
         try {
             const result = await SceneLoader.ImportMeshAsync("", modelUrl, undefined, this._scene);
 
             result.meshes.forEach((mesh) => {
                 mesh.isPickable = false;
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                mesh.renderingGroupId = DEFAULT_MESH_RENDER_GROUP_ID;
+                mesh.checkCollisions = false;
             });
 
             const mesh = result.meshes[0];
             mesh.id = uuidv4();
-            mesh.scaling = new Vector3(1, 1, 1);
-            mesh.checkCollisions = true;
+            // For matching the orientation of vircadia
+            mesh.rotationQuaternion = Quaternion.FromEulerAngles(0, Math.PI, 0);
 
             // make the pivot to the center of the bounding
             const bounding = mesh.getHierarchyBoundingVectors(true);
@@ -156,14 +162,20 @@ export class ResourceManager {
             // move the mesh to the pivot
             mesh.position = pivot;
 
-            Log.info(Log.types.AVATAR,
-                `Load avatar mesh url:${modelUrl} id::${mesh.id}`);
+            const skeleton = result.skeletons.length > 0 ? result.skeletons[0] : null;
 
-            return mesh;
+            return {
+                mesh,
+                skeleton
+            };
+
         } catch (err) {
             const error = err as Error;
             Log.error(Log.types.AVATAR, `${error.message}`);
-            return this._createDummyMesh();
+            return {
+                mesh: this._createDummyMesh(),
+                skeleton: null
+            };
         }
     }
 
@@ -185,6 +197,7 @@ export class ResourceManager {
     }
 
     // eslint-disable-next-line class-methods-use-this
+/*
     private _processSceneMesh(mesh : AbstractMesh) : void {
         mesh.id = uuidv4();
         ResourceManager._applySceneMeshRule(mesh);
@@ -202,5 +215,5 @@ export class ResourceManager {
             }
             mesh.isVisible = false;
         }
-    }
+    } */
 }

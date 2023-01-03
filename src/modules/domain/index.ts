@@ -24,6 +24,8 @@ export const DomainMgr = {
     _activeDomain: undefined as unknown as Domain,
     // Collection of the domain-server connections
     _domains: new Map<string, Domain>(),
+    _boundUpdateFunction: <Nullable<()=>void>>null,
+    _intervalID: <Nullable<NodeJS.Timeout>>null,
 
     // There is one main domain we're working with
     get ActiveDomain(): Nullable<Domain> { return DomainMgr._activeDomain; },
@@ -71,9 +73,11 @@ export const DomainMgr = {
         const aDomain = new Domain();
         try {
             await aDomain.connect(pUrl);
-            DomainMgr._domains.set(aDomain.DomainUrl, aDomain);
+            // DomainMgr._domains.set(aDomain.DomainUrl, aDomain);
+            DomainMgr._domains.set(aDomain.Location.href, aDomain);
             // Remember the last connected domain for potential restarts
-            Config.setItem(LAST_DOMAIN_SERVER, aDomain.DomainUrl);
+            // Config.setItem(LAST_DOMAIN_SERVER, aDomain.DomainUrl);
+            Config.setItem(LAST_DOMAIN_SERVER, aDomain.Location.href);
         } catch (err) {
             Log.error(Log.types.COMM, `Exception connecting to domain ${pUrl}`);
             throw err;
@@ -95,6 +99,23 @@ export const DomainMgr = {
     update():void {
         if (DomainMgr._activeDomain) {
             DomainMgr._activeDomain.update();
+        }
+    },
+
+    /**
+     * Start the update loop of domain.
+     */
+    startGameLoop(): void {
+        if (!this._intervalID) {
+            this._boundUpdateFunction = this.update.bind(this);
+            // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+            this._intervalID = setInterval(this._boundUpdateFunction, 33); }
+    },
+
+    stopGameLoop(): void {
+        if (this._intervalID) {
+            clearInterval(this._intervalID);
+            this._intervalID = null;
         }
     }
 };

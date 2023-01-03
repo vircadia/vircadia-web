@@ -13,15 +13,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import Log from "@Modules/debugging/log";
-// Domain Modules
 import { inspector } from "@Modules/script";
 import { Renderer, VScene } from "@Modules/scene";
 import { EntityScriptComponent } from "./EntityScript";
 import { Utility } from "@Modules/utility";
 
-import { Vector3, Quaternion } from "@babylonjs/core";
-import { GameObject } from "@Modules/object";
-import { AvatarController } from "@Modules/avatar";
+import { GameObject, MeshComponent } from "@Modules/object";
+import { InputController } from "@Modules/avatar";
 
 
 type ScriptParameters = {
@@ -54,7 +52,7 @@ export class TeleportController extends EntityScriptComponent {
         return "TeleportController";
     }
 
-    public onInitialize(): void {
+    public onStart(): void {
         this.triggerTarget = this._vscene.getMyAvatar();
 
         if (this.entity && this.entity.userData) {
@@ -65,61 +63,26 @@ export class TeleportController extends EntityScriptComponent {
                 Log.error(Log.types.ENTITIES, "No Teleport destination of TeleportController");
             }
         }
-        this._vscene.myAvatarModelChangedObservable.add((myAvatar) => {
+
+        // set target and register trigger event again when avatar mesh changed
+        this._vscene.onMyAvatarModelChangedObservable.add((myAvatar) => {
             this.triggerTarget = myAvatar;
         });
     }
 
-    // eslint-disable-next-line class-methods-use-this
     public onTriggerEnter() : void {
-        Log.debug(Log.types.ENTITIES, "onTriggerEnter");
+        Log.debug(Log.types.OTHER, "onTriggerEnter");
 
         const avatar = this.triggerTarget as GameObject;
         if (!avatar) {
             return;
         }
 
-        const controller = avatar.getComponent(AvatarController.typeName) as AvatarController;
+        const controller = avatar.getComponent(InputController.typeName) as InputController;
 
         if (controller && !controller.isTeleported) {
-            if (this._destination.includes("wss://") || this._destination.includes("ws://")) {
-                // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                Utility.connectionSetup(this._destination);
-            } else {
-                const index1 = this._destination.indexOf("/");
-                let index2 = this._destination.lastIndexOf("/");
-                // prevent no quaternion string
-                index2 = index2 === index1 ? this._destination.length : index2;
-
-                let position = undefined;
-                let rotationQuat = undefined;
-                const posStr = this._destination.substring(index1 + 1, index2);
-                const vec3 = posStr.split(",").map((value) => Number(value));
-                if (vec3.length >= 3) {
-                    position = new Vector3(...vec3);
-                }
-
-                const orientStr = this._destination.substring(index2 + 1);
-                const vec4 = orientStr.split(",").map((value) => Number(value));
-                if (vec4.length >= 4) {
-                    rotationQuat = new Quaternion(...vec4);
-                }
-
-                // const avatar = this.triggerTarget;
-                /*
-                if (avatar) {
-                if (position) {
-                    avatar.position = position;
-                }
-                if (rotationQuat) {
-                    avatar.rotationQuaternion = rotationQuat;
-                }
-                }
-                */
-                this._vscene.teleportMyAvatar(position, rotationQuat);
-            }
-
-            // controller.isTeleported = true;
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            Utility.connectionSetup(this._destination);
         }
     }
 

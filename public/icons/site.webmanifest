@@ -1,0 +1,20 @@
+{
+    "name": "Vircadia",
+    "short_name": "Vircadia",
+    "icons": [
+        {
+            "src": "/icons/android-chrome-192x192.png?v=1.0.0",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/icons/android-chrome-512x512.png?v=1.0.0",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "theme_color": "#0c71c3",
+    "background_color": "#0c71c3",
+    "start_url": "https://app.vircadia.com/",
+    "display": "standalone"
+}

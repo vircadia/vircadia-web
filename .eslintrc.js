@@ -32,7 +32,8 @@ module.exports = {
     },
 
     env: {
-        browser: true
+        browser: true,
+        node: true
     },
 
     // Rules order is important, please avoid shuffling them

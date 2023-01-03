@@ -9,7 +9,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { IComponent, GameObject } from "@Modules/object";
+import { IComponent, GameObject, MeshComponent } from "@Modules/object";
 import { inspectorAccessor } from "./decorators";
 
 import {
@@ -17,8 +17,12 @@ import {
     ActionManager,
     TransformNode,
     ExecuteCodeAction,
-    IAction
+    IAction,
+    Nullable,
+    Observer
 } from "@babylonjs/core";
+
+import Log from "@Modules/debugging/log";
 
 /* eslint-disable class-methods-use-this */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -32,6 +36,7 @@ export abstract class ScriptComponent extends TransformNode implements IComponen
     protected _triggerTarget: Nullable<AbstractMesh> = null;
     protected _triggerOnEnterAction : Nullable<IAction> = null;
     protected _triggerOnExitAction : Nullable<IAction> = null;
+    protected _onComponentAddedObsever : Nullable<Observer<IComponent>> = null;
 
     public attach(gameObject:GameObject):void {
         this._gameObject = gameObject;
@@ -47,11 +52,17 @@ export abstract class ScriptComponent extends TransformNode implements IComponen
         this._gameObject = null;
     }
 
-    public set triggerTarget(mesh: Nullable<AbstractMesh>) {
-        this._triggerTarget = mesh;
+    public get gameObject(): Nullable<GameObject> {
+        return this._gameObject;
+    }
 
-        if (this._gameObject) {
-            this._registerTriggerEvents();
+    public set triggerTarget(mesh: Nullable<AbstractMesh>) {
+        if (this._triggerTarget !== mesh) {
+            this._triggerTarget = mesh;
+
+            if (this._gameObject) {
+                this._registerTriggerEvents();
+            }
         }
     }
 
@@ -109,17 +120,47 @@ export abstract class ScriptComponent extends TransformNode implements IComponen
 
     }
 
-    private _registerTriggerEvents() : void {
+    protected _registerTriggerEvents() : void {
         if (!this._gameObject || !this._triggerTarget) {
             return;
         }
 
-        const meshes = this._gameObject.getChildMeshes(true);
-        if (meshes.length <= 0) {
+        for (const component of this._gameObject.components.values()) {
+            if (component instanceof MeshComponent) {
+                this._doRegisterTriggerEvents(component);
+                break;
+            }
+        }
+
+        // handle the condition of mesh componet rebuilt
+        if (!this._onComponentAddedObsever) {
+            this._onComponentAddedObsever = this._gameObject.onComponentAddedObservable.add((component) => {
+                if (component instanceof MeshComponent) {
+                    this._doRegisterTriggerEvents(component);
+                }
+            });
+        }
+    }
+
+    private _doRegisterTriggerEvents(component : MeshComponent) : void {
+        if (component.mesh) {
+            this._doRegisterTriggerEventsWithMesh(component.mesh);
+        }
+
+        // handle the condition of mesh rebuilt
+        component.onNodeAttachedObservable.add((newMesh) => {
+            Log.debug(Log.types.OTHER, "onNodeAttached");
+            this._doRegisterTriggerEventsWithMesh(newMesh);
+        });
+    }
+
+    private _doRegisterTriggerEventsWithMesh(mesh : AbstractMesh) : void {
+        if (!this._gameObject || !this._triggerTarget) {
             return;
         }
 
-        const mesh = meshes[0];
+        // eslint-disable-next-line max-len
+        Log.debug(Log.types.OTHER, `registerTriggerEvents for: ${this._gameObject.name} Owner: ${mesh.uniqueId} Target: ${this._triggerTarget.name}`);
         if (!mesh.actionManager) {
             mesh.actionManager = new ActionManager(this._gameObject.getScene());
         }
@@ -154,6 +195,5 @@ export abstract class ScriptComponent extends TransformNode implements IComponen
                 }
             )
         );
-
     }
 }

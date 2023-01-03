@@ -1,4 +1,3 @@
-/* eslint-disable class-methods-use-this */
 //
 //  mesh.ts
 //
@@ -13,8 +12,10 @@
 import { GenericNodeComponent } from "../component";
 
 import {
-    AbstractMesh, AnimationGroup, Nullable
+    AbstractMesh, AnimationGroup, Nullable, Skeleton
 } from "@babylonjs/core";
+
+/* eslint-disable class-methods-use-this */
 
 /**
  * A mesh component.
@@ -22,13 +23,13 @@ import {
 export class MeshComponent extends GenericNodeComponent<AbstractMesh> {
     protected _mesh: Nullable<AbstractMesh> = null;
     protected _animationGroups: Nullable<AnimationGroup[]> = null;
+    protected _skeleton: Nullable<Skeleton> = null;
 
     public get mesh(): Nullable<AbstractMesh> {
         return this._mesh;
     }
 
     public set mesh(value: Nullable<AbstractMesh>) {
-        this._mesh = value;
         this.node = value;
     }
 
@@ -40,17 +41,55 @@ export class MeshComponent extends GenericNodeComponent<AbstractMesh> {
         this._animationGroups = value;
     }
 
+    public get skeleton(): Nullable<Skeleton> {
+        return this._skeleton;
+    }
+
+    public set skeleton(skeleton: Nullable<Skeleton>) {
+        this._skeleton = skeleton;
+    }
+
     public set node(value: Nullable<AbstractMesh>) {
         this._mesh = value;
         super.node = value;
     }
 
-    public set visible(enalbe: boolean) {
+    public set visible(enable: boolean) {
         if (this._mesh) {
-            this._mesh.isVisible = enalbe;
+            this._mesh.isVisible = enable;
             const subMeshes = this._mesh.getChildMeshes(false);
             subMeshes.forEach((subMesh) => {
-                subMesh.isVisible = enalbe;
+                subMesh.isVisible = enable;
+            });
+        }
+    }
+
+    public set pickable(enable: boolean) {
+        if (this._mesh) {
+            this._mesh.isPickable = enable;
+            const subMeshes = this._mesh.getChildMeshes(false);
+            subMeshes.forEach((subMesh) => {
+                subMesh.isPickable = enable;
+            });
+        }
+    }
+
+    public set renderGroupId(id: number) {
+        if (this._mesh) {
+            this._mesh.renderingGroupId = id;
+            const subMeshes = this._mesh.getChildMeshes(false);
+            subMeshes.forEach((subMesh) => {
+                subMesh.renderingGroupId = id;
+            });
+        }
+    }
+
+    public set checkCollisions(enable: boolean) {
+        if (this._mesh) {
+            this._mesh.checkCollisions = enable;
+            const subMeshes = this._mesh.getChildMeshes(false);
+            subMeshes.forEach((subMesh) => {
+                subMesh.checkCollisions = enable;
             });
         }
     }

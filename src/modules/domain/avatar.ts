@@ -14,7 +14,6 @@ import { Store, Actions as StoreActions, UpdateAvatarInfoPayload } from "@Store/
 import { AvatarMixer, SignalEmitter, vec3, Uuid, MyAvatarInterface, ScriptAvatar, Vec3 } from "@vircadia/web-sdk";
 
 import Log from "@Modules/debugging/log";
-import { loadLocalValue } from "@Modules/localStorage";
 
 // Allow 'get' lines to be compact
 /* eslint-disable @typescript-eslint/brace-style */
@@ -44,7 +43,7 @@ export class DomainAvatar extends Client {
         this.#_gameLoopFunction = undefined;
 
         this.#_avaMixer = new AvatarMixer(pD.ContextId);
-        this.#_avaMixer.myAvatar.displayName = loadLocalValue("displayName") ?? "anonymous";
+        this.#_avaMixer.myAvatar.displayName = Store.state.avatar.displayName;
         this.onStateChange = new SignalEmitter();
         this.#_avaMixer.onStateChanged = this._handleOnStateChanged.bind(this);
 
@@ -92,28 +91,7 @@ export class DomainAvatar extends Client {
         Log.debug(Log.types.AVATAR,
             // eslint-disable-next-line max-len
             `DomainAvatar: AvatarMixer state=${AvatarMixer.stateToString(this.#_avaMixer?.state ?? AssignmentClientState.DISCONNECTED)}`);
-        /*
-        if (pNewState === AssignmentClientState.CONNECTED) {
-            this.startGameLoop();
-        } else {
-            this.stopGameLoop();
-        } */
         this.onStateChange.emit(this.#_domain, this, pNewState);
-    }
-
-    public startGameLoop(): void {
-        if (typeof this.#_gameLoopTimer === "undefined") {
-            this.#_gameLoopFunction = this.update.bind(this);
-            // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-            this.#_gameLoopTimer = setInterval(this.#_gameLoopFunction, 33);
-        }
-    }
-
-    public stopGameLoop(): void {
-        if (this.#_gameLoopTimer && this.#_gameLoopFunction) {
-            clearInterval(this.#_gameLoopTimer);
-            this.#_gameLoopTimer = undefined;
-        }
     }
 
     private _handleOnMyAvatarNameChanged(): void {

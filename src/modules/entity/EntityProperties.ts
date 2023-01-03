@@ -9,6 +9,8 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
+import { WebInputMode } from "@vircadia/web-sdk";
+
 
 export type EntityType =
 "Unknown" | "Box" | "Sphere" | "Shape" | "Model" |
@@ -26,6 +28,10 @@ export type ShapeType = "none" | "box" | "sphere" | "cylinder" |
 "hull" | "compound" | "simple-hull" | "simple-compound" | "static-mesh" |
 "plane" | "ellipsoid" | "circle" | "multisphere";
 
+export type MaterialMappingMode = "uv" | "projected";
+
+export type BillboardMode = "none" | "yaw" | "full";
+
 export enum CollisionMask {
     None = 0,
     Static = 1,
@@ -41,6 +47,10 @@ export type ComponentMode = "inherit" | "disabled" | "enabled";
 
 export type AvatarPriorityMode = "inherit" | "crowd" | "hero";
 
+export interface IVector2Property {
+    x: number;
+    y: number;
+}
 
 export interface IVector3Property {
     x: number;
@@ -77,8 +87,8 @@ export interface IKeyLightProperty {
 }
 
 export interface ISkyboxProperty {
-    color?: IColorProperty | undefined;
-    url?:string | undefined;
+    color: IColorProperty | undefined;
+    url:string | undefined;
 }
 
 export interface IHazeProperty {
@@ -129,33 +139,59 @@ export interface IAnimationProperties {
 }
 
 export interface ISpatialProperties {
-    position?: IVector3Property | undefined;
-    rotation?: IQuaternionProperty | undefined;
-    dimensions?: IVector3Property | undefined;
+    position: IVector3Property | undefined;
+    rotation: IQuaternionProperty | undefined;
+    dimensions: IVector3Property | undefined;
 }
 
 export interface ICollisionProperties {
-    collision?: string;
-    collidesWith?: CollisionTarget;
-    collisionMask?: number | undefined;
+    collisionless: boolean | undefined;
+    collisionMask: number | undefined;
+    collisionSoundURL: string | undefined;
+    dynamic: boolean | undefined;
 }
 
-export interface IBehaviorProperties extends ICollisionProperties {
+export interface IPhysicsProperties {
+    velocity: IVector3Property | undefined;
+    damping: number | undefined;
+    angularVelocity: IVector3Property | undefined;
+    angularDampling: number | undefined;
+    restitution: number | undefined;
+    friction: number | undefined;
+    density: number | undefined;
+    gravity: IVector3Property | undefined;
+}
+
+export interface IBehaviorProperties extends ICollisionProperties, IPhysicsProperties {
     grab?: IGrabProperty;
     canCastShadow?: boolean;
 }
 
 export interface IShapeProperties {
     shape: Shape | undefined;
-    color?: IColorProperty | undefined;
-    alpha?: number | undefined;
+    color: IColorProperty | undefined;
+    alpha: number | undefined;
+}
+
+export interface IWebProperties {
+    sourceUrl: string | undefined;
+    color: IColorProperty | undefined;
+    alpha: number | undefined;
+    dpi: number | undefined;
+    scriptURL: string | undefined;
+    maxFPS: number | undefined;
+    inputMode: WebInputMode | undefined;
+    showKeyboardFocusHighlight: boolean | undefined;
+    useBackground: boolean | undefined;
+    userAgent: string | undefined;
+
 }
 
 export interface IModelEProperties {
     modelURL: string | undefined;
     modelScale?: IVector3Property;
-    shapeType?: string | undefined;
-    animation?: IAnimationProperties | undefined;
+    shapeType: string | undefined;
+    animation: IAnimationProperties | undefined;
 }
 
 export interface ILightProperties {
@@ -189,22 +225,37 @@ export interface IZoneProperties {
 
 export interface IEntityProperties {
     id: string;
-    name?: string | undefined;
+    name: string | undefined;
     type: EntityType;
     created?: Date;
     lastEdited?: Date;
     lastEditedBy?: Date;
-    parentID?: string | undefined;
-    visible?: boolean | undefined;
-    script?: string | undefined;
-    userData?: string | undefined;
+    parentID: string | undefined;
+    billboardMode: string | undefined;
+    renderLayer?: string | undefined;
+    primitiveMode?: string | undefined;
+    visible: boolean | undefined;
+    script: string | undefined;
+    userData: string | undefined;
 }
 
 export interface IImageProperties {
-    imageURL?: string | undefined;
+    imageURL: string | undefined;
     emissive?: boolean | undefined;
     keepAspectRatio?: boolean | undefined;
     subImage?: IRectProperty | undefined;
     color?: IColorProperty | undefined;
     alpha?: number | undefined;
+}
+
+export interface IMaterialProperties {
+    materialURL: string | undefined;
+    materialData: string | undefined;
+    priority: number | undefined;
+    parentMaterialName: string | undefined;
+    materialMappingMode: MaterialMappingMode | undefined;
+    materialMappingPos: IVector2Property | undefined;
+    materialMappingScale: IVector2Property | undefined;
+    materialMappingRot: number | undefined;
+    materialRepeat: boolean | undefined;
 }

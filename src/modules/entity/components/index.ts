@@ -10,5 +10,6 @@
 //
 
 export { EntityController, ShapeEntityController, ModelEntityController,
-    LightEntityController, ZoneEntityController, ImageEntityController } from "./controllers";
-export { KeyLightComponent, HazeComponent, SkyboxComponent, ModelComponent } from "./components";
+    LightEntityController, ZoneEntityController, ImageEntityController,
+    MaterialEntityController, WebEntityController } from "./controllers";
+export { KeyLightComponent, HazeComponent, SkyboxComponent, ModelComponent, MaterialComponent } from "./components";

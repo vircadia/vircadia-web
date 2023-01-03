@@ -60,3 +60,11 @@ export enum ComponentMode {
 
     ITEM_COUNT
 }
+
+export enum MaterialMappingMode {
+    // C++  enum MaterialMappingMode
+    UV = 0,
+    PROJECTED,
+    // Put new mapping-modes before this line.
+    UNSET_MATERIAL_MAPPING_MODE
+}

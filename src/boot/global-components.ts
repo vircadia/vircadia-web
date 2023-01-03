@@ -14,6 +14,8 @@ import { boot } from "quasar/wrappers";
 
 // Components -> Overlays
 import Audio from "@Components/overlays/settings/Audio.vue";
+import Controls from "@Components/overlays/settings/Controls.vue";
+import Graphics from "@Components/overlays/settings/Graphics.vue";
 import ChatWindow from "@Components/overlays/chat/ChatWindow.vue";
 import Explore from "@Components/overlays/explore/Explore.vue";
 import People from "@Components/overlays/people/People.vue";
@@ -21,6 +23,10 @@ import Avatar from "@Components/overlays/avatar/Avatar.vue";
 import ReadyPlayerMe from "@Components/overlays/rpm/ReadyPlayerMe.vue";
 import Menu from "@Components/overlays/menu/Menu.vue";
 import DebugWindow from "@Components/overlays/debug/DebugWindow.vue";
+import Conference from "@Components/overlays/conference/Conference.vue";
+import Jitsi from "@Components/overlays/jitsi/Jitsi.vue";
+import JitsiContainer from "@Components/JitsiContainer.vue";
+import jitsiSDK from "@jitsi/vue-sdk";
 // Components -> Dialogs
 import Login from "@Components/dialogs/Login.vue";
 // Components -> Components
@@ -30,6 +36,8 @@ import MetaverseRegister from "@Components/components/login/MetaverseRegister.vu
 export default boot(({ app }) => {
     // Components -> Overlays
     app.component("Audio", Audio);
+    app.component("Controls", Controls);
+    app.component("Graphics", Graphics);
     app.component("ChatWindow", ChatWindow);
     app.component("Explore", Explore);
     app.component("People", People);
@@ -37,6 +45,10 @@ export default boot(({ app }) => {
     app.component("ReadyPlayerMe", ReadyPlayerMe);
     app.component("Menu", Menu);
     app.component("DebugWindow", DebugWindow);
+    app.component("Conference", Conference);
+    app.component("Jitsi", Jitsi);
+    app.component("JitsiContainer", JitsiContainer);
+    jitsiSDK(app);
     // Components -> Dialogs
     app.component("Login", Login);
     // Components -> Components

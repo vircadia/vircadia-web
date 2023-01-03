@@ -32,7 +32,87 @@ import { defaultActiveAvatarModel, defaultAvatarModels } from "@Modules/avatar/D
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
 import { AvatarEntryMap } from "@Modules/avatar/StoreInterface";
+import { DataMapper } from "@Modules/domain/dataMapper";
+import { WebEntity } from "@Modules/entity/entities";
 // import { toJSON } from "@Modules/debugging";
+import { saveLocalValue, loadLocalValue } from "@Modules/localStorage/index";
+
+/**
+ * Checks if a root Store property is safe to keep in persistent storage.
+ * @param key The IRootState key of the property to check.
+ * @returns `true` if it is safe to store that property, `false` if unsafe.
+ */
+function isSafeInPersistentStorage(key: keyof IRootState): boolean {
+    // Do not save/load these root properties to/from persistent storage,
+    // as they may be incompatible with persistent storage,
+    // or contain non-user-configurable properties,
+    // or be expected to cause other errors if loaded.
+    const doNotSave = [
+        "globalConsts",             // This object is not configurable by the user, so should not be saved.
+        "defaultConnectionConfig",  // Not configurable by the user.
+        "debugging",                // Contains session-specific properties.
+        "notifications",            // Contains session-specific properties.
+        "error",                    // Contains session-specific properties.
+        "dialog",                   // Contains session-specific properties.
+        "domain",                   // Not configurable by the user.
+        "avatars",                  // Contains session-specific properties.
+        "messages",                 // Contains session-specific properties.
+        "audio",                    // Contains session-specific properties.
+        "metaverse",                // Not configurable by the user.
+        "account",                  // Contains session-specific properties.
+        "renderer",                 // Contains session-specific properties.
+        "theme",                    // Not configurable by the user.
+        "firstTimeWizard",          // Not configurable by the user.
+        "conference"               // This object is known to contain circular references.
+    ];
+    return !doNotSave.includes(key); // `false` (unsafe) if the key is in `doNotSave`.
+}
+
+/**
+ * Load the Store's state from persistent storage.
+ * @returns The Store state, as it persists in storage, or `undefined` if the state doesn't exist.
+ */
+function loadFromPersistentStorage(): IRootState | undefined {
+    // This function currently uses localStorage as the persistent location.
+    // In the future, a location such as Firebase, Amplify, etc, could be used instead.
+    const state = loadLocalValue("store");
+    let stateJson = undefined as IRootState | undefined;
+    if (!state) {
+        return undefined;
+    }
+    try {
+        stateJson = JSON.parse(state) as IRootState | undefined;
+        return stateJson;
+    } catch (error) {
+        return undefined;
+    }
+}
+
+/**
+ * Save the state of the Store to persistent storage.
+ * @param value The current state of the Store.
+ */
+function saveToPersistentStorage(value: IRootState): void {
+    // This function currently uses localStorage as the persistent location.
+    // In the future, a location such as Firebase, Amplify, etc, could be used instead.
+
+    function stateReplacer(key: keyof IRootState, entry: unknown): unknown {
+        // Convert BigInt values to strings, since there is no default serializer for them.
+        if (entry instanceof BigInt) {
+            return entry.toString();
+        }
+        // Remove any properties that are unsafe to keep in persistent storage.
+        if (!isSafeInPersistentStorage(key)) {
+            return {};
+        }
+        return entry;
+    }
+
+    saveLocalValue(
+        "store",
+        JSON.stringify(value, (key, entry) => stateReplacer(key as keyof IRootState, entry))
+    );
+}
 
 /**
  * $store of shared state used by the Vue components. The Store that is created
@@ -51,7 +131,10 @@ import { AvatarEntryMap } from "@Modules/avatar/StoreInterface";
 export enum Mutations {
     MUTATE = "STATE_MUTATE",
     ADD_MESSAGE = "ADD_MESSAGE",
-    UPDATE_AVATAR_VALUE = "UPDATE_AVATAR_VALUE"
+    UPDATE_AVATAR_VALUE = "UPDATE_AVATAR_VALUE",
+    ADD_CONFERENCE_ROOM = "ADD_CONFERENCE_ROOM",
+    REMOVE_CONFERENCE_ROOM = "REMOVE_CONFERENCE_ROOM",
+    JOIN_CONFERENCE_ROOM = "JOIN_CONFERENCE_ROOM"
 }
 /**
  * Payload passed to MUTATE
@@ -136,17 +219,39 @@ export interface AvatarInfo {
     position: vec3
 }
 
+export interface JitsiRoomInfo {
+    name: string;
+    id: string;
+    entity: WebEntity;
+}
+
+export interface ControlKeybind {
+    name: string,
+    keybind: string
+}
+
 /**
  * Properties in the root storage object
  * TODO: Eventually move these into modules
  */
 export interface IRootState {
+    storeVersion: {
+        major: number,
+        minor: number,
+        patch: number
+    },
     globalConsts: {
         APP_NAME: string,
         APP_VERSION: string,
         APP_VERSION_TAG: string,
         SDK_VERSION_TAG: string,
         SAFETY_BEFORE_SESSION_TIMEOUT: number // If a token has 6 or less hours left on its life, refresh it.
+    },
+    defaultConnectionConfig: {
+        DEFAULT_METAVERSE_URL: string,
+        DEFAULT_DOMAIN_PROTOCOL: string,
+        DEFAULT_DOMAIN_PORT: string,
+        DEFAULT_DOMAIN_URL: string
     },
     debugging: KeyedCollection,
     notifications: KeyedCollection,
@@ -173,6 +278,7 @@ export interface IRootState {
     // Information about my avatar. Updated when avatar attributes change
     avatar: {
         displayName: string,
+        showNametags: boolean,
         position: vec3,
         location: string,   // displayable, string form of position coordinates
         models: AvatarEntryMap,
@@ -185,8 +291,8 @@ export interface IRootState {
     },
     // The audio connection
     audio: {
-        inputsList: MediaDeviceInfo[],  // a list of the input devices from the browser
-        outputsList: MediaDeviceInfo[]  // a list of the input devices from the browser
+        inputsList: MediaDeviceInfo[],  // A list of the input devices from the browser.
+        outputsList: MediaDeviceInfo[]  // A list of the input devices from the browser.
         user: {
             connected: boolean;             // 'true' if have audio input device
             hasInputAccess: boolean;        // mic toggle, 'true' if input is on
@@ -197,39 +303,97 @@ export interface IRootState {
             userInputStream: Nullable<MediaStream>,  // the user audio input stream
         }
     },
-    // Information about the metaverse-server. Updated when connection state changes
+    // Graphics configuration.
+    graphics: {
+        fieldOfView: number
+    },
+    // Information about the metaverse-server. Updated when connection state changes.
     metaverse: {
         connectionState: string;
         name: string;
         nickname: string;
         server: string;
         iceServer: Nullable<string>;
+        jitsiServer: Nullable<string>;
         serverVersion: Nullable<string>;
     },
     // Information about metaverse account that is logged in.
     account: {
         username: string;
         isLoggedIn: boolean;
-        // Token data
+        // Token data.
         accessToken: string;
         tokenType: string;
         scope: string;
-        // Options
+        // Options.
         isAdmin: boolean;
         useAsAdmin: boolean;
-        // Profile
+        // Profile.
         images: {
             hero?: string;
             tiny?: string;
             thumbnail?: string;
         }
     },
-    // Information from the underlying rendering system
+    // Information from the underlying rendering system.
     renderer: {
         focusSceneId: number,
         fps: number,
         cameraLocation: Nullable<VVector3>,
         cameraRotation: Nullable<VVector4>
+    },
+    // Theme configuration.
+    theme: {
+        brandName: string,
+        productName: string,
+        tagline: string,
+        logo: string,
+        globalServiceTerm: string,
+        colors: {
+            primary: string,
+            secondary: string,
+            accent: string,
+        },
+        defaultMode: "light" | "dark",
+        globalStyle: "none" | "aero" | "mica",
+        headerStyle: "none" | "gradient-left" | "gradient-right",
+        windowStyle: "none" | "gradient-top" | "gradient-right" | "gradient-bottom" | "gradient-left",
+        helpLinks: unknown | {
+            icon: string,
+            label: string,
+            link: string
+        }[]
+    },
+    // First Time Wizard configuration.
+    firstTimeWizard: {
+        title: string,
+        welcomeText: string,
+        tagline: string,
+        buttonText: string
+    },
+    // Conference data.
+    conference: {
+        activeRooms: JitsiRoomInfo[],
+        currentRoom: JitsiRoomInfo
+    },
+    // Saved bookmarks.
+    bookmarks: {
+        locations: { name: string, color: string, url: string }[]
+    },
+    // Control keybinds.
+    controls: {
+        movement: {
+            [key: string]: ControlKeybind
+        },
+        camera: {
+            [key: string]: ControlKeybind
+        },
+        audio: {
+            [key: string]: ControlKeybind
+        },
+        other: {
+            [key: string]: ControlKeybind
+        }
     }
 }
 
@@ -239,88 +403,255 @@ export interface IRootState {
 interface VStore extends VuexStore<IRootState> {
 }
 
-export const Store = createStore<IRootState>({
-    state: () => ({
-        globalConsts: {
-            APP_NAME: packageInfo.productName,
-            APP_VERSION: packageInfo.version,
-            APP_VERSION_TAG: versionInfo["version-tag"],
-            SDK_VERSION_TAG: Vircadia.verboseVersion ?? "probably 0.0.4",
-            SAFETY_BEFORE_SESSION_TIMEOUT: 21600 // If a token has 6 or less hours left on its life, refresh it.
-        },
-        debugging: {},
-        notifications: {},
-        error: {
-            title: "",
-            code: "",
-            full: ""
-        },
-        dialog: {
-            which: "NONE",
-            show: false
-        },
-        domain: {
-            connectionState: Domain.stateToString(ConnectionState.DISCONNECTED),
-            url: ""
-        },
-        avatars: {
-            connectionState: DomainAvatar.stateToString(AssignmentClientState.DISCONNECTED),
-            count: 0,
-            avatarsInfo: new Map<Uuid, AvatarInfo>()
-        },
-        avatar: {
-            displayName: "anonymous",
-            position: Vec3.ZERO,
-            location: "0,0,0",
-            models: defaultAvatarModels(),
-            activeModel: defaultActiveAvatarModel()
-        },
-        messages: {
-            messages: [],
-            nextMessageId: 22
-        },
-        // Information about the audio system
-        audio: {
-            inputsList: [],
-            outputsList: [],
-            user: {
-                connected: false,
-                hasInputAccess: false,
-                muted: false,
-                awaitingCapturePermissions: false,
-                currentInputDevice: undefined,
-                currentOutputDevice: undefined,
-                userInputStream: undefined
-            }
-        },
-        // Information about the metaverse-server we're connected to
-        metaverse: {
-            connectionState: "",
-            name: "",
-            nickname: "",
-            server: "",
-            iceServer: undefined,
-            serverVersion: undefined
-        },
-        // Information about the logged in account. Refer to Account module
-        account: {
-            username: "Guest",
-            isLoggedIn: false,
-            accessToken: "UNKNOWN",
-            tokenType: "Bearer",
-            scope: "UNKNOWN",
-            isAdmin: false,
-            useAsAdmin: false,
-            images: {}
-        },
-        // Information about the rendering system
-        renderer: {
-            focusSceneId: 0,
-            fps: 1,
-            cameraLocation: undefined,
-            cameraRotation: undefined
+const storeDefaults = {
+    storeVersion: {
+        major: 2,
+        minor: 0,
+        patch: 0
+    },
+    globalConsts: {
+        APP_NAME: process.env.VRCA_PRODUCT_NAME ?? packageInfo.productName,
+        APP_VERSION: packageInfo.version,
+        APP_VERSION_TAG: versionInfo["version-tag"],
+        SDK_VERSION_TAG: Vircadia.verboseVersion ?? "probably 0.0.4",
+        SAFETY_BEFORE_SESSION_TIMEOUT: 21600 // If a token has 6 or less hours left on its life, refresh it.
+    },
+    defaultConnectionConfig: {
+        DEFAULT_METAVERSE_URL: process.env.VRCA_DEFAULT_METAVERSE_URL ?? "https://metaverse.vircadia.com/live",
+        DEFAULT_DOMAIN_PROTOCOL: process.env.VRCA_DEFAULT_DOMAIN_PROTOCOL ?? "wss:",
+        DEFAULT_DOMAIN_PORT: process.env.VRCA_DEFAULT_DOMAIN_PORT ?? "40102",
+        DEFAULT_DOMAIN_URL: process.env.VRCA_DEFAULT_DOMAIN_URL ?? "wss://antares.digisomni.com/0,0,0/0,0,0,1"
+    },
+    debugging: {},
+    notifications: {},
+    error: {
+        title: "",
+        code: "",
+        full: ""
+    },
+    dialog: {
+        which: "NONE",
+        show: false
+    },
+    domain: {
+        connectionState: Domain.stateToString(ConnectionState.DISCONNECTED),
+        url: ""
+    },
+    avatars: {
+        connectionState: DomainAvatar.stateToString(AssignmentClientState.DISCONNECTED),
+        count: 0,
+        avatarsInfo: new Map<Uuid, AvatarInfo>()
+    },
+    avatar: {
+        displayName: "anonymous",
+        showNametags: true,
+        position: Vec3.ZERO,
+        location: "0,0,0",
+        models: defaultAvatarModels(),
+        activeModel: defaultActiveAvatarModel()
+    },
+    messages: {
+        messages: [],
+        nextMessageId: 22
+    },
+    // Information about the audio system.
+    audio: {
+        inputsList: [],
+        outputsList: [],
+        user: {
+            connected: false,
+            hasInputAccess: false,
+            muted: true,
+            awaitingCapturePermissions: false,
+            currentInputDevice: undefined,
+            currentOutputDevice: undefined,
+            userInputStream: undefined
         }
-    }),
+    },
+    // Graphics configuration.
+    graphics: {
+        fieldOfView: 80
+    },
+    // Information about the metaverse-server we're connected to.
+    metaverse: {
+        connectionState: "",
+        name: "",
+        nickname: "",
+        server: "",
+        iceServer: undefined,
+        jitsiServer: undefined,
+        serverVersion: undefined
+    },
+    // Information about the logged in account. Refer to Account module.
+    account: {
+        username: "Guest",
+        isLoggedIn: false,
+        accessToken: "UNKNOWN",
+        tokenType: "Bearer",
+        scope: "UNKNOWN",
+        isAdmin: false,
+        useAsAdmin: false,
+        images: {}
+    },
+    // Information about the rendering system.
+    renderer: {
+        focusSceneId: 0,
+        fps: 1,
+        cameraLocation: undefined,
+        cameraRotation: undefined
+    },
+    // Theme configuration.
+    theme: {
+        brandName: process.env.VRCA_BRAND_NAME ?? "Vircadia",
+        productName: process.env.VRCA_PRODUCT_NAME ?? "Vircadia Web",
+        tagline: process.env.VRCA_TAGLINE ?? "",
+        logo: process.env.VRCA_LOGO ?? "assets/vircadia-icon.svg",
+        globalServiceTerm: process.env.VRCA_GLOBAL_SERVICE_TERM ?? "Metaverse",
+        colors: {
+            primary: process.env.VRCA_COLORS_PRIMARY ?? "#0c71c3",
+            secondary: process.env.VRCA_COLORS_SECONDARY ?? "#8300e9",
+            accent: process.env.VRCA_COLORS_ACCENT ?? "#01bdff"
+        },
+        defaultMode: process.env.VRCA_DEFAULT_MODE ?? "dark",
+        globalStyle: process.env.VRCA_GLOBAL_STYLE ?? "mica",
+        headerStyle: process.env.VRCA_HEADER_STYLE ?? "gradient-right",
+        windowStyle: process.env.VRCA_WINDOW_STYLE ?? "gradient-right",
+        // TODO: Move links to their own object (it's not theme related).
+        helpLinks: process.env.VRCA_HELP_LINKS ?? [
+            {
+                icon: "chat",
+                label: "Discord",
+                link: "https://discord.com/invite/Pvx2vke"
+            },
+            {
+                icon: "forum",
+                label: "Forum",
+                link: "https://forum.vircadia.com/"
+            },
+            {
+                icon: "support",
+                label: "User Documentation",
+                link: "https://docs.vircadia.com/"
+            }
+        ]
+    },
+    // First Time Wizard configuration.
+    firstTimeWizard: {
+        title: process.env.VRCA_WIZARD_TITLE ?? "Vircadia",
+        welcomeText: process.env.VRCA_WIZARD_WELCOME_TEXT ?? "Welcome to",
+        tagline: process.env.VRCA_WIZARD_TAGLINE ?? "Your portal to the metaverse.",
+        buttonText: process.env.VRCA_WIZARD_BUTTON_TEXT ?? "Get Started"
+    },
+    // Conference data.
+    conference: {
+        activeRooms: [],
+        currentRoom: {} as JitsiRoomInfo
+    },
+    // Saved bookmarks.
+    bookmarks: {
+        locations: []
+    },
+    // Control keybinds.
+    controls: {
+        movement: {
+            walkForwards: { name: "Walk Forwards", keybind: "KeyW" },
+            walkBackwards: { name: "Walk Backwards", keybind: "KeyS" },
+            walkLeft: { name: "Walk Left", keybind: "KeyA" },
+            walkRight: { name: "Walk Right", keybind: "KeyD" },
+            run: { name: "Run", keybind: "ShiftLeft" },
+            jump: { name: "Jump", keybind: "Space" }
+        },
+        camera: {
+            pitchUp: { name: "Pitch Up", keybind: "ArrowUp" },
+            pitchDown: { name: "Pitch Down", keybind: "ArrowDown" },
+            yawLeft: { name: "Yaw Left", keybind: "ArrowLeft" },
+            yawRight: { name: "Yaw Right", keybind: "ArrowRight" },
+            firstPerson: { name: "First-Person", keybind: "Digit1" },
+            thirdPerson: { name: "Third-Person", keybind: "Digit3" },
+            collisions: { name: "Toggle Collisions", keybind: "Digit4" }
+        },
+        audio: {
+            mute: { name: "Toggle Mic Mute", keybind: "KeyV" },
+            pushToTalk: { name: "Push-To-Talk", keybind: "KeyB" }
+        },
+        other: {
+            resetPosition: { name: "Reset Position", keybind: "KeyK" },
+            toggleMenu: { name: "Toggle Menu", keybind: "KeyM" },
+            openChat: { name: "Open Chat", keybind: "KeyT" }
+        }
+    }
+} as IRootState;
+
+export const Store = createStore<IRootState>({
+    state: (): IRootState => {
+        const outputState = {} as IRootState;
+        // Load the persistent state from storage.
+        const persistentState = loadFromPersistentStorage();
+        if (!persistentState || typeof persistentState !== "object") {
+            return storeDefaults;
+        }
+        // Load the store defaults if the persistent storage doesn't have a version number.
+        if (!("storeVersion" in persistentState)) {
+            return storeDefaults;
+        }
+        // Load the store defaults if the persistent storage's major version is lower.
+        if (persistentState.storeVersion.major < storeDefaults.storeVersion.major) {
+            return storeDefaults;
+        }
+        // Verify the persistent state by comparing all of its keys to those of the default state.
+        Object.entries(storeDefaults).forEach(([defaultKey, defaultValue]) => {
+            // Assign types to the default key and value.
+            const typedDefaultKey = defaultKey as keyof IRootState;
+            const typedDefaultValue = defaultValue as typeof storeDefaults[typeof typedDefaultKey];
+
+            // Get the explicit type of the default value.
+            const typeOfDefaultValue = typeof typedDefaultValue;
+
+            // If the explicit type of the persistent value does not match that of the default value,
+            // or the default key doesn't exist within the persistent state,
+            // or the value of the key is known to cause errors,
+            // or the value of the key is an empty object,
+            // set the value of the output state at this particular key to default.
+            if (
+                !(typedDefaultKey in persistentState)
+                || typeof persistentState[typedDefaultKey] !== typeOfDefaultValue
+                || !isSafeInPersistentStorage(typedDefaultKey)
+                || persistentState[typedDefaultKey] && typeof persistentState[typedDefaultKey] === "object"
+                && Object.entries(persistentState[typedDefaultKey]).length <= 0
+            ) {
+                // @ts-expect-error: TS may be failing to associate `typedDefaultKey` with `typedDefaultValue`.
+                outputState[typedDefaultKey] = typedDefaultValue;
+                return;
+            }
+
+            // Otherwise, use the value from the persistent state.
+            // @ts-expect-error: TS may be failing to associate `typedDefaultKey` with
+            // the value at `persistentState[typedDefaultKey]`.
+            outputState[typedDefaultKey] = persistentState[typedDefaultKey];
+
+            // Then, repeat the above process for the second layer of default properties.
+            // Note: We are only verifying the first two layers of the state to limit the amount of
+            // data we need to process and to avoid being overly critical.
+            if (typeOfDefaultValue === "object") {
+                Object.entries(typedDefaultValue).forEach(([defaultSubKey, defaultSubValue]) => {
+                    const typedSubKey = defaultSubKey as keyof typeof typedDefaultValue;
+                    const typedSubValue = defaultSubValue as typeof typedDefaultValue[typeof typedSubKey];
+                    // Only check if the subkey exists in the persistent state,
+                    // and if the value is of the same type as the default state.
+                    if (
+                        !(typedSubKey in persistentState[typedDefaultKey])
+                        || typeof persistentState[typedDefaultKey][typedSubKey] !== typeof typedSubValue
+                    ) {
+                        outputState[typedDefaultKey][typedSubKey] = typedSubValue;
+                    }
+                    outputState[typedDefaultKey][typedSubKey] = persistentState[typedDefaultKey][typedSubKey];
+                });
+            }
+        });
+        // Note: We are using an intermediary variable (`outputState`) to store the returned state
+        // so that extraneous properties within the persistent state are not retained.
+        return outputState;
+    },
     mutations: {
         /**
          * Changes the value of state variables.
@@ -399,6 +730,7 @@ export const Store = createStore<IRootState>({
                     // Same note as above about type assignment and potential checking
                     target[prop] = payload.value;
                 }
+                saveToPersistentStorage(target as unknown as IRootState);
             }
 
             /* original code
@@ -426,7 +758,7 @@ export const Store = createStore<IRootState>({
         },
 
         // Add a message to the list of messages.
-        // Remove old messages of a limit is passed.
+        // Remove old messages if the limit has passed.
         [Mutations.ADD_MESSAGE](state: IRootState, payload: AddMessagePayload) {
             const msg = payload.message;
             // If the message doesn't have some unique identification, add it
@@ -443,6 +775,8 @@ export const Store = createStore<IRootState>({
                     state.messages.messages.pop();
                 }
             }
+
+            saveToPersistentStorage(state);
         },
 
         // Update an individual value for an individual avatar in the avatars.avatarsInfo array.
@@ -457,7 +791,36 @@ export const Store = createStore<IRootState>({
                     Log.error(Log.types.OTHER, `     id=${avaInfo.sessionId.stringify()}, field=${payload.field}`);
                 }
                 conv[payload.field] = payload.value;
+
+                saveToPersistentStorage(state);
             }
+        },
+
+        // Add a conference room info based on given web entity.
+        [Mutations.ADD_CONFERENCE_ROOM](state: IRootState, entity: WebEntity) {
+            const conferenceName = entity.name || "";
+            const roomName = conferenceName + "-" + (entity.id || "");
+
+            if (undefined === state.conference.activeRooms.find((x) => x.name === conferenceName)) {
+                state.conference.activeRooms.push({
+                    name: conferenceName,
+                    id: roomName,
+                    entity
+                });
+            }
+        },
+
+        // Add a conference room by conference name
+        [Mutations.REMOVE_CONFERENCE_ROOM](state: IRootState, name: string) {
+            const found = state.conference.activeRooms.findIndex((x) => x.name === name);
+            if (found !== -1) {
+                state.conference.activeRooms.splice(found, 1);
+            }
+        },
+
+        // Join a conference room by conference name
+        [Mutations.JOIN_CONFERENCE_ROOM](state: IRootState, room: JitsiRoomInfo) {
+            state.conference.currentRoom = room;
         }
 
     },
@@ -479,6 +842,7 @@ export const Store = createStore<IRootState>({
                     connectionState: pPayload.newState,
                     server: metaverse.MetaverseUrl,
                     iceServer: metaverse.IceServer,
+                    jitsiServer: metaverse.JitsiServer,
                     serverVersion: metaverse.ServerVersion
                 }
             });
@@ -490,7 +854,8 @@ export const Store = createStore<IRootState>({
                 property: "domain",
                 with: {
                     connectionState: Domain.stateToString(pPayload.newState),
-                    url: pPayload.domain.DomainUrl
+                    // url: pPayload.domain.DomainUrl
+                    url: pPayload.domain.Location.href
                 }
             });
         },
@@ -537,7 +902,11 @@ export const Store = createStore<IRootState>({
 
             // Log.debug(Log.types.OTHER, `StoreAction.UpdateAvatarInfo`);
 
-            const domainLoc = pPayload.domain.DomainClient?.location ?? "Disconnected";
+            // const domainLoc = pPayload.domain.DomainClient?.location ?? "Disconnected";
+            const domainLoc = pPayload.domain.DomainClient
+                ? pPayload.domain.Location.protocol + "//" + pPayload.domain.Location.host
+                : "Disconnected";
+
             // If we have information on my avatar, update same
             if (pPayload.domainAvatar) {
                 const myAvaInfo = pPayload.domainAvatar.MyAvatar;
@@ -547,7 +916,8 @@ export const Store = createStore<IRootState>({
                         with: {
                             displayName: myAvaInfo.displayName ? myAvaInfo.displayName : myAvaInfo.sessionDisplayName,
                             position: myAvaInfo?.position,
-                            location: `${domainLoc}/${DomainAvatar.positionAsString(myAvaInfo?.position)}`
+                            // eslint-disable-next-line max-len
+                            location: `${domainLoc}/${DataMapper.mapVec3ToString(myAvaInfo?.position)}/${DataMapper.mapQuaternionToString(myAvaInfo?.orientation)}`
                         }
                     });
 
@@ -558,7 +928,8 @@ export const Store = createStore<IRootState>({
                         with: {
                             displayName: "none",
                             position: Vec3.ZERO,
-                            location: `${domainLoc}/${DomainAvatar.positionAsString(Vec3.ZERO)}`
+                            // eslint-disable-next-line max-len
+                            location: `${domainLoc}/${DataMapper.mapVec3ToString(null)}/${DataMapper.mapQuaternionToString(null)}`
                         }
                     });
                 }
@@ -569,7 +940,7 @@ export const Store = createStore<IRootState>({
                     property: "avatar",
                     with: {
                         position: pPayload.position,
-                        location: `${domainLoc}/${DomainAvatar.positionAsString(pPayload.position)}`
+                        location: `${domainLoc}/${DataMapper.mapVec3ToString(null)}/${DataMapper.mapQuaternionToString(null)}`
                     }
                 });
             }
@@ -590,6 +961,7 @@ export const Store = createStore<IRootState>({
                     } else {
                         newList.set(k, {
                             sessionId: k,
+                            // FIXME: Define this in a constant somewhere, editable later by setting.
                             volume: 50,
                             muted: false,
                             isAdmin: false,
@@ -614,6 +986,7 @@ export const Store = createStore<IRootState>({
         [Actions.RECEIVE_CHAT_MESSAGE](pContext: ActionContext<IRootState, IRootState>, pMsg: AMessage): void {
             pContext.commit(Mutations.ADD_MESSAGE, {
                 message: pMsg,
+                // FIXME: Define this in a constant somewhere, editable later by setting.
                 maxMessages: 100
             });
         },

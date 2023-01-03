@@ -9,12 +9,12 @@
 // The following disable is because TS complains about BABYLON's use of cap'ed function names
 /* eslint-disable new-cap */
 
-import { Engine } from "@babylonjs/core";
-
+import { Engine, Nullable } from "@babylonjs/core";
+import Ammo from "ammojs-typed";
 import { Store, Mutations } from "@Store/index";
 import { Config } from "@Base/config";
 import { WebGPUEngine } from "@babylonjs/core/Engines/webgpuEngine";
-import { DomainMgr } from "@Modules/domain";
+// import { DomainMgr } from "@Modules/domain";
 
 
 // General Modules
@@ -28,10 +28,11 @@ export const Renderer = {
     _engine: <Engine><unknown>undefined,
     _renderingScenes: <VScene[]><unknown>undefined,
     _webgpuSupported: false,
+    _boundRenderFunction: <Nullable<()=>void>>null,
+    _intervalID: <Nullable<NodeJS.Timeout>> null,
 
     // eslint-disable-next-line @typescript-eslint/require-await
     async initialize(pCanvas: HTMLCanvasElement, pLoadingScreen: HTMLElement): Promise<void> {
-
         this._webgpuSupported = await WebGPUEngine.IsSupportedAsync;
         if (this._webgpuSupported) {
 
@@ -54,6 +55,7 @@ export const Renderer = {
             Renderer._engine.displayLoadingUI();
         } else {
             Renderer._engine = new Engine(pCanvas, true);
+            Renderer._engine.renderEvenInBackground = true;
             Renderer._engine.loadingScreen = new CustomLoadingScreen(pLoadingScreen);
             Renderer._engine.displayLoadingUI();
         }
@@ -75,6 +77,9 @@ export const Renderer = {
                 }
             }
         }, Number(Config.getItem("Renderer.StatUpdateSeconds", "1000")));
+
+        // Enable physics
+        await Ammo();
     },
     createScene(pSceneIndex = 0): VScene {
         const scene = new VScene(Renderer._engine, pSceneIndex);
@@ -92,14 +97,42 @@ export const Renderer = {
     },
     startRenderLoop(pScenes: VScene[]): void {
         this._renderingScenes = pScenes;
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        this._engine.runRenderLoop(Renderer._renderLoop);
+        this._runRenderLoop();
+        document.addEventListener("visibilitychange", this._runRenderLoop.bind(this), false);
     },
-    _renderLoop(): void {
-        DomainMgr.update();
-
-        Renderer._renderingScenes.forEach((vscene) => {
+    // NOTE:
+    // The render loop of babylon engine relaies on requestAnimationFrame().
+    // Most browsers stop sending requestAnimationFrame() callbacks to background tabs
+    // in order to improve performance and battery life.
+    // To make scene still render in background, use setInterval() to run the render loop when the web page is hidden.
+    _runRenderLoop(): void {
+        if (!this._boundRenderFunction) {
+            this._boundRenderFunction = this._render.bind(this);
+        }
+        if (document.hidden) {
+            this._engine.stopRenderLoop();
+            if (!this._intervalID) {
+            // eslint-disable-next-line @typescript-eslint/no-magic-numbers, @typescript-eslint/no-implied-eval
+                this._intervalID = setInterval(this._boundRenderFunction, 16);
+            }
+        } else {
+            if (this._intervalID) {
+                clearInterval(this._intervalID);
+                this._intervalID = null;
+            }
+            this._engine.runRenderLoop(this._boundRenderFunction);
+        }
+    },
+    _render(): void {
+        this._renderingScenes.forEach((vscene) => {
             vscene.render();
         });
+    },
+    dispose(): void {
+        Renderer._renderingScenes.forEach((vscene) => {
+            vscene.dispose();
+        });
+
+        this._renderingScenes = [];
     }
 };

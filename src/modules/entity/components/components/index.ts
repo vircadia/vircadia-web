@@ -14,3 +14,6 @@ export { HazeComponent } from "./haze";
 export { SkyboxComponent } from "./skybox";
 export { ModelComponent } from "./model";
 export { ImageComponent } from "./image";
+export { MaterialComponent } from "./materialComponent";
+export { ShapeComponent } from "./shapeComponent";
+export { LightEntityComponent } from "./lightComponent";

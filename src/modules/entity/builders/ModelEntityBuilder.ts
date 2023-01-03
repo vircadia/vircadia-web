@@ -21,11 +21,7 @@ export class ModelEntityBuilder extends AbstractEntityBuilder {
 
     // eslint-disable-next-line class-methods-use-this
     public build(gameObject: GameObject, entity: IEntity) : void {
-        const modelEntity = entity as IModelEntity;
-
-        if (!gameObject.getComponent("ModelEntityController")) {
-            gameObject.addComponent(new ModelEntityController(modelEntity));
-        }
+        gameObject.addComponent(new ModelEntityController(entity as IModelEntity));
     }
 
 }

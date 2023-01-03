@@ -23,7 +23,7 @@ export default defineComponent({
         @click.stop=""
     >
         <div class="inner">
-            <img src="/assets/vircadia-icon.svg" draggable="false" alt="" width="200" height="200">
+            <img :src="$store.state.theme.logo" draggable="false" alt="" width="200" height="200">
             <q-spinner-tail
                 size="xl"
             />

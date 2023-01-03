@@ -10,15 +10,23 @@
 //
 
 interface LocalStorageContent {
-    displayName: string,
-    activeModel: string,
-    avatarModels: string
+    store: string
 }
 
+/**
+ * Save a value to the browser's local storage.
+ * @param key The local storage key to save the value under.
+ * @param value The value to save.
+ */
 export function saveLocalValue(key: keyof LocalStorageContent, value: string): void {
     window.localStorage.setItem(key, value);
 }
 
+/**
+ * Load a value from the browser's local storage.
+ * @param key The local storage key to retrieve the value from.
+ * @returns The value stored at `key`, or `null` if the key/value doesn't exist.
+ */
 export function loadLocalValue(key: keyof LocalStorageContent): string | null {
     return window.localStorage.getItem(key);
 }

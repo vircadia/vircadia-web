@@ -12,7 +12,7 @@
 <style lang="scss" scoped>
     .outer {
         position: absolute;
-        z-index: 0;
+        z-index: 10;
     }
 
     div.title {
@@ -21,9 +21,22 @@
         text-overflow: ellipsis;
     }
 
+    .bar-container {
+        position: relative;
+        width: 100%;
+        height: 32px;
+        border-radius: 5px 5px 0px 0px;
+        overflow: hidden;
+    }
     .bar {
+        width: 100%;
+        transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1) height;
+        overflow-y: hidden;
         cursor: default;
         user-select: none;
+    }
+    .bar.bar-hidden {
+        height: 0px;
     }
 
     div.resize {
@@ -85,22 +98,37 @@
 
             // eslint-disable-next-line max-len
             left: `${isMaximized ? 0 : left < 0 ? 0 : left > windowCache.innerWidth - width ? windowCache.innerWidth - width : left}px`,
-            background: $props.transparentOnIdle && !hovered ? '#0002' : $q.dark.isActive ? '#1D1D1D' : '#fff',
-            borderRadius: '5px',
-            transition: '0.2s ease background',
-            overflow: 'hidden'
+            background: getWindowStyle,
+            backgroundAttachment: 'fixed',
+            backdropFilter: $store.state.theme.globalStyle === 'aero' ? 'blur(10px)' : 'unset',
+            borderRadius: isMaximized ? '0px' : '5px',
+            transition: '0.2s ease background'
         }"
     >
-        <q-slide-transition>
+        <div
+            class="bar-container"
+            :style="{ position: hoverShowBar ? 'absolute' : 'relative' }"
+        >
             <q-bar
                 class="bar"
-                :style="hoverShowBar ? 'position: absolute; width: 100%;' : ''"
-                v-show="showWindowTitleBar"
+                :class="{ 'bar-hidden': !showWindowTitleBar }"
             >
-                <q-icon :name="icon" />
-                <div class="title" @mousedown="canMove && beginAction($event, 'move')">{{ title }}</div>
+                <q-icon
+                    :name="icon"
+                    @mousedown="canMove && beginAction($event, 'move')"
+                    @touchstart.stop="canMove && beginAction($event, 'move')"
+                />
+                <div
+                    class="title"
+                    @mousedown="canMove && beginAction($event, 'move')"
+                    @touchstart.stop="canMove && beginAction($event, 'move')"
+                >{{ title }}</div>
 
-                <div class="col full-height" @mousedown="canMove && beginAction($event, 'move')"></div>
+                <div
+                    class="col full-height"
+                    @mousedown="canMove && beginAction($event, 'move')"
+                    @touchstart.stop="canMove && beginAction($event, 'move')"
+                ></div>
 
                 <q-btn dense flat
                     :icon="overlayStatus === 'minimized' ? 'expand_more' : 'minimize'"
@@ -112,8 +140,10 @@
                     <!--And Material doesn't have a restore-down icon.-->
                     <template v-if="overlayStatus === 'maximized'">
                         <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
-                        viewBox="0 0 24 24"
-                        style="enable-background:new 0 0 24 24;width: 1.715em;color: inherit;" xml:space="preserve">
+                            viewBox="0 0 24 24"
+                            style="enable-background:new 0 0 24 24;width: 1.715em;color: inherit;"
+                            xml:space="preserve"
+                        >
                             <path fill="none" d="M-2,2h24v24H-2V2z"/>
                             <path fill="currentColor" d="M16,6H4C2.9,6,2,6.9,2,8v12c0,1.1,0.9,2,2,
                             2h12c1.1,0,2-0.9,2-2V8C18,6.9,17.1,6,16,6z M16,20H4V8h12V20z"/>
@@ -124,12 +154,10 @@
                 </q-btn>
                 <q-btn dense flat
                     icon="close"
-
                     @click="$emit('overlay-action', 'close')"
                 />
-
             </q-bar>
-        </q-slide-transition>
+        </div>
 
         <!-- 32px is the height of a q-bar -->
         <q-card-section
@@ -141,21 +169,45 @@
         </q-card-section>
 
         <div v-if="canResize && canResizeHeight && !isMinimized && !isMaximized"
-            class="resize resize-top" @mousedown="beginAction($event, 'resize-top')" />
+            class="resize resize-top"
+            @mousedown="beginAction($event, 'resize-top')"
+            @touchstart.stop="beginAction($event, 'resize-top')"
+        ></div>
         <div v-if="canResize && canResizeHeight && !isMinimized && !isMaximized"
-            class="resize resize-bottom" @mousedown="beginAction($event, 'resize-bottom')" />
+            class="resize resize-bottom"
+            @mousedown="beginAction($event, 'resize-bottom')"
+            @touchstart.stop="beginAction($event, 'resize-bottom')"
+        ></div>
         <div v-if="canResize && canResizeWidth && !isMaximized"
-            class="resize resize-left" @mousedown="beginAction($event, 'resize-left')" />
+            class="resize resize-left"
+            @mousedown="beginAction($event, 'resize-left')"
+            @touchstart.stop="beginAction($event, 'resize-left')"
+        ></div>
         <div v-if="canResize && canResizeWidth && !isMaximized"
-            class="resize resize-right" @mousedown="beginAction($event, 'resize-right')" />
+            class="resize resize-right"
+            @mousedown="beginAction($event, 'resize-right')"
+            @touchstart.stop="beginAction($event, 'resize-right')"
+        ></div>
         <div v-if="canResize && canResizeHeight && canResizeWidth && !isMinimized && !isMaximized"
-            class="resize resize-nw" @mousedown="beginAction($event, 'resize-nw')" />
+            class="resize resize-nw"
+            @mousedown="beginAction($event, 'resize-nw')"
+            @touchstart.stop="beginAction($event, 'resize-nw')"
+        ></div>
         <div v-if="canResize && canResizeHeight && canResizeWidth && !isMinimized && !isMaximized"
-            class="resize resize-ne" @mousedown="beginAction($event, 'resize-ne')" />
+            class="resize resize-ne"
+            @mousedown="beginAction($event, 'resize-ne')"
+            @touchstart.stop="beginAction($event, 'resize-ne')"
+        ></div>
         <div v-if="canResize && canResizeHeight && canResizeWidth && !isMinimized && !isMaximized"
-            class="resize resize-sw" @mousedown="beginAction($event, 'resize-sw')" />
+            class="resize resize-sw"
+            @mousedown="beginAction($event, 'resize-sw')"
+            @touchstart.stop="beginAction($event, 'resize-sw')"
+        ></div>
         <div v-if="canResize && canResizeHeight && canResizeWidth && !isMinimized && !isMaximized"
-            class="resize resize-se" @mousedown="beginAction($event, 'resize-se')" />
+            class="resize resize-se"
+            @mousedown="beginAction($event, 'resize-se')"
+            @touchstart.stop="beginAction($event, 'resize-se')"
+        ></div>
     </q-card>
 </template>
 
@@ -207,7 +259,7 @@ export default defineComponent({
         overlayStatus: "restored",
         heightWhenMinimized: 32,
         hovered: false,
-        dragAction: "UNKNOWN",
+        dragAction: "NONE",
         dragStart: { x: 0, y: 0 },
         mouseCaptured: false,
         onDragMoveReady: true,
@@ -226,27 +278,41 @@ export default defineComponent({
         },
         showWindowContent(): boolean {
             return !this.isMinimized;
+        },
+        getWindowStyle(): string {
+            // Style the overlay window based on the Theme config.
+            if (this.$store.state.theme.globalStyle === "none") {
+                return this.$q.dark.isActive ? "#121212" : "#ffffff";
+            }
+            const opacities = {
+                "aero": "80",
+                "mica": "ff"
+            };
+            if (this.$props.transparentOnIdle && !this.hovered) {
+                return "#0002";
+            }
+            if (this.$store.state.theme.windowStyle === "none") {
+                return this.$q.dark.isActive ? "#1D1D1D" : "#fff";
+            }
+            const gradients = {
+                "gradient-top": "circle at 50% 0%",
+                "gradient-right": "circle at 100% 50%",
+                "gradient-bottom": "circle at 50% 100%",
+                "gradient-left": "circle at 0% 50%"
+            };
+            const gradient = gradients[this.$store.state.theme.windowStyle];
+            const primary = this.$store.state.theme.colors.primary;
+            const secondary = this.$store.state.theme.colors.secondary;
+            const end = this.$q.dark.isActive ? "#121212" : "#ffffff";
+            const opacity = opacities[this.$store.state.theme.globalStyle];
+            // eslint-disable-next-line max-len
+            return `radial-gradient(${gradient}, ${secondary}30 15%, ${primary}30 40%, ${end} 95%), linear-gradient(${end}${opacity}, ${end}${opacity})`;
         }
     },
 
     watch: {
         overlayStatus() {
             this.refinePosition();
-        },
-
-        mouseCaptured(newVal: boolean) {
-            if (newVal) {
-                // TODO: what is 'newVal' telling us that all settings are to 'true'?
-                // eslint-disable-next-line @typescript-eslint/unbound-method
-                document.addEventListener("mousemove", this.onDragMove, true);
-                // eslint-disable-next-line @typescript-eslint/unbound-method
-                document.addEventListener("mouseup", this.onDragDone, true);
-            } else {
-                // eslint-disable-next-line @typescript-eslint/unbound-method
-                document.removeEventListener("mousemove", this.onDragMove, true);
-                // eslint-disable-next-line @typescript-eslint/unbound-method
-                document.removeEventListener("mouseup", this.onDragDone, true);
-            }
         },
 
         "managerProps.overlayStatus"(newVal: string) {
@@ -307,18 +373,18 @@ export default defineComponent({
             return { top, left, width, height };
         },
 
-        beginAction(event: MouseEvent, action: string) {
-            if (this.dragAction && this.dragAction !== "UNKNOWN") {
+        beginAction(event: MouseEvent | TouchEvent, action: string) {
+            if (this.dragAction && this.dragAction !== "NONE") {
                 return;
             }
             this.cacheWindowParams();
+            this.dragStart = this.getEventPosition(event);
             this.dragAction = action;
-            this.dragStart = { x: event.clientX, y: event.clientY };
             this.mouseCaptured = true;
         },
 
         applyDrag(mouseX: number, mouseY: number): void {
-            // TODO: the logic if 'dragAction' needs work. Value is string?
+            // TODO: the logic of 'dragAction' needs work. Value is string?
             if (!this.dragAction || !this.dragStart) {
                 // shouldn't be here, get out now
                 return;
@@ -355,30 +421,26 @@ export default defineComponent({
             this.dragStart = { x: mouseX, y: mouseY };
         },
 
-        onDragMove(event: MouseEvent) {
+        onDragMove(event: MouseEvent | TouchEvent) {
             this.cacheWindowParams();
             if (this.onDragMoveReady) {
-                this.applyDrag(event.clientX, event.clientY);
+                const coords = this.getEventPosition(event);
+                this.applyDrag(coords.x, coords.y);
                 this.onDragMoveReady = false;
                 window.setTimeout(() => {
                     this.onDragMoveReady = true;
                 }, this.dragMoveDebounce);
             }
-
-            event.preventDefault();
-            event.stopPropagation();
         },
 
-        onDragDone(event: MouseEvent) {
+        onDragDone(event: MouseEvent | TouchEvent) {
             this.cacheWindowParams();
-            this.applyDrag(event.clientX, event.clientY);
+            const coords = this.getEventPosition(event);
+            this.applyDrag(coords.x, coords.y);
             this.mouseCaptured = false;
-            this.dragAction = "UNKNOWN";
+            this.dragAction = "NONE";
             this.dragStart = { x: 0, y: 0 };
             this.refinePosition();
-
-            event.preventDefault();
-            event.stopPropagation();
         },
 
         snapTo(side: string | undefined): void {
@@ -418,6 +480,42 @@ export default defineComponent({
             if (this.left > this.windowCache.innerWidth - this.width) {
                 this.left = this.windowCache.innerWidth - this.width;
             }
+        },
+
+        refineSize(): void {
+            if (this.width < 0) {
+                this.width = 0;
+            }
+            if (this.width > this.windowCache.innerWidth) {
+                this.width = this.windowCache.innerWidth;
+            }
+            if (this.height < 0) {
+                this.height = 0;
+            }
+            if (this.height > this.windowCache.innerHeight) {
+                this.height = this.windowCache.innerHeight;
+            }
+        },
+
+        getEventPosition(event: MouseEvent | TouchEvent): { x: number, y: number } {
+            let coords = { x: 0, y: 300 };
+            if ("touches" in event && event.touches.length > 0) {
+                coords = {
+                    x: event.touches[0].clientX,
+                    y: event.touches[0].clientY
+                };
+            } else if ("changedTouches" in event && event.changedTouches.length > 0) {
+                coords = {
+                    x: event.changedTouches[0].clientX,
+                    y: event.changedTouches[0].clientY
+                };
+            } else if ("clientX" in event) {
+                coords = {
+                    x: event.clientX,
+                    y: event.clientY
+                };
+            }
+            return coords;
         }
     },
 
@@ -425,20 +523,33 @@ export default defineComponent({
         this.cacheWindowParams();
         this.snapTo(this.spawnSnappedTo);
         this.refinePosition();
+        this.refineSize();
 
         window.addEventListener("resize", () => {
             this.cacheWindowParams();
             this.refinePosition();
         });
-    },
 
-    unmounted() {
-        if (this.mouseCaptured) {
-            // eslint-disable-next-line @typescript-eslint/unbound-method
-            document.removeEventListener("mousemove", this.onDragMove, true);
-            // eslint-disable-next-line @typescript-eslint/unbound-method
-            document.removeEventListener("mouseup", this.onDragDone, true);
-        }
+        document.addEventListener("mousemove", (event: MouseEvent) => {
+            if (this.mouseCaptured) {
+                this.onDragMove(event);
+            }
+        }, true);
+        document.addEventListener("mouseup", (event: MouseEvent) => {
+            if (this.mouseCaptured) {
+                this.onDragDone(event);
+            }
+        }, true);
+        document.addEventListener("touchmove", (event: TouchEvent) => {
+            if (this.mouseCaptured) {
+                this.onDragMove(event);
+            }
+        }, true);
+        document.addEventListener("touchend", (event: TouchEvent) => {
+            if (this.mouseCaptured) {
+                this.onDragDone(event);
+            }
+        }, true);
     }
 });
 </script>

@@ -16,9 +16,9 @@
 const path = require("path");
 
 // Fetch package.json info for use in the manifest
-const { productName } = require("./package.json").productName;
-const { productShortName } = require("./package.json").name;
-const { productDescription } = require("./package.json").description;
+const { productName } = process.env.VRCA_PRODUCT_NAME ?? require("./package.json").productName;
+const { productShortName } = process.env.VRCA_PRODUCT_NAME ?? require("./package.json").name;
+const { productDescription } = process.env.VRCA_TAGLINE ?? require("./package.json").description;
 // Configuration for your app
 // https://v2.quasar.dev/quasar-cli/quasar-conf-js
 
@@ -68,7 +68,7 @@ module.exports = configure(function (ctx) {
             // "roboto-font-latin-ext", // this or either "roboto-font", NEVER both!
 
             "fontawesome-v5",
-            "roboto-font", // optional, you are not bound to it
+            // "roboto-font", // optional, you are not bound to it
             "material-icons" // optional, you are not bound to it
         ],
 
@@ -121,6 +121,42 @@ module.exports = configure(function (ctx) {
                     .use("file-loader")
                         .loader("file-loader");
                 */
+            },
+            extendWebpack(cfg) {
+                cfg.resolve.fallback = {
+                  fs: false,
+                  path: false,
+                }
+            },
+            env: {
+                // Default Connection Config
+                VRCA_DEFAULT_METAVERSE_URL: process.env.VRCA_DEFAULT_METAVERSE_URL,
+                VRCA_DEFAULT_DOMAIN_PROTOCOL: process.env.VRCA_DEFAULT_DOMAIN_PROTOCOL,
+                VRCA_DEFAULT_DOMAIN_PORT: process.env.VRCA_DEFAULT_DOMAIN_PORT,
+                VRCA_DEFAULT_DOMAIN_URL: process.env.VRCA_DEFAULT_DOMAIN_URL,    
+                // Theme
+                VRCA_BRAND_NAME: process.env.VRCA_BRAND_NAME,
+                VRCA_PRODUCT_NAME: process.env.VRCA_PRODUCT_NAME,
+                VRCA_TAGLINE: process.env.VRCA_TAGLINE,
+                VRCA_LOGO: process.env.VRCA_LOGO,
+                VRCA_GLOBAL_SERVICE_TERM: process.env.VRCA_GLOBAL_SERVICE_TERM,
+                // Theme > Colors
+                VRCA_COLORS_PRIMARY: process.env.VRCA_COLORS_PRIMARY,
+                VRCA_COLORS_SECONDARY: process.env.VRCA_COLORS_SECONDARY,
+                VRCA_COLORS_ACCENT: process.env.VRCA_COLORS_ACCENT,
+                // Theme > Styles
+                VRCA_DEFAULT_MODE: process.env.VRCA_DEFAULT_MODE,
+                VRCA_GLOBAL_STYLE: process.env.VRCA_GLOBAL_STYLE,
+                VRCA_HEADER_STYLE: process.env.VRCA_HEADER_STYLE,
+                VRCA_WINDOW_STYLE: process.env.VRCA_WINDOW_STYLE,
+                // Links
+                // Links > Help Links (must be JSON stringied)
+                VRCA_HELP_LINKS: process.env.HELP_LINKS ? JSON.parse(process.env.HELP_LINKS) : undefined,
+                // First Time Wizard
+                VRCA_WIZARD_TITLE: process.env.VRCA_WIZARD_TITLE,
+                VRCA_WIZARD_WELCOME_TEXT: process.env.VRCA_WIZARD_WELCOME_TEXT,
+                VRCA_WIZARD_TAGLINE: process.env.VRCA_WIZARD_TAGLINE,
+                VRCA_WIZARD_BUTTON_TEXT: process.env.VRCA_WIZARD_BUTTON_TEXT
             }
         },
 
@@ -155,7 +191,7 @@ module.exports = configure(function (ctx) {
 
         // animations: "all", // --- includes all animations
         // https://v2.quasar.dev/options/animations
-        animations: [],
+        animations: "all",
 
         // https://v2.quasar.dev/quasar-cli/developing-ssr/configuring-ssr
         ssr: {

@@ -14,6 +14,7 @@ import { IVector3Property, IQuaternionProperty, EntityType } from "../EntityProp
 import { IEntity } from "../EntityInterfaces";
 import { Observable } from "@babylonjs/core";
 import { EntityProperties } from "@vircadia/web-sdk";
+import { EntityMapper } from "../package";
 import Log from "@Base/modules/debugging/log";
 
 
@@ -43,18 +44,37 @@ export abstract class Entity implements IEntity {
     protected _position: IVector3Property | undefined;
     protected _rotation: IQuaternionProperty | undefined;
     protected _dimensions: IVector3Property | undefined;
+    // render mode properties
+    protected _billboardMode: string | undefined;
+    // script Properties
     protected _script: string | undefined;
     protected _userData: string | undefined;
+    // collision Properties
+    protected _collisionless: boolean | undefined;
     protected _collisionMask : number | undefined;
+    protected _collisionSoundURL: string | undefined;
+    protected _dynamic: boolean | undefined;
+    // physics Properties
+    protected _velocity: IVector3Property | undefined;
+    protected _damping: number | undefined;
+    protected _angularVelocity: IVector3Property | undefined;
+    protected _angularDampling: number | undefined;
+    protected _restitution: number | undefined;
+    protected _friction: number | undefined;
+    protected _density: number | undefined;
+    protected _gravity: IVector3Property | undefined;
+
     protected _propertyChangeObservables : Array<EntityPropertyChangeObservable<IEntity>>;
 
     protected _onCommonPropertiesChanged : EntityPropertyChangeObservable<IEntity>;
+    protected _onRenderModeChanged : EntityPropertyChangeObservable<IEntity>;
+    protected _onParentChanged : EntityPropertyChangeObservable<IEntity>;
     protected _onPositionAndRotationChanged : EntityPropertyChangeObservable<IEntity>;
     protected _onDimensionChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onCollisionPropertiesChanged : EntityPropertyChangeObservable<IEntity>;
     protected _onScriptChanged : EntityPropertyChangeObservable<IEntity>;
     protected _onUserDataChanged : EntityPropertyChangeObservable<IEntity>;
-
+    protected _onCollisionPropertiesChanged : EntityPropertyChangeObservable<IEntity>;
+    protected _onPhysicsPropertiesChanged : EntityPropertyChangeObservable<IEntity>;
 
     constructor(id : string, type : EntityType) {
         this._id = id;
@@ -63,11 +83,14 @@ export abstract class Entity implements IEntity {
         this._propertyChangeObservables = new Array<EntityPropertyChangeObservable<IEntity>>();
 
         this._onCommonPropertiesChanged = this.createPropertyChangeObservable();
+        this._onParentChanged = this.createPropertyChangeObservable();
         this._onPositionAndRotationChanged = this.createPropertyChangeObservable();
         this._onDimensionChanged = this.createPropertyChangeObservable();
-        this._onCollisionPropertiesChanged = this.createPropertyChangeObservable();
+        this._onRenderModeChanged = this.createPropertyChangeObservable();
         this._onScriptChanged = this.createPropertyChangeObservable();
         this._onUserDataChanged = this.createPropertyChangeObservable();
+        this._onCollisionPropertiesChanged = this.createPropertyChangeObservable();
+        this._onPhysicsPropertiesChanged = this.createPropertyChangeObservable();
     }
 
     protected createPropertyChangeObservable(): EntityPropertyChangeObservable<IEntity> {
@@ -102,7 +125,7 @@ export abstract class Entity implements IEntity {
     public set parentID(value: string | undefined) {
         if (value && value !== this._parentID) {
             this._parentID = value;
-            this._onCommonPropertiesChanged.isDirty = true;
+            this._onParentChanged.isDirty = true;
         }
     }
 
@@ -150,6 +173,17 @@ export abstract class Entity implements IEntity {
         }
     }
 
+    public get billboardMode(): string | undefined {
+        return this._billboardMode;
+    }
+
+    public set billboardMode(value: string | undefined) {
+        if (value !== undefined && this._billboardMode !== value) {
+            this._billboardMode = value;
+            this._onRenderModeChanged.isDirty = true;
+        }
+    }
+
     public get script(): string | undefined {
         return this._script;
     }
@@ -172,6 +206,17 @@ export abstract class Entity implements IEntity {
         }
     }
 
+    public get collisionless() : boolean | undefined {
+        return this._collisionless;
+    }
+
+    public set collisionless(value: boolean | undefined) {
+        if (value !== undefined && value !== this._collisionless) {
+            this._collisionless = value;
+            this._onCollisionPropertiesChanged.isDirty = true;
+        }
+    }
+
     public get collisionMask() : number | undefined {
         return this._collisionMask;
     }
@@ -183,8 +228,122 @@ export abstract class Entity implements IEntity {
         }
     }
 
+    public get collisionSoundURL() : string | undefined {
+        return this._collisionSoundURL;
+    }
+
+    public set collisionSoundURL(value: string | undefined) {
+        if (value !== undefined && value !== this._collisionSoundURL) {
+            this._collisionSoundURL = value;
+            this._onCollisionPropertiesChanged.isDirty = true;
+        }
+    }
+
+    public get dynamic() : boolean | undefined {
+        return this._dynamic;
+    }
+
+    public set dynamic(value: boolean | undefined) {
+        if (value !== undefined && value !== this._collisionless) {
+            this._dynamic = value;
+            this._onCollisionPropertiesChanged.isDirty = true;
+        }
+    }
+
+    public get velocity(): IVector3Property | undefined {
+        return this._velocity;
+    }
+
+    public set velocity(value: IVector3Property | undefined) {
+        if (value && this._velocity !== value) {
+            this._velocity = value;
+            this._onPhysicsPropertiesChanged.isDirty = true;
+        }
+    }
+
+    public get damping(): number | undefined {
+        return this._damping;
+    }
+
+    public set damping(value: number | undefined) {
+        if (value && this._damping !== value) {
+            this._damping = value;
+            this._onPhysicsPropertiesChanged.isDirty = true;
+        }
+    }
+
+    public get angularVelocity(): IVector3Property | undefined {
+        return this._angularVelocity;
+    }
+
+    public set angularVelocity(value: IVector3Property | undefined) {
+        if (value && this._angularVelocity !== value) {
+            this._angularVelocity = value;
+            this._onPhysicsPropertiesChanged.isDirty = true;
+        }
+    }
+
+    public get angularDampling(): number | undefined {
+        return this._angularDampling;
+    }
+
+    public set angularDampling(value: number | undefined) {
+        if (value && this._angularDampling !== value) {
+            this._angularDampling = value;
+            this._onPhysicsPropertiesChanged.isDirty = true;
+        }
+    }
+
+    public get restitution(): number | undefined {
+        return this._restitution;
+    }
+
+    public set restitution(value: number | undefined) {
+        if (value && this._restitution !== value) {
+            this._restitution = value;
+            this._onPhysicsPropertiesChanged.isDirty = true;
+        }
+    }
+
+    public get friction(): number | undefined {
+        return this._friction;
+    }
+
+    public set friction(value: number | undefined) {
+        if (value && this._friction !== value) {
+            this._friction = value;
+            this._onPhysicsPropertiesChanged.isDirty = true;
+        }
+    }
+
+    public get density(): number | undefined {
+        return this._density;
+    }
+
+    public set density(value: number | undefined) {
+        if (value && this._density !== value) {
+            this._density = value;
+            this._onPhysicsPropertiesChanged.isDirty = true;
+        }
+    }
+
+    public get gravity(): IVector3Property | undefined {
+        return this._gravity;
+    }
+
+    public set gravity(value: IVector3Property | undefined) {
+        if (value && this._gravity !== value) {
+            this._gravity = value;
+            this._onPhysicsPropertiesChanged.isDirty = true;
+        }
+    }
+
     public get onCommonPropertiesChanged(): Observable<IEntity> {
         return this._onCommonPropertiesChanged.observable;
+    }
+
+    public get onParentChanged(): Observable<IEntity> {
+        return this._onParentChanged.observable;
     }
 
     public get onPositionAndRotationChanged(): Observable<IEntity> {
@@ -195,8 +354,8 @@ export abstract class Entity implements IEntity {
         return this._onDimensionChanged.observable;
     }
 
-    public get onCollisionPropertiesChanged(): Observable<IEntity> {
-        return this._onCollisionPropertiesChanged.observable;
+    public get onRenderModeChanged(): Observable<IEntity> {
+        return this._onRenderModeChanged.observable;
     }
 
     public get onScriptChanged(): Observable<IEntity> {
@@ -205,6 +364,14 @@ export abstract class Entity implements IEntity {
 
     public get onUserDataChanged(): Observable<IEntity> {
         return this._onUserDataChanged.observable;
+    }
+
+    public get onCollisionPropertiesChanged(): Observable<IEntity> {
+        return this._onCollisionPropertiesChanged.observable;
+    }
+
+    public get onPhysicsPropertiesChanged(): Observable<IEntity> {
+        return this._onPhysicsPropertiesChanged.observable;
     }
 
     public update() : void {
@@ -220,8 +387,24 @@ export abstract class Entity implements IEntity {
         this.dimensions = props.dimensions;
         this.parentID = props.parentID?.stringify();
         this.visible = props.visible;
+        // render mode properties
+        this.billboardMode = EntityMapper.mapToEntityBillboardMode(props.billboardMode);
+        // script properties
         this.script = props.script;
         this.userData = props.userData;
+        // collision properties
+        this.collisionless = props.collisionless;
         this.collisionMask = props.collisionMask;
+        this.collisionSoundURL = props.collisionSoundURL;
+        this.dynamic = props.dynamic;
+        // physics properties
+        this.velocity = props.velocity;
+        this.damping = props.damping;
+        this.angularVelocity = props.angularVelocity;
+        this.angularDampling = props.angularDampling;
+        this.restitution = props.restitution;
+        this.friction = props.friction;
+        this.density = props.density;
+        this.gravity = props.gravity;
     }
 }

@@ -10,30 +10,18 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { GenericNodeComponent } from "@Modules/object";
-import { Mesh, Scene, MeshBuilder, StandardMaterial,
+import { MeshComponent } from "@Modules/object";
+import { Scene, MeshBuilder, StandardMaterial,
     Texture, CubeTexture, EquiRectangularCubeTexture, BaseTexture } from "@babylonjs/core";
-import { ISkyboxProperty } from "../../EntityProperties";
+import { ISkyboxProperty, IVector3Property } from "../../EntityProperties";
 import { EntityMapper } from "../../package";
 import { AssetUrl } from "../../builders/asset";
 
 /* eslint-disable new-cap */
 
-export class SkyboxComponent extends GenericNodeComponent<Mesh> {
+export class SkyboxComponent extends MeshComponent {
     static readonly DefaultSkyBoxSize = 2000;
     static readonly DefaultCubeMapSize = 1024;
-
-    constructor(props: ISkyboxProperty, scene : Scene, id: string) {
-        super();
-        const skyBox = MeshBuilder.CreateBox(this.componentType,
-            { size: SkyboxComponent.DefaultSkyBoxSize }, scene);
-        skyBox.infiniteDistance = true;
-        skyBox.id = id;
-
-        this._node = skyBox;
-
-        this.update(props);
-    }
 
     public get componentType():string {
         return SkyboxComponent.typeName;
@@ -43,17 +31,44 @@ export class SkyboxComponent extends GenericNodeComponent<Mesh> {
         return "Skybox";
     }
 
+    public load(props: ISkyboxProperty, dimensions: IVector3Property | undefined, id: string) : void {
+        if (this._mesh) {
+            this._mesh.dispose();
+            this._mesh = null;
+        }
+
+        if (!this._gameObject) {
+            return;
+        }
+
+        let skyBox = null;
+        const scene = this._gameObject ? this._gameObject?.getScene() : null;
+        if (dimensions) {
+            skyBox = MeshBuilder.CreateBox(this.componentType,
+                { width: dimensions.x, height: dimensions.y, depth: dimensions.z },
+                scene);
+        } else {
+            skyBox = MeshBuilder.CreateBox(this.componentType,
+                { size: SkyboxComponent.DefaultSkyBoxSize }, scene);
+        }
+        skyBox.infiniteDistance = true;
+        skyBox.id = id;
+
+        this.mesh = skyBox;
+
+        this.update(props);
+    }
+
     public update(props: ISkyboxProperty) : void {
-        if (this._node) {
-            const mesh = this._node;
-            const scene = mesh.getScene();
-            let material = mesh.material as StandardMaterial;
+        if (this._mesh) {
+            const scene = this._mesh.getScene();
+            let material = this._mesh.material as StandardMaterial;
 
             if (!material) {
-                material = new StandardMaterial(`${mesh.name}_${mesh.id}`, scene);
+                material = new StandardMaterial(`${this._mesh.name}_${this._mesh.id}`, scene);
                 material.backFaceCulling = false;
                 material.disableLighting = true;
-                mesh.material = material;
+                this._mesh.material = material;
             }
 
             material.diffuseColor = EntityMapper.mapToColor3(props.color);

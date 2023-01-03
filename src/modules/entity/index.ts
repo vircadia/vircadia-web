@@ -9,12 +9,15 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-export { IEntity, IModelEntity, IShapeEntity, ILightEntity, IZoneEntity,
+export type { IEntity, IModelEntity, IShapeEntity, ILightEntity, IZoneEntity,
     IImageEntity } from "./EntityInterfaces";
-export { IVector3Property, IQuaternionProperty, IColorProperty,
+export type { IVector3Property, IQuaternionProperty, IColorProperty,
     IAmbientLightProperty, IKeyLightProperty, ISkyboxProperty,
     IHazeProperty, IBloomProperty, IGrabProperty,
     EntityType } from "./EntityProperties";
-export { IEntityDescription } from "./EntityDescription";
+export type { IEntityDescription } from "./EntityDescription";
 export { EntityBuilder } from "./EntityBuilder";
 export { EntityManager } from "./EntityManager";
+export { EntityMapper } from "./package";
+export { EntityEvent, EntityEventType } from "./entityEvent";
+export { WebEntityController } from "./components/controllers";

@@ -11,9 +11,9 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable class-methods-use-this */
-import { MeshComponent } from "@Modules/object";
-import { MeshBuilder, Mesh, Texture, StandardMaterial, Color3,
-    VideoTexture } from "@babylonjs/core";
+import { MeshComponent, DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
+import { MeshBuilder, Mesh, Texture,
+    VideoTexture, StandardMaterial, Color3 } from "@babylonjs/core";
 import { IImageEntity } from "../../EntityInterfaces";
 import Log from "@Modules/debugging/log";
 import { EntityMapper } from "../../package";
@@ -22,8 +22,6 @@ import { AssetUrl } from "../../builders/asset";
 /* eslint-disable new-cap */
 
 export class ImageComponent extends MeshComponent {
-
-    private _imageURL = "";
 
     public get componentType():string {
         return ImageComponent.typeName;
@@ -35,7 +33,8 @@ export class ImageComponent extends MeshComponent {
 
     public load(entity: IImageEntity) : void {
         if (!this._mesh) {
-            this.mesh = MeshBuilder.CreatePlane("plane1", { sideOrientation: Mesh.DOUBLESIDE });
+            this.mesh = MeshBuilder.CreatePlane("plane", { sideOrientation: Mesh.DOUBLESIDE });
+            this.renderGroupId = DEFAULT_MESH_RENDER_GROUP_ID;
         }
 
         this.updateImageURL(entity);
@@ -76,13 +75,16 @@ export class ImageComponent extends MeshComponent {
                 mat.diffuseColor = color;
                 mat.specularColor = color;
             }
-
+            // NOTE:
+            // To make the image does not effect by glow processing,
+            // replace emissiveColor color with emissiveTexture.
+            /*
             if (entity.emissive) {
                 mat.emissiveColor = EntityMapper.mapToColor3(entity.color);
             } else {
                 mat.emissiveColor = Color3.Black();
             }
-
+*/
             if (entity.alpha) {
                 mat.alpha = entity.alpha;
             }
@@ -95,8 +97,6 @@ export class ImageComponent extends MeshComponent {
         }
 
         if (entity.imageURL && entity.imageURL.length > 0) {
-            Log.debug(Log.types.ENTITIES, `ImageComponent load image: ${entity.imageURL}`);
-
             if (this._mesh.material) {
                 this._mesh.material.dispose();
             }
@@ -105,19 +105,23 @@ export class ImageComponent extends MeshComponent {
 
             const name = entity.name ? entity.name + "_" + entity.id : entity.id;
             const mat = new StandardMaterial(name);
+            let texture = null;
 
             if (assetURL.fileExtension === "mp4"
                 || assetURL.fileExtension === "webm"
                 || assetURL.fileExtension === "ogv") {
 
                 const scene = this._gameObject ? this._gameObject._scene : null;
-                const texture = new VideoTexture(name, entity.imageURL, scene);
-                mat.diffuseTexture = texture;
+                texture = new VideoTexture(name, entity.imageURL, scene);
             } else {
-                const texture = new Texture(entity.imageURL);
-                mat.specularTexture = texture;
-                mat.diffuseTexture = texture;
+                texture = new Texture(entity.imageURL);
             }
+
+            mat.diffuseTexture = texture;
+            if (entity.emissive) {
+                mat.emissiveTexture = texture;
+            }
+
             this._mesh.material = mat;
             this._mesh.isVisible = entity.visible ?? true;
 

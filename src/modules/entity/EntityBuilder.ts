@@ -17,11 +17,12 @@ import { GameObject } from "@Modules/object";
 import { IEntity } from "./EntityInterfaces";
 import { EntityType } from "./EntityProperties";
 import { AbstractEntityBuilder, ShapeEntityBuilder, LightEntityBuilder, ZoneEntityBuilder, ModelEntityBuilder,
-    ImageEntityBuilder, EntityMapper } from "./builders";
+    ImageEntityBuilder, MaterialEntityBuilder, WebEntityBuilder } from "./builders";
+import { EntityMapper } from "./package";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
 
-class EntityBuilderManager {
+class EntityGameObjectBuilder {
     _builders : Map<EntityType, AbstractEntityBuilder>;
 
     constructor() {
@@ -33,6 +34,8 @@ class EntityBuilderManager {
         this._builders.set("Model", new ModelEntityBuilder());
         this._builders.set("Zone", new ZoneEntityBuilder());
         this._builders.set("Image", new ImageEntityBuilder());
+        this._builders.set("Material", new MaterialEntityBuilder());
+        this._builders.set("Web", new WebEntityBuilder());
 
     }
 
@@ -51,4 +54,4 @@ class EntityBuilderManager {
     }
 }
 
-export const EntityBuilder = new EntityBuilderManager();
+export const EntityBuilder = new EntityGameObjectBuilder();

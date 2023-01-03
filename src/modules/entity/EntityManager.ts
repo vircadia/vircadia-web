@@ -13,7 +13,7 @@ import { IEntity } from "./EntityInterfaces";
 import { Observable } from "@babylonjs/core";
 import { EntityServer, EntityProperties } from "@vircadia/web-sdk";
 import { EntityType as PackageEntityType } from "./package/DomainProperties";
-import { Entity, ShapeEntity, ModelEntity, LightEntity, ZoneEntity } from "./entities";
+import { Entity, ShapeEntity, ModelEntity, LightEntity, ZoneEntity, ImageEntity, MaterialEntity, WebEntity } from "./entities";
 import Log from "@Modules/debugging/log";
 
 type EntityFactory = (id:string) => Entity;
@@ -42,6 +42,9 @@ export class EntityManager {
         this._entityFactories.set(PackageEntityType.Model, (id) => new ModelEntity(id));
         this._entityFactories.set(PackageEntityType.Light, (id) => new LightEntity(id));
         this._entityFactories.set(PackageEntityType.Zone, (id) => new ZoneEntity(id));
+        this._entityFactories.set(PackageEntityType.Image, (id) => new ImageEntity(id));
+        this._entityFactories.set(PackageEntityType.Material, (id) => new MaterialEntity(id));
+        this._entityFactories.set(PackageEntityType.Web, (id) => new WebEntity(id));
     }
 
     public get onEntityAdded() : Observable<IEntity> {

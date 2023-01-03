@@ -11,7 +11,7 @@
 
 <template>
     <q-bar class="bar">
-        <div class="title" >Metaverse Login</div>
+        <div class="title" >{{ $store.state.theme.globalServiceTerm }} Login</div>
         <q-space />
         <q-btn dense flat icon="close" @click="$emit('closeDialog', 'close')" />
     </q-bar>
@@ -36,7 +36,10 @@
             </q-tab-panel>
 
             <q-tab-panel name="metaverseRegister">
-                <MetaverseRegister @register-success="onMetaverseRegister"></MetaverseRegister>
+                <MetaverseRegister
+                    @register-success="onMetaverseRegister(true)"
+                    @register-failure="onMetaverseRegister(false)"
+                ></MetaverseRegister>
             </q-tab-panel>
         </q-tab-panels>
     </q-card-section>
@@ -66,8 +69,10 @@ export default defineComponent({
     }),
 
     methods: {
-        onMetaverseRegister() {
-            this.tab = "metaverseLogin";
+        onMetaverseRegister(success: boolean) {
+            if (success) {
+                this.tab = "metaverseLogin";
+            }
         }
     }
 });

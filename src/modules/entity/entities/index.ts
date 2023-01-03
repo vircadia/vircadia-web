@@ -15,3 +15,5 @@ export { ModelEntity } from "./ModelEntity";
 export { LightEntity } from "./LightEntity";
 export { ZoneEntity } from "./ZoneEntity";
 export { ImageEntity } from "./ImageEntity";
+export { MaterialEntity } from "./materialEntity";
+export { WebEntity } from "./WebEntity";

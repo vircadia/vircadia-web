@@ -15,3 +15,5 @@ export { ModelEntityController } from "./ModelEntityController";
 export { LightEntityController } from "./LightEntityController";
 export { ZoneEntityController } from "./ZoneEntityController";
 export { ImageEntityController } from "./ImageEntityController";
+export { MaterialEntityController } from "./materialEntityController";
+export { WebEntityController } from "./webEntityController";

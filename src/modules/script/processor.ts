@@ -75,7 +75,8 @@ function preprocress(script : ScriptComponent):void {
  * Requires the nedded script and attach to scene.
  */
 export function requireScript(scene: Scene, script : ScriptComponent):void {
-    Log.debug(Log.types.OTHER, `attach script ${script.name} `);
+    const gameObjName = script.gameObject ? script.gameObject.name : "";
+    Log.debug(Log.types.OTHER, `attach script ${script.name} to ${gameObjName} `);
 
     preprocress(script);
 

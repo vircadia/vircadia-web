@@ -17,26 +17,28 @@ import {
 
 import { IVector3Property, IQuaternionProperty, IColorProperty,
     ShapeType, IAmbientLightProperty, IHazeProperty, IBloomProperty,
-    ComponentMode } from "../EntityProperties";
+    ComponentMode, MaterialMappingMode, BillboardMode } from "../EntityProperties";
 import { IEntity } from "../EntityInterfaces";
 
 import { ShapeType as PackageShapeType,
-    ComponentMode as PackageComponentMode } from "./DomainProperties";
+    ComponentMode as PackageComponentMode,
+    MaterialMappingMode as PackageMaterialMappingMode } from "./DomainProperties";
 import { HazeProperties, BloomProperties, AmbientLightProperties } from "@vircadia/web-sdk";
 
 
 /* eslint-disable new-cap */
 export class EntityMapper {
 
-    // NOTE:
-    // Vercadia is right hand side coordinate system
-    // babylon.js is left hand side
     public static mapToVector3(vec? : IVector3Property) : Vector3 {
-        return vec ? new Vector3(-vec.x, vec.y, vec.z) : Vector3.Zero();
+        return vec ? new Vector3(vec.x, vec.y, vec.z) : Vector3.Zero();
+    }
+
+    public static mapToScale(vec? : IVector3Property) : Vector3 {
+        return vec ? new Vector3(vec.x, vec.y, vec.z) : Vector3.One();
     }
 
     public static mapToQuaternion(q? : IQuaternionProperty) : Quaternion {
-        return q ? new Quaternion(q.x, -q.y, -q.z, q.w) : Quaternion.Identity();
+        return q ? new Quaternion(q.x, q.y, q.z, q.w) : Quaternion.Identity();
     }
 
     public static mapToColor3(c?: IColorProperty) : Color3 {
@@ -56,6 +58,15 @@ export class EntityMapper {
     public static toDegree(radians:number) : number {
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         return radians * 180 / Math.PI;
+    }
+
+    public static mapToVector3Property(vec : IVector3Property) : IVector3Property {
+        return { x: vec.x, y: vec.y, z: vec.z };
+    }
+
+    public static mapToQuaternionProperty(quaternion ?: Quaternion) : IQuaternionProperty {
+        const q = quaternion ?? Quaternion.Identity();
+        return { x: q.x, y: q.y, z: q.z, w: q.w };
     }
 
     public static mapToHazeProperty(props: HazeProperties | undefined) : IHazeProperty | undefined {
@@ -151,4 +162,36 @@ export class EntityMapper {
                 return "none";
         }
     }
+
+    public static mapToMaterialMappingMode(mode: number | undefined) : MaterialMappingMode {
+        return mode === PackageMaterialMappingMode.PROJECTED ? "projected" : "uv";
+    }
+
+    public static mapToEntityBillboardMode(mode: number | undefined) : BillboardMode {
+        switch (mode) {
+            case 0:
+                return "none";
+            case 1:
+                return "yaw";
+            case 2:
+                return "full";
+            default:
+                return "none";
+        }
+    }
+
+    /* eslint-disable @typescript-eslint/no-magic-numbers */
+    public static mapToMeshBillboardMode(mode: string) : number {
+        switch (mode) {
+            case "none":
+                return 0;
+            case "yaw":
+                return 2;
+            case "full":
+                return 7;
+            default:
+                return 0;
+        }
+    }
+
 }

@@ -10,6 +10,18 @@
 -->
 
 <style lang="scss" scoped>
+.versionWatermark {
+    position: absolute;
+    z-index: 101;
+    bottom: 5px;
+    right: 14px;
+    display: block;
+    font-size: 1rem;
+    font-style: italic;
+    opacity: 0.7;
+    user-select: none;
+    pointer-events: none;
+}
 </style>
 
 <template>
@@ -20,15 +32,20 @@
             :height="canvasHeight"
             :width="canvasWidth"
             :style="{
+                position: 'relative',
+                zIndex: 2,
                 width: canvasWidth + 'px',
                 height: canvasHeight + 'px',
+                outline: 'none',
                 pointerEvents: $props.interactive ? 'all' : 'none'
             }"
             ref="renderCanvas"
             class="renderCanvas"
-        />
+        ></canvas>
+        <slot name="manager"></slot>
         <LoadingScreen ref="loadingScreen" />
-        <slot name="manager" />
+        <JitsiContainer ref="JitsiContainer" />
+        <div class="versionWatermark">Early Developer Alpha</div>
     </q-page>
 </template>
 
@@ -41,10 +58,14 @@ import { Mutations as StoreMutations } from "@Store/index";
 import { AudioMgr } from "@Modules/scene/audio";
 import { Renderer } from "@Modules/scene/renderer";
 import { Utility } from "@Modules/utility";
+import { AvatarStoreInterface } from "@Modules/avatar/StoreInterface";
 import { DEFAULT_DOMAIN_URL } from "@Base/config";
-// import Log from "@Modules/debugging/log";
+import { DomainMgr } from "@Modules/domain";
+import Log from "@Modules/debugging/log";
 
 import LoadingScreen from "@Components/LoadingScreen.vue";
+import JitsiContainer from "@Components/JitsiContainer.vue";
+import { EntityEventType } from "@Base/modules/entity";
 
 type Nullable<T> = T | null | undefined;
 
@@ -64,21 +85,24 @@ export default defineComponent({
     },
 
     components: {
-        LoadingScreen
+        LoadingScreen,
+        JitsiContainer
     },
 
-    $refs!: {   // definition to make this.$ref work with TypeScript
+    $refs: {   // Definition to make this.$ref work with TypeScript.
         mainSceneAudioElement: HTMLFormElement
     },
 
     data: () => ({
         sceneCreated: false,
         canvasHeight: 200,
-        canvasWidth: 200
+        canvasWidth: 200,
+        locationUnwatch: () => { /* This function will be populated once connected to a domain. */ }
     }),
 
-    computed: {
-
+    watch: {
+        // call again the method if the route changes
+        "$route": "connect"
     },
 
     methods: {
@@ -95,10 +119,38 @@ export default defineComponent({
                 // eslint-disable-next-line no-void
                 void element.play();
             } else {
-                // eslint-disable-next-line no-void
-                void element.pause();
+                element.pause();
                 element.srcObject = null;
             }
+        },
+        onBeforeunload() {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            Utility.disconnectActiveDomain();
+            Renderer.dispose();
+        },
+        // Update the world location that's shown in the browser's URL bar.
+        updateURL(): void {
+            // Remove the protocol from the displayed location.
+            const location = this.$store.state.avatar.location
+                .replace("ws://", "")
+                .replace("wss://", "")
+                .replace("http://", "")
+                .replace("https://", "");
+            // Show the location in the URL.
+            window.history.replaceState(null, "", `#/${location}`);
+        },
+        async connect() {
+            let location = Array.isArray(this.$route.params.location)
+                ? this.$route.params.location.join("/")
+                : this.$route.params.location;
+
+            if (!location || location === "") {
+                location = DEFAULT_DOMAIN_URL;
+            }
+
+            await Utility.connectionSetup(location);
+
+            this.locationUnwatch = this.$store.watch((state) => state.avatar.location, () => this.updateURL());
         }
     },
 
@@ -106,9 +158,20 @@ export default defineComponent({
         return this.sceneCreated;
     },
 
-    // Called when MainScene is loaded onto the page
+    beforeMount: function() {
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        window.addEventListener("beforeunload", this.onBeforeunload);
+    },
+
+    beforeUnmount: function() {
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        window.removeEventListener("beforeunload", this.onBeforeunload);
+        this.locationUnwatch();
+    },
+
+    // Called after MainScene is loaded onto the page.
     mounted: async function() {
-        // Initialize the graphics display
+        // Initialize the graphics display.
         const canvas = this.$refs.renderCanvas as HTMLCanvasElement;
         const loadingScreenComponent = this.$refs.loadingScreen as typeof LoadingScreen;
         const loadingScreenElement = loadingScreenComponent.$el as HTMLElement;
@@ -118,17 +181,32 @@ export default defineComponent({
             value: 0
         });
 
-        // Disable audio temporary
-        // Initialize the audio for the scene
-        // await AudioMgr.initialize(this.setOutputStream.bind(this));
+        canvas.addEventListener("pointerdown", () => {
+            // FIXME: Pointer-lock hinders the interactivity of web-entities.
+            // canvas.requestPointerLock();
+        });
+        canvas.addEventListener("pointerup", () => {
+            document.exitPointerLock();
+        });
+        document.addEventListener("pointerup", () => {
+            document.exitPointerLock();
+        });
+
+        DomainMgr.startGameLoop();
+
+        // Initialize the audio for the scene.
+        await AudioMgr.initialize(this.setOutputStream.bind(this));
 
         const scene = Renderer.createScene();
-
-        // await scene.loadSceneUA92Campus();
-
-        await scene.load("/assets/scenes/default.json");
-
-        await Utility.connectionSetup(DEFAULT_DOMAIN_URL);
+        scene.onEntityEventObservable.add((entityEvent) => {
+            // handle web entity event
+            if (entityEvent.type === EntityEventType.JOIN_CONFERENCE_ROOM) {
+                this.$emit("joint-conference-room", entityEvent.data);
+            }
+        });
+        // NOTE: The scene must be loaded to register domain events before connecting to the domain.
+        await scene.load(undefined, AvatarStoreInterface.getActiveModelData("file") as string);
+        await this.connect();
 
         Renderer.startRenderLoop([scene]);
     }

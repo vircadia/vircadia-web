@@ -19,7 +19,7 @@
         icon="menu"
         title="Menu"
         :managerProps="propsToPass"
-        :defaultHeight="300"
+        :defaultHeight="325"
         :defaultWidth="200"
         :defaultLeft="10"
         :defaultTop="10"
@@ -51,7 +51,7 @@
                                 clickable
                                 v-ripple
                                 @click="menuItem.action ? menuItem.action
-                                    : $emit('overlay-action', 'openOverlay:' + (menuItem.link || menuItem.label))"
+                                    : $emit('overlay-action', 'toggleOverlay:' + (menuItem.link || menuItem.label))"
                             >
                                 <q-item-section avatar>
                                     <q-icon :name="menuItem.icon" />
@@ -120,6 +120,14 @@ export default defineComponent({
                 icon: "directions_run",
                 label: "Avatar",
                 link: "",
+                isCategory: false,
+                separator: true,
+                action: undefined
+            },
+            {
+                icon: "groups",
+                label: "Conference",
+                link: "Conference",
                 isCategory: false,
                 separator: true,
                 action: undefined

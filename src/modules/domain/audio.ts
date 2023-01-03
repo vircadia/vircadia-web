@@ -9,7 +9,7 @@
 import { Domain } from "@Modules/domain/domain";
 import { Client, AssignmentClientState } from "@Modules/domain/client";
 
-import { AudioMixer, SignalEmitter } from "@vircadia/web-sdk";
+import { AudioMixer, SignalEmitter, Vec3, Quat, vec3, quat } from "@vircadia/web-sdk";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
@@ -37,6 +37,15 @@ export class DomainAudio extends Client {
         // In 'quasar.conf.js' the worklet files from the SDK are copied into the 'js' directory
         this.#_audioMixer.audioWorkletRelativePath = "./js/";
         this.#_audioMixer.onStateChanged = this._handleOnStateChanged.bind(this);
+
+        // eslint-disable-next-line arrow-body-style
+        this.#_audioMixer.positionGetter = () : vec3 => {
+            return pD.AvatarClient && pD.AvatarClient.MyAvatar ? pD.AvatarClient.MyAvatar.position : Vec3.ZERO;
+        };
+        // eslint-disable-next-line arrow-body-style
+        this.#_audioMixer.orientationGetter = () : quat => {
+            return pD.AvatarClient && pD.AvatarClient.MyAvatar ? pD.AvatarClient.MyAvatar.orientation : Quat.IDENTITY;
+        };
     }
 
     // Return the state of the underlying assignment client

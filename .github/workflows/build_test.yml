@@ -22,7 +22,7 @@ jobs:
     - uses: actions/setup-node@master
 
     - name: 📥 Install project dependencies
-      run: npm install --save --legacy-peer-deps
+      run: npm install
 
     - name: ⚒️ Build the project
       run: npm run build

@@ -8,38 +8,39 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
+/* eslint-disable max-len */
+// TODO: Get most of these variables from the store instead of this file (so it can be overridden with environment variables correctly)
 
 import { AvatarEntry, AvatarEntryMap } from "@Modules/avatar/StoreInterface";
-import { loadLocalValue } from "@Modules/localStorage";
-
-// Load the last-used avatar model list from local storage (if it exists).
-const localAvatarModelList = loadLocalValue("avatarModels");
-const localAvatarID = loadLocalValue("activeModel");
 
 export function defaultActiveAvatarUrl(): string {
-    let output = "https://staging.vircadia.com/O12OR634/UA92/sara.glb";
-    if (localAvatarModelList && localAvatarID) {
-        const parsedLocalAvatarModelList = JSON.parse(localAvatarModelList) as AvatarEntryMap;
-        if (localAvatarID in parsedLocalAvatarModelList) {
-            output = parsedLocalAvatarModelList[localAvatarID].file;
-        }
-    }
-    return output;
+    return "https://staging.vircadia.com/O12OR634/UA92/sara.glb";
 }
 
 export function defaultActiveAvatarModel(): string {
-    let output = "HTP45FSQ";
-    if (localAvatarModelList && localAvatarID) {
-        const parsedLocalAvatarModelList = JSON.parse(localAvatarModelList) as AvatarEntryMap;
-        if (localAvatarID in parsedLocalAvatarModelList) {
-            output = localAvatarID;
-        }
-    }
-    return output;
+    return "HTP45FSQ";
+}
+
+export function fallbackAvatar(): AvatarEntry {
+    return {
+        name: "Maria",
+        image: "https://staging.vircadia.com/O12OR634/Avatars/Maria-small.webp",
+        file: "https://staging.vircadia.com/O12OR634/Avatars/default_avatar.glb",
+        scale: 1,
+        starred: false
+    };
+}
+
+export function fallbackAvatarUrl(): string {
+    return fallbackAvatar().file;
+}
+
+export function fallbackAvatarModel(): string {
+    return "DEFAULT1";
 }
 
 export function defaultAvatarModels(): AvatarEntryMap {
-    let output = {
+    return {
         HTP45FSQ: {
             name: "Sara",
             image: "https://staging.vircadia.com/O12OR634/UA92/sara-cropped-small.webp",
@@ -47,10 +48,24 @@ export function defaultAvatarModels(): AvatarEntryMap {
             scale: 1,
             starred: true
         } as AvatarEntry,
-        EPS62RC9: {
-            name: "Tiffany",
-            image: "https://staging.vircadia.com/O12OR634/Avatars/Tiffany-small.webp",
-            file: "https://staging.vircadia.com/O12OR634/Avatars/Tiffany.glb",
+        ZPNSHHIJ: {
+            name: "Mark",
+            image: "https://staging.vircadia.com/O12OR634/Avatars/Mark-small.webp",
+            file: "https://staging.vircadia.com/O12OR634/Avatars/Mark.glb",
+            scale: 1,
+            starred: false
+        } as AvatarEntry,
+        C5E0NT3P: {
+            name: "Megan",
+            image: "https://staging.vircadia.com/O12OR634/Avatars/Megan-small.webp",
+            file: "https://staging.vircadia.com/O12OR634/Avatars/Megan.glb",
+            scale: 1,
+            starred: false
+        } as AvatarEntry,
+        HYGME2O8: {
+            name: "Jack",
+            image: "https://staging.vircadia.com/O12OR634/Avatars/Jack-small.webp",
+            file: "https://staging.vircadia.com/O12OR634/Avatars/Jack.glb",
             scale: 1,
             starred: false
         } as AvatarEntry,
@@ -68,6 +83,20 @@ export function defaultAvatarModels(): AvatarEntryMap {
             scale: 1,
             starred: false
         } as AvatarEntry,
+        HTLZ3SVU: {
+            name: "Taylor",
+            image: "https://staging.vircadia.com/O12OR634/Avatars/Taylor-small.webp",
+            file: "https://staging.vircadia.com/O12OR634/Avatars/Taylor.glb",
+            scale: 1,
+            starred: false
+        } as AvatarEntry,
+        EPS62RC9: {
+            name: "Tiffany",
+            image: "https://staging.vircadia.com/O12OR634/Avatars/Tiffany-small.webp",
+            file: "https://staging.vircadia.com/O12OR634/Avatars/Tiffany.glb",
+            scale: 1,
+            starred: false
+        } as AvatarEntry,
         QIA9XG4G: {
             name: "Victor",
             image: "https://staging.vircadia.com/O12OR634/Avatars/Victor-small.webp",
@@ -79,20 +108,6 @@ export function defaultAvatarModels(): AvatarEntryMap {
             name: "Audrey",
             image: "https://staging.vircadia.com/O12OR634/Avatars/Audrey-small.webp",
             file: "https://staging.vircadia.com/O12OR634/Avatars/Audrey.glb",
-            scale: 1,
-            starred: false
-        } as AvatarEntry,
-        HYGME2O8: {
-            name: "Jack",
-            image: "https://staging.vircadia.com/O12OR634/Avatars/Jack-small.webp",
-            file: "https://staging.vircadia.com/O12OR634/Avatars/Jack.glb",
-            scale: 1,
-            starred: false
-        } as AvatarEntry,
-        ZPNSHHIJ: {
-            name: "Mark",
-            image: "https://staging.vircadia.com/O12OR634/Avatars/Mark-small.webp",
-            file: "https://staging.vircadia.com/O12OR634/Avatars/Mark.glb",
             scale: 1,
             starred: false
         } as AvatarEntry,
@@ -152,13 +167,6 @@ export function defaultAvatarModels(): AvatarEntryMap {
             scale: 1,
             starred: false
         } as AvatarEntry,
-        C5E0NT3P: {
-            name: "Megan",
-            image: "https://staging.vircadia.com/O12OR634/Avatars/Megan-small.webp",
-            file: "https://staging.vircadia.com/O12OR634/Avatars/Megan.glb",
-            scale: 1,
-            starred: false
-        } as AvatarEntry,
         V5DYP68J: {
             name: "David",
             image: "https://staging.vircadia.com/O12OR634/Avatars/David-small.webp",
@@ -191,13 +199,6 @@ export function defaultAvatarModels(): AvatarEntryMap {
             name: "Jameson",
             image: "https://staging.vircadia.com/O12OR634/Avatars/Jameson-small.webp",
             file: "https://staging.vircadia.com/O12OR634/Avatars/Jameson.glb",
-            scale: 1,
-            starred: false
-        } as AvatarEntry,
-        HTLZ3SVU: {
-            name: "Taylor",
-            image: "https://staging.vircadia.com/O12OR634/Avatars/Taylor-small.webp",
-            file: "https://staging.vircadia.com/O12OR634/Avatars/Taylor.glb",
             scale: 1,
             starred: false
         } as AvatarEntry,
@@ -236,20 +237,6 @@ export function defaultAvatarModels(): AvatarEntryMap {
             scale: 1,
             starred: false
         } as AvatarEntry,
-        REV7DTZB: {
-            name: "Mark",
-            image: "https://staging.vircadia.com/O12OR634/Avatars/Mark-small.webp",
-            file: "https://staging.vircadia.com/O12OR634/Avatars/Mark.glb",
-            scale: 1,
-            starred: false
-        } as AvatarEntry
+        DEFAULT1: fallbackAvatar()
     } as AvatarEntryMap;
-
-    if (localAvatarModelList && localAvatarID) {
-        const parsedLocalAvatarModelList = JSON.parse(localAvatarModelList) as AvatarEntryMap;
-        if (localAvatarID in parsedLocalAvatarModelList) {
-            output = parsedLocalAvatarModelList;
-        }
-    }
-    return output;
 }

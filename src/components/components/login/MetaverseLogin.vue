@@ -21,6 +21,8 @@
             label="Username"
             hint="Enter your username."
             :disable="loading"
+            :error="loginError"
+            @focus="loginError = undefined"
         />
 
         <q-input
@@ -31,6 +33,8 @@
             :type="showPassword ? 'text' : 'password'"
             hint="Enter your password."
             :disable="loading"
+            :error="loginError"
+            @focus="loginError = undefined"
         >
             <template v-slot:append>
                 <q-icon
@@ -60,7 +64,8 @@ export default defineComponent({
         username: "",
         password: "",
         showPassword: false,
-        loading: false
+        loading: false,
+        loginError: undefined as true | undefined
     }),
 
     computed: {
@@ -86,16 +91,17 @@ export default defineComponent({
                         message: "Welcome " + this.username + "."
                     });
                     this.loading = false;
+                    this.loginError = undefined;
                     this.$emit("closeDialog");
                 } else {
                     this.$q.notify({
                         type: "negative",
                         textColor: "white",
                         icon: "warning",
-
-                        message: "Login attempt failed"
+                        message: "Please check your username/password."
                     });
                     this.loading = false;
+                    this.loginError = true;
                 }
             } catch (result) {
                 // TODO: what is the type of "result"? Define the fields
@@ -103,9 +109,6 @@ export default defineComponent({
                     type: "negative",
                     textColor: "white",
                     icon: "warning",
-
-                    // message: "Login attempt failed: " + result.error
-
                     message: "Login attempt failed: " + (result as string)
                 });
                 this.loading = false;

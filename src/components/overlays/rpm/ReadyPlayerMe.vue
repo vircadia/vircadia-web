@@ -70,7 +70,6 @@ import { Renderer } from "@Modules/scene";
 
 import OverlayShell from "../OverlayShell.vue";
 import { AvatarEntry, AvatarStoreInterface } from "@Base/modules/avatar/StoreInterface";
-import { saveLocalValue } from "@Modules/localStorage";
 
 interface RPMEvent extends MessageEvent {
     data: string
@@ -82,6 +81,9 @@ interface RPMEventData {
         id: string,
         url: string
     }
+}
+interface RPMRenderData {
+    renders: string[]
 }
 
 export default defineComponent({
@@ -147,6 +149,31 @@ export default defineComponent({
             }
         },
 
+        renderAvatarImage(ID: string) {
+            const url = AvatarStoreInterface.getModelData(ID, "file");
+            const params = {
+                model: url,
+                // Type of portrait to render.
+                scene: "fullbody-portrait-v1-transparent",
+                // Facial expression. Default: Empty.
+                "blendShapes": {
+                    "Wolf3D_Avatar": {
+                        "mouthSmile": 0.5
+                    }
+                }
+            };
+            const request = new XMLHttpRequest();
+            request.open("POST", "https://render.readyplayer.me/render");
+            request.setRequestHeader("Content-type", "application/json");
+            request.send(JSON.stringify(params));
+            request.onload = function() {
+                // Parse the response and load the image.
+                const response = JSON.parse(request.responseText) as RPMRenderData;
+                const image = response.renders[0];
+                AvatarStoreInterface.setModelData(ID, "image", image);
+            };
+        },
+
         setAvatar(url: string): void {
             const scene = Renderer.getScene();
             this.loading = true;
@@ -160,11 +187,10 @@ export default defineComponent({
                 image: "",
                 file: url,
                 scale: 1,
-                starred: false
+                starred: true
             } as AvatarEntry;
             const ID = AvatarStoreInterface.createNewModel(newModel);
-            saveLocalValue("activeModel", ID);
-            saveLocalValue("avatarModels", AvatarStoreInterface.getAllModelsJSON());
+            this.renderAvatarImage(ID);
 
             scene.loadMyAvatar(url)
                 .then(() => {

@@ -16,7 +16,7 @@ import { IEntity, IZoneEntity } from "../EntityInterfaces";
 import { Entity, EntityPropertyChangeObservable } from "./Entity";
 import { EntityProperties, ZoneEntityProperties } from "@vircadia/web-sdk";
 import { Observable } from "@babylonjs/core";
-import { EntityMapper } from "../builders";
+import { EntityMapper } from "../package";
 
 /* eslint-disable prefer-object-spread */
 export class ZoneEntity extends Entity implements IZoneEntity {

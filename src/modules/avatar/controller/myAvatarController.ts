@@ -15,13 +15,13 @@ import {
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable new-cap */
-import { AvatarMapper, BoneType } from "./AvatarMapper";
+import { AvatarMapper, BoneType } from "../AvatarMapper";
 import { ScriptComponent, inspectorAccessor } from "@Modules/script";
 
 // Domain Modules
 import { MyAvatarInterface, SkeletonJoint } from "@vircadia/web-sdk";
 import Log from "@Modules/debugging/log";
-import { JointNames } from "./joint";
+import { MeshComponent } from "../../object";
 
 export class MyAvatarController extends ScriptComponent {
     private _myAvatar : Nullable<MyAvatarInterface> = null;
@@ -29,7 +29,7 @@ export class MyAvatarController extends ScriptComponent {
     private _modelURL : string | undefined;
 
     constructor() {
-        super("MyAvatarController");
+        super(MyAvatarController.typeName);
     }
 
     @inspectorAccessor()
@@ -104,48 +104,63 @@ export class MyAvatarController extends ScriptComponent {
     }
 
     private _collectJoints() {
-        if (!this._myAvatar) {
+        if (!this._myAvatar || !this._gameObject) {
             return;
         }
 
         const skeleton = new Array<SkeletonJoint>();
 
         this._skeletonNodes.clear();
-        const nodes = this._gameObject?.getChildren((node) => node.getClassName() === "TransformNode", false);
+        const comp = this._gameObject.getComponent(MeshComponent.typeName) as MeshComponent;
+
+        if (!comp || !comp.mesh) {
+            return;
+        }
+
+        // Collect the names of the bones in the skeleton.
+        const bones: string[] = [];
+        if (comp.skeleton) {
+            for (const bone of comp.skeleton.bones) {
+                bones.push(bone.name);
+            }
+        }
+
+        const nodes = comp.mesh.getChildren((node) => node.getClassName() === "TransformNode", false);
         nodes?.forEach((node) => {
             this._skeletonNodes.set(node.name, node as TransformNode);
         });
 
-        JointNames.forEach((jointName, index) => {
-            const node = this._skeletonNodes.get(jointName);
-            if (node) {
-                const parentIndex = node.parent ? JointNames.findIndex((value) => value === node.parent?.name) : -1;
-                let rotation = node.rotationQuaternion;
-                if (parentIndex > 0 && parentIndex < skeleton.length && rotation) {
-                    const parentRotation = AvatarMapper.mapJointRotation(skeleton[parentIndex].defaultRotation);
-                    rotation = parentRotation.multiply(rotation);
-                }
+        const jointNames: string[] = [];
+        let jointIndex = 0;
+        this._skeletonNodes.forEach((node, key) => {
+            const jointName = node.name;
+            jointNames.push(jointName);
 
-                let boneType = BoneType.SkeletonChild;
-                if (index === 0) {
-                    boneType = BoneType.NonSkeletonRoot;
-                // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-                } else if (index >= 2 && index <= 10) {
-                    boneType = BoneType.NonSkeletonChild;
-                }
+            const parentIndex = node.parent ? jointNames.indexOf(node.parent.name) : -1;
 
-                const joint = {
-                    jointName: node.name,
-                    jointIndex: index,
-                    parentIndex,
-                    boneType,
-                    defaultTranslation: AvatarMapper.mapToJointTranslation(node.position),
-                    defaultRotation: AvatarMapper.mapToJointRotation(rotation),
-                    defaultScale: AvatarMapper.mapToDomainScale(node.scaling)
-                };
-
-                skeleton.push(joint);
+            let rotation = node.rotationQuaternion;
+            if (parentIndex > 0 && parentIndex < skeleton.length && rotation) {
+                const parentRotation = AvatarMapper.mapJointRotation(skeleton[parentIndex].defaultRotation);
+                rotation = parentRotation.multiply(rotation);
             }
+
+            const boneType = parentIndex === -1  // eslint-disable-line no-nested-ternary
+                ? bones.includes(jointName) ? BoneType.SkeletonRoot : BoneType.NonSkeletonRoot
+                : bones.includes(jointName) ? BoneType.SkeletonChild : BoneType.NonSkeletonChild;
+
+            const joint = {
+                jointName,
+                jointIndex,
+                parentIndex,
+                boneType,
+                defaultTranslation: AvatarMapper.mapToJointTranslation(node.position),
+                defaultRotation: AvatarMapper.mapToJointRotation(rotation),
+                defaultScale: AvatarMapper.mapToDomainScale(node.scaling)
+            };
+
+            skeleton.push(joint);
+
+            jointIndex += 1;
         });
 
         this._myAvatar.skeleton = skeleton;
@@ -154,6 +169,10 @@ export class MyAvatarController extends ScriptComponent {
     private _syncPoseToDomain() {
         if (!this._gameObject || !this._myAvatar) {
             return;
+        }
+
+        if (this._myAvatar.skeleton.length <= 0) {
+            this._collectJoints();
         }
 
         this._myAvatar.skeleton.forEach((joint) => {

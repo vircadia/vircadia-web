@@ -26,7 +26,7 @@ export interface AMessage {
     id?: number,            // just some ID for the message
     self?: boolean,         // set to 'true' if sent by self
     whenReceived: Date,     // when message added to the list
-    channel: string,        // MessageClient channel (like "Chat" for FloofChat)
+    channel: string,        // MessageClient channel (like "Chat" for DefaultChat)
     message: string,        // the string message received
     messageJSON: Nullable<KeyedCollection>, // if 'message' looks like JSON, parsed here
     senderId: Uuid,         // the sessionID of the sender
@@ -34,7 +34,7 @@ export interface AMessage {
 }
 
 // The default chat system sends messages as this JSON package
-export interface FloofChatMessage extends KeyedCollection {
+export interface DefaultChatMessage extends KeyedCollection {
     type: string,           // "TransmitChatMessage", ??
     position: { x: number, y: number, z: number },
     channel: string,        // "Local", "Domain", "Grid", ??
