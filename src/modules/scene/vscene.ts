@@ -26,7 +26,6 @@ import { ScriptComponent, requireScript, requireScripts, reattachScript } from "
 import { InputController, MyAvatarController, ScriptAvatarController, AvatarMapper } from "@Modules/avatar";
 import { IEntity, IEntityDescription, EntityBuilder, EntityEvent } from "@Modules/entity";
 import { ScriptAvatar } from "@vircadia/web-sdk";
-import { CAMPUS_URL, SPACE_STATION_URL } from "@Base/config";
 import { Utility } from "@Modules/utility";
 import { Location } from "@Modules/domain/location";
 import { DataMapper } from "@Modules/domain/dataMapper";
@@ -42,8 +41,6 @@ import { DomainMgr } from "../domain";
 
 // TODO: Put this avatar (and any default scene models/animations/whatever) into the app code to be compiled with the app.
 const AvatarAnimationUrl = "https://digisomni.com/cloud/cdn/y7i2mX99WqT9LFb/download/AnimationsBasic.glb";
-
-type DomainName = "Campus" | "SpaceStation";
 
 /**
  * VScene is the interface to a single scene's state, entities, and operations.
@@ -66,7 +63,6 @@ export class VScene {
     _domainController : Nullable<DomainController> = null;
     _sceneController : Nullable<SceneController> = null;
     _sceneManager : Nullable<GameObject> = null;
-    _currentDomain: DomainName = "Campus";
     _currentSceneURL = "";
     private _onMyAvatarModelChangedObservable: Observable<GameObject> = new Observable<GameObject>();
     private _onEntityEventObservable: Observable<EntityEvent> = new Observable<EntityEvent>();
@@ -115,14 +111,6 @@ export class VScene {
 
     public get myAvatarModelURL() : string {
         return this._myAvatarModelURL;
-    }
-
-    public get currentDomain(): DomainName {
-        return this._currentDomain;
-    }
-
-    public set currentDomain(value: DomainName) {
-        this._currentDomain = value;
     }
 
     public get css3DRenderer(): Nullable<CSS3DRenderer> {
@@ -296,24 +284,6 @@ export class VScene {
         });
 
         Log.info(Log.types.ENTITIES, "Load Entities done.");
-    }
-
-    public async goToDomain(dest: string): Promise<void> {
-        Log.info(Log.types.ENTITIES, `Go to domain: ${dest}`);
-        const domain = dest.toLocaleUpperCase();
-        if (domain.includes("campus")) {
-            await Utility.connectionSetup(CAMPUS_URL);
-        } else {
-            await Utility.connectionSetup(SPACE_STATION_URL);
-        }
-    }
-
-    public async switchDomain(): Promise<void> {
-        if (this._currentDomain === "Campus") {
-            await Utility.connectionSetup(SPACE_STATION_URL);
-        } else {
-            await Utility.connectionSetup(CAMPUS_URL);
-        }
     }
 
     /**

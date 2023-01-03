@@ -34,13 +34,6 @@
         </q-tabs>
         <q-tab-panels style="height: calc(100% - 56px);background-color: transparent;" v-model="tab" animated>
             <q-tab-panel name="Domains">
-                <q-btn
-                    :class="{
-                        'bg-grey-9': $q.dark.isActive,
-                        'bg-grey-4': !$q.dark.isActive
-                    }"
-                    @click="switchDomain()"
-                >Switch domain</q-btn>
             </q-tab-panel>
             <q-tab-panel name="Messages">
                 <q-list
@@ -177,7 +170,6 @@
 
 import { defineComponent } from "vue";
 import { AMessage, DefaultChatMessage } from "@Modules/domain/message";
-import { Renderer } from "@Modules/scene";
 import { Store, Mutations as StoreMutations } from "@Store/index";
 
 
@@ -360,12 +352,6 @@ export default defineComponent({
                 return fMsg.message;
             }
             return pMsg.message;
-        },
-        switchDomain(): void {
-            // Switch domain.
-            const scene = Renderer.getScene();
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            scene.switchDomain();
         }
     }
 
