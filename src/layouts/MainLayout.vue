@@ -263,7 +263,7 @@
                                 <img :src="$store.state.theme.logo">
                             </q-avatar>
                         </template>
-                        <q-list>
+                        <q-list class="q-pb-sm">
                             <template v-if="isMobile">
                                 <q-item-label header>Account</q-item-label>
                                 <q-item clickable v-ripple
