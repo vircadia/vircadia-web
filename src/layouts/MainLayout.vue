@@ -76,7 +76,10 @@
                         icon="menu"
                         aria-label="User Menu"
                         @click="toggleUserMenu"
-                        class="q-mr-sm"
+                        :class="{
+                            'q-mr-sm': isDesktop,
+                            'q-mr-xs': isMobile
+                        }"
                     />
                     <q-separator dark vertical inset />
 
@@ -91,7 +94,10 @@
                         class="q-mr-sm q-ml-sm"
                     />
 
-                    <div class="verticalAudioLevel q-my-auto">
+                    <div
+                        class="verticalAudioLevel q-my-auto"
+                        :class="{ 'q-ml-sm': isMobile }"
+                    >
                         <span
                             :class="`text-${microphoneColor}`"
                             :style="{ height: `${AudioIOInstance.inputLevel}%` }"
@@ -165,9 +171,14 @@
                         >Please allow microphone access.</q-tooltip>
                     </div>
 
-                    <q-toolbar-title>
+                    <q-toolbar-title
+                        :class="{ 'q-px-xs': isMobile }"
+                    >
                         <q-item-section>
-                            <q-item-label :style="{ fontSize: isMobile ? '0.8em' : 'inherit' }" :title="getDomainServerState">
+                            <q-item-label
+                                :style="{ fontSize: isMobile ? '0.8em' : 'inherit' }"
+                                :title="getDomainServerState"
+                            >
                                 {{ getDomainServerState }}
                                 <q-spinner
                                     v-if="getDomainServerState === 'CONNECTING'"
