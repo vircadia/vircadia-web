@@ -122,6 +122,11 @@ export class ImageComponent extends MeshComponent {
                 mat.emissiveTexture = texture;
             }
 
+            if (mat.diffuseTexture !== null && assetURL.fileExtension === "png") {
+                mat.diffuseTexture.hasAlpha = true;
+                mat.useAlphaFromDiffuseTexture = true;
+            }
+
             this._mesh.material = mat;
             this._mesh.isVisible = entity.visible ?? true;
 

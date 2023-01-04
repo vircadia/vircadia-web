@@ -76,7 +76,10 @@
                         icon="menu"
                         aria-label="User Menu"
                         @click="toggleUserMenu"
-                        class="q-mr-sm"
+                        :class="{
+                            'q-mr-sm': isDesktop,
+                            'q-mr-xs': isMobile
+                        }"
                     />
                     <q-separator dark vertical inset />
 
@@ -91,7 +94,10 @@
                         class="q-mr-sm q-ml-sm"
                     />
 
-                    <div class="verticalAudioLevel q-my-auto">
+                    <div
+                        class="verticalAudioLevel q-my-auto"
+                        :class="{ 'q-ml-sm': isMobile }"
+                    >
                         <span
                             :class="`text-${microphoneColor}`"
                             :style="{ height: `${AudioIOInstance.inputLevel}%` }"
@@ -165,9 +171,14 @@
                         >Please allow microphone access.</q-tooltip>
                     </div>
 
-                    <q-toolbar-title>
+                    <q-toolbar-title
+                        :class="{ 'q-px-xs': isMobile }"
+                    >
                         <q-item-section>
-                            <q-item-label :style="{ fontSize: isMobile ? '0.8em' : 'inherit' }" :title="getDomainServerState">
+                            <q-item-label
+                                :style="{ fontSize: isMobile ? '0.8em' : 'inherit' }"
+                                :title="getDomainServerState"
+                            >
                                 {{ getDomainServerState }}
                                 <q-spinner
                                     v-if="getDomainServerState === 'CONNECTING'"
@@ -263,7 +274,7 @@
                                 <img :src="$store.state.theme.logo">
                             </q-avatar>
                         </template>
-                        <q-list>
+                        <q-list class="q-pb-sm">
                             <template v-if="isMobile">
                                 <q-item-label header>Account</q-item-label>
                                 <q-item clickable v-ripple
@@ -393,11 +404,14 @@
                             </q-item>
                             <q-separator inset spaced />
                             <q-item-label header>About</q-item-label>
-                            <q-item-label></q-item-label>
                             <q-item>
                                 <q-item-section>
                                     <q-item-label>{{ $store.state.globalConsts.APP_NAME }}</q-item-label>
                                     <q-item-label caption>{{ $store.state.globalConsts.APP_VERSION_TAG }}</q-item-label>
+                                </q-item-section>
+                            </q-item>
+                            <q-item>
+                                <q-item-section>
                                     <q-item-label>Vircadia Web SDK</q-item-label>
                                     <q-item-label caption>{{ $store.state.globalConsts.SDK_VERSION_TAG }}</q-item-label>
                                 </q-item-section>
@@ -516,7 +530,7 @@ export default defineComponent({
                         Log.info(Log.types.OTHER, "Toggle Dark");
                     },
                     isCategory: false,
-                    separator: true
+                    separator: false
                 }
             ],
             settingsMenuState: false,
