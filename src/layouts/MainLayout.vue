@@ -519,7 +519,7 @@ export default defineComponent({
                         Log.info(Log.types.OTHER, "Toggle Dark");
                     },
                     isCategory: false,
-                    separator: true
+                    separator: false
                 }
             ],
             settingsMenuState: false,
