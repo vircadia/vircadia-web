@@ -35,6 +35,10 @@ export const LOG_LEVEL = "Log_Level";
 export const TrueValue = "true";
 export const FalseValue = "false";
 
+// Frequency in milliseconds to update the current location on the url.
+// Set to 0 to disable rate throttling, or - 1 to disable update completely
+export const URL_UPDATE_FREQUENCY = 5000;
+
 export const DefaultConnectionConfig: { [key: string]: string } = {
     "Default_Metaverse_Url": "https://metaverse.vircadia.com/live",
     "Default_Domain_Protocol": "wss:",

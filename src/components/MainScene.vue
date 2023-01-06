@@ -59,7 +59,7 @@ import { AudioMgr } from "@Modules/scene/audio";
 import { Renderer } from "@Modules/scene/renderer";
 import { Utility } from "@Modules/utility";
 import { AvatarStoreInterface } from "@Modules/avatar/StoreInterface";
-import { DEFAULT_DOMAIN_URL } from "@Base/config";
+import { DEFAULT_DOMAIN_URL, URL_UPDATE_FREQUENCY } from "@Base/config";
 import { DomainMgr } from "@Modules/domain";
 import Log from "@Modules/debugging/log";
 
@@ -97,6 +97,7 @@ export default defineComponent({
         sceneCreated: false,
         canvasHeight: 200,
         canvasWidth: 200,
+        updateUrlReady: true,
         locationUnwatch: () => { /* This function will be populated once connected to a domain. */ }
     }),
 
@@ -130,14 +131,29 @@ export default defineComponent({
         },
         // Update the world location that's shown in the browser's URL bar.
         updateURL(): void {
+            // rate controlling check
+            if (!this.updateUrlReady) {
+                return;
+            }
+
             // Remove the protocol from the displayed location.
             const location = this.$store.state.avatar.location
                 .replace("ws://", "")
                 .replace("wss://", "")
                 .replace("http://", "")
                 .replace("https://", "");
+
             // Show the location in the URL.
             window.history.replaceState(null, "", `#/${location}`);
+
+            // if rate throttling in place then set appropriate timeouts
+            if (URL_UPDATE_FREQUENCY > 0) {
+                this.updateUrlReady = false;
+
+                setTimeout(() => {
+                    this.updateUrlReady = true;
+                }, URL_UPDATE_FREQUENCY);
+            }
         },
         async connect() {
             let location = Array.isArray(this.$route.params.location)
@@ -150,7 +166,14 @@ export default defineComponent({
 
             await Utility.connectionSetup(location);
 
-            this.locationUnwatch = this.$store.watch((state) => state.avatar.location, () => this.updateURL());
+            // if url set to be updated bind the function
+            if (URL_UPDATE_FREQUENCY >= 0) {
+                this.locationUnwatch = this.$store.watch((state) => state.avatar.location, () => this.updateURL());
+            } else {
+                // if url update disbled (by having a negative frequency) then don't bind function
+                // and instead clear the navigation
+                window.history.replaceState(null, "", `#/`);
+            }
         }
     },
 
