@@ -122,7 +122,7 @@ export class KeyboardInput implements IInputHandler {
         }
 
         // Push-to-talk.
-        if (evt.sourceEvent.code === Store.state.controls.audio.pushToTalk.keybind && Store.state.audio.user.muted === true) {
+        if (evt.sourceEvent.code === Store.state.controls.audio.pushToTalk?.keybind && Store.state.audio.user.muted === true) {
             this._previousMuteInput = Store.state.audio.user.muted;
             AudioMgr.muteAudio(false);
         }
@@ -149,12 +149,12 @@ export class KeyboardInput implements IInputHandler {
         }
 
         // Mute toggle.
-        if (evt.sourceEvent.code === Store.state.controls.audio.mute.keybind) {
+        if (evt.sourceEvent.code === Store.state.controls.audio.mute?.keybind) {
             this._previousMuteInput = AudioMgr.muteAudio();
         }
 
         // Push-to-talk.
-        if (evt.sourceEvent.code === Store.state.controls.audio.pushToTalk.keybind) {
+        if (evt.sourceEvent.code === Store.state.controls.audio.pushToTalk?.keybind) {
             AudioMgr.muteAudio(this._previousMuteInput);
         }
 
