@@ -30,7 +30,7 @@
         }"
     >
         <q-card
-            class="column no-wrap items-stretch full-height"
+            class="column no-wrap items-stretch full-height prevent-select"
             style="background: transparent; box-shadow: none;"
         >
             <q-scroll-area

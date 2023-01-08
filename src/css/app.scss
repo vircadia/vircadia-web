@@ -32,3 +32,15 @@ h2,
 h3 {
     font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
 }
+
+.prevent-select {
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none; /* IE 10 and IE 11 */
+    user-select: none; /* Standard syntax */
+}
+
+.allow-select {
+    -webkit-user-select: auto; /* Safari */
+    -ms-user-select: auto; /* IE 10 and IE 11 */
+    user-select: auto; /* Standard syntax */
+}

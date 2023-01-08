@@ -192,6 +192,7 @@
                         <q-item clickable v-ripple
                             @click="$store.state.account.isLoggedIn ?
                             onClickOpenOverlay('Account') : openDialog('Login', true)"
+                            class="prevent-select"
                         >
                             <q-item-section side>
                                 <q-avatar size="48px">
@@ -229,7 +230,7 @@
                             aria-label="Settings Menu"
                         >
                             <q-menu v-model="settingsMenuState" @show="aMenuIsOpen = true">
-                                <q-list>
+                                <q-list class="prevent-select">
                                     <template v-for="(menuItem, index) in settingsMenu" :key="index">
                                         <q-item-label
                                             v-if="menuItem.isCategory"
@@ -274,7 +275,7 @@
                                 <img :src="$store.state.theme.logo">
                             </q-avatar>
                         </template>
-                        <q-list class="q-pb-sm">
+                        <q-list class="q-pb-sm prevent-select">
                             <template v-if="isMobile">
                                 <q-item-label header>Account</q-item-label>
                                 <q-item clickable v-ripple
