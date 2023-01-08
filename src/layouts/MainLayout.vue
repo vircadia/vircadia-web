@@ -249,7 +249,13 @@
                                                 <q-icon :name="menuItem.icon" />
                                             </q-item-section>
                                             <q-item-section>
-                                                {{ menuItem.label }}
+                                                <q-item-label>{{ menuItem.label }}</q-item-label>
+                                                <q-item-label
+                                                    v-if="menuItem.caption"
+                                                    caption
+                                                >
+                                                    {{ menuItemcaption(menuItem.caption) }}
+                                                </q-item-label>
                                             </q-item-section>
                                         </q-item>
                                         <q-separator :key="'sep' + index" v-if="menuItem.separator" />
@@ -521,7 +527,8 @@ export default defineComponent({
                         Log.info(Log.types.OTHER, "Toggle Avatar Nametags");
                     },
                     isCategory: false,
-                    separator: true
+                    separator: true,
+                    caption: "nametag_setting"
                 },
                 {
                     icon: "lightbulb",
@@ -748,6 +755,14 @@ export default defineComponent({
             window.setTimeout(() => {
                 this.metaverseLocationCopied = false;
             }, transitionTime);
+        },
+        menuItemcaption: function(caption: string) {
+            switch (caption) {
+                case "nametag_setting":
+                    return this.$store.state.avatar.showNametags ? "On" : "Off";
+                default:
+                    return caption;
+            }
         }
     },
     mounted: function() {
