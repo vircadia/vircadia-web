@@ -40,30 +40,44 @@ export class ImageComponent extends MeshComponent {
         this.updateImageURL(entity);
 
         this.updateColor(entity);
-
-        this.updateDimensions(entity);
     }
 
     public updateDimensions(entity: IImageEntity) : void {
         if (this._mesh && entity.dimensions) {
-            const sclae = EntityMapper.mapToVector3(entity.dimensions);
-            // FIXME:
-            // Cannot get texture size here. Fix this and implement keepAspectRatio.
-            /*
+            // check for keep aspect ratio functionality and rescale accordingly
+            const scale = EntityMapper.mapToVector3(entity.dimensions);
             if (entity.keepAspectRatio && this._mesh.material) {
                 const mat = this._mesh.material as StandardMaterial;
                 const texture = mat.diffuseTexture;
                 if (texture) {
                     const size = texture.getSize();
-                    if (size.width > size.height) {
-                        sclae.x = sclae.y * size.width / size.height;
+                    if (size.width < size.height) {
+                        scale.x = scale.y * size.width / size.height;
                     } else {
-                        sclae.y = sclae.x * size.height / size.width;
+                        scale.y = scale.x * size.height / size.width;
                     }
                 }
             }
-*/
-            this._mesh.scaling = sclae;
+            this._mesh.scaling = scale;
+
+            // check if the image was rescaled at all using sub image and apply the scaling factors there too
+            if (entity.subImage && this._mesh.material) {
+                const mat = this._mesh.material as StandardMaterial;
+                const texture = mat.diffuseTexture as Texture;
+                if (texture) {
+                    const size = texture.getSize();
+
+                    if (entity.subImage.width > 0) {
+                        texture.uOffset = entity.subImage.x / size.width;
+                        texture.uScale = entity.subImage.width / size.width;
+                    }
+
+                    if (entity.subImage.height > 0) {
+                        texture.vOffset = entity.subImage.y / size.height;
+                        texture.vScale = entity.subImage.height / size.height;
+                    }
+                }
+            }
         }
     }
 
@@ -118,6 +132,7 @@ export class ImageComponent extends MeshComponent {
             }
 
             mat.diffuseTexture = texture;
+
             if (entity.emissive) {
                 mat.emissiveTexture = texture;
             }
@@ -130,6 +145,9 @@ export class ImageComponent extends MeshComponent {
             this._mesh.material = mat;
             this._mesh.isVisible = entity.visible ?? true;
 
+            (<Texture>mat.diffuseTexture).onLoadObservable.add(() => {
+                this.updateDimensions(entity);
+            });
         } else {
             this._mesh.isVisible = false;
         }
