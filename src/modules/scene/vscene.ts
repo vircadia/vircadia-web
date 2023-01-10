@@ -15,13 +15,14 @@
 
 import { AnimationGroup, Engine, Scene,
     ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, Camera,
-    Observable, Nullable, AmmoJSPlugin, Quaternion, Vector3, BackgroundMaterial,
-    Mesh, MeshBuilder, DynamicTexture, Color4 } from "@babylonjs/core";
+    Observable, Nullable, AmmoJSPlugin, Quaternion, Vector3, StandardMaterial,
+    Mesh, MeshBuilder, DynamicTexture, Color4, DefaultRenderingPipeline } from "@babylonjs/core";
 
 import "@babylonjs/loaders/glTF";
 import { ResourceManager } from "./resource";
 import { DomainController, SceneController } from "./controllers";
-import { GameObject, MeshComponent, CapsuleColliderComponent, DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
+import { GameObject, MeshComponent, CapsuleColliderComponent,
+    DEFAULT_MESH_RENDER_GROUP_ID, MASK_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { ScriptComponent, requireScript, requireScripts, reattachScript } from "@Modules/script";
 import { InputController, MyAvatarController, ScriptAvatarController, AvatarMapper } from "@Modules/avatar";
 import { IEntity, IEntityDescription, EntityBuilder, EntityEvent } from "@Modules/entity";
@@ -335,6 +336,7 @@ export class VScene {
                 this._myAvatar.addComponent(meshComponent);
             }
 
+            // TODO Make these numbers constants so we know what they are.
             const capsuleCollider = new CapsuleColliderComponent(this._scene, 1, 3);
             capsuleCollider.createCollider(0.3, 1.8, new Vector3(-0.03, -0.14, -0.04));
             capsuleCollider.setAngularFactor(0, 1, 0);
@@ -466,7 +468,7 @@ export class VScene {
         const characterWidth = 38.5;
         const tagWidth = (name.length + 2) * characterWidth;
 
-        // Texture
+        // Texture.
         const nametagTextureResolution = 100;
         const nametagTexture = new DynamicTexture("NametagTexture", {
             width: tagWidth,
@@ -474,7 +476,7 @@ export class VScene {
         }, this._scene);
         nametagTexture.drawText(
             name,
-            tagWidth / 2 - name.length / 2 * characterWidth, // Center the name on the tag
+            tagWidth / 2 - name.length / 2 * characterWidth, // Center the name on the tag.
             70,
             "70px monospace",
             "white",
@@ -483,11 +485,14 @@ export class VScene {
             true
         );
 
-        // Material
-        const nametagMaterial = new BackgroundMaterial("NametagMaterial", this._scene);
+        // Material.
+        const nametagMaterial = new StandardMaterial("NametagMaterial", this._scene);
         nametagMaterial.diffuseTexture = nametagTexture;
+        nametagMaterial.specularTexture = nametagTexture;
+        nametagMaterial.emissiveTexture = nametagTexture;
+        nametagMaterial.disableLighting = true;
 
-        // Mesh
+        // Mesh.
         const nametagPlane = MeshBuilder.CreatePlane("Nametag", {
             width: 0.1 * tagWidth / nametagTextureResolution,
             height: 0.1,
@@ -499,7 +504,7 @@ export class VScene {
         nametagPlane.billboardMode = Mesh.BILLBOARDMODE_Y;
         nametagPlane.parent = avatar;
         nametagPlane.isPickable = false;
-        nametagPlane.renderingGroupId = DEFAULT_MESH_RENDER_GROUP_ID;
+        nametagPlane.renderingGroupId = MASK_MESH_RENDER_GROUP_ID;
 
         return nametagPlane;
     }
@@ -551,6 +556,23 @@ export class VScene {
             this._css3DRenderer.scene = this._scene;
         }
         this._scene.collisionsEnabled = true;
+    }
+
+    private _updateRenderPipelineSettings(): void {
+        // Get the dafault rendering pipeline.
+        let defaultPipeline
+        = this._scene.postProcessRenderPipelineManager.supportedPipelines.find((pipeline) => pipeline.name === "default");
+        // If the default pipeline doesn't exist, create it.
+        if (!defaultPipeline) {
+            defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);
+        }
+        // Update the rendering pipeline from the Store.
+        if (defaultPipeline instanceof DefaultRenderingPipeline) {
+            defaultPipeline.bloomEnabled = Boolean(Store.state.graphics.bloom);
+            defaultPipeline.fxaaEnabled = Boolean(Store.state.graphics.fxaaEnabled);
+            defaultPipeline.samples = Number(Store.state.graphics.msaa);
+            defaultPipeline.sharpenEnabled = Boolean(Store.state.graphics.sharpen);
+        }
     }
 
     private _handleDontDestroyOnLoadObjects() : void {
@@ -646,5 +668,11 @@ export class VScene {
         if (!this._scene.activeCamera) {
             this._scene.createDefaultCamera(true, true, true);
         }
+
+        // Update the rendering pipeline when graphics settings are changed.
+        this._updateRenderPipelineSettings();
+        Store.watch((state) => state.graphics, () => {
+            this._updateRenderPipelineSettings();
+        });
     }
 }

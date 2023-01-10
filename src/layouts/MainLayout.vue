@@ -43,6 +43,18 @@
 }
 </style>
 
+<style lang="scss">
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+</style>
+
 <template>
     <q-layout class="full-height" id="mainLayout" view="lHh Lpr lFf">
         <q-header
@@ -176,14 +188,37 @@
                     >
                         <q-item-section>
                             <q-item-label
+                                style="display: flex;flex-direction: row;justify-content: flex-start;align-items: center;"
                                 :style="{ fontSize: isMobile ? '0.8em' : 'inherit' }"
-                                :title="getDomainServerState"
                             >
                                 {{ getDomainServerState }}
-                                <q-spinner
-                                    v-if="getDomainServerState === 'CONNECTING'"
-                                    :size="isMobile ? 'xs' : 'sm'"
-                                />
+                                <Transition>
+                                    <div
+                                        v-show="getDomainServerState === 'CONNECTING' || $store.state.renderer.contentIsLoading"
+                                        class="q-ml-md"
+                                        style="display: flex;
+                                            flex-direction: row;justify-content: flex-start;align-items: center;"
+                                    >
+                                        <q-spinner
+                                            :size="isMobile ? 'xs' : 'sm'"
+                                            :title="$store.state.renderer.contentIsLoading ? 'Loading content' : undefined"
+                                        />
+                                        <p class="q-my-none q-ml-md text-caption">
+                                            {{ `${$store.state.renderer.contentLoadingSpeed.toFixed(1)}MB&sol;s` }}
+                                        </p>
+                                        <q-tooltip
+                                            :class="{
+                                                'bg-black': $q.dark.isActive,
+                                                'text-white': $q.dark.isActive
+                                            }"
+                                            :hide-delay="300"
+                                        >
+                                            {{ $store.state.renderer.contentIsLoading
+                                                && $store.state.renderer.contentLoadingInfo
+                                                ? $store.state.renderer.contentLoadingInfo : "Loading..." }}
+                                        </q-tooltip>
+                                    </div>
+                                </Transition>
                             </q-item-label>
                         </q-item-section>
                     </q-toolbar-title>
@@ -765,6 +800,12 @@ export default defineComponent({
             }
         }
     },
+    beforeMount: function() {
+        // Ensure that Quasar's global color variables are in sync with the Store's theme colors.
+        document.documentElement.style.setProperty("--q-primary", this.$store.state.theme.colors.primary);
+        document.documentElement.style.setProperty("--q-secondary", this.$store.state.theme.colors.secondary);
+        document.documentElement.style.setProperty("--q-accent", this.$store.state.theme.colors.accent);
+    },
     mounted: function() {
         // Set the isDesktop and isMobile flags according to the window's width.
         this.isMobile = window.innerWidth < this.mobileBreakpoint;
@@ -782,24 +823,30 @@ export default defineComponent({
         if (this.isDesktop) {
             // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution.
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            (this.$refs.OverlayManager as typeof OverlayManager).openOverlay("menu");
+            (this.$refs.OverlayManager as typeof OverlayManager)?.openOverlay("menu");
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            (this.$refs.OverlayManager as typeof OverlayManager).openOverlay("ChatWindow");
+            (this.$refs.OverlayManager as typeof OverlayManager)?.openOverlay("ChatWindow");
         }
 
         // Set up event listeners for UI-based controls.
         window.addEventListener("keydown", (event) => {
-            // Toggle the menu.
-            if (event.code === this.$store.state.controls.other.toggleMenu.keybind) {
-                // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution.
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-                (this.$refs.OverlayManager as typeof OverlayManager).toggleOverlay("menu");
-            }
-            // Open the chat.
-            if (event.code === this.$store.state.controls.other.openChat.keybind) {
-                // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution.
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-                (this.$refs.OverlayManager as typeof OverlayManager).openOverlay("ChatWindow");
+            const target = event.target as HTMLElement;
+            if (
+                target?.tagName !== "INPUT"
+                && target?.tagName !== "TEXTAREA"
+            ) {
+                // Toggle the menu.
+                if (event.code === this.$store.state.controls.other.toggleMenu?.keybind) {
+                    // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution.
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+                    (this.$refs.OverlayManager as typeof OverlayManager)?.toggleOverlay("menu");
+                }
+                // Open the chat.
+                if (event.code === this.$store.state.controls.other.openChat?.keybind) {
+                    // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution.
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+                    (this.$refs.OverlayManager as typeof OverlayManager)?.toggleOverlay("ChatWindow");
+                }
             }
         });
     }

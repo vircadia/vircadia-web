@@ -78,7 +78,7 @@ export class KeyboardInput implements IInputHandler {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     public handleInputs(delta: number) : void {
-        if (this._inputMap[Store.state.controls.movement.jump.keybind]) {
+        if (this._inputMap[Store.state.controls.movement.jump?.keybind]) {
             if (this._state.state !== State.Jump) {
                 this._state.state = State.Jump;
                 this._state.jumpSubstate = JumpSubState.Start;
@@ -87,17 +87,17 @@ export class KeyboardInput implements IInputHandler {
             }
         }
 
-        if (this._inputMap[Store.state.controls.movement.walkLeft.keybind]) {
+        if (this._inputMap[Store.state.controls.movement.walkLeft?.keybind]) {
             this._state.moveDir.x = Scalar.Lerp(Math.abs(this._state.moveDir.x), 1, 0.1);
-        } else if (this._inputMap[Store.state.controls.movement.walkRight.keybind]) {
+        } else if (this._inputMap[Store.state.controls.movement.walkRight?.keybind]) {
             this._state.moveDir.x = -Scalar.Lerp(Math.abs(this._state.moveDir.x), 1, 0.1);
         } else {
             this._state.moveDir.x = 0;
         }
 
-        if (this._inputMap[Store.state.controls.movement.walkForwards.keybind]) {
+        if (this._inputMap[Store.state.controls.movement.walkForwards?.keybind]) {
             this._state.moveDir.z = -Scalar.Lerp(Math.abs(this._state.moveDir.z), 1, 0.1);
-        } else if (this._inputMap[Store.state.controls.movement.walkBackwards.keybind]) {
+        } else if (this._inputMap[Store.state.controls.movement.walkBackwards?.keybind]) {
             this._state.moveDir.z = Scalar.Lerp(Math.abs(this._state.moveDir.z), 1, 0.1);
         } else {
             this._state.moveDir.z = 0;
@@ -128,10 +128,10 @@ export class KeyboardInput implements IInputHandler {
         }
 
         // Run.
-        if (Store.state.controls.movement.run.keybind.includes("Shift")) {
+        if (Store.state.controls.movement.run?.keybind.includes("Shift")) {
             this._runKey = this._shiftKey;
         } else {
-            this._runKey = evt.sourceEvent.code === Store.state.controls.movement.run.keybind ? true : this._runKey;
+            this._runKey = evt.sourceEvent.code === Store.state.controls.movement.run?.keybind ? true : this._runKey;
         }
     }
 
@@ -159,10 +159,10 @@ export class KeyboardInput implements IInputHandler {
         }
 
         // Run.
-        if (Store.state.controls.movement.run.keybind.includes("Shift")) {
+        if (Store.state.controls.movement.run?.keybind.includes("Shift")) {
             this._runKey = this._shiftKey;
         } else {
-            this._runKey = evt.sourceEvent.code === Store.state.controls.movement.run.keybind ? false : this._runKey;
+            this._runKey = evt.sourceEvent.code === Store.state.controls.movement.run?.keybind ? false : this._runKey;
         }
     }
 

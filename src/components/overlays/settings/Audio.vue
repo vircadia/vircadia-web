@@ -120,7 +120,7 @@
                                     v-model="AudioIOInstance.selectedInput"
                                     :val="input.label"
                                     :label="input.label"
-                                    color="teal"
+                                    color="primary"
                                 />
                             </div>
                         </q-list>
@@ -152,7 +152,7 @@
                                     v-model="AudioIOInstance.selectedOutput"
                                     :val="output.label"
                                     :label="output.label"
-                                    color="teal"
+                                    color="primary"
                                 />
                             </div>
                         </q-list>

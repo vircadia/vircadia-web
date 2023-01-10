@@ -305,7 +305,11 @@ export interface IRootState {
     },
     // Graphics configuration.
     graphics: {
-        fieldOfView: number
+        fieldOfView: number,
+        bloom: boolean,
+        fxaaEnabled: boolean,
+        msaa: number,
+        sharpen: boolean
     },
     // Information about the metaverse-server. Updated when connection state changes.
     metaverse: {
@@ -340,7 +344,10 @@ export interface IRootState {
         focusSceneId: number,
         fps: number,
         cameraLocation: Nullable<VVector3>,
-        cameraRotation: Nullable<VVector4>
+        cameraRotation: Nullable<VVector4>,
+        contentIsLoading: boolean,
+        contentLoadingInfo: string,
+        contentLoadingSpeed: number
     },
     // Theme configuration.
     theme: {
@@ -406,7 +413,7 @@ interface VStore extends VuexStore<IRootState> {
 const storeDefaults = {
     storeVersion: {
         major: 2,
-        minor: 0,
+        minor: 1,
         patch: 0
     },
     globalConsts: {
@@ -470,7 +477,11 @@ const storeDefaults = {
     },
     // Graphics configuration.
     graphics: {
-        fieldOfView: 80
+        fieldOfView: 80,
+        bloom: false,
+        fxaaEnabled: true,
+        msaa: 2,
+        sharpen: false
     },
     // Information about the metaverse-server we're connected to.
     metaverse: {
@@ -498,7 +509,10 @@ const storeDefaults = {
         focusSceneId: 0,
         fps: 1,
         cameraLocation: undefined,
-        cameraRotation: undefined
+        cameraRotation: undefined,
+        contentIsLoading: false,
+        contentLoadingInfo: "",
+        contentLoadingSpeed: 0
     },
     // Theme configuration.
     theme: {

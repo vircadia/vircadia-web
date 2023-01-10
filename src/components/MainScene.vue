@@ -58,6 +58,7 @@ import { Mutations as StoreMutations } from "@Store/index";
 import { AudioMgr } from "@Modules/scene/audio";
 import { Renderer } from "@Modules/scene/renderer";
 import { Utility } from "@Modules/utility";
+import { Location } from "@Modules/domain/location";
 import { AvatarStoreInterface } from "@Modules/avatar/StoreInterface";
 import { DEFAULT_DOMAIN_URL, URL_UPDATE_FREQUENCY } from "@Base/config";
 import { DomainMgr } from "@Modules/domain";
@@ -98,7 +99,8 @@ export default defineComponent({
         canvasHeight: 200,
         canvasWidth: 200,
         updateUrlReady: true,
-        locationUnwatch: () => { /* This function will be populated once connected to a domain. */ }
+        locationUnwatch: () => { /* This function will be populated once connected to a domain. */ },
+        previousLocation: undefined as Location | undefined
     }),
 
     watch: {
@@ -164,7 +166,13 @@ export default defineComponent({
                 location = DEFAULT_DOMAIN_URL;
             }
 
-            await Utility.connectionSetup(location);
+            // Check if just the position/rotation values differ from the current location.
+            const next = new Location(location);
+            await Utility.connectionSetup(
+                next.host === this.previousLocation?.host
+                    ? next.pathname // Teleport the player, instead of reloading the domain connection.
+                    : location);
+            this.previousLocation = next;
 
             // if url set to be updated bind the function
             if (URL_UPDATE_FREQUENCY >= 0) {

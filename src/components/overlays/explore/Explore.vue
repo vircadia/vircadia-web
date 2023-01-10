@@ -477,6 +477,7 @@
 import { defineComponent } from "vue";
 import { Vector3, Vector4 } from "@babylonjs/core";
 import { Utility } from "@Modules/utility";
+import { Location } from "@Modules/domain/location";
 import { Places, PlaceEntry } from "@Modules/places";
 import { Renderer } from "@Modules/scene";
 import { Mutations as StoreMutations } from "@Store/index";
@@ -520,8 +521,10 @@ export default defineComponent({
             locationBookmarked: false,
             locationCopied: false,
             domain: "",
-            position: {} as Vector3,
-            rotation: {} as Vector4,
+            // eslint-disable-next-line new-cap
+            position: Vector3.Zero(),
+            // eslint-disable-next-line new-cap
+            rotation: Vector4.Zero(),
             tab: "all"
         };
     },
@@ -596,8 +599,10 @@ export default defineComponent({
 
         async openLocation(path: string): Promise<void> {
             Log.info(Log.types.UI, `Connecting to... ${path}`);
-            // eslint-disable-next-line @typescript-eslint/unbound-method
-            await Utility.connectionSetup(path);
+            // Check if just the position/rotation values differ from the current location.
+            const prev = new Location(this.$route.path.replace("/", ""));
+            const next = new Location(path);
+            await Utility.connectionSetup(prev._hostname === next._hostname ? next.pathname : path);
         },
 
         openDetails(place: PlaceEntry): void {
