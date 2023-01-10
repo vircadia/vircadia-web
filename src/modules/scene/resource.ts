@@ -12,6 +12,7 @@
 import { AnimationGroup, Scene, SceneLoader, AssetsManager,
     AbstractMesh, Vector3, Quaternion, MeshBuilder, StandardMaterial, Color3, Skeleton } from "@babylonjs/core";
 import { DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
+import { updateContentLoadingProgress } from "@Modules/scene/LoadingScreen";
 // System Modules
 import { v4 as uuidv4 } from "uuid";
 // General Modules
@@ -64,7 +65,16 @@ export class ResourceManager {
 
 
     public async loadAvatarAnimations(modelUrl: string): Promise<IAvatarAnimationResult> {
-        const result = await SceneLoader.ImportMeshAsync("", modelUrl, undefined, this._scene);
+        const modelAssetName = modelUrl.split("/");
+        const result = await SceneLoader.ImportMeshAsync(
+            "",
+            modelUrl,
+            undefined,
+            this._scene,
+            (event) => {
+                updateContentLoadingProgress(event, modelAssetName[modelAssetName.length - 1]);
+            }
+        );
 
         const mesh = result.meshes[0].getChildren()[0] as AbstractMesh;
         const animationGroups = new Array<AnimationGroup>();
@@ -140,7 +150,16 @@ export class ResourceManager {
 
     private async _loadAvatar(modelUrl: string): Promise<IAvatarResult> {
         try {
-            const result = await SceneLoader.ImportMeshAsync("", modelUrl, undefined, this._scene);
+            const modelAssetName = modelUrl.split("/");
+            const result = await SceneLoader.ImportMeshAsync(
+                "",
+                modelUrl,
+                undefined,
+                this._scene,
+                (event) => {
+                    updateContentLoadingProgress(event, modelAssetName[modelAssetName.length - 1]);
+                }
+            );
 
             result.meshes.forEach((mesh) => {
                 mesh.isPickable = false;

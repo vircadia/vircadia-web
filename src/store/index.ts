@@ -340,7 +340,10 @@ export interface IRootState {
         focusSceneId: number,
         fps: number,
         cameraLocation: Nullable<VVector3>,
-        cameraRotation: Nullable<VVector4>
+        cameraRotation: Nullable<VVector4>,
+        contentIsLoading: boolean,
+        contentLoadingInfo: string,
+        contentLoadingSpeed: number
     },
     // Theme configuration.
     theme: {
@@ -406,7 +409,7 @@ interface VStore extends VuexStore<IRootState> {
 const storeDefaults = {
     storeVersion: {
         major: 2,
-        minor: 0,
+        minor: 1,
         patch: 0
     },
     globalConsts: {
@@ -498,7 +501,10 @@ const storeDefaults = {
         focusSceneId: 0,
         fps: 1,
         cameraLocation: undefined,
-        cameraRotation: undefined
+        cameraRotation: undefined,
+        contentIsLoading: false,
+        contentLoadingInfo: "",
+        contentLoadingSpeed: 0
     },
     // Theme configuration.
     theme: {

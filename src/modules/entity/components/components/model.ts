@@ -15,6 +15,7 @@ import { MeshComponent, DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { SceneLoader, PhysicsImpostor } from "@babylonjs/core";
 import { IModelEntity } from "../../EntityInterfaces";
 import { ShapeType } from "../../EntityProperties";
+import { updateContentLoadingProgress } from "@Modules/scene/LoadingScreen";
 import Log from "@Modules/debugging/log";
 
 /* eslint-disable new-cap */
@@ -45,7 +46,15 @@ export class ModelComponent extends MeshComponent {
         this._modelURL = entity.modelURL;
 
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        SceneLoader.ImportMeshAsync("", entity.modelURL, undefined, this._gameObject.getScene())
+        SceneLoader.ImportMeshAsync(
+            "",
+            entity.modelURL,
+            undefined,
+            this._gameObject.getScene(),
+            (event) => {
+                updateContentLoadingProgress(event, entity.name);
+            }
+        )
             .then((result) => {
                 const meshes = result.meshes;
                 this.mesh = meshes[0];

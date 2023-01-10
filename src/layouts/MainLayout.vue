@@ -43,6 +43,18 @@
 }
 </style>
 
+<style lang="scss">
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+</style>
+
 <template>
     <q-layout class="full-height" id="mainLayout" view="lHh Lpr lFf">
         <q-header
@@ -176,14 +188,37 @@
                     >
                         <q-item-section>
                             <q-item-label
+                                style="display: flex;flex-direction: row;justify-content: flex-start;align-items: center;"
                                 :style="{ fontSize: isMobile ? '0.8em' : 'inherit' }"
-                                :title="getDomainServerState"
                             >
                                 {{ getDomainServerState }}
-                                <q-spinner
-                                    v-if="getDomainServerState === 'CONNECTING'"
-                                    :size="isMobile ? 'xs' : 'sm'"
-                                />
+                                <Transition>
+                                    <div
+                                        v-show="getDomainServerState === 'CONNECTING' || $store.state.renderer.contentIsLoading"
+                                        class="q-ml-md"
+                                        style="display: flex;
+                                            flex-direction: row;justify-content: flex-start;align-items: center;"
+                                    >
+                                        <q-spinner
+                                            :size="isMobile ? 'xs' : 'sm'"
+                                            :title="$store.state.renderer.contentIsLoading ? 'Loading content' : undefined"
+                                        />
+                                        <p class="q-my-none q-ml-md text-caption">
+                                            {{ `${$store.state.renderer.contentLoadingSpeed.toFixed(1)}MB&sol;s` }}
+                                        </p>
+                                        <q-tooltip
+                                            :class="{
+                                                'bg-black': $q.dark.isActive,
+                                                'text-white': $q.dark.isActive
+                                            }"
+                                            :hide-delay="300"
+                                        >
+                                            {{ $store.state.renderer.contentIsLoading
+                                                && $store.state.renderer.contentLoadingInfo
+                                                ? $store.state.renderer.contentLoadingInfo : "Loading..." }}
+                                        </q-tooltip>
+                                    </div>
+                                </Transition>
                             </q-item-label>
                         </q-item-section>
                     </q-toolbar-title>
