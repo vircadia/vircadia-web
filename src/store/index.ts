@@ -305,7 +305,11 @@ export interface IRootState {
     },
     // Graphics configuration.
     graphics: {
-        fieldOfView: number
+        fieldOfView: number,
+        bloom: boolean,
+        fxaaEnabled: boolean,
+        msaa: number,
+        sharpen: boolean
     },
     // Information about the metaverse-server. Updated when connection state changes.
     metaverse: {
@@ -473,7 +477,11 @@ const storeDefaults = {
     },
     // Graphics configuration.
     graphics: {
-        fieldOfView: 80
+        fieldOfView: 80,
+        bloom: false,
+        fxaaEnabled: true,
+        msaa: 2,
+        sharpen: false
     },
     // Information about the metaverse-server we're connected to.
     metaverse: {

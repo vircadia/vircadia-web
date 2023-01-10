@@ -15,8 +15,8 @@
 
 import { AnimationGroup, Engine, Scene,
     ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, Camera,
-    Observable, Nullable, AmmoJSPlugin, Quaternion, Vector3, BackgroundMaterial,
-    Mesh, MeshBuilder, DynamicTexture, Color4 } from "@babylonjs/core";
+    Observable, Nullable, AmmoJSPlugin, Quaternion, Vector3, StandardMaterial,
+    Mesh, MeshBuilder, DynamicTexture, Color4, DefaultRenderingPipeline } from "@babylonjs/core";
 
 import "@babylonjs/loaders/glTF";
 import { ResourceManager } from "./resource";
@@ -553,6 +553,23 @@ export class VScene {
         this._scene.collisionsEnabled = true;
     }
 
+    private _updateRenderPipelineSettings(): void {
+        // Get the dafault rendering pipeline.
+        let defaultPipeline
+        = this._scene.postProcessRenderPipelineManager.supportedPipelines.find((pipeline) => pipeline.name === "default");
+        // If the default pipeline doesn't exist, create it.
+        if (!defaultPipeline) {
+            defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);
+        }
+        // Update the rendering pipeline from the Store.
+        if (defaultPipeline instanceof DefaultRenderingPipeline) {
+            defaultPipeline.bloomEnabled = Boolean(Store.state.graphics.bloom);
+            defaultPipeline.fxaaEnabled = Boolean(Store.state.graphics.fxaaEnabled);
+            defaultPipeline.samples = Number(Store.state.graphics.msaa);
+            defaultPipeline.sharpenEnabled = Boolean(Store.state.graphics.sharpen);
+        }
+    }
+
     private _handleDontDestroyOnLoadObjects() : void {
         if (!this._preScene) {
             return;
@@ -646,5 +663,11 @@ export class VScene {
         if (!this._scene.activeCamera) {
             this._scene.createDefaultCamera(true, true, true);
         }
+
+        // Update the rendering pipeline when graphics settings are changed.
+        this._updateRenderPipelineSettings();
+        Store.watch((state) => state.graphics, () => {
+            this._updateRenderPipelineSettings();
+        });
     }
 }
