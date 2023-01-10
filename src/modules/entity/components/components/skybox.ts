@@ -10,7 +10,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { MeshComponent } from "@Modules/object";
+import { MeshComponent, DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { Scene, MeshBuilder, StandardMaterial,
     Texture, CubeTexture, EquiRectangularCubeTexture, BaseTexture } from "@babylonjs/core";
 import { ISkyboxProperty, IVector3Property } from "../../EntityProperties";
@@ -53,6 +53,7 @@ export class SkyboxComponent extends MeshComponent {
         }
         skyBox.infiniteDistance = true;
         skyBox.id = id;
+        skyBox.renderingGroupId = DEFAULT_MESH_RENDER_GROUP_ID;
 
         this.mesh = skyBox;
 
