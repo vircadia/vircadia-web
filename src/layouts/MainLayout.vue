@@ -784,6 +784,12 @@ export default defineComponent({
             }, transitionTime);
         }
     },
+    beforeMount: function() {
+        // Ensure that Quasar's global color variables are in sync with the Store's theme colors.
+        document.documentElement.style.setProperty("--q-primary", this.$store.state.theme.colors.primary);
+        document.documentElement.style.setProperty("--q-secondary", this.$store.state.theme.colors.secondary);
+        document.documentElement.style.setProperty("--q-accent", this.$store.state.theme.colors.accent);
+    },
     mounted: function() {
         // Set the isDesktop and isMobile flags according to the window's width.
         this.isMobile = window.innerWidth < this.mobileBreakpoint;

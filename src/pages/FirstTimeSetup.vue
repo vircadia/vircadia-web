@@ -29,7 +29,7 @@
             span {
                 display: inline;
                 color: transparent;
-                background-image: linear-gradient(90deg, $primary, $secondary, $primary);
+                background-image: linear-gradient(90deg, var(--q-primary), var(--q-secondary), var(--q-primary));
                 background-size: 200% 100%;
                 -webkit-background-clip: text;
                 background-clip: text;
@@ -58,14 +58,14 @@
     .colorSplash.top {
         top: 0;
         left: -50vmax;
-        color: $primary;
+        color: var(--q-primary);
         transform: rotate(-10deg);
         transform-origin: 50vmax 0%;
     }
     .colorSplash.bottom {
         right: -50vmax;
         bottom: 0;
-        color: $secondary;
+        color: var(--q-secondary);
         transform: rotate(-10deg);
         transform-origin: calc(100% - 50vmax) 100%;
     }
@@ -97,7 +97,8 @@
             position: absolute;
             z-index: -1;
             inset: -3px;
-            background: linear-gradient(135deg, $primary, $secondary);
+            display: block;
+            background: linear-gradient(135deg, var(--q-primary), var(--q-secondary));
             border-radius: 5px;
             mask-image: radial-gradient(circle at center, #000 10%, transparent 70%);
             mask-position: -50vmax -50vmax;
@@ -131,7 +132,7 @@
     }
 
     .selectedAvatar {
-        background-color: #fff2;
+        background-color: #fff1;
         border-radius: 5px;
     }
 
@@ -298,14 +299,18 @@
                         </template>
                         <q-separator spaced />
                         <p class="text-caption">
-                            You can change your name and avatar later.
+                            Don't worry, you can change your name and avatar later.
                         </p>
                         <q-stepper-navigation
                             class="flex stepNavigation"
                             :style="{ background: $q.dark.isActive ? 'var(--q-dark)' : '#fff' }"
                         >
                             <q-space />
-                            <q-btn @click="() => { done1 = true; step = 2 }" color="primary" label="Continue" />
+                            <q-btn
+                                color="primary"
+                                label="Continue"
+                                @click="() => { done1 = true; step = 2; }"
+                            />
                         </q-stepper-navigation>
                     </q-step>
 
@@ -337,7 +342,7 @@
                                     <q-radio
                                         :label="input.label"
                                         :val="input.label"
-                                        color="teal"
+                                        color="primary"
                                         v-model="AudioIOInstance.selectedInput"
                                         @click="AudioIOInstance.requestInputAccess(input.deviceId)"
                                     />
@@ -358,7 +363,7 @@
                                     <q-radio
                                         :label="output.label"
                                         :val="output.label"
-                                        color="teal"
+                                        color="primary"
                                         v-model="AudioIOInstance.selectedOutput"
                                         @click="AudioIOInstance.requestOutputAccess(output.deviceId)"
                                     />
@@ -599,6 +604,12 @@ export default defineComponent({
             this.$store.state.defaultConnectionConfig.DEFAULT_METAVERSE_URL
         );
         this.placesList = await Places.getActiveList();
+    },
+    beforeMount(): void {
+        // Ensure that Quasar's global color variables are in sync with the Store's theme colors.
+        document.documentElement.style.setProperty("--q-primary", this.$store.state.theme.colors.primary);
+        document.documentElement.style.setProperty("--q-secondary", this.$store.state.theme.colors.secondary);
+        document.documentElement.style.setProperty("--q-accent", this.$store.state.theme.colors.accent);
     },
     mounted(): void {
         document.addEventListener("keydown", (event: KeyboardEvent) => {
