@@ -814,17 +814,23 @@ export default defineComponent({
 
         // Set up event listeners for UI-based controls.
         window.addEventListener("keydown", (event) => {
-            // Toggle the menu.
-            if (event.code === this.$store.state.controls.other.toggleMenu.keybind) {
-                // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution.
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-                (this.$refs.OverlayManager as typeof OverlayManager).toggleOverlay("menu");
-            }
-            // Open the chat.
-            if (event.code === this.$store.state.controls.other.openChat.keybind) {
-                // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution.
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-                (this.$refs.OverlayManager as typeof OverlayManager).openOverlay("ChatWindow");
+            const target = event.target as HTMLElement;
+            if (
+                target?.tagName !== "INPUT"
+                && target?.tagName !== "TEXTAREA"
+            ) {
+                // Toggle the menu.
+                if (event.code === this.$store.state.controls.other.toggleMenu?.keybind) {
+                    // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution.
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+                    (this.$refs.OverlayManager as typeof OverlayManager)?.toggleOverlay("menu");
+                }
+                // Open the chat.
+                if (event.code === this.$store.state.controls.other.openChat?.keybind) {
+                    // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution.
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+                    (this.$refs.OverlayManager as typeof OverlayManager)?.toggleOverlay("ChatWindow");
+                }
             }
         });
     }
