@@ -15,6 +15,12 @@
     }
 </style>
 
+<style lang="scss">
+    .q-message-text-content a {
+        color: white;
+    }
+</style>
+
 <template>
     <OverlayShell
         icon="chat"
@@ -100,6 +106,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import * as DOMPurify from "dompurify";
 import OverlayShell from "../OverlayShell.vue";
 
 import { AMessage, DomainMessage, DefaultChatMessage } from "@Modules/domain/message";
@@ -217,7 +224,7 @@ export default defineComponent({
                 if (sortedMessages.length <= 0 || !previousMessage) {
                     sortedMessages.push({
                         root: message,
-                        text: [this.msgText(message)],
+                        text: [this.sanitizeMessageText(this.formatMessageLinks(this.msgText(message)))],
                         time: message.whenReceived
                     });
                     // Move on to the next message.
@@ -233,14 +240,14 @@ export default defineComponent({
                     + this.messageCombinationTimeLimit
                 ) {
                     // Merge this message into the previous one.
-                    previousMessage.text.push(this.msgText(message));
+                    previousMessage.text.push(this.sanitizeMessageText(this.formatMessageLinks(this.msgText(message))));
                     previousMessage.time = message.whenReceived;
                     merges += 1;
                 } else {
                     // Otherwise, simply append this message to the list.
                     sortedMessages.push({
                         root: message,
-                        text: [this.msgText(message)],
+                        text: [this.sanitizeMessageText(this.formatMessageLinks(this.msgText(message)))],
                         time: message.whenReceived
                     });
                 }
@@ -268,6 +275,7 @@ export default defineComponent({
             }
             return pMsg.senderId.stringify();
         },
+        // Return the text of a messsage. If DefaultMessage, use the text in the JSON packet.
         msgText(message: AMessage): string {
             if (message.messageJSON) {
                 const dMsg = message.messageJSON as DefaultChatMessage;
@@ -277,17 +285,20 @@ export default defineComponent({
             }
             return message.message;
         },
-        // Return the text of the messsage.
-        // This is where message format is checked. If DefaultMessage, use the text in the JSON packet.
-        msgText(pMsg: AMessage): string[] {
-            if (pMsg.messageJSON) {
-                // eslint-disable-next-line max-len
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unnecessary-type-assertion
-                const dMsg = <DefaultChatMessage>pMsg.messageJSON;
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
-                return [dMsg.message];
-            }
-            return [pMsg.message];
+        formatMessageLinks(text: string): string {
+            // Find all URLs in the message.
+            // eslint-disable-next-line require-unicode-regexp
+            const regex = /\bhttps?:\/\/\S+|\bwss?:\/\/\S+/gi;
+            // Wrap each URL in an anchor tag.
+            const matches = text.replace(
+                regex,
+                (match) => `<a href="${match}" target="_blank" rel="noreferrer">${match}</a>`
+            );
+            return matches;
+        },
+        // Sanitize message content to reduce the risk of XSS attacks.
+        sanitizeMessageText(text: string): string {
+            return DOMPurify.sanitize(text, { USE_PROFILES: { html: true } });
         },
         // Return the printable time of the message.
         formatMessageTime(time: Date): string {
@@ -326,7 +337,7 @@ export default defineComponent({
                     const msg: DefaultChatMessage = {
                         type: "TransmitChatMessage",
                         channel: "Local",
-                        message: this.messageInput,
+                        message: this.sanitizeMessageText(this.messageInput),
                         colour: { red: 255, blue: 204, green: 229 }, // orangish
                         displayName: this.$store.state.avatar.displayName,
                         position: this.$store.state.avatar.position
