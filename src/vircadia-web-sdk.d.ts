@@ -86,6 +86,23 @@ declare module "@vircadia/web-sdk" {
         ERROR = 4
     }
     // ============================
+    export type OAuthJSON = {
+        /* eslint-disable camelcase */
+        access_token?: string;
+        token_type?: string;
+        expires_in?: number;
+        refresh_token?: string;
+        error?: unknown;
+        error_description?: string;
+        /* eslint-enable camelcase */
+    };
+    // ============================
+    export class AccountInterface {
+        login(username: string, oAuthJSON: OAuthJSON): void;
+        logout(): void;
+        isLoggedIn(): boolean;
+    }
+    // ============================
     export type OnDomainStateChanged = (state: ConnectionState, info: string) => void;
     export class DomainServer {
         static get DISCONNECTED(): ConnectionState;
@@ -95,6 +112,7 @@ declare module "@vircadia/web-sdk" {
         static get ERROR(): ConnectionState;
         static stateToString(state: ConnectionState): string;
         constructor();
+        get account(): AccountInterface;
         get location(): string;
         get state(): ConnectionState;
         get refusalInfo(): string;
