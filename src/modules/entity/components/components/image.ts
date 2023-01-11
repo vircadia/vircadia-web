@@ -44,12 +44,14 @@ export class ImageComponent extends MeshComponent {
 
     public updateDimensions(entity: IImageEntity) : void {
         if (this._mesh && entity.dimensions) {
-            // check for keep aspect ratio functionality and rescale accordingly
+            // Check for keep aspect ratio functionality and rescale accordingly.
             const scale = EntityMapper.mapToVector3(entity.dimensions);
             if (entity.keepAspectRatio && this._mesh.material) {
                 const mat = this._mesh.material as StandardMaterial;
                 const texture = mat.diffuseTexture;
                 if (texture) {
+                    // Compare the width and height of the texture.
+                    // Then adjust the scaling to maintain the aspect ratio based on the greater dimension.
                     const size = texture.getSize();
                     if (size.width < size.height) {
                         scale.x = scale.y * size.width / size.height;
@@ -60,7 +62,7 @@ export class ImageComponent extends MeshComponent {
             }
             this._mesh.scaling = scale;
 
-            // check if the image was rescaled at all using sub image and apply the scaling factors there too
+            // Check if the image was rescaled at all using subImage and apply the scaling factors there too.
             if (entity.subImage && this._mesh.material) {
                 const mat = this._mesh.material as StandardMaterial;
                 const texture = mat.diffuseTexture as Texture;

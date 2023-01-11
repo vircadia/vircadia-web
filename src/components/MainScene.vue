@@ -133,7 +133,7 @@ export default defineComponent({
         },
         // Update the world location that's shown in the browser's URL bar.
         updateURL(): void {
-            // rate controlling check
+            // Rate controlling check.
             if (!this.updateUrlReady) {
                 return;
             }
@@ -148,7 +148,7 @@ export default defineComponent({
             // Show the location in the URL.
             window.history.replaceState(null, "", `#/${location}`);
 
-            // if rate throttling in place then set appropriate timeouts
+            // If rate throttling in place then set appropriate timeouts.
             if (URL_UPDATE_FREQUENCY > 0) {
                 this.updateUrlReady = false;
 
@@ -174,12 +174,12 @@ export default defineComponent({
                     : location);
             this.previousLocation = next;
 
-            // if url set to be updated bind the function
+            // If the URL is configured to be updated, bind the watcher function.
             if (URL_UPDATE_FREQUENCY >= 0) {
                 this.locationUnwatch = this.$store.watch((state) => state.avatar.location, () => this.updateURL());
             } else {
-                // if url update disbled (by having a negative frequency) then don't bind function
-                // and instead clear the navigation
+                // If URL updating is disbled (by having a negative frequency) then don't bind the watcher function.
+                // And remove the path from the URL bar.
                 window.history.replaceState(null, "", `#/`);
             }
         }
