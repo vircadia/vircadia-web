@@ -166,8 +166,8 @@
                 }"
             >
                 <img
-                    src="assets/vircadia-icon.svg"
-                    alt=""
+                    :src="$store.state.theme.logo"
+                    :alt="`${$store.state.theme.productName} logo`"
                 >
                 <p
                     class="locationDomain text-no-wrap ellipsis cursor-pointer"
