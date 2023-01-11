@@ -290,7 +290,7 @@
                                                     v-if="menuItem.caption"
                                                     caption
                                                 >
-                                                    {{ menuItemcaption(menuItem.caption) }}
+                                                    {{ formatMenuItemCaption(menuItem.caption) }}
                                                 </q-item-label>
                                             </q-item-section>
                                         </q-item>
@@ -795,7 +795,7 @@ export default defineComponent({
                 this.metaverseLocationCopied = false;
             }, transitionTime);
         },
-        menuItemcaption: function(caption: string) {
+        formatMenuItemCaption: function(caption: string) {
             switch (caption) {
                 case "nametag_setting":
                     return this.$store.state.avatar.showNametags ? "On" : "Off";
