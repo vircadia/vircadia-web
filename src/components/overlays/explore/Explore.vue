@@ -323,7 +323,7 @@
                 <q-tab name="bookmarks" label="Bookmarks" />
             </q-tabs>
             <q-tab-panels v-model="tab" animated class="full-height">
-                <q-tab-panel name="all" class="q-pa-none">
+                <q-tab-panel name="all" class="q-pa-none non-selectable">
                     <q-list :showing="!loading">
                         <q-item
                             v-for="place in filteredAndSortedData"
@@ -376,11 +376,11 @@
                         </q-item>
                     </q-list>
                 </q-tab-panel>
-                <q-tab-panel name="bookmarks" class="full-height q-pa-none">
+                <q-tab-panel name="bookmarks" class="full-height q-pa-none non-selectable">
                     <q-list :showing="!loading">
                         <p
                             v-if="$store.state.bookmarks.locations.length <= 0"
-                            class="text-grey-6"
+                            class="text-grey-6 q-pt-lg"
                             style="width: 100%;text-align: center;"
                         >You have no bookmarks</p>
                         <q-item
