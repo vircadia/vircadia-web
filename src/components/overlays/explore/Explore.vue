@@ -781,7 +781,6 @@ export default defineComponent({
         this.$store.watch((state) => state.avatar.location, (value) => {
             this.loadLocation(value);
         });
-        console.log(this.position.x);
     }
 });
 </script>
