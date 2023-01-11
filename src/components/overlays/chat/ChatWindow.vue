@@ -43,26 +43,32 @@
                 @scroll="scrollToLatestMessage"
             >
                 <q-card-section class="q-pt-none">
-                    <div v-for="(msg) in $store.state.messages.messages" :key="msg.whenReceived">
+                    <template v-for="(msg, index) in sortedMessages" :key="index">
                         <q-chat-message
-                            :text="msgText(msg)"
-                            :sent="msgIsFromThisClient(msg.senderId)"
-                            :name="msgIsFromThisClient(msg.senderId) ? `${msgSender(msg)} (you)` : msgSender(msg)"
-                            :stamp="msgTime(msg)"
+                            :text="msg.text"
+                            :text-html="true"
+                            :sent="msgIsFromThisClient(msg.root.senderId)"
+                            :name="
+                                msgIsFromThisClient(msg.root.senderId) ? `${msgSender(msg.root)} (you)` : msgSender(msg.root)
+                            "
+                            :stamp="formatMessageTime(msg.time)"
                             text-color="white"
-                            :bg-color="msgIsFromThisClient(msg.senderId) ? 'primary' : 'grey-9'"
+                            :bg-color="msgIsFromThisClient(msg.root.senderId) ? 'primary' : 'grey-9'"
                         >
                             <template v-slot:avatar>
                                 <q-avatar
-                                    :color="msgIsFromThisClient(msg.senderId) ? 'primary' : 'grey-9'"
+                                    :color="msgIsFromThisClient(msg.root.senderId) ? 'primary' : 'grey-9'"
                                     class="q-mx-xs"
                                 >
-                                    <img v-if="getProfilePicture(msgSender(msg))" :src="getProfilePicture(msgSender(msg))">
-                                    <span v-else>{{ msgSender(msg).charAt(0) }}</span>
+                                    <img
+                                        v-if="getProfilePicture(msgSender(msg.root))"
+                                        :src="getProfilePicture(msgSender(msg.root))"
+                                    >
+                                    <span v-else>{{ msgSender(msg.root).charAt(0) }}</span>
                                 </q-avatar>
                             </template>
                         </q-chat-message>
-                    </div>
+                    </template>
                 </q-card-section>
             </q-scroll-area>
             <q-input
@@ -100,7 +106,12 @@ import { AMessage, DomainMessage, DefaultChatMessage } from "@Modules/domain/mes
 import { DomainMgr } from "@Modules/domain";
 import { Uuid } from "@vircadia/web-sdk";
 
-// import Log from "@Modules/debugging/log";
+// Interface for Quasar-compatible messages that have had their text fields combined.
+interface ACombinedMessage {
+    root: AMessage,
+    text: string[],
+    time: Date
+}
 
 export default defineComponent({
     name: "ChatWindow",
@@ -155,7 +166,10 @@ export default defineComponent({
         currentPrimaryMessages: [],
         previousScrollPos: 0,
         scrollIsAtBottom: true,
-        lastPrimaryMessageIndex: -1
+        lastPrimaryMessageIndex: -1,
+
+        messageCombinationTimeLimit: 120000, // 2 minutes.
+        sortedMessages: [] as ACombinedMessage[]
     }),
 
     computed: {
@@ -184,6 +198,55 @@ export default defineComponent({
     },
 
     methods: {
+        sortMessages(messages: AMessage[]): ACombinedMessage[] {
+            const liveMessages = messages;
+            // Skip sorting if there are no messages.
+            if (liveMessages.length <= 0) {
+                return [];
+            }
+
+            // Sort the messages.
+            const sortedMessages = [] as ACombinedMessage[];
+            let merges = 0;
+            liveMessages.forEach((message, index) => {
+                // Get the previous message in the chat.
+                // Account for the number of already combined messages.
+
+                const previousMessage = sortedMessages[index - 1 - merges];
+                // If this is the first message to be sorted, simply append it to the list.
+                if (sortedMessages.length <= 0 || !previousMessage) {
+                    sortedMessages.push({
+                        root: message,
+                        text: [this.msgText(message)],
+                        time: message.whenReceived
+                    });
+                    // Move on to the next message.
+                    return;
+                }
+
+                // If the sender ID is the same as the previous message,
+                // and this message is within the time window of the previous message.
+                if (
+                    previousMessage.root.senderId.stringify() === message.senderId.stringify()
+                    && previousMessage.time.getTime() < message.whenReceived.getTime()
+                    && message.whenReceived.getTime() < previousMessage.time.getTime()
+                    + this.messageCombinationTimeLimit
+                ) {
+                    // Merge this message into the previous one.
+                    previousMessage.text.push(this.msgText(message));
+                    previousMessage.time = message.whenReceived;
+                    merges += 1;
+                } else {
+                    // Otherwise, simply append this message to the list.
+                    sortedMessages.push({
+                        root: message,
+                        text: [this.msgText(message)],
+                        time: message.whenReceived
+                    });
+                }
+            });
+            return sortedMessages;
+        },
         getProfilePicture(username: string): string | undefined {
             // Should store profile pictures after retrieving and then pull each
             // subsequent one from cache instead of hitting metaverse every time.
@@ -205,6 +268,15 @@ export default defineComponent({
             }
             return pMsg.senderId.stringify();
         },
+        msgText(message: AMessage): string {
+            if (message.messageJSON) {
+                const dMsg = message.messageJSON as DefaultChatMessage;
+                if ("message" in dMsg) {
+                    return dMsg.message;
+                }
+            }
+            return message.message;
+        },
         // Return the text of the messsage.
         // This is where message format is checked. If DefaultMessage, use the text in the JSON packet.
         msgText(pMsg: AMessage): string[] {
@@ -218,9 +290,13 @@ export default defineComponent({
             return [pMsg.message];
         },
         // Return the printable time of the message.
-        msgTime(pMsg: AMessage): string {
+        formatMessageTime(time: Date): string {
             // Messages loaded from persistent storage can contain broken timestamps.
-            return pMsg.whenReceived?.toUTCString();
+            if (!time) {
+                return "";
+            }
+            // Show in local time.
+            return `${time.toDateString()}, ${time.toLocaleTimeString()}`;
         },
         // Return 'true' if the chat message was sent by this session
         // Relies of the message queuer to add the "self: true" to the added message
@@ -321,6 +397,22 @@ export default defineComponent({
 
     mounted() {
         this.scrollToBottom(false);
+        this.sortedMessages = this.sortMessages(this.$store.state.messages.messages);
+        this.$store.watch(
+            (state) => JSON.stringify(
+                state.messages.messages,
+                (key: string, entry: unknown) => {
+                    // Convert BigInt values to strings, since there is no default serializer for them.
+                    if (entry instanceof window.BigInt) {
+                        return entry.toString();
+                    }
+                    return entry;
+                }
+            ),
+            () => {
+                this.sortedMessages = this.sortMessages(this.$store.state.messages.messages);
+            }
+        );
     }
 });
 </script>
