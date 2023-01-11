@@ -184,6 +184,7 @@
                     </div>
 
                     <q-toolbar-title
+                        class="non-selectable"
                         :class="{ 'q-px-xs': isMobile }"
                     >
                         <q-item-section>
@@ -225,9 +226,9 @@
 
                     <template v-if="isDesktop">
                         <q-item clickable v-ripple
+                            class="non-selectable"
                             @click="$store.state.account.isLoggedIn ?
                             onClickOpenOverlay('Account') : openDialog('Login', true)"
-                            class="prevent-select"
                         >
                             <q-item-section side>
                                 <q-avatar size="48px">
@@ -265,7 +266,7 @@
                             aria-label="Settings Menu"
                         >
                             <q-menu v-model="settingsMenuState" @show="aMenuIsOpen = true">
-                                <q-list class="prevent-select">
+                                <q-list class="non-selectable">
                                     <template v-for="(menuItem, index) in settingsMenu" :key="index">
                                         <q-item-label
                                             v-if="menuItem.isCategory"
@@ -316,7 +317,7 @@
                                 <img :src="$store.state.theme.logo">
                             </q-avatar>
                         </template>
-                        <q-list class="q-pb-sm prevent-select">
+                        <q-list class="q-pb-sm">
                             <template v-if="isMobile">
                                 <q-item-label header>Account</q-item-label>
                                 <q-item clickable v-ripple
@@ -379,10 +380,11 @@
 
                                 <q-separator inset spaced />
                             </template>
-                            <q-item-label header>Help</q-item-label>
+                            <q-item-label header class="non-selectable">Help</q-item-label>
                             <q-item v-for="(menuItem, index) in helpMenu" :key="index"
                                 clickable
                                 v-ripple
+                                class="non-selectable"
                                 @click="openUrl(menuItem.link)"
                             >
                                 <q-item-section avatar dense>
@@ -393,8 +395,8 @@
                                 </q-item-section>
                             </q-item>
                             <q-separator inset spaced />
-                            <q-item-label header>Status</q-item-label>
-                            <q-item>
+                            <q-item-label header class="non-selectable">Status</q-item-label>
+                            <q-item class="non-selectable">
                                 <q-item-section>
                                     <q-item-label>Domain</q-item-label>
                                     <q-item-label caption>{{ getDomainServerState }}</q-item-label>
@@ -413,13 +415,14 @@
                                             dense
                                             :icon="domainLocationCopied ? 'done' : 'content_copy'"
                                             :disable="domainLocationCopied"
+                                            class="q-ml-sm"
                                             title="Copy"
                                             @click.stop="copyDomainLocationToClipboard()"
                                         />
                                     </q-item-label>
                                 </q-item-section>
                             </q-item>
-                            <q-item>
+                            <q-item class="non-selectable">
                                 <q-item-section>
                                     <q-item-label>{{ $store.state.theme.globalServiceTerm }}</q-item-label>
                                     <q-item-label caption>{{ getMetaverseServerState.toUpperCase() }}</q-item-label>
@@ -438,6 +441,7 @@
                                             dense
                                             :icon="metaverseLocationCopied ? 'done' : 'content_copy'"
                                             :disable="metaverseLocationCopied"
+                                            class="q-ml-sm"
                                             title="Copy"
                                             @click.stop="copyMetaverseLocationToClipboard()"
                                         />
@@ -445,7 +449,7 @@
                                 </q-item-section>
                             </q-item>
                             <q-separator inset spaced />
-                            <q-item-label header>About</q-item-label>
+                            <q-item-label header class="non-selectable">About</q-item-label>
                             <q-item>
                                 <q-item-section>
                                     <q-item-label>{{ $store.state.globalConsts.APP_NAME }}</q-item-label>
