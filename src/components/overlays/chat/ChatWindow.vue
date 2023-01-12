@@ -343,9 +343,9 @@ export default defineComponent({
                         position: this.$store.state.avatar.position
                     };
                     msger.sendMessage(DomainMessage.DefaultChatChannel, JSON.stringify(msg));
-                    // clear the input field
+                    // Clear the input field.
                     this.messageInput = "";
-                    // Scroll to the bottom of the mesage window.
+                    // Scroll to the bottom of the chat.
                     this.scrollToBottom(false);
                 }
             }
@@ -407,8 +407,10 @@ export default defineComponent({
     },
 
     mounted() {
-        this.scrollToBottom(false);
+        // Sort existing messages.
         this.sortedMessages = this.sortMessages(this.$store.state.messages.messages);
+
+        // Sort any new messages.
         this.$store.watch(
             (state) => JSON.stringify(
                 state.messages.messages,
@@ -424,6 +426,9 @@ export default defineComponent({
                 this.sortedMessages = this.sortMessages(this.$store.state.messages.messages);
             }
         );
+
+        // Scroll to the bottom of the chat.
+        this.scrollToBottom(false);
     }
 });
 </script>
