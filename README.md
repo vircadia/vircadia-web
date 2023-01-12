@@ -46,6 +46,10 @@ yarn
 
 ## Run, Compile, and Test
 
+### Customization Options
+
+The web client's settings such as branding, default servers, and more, can be customized directly from [environment variables](https://github.com/vircadia/vircadia-web/blob/master/quasar.conf.js#L131) which you must set at or prior to build/compile time.
+
 ### Start the app in development mode
 
 Development mode benefits from features like hot-code reloading, error reporting, etc.
