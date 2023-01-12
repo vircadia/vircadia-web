@@ -21,7 +21,7 @@ This interface is tested and validated for the following browser platforms:
 
 ## Project Setup
 
-### Prequisites
+### Prerequisites
 
 We currently use the following:
 
