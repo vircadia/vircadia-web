@@ -170,19 +170,20 @@ class CameraObtacleDetectInfo {
 }
 
 export class InputController extends ScriptComponent {
-    private _camera : Nullable<ArcRotateCamera> = null;
+    private _camera: Nullable<ArcRotateCamera> = null;
     private _cameraSkin = 0.1;
     private _cameraElastic = true;
     private _cameraViewTransitionThreshold = 1.5;
     private _animGroups: Nullable<Array<AnimationGroup>> = null;
     private _animator: Nullable<Animator> = null;
-    private _avatarState : AvatarState = new AvatarState();
-    private _inputState : InputState = new InputState();
-    private _input : Nullable<IInputHandler> = null;
+    private _avatarState: AvatarState = new AvatarState();
+    private _avatarHeight = 0;
+    private _inputState: InputState = new InputState();
+    private _input: Nullable<IInputHandler> = null;
     private _isMobile = false;
 
     @inspector()
-    private _defaultCameraTarget = new Vector3(0, 0.7, 0);
+    private _defaultCameraTarget = new Vector3(0, 1.7, 0);
 
     private _defaultCameraAlpha = 0.5 * Math.PI;
     private _defaultCameraBeta = 0.5 * Math.PI;
@@ -197,6 +198,10 @@ export class InputController extends ScriptComponent {
 
     public set animGroups(value: AnimationGroup[]) {
         this._animGroups = value;
+    }
+
+    public set avatarHeight(value: number) {
+        this._avatarHeight = value;
     }
 
     public set camera(value: Nullable<ArcRotateCamera>) {
@@ -631,7 +636,8 @@ export class InputController extends ScriptComponent {
             return;
         }
 
-        // make camera follow avatar
+        // Make the camera follow the avatar.
+        this._defaultCameraTarget.y = this._avatarHeight;
         this._gameObject.position.addToRef(this._defaultCameraTarget, this._camera.target);
 
         // Update the FOV.
