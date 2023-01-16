@@ -350,7 +350,7 @@ export class VScene {
             const defaultColliderProperties = {
                 radius: 0.3,
                 height: 1.8,
-                offset: new Vector3(0, -0.07, -0.04), // Offset coordinates are local (relative to the avatar).
+                offset: new Vector3(0, -0.1, -0.04), // Offset coordinates are local (relative to the avatar).
                 mass: 1,
                 friction: 3
             };
