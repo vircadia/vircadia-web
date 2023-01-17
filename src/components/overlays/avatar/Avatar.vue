@@ -87,7 +87,7 @@
             style="background: transparent; box-shadow: none;"
         >
             <q-scroll-area
-                class="col"
+                class="col non-selectable"
                 style="height: 100%;"
             >
                 <div class="row q-mb-md q-px-md">
