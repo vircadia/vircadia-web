@@ -446,14 +446,14 @@ export class VScene {
                 // Initialize the avatar mesh.
                 avatar.id = id;
                 const meshComponent = new MeshComponent();
-                meshComponent.node = result.mesh;
+                meshComponent.mesh = result.mesh;
                 meshComponent.skeleton = result.skeleton;
-                if (meshComponent.node && "refreshBoundingInfo" in meshComponent.node) {
+                if (meshComponent.mesh && "refreshBoundingInfo" in meshComponent.mesh) {
                     // Get the bounding vectors of the avatar mesh.
-                    const boundingMesh = meshComponent.node.refreshBoundingInfo(Boolean(meshComponent.skeleton));
+                    const boundingMesh = meshComponent.mesh.refreshBoundingInfo(Boolean(meshComponent.skeleton));
                     boundingVectors = boundingMesh.getHierarchyBoundingVectors();
-                    // meshComponent.node.position = Vector3.Zero();
                     avatarHeight = boundingVectors.max.y - boundingVectors.min.y;
+                    meshComponent.mesh.position = Vector3.Zero();
                 }
                 avatar.addComponent(meshComponent);
                 avatar.addComponent(new ScriptAvatarController(domain));
