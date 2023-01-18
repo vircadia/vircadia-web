@@ -40,8 +40,8 @@ import Log from "@Modules/debugging/log";
 import { VVector3 } from ".";
 import { DomainMgr } from "../domain";
 
-// TODO: Put this avatar (and any default scene models/animations/whatever) into the app code to be compiled with the app.
-const AvatarAnimationUrl = "https://digisomni.com/cloud/cdn/y7i2mX99WqT9LFb/download/AnimationsBasic.glb";
+// File containing all avatar animations.
+const AvatarAnimationUrl = "assets/AnimationsBasic.glb";
 
 /**
  * VScene is the interface to a single scene's state, entities, and operations.
