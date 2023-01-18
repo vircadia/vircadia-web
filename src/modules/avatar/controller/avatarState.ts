@@ -52,8 +52,8 @@ export type AnimationName =
     "run_bwd" | "run_fast_fwd" | "run_fast_left" | "run_fast_right";
 
 export class AvatarState {
-    public walkSpeed = 4;
-    public runSpeed = 10;
+    public walkSpeed = 2.4;
+    public runSpeed = 5.2;
     public landSpeed = 4;
     public currentSpeed = 0;
 
