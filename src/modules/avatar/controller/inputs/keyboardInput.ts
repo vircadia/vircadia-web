@@ -23,6 +23,8 @@ import { AvatarState, Action, State, JumpSubState } from "../avatarState";
 import { InputState, CameraMode, InputMode } from "../inputState";
 import { Store } from "@Store/index";
 import { AudioMgr } from "@Modules/scene/audio";
+import type { GameObject } from "@Modules/object";
+import type { SceneController } from "@Modules/scene/controllers";
 
 // This is disabled because TS complains about BABYLON's use of cap'ed function names
 /* eslint-disable new-cap */
@@ -133,6 +135,21 @@ export class KeyboardInput implements IInputHandler {
         } else {
             this._runKey = evt.sourceEvent.code === Store.state.controls.movement.run?.keybind ? true : this._runKey;
         }
+
+        // Fly.
+        if (evt.sourceEvent.code === Store.state.controls.movement.fly?.keybind) {
+            const sceneManager = this._scene.rootNodes.find((node) => node.id === "SceneManager") as GameObject;
+            const sceneController = sceneManager.components.get("SceneController") as SceneController | undefined;
+
+            if (this._state.state === State.Fly) {
+                this._state.state = State.Idle;
+                sceneController?.applyGravity();
+            } else {
+                this._state.state = State.Fly;
+                this._state.action = Action.Fly;
+                sceneController?.removeGravity();
+            }
+        }
     }
 
     private _onKeyUp(evt: ActionEvent):void {
@@ -170,6 +187,12 @@ export class KeyboardInput implements IInputHandler {
         if (this._state.state === State.Idle || this._state.state === State.Move) {
             this._state.state = State.Move;
             this._state.action = this._runKey ? Action.RunForward : Action.WalkForward;
+            return;
+        }
+
+        if (this._state.state === State.Fly) {
+            this._state.state = State.Fly;
+            this._state.action = Action.Fly;
         }
     }
 }

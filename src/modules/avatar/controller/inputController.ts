@@ -274,6 +274,15 @@ export class InputController extends ScriptComponent {
         return this._avatarState.landSpeed;
     }
 
+    @inspectorAccessor({ min: 0.1, max: 20 })
+    public set flySpeed(value: number) {
+        this._avatarState.flySpeed = value;
+    }
+
+    public get flySpeed() : number {
+        return this._avatarState.flySpeed;
+    }
+
     public get isTeleported() : boolean {
         return this._avatarState.state === State.Teleport;
     }
@@ -398,6 +407,9 @@ export class InputController extends ScriptComponent {
             case State.Jump:
                 this._doJump(delta);
                 break;
+            case State.Fly:
+                this._doFly(delta);
+                break;
             case State.Teleport:
                 this._doTeleport(delta);
                 break;
@@ -459,6 +471,12 @@ export class InputController extends ScriptComponent {
 
         if (this._avatarState.action !== Action.Idle) {
             this._avatarState.action = Action.Idle;
+        }
+
+        // Reset the avatar's rotation (so that they are standing up).
+        if (this._gameObject && this._gameObject.rotationQuaternion) {
+            this._gameObject.rotationQuaternion.x = 0;
+            this._gameObject.rotationQuaternion.z = 0;
         }
     }
 
@@ -541,12 +559,32 @@ export class InputController extends ScriptComponent {
         }
     }
 
+    private _doFly(delta : number) {
+        if (!this._gameObject || !this._camera) {
+            return;
+        }
+
+        // Rotate the avatar relative to the yaw direction of the camera.
+        const yawRotation = this._defaultCameraAlpha - this._camera.alpha;
+        // Rotate the avatar relative to the pitch direction of the camera.
+        const pitchRotation = this._camera.beta - this._defaultCameraBeta;
+        Quaternion.FromEulerAnglesToRef(pitchRotation, yawRotation, 0, this._gameObject.rotationQuaternion as Quaternion);
+
+        if (this._avatarState.moveDir.x !== 0 || this._avatarState.moveDir.z !== 0) {
+            this._getCurrentSpeed();
+            const velcoity = this._gameObject.calcMovePOV(this._avatarState.moveDir.x, 0, -this._avatarState.moveDir.z)
+                .normalize()
+                .scale(this._avatarState.currentSpeed * delta);
+            this._gameObject.position.addInPlace(velcoity);
+        }
+    }
+
     private _doMove(delta : number) {
         if (!this._gameObject || !this._camera) {
             return;
         }
 
-        // rotate avatar to the direction to camera
+        // Rotate the avatar relative to the yaw direction of the camera.
         const angle = Vector3.GetAngleBetweenVectors(
             this._avatarState.moveDir.normalize(), Vector3.Forward(true), Vector3.Up());
         const rotation = this._defaultCameraAlpha + angle - this._camera.alpha;
@@ -578,6 +616,9 @@ export class InputController extends ScriptComponent {
                 break;
             case Action.Land:
                 speed = this._avatarState.landSpeed;
+                break;
+            case Action.Fly:
+                speed = this._avatarState.flySpeed;
                 break;
             default:
                 speed = this._avatarState.walkSpeed;
@@ -619,6 +660,9 @@ export class InputController extends ScriptComponent {
                 break;
             case Action.Land:
                 anim = "jump_standing_land_settle_all";
+                break;
+            case Action.Fly:
+                anim = "fly";
                 break;
             case Action.Sit:
                 anim = "sitting_crosslegged";
