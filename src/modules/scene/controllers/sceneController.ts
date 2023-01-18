@@ -85,7 +85,6 @@ export class SceneController extends ScriptComponent {
             }
             if (!this.isGravityApplied && this._detectGround()) {
                 this.applyGravity();
-                return;
             }
         }
     }
