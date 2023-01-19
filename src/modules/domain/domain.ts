@@ -126,6 +126,10 @@ export class Domain {
 
         Log.debug(Log.types.COMM, `Creating a new DomainServer`);
         this.#_domain = new DomainServer();
+        this.#_domain.account.authRequired.connect(() => {
+            console.debug("AUTH REQUIRED: Open login dialog");
+            // TODO: Open login dialog.
+        });
         this.#updateDomainLogin();
 
         this.#_camera = new Camera(this.#_domain.contextID);
