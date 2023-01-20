@@ -101,6 +101,7 @@ declare module "@vircadia/web-sdk" {
         login(username: string, oAuthJSON: OAuthJSON): void;
         logout(): void;
         isLoggedIn(): boolean;
+        get authRequired(): Signal;
     }
     // ============================
     export type OnDomainStateChanged = (state: ConnectionState, info: string) => void;
