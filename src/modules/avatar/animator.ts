@@ -30,6 +30,7 @@ export class Animator {
     private _animGroups : Map<string, AnimationGroup>;
     private _weight = 0;
     private _weightStep = 0;
+    private _animTransitionSpeed = 0.1; // A lower number will result in a longer transition between animations.
 
     constructor(mesh: Mesh, animGroups: AnimationGroup[]) {
         this._mesh = mesh;
@@ -85,7 +86,7 @@ export class Animator {
             this._nextAnim = null;
 
             this._weight = this._prevAnim ? 0 : 1;
-            this._weightStep = Math.min(1, Math.max(0.1, 1 / this._currentAnim.to));
+            this._weightStep = Math.min(1, Math.max(this._animTransitionSpeed, 1 / this._currentAnim.to));
         }
 
         this._transitAnimation();
