@@ -133,7 +133,7 @@ module.exports = configure(function (ctx) {
                 VRCA_DEFAULT_METAVERSE_URL: process.env.VRCA_DEFAULT_METAVERSE_URL,
                 VRCA_DEFAULT_DOMAIN_PROTOCOL: process.env.VRCA_DEFAULT_DOMAIN_PROTOCOL,
                 VRCA_DEFAULT_DOMAIN_PORT: process.env.VRCA_DEFAULT_DOMAIN_PORT,
-                VRCA_DEFAULT_DOMAIN_URL: process.env.VRCA_DEFAULT_DOMAIN_URL,    
+                VRCA_DEFAULT_DOMAIN_URL: process.env.VRCA_DEFAULT_DOMAIN_URL,
                 // Theme
                 VRCA_BRAND_NAME: process.env.VRCA_BRAND_NAME,
                 VRCA_PRODUCT_NAME: process.env.VRCA_PRODUCT_NAME,

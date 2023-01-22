@@ -341,7 +341,6 @@ export class VScene {
                 // Get the bounding vectors of the avatar mesh.
                 const boundingMesh = meshComponent.mesh.refreshBoundingInfo(Boolean(meshComponent.skeleton));
                 boundingVectors = boundingMesh.getHierarchyBoundingVectors();
-                // meshComponent.mesh.setPivotPoint(new Vector3(0, boundingVectors.min.y, 0));
                 meshComponent.mesh.position = Vector3.Zero();
                 this._myAvatar.addComponent(meshComponent);
             }

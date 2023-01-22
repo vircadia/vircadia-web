@@ -318,7 +318,7 @@ export class InputController extends ScriptComponent {
     }
 
     // eslint-disable-next-line class-methods-use-this
-    public get componentType():string {
+    public get componentType(): string {
         return InputController.typeName;
     }
 
