@@ -80,12 +80,22 @@ export class KeyboardInput implements IInputHandler {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     public handleInputs(delta: number) : void {
-        if (this._inputMap[Store.state.controls.movement.jump?.keybind]) {
+        if (this._inputMap[Store.state.controls.movement.jump?.keybind] && this._state.state !== State.Fly) {
             if (this._state.state !== State.Jump) {
                 this._state.state = State.Jump;
                 this._state.jumpSubstate = JumpSubState.Start;
             } else if (this._state.jumpSubstate === JumpSubState.Landing) {
                 this._state.jumpInPlace = true;
+            }
+        }
+
+        if (this._state.state === State.Fly) {
+            if (this._inputMap[Store.state.controls.movement.jump?.keybind]) {
+                this._state.moveDir.y = Scalar.Lerp(Math.abs(this._state.moveDir.y), 1, 0.1);
+            } else if (this._inputMap[Store.state.controls.movement.crouch?.keybind]) {
+                this._state.moveDir.y = -Scalar.Lerp(Math.abs(this._state.moveDir.y), 1, 0.1);
+            } else {
+                this._state.moveDir.y = 0;
             }
         }
 
@@ -105,7 +115,7 @@ export class KeyboardInput implements IInputHandler {
             this._state.moveDir.z = 0;
         }
 
-        if (this._state.moveDir.x !== 0 || this._state.moveDir.z !== 0) {
+        if (this._state.moveDir.x !== 0 || this._state.moveDir.y !== 0 || this._state.moveDir.z !== 0) {
             this._setMoveAction();
         } else if (this._state.state === State.Move) {
             this._state.action = Action.Idle;

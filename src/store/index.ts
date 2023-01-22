@@ -407,7 +407,7 @@ interface VStore extends VuexStore<IRootState> {
 const storeDefaults = {
     storeVersion: {
         major: 3,
-        minor: 1,
+        minor: 2,
         patch: 0
     },
     globalConsts: {
@@ -568,6 +568,7 @@ const storeDefaults = {
             walkRight: { name: "Walk Right", keybind: "KeyD" },
             run: { name: "Run", keybind: "ShiftLeft" },
             jump: { name: "Jump", keybind: "Space" },
+            crouch: { name: "Crouch", keybind: "KeyC" },
             fly: { name: "Fly", keybind: "KeyF" }
         },
         camera: {

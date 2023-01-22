@@ -564,18 +564,24 @@ export class InputController extends ScriptComponent {
             return;
         }
 
+        this._avatarState.jumpSubstate = JumpSubState.None;
+
         // Rotate the avatar relative to the yaw direction of the camera.
         const yawRotation = this._defaultCameraAlpha - this._camera.alpha;
         // Rotate the avatar relative to the pitch direction of the camera.
         const pitchRotation = this._camera.beta - this._defaultCameraBeta;
         Quaternion.FromEulerAnglesToRef(pitchRotation, yawRotation, 0, this._gameObject.rotationQuaternion as Quaternion);
 
-        if (this._avatarState.moveDir.x !== 0 || this._avatarState.moveDir.z !== 0) {
+        if (this._avatarState.moveDir.x !== 0 || this._avatarState.moveDir.y !== 0 || this._avatarState.moveDir.z !== 0) {
             this._getCurrentSpeed();
-            const velcoity = this._gameObject.calcMovePOV(this._avatarState.moveDir.x, 0, -this._avatarState.moveDir.z)
+            // Move on the X-Z plane, relative to the camera angle.
+            const velcoity = this._gameObject
+                .calcMovePOV(this._avatarState.moveDir.x, 0, -this._avatarState.moveDir.z)
                 .normalize()
                 .scale(this._avatarState.currentSpeed * delta);
             this._gameObject.position.addInPlace(velcoity);
+            // Move on the Y axis, regardless of camera angle.
+            this._gameObject.moveWithCollisions(new Vector3(0, this._avatarState.moveDir.y * this._avatarState.ascendSpeed, 0));
         }
     }
 
