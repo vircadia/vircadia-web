@@ -799,8 +799,8 @@ export class InputController extends ScriptComponent {
         if (this._gameObject) {
             // position the raycast from bottom center of mesh
             const raycastPosition = this._gameObject.position.clone();
-
-            const ray = new Ray(raycastPosition, Vector3.Down(), 1.3);
+            const groundDetectionDistance = 0.1;
+            const ray = new Ray(raycastPosition, Vector3.Down(), groundDetectionDistance);
 
             const pick = this._scene.pickWithRay(ray, (mesh) => mesh.isPickable);
 
