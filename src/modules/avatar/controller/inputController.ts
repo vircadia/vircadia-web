@@ -481,6 +481,10 @@ export class InputController extends ScriptComponent {
     }
 
     private _doJump(delta : number) {
+        if (this._avatarState.state === State.Fly) {
+            return;
+        }
+
         if (!this._gameObject || !this._gameObject.physicsImpostor) {
             return;
         }
@@ -533,8 +537,10 @@ export class InputController extends ScriptComponent {
                 // Allow the avatar to move in the air.
                 this._doMoveInJumping(delta);
                 // Move to the nxt jump substate once the avatar touches the ground.
-                if (this._detectGround()
-                    || Math.abs(this._avatarState.previousPosY - this._gameObject.position.y) < 0.001) {
+                if (
+                    this._detectGround()
+                    || Math.abs(this._avatarState.previousPosY - this._gameObject.position.y) < 0.001
+                ) {
                     this._avatarState.jumpSubstate = JumpSubState.Landing;
                     this._avatarState.action = Action.Land;
                 }
@@ -581,7 +587,10 @@ export class InputController extends ScriptComponent {
                 .scale(this._avatarState.currentSpeed * delta);
             this._gameObject.position.addInPlace(velcoity);
             // Move on the Y axis, regardless of camera angle.
-            this._gameObject.moveWithCollisions(new Vector3(0, this._avatarState.moveDir.y * this._avatarState.ascendSpeed, 0));
+            const verticalSpeed = this._avatarState.action === Action.FlyFast
+                ? this._avatarState.fastAscendSpeed
+                : this._avatarState.ascendSpeed;
+            this._gameObject.moveWithCollisions(new Vector3(0, this._avatarState.moveDir.y * verticalSpeed, 0));
         }
     }
 
@@ -626,6 +635,9 @@ export class InputController extends ScriptComponent {
             case Action.Fly:
                 speed = this._avatarState.flySpeed;
                 break;
+            case Action.FlyFast:
+                speed = this._avatarState.fastFlySpeed;
+                break;
             default:
                 speed = this._avatarState.walkSpeed;
         }
@@ -668,6 +680,9 @@ export class InputController extends ScriptComponent {
                 anim = "jump_standing_land_settle_all";
                 break;
             case Action.Fly:
+                anim = "fly";
+                break;
+            case Action.FlyFast:
                 anim = "fly";
                 break;
             case Action.Sit:

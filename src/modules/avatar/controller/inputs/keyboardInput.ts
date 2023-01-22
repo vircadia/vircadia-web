@@ -139,13 +139,6 @@ export class KeyboardInput implements IInputHandler {
             AudioMgr.muteAudio(false);
         }
 
-        // Run.
-        if (Store.state.controls.movement.run?.keybind.includes("Shift")) {
-            this._runKey = this._shiftKey;
-        } else {
-            this._runKey = evt.sourceEvent.code === Store.state.controls.movement.run?.keybind ? true : this._runKey;
-        }
-
         // Fly.
         if (evt.sourceEvent.code === Store.state.controls.movement.fly?.keybind) {
             const sceneManager = this._scene.rootNodes.find((node) => node.id === "SceneManager") as GameObject;
@@ -159,6 +152,13 @@ export class KeyboardInput implements IInputHandler {
                 this._state.action = Action.Fly;
                 sceneController?.removeGravity();
             }
+        }
+
+        // Run.
+        if (Store.state.controls.movement.run?.keybind.includes("Shift")) {
+            this._runKey = this._shiftKey;
+        } else {
+            this._runKey = evt.sourceEvent.code === Store.state.controls.movement.run?.keybind ? true : this._runKey;
         }
     }
 
@@ -202,7 +202,7 @@ export class KeyboardInput implements IInputHandler {
 
         if (this._state.state === State.Fly) {
             this._state.state = State.Fly;
-            this._state.action = Action.Fly;
+            this._state.action = this._runKey ? Action.FlyFast : Action.Fly;
         }
     }
 }

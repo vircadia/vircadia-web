@@ -43,6 +43,7 @@ export enum Action {
     Jump,
     Land,
     Fly,
+    FlyFast,
     Sit,
     RunForward
 }
@@ -58,7 +59,9 @@ export class AvatarState {
     public runSpeed = 5.2;
     public landSpeed = 4;
     public flySpeed = 8; // Flying on the X-Z plane.
+    public fastFlySpeed = 27;
     public ascendSpeed = 0.05; // Flying on the Y axis.
+    public fastAscendSpeed = 0.1;
     public currentSpeed = 0;
 
     public rotationSpeed = 40 * Math.PI / 180;
