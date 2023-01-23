@@ -589,7 +589,7 @@ export class InputController extends ScriptComponent {
                 .calcMovePOV(this._avatarState.moveDir.x, 0, -this._avatarState.moveDir.z)
                 .normalize()
                 .scale(this._avatarState.currentSpeed * delta);
-            this._gameObject.position.addInPlace(velcoity);
+            this._gameObject.position.addInPlace(velocity);
             // Move on the Y axis, regardless of camera angle.
             const verticalSpeed = this._avatarState.action === Action.FlyFast
                 ? this._avatarState.fastAscendSpeed
@@ -610,9 +610,9 @@ export class InputController extends ScriptComponent {
         Quaternion.FromEulerAnglesToRef(0, rotation, 0, this._gameObject.rotationQuaternion as Quaternion);
 
         this._getCurrentSpeed();
-        const velcoity = this._gameObject.calcMovePOV(0, 0, 1).normalize()
+        const velocity = this._gameObject.calcMovePOV(0, 0, 1).normalize()
             .scale(this._avatarState.currentSpeed * delta);
-        this._gameObject.position.addInPlace(velcoity);
+        this._gameObject.position.addInPlace(velocity);
     }
 
     private _doMoveInJumping(delta : number) {
