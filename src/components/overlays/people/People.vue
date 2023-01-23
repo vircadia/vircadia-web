@@ -135,7 +135,7 @@
                                                 @click.stop="adminServerMute(avaInfo.sessionId)"
                                             ></q-btn>
                                             <q-btn
-                                                icon="logout"
+                                                icon="remove_circle"
                                                 text-color="negative"
                                                 flat
                                                 round
@@ -143,16 +143,6 @@
                                                 ripple
                                                 title="Kick player"
                                                 @click.stop="adminKick(avaInfo.sessionId)"
-                                            ></q-btn>
-                                            <q-btn
-                                                icon="remove_circle"
-                                                text-color="negative"
-                                                flat
-                                                round
-                                                dense
-                                                ripple
-                                                title="Ban player"
-                                                @click.stop=""
                                             ></q-btn>
                                         </template>
                                     </div>
