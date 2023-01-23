@@ -795,16 +795,27 @@ export class InputController extends ScriptComponent {
         }
     }
 
+    /**
+     * Check if there is a ground surface directly below the player's avatar.
+     * @returns `true` if ground was detected, `false` if not.
+     */
     private _detectGround() : boolean {
         if (this._gameObject) {
-            // position the raycast from bottom center of mesh
+            // The avatar's root position is at the bottom center of the mesh.
+            // Project the ray from just above this point in case the mesh has clipped into the ground slightly.
+            const raycastVerticalOffset = 0.2;
             const raycastPosition = this._gameObject.position.clone();
-            const groundDetectionDistance = 0.1;
-            const ray = new Ray(raycastPosition, Vector3.Down(), groundDetectionDistance);
+            raycastPosition.y = raycastPosition.y + raycastVerticalOffset;
 
+            // Make the ray long enough to cover this extra distance and extend into the expected ground surface slightly.
+            const groundDetectionDistance = raycastVerticalOffset + 0.2;
+
+            // Cast the detection ray.
+            const ray = new Ray(raycastPosition, Vector3.Down(), groundDetectionDistance);
             const pick = this._scene.pickWithRay(ray, (mesh) => mesh.isPickable);
 
-            if (pick && pick.hit && pick.pickedPoint && pick.pickedMesh) { // grounded
+            // If the ray collided with a mesh, then the avatar is grounded.
+            if (pick && pick.hit && pick.pickedPoint && pick.pickedMesh) {
                 return true;
             }
         }
