@@ -841,13 +841,17 @@ export class InputController extends ScriptComponent {
         if (!this._gameObject) {
             return;
         }
+
+        // Set the visibility of the avatar.
         this._gameObject.isVisible = visible;
-        // name tag
+
+        // Set the visibility of the avatar's nametag.
         const meshes = this._gameObject.getChildMeshes(true, (mesh) => mesh.name === "Nametag");
         if (meshes.length > 0) {
             meshes[0].isVisible = visible;
         }
 
+        // Set the visibility of the avatar's mesh.
         const meshComp = this._gameObject.getComponent(MeshComponent.typeName) as MeshComponent;
         if (meshComp) {
             meshComp.visible = visible;
