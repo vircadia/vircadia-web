@@ -588,7 +588,7 @@ export class InputController extends ScriptComponent {
         if (this._avatarState.moveDir.x !== 0 || this._avatarState.moveDir.y !== 0 || this._avatarState.moveDir.z !== 0) {
             this._getCurrentSpeed();
             // Move on the X-Z plane, relative to the camera angle.
-            const velcoity = this._gameObject
+            const velocity = this._gameObject
                 .calcMovePOV(this._avatarState.moveDir.x, 0, -this._avatarState.moveDir.z)
                 .normalize()
                 .scale(this._avatarState.currentSpeed * delta);
