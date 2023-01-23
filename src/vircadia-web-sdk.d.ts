@@ -104,6 +104,31 @@ declare module "@vircadia/web-sdk" {
         get authRequired(): Signal;
     }
     // ============================
+    export enum BanFlags {
+        NO_BAN = 0,
+        BAN_BY_USERNAME = 1,
+        BAN_BY_FINGERPRINT = 2,
+        BAN_BY_USERNAME_AND_FINGERPRINT = 3,
+        BAN_BY_IP = 4,
+        BAN_BY_USERNAME_AND_IP = 5,
+        BAN_BY_FINGERPRINT_AND_IP = 6,
+        BAN_BY_USERNAME_AND_FINGERPRINT_AND_IP = 7
+    }
+    // ============================
+    export class UsersInterface {
+        readonly canKick: boolean;
+        canKickChanged: Signal;
+        wantIgnored: boolean;
+        getAvatarGain(id: Uuid): number;
+        getPersonalIgnore(id: Uuid): boolean;
+        getPersonalMute(id: Uuid): boolean;
+        kick(sessionID: Uuid, banFlags?: BanFlags): void;
+        mute(sessionID: Uuid): void;
+        setAvatarGain(id: Uuid, gain: number): void;
+        setPersonalIgnore(id: Uuid, mute: boolean): void;
+        setPersonalMute(id: Uuid, mute: boolean): void;
+    }
+    // ============================
     export type OnDomainStateChanged = (state: ConnectionState, info: string) => void;
     export class DomainServer {
         static get DISCONNECTED(): ConnectionState;
@@ -114,6 +139,7 @@ declare module "@vircadia/web-sdk" {
         static stateToString(state: ConnectionState): string;
         constructor();
         get account(): AccountInterface;
+        get users(): UsersInterface;
         get location(): string;
         get state(): ConnectionState;
         get refusalInfo(): string;
