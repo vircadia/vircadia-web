@@ -544,11 +544,8 @@ export class InputController extends ScriptComponent {
             case JumpSubState.Falling:
                 // Allow the avatar to move in the air.
                 this._doMoveInJumping(delta);
-                // Move to the nxt jump substate once the avatar touches the ground.
-                if (
-                    this._detectGround()
-                    || Math.abs(this._avatarState.previousPosY - this._gameObject.position.y) < 0.001
-                ) {
+                // Move to the next jump substate once the avatar touches the ground or stops falling.
+                if (this._detectGround() || Math.abs(this._avatarState.previousPosY - this._gameObject.position.y) < 0.001) {
                     this._avatarState.jumpSubstate = JumpSubState.Landing;
                     this._avatarState.action = Action.Land;
                 }
