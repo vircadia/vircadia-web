@@ -108,8 +108,8 @@ export const DomainMgr = {
     startGameLoop(): void {
         if (!this._intervalID) {
             this._boundUpdateFunction = this.update.bind(this);
-            // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-            this._intervalID = setInterval(this._boundUpdateFunction, 33); }
+            const TICK_TIME = 33;
+            this._intervalID = setInterval(this._boundUpdateFunction, TICK_TIME); }
     },
 
     stopGameLoop(): void {
