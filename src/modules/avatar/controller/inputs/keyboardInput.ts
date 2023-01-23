@@ -145,7 +145,9 @@ export class KeyboardInput implements IInputHandler {
             const sceneController = sceneManager.components.get("SceneController") as SceneController | undefined;
 
             if (this._state.state === State.Fly) {
-                this._state.state = State.Idle;
+                this._state.action = Action.Jump;
+                this._state.state = State.Jump;
+                this._state.jumpSubstate = JumpSubState.Falling;
                 sceneController?.applyGravity();
             } else {
                 this._state.state = State.Fly;

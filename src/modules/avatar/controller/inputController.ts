@@ -471,9 +471,11 @@ export class InputController extends ScriptComponent {
 
         if (this._avatarState.action !== Action.Idle) {
             this._avatarState.action = Action.Idle;
+            this._avatarState.state = State.Idle;
+            this._avatarState.jumpSubstate = JumpSubState.None;
         }
 
-        // Reset the avatar's rotation (so that they are standing up).
+        // Reset the avatar's rotation (so that it is standing up).
         if (this._gameObject && this._gameObject.rotationQuaternion) {
             this._gameObject.rotationQuaternion.x = 0;
             this._gameObject.rotationQuaternion.z = 0;
@@ -487,6 +489,12 @@ export class InputController extends ScriptComponent {
 
         if (!this._gameObject || !this._gameObject.physicsImpostor) {
             return;
+        }
+
+        // Reset the avatar's rotation (so that it is standing up).
+        if (this._gameObject && this._gameObject.rotationQuaternion) {
+            this._gameObject.rotationQuaternion.x = 0;
+            this._gameObject.rotationQuaternion.z = 0;
         }
 
         this._avatarState.duration += delta;
@@ -559,7 +567,6 @@ export class InputController extends ScriptComponent {
                     this._avatarState.jumpSubstate = JumpSubState.None;
                 }
                 break;
-
             default:
                 break;
         }
