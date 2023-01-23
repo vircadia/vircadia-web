@@ -15,7 +15,7 @@ import { DomainAudio } from "@Modules/domain/audio";
 import { DomainMessage } from "@Modules/domain/message";
 import { DomainAvatar } from "@Modules/domain/avatar";
 
-import { Store, Actions } from "@Store/index";
+import { Store, Actions, Mutations as StoreMutations } from "@Store/index";
 
 import Log from "@Modules/debugging/log";
 import { Client } from "./client";
@@ -128,7 +128,22 @@ export class Domain {
         this.#_domain = new DomainServer();
         this.#_domain.account.authRequired.connect(() => {
             console.debug("AUTH REQUIRED: Open login dialog");
-            // TODO: Open login dialog.
+            // Reset the dialog element.
+            Store.commit(StoreMutations.MUTATE, {
+                property: "dialog",
+                with: {
+                    "show": false,
+                    "which": ""
+                }
+            });
+            // Open the login dialog.
+            Store.commit(StoreMutations.MUTATE, {
+                property: "dialog",
+                with: {
+                    "show": true,
+                    "which": "Login"
+                }
+            });
         });
         this.#updateDomainLogin();
 
