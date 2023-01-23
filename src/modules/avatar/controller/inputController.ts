@@ -279,7 +279,7 @@ export class InputController extends ScriptComponent {
         this._avatarState.flySpeed = value;
     }
 
-    public get flySpeed() : number {
+    public get flySpeed(): number {
         return this._avatarState.flySpeed;
     }
 
