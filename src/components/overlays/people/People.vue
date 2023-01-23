@@ -122,7 +122,7 @@
                                             disable
                                             @click.stop=""
                                         ></q-btn>
-                                        <template v-if="$store.state.account.isAdmin">
+                                        <template v-if="true">
                                             <!--Admin Controls-->
                                             <q-btn
                                                 icon="volume_off"
@@ -132,7 +132,7 @@
                                                 dense
                                                 ripple
                                                 title="Server mute"
-                                                @click.stop=""
+                                                @click.stop="adminServerMute(avaInfo.sessionId)"
                                             ></q-btn>
                                             <q-btn
                                                 icon="logout"
@@ -142,7 +142,7 @@
                                                 dense
                                                 ripple
                                                 title="Kick player"
-                                                @click.stop=""
+                                                @click.stop="adminKick(avaInfo.sessionId)"
                                             ></q-btn>
                                             <q-btn
                                                 icon="remove_circle"
@@ -203,6 +203,7 @@ import { defineComponent } from "vue";
 
 import OverlayShell from "../OverlayShell.vue";
 import { Store, Mutations as StoreMutations, AvatarInfo } from "@Store/index";
+import { DomainMgr } from "@Modules/domain";
 import { Renderer } from "@Modules/scene";
 import { Uuid } from "@vircadia/web-sdk";
 
@@ -368,6 +369,20 @@ export default defineComponent({
 
         teleportToAvatar(pAvaInfo: AvatarInfo) {
             Renderer.getScene().teleportMyAvatarToOtherPeople(pAvaInfo.sessionId.stringify());
+        },
+
+        adminServerMute(sessionId: Uuid): void {
+            const domainServer = DomainMgr.ActiveDomain?.DomainClient;
+            if (domainServer) {
+                domainServer.users.mute(sessionId);
+            }
+        },
+
+        adminKick(sessionId: Uuid): void {
+            const domainServer = DomainMgr.ActiveDomain?.DomainClient;
+            if (domainServer) {
+                domainServer.users.kick(sessionId);
+            }
         }
     },
 
