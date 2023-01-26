@@ -26,7 +26,7 @@ import { GameObject, MeshComponent, CapsuleColliderComponent,
 import { ScriptComponent, requireScript, requireScripts, reattachScript } from "@Modules/script";
 import { InputController, MyAvatarController, ScriptAvatarController, AvatarMapper } from "@Modules/avatar";
 import { IEntity, IEntityDescription, EntityBuilder, EntityEvent } from "@Modules/entity";
-import { ScriptAvatar } from "@vircadia/web-sdk";
+import { ScriptAvatar, Uuid } from "@vircadia/web-sdk";
 import { Utility } from "@Modules/utility";
 import { Location } from "@Modules/domain/location";
 import { DataMapper } from "@Modules/domain/dataMapper";
@@ -392,15 +392,32 @@ export class VScene {
             this._onMyAvatarModelChangedObservable.notifyObservers(this._myAvatar);
 
             let nametag = undefined as Mesh | undefined;
+            // eslint-disable-next-line max-len
+            let nametagColor = Store.state.account.isAdmin ? Color3.FromHexString(Store.state.theme.colors.primary) : undefined;
             if (Store.state.avatar.showNametags) {
-                nametag = this._loadNametag(this._myAvatar, avatarHeight, Store.state.avatar.displayName);
+                nametag = this._loadNametag(
+                    this._myAvatar,
+                    avatarHeight,
+                    Store.state.avatar.displayName,
+                    nametagColor
+                );
             }
+            // Update the nametag color when the player's admin state is changed in the Store.
+            Store.watch((state) => state.account.isAdmin, (value: boolean) => {
+                nametagColor = value ? Color3.FromHexString(Store.state.theme.colors.primary) : undefined;
+                if (nametag) {
+                    this._unloadNametag(nametag);
+                    if (this._myAvatar && Store.state.avatar.showNametags) {
+                        nametag = this._loadNametag(this._myAvatar, avatarHeight, Store.state.avatar.displayName, nametagColor);
+                    }
+                }
+            });
             // Update the nametag when the displayName is changed in the Store.
             Store.watch((state) => state.avatar.displayName, (value: string) => {
                 if (nametag) {
                     this._unloadNametag(nametag);
                     if (this._myAvatar && Store.state.avatar.showNametags) {
-                        nametag = this._loadNametag(this._myAvatar, avatarHeight, value);
+                        nametag = this._loadNametag(this._myAvatar, avatarHeight, value, nametagColor);
                     }
                 }
             });
@@ -408,7 +425,7 @@ export class VScene {
             Store.watch((state) => state.avatar.showNametags, (value: boolean) => {
                 if (nametag) {
                     if (value && this._myAvatar) { // Nametags are enabled.
-                        nametag = this._loadNametag(this._myAvatar, avatarHeight, Store.state.avatar.displayName);
+                        nametag = this._loadNametag(this._myAvatar, avatarHeight, Store.state.avatar.displayName, nametagColor);
                     } else { // Nametags are disabled.
                         this._unloadNametag(nametag);
                     }
@@ -427,14 +444,15 @@ export class VScene {
         return this._myAvatar;
     }
 
-    public async loadAvatar(id: string, domain: ScriptAvatar) : Promise<Nullable<GameObject>> {
-        let avatar = this._avatarList.get(id);
+    public async loadAvatar(id: Uuid, domain: ScriptAvatar) : Promise<Nullable<GameObject>> {
+        const stringId = id.stringify();
+        let avatar = this._avatarList.get(stringId);
         if (avatar) {
             avatar.dispose();
         }
 
         if (this._resourceManager && domain.skeletonModelURL !== "") {
-            avatar = new GameObject("ScriptAvatar_" + id, this._scene);
+            avatar = new GameObject("ScriptAvatar_" + stringId, this._scene);
             const result = await this._resourceManager.loadAvatar(domain.skeletonModelURL);
             let boundingVectors = {
                 max: Vector3.Zero(),
@@ -443,7 +461,7 @@ export class VScene {
             let avatarHeight = 1.8;
             if (result.mesh) {
                 // Initialize the avatar mesh.
-                avatar.id = id;
+                avatar.id = stringId;
                 const meshComponent = new MeshComponent();
                 meshComponent.mesh = result.mesh;
                 meshComponent.skeleton = result.skeleton;
@@ -457,28 +475,41 @@ export class VScene {
                 avatar.addComponent(meshComponent);
                 avatar.addComponent(new ScriptAvatarController(domain));
 
-                this._avatarList.set(id, avatar);
+                this._avatarList.set(stringId, avatar);
 
                 let nametag = undefined as Mesh | undefined;
+                // eslint-disable-next-line max-len
+                let nametagColor = Store.state.avatars.avatarsInfo.get(id)?.isAdmin ? Color3.FromHexString(Store.state.theme.colors.primary) : undefined;
                 if (Store.state.avatar.showNametags) {
-                    nametag = this._loadNametag(avatar, avatarHeight, domain.displayName);
+                    nametag = this._loadNametag(avatar, avatarHeight, domain.displayName, nametagColor);
                 }
-                // Update the nametag when the displayName is changed
-                domain.displayNameChanged.connect(() => {
+                // Update the nametag color when the player's admin state is changed.
+                Store.watch((state) => Boolean(state.avatars.avatarsInfo.get(id)?.isAdmin), (value: boolean) => {
+                    nametagColor = value ? Color3.FromHexString(Store.state.theme.colors.primary) : undefined;
                     if (nametag) {
                         this._unloadNametag(nametag);
-                        const nametagAvatar = this._avatarList.get(id);
+                        const nametagAvatar = this._avatarList.get(stringId);
                         if (nametagAvatar && Store.state.avatar.showNametags) {
-                            nametag = this._loadNametag(nametagAvatar, avatarHeight, domain.displayName);
+                            nametag = this._loadNametag(nametagAvatar, avatarHeight, domain.displayName, nametagColor);
                         }
                     }
                 });
-                // Show/Hide the nametag when showNametags is changed in the Store
+                // Update the nametag when the displayName is changed.
+                domain.displayNameChanged.connect(() => {
+                    if (nametag) {
+                        this._unloadNametag(nametag);
+                        const nametagAvatar = this._avatarList.get(stringId);
+                        if (nametagAvatar && Store.state.avatar.showNametags) {
+                            nametag = this._loadNametag(nametagAvatar, avatarHeight, domain.displayName, nametagColor);
+                        }
+                    }
+                });
+                // Show/Hide the nametag when showNametags is changed in the Store.
                 Store.watch((state) => state.avatar.showNametags, (value: boolean) => {
                     if (nametag) {
-                        const nametagAvatar = this._avatarList.get(id);
+                        const nametagAvatar = this._avatarList.get(stringId);
                         if (value && nametagAvatar) { // Nametags are enabled
-                            nametag = this._loadNametag(nametagAvatar, avatarHeight, domain.displayName);
+                            nametag = this._loadNametag(nametagAvatar, avatarHeight, domain.displayName, nametagColor);
                         } else { // Nametags are disabled
                             this._unloadNametag(nametag);
                         }
@@ -491,12 +522,13 @@ export class VScene {
         return null;
     }
 
-    public unloadAvatar(id: string) : void {
-        const avatar = this._avatarList.get(id);
+    public unloadAvatar(id: Uuid) : void {
+        const stringId = id.stringify();
+        const avatar = this._avatarList.get(stringId);
         if (avatar) {
             avatar.dispose();
             // eslint-disable-next-line @typescript-eslint/dot-notation
-            this._avatarList.delete(id);
+            this._avatarList.delete(stringId);
         }
 
     }
@@ -509,7 +541,7 @@ export class VScene {
     }
 
     // TODO: Move all nametag code into a dedicated module.
-    private _loadNametag(avatar: GameObject, avatarHeight: number, name: string) : Mesh {
+    private _loadNametag(avatar: GameObject, avatarHeight: number, name: string, color?: Color3) : Mesh {
         const fontSize = 70;
         const characterWidth = 38.5;
         const tagTextureWidth = (name.length + 1) * characterWidth;
@@ -518,7 +550,7 @@ export class VScene {
         const tagHeight = 0.1;
         const tagCornerRadius = tagHeight / 6;
         const tagCornerSegments = 16;
-        const tagBackgroundColor = new Color3(0.07, 0.07, 0.07);
+        const tagBackgroundColor = color ?? new Color3(0.07, 0.07, 0.07);
 
         // Texture.
         const nametagTexture = new DynamicTexture("NametagTexture", {
@@ -535,19 +567,23 @@ export class VScene {
             true,
             true
         );
+        nametagTexture.getAlphaFromRGB = true;
 
         // Material.
         const nametagMaterial = new StandardMaterial("NametagMaterial", this._scene);
         nametagMaterial.diffuseTexture = nametagTexture;
         nametagMaterial.specularTexture = nametagTexture;
         nametagMaterial.emissiveTexture = nametagTexture;
+        nametagMaterial.opacityTexture = nametagTexture;
+        nametagMaterial.transparencyMode = 1; // Alpha test.
+        nametagMaterial.alphaMode = 6; // One one.
         nametagMaterial.disableLighting = true;
 
         const nametagArrowMaterial = new StandardMaterial("NametagArrowMaterial", this._scene);
         nametagArrowMaterial.diffuseColor = tagBackgroundColor;
         nametagArrowMaterial.specularColor = tagBackgroundColor;
-        nametagArrowMaterial.emissiveColor = new Color3(0.005, 0.005, 0.005);
-        nametagMaterial.disableLighting = true;
+        nametagArrowMaterial.emissiveColor = tagBackgroundColor;
+        nametagArrowMaterial.disableLighting = true;
 
         // Mesh.
         const nametagPlane = MeshBuilder.CreatePlane("Nametag", {
@@ -561,6 +597,15 @@ export class VScene {
         nametagPlane.parent = avatar;
         nametagPlane.isPickable = false;
         nametagPlane.renderingGroupId = MASK_MESH_RENDER_GROUP_ID;
+
+        const nametagBackgroundPlane = MeshBuilder.CreatePlane("NametagBackground", {
+            width: tagWidth,
+            height: tagHeight,
+            sideOrientation: Mesh.DOUBLESIDE,
+            updatable: true
+        }, this._scene);
+        nametagBackgroundPlane.material = nametagArrowMaterial;
+        nametagBackgroundPlane.parent = nametagPlane;
 
         // Rounded corners.
         const nametagCorners = [] as Mesh[];
@@ -632,7 +677,7 @@ export class VScene {
     }
 
     private _unloadNametag(nametag: Mesh) : void {
-        nametag.dispose();
+        nametag.dispose(false, true);
     }
 
     private _createScene() : void {
