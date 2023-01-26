@@ -616,10 +616,10 @@ export class VScene {
             updatable: true
         };
         const nametagCornerPositions = [
-            new Vector3(-tagWidth / 2, tagHeight / 2 - tagCornerRadius, 0),
-            new Vector3(tagWidth / 2, tagHeight / 2 - tagCornerRadius, 0),
-            new Vector3(tagWidth / 2, -tagHeight / 2 + tagCornerRadius, 0),
-            new Vector3(-tagWidth / 2, -tagHeight / 2 + tagCornerRadius, 0)
+            new Vector3(-tagWidth / 2, tagHeight / 2 - tagCornerRadius, -0.001),
+            new Vector3(tagWidth / 2, tagHeight / 2 - tagCornerRadius, -0.001),
+            new Vector3(tagWidth / 2, -tagHeight / 2 + tagCornerRadius, -0.001),
+            new Vector3(-tagWidth / 2, -tagHeight / 2 + tagCornerRadius, -0.001)
         ];
         nametagCorners.push(MeshBuilder.CreateDisc("NametagTopLeftCorner", nametagCornerOptions, this._scene));
         nametagCorners.push(MeshBuilder.CreateDisc("NametagTopRightCorner", nametagCornerOptions, this._scene));
@@ -640,8 +640,8 @@ export class VScene {
             updatable: true
         };
         const nametagEdgePositions = [
-            new Vector3(-tagWidth / 2 - tagCornerRadius / 2, 0, 0),
-            new Vector3(tagWidth / 2 + tagCornerRadius / 2, 0, 0)
+            new Vector3(-tagWidth / 2 - tagCornerRadius / 2, 0, -0.001),
+            new Vector3(tagWidth / 2 + tagCornerRadius / 2, 0, -0.001)
         ];
         nametagEdges.push(MeshBuilder.CreatePlane("NametagLeftEdge", nametagEdgeOptions, this._scene));
         nametagEdges.push(MeshBuilder.CreatePlane("NametagRightEdge", nametagEdgeOptions, this._scene));
