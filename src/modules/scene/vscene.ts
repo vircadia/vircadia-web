@@ -584,11 +584,11 @@ export class VScene {
         nametagMaterial.alphaMode = 6; // One one.
         nametagMaterial.disableLighting = true;
 
-        const nametagArrowMaterial = new StandardMaterial("NametagArrowMaterial", this._scene);
-        nametagArrowMaterial.diffuseColor = tagBackgroundColor;
-        nametagArrowMaterial.specularColor = tagBackgroundColor;
-        nametagArrowMaterial.emissiveColor = tagBackgroundColor;
-        nametagArrowMaterial.disableLighting = true;
+        const nametagBackgroundMaterial = new StandardMaterial("NametagBackgroundMaterial", this._scene);
+        nametagBackgroundMaterial.diffuseColor = tagBackgroundColor;
+        nametagBackgroundMaterial.specularColor = tagBackgroundColor;
+        nametagBackgroundMaterial.emissiveColor = tagBackgroundColor;
+        nametagBackgroundMaterial.disableLighting = true;
 
         // Mesh.
         const nametagPlane = MeshBuilder.CreatePlane("Nametag", {
@@ -609,7 +609,7 @@ export class VScene {
             sideOrientation: Mesh.DOUBLESIDE,
             updatable: true
         }, this._scene);
-        nametagBackgroundPlane.material = nametagArrowMaterial;
+        nametagBackgroundPlane.material = nametagBackgroundMaterial;
         nametagBackgroundPlane.parent = nametagPlane;
 
         // Rounded corners.
@@ -631,7 +631,7 @@ export class VScene {
         nametagCorners.push(MeshBuilder.CreateDisc("NametagBottomRightCorner", nametagCornerOptions, this._scene));
         nametagCorners.push(MeshBuilder.CreateDisc("NametagBottomLeftCorner", nametagCornerOptions, this._scene));
         nametagCorners.forEach((cornerMesh, index) => {
-            cornerMesh.material = nametagArrowMaterial;
+            cornerMesh.material = nametagBackgroundMaterial;
             cornerMesh.parent = nametagPlane;
             cornerMesh.position = nametagCornerPositions[index];
         });
@@ -651,7 +651,7 @@ export class VScene {
         nametagEdges.push(MeshBuilder.CreatePlane("NametagLeftEdge", nametagEdgeOptions, this._scene));
         nametagEdges.push(MeshBuilder.CreatePlane("NametagRightEdge", nametagEdgeOptions, this._scene));
         nametagEdges.forEach((cornerMesh, index) => {
-            cornerMesh.material = nametagArrowMaterial;
+            cornerMesh.material = nametagBackgroundMaterial;
             cornerMesh.parent = nametagPlane;
             cornerMesh.position = nametagEdgePositions[index];
         });
@@ -664,7 +664,7 @@ export class VScene {
             sideOrientation: Mesh.DOUBLESIDE,
             updatable: true
         }, this._scene);
-        nametagArrow.material = nametagArrowMaterial;
+        nametagArrow.material = nametagBackgroundMaterial;
         nametagArrow.parent = nametagPlane;
         nametagArrow.position = new Vector3(0, -(tagHeight / 2 + nametagArrowSize / 4), 0);
         nametagArrow.rotation.z = -Math.PI / 2;
