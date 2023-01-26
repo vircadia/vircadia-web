@@ -13,7 +13,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable class-methods-use-this */
 
-import { AnimationGroup, Engine, Scene,
+import { AnimationGroup, Engine, Scene, Color3,
     ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, Camera,
     Observable, Nullable, AmmoJSPlugin, Quaternion, Vector3, StandardMaterial,
     Mesh, MeshBuilder, DynamicTexture, Color4, DefaultRenderingPipeline } from "@babylonjs/core";
@@ -510,8 +510,11 @@ export class VScene {
 
     // TODO: Move all nametag code into a dedicated module.
     private _loadNametag(avatar: GameObject, avatarHeight: number, name: string) : Mesh {
+        const fontSize = 70;
         const characterWidth = 38.5;
         const tagWidth = (name.length + 2) * characterWidth;
+        const tagHeight = 0.1;
+        const tagBackgroundColor = new Color3(0.07, 0.07, 0.07);
 
         // Texture.
         const nametagTextureResolution = 100;
@@ -522,10 +525,10 @@ export class VScene {
         nametagTexture.drawText(
             name,
             tagWidth / 2 - name.length / 2 * characterWidth, // Center the name on the tag.
-            70,
-            "70px monospace",
+            fontSize,
+            `${fontSize}px monospace`,
             "white",
-            "#121212",
+            tagBackgroundColor.toHexString(),
             true,
             true
         );
@@ -540,7 +543,7 @@ export class VScene {
         // Mesh.
         const nametagPlane = MeshBuilder.CreatePlane("Nametag", {
             width: 0.1 * tagWidth / nametagTextureResolution,
-            height: 0.1,
+            height: tagHeight,
             sideOrientation: Mesh.DOUBLESIDE,
             updatable: true
         }, this._scene);
