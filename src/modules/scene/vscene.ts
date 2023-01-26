@@ -568,10 +568,7 @@ export class VScene {
             updatable: true
         }, this._scene);
         nametagArrow.material = nametagArrowMaterial;
-        nametagArrow.billboardMode = Mesh.BILLBOARDMODE_Y;
         nametagArrow.parent = nametagPlane;
-        nametagArrow.isPickable = false;
-        nametagArrow.renderingGroupId = MASK_MESH_RENDER_GROUP_ID;
 
         // Position the nametag above the center of the avatar.
         const positionOffset = new Vector3(0, 0.15, 0);
