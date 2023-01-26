@@ -546,7 +546,7 @@ export class VScene {
     }
 
     // TODO: Move all nametag code into a dedicated module.
-    private _loadNametag(avatar: GameObject, avatarHeight: number, name: string, color?: Color3) : Mesh {
+    private _loadNametag(avatar: GameObject, avatarHeight: number, name: string, color?: Color3) : Mesh | undefined {
         const fontSize = 70;
         const characterWidth = 38.5;
         const tagTextureWidth = (name.length + 1) * characterWidth;
@@ -555,9 +555,10 @@ export class VScene {
         const tagHeight = 0.1;
         const tagCornerRadius = tagHeight / 6;
         const tagCornerSegments = 16;
+        const nametagArrowSize = 0.02;
         const tagBackgroundColor = color ?? new Color3(0.07, 0.07, 0.07);
 
-        // Texture.
+        // Textures.
         const nametagTexture = new DynamicTexture("NametagTexture", {
             width: tagTextureWidth,
             height: tagTextureHeight
@@ -574,23 +575,37 @@ export class VScene {
         );
         nametagTexture.getAlphaFromRGB = true;
 
-        // Material.
+        const nametagBackgroundTexture = new DynamicTexture("NametagTexture2", {
+            width: tagTextureWidth,
+            height: tagTextureHeight
+        }, this._scene);
+        nametagBackgroundTexture.drawText(
+            "",
+            0,
+            0,
+            `${fontSize}px monospace`,
+            "white",
+            tagBackgroundColor.toHexString(),
+            true,
+            true
+        );
+        nametagBackgroundTexture.getAlphaFromRGB = true;
+
+
+        // Materials.
         const nametagMaterial = new StandardMaterial("NametagMaterial", this._scene);
         nametagMaterial.diffuseTexture = nametagTexture;
         nametagMaterial.specularTexture = nametagTexture;
         nametagMaterial.emissiveTexture = nametagTexture;
-        nametagMaterial.opacityTexture = nametagTexture;
-        nametagMaterial.transparencyMode = 1; // Alpha test.
-        nametagMaterial.alphaMode = 6; // One one.
         nametagMaterial.disableLighting = true;
 
         const nametagBackgroundMaterial = new StandardMaterial("NametagBackgroundMaterial", this._scene);
-        nametagBackgroundMaterial.diffuseColor = tagBackgroundColor;
-        nametagBackgroundMaterial.specularColor = tagBackgroundColor;
-        nametagBackgroundMaterial.emissiveColor = tagBackgroundColor;
+        nametagBackgroundMaterial.diffuseTexture = nametagBackgroundTexture;
+        nametagBackgroundMaterial.specularTexture = nametagBackgroundTexture;
+        nametagBackgroundMaterial.emissiveTexture = nametagBackgroundTexture;
         nametagBackgroundMaterial.disableLighting = true;
 
-        // Mesh.
+        // Meshes.
         const nametagPlane = MeshBuilder.CreatePlane("Nametag", {
             width: tagWidth,
             height: tagHeight,
@@ -598,19 +613,6 @@ export class VScene {
             updatable: true
         }, this._scene);
         nametagPlane.material = nametagMaterial;
-        nametagPlane.billboardMode = Mesh.BILLBOARDMODE_Y;
-        nametagPlane.parent = avatar;
-        nametagPlane.isPickable = false;
-        nametagPlane.renderingGroupId = MASK_MESH_RENDER_GROUP_ID;
-
-        const nametagBackgroundPlane = MeshBuilder.CreatePlane("NametagBackground", {
-            width: tagWidth,
-            height: tagHeight,
-            sideOrientation: Mesh.DOUBLESIDE,
-            updatable: true
-        }, this._scene);
-        nametagBackgroundPlane.material = nametagBackgroundMaterial;
-        nametagBackgroundPlane.parent = nametagPlane;
 
         // Rounded corners.
         const nametagCorners = [] as Mesh[];
@@ -621,10 +623,10 @@ export class VScene {
             updatable: true
         };
         const nametagCornerPositions = [
-            new Vector3(-tagWidth / 2, tagHeight / 2 - tagCornerRadius, -0.001),
-            new Vector3(tagWidth / 2, tagHeight / 2 - tagCornerRadius, -0.001),
-            new Vector3(tagWidth / 2, -tagHeight / 2 + tagCornerRadius, -0.001),
-            new Vector3(-tagWidth / 2, -tagHeight / 2 + tagCornerRadius, -0.001)
+            new Vector3(-tagWidth / 2, tagHeight / 2 - tagCornerRadius, 0),
+            new Vector3(tagWidth / 2, tagHeight / 2 - tagCornerRadius, 0),
+            new Vector3(tagWidth / 2, -tagHeight / 2 + tagCornerRadius, 0),
+            new Vector3(-tagWidth / 2, -tagHeight / 2 + tagCornerRadius, 0)
         ];
         nametagCorners.push(MeshBuilder.CreateDisc("NametagTopLeftCorner", nametagCornerOptions, this._scene));
         nametagCorners.push(MeshBuilder.CreateDisc("NametagTopRightCorner", nametagCornerOptions, this._scene));
@@ -632,7 +634,6 @@ export class VScene {
         nametagCorners.push(MeshBuilder.CreateDisc("NametagBottomLeftCorner", nametagCornerOptions, this._scene));
         nametagCorners.forEach((cornerMesh, index) => {
             cornerMesh.material = nametagBackgroundMaterial;
-            cornerMesh.parent = nametagPlane;
             cornerMesh.position = nametagCornerPositions[index];
         });
 
@@ -645,19 +646,17 @@ export class VScene {
             updatable: true
         };
         const nametagEdgePositions = [
-            new Vector3(-tagWidth / 2 - tagCornerRadius / 2, 0, -0.001),
-            new Vector3(tagWidth / 2 + tagCornerRadius / 2, 0, -0.001)
+            new Vector3(-tagWidth / 2 - tagCornerRadius / 2, 0, 0),
+            new Vector3(tagWidth / 2 + tagCornerRadius / 2, 0, 0)
         ];
         nametagEdges.push(MeshBuilder.CreatePlane("NametagLeftEdge", nametagEdgeOptions, this._scene));
         nametagEdges.push(MeshBuilder.CreatePlane("NametagRightEdge", nametagEdgeOptions, this._scene));
         nametagEdges.forEach((cornerMesh, index) => {
             cornerMesh.material = nametagBackgroundMaterial;
-            cornerMesh.parent = nametagPlane;
             cornerMesh.position = nametagEdgePositions[index];
         });
 
         // Arrow mesh.
-        const nametagArrowSize = 0.02;
         const nametagArrow = MeshBuilder.CreateDisc("NametagArrow", {
             radius: nametagArrowSize,
             tessellation: 3,
@@ -665,18 +664,34 @@ export class VScene {
             updatable: true
         }, this._scene);
         nametagArrow.material = nametagBackgroundMaterial;
-        nametagArrow.parent = nametagPlane;
         nametagArrow.position = new Vector3(0, -(tagHeight / 2 + nametagArrowSize / 4), 0);
         nametagArrow.rotation.z = -Math.PI / 2;
         nametagArrow.scaling.x = 0.5;
 
+        // Merge the meshes.
+        const nametagMergedMesh = Mesh.MergeMeshes([
+            nametagPlane,
+            ...nametagCorners,
+            ...nametagEdges,
+            nametagArrow
+        ], true, true, undefined, false, true);
+
+        if (!nametagMergedMesh) {
+            return undefined;
+        }
+
         // Position the nametag above the center of the avatar.
         const positionOffset = new Vector3(0, 0.15, 0);
-        nametagPlane.position = new Vector3(
+        nametagMergedMesh.position = new Vector3(
             positionOffset.x,
             avatarHeight + positionOffset.y,
             positionOffset.z
         );
+
+        nametagMergedMesh.billboardMode = Mesh.BILLBOARDMODE_Y;
+        nametagMergedMesh.parent = avatar;
+        nametagMergedMesh.isPickable = false;
+        nametagMergedMesh.renderingGroupId = MASK_MESH_RENDER_GROUP_ID;
 
         return nametagPlane;
     }
@@ -733,7 +748,7 @@ export class VScene {
     private _updateRenderPipelineSettings(): void {
         // Get the dafault rendering pipeline.
         let defaultPipeline
-        = this._scene.postProcessRenderPipelineManager.supportedPipelines.find((pipeline) => pipeline.name === "default");
+            = this._scene.postProcessRenderPipelineManager.supportedPipelines.find((pipeline) => pipeline.name === "default");
         // If the default pipeline doesn't exist, create it.
         if (!defaultPipeline) {
             defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);
