@@ -540,6 +540,12 @@ export class VScene {
         nametagMaterial.emissiveTexture = nametagTexture;
         nametagMaterial.disableLighting = true;
 
+        const nametagArrowMaterial = new StandardMaterial("NametagArrowMaterial", this._scene);
+        nametagArrowMaterial.diffuseColor = tagBackgroundColor;
+        nametagArrowMaterial.specularColor = tagBackgroundColor;
+        nametagArrowMaterial.emissiveColor = new Color3(0.005, 0.005, 0.005);
+        nametagMaterial.disableLighting = true;
+
         // Mesh.
         const nametagPlane = MeshBuilder.CreatePlane("Nametag", {
             width: 0.1 * tagWidth / nametagTextureResolution,
@@ -552,6 +558,21 @@ export class VScene {
         nametagPlane.parent = avatar;
         nametagPlane.isPickable = false;
         nametagPlane.renderingGroupId = MASK_MESH_RENDER_GROUP_ID;
+
+        // Arrow mesh.
+        const nametagArrowSize = 0.02;
+        const nametagArrow = MeshBuilder.CreateDisc("NametagArrow", {
+            radius: nametagArrowSize,
+            tessellation: 3,
+            sideOrientation: Mesh.DOUBLESIDE,
+            updatable: true
+        }, this._scene);
+        nametagArrow.material = nametagArrowMaterial;
+        nametagArrow.billboardMode = Mesh.BILLBOARDMODE_Y;
+        nametagArrow.parent = nametagPlane;
+        nametagArrow.isPickable = false;
+        nametagArrow.renderingGroupId = MASK_MESH_RENDER_GROUP_ID;
+
         // Position the nametag above the center of the avatar.
         const positionOffset = new Vector3(0, 0.15, 0);
         nametagPlane.position = new Vector3(
@@ -559,6 +580,9 @@ export class VScene {
             avatarHeight + positionOffset.y,
             positionOffset.z
         );
+        nametagArrow.position = new Vector3(0, -(tagHeight / 2 + nametagArrowSize / 4), 0);
+        nametagArrow.rotation.z = -Math.PI / 2;
+        nametagArrow.scaling.x = 0.5;
 
         return nametagPlane;
     }
