@@ -23,6 +23,8 @@ import { AvatarState, Action, State, JumpSubState } from "../avatarState";
 import { InputState, CameraMode, InputMode } from "../inputState";
 import { Store } from "@Store/index";
 import { AudioMgr } from "@Modules/scene/audio";
+import type { GameObject } from "@Modules/object";
+import type { SceneController } from "@Modules/scene/controllers";
 
 // This is disabled because TS complains about BABYLON's use of cap'ed function names
 /* eslint-disable new-cap */
@@ -78,12 +80,22 @@ export class KeyboardInput implements IInputHandler {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     public handleInputs(delta: number) : void {
-        if (this._inputMap[Store.state.controls.movement.jump?.keybind]) {
+        if (this._inputMap[Store.state.controls.movement.jump?.keybind] && this._state.state !== State.Fly) {
             if (this._state.state !== State.Jump) {
                 this._state.state = State.Jump;
                 this._state.jumpSubstate = JumpSubState.Start;
             } else if (this._state.jumpSubstate === JumpSubState.Landing) {
                 this._state.jumpInPlace = true;
+            }
+        }
+
+        if (this._state.state === State.Fly) {
+            if (this._inputMap[Store.state.controls.movement.jump?.keybind]) {
+                this._state.moveDir.y = Scalar.Lerp(Math.abs(this._state.moveDir.y), 1, 0.1);
+            } else if (this._inputMap[Store.state.controls.movement.crouch?.keybind]) {
+                this._state.moveDir.y = -Scalar.Lerp(Math.abs(this._state.moveDir.y), 1, 0.1);
+            } else {
+                this._state.moveDir.y = 0;
             }
         }
 
@@ -103,7 +115,7 @@ export class KeyboardInput implements IInputHandler {
             this._state.moveDir.z = 0;
         }
 
-        if (this._state.moveDir.x !== 0 || this._state.moveDir.z !== 0) {
+        if (this._state.moveDir.x !== 0 || this._state.moveDir.y !== 0 || this._state.moveDir.z !== 0) {
             this._setMoveAction();
         } else if (this._state.state === State.Move) {
             this._state.action = Action.Idle;
@@ -125,6 +137,23 @@ export class KeyboardInput implements IInputHandler {
         if (evt.sourceEvent.code === Store.state.controls.audio.pushToTalk?.keybind && Store.state.audio.user.muted === true) {
             this._previousMuteInput = Store.state.audio.user.muted;
             AudioMgr.muteAudio(false);
+        }
+
+        // Fly.
+        if (evt.sourceEvent.code === Store.state.controls.movement.fly?.keybind) {
+            const sceneManager = this._scene.rootNodes.find((node) => node.id === "SceneManager") as GameObject;
+            const sceneController = sceneManager.components.get("SceneController") as SceneController | undefined;
+
+            if (this._state.state === State.Fly) {
+                this._state.action = Action.Jump;
+                this._state.state = State.Jump;
+                this._state.jumpSubstate = JumpSubState.Falling;
+                sceneController?.applyGravity();
+            } else {
+                this._state.state = State.Fly;
+                this._state.action = Action.Fly;
+                sceneController?.removeGravity();
+            }
         }
 
         // Run.
@@ -170,6 +199,12 @@ export class KeyboardInput implements IInputHandler {
         if (this._state.state === State.Idle || this._state.state === State.Move) {
             this._state.state = State.Move;
             this._state.action = this._runKey ? Action.RunForward : Action.WalkForward;
+            return;
+        }
+
+        if (this._state.state === State.Fly) {
+            this._state.state = State.Fly;
+            this._state.action = this._runKey ? Action.FlyFast : Action.Fly;
         }
     }
 }

@@ -21,6 +21,7 @@ import { ScriptComponent } from "@Modules/script";
 // Domain Modules
 import { VScene } from "../vscene";
 import { Vector3, Ray } from "@babylonjs/core";
+import { InputController, MyAvatarController, ScriptAvatarController, AvatarMapper } from "@Modules/avatar";
 import Log from "@Modules/debugging/log";
 
 const DEFAULT_GRAVITY = 9.81;
@@ -53,6 +54,20 @@ export class SceneController extends ScriptComponent {
         }
     }
 
+    public removeGravity() : void {
+        const physicsEngine = this._scene.getPhysicsEngine();
+        if (physicsEngine) {
+            Log.info(Log.types.OTHER, "Remove gravity");
+            physicsEngine.setGravity(new Vector3(0, 0, 0));
+            const avatar = this._vscene.getMyAvatar();
+            if (avatar) {
+                avatar.physicsImpostor?.physicsBody.setDamping(1, 1);
+            }
+
+            this.isGravityApplied = true;
+        }
+    }
+
     static get typeName(): string {
         return "SceneController";
     }
@@ -62,8 +77,13 @@ export class SceneController extends ScriptComponent {
     }
 
     public onUpdate():void {
-        if (!this.isGravityApplied && this._scene.isReady()) {
-            if (this._detectGround()) {
+        if (this._scene.isReady()) {
+            const avatar = this._vscene.getMyAvatar();
+            const avatarController = avatar?.getComponent(InputController.typeName) as InputController | null;
+            if (!avatarController) {
+                return;
+            }
+            if (!this.isGravityApplied && this._detectGround()) {
                 this.applyGravity();
             }
         }
@@ -74,7 +94,6 @@ export class SceneController extends ScriptComponent {
         const avatar = this._vscene.getMyAvatar();
         if (avatar) {
             // prevent avatar bounce or float
-            // eslint-disable-next-line @typescript-eslint/no-magic-numbers
             avatar.physicsImpostor?.physicsBody.setDamping(1, 1);
         }
     }

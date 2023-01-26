@@ -18,6 +18,7 @@ export enum State {
     Idle,
     Move,
     Jump,
+    Fly,
     Teleport,
     Stop
 }
@@ -41,6 +42,8 @@ export enum Action {
     TurnRight,
     Jump,
     Land,
+    Fly,
+    FlyFast,
     Sit,
     RunForward
 }
@@ -49,12 +52,16 @@ export type AnimationName =
     "idle02" | "walk_fwd" | "walk_bwd" | "walk_left" | "walk_right" |
     "turn_left" | "turn_right" | "jumping_temp" | "sitting_crosslegged" |
     "jump_standing_land_settle_all" | "jump_standing_launch_all" | "jump_standing_apex_all" |
-    "run_bwd" | "run_fast_fwd" | "run_fast_left" | "run_fast_right";
+    "run_bwd" | "run_fast_fwd" | "run_fast_left" | "run_fast_right" | "fly";
 
 export class AvatarState {
-    public walkSpeed = 4;
-    public runSpeed = 10;
+    public walkSpeed = 2.4;
+    public runSpeed = 5.2;
     public landSpeed = 4;
+    public flySpeed = 8; // Flying on the X-Z plane.
+    public fastFlySpeed = 27;
+    public ascendSpeed = 0.05; // Flying on the Y axis.
+    public fastAscendSpeed = 0.1;
     public currentSpeed = 0;
 
     public rotationSpeed = 40 * Math.PI / 180;
