@@ -392,7 +392,6 @@ export class VScene {
             this._onMyAvatarModelChangedObservable.notifyObservers(this._myAvatar);
 
             let nametag = undefined as Mesh | undefined;
-            // eslint-disable-next-line max-len
             let nametagColor = Store.state.account.isAdmin ? Color3.FromHexString(Store.state.theme.colors.primary) : undefined;
             if (Store.state.avatar.showNametags) {
                 nametag = this._loadNametag(
@@ -405,30 +404,33 @@ export class VScene {
             // Update the nametag color when the player's admin state is changed in the Store.
             Store.watch((state) => state.account.isAdmin, (value: boolean) => {
                 nametagColor = value ? Color3.FromHexString(Store.state.theme.colors.primary) : undefined;
-                if (nametag) {
-                    this._unloadNametag(nametag);
-                    if (this._myAvatar && Store.state.avatar.showNametags) {
-                        nametag = this._loadNametag(this._myAvatar, avatarHeight, Store.state.avatar.displayName, nametagColor);
-                    }
+                if (!nametag) {
+                    return;
+                }
+                this._unloadNametag(nametag);
+                if (this._myAvatar && Store.state.avatar.showNametags) {
+                    nametag = this._loadNametag(this._myAvatar, avatarHeight, Store.state.avatar.displayName, nametagColor);
                 }
             });
             // Update the nametag when the displayName is changed in the Store.
             Store.watch((state) => state.avatar.displayName, (value: string) => {
-                if (nametag) {
-                    this._unloadNametag(nametag);
-                    if (this._myAvatar && Store.state.avatar.showNametags) {
-                        nametag = this._loadNametag(this._myAvatar, avatarHeight, value, nametagColor);
-                    }
+                if (!nametag) {
+                    return;
+                }
+                this._unloadNametag(nametag);
+                if (this._myAvatar && Store.state.avatar.showNametags) {
+                    nametag = this._loadNametag(this._myAvatar, avatarHeight, value, nametagColor);
                 }
             });
             // Show/Hide the nametag when showNametags is changed in the Store.
             Store.watch((state) => state.avatar.showNametags, (value: boolean) => {
-                if (nametag) {
-                    if (value && this._myAvatar) { // Nametags are enabled.
-                        nametag = this._loadNametag(this._myAvatar, avatarHeight, Store.state.avatar.displayName, nametagColor);
-                    } else { // Nametags are disabled.
-                        this._unloadNametag(nametag);
-                    }
+                if (!nametag) {
+                    return;
+                }
+                if (value && this._myAvatar) { // Nametags are enabled.
+                    nametag = this._loadNametag(this._myAvatar, avatarHeight, Store.state.avatar.displayName, nametagColor);
+                } else { // Nametags are disabled.
+                    this._unloadNametag(nametag);
                 }
             });
 
@@ -451,75 +453,78 @@ export class VScene {
             avatar.dispose();
         }
 
-        if (this._resourceManager && domain.skeletonModelURL !== "") {
-            avatar = new GameObject("ScriptAvatar_" + stringId, this._scene);
-            const result = await this._resourceManager.loadAvatar(domain.skeletonModelURL);
-            let boundingVectors = {
-                max: Vector3.Zero(),
-                min: Vector3.Zero()
-            };
-            let avatarHeight = 1.8;
-            if (result.mesh) {
-                // Initialize the avatar mesh.
-                avatar.id = stringId;
-                const meshComponent = new MeshComponent();
-                meshComponent.mesh = result.mesh;
-                meshComponent.skeleton = result.skeleton;
-                if (meshComponent.mesh && "refreshBoundingInfo" in meshComponent.mesh) {
-                    // Get the bounding vectors of the avatar mesh.
-                    const boundingMesh = meshComponent.mesh.refreshBoundingInfo(Boolean(meshComponent.skeleton));
-                    boundingVectors = boundingMesh.getHierarchyBoundingVectors();
-                    avatarHeight = boundingVectors.max.y - boundingVectors.min.y;
-                    meshComponent.mesh.position = Vector3.Zero();
-                }
-                avatar.addComponent(meshComponent);
-                avatar.addComponent(new ScriptAvatarController(domain));
-
-                this._avatarList.set(stringId, avatar);
-
-                let nametag = undefined as Mesh | undefined;
-                // eslint-disable-next-line max-len
-                let nametagColor = Store.state.avatars.avatarsInfo.get(id)?.isAdmin ? Color3.FromHexString(Store.state.theme.colors.primary) : undefined;
-                if (Store.state.avatar.showNametags) {
-                    nametag = this._loadNametag(avatar, avatarHeight, domain.displayName, nametagColor);
-                }
-                // Update the nametag color when the player's admin state is changed.
-                Store.watch((state) => Boolean(state.avatars.avatarsInfo.get(id)?.isAdmin), (value: boolean) => {
-                    nametagColor = value ? Color3.FromHexString(Store.state.theme.colors.primary) : undefined;
-                    if (nametag) {
-                        this._unloadNametag(nametag);
-                        const nametagAvatar = this._avatarList.get(stringId);
-                        if (nametagAvatar && Store.state.avatar.showNametags) {
-                            nametag = this._loadNametag(nametagAvatar, avatarHeight, domain.displayName, nametagColor);
-                        }
-                    }
-                });
-                // Update the nametag when the displayName is changed.
-                domain.displayNameChanged.connect(() => {
-                    if (nametag) {
-                        this._unloadNametag(nametag);
-                        const nametagAvatar = this._avatarList.get(stringId);
-                        if (nametagAvatar && Store.state.avatar.showNametags) {
-                            nametag = this._loadNametag(nametagAvatar, avatarHeight, domain.displayName, nametagColor);
-                        }
-                    }
-                });
-                // Show/Hide the nametag when showNametags is changed in the Store.
-                Store.watch((state) => state.avatar.showNametags, (value: boolean) => {
-                    if (nametag) {
-                        const nametagAvatar = this._avatarList.get(stringId);
-                        if (value && nametagAvatar) { // Nametags are enabled
-                            nametag = this._loadNametag(nametagAvatar, avatarHeight, domain.displayName, nametagColor);
-                        } else { // Nametags are disabled
-                            this._unloadNametag(nametag);
-                        }
-                    }
-                });
-            }
-            return avatar;
+        if (!this._resourceManager || domain.skeletonModelURL === "") {
+            return null;
         }
 
-        return null;
+        avatar = new GameObject("ScriptAvatar_" + stringId, this._scene);
+        const result = await this._resourceManager.loadAvatar(domain.skeletonModelURL);
+        let boundingVectors = {
+            max: Vector3.Zero(),
+            min: Vector3.Zero()
+        };
+        let avatarHeight = 1.8;
+        if (result.mesh) {
+            // Initialize the avatar mesh.
+            avatar.id = stringId;
+            const meshComponent = new MeshComponent();
+            meshComponent.mesh = result.mesh;
+            meshComponent.skeleton = result.skeleton;
+            if (meshComponent.mesh && "refreshBoundingInfo" in meshComponent.mesh) {
+                // Get the bounding vectors of the avatar mesh.
+                const boundingMesh = meshComponent.mesh.refreshBoundingInfo(Boolean(meshComponent.skeleton));
+                boundingVectors = boundingMesh.getHierarchyBoundingVectors();
+                avatarHeight = boundingVectors.max.y - boundingVectors.min.y;
+                meshComponent.mesh.position = Vector3.Zero();
+            }
+            avatar.addComponent(meshComponent);
+            avatar.addComponent(new ScriptAvatarController(domain));
+
+            this._avatarList.set(stringId, avatar);
+
+            let nametag = undefined as Mesh | undefined;
+            // eslint-disable-next-line max-len
+            let nametagColor = Store.state.avatars.avatarsInfo.get(id)?.isAdmin ? Color3.FromHexString(Store.state.theme.colors.primary) : undefined;
+            if (Store.state.avatar.showNametags) {
+                nametag = this._loadNametag(avatar, avatarHeight, domain.displayName, nametagColor);
+            }
+            // Update the nametag color when the player's admin state is changed.
+            Store.watch((state) => Boolean(state.avatars.avatarsInfo.get(id)?.isAdmin), (value: boolean) => {
+                nametagColor = value ? Color3.FromHexString(Store.state.theme.colors.primary) : undefined;
+                if (!nametag) {
+                    return;
+                }
+                this._unloadNametag(nametag);
+                const nametagAvatar = this._avatarList.get(stringId);
+                if (nametagAvatar && Store.state.avatar.showNametags) {
+                    nametag = this._loadNametag(nametagAvatar, avatarHeight, domain.displayName, nametagColor);
+                }
+            });
+            // Update the nametag when the displayName is changed.
+            domain.displayNameChanged.connect(() => {
+                if (!nametag) {
+                    return;
+                }
+                this._unloadNametag(nametag);
+                const nametagAvatar = this._avatarList.get(stringId);
+                if (nametagAvatar && Store.state.avatar.showNametags) {
+                    nametag = this._loadNametag(nametagAvatar, avatarHeight, domain.displayName, nametagColor);
+                }
+            });
+            // Show/Hide the nametag when showNametags is changed in the Store.
+            Store.watch((state) => state.avatar.showNametags, (value: boolean) => {
+                if (!nametag) {
+                    return;
+                }
+                const nametagAvatar = this._avatarList.get(stringId);
+                if (value && nametagAvatar) { // Nametags are enabled
+                    nametag = this._loadNametag(nametagAvatar, avatarHeight, domain.displayName, nametagColor);
+                } else { // Nametags are disabled
+                    this._unloadNametag(nametag);
+                }
+            });
+        }
+        return avatar;
     }
 
     public unloadAvatar(id: Uuid) : void {
