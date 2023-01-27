@@ -142,6 +142,7 @@
                                                 dense
                                                 ripple
                                                 title="Kick player"
+                                                :disable="!canKick"
                                                 @click.stop="adminKick(avaInfo.sessionId)"
                                             ></q-btn>
                                         </template>
@@ -225,6 +226,7 @@ export default defineComponent({
 
     data: () => ({
         showMoreOptions: {} as { [key: string]: boolean },
+        canKick: false,
         // Following is legacy test code. Can be removed when real stuff is working
         peopleList: [] as PeopleEntry[],
         testLocal: [
@@ -381,6 +383,17 @@ export default defineComponent({
         // However, in the future the list can and should be reused to load lists
         // of friends, previews of users in worlds, etc.
         // this.loadPeopleList();
+    },
+
+    mounted() {
+        // Subscribe to the `canKickChanged` signal from the Domain Server.
+        const domainServer = DomainMgr.ActiveDomain?.DomainClient;
+        // Set the initial `canKick` state.
+        this.canKick = Boolean(domainServer?.users.canKick);
+        domainServer?.users.canKickChanged.connect(() => {
+            // Update the `canKick` state accordingly.
+            this.canKick = Boolean(domainServer?.users.canKick);
+        });
     }
 });
 </script>
