@@ -70,9 +70,7 @@
                     >
                         <q-item-section avatar>
                             <q-avatar class="q-mb-sm" color="primary" >
-                                <img v-if="getProfilePicture(avaInfo)"
-                                    :src="getProfilePicture(avaInfo)"
-                                    @click='complementMuted(avaInfo)'>
+                                <img v-if="getProfilePicture(avaInfo)" :src="getProfilePicture(avaInfo)">
                                 <span v-else style="user-select: none;">{{ getDisplayName(avaInfo).substring(0, 2) }}</span>
                             </q-avatar>
                         </q-item-section>
@@ -183,9 +181,6 @@
                 <p v-else class="text-subtitle1 text-grey text-center q-mt-md">There is no one else in this server.</p>
             </q-scroll-area>
         </q-card>
-        <!-- <q-inner-loading :showing="">
-            <q-spinner-gears size="50px" color="primary" />
-        </q-inner-loading> -->
     </OverlayShell>
 </template>
 
@@ -212,12 +207,7 @@ export default defineComponent({
 
     props: {
         // Primary
-        propsToPass: { type: Object, default: () => ({}) },
-        // Component Specific
-        localWorld: { type: Boolean, default: true },
-        previewWorld: { type: String, default: undefined },
-        friends: { type: Boolean, default: false },
-        connections: { type: Boolean, default: false }
+        propsToPass: { type: Object, default: () => ({}) }
     },
 
     components: {
@@ -226,110 +216,18 @@ export default defineComponent({
 
     data: () => ({
         showMoreOptions: {} as { [key: string]: boolean },
-        canKick: false,
-        // Following is legacy test code. Can be removed when real stuff is working
-        peopleList: [] as PeopleEntry[],
-        testLocal: [
-            {
-                displayName: "Hallo",
-                username: "nani",
-                sessionUUID: "{123e4567-e89b-12d3-a456-426614174000}",
-                volume: 100,
-                muted: true,
-                admin: false
-            },
-            {
-                displayName: "Waifu",
-                username: "testerino",
-                sessionUUID: "{56556655-12d3-12d3-a456-426614174000}",
-                volume: 90,
-                muted: false,
-                admin: true
-            }
-        ],
-        testPreview: [
-            {
-                displayName: "World",
-                username: "preview",
-                sessionUUID: "{65464565-12d3-12d3-a456-426614174000}",
-                volume: 100,
-                muted: true,
-                admin: false
-            },
-            {
-                displayName: "Preview",
-                username: "world",
-                sessionUUID: "{76566666-12d3-12d3-a456-426614174000}",
-                volume: 90,
-                muted: false,
-                admin: true
-            }
-        ],
-        testFriends: [
-            {
-                displayName: "We",
-                username: "wut",
-                sessionUUID: "{96666687-12d3-12d3-a456-426614174000}",
-                volume: 100,
-                muted: true,
-                admin: false
-            },
-            {
-                displayName: "RFriends",
-                username: "hay",
-                sessionUUID: "{43999992-12d3-12d3-a456-426614174000}",
-                volume: 90,
-                muted: false,
-                admin: true
-            }
-        ],
-        testConnections: [
-            {
-                displayName: "Nice",
-                username: "to",
-                sessionUUID: "{654-12d3-12d3-a456-426614174000}",
-                volume: 100,
-                muted: true,
-                admin: false
-            },
-            {
-                displayName: "Meet",
-                username: "you",
-                sessionUUID: "{321-12d3-12d3-a456-426614174000}",
-                volume: 90,
-                muted: false,
-                admin: true
-            }
-        ]
+        canKick: false
     }),
 
     methods: {
-        // Load test data. Can be removed when real code is working
-        loadPeopleList() {
-            if (this.localWorld === true) {
-                this.peopleList = this.testLocal;
-            } else if (this.previewWorld) {
-                this.peopleList = this.testPreview;
-            } else if (this.friends === true) {
-                this.peopleList = this.testFriends;
-            } else if (this.connections === true) {
-                this.peopleList = this.testConnections;
-            }
-        },
-
-        // Get the profile picture for this avatar or 'undefined' if none
-        // Note: can methods be async since fetching the profile picture is a network op
+        // Get the profile picture for this avatar or 'undefined' if none.
+        // Note: can methods be async since fetching the profile picture is a network op.
         // Note: is this fetched through the domain-server? Here we have sessionID, not accountID.
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         getProfilePicture(pAvaInfo: AvatarInfo): string | undefined {
             // Should store profile pictures after retrieving and then pull each
             // subsequent one from cache instead of hitting metaverse every time.
 
-            // This is filler functionality to enable the UI to be developed more correctly now.
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            const dn = this.getDisplayName(pAvaInfo);
-            if (dn && dn === "testerino") {
-                return "https://cdn.quasar.dev/img/avatar4.jpg";
-            }
             return undefined;
         },
 
@@ -376,13 +274,6 @@ export default defineComponent({
                 domainServer.users.kick(sessionId);
             }
         }
-    },
-
-    created: function() {
-        // By default, the people list will load a list of people in your world.
-        // However, in the future the list can and should be reused to load lists
-        // of friends, previews of users in worlds, etc.
-        // this.loadPeopleList();
     },
 
     mounted() {
