@@ -391,10 +391,9 @@ export class VScene {
 
             this._onMyAvatarModelChangedObservable.notifyObservers(this._myAvatar);
 
-            let nametag = undefined as Mesh | undefined;
             let nametagColor = Store.state.account.isAdmin ? Color3.FromHexString(Store.state.theme.colors.primary) : undefined;
             if (Store.state.avatar.showNametags) {
-                nametag = this._loadNametag(
+                this._loadNametag(
                     this._myAvatar,
                     avatarHeight,
                     Store.state.avatar.displayName,
@@ -404,33 +403,23 @@ export class VScene {
             // Update the nametag color when the player's admin state is changed in the Store.
             Store.watch((state) => state.account.isAdmin, (value: boolean) => {
                 nametagColor = value ? Color3.FromHexString(Store.state.theme.colors.primary) : undefined;
-                if (!nametag) {
-                    return;
-                }
-                this._unloadNametag(nametag);
+                this._unloadNametag(this._myAvatar);
                 if (this._myAvatar && Store.state.avatar.showNametags) {
-                    nametag = this._loadNametag(this._myAvatar, avatarHeight, Store.state.avatar.displayName, nametagColor);
+                    this._loadNametag(this._myAvatar, avatarHeight, Store.state.avatar.displayName, nametagColor);
                 }
             });
             // Update the nametag when the displayName is changed in the Store.
             Store.watch((state) => state.avatar.displayName, (value: string) => {
-                if (!nametag) {
-                    return;
-                }
-                this._unloadNametag(nametag);
+                this._unloadNametag(this._myAvatar);
                 if (this._myAvatar && Store.state.avatar.showNametags) {
-                    nametag = this._loadNametag(this._myAvatar, avatarHeight, value, nametagColor);
+                    this._loadNametag(this._myAvatar, avatarHeight, value, nametagColor);
                 }
             });
             // Show/Hide the nametag when showNametags is changed in the Store.
             Store.watch((state) => state.avatar.showNametags, (value: boolean) => {
-                if (!nametag) {
-                    return;
-                }
+                this._unloadNametag(this._myAvatar);
                 if (value && this._myAvatar) { // Nametags are enabled.
-                    nametag = this._loadNametag(this._myAvatar, avatarHeight, Store.state.avatar.displayName, nametagColor);
-                } else { // Nametags are disabled.
-                    this._unloadNametag(nametag);
+                    this._loadNametag(this._myAvatar, avatarHeight, Store.state.avatar.displayName, nametagColor);
                 }
             });
 
@@ -482,45 +471,34 @@ export class VScene {
 
             this._avatarList.set(stringId, avatar);
 
-            let nametag = undefined as Mesh | undefined;
             // eslint-disable-next-line max-len
             let nametagColor = Store.state.avatars.avatarsInfo.get(id)?.isAdmin ? Color3.FromHexString(Store.state.theme.colors.primary) : undefined;
             if (Store.state.avatar.showNametags) {
-                nametag = this._loadNametag(avatar, avatarHeight, domain.displayName, nametagColor);
+                this._loadNametag(avatar, avatarHeight, domain.displayName, nametagColor);
             }
             // Update the nametag color when the player's admin state is changed.
             Store.watch((state) => Boolean(state.avatars.avatarsInfo.get(id)?.isAdmin), (value: boolean) => {
                 nametagColor = value ? Color3.FromHexString(Store.state.theme.colors.primary) : undefined;
-                if (!nametag) {
-                    return;
-                }
-                this._unloadNametag(nametag);
                 const nametagAvatar = this._avatarList.get(stringId);
+                this._unloadNametag(nametagAvatar);
                 if (nametagAvatar && Store.state.avatar.showNametags) {
-                    nametag = this._loadNametag(nametagAvatar, avatarHeight, domain.displayName, nametagColor);
+                    this._loadNametag(nametagAvatar, avatarHeight, domain.displayName, nametagColor);
                 }
             });
             // Update the nametag when the displayName is changed.
             domain.displayNameChanged.connect(() => {
-                if (!nametag) {
-                    return;
-                }
-                this._unloadNametag(nametag);
                 const nametagAvatar = this._avatarList.get(stringId);
+                this._unloadNametag(nametagAvatar);
                 if (nametagAvatar && Store.state.avatar.showNametags) {
-                    nametag = this._loadNametag(nametagAvatar, avatarHeight, domain.displayName, nametagColor);
+                    this._loadNametag(nametagAvatar, avatarHeight, domain.displayName, nametagColor);
                 }
             });
             // Show/Hide the nametag when showNametags is changed in the Store.
             Store.watch((state) => state.avatar.showNametags, (value: boolean) => {
-                if (!nametag) {
-                    return;
-                }
                 const nametagAvatar = this._avatarList.get(stringId);
+                this._unloadNametag(nametagAvatar);
                 if (value && nametagAvatar) { // Nametags are enabled
-                    nametag = this._loadNametag(nametagAvatar, avatarHeight, domain.displayName, nametagColor);
-                } else { // Nametags are disabled
-                    this._unloadNametag(nametag);
+                    this._loadNametag(nametagAvatar, avatarHeight, domain.displayName, nametagColor);
                 }
             });
         }
@@ -696,8 +674,11 @@ export class VScene {
         return nametagPlane;
     }
 
-    private _unloadNametag(nametag: Mesh) : void {
-        nametag.dispose(false, true);
+    private _unloadNametag(avatar: GameObject | undefined | null) : void {
+        const nametagMeshes = avatar?.getChildMeshes(false, (node) => node.name.includes("Nametag"));
+        if (nametagMeshes) {
+            nametagMeshes.forEach((mesh) => mesh.dispose(false, true));
+        }
     }
 
     private _createScene() : void {
