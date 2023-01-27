@@ -40,8 +40,8 @@ import Log from "@Modules/debugging/log";
 import { VVector3 } from ".";
 import { DomainMgr } from "../domain";
 
-// TODO: Put this avatar (and any default scene models/animations/whatever) into the app code to be compiled with the app.
-const AvatarAnimationUrl = "https://digisomni.com/cloud/cdn/y7i2mX99WqT9LFb/download/AnimationsBasic.glb";
+// File containing all avatar animations.
+const AvatarAnimationUrl = "assets/AnimationsBasic.glb";
 
 /**
  * VScene is the interface to a single scene's state, entities, and operations.
@@ -329,16 +329,47 @@ export class VScene {
             }
 
             const result = await this._resourceManager.loadMyAvatar(this._myAvatarModelURL);
+            let boundingVectors = {
+                max: Vector3.Zero(),
+                min: Vector3.Zero()
+            };
             if (result.mesh) {
+                // Initialize the avatar mesh.
                 const meshComponent = new MeshComponent();
                 meshComponent.mesh = result.mesh;
                 meshComponent.skeleton = result.skeleton;
+                // Get the bounding vectors of the avatar mesh.
+                const boundingMesh = meshComponent.mesh.refreshBoundingInfo(Boolean(meshComponent.skeleton));
+                boundingVectors = boundingMesh.getHierarchyBoundingVectors();
+                meshComponent.mesh.position = Vector3.Zero();
                 this._myAvatar.addComponent(meshComponent);
             }
+            const avatarHeight = boundingVectors.max.y - boundingVectors.min.y;
 
-            // TODO Make these numbers constants so we know what they are.
-            const capsuleCollider = new CapsuleColliderComponent(this._scene, 1, 3);
-            capsuleCollider.createCollider(0.3, 1.8, new Vector3(-0.03, -0.14, -0.04));
+            const defaultColliderProperties = {
+                radius: 0.3,
+                height: 1.8,
+                offset: new Vector3(0, -0.1, -0.04), // Offset coordinates are local (relative to the avatar).
+                mass: 1,
+                friction: 3
+            };
+            const capsuleCollider = new CapsuleColliderComponent(
+                this._scene,
+                defaultColliderProperties.mass,
+                defaultColliderProperties.friction
+            );
+            // Create a collider based on the dimensions of the avatar model.
+            capsuleCollider.createCollider(
+                // eslint-disable-next-line @typescript-eslint/no-extra-parens
+                ((boundingVectors.max.x - boundingVectors.min.x) + (boundingVectors.max.z - boundingVectors.min.z)) / 4
+                || defaultColliderProperties.radius,
+                avatarHeight || defaultColliderProperties.height,
+                new Vector3(
+                    defaultColliderProperties.offset.x,
+                    boundingVectors.max.y - defaultColliderProperties.offset.y,
+                    defaultColliderProperties.offset.z
+                )
+            );
             capsuleCollider.setAngularFactor(0, 1, 0);
             if (capsuleCollider.collider) {
                 capsuleCollider.collider.isPickable = false;
@@ -347,6 +378,7 @@ export class VScene {
 
             const avatarController = new InputController();
             avatarController.animGroups = this._avatarAnimationGroups;
+            avatarController.avatarHeight = avatarHeight;
             avatarController.camera = this._camera as ArcRotateCamera;
             this._myAvatar.addComponent(avatarController);
 
@@ -361,23 +393,23 @@ export class VScene {
 
             let nametag = undefined as Mesh | undefined;
             if (Store.state.avatar.showNametags) {
-                nametag = this._loadNametag(this._myAvatar, Store.state.avatar.displayName);
+                nametag = this._loadNametag(this._myAvatar, avatarHeight, Store.state.avatar.displayName);
             }
-            // Update the nametag when the displayName is changed in the Store
+            // Update the nametag when the displayName is changed in the Store.
             Store.watch((state) => state.avatar.displayName, (value: string) => {
                 if (nametag) {
                     this._unloadNametag(nametag);
                     if (this._myAvatar && Store.state.avatar.showNametags) {
-                        nametag = this._loadNametag(this._myAvatar, value);
+                        nametag = this._loadNametag(this._myAvatar, avatarHeight, value);
                     }
                 }
             });
-            // Show/Hide the nametag when showNametags is changed in the Store
+            // Show/Hide the nametag when showNametags is changed in the Store.
             Store.watch((state) => state.avatar.showNametags, (value: boolean) => {
                 if (nametag) {
-                    if (value && this._myAvatar) { // Nametags are enabled
-                        nametag = this._loadNametag(this._myAvatar, Store.state.avatar.displayName);
-                    } else { // Nametags are disabled
+                    if (value && this._myAvatar) { // Nametags are enabled.
+                        nametag = this._loadNametag(this._myAvatar, avatarHeight, Store.state.avatar.displayName);
+                    } else { // Nametags are disabled.
                         this._unloadNametag(nametag);
                     }
                 }
@@ -404,11 +436,24 @@ export class VScene {
         if (this._resourceManager && domain.skeletonModelURL !== "") {
             avatar = new GameObject("ScriptAvatar_" + id, this._scene);
             const result = await this._resourceManager.loadAvatar(domain.skeletonModelURL);
+            let boundingVectors = {
+                max: Vector3.Zero(),
+                min: Vector3.Zero()
+            };
+            let avatarHeight = 1.8;
             if (result.mesh) {
+                // Initialize the avatar mesh.
                 avatar.id = id;
                 const meshComponent = new MeshComponent();
-                meshComponent.node = result.mesh;
+                meshComponent.mesh = result.mesh;
                 meshComponent.skeleton = result.skeleton;
+                if (meshComponent.mesh && "refreshBoundingInfo" in meshComponent.mesh) {
+                    // Get the bounding vectors of the avatar mesh.
+                    const boundingMesh = meshComponent.mesh.refreshBoundingInfo(Boolean(meshComponent.skeleton));
+                    boundingVectors = boundingMesh.getHierarchyBoundingVectors();
+                    avatarHeight = boundingVectors.max.y - boundingVectors.min.y;
+                    meshComponent.mesh.position = Vector3.Zero();
+                }
                 avatar.addComponent(meshComponent);
                 avatar.addComponent(new ScriptAvatarController(domain));
 
@@ -416,7 +461,7 @@ export class VScene {
 
                 let nametag = undefined as Mesh | undefined;
                 if (Store.state.avatar.showNametags) {
-                    nametag = this._loadNametag(avatar, domain.displayName);
+                    nametag = this._loadNametag(avatar, avatarHeight, domain.displayName);
                 }
                 // Update the nametag when the displayName is changed
                 domain.displayNameChanged.connect(() => {
@@ -424,7 +469,7 @@ export class VScene {
                         this._unloadNametag(nametag);
                         const nametagAvatar = this._avatarList.get(id);
                         if (nametagAvatar && Store.state.avatar.showNametags) {
-                            nametag = this._loadNametag(nametagAvatar, domain.displayName);
+                            nametag = this._loadNametag(nametagAvatar, avatarHeight, domain.displayName);
                         }
                     }
                 });
@@ -433,7 +478,7 @@ export class VScene {
                     if (nametag) {
                         const nametagAvatar = this._avatarList.get(id);
                         if (value && nametagAvatar) { // Nametags are enabled
-                            nametag = this._loadNametag(nametagAvatar, domain.displayName);
+                            nametag = this._loadNametag(nametagAvatar, avatarHeight, domain.displayName);
                         } else { // Nametags are disabled
                             this._unloadNametag(nametag);
                         }
@@ -463,8 +508,8 @@ export class VScene {
         this._avatarList.clear();
     }
 
-    // TODO: Move this code/set of code into its own module.
-    private _loadNametag(avatar: GameObject, name: string) : Mesh {
+    // TODO: Move all nametag code into a dedicated module.
+    private _loadNametag(avatar: GameObject, avatarHeight: number, name: string) : Mesh {
         const characterWidth = 38.5;
         const tagWidth = (name.length + 2) * characterWidth;
 
@@ -499,12 +544,18 @@ export class VScene {
             sideOrientation: Mesh.DOUBLESIDE,
             updatable: true
         }, this._scene);
-        nametagPlane.position = new Vector3(0, 1, 0);
         nametagPlane.material = nametagMaterial;
         nametagPlane.billboardMode = Mesh.BILLBOARDMODE_Y;
         nametagPlane.parent = avatar;
         nametagPlane.isPickable = false;
         nametagPlane.renderingGroupId = MASK_MESH_RENDER_GROUP_ID;
+        // Position the nametag above the center of the avatar.
+        const positionOffset = new Vector3(0, 0.15, 0);
+        nametagPlane.position = new Vector3(
+            positionOffset.x,
+            avatarHeight + positionOffset.y,
+            positionOffset.z
+        );
 
         return nametagPlane;
     }

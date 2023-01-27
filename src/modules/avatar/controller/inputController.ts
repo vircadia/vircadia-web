@@ -170,19 +170,20 @@ class CameraObtacleDetectInfo {
 }
 
 export class InputController extends ScriptComponent {
-    private _camera : Nullable<ArcRotateCamera> = null;
+    private _camera: Nullable<ArcRotateCamera> = null;
     private _cameraSkin = 0.1;
     private _cameraElastic = true;
     private _cameraViewTransitionThreshold = 1.5;
     private _animGroups: Nullable<Array<AnimationGroup>> = null;
     private _animator: Nullable<Animator> = null;
-    private _avatarState : AvatarState = new AvatarState();
-    private _inputState : InputState = new InputState();
-    private _input : Nullable<IInputHandler> = null;
+    private _avatarState: AvatarState = new AvatarState();
+    private _avatarHeight = 0;
+    private _inputState: InputState = new InputState();
+    private _input: Nullable<IInputHandler> = null;
     private _isMobile = false;
 
     @inspector()
-    private _defaultCameraTarget = new Vector3(0, 0.7, 0);
+    private _defaultCameraTarget = new Vector3(0, 1.7, 0);
 
     private _defaultCameraAlpha = 0.5 * Math.PI;
     private _defaultCameraBeta = 0.5 * Math.PI;
@@ -197,6 +198,10 @@ export class InputController extends ScriptComponent {
 
     public set animGroups(value: AnimationGroup[]) {
         this._animGroups = value;
+    }
+
+    public set avatarHeight(value: number) {
+        this._avatarHeight = value;
     }
 
     public set camera(value: Nullable<ArcRotateCamera>) {
@@ -269,6 +274,15 @@ export class InputController extends ScriptComponent {
         return this._avatarState.landSpeed;
     }
 
+    @inspectorAccessor({ min: 0.1, max: 20 })
+    public set flySpeed(value: number) {
+        this._avatarState.flySpeed = value;
+    }
+
+    public get flySpeed(): number {
+        return this._avatarState.flySpeed;
+    }
+
     public get isTeleported() : boolean {
         return this._avatarState.state === State.Teleport;
     }
@@ -304,7 +318,7 @@ export class InputController extends ScriptComponent {
     }
 
     // eslint-disable-next-line class-methods-use-this
-    public get componentType():string {
+    public get componentType(): string {
         return InputController.typeName;
     }
 
@@ -393,6 +407,9 @@ export class InputController extends ScriptComponent {
             case State.Jump:
                 this._doJump(delta);
                 break;
+            case State.Fly:
+                this._doFly(delta);
+                break;
             case State.Teleport:
                 this._doTeleport(delta);
                 break;
@@ -454,12 +471,30 @@ export class InputController extends ScriptComponent {
 
         if (this._avatarState.action !== Action.Idle) {
             this._avatarState.action = Action.Idle;
+            this._avatarState.state = State.Idle;
+            this._avatarState.jumpSubstate = JumpSubState.None;
+        }
+
+        // Reset the avatar's rotation (so that it is standing up).
+        if (this._gameObject && this._gameObject.rotationQuaternion) {
+            this._gameObject.rotationQuaternion.x = 0;
+            this._gameObject.rotationQuaternion.z = 0;
         }
     }
 
     private _doJump(delta : number) {
+        if (this._avatarState.state === State.Fly) {
+            return;
+        }
+
         if (!this._gameObject || !this._gameObject.physicsImpostor) {
             return;
+        }
+
+        // Reset the avatar's rotation (so that it is standing up).
+        if (this._gameObject && this._gameObject.rotationQuaternion) {
+            this._gameObject.rotationQuaternion.x = 0;
+            this._gameObject.rotationQuaternion.z = 0;
         }
 
         this._avatarState.duration += delta;
@@ -509,9 +544,8 @@ export class InputController extends ScriptComponent {
             case JumpSubState.Falling:
                 // Allow the avatar to move in the air.
                 this._doMoveInJumping(delta);
-                // Move to the nxt jump substate once the avatar touches the ground.
-                if (this._detectGround()
-                    || Math.abs(this._avatarState.previousPosY - this._gameObject.position.y) < 0.001) {
+                // Move to the next jump substate once the avatar touches the ground or stops falling.
+                if (this._detectGround() || Math.abs(this._avatarState.previousPosY - this._gameObject.position.y) < 0.001) {
                     this._avatarState.jumpSubstate = JumpSubState.Landing;
                     this._avatarState.action = Action.Land;
                 }
@@ -530,9 +564,37 @@ export class InputController extends ScriptComponent {
                     this._avatarState.jumpSubstate = JumpSubState.None;
                 }
                 break;
-
             default:
                 break;
+        }
+    }
+
+    private _doFly(delta : number) {
+        if (!this._gameObject || !this._camera) {
+            return;
+        }
+
+        this._avatarState.jumpSubstate = JumpSubState.None;
+
+        // Rotate the avatar relative to the yaw direction of the camera.
+        const yawRotation = this._defaultCameraAlpha - this._camera.alpha;
+        // Rotate the avatar relative to the pitch direction of the camera.
+        const pitchRotation = this._camera.beta - this._defaultCameraBeta;
+        Quaternion.FromEulerAnglesToRef(pitchRotation, yawRotation, 0, this._gameObject.rotationQuaternion as Quaternion);
+
+        if (this._avatarState.moveDir.x !== 0 || this._avatarState.moveDir.y !== 0 || this._avatarState.moveDir.z !== 0) {
+            this._getCurrentSpeed();
+            // Move on the X-Z plane, relative to the camera angle.
+            const velocity = this._gameObject
+                .calcMovePOV(this._avatarState.moveDir.x, 0, -this._avatarState.moveDir.z)
+                .normalize()
+                .scale(this._avatarState.currentSpeed * delta);
+            this._gameObject.position.addInPlace(velocity);
+            // Move on the Y axis, regardless of camera angle.
+            const verticalSpeed = this._avatarState.action === Action.FlyFast
+                ? this._avatarState.fastAscendSpeed
+                : this._avatarState.ascendSpeed;
+            this._gameObject.moveWithCollisions(new Vector3(0, this._avatarState.moveDir.y * verticalSpeed, 0));
         }
     }
 
@@ -541,16 +603,16 @@ export class InputController extends ScriptComponent {
             return;
         }
 
-        // rotate avatar to the direction to camera
+        // Rotate the avatar relative to the yaw direction of the camera.
         const angle = Vector3.GetAngleBetweenVectors(
             this._avatarState.moveDir.normalize(), Vector3.Forward(true), Vector3.Up());
         const rotation = this._defaultCameraAlpha + angle - this._camera.alpha;
         Quaternion.FromEulerAnglesToRef(0, rotation, 0, this._gameObject.rotationQuaternion as Quaternion);
 
         this._getCurrentSpeed();
-        const velcoity = this._gameObject.calcMovePOV(0, 0, 1).normalize()
+        const velocity = this._gameObject.calcMovePOV(0, 0, 1).normalize()
             .scale(this._avatarState.currentSpeed * delta);
-        this._gameObject.position.addInPlace(velcoity);
+        this._gameObject.position.addInPlace(velocity);
     }
 
     private _doMoveInJumping(delta : number) {
@@ -573,6 +635,12 @@ export class InputController extends ScriptComponent {
                 break;
             case Action.Land:
                 speed = this._avatarState.landSpeed;
+                break;
+            case Action.Fly:
+                speed = this._avatarState.flySpeed;
+                break;
+            case Action.FlyFast:
+                speed = this._avatarState.fastFlySpeed;
                 break;
             default:
                 speed = this._avatarState.walkSpeed;
@@ -615,6 +683,12 @@ export class InputController extends ScriptComponent {
             case Action.Land:
                 anim = "jump_standing_land_settle_all";
                 break;
+            case Action.Fly:
+                anim = "fly";
+                break;
+            case Action.FlyFast:
+                anim = "fly";
+                break;
             case Action.Sit:
                 anim = "sitting_crosslegged";
                 break;
@@ -631,7 +705,8 @@ export class InputController extends ScriptComponent {
             return;
         }
 
-        // make camera follow avatar
+        // Make the camera follow the avatar.
+        this._defaultCameraTarget.y = this._avatarHeight;
         this._gameObject.position.addToRef(this._defaultCameraTarget, this._camera.target);
 
         // Update the FOV.
@@ -724,16 +799,27 @@ export class InputController extends ScriptComponent {
         }
     }
 
+    /**
+     * Check if there is a ground surface directly below the player's avatar.
+     * @returns `true` if ground was detected, `false` if not.
+     */
     private _detectGround() : boolean {
         if (this._gameObject) {
-            // position the raycast from bottom center of mesh
+            // The avatar's root position is at the bottom center of the mesh.
+            // Project the ray from just above this point in case the mesh has clipped into the ground slightly.
+            const raycastVerticalOffset = 0.2;
             const raycastPosition = this._gameObject.position.clone();
+            raycastPosition.y = raycastPosition.y + raycastVerticalOffset;
 
-            const ray = new Ray(raycastPosition, Vector3.Down(), 1.3);
+            // Make the ray long enough to cover this extra distance and extend into the expected ground surface slightly.
+            const groundDetectionDistance = raycastVerticalOffset + 0.2;
 
+            // Cast the detection ray.
+            const ray = new Ray(raycastPosition, Vector3.Down(), groundDetectionDistance);
             const pick = this._scene.pickWithRay(ray, (mesh) => mesh.isPickable);
 
-            if (pick && pick.hit && pick.pickedPoint && pick.pickedMesh) { // grounded
+            // If the ray collided with a mesh, then the avatar is grounded.
+            if (pick && pick.hit && pick.pickedPoint && pick.pickedMesh) {
                 return true;
             }
         }
@@ -759,13 +845,17 @@ export class InputController extends ScriptComponent {
         if (!this._gameObject) {
             return;
         }
+
+        // Set the visibility of the avatar.
         this._gameObject.isVisible = visible;
-        // name tag
+
+        // Set the visibility of the avatar's nametag.
         const meshes = this._gameObject.getChildMeshes(true, (mesh) => mesh.name === "Nametag");
         if (meshes.length > 0) {
             meshes[0].isVisible = visible;
         }
 
+        // Set the visibility of the avatar's mesh.
         const meshComp = this._gameObject.getComponent(MeshComponent.typeName) as MeshComponent;
         if (meshComp) {
             meshComp.visible = visible;

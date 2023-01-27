@@ -7,11 +7,14 @@
 */
 
 import { Domain } from "@Modules/domain/domain";
+import { DomainMgr } from "@Modules/domain";
 import { Client, AssignmentClientState } from "@Modules/domain/client";
 
 import { Store, Actions as StoreActions } from "@Store/index";
 
 import { MessageMixer, SignalEmitter, Uuid } from "@vircadia/web-sdk";
+
+import { playSound } from "@Modules/scene/soundEffects";
 
 import Log from "@Modules/debugging/log";
 
@@ -142,6 +145,7 @@ export class DomainMessage extends Client {
         }
 
         const msg: AMessage = {
+            self: pSenderID.stringify() === DomainMgr.ActiveDomain?.DomainClient?.sessionUUID?.stringify(),
             whenReceived: new Date(),
             channel: pChannel,
             message: pMsg,
@@ -153,5 +157,11 @@ export class DomainMessage extends Client {
         // Log.debug(Log.types.OTHER, `DebugWindow: MessageClient message received. ${toJSON(msg)}`);
         // eslint-disable-next-line no-void
         void Store.dispatch(StoreActions.RECEIVE_CHAT_MESSAGE, msg);
+
+        // If the message was not sent from this client, play a sound effect to notify the user.
+        if (!msg.self) {
+            // eslint-disable-next-line no-void
+            void playSound("SFXMessageNotification");
+        }
     }
 }
