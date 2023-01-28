@@ -153,6 +153,10 @@ export const AudioMgr = {
         if (mixer) {
             await AudioMgr._connectInputStreamsToOutputStreams(pDomain);
             AudioMgr._restoreMicrophoneMuteState();
+            // Listen to mute requests from the domain.
+            mixer.mutedByMixer.connect(() => {
+                AudioMgr.muteAudio(true);
+            });
         }
     },
 

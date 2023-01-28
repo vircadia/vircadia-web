@@ -235,6 +235,7 @@ declare module "@vircadia/web-sdk" {
         set audioWorkletRelativePath(pPath: string);
         play(): Promise<void>;
         pause(): Promise<void>;
+        mutedByMixer: Signal;
     }
 
     // MessageMixer ============================
