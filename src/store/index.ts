@@ -26,7 +26,7 @@ import { Domain, ConnectionState } from "@Modules/domain/domain";
 import { AssignmentClientState } from "@Modules/domain/client";
 import { DomainAvatar } from "@Modules/domain/avatar";
 import { AMessage } from "@Modules/domain/message";
-import { onAccessTokenChangePayload, onAttributeChangePayload } from "@Modules/account";
+import { Account, onAccessTokenChangePayload, onAttributeChangePayload } from "@Modules/account";
 import { defaultActiveAvatarModel, defaultAvatarModels } from "@Modules/avatar/DefaultModels";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -317,6 +317,7 @@ export interface IRootState {
     },
     // Information about metaverse account that is logged in.
     account: {
+        id: string,
         username: string;
         isLoggedIn: boolean;
         // Token data.
@@ -489,6 +490,7 @@ const storeDefaults = {
     },
     // Information about the logged in account. Refer to Account module.
     account: {
+        id: "UNKNOWN",
         username: "Guest",
         isLoggedIn: false,
         accessToken: "UNKNOWN",
@@ -658,6 +660,37 @@ export const Store = createStore<IRootState>({
                 });
             }
         });
+
+        // Update the `Account` object with account data from persistent storage.
+        Account.id = outputState.account.id;
+        Account.accountName = outputState.account.username;
+        Account.accessToken = outputState.account.accessToken;
+        Account.accessTokenType = outputState.account.tokenType;
+        Account.scope = outputState.account.scope;
+        Account.roles = outputState.account.isAdmin ? ["admin"] : [];
+
+        // Subscribe to changes in the player's account info.
+        Account.onAttributeChange.connect(() => {
+            Store.commit(Mutations.MUTATE, {
+                property: "account",
+                with: {
+                    id: Account.id,
+                    username: Account.accountName,
+                    isLoggedIn: Account.isLoggedIn,
+                    accessToken: Account.accessToken,
+                    tokenType: Account.accessTokenType,
+                    scope: Account.scope ?? "UNKNOWN",
+                    isAdmin: "admin" in Account.roles,
+                    useAsAdmin: "admin" in Account.roles,
+                    images: {}
+                }
+            });
+        });
+
+        // Make sure the account info is up-to-date.
+        // eslint-disable-next-line no-void
+        void Account.updateAccountInfo();
+
         // Note: We are using an intermediary variable (`outputState`) to store the returned state
         // so that extraneous properties within the persistent state are not retained.
         return outputState;

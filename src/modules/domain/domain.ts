@@ -159,7 +159,7 @@ export class Domain {
 
         this.#_entityClient = new EntityServer(this.ContextId);
 
-        // connect to the domain. The 'connected' event will say if the connection as made.
+        // Connect to the domain. The 'connected' event will say if the connection was made.
         // Log.debug(Log.types.COMM, `Connecting to domain at ${this.#_domainUrl}`);
         Log.debug(Log.types.COMM, `Connecting to domain at ${this.#_location.href}`);
         this.#_domain.onStateChanged = this._handleOnDomainStateChange.bind(this);

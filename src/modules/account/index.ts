@@ -164,6 +164,10 @@ export const Account = {
      * Fetch all information for the currently logged in account and emit changed events.
      */
     async updateAccountInfo(): Promise<void> {
+        // Skip fetching info if the account ID is "UNKNOWN", as this is designed to fail.
+        if (Account.id === "UNKNOWN") {
+            return;
+        }
         // Fetch account profile information.
         try {
             const response = await doAPIGet(GetAccountByIdAPI + Account.id) as GetAccountByIdResp;
