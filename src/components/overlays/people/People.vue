@@ -120,7 +120,7 @@
                                             disable
                                             @click.stop=""
                                         ></q-btn>
-                                        <template v-if="true">
+                                        <template v-if="$store.state.account.isAdmin">
                                             <!--Admin Controls-->
                                             <q-btn
                                                 icon="volume_off"
