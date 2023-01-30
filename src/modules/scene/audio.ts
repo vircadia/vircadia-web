@@ -13,6 +13,7 @@ import { AssignmentClientState } from "@Modules/domain/client";
 
 import { Store, Mutations as StoreMutations } from "@Store/index";
 import { Config, USER_AUDIO_INPUT, USER_AUDIO_OUTPUT } from "@Base/config";
+import { Notify } from "quasar";
 import Log from "@Modules/debugging/log";
 
 export type SetAudioOutputCallback = (pStream: Nullable<MediaStream>) => void;
@@ -156,6 +157,12 @@ export const AudioMgr = {
             // Listen to mute requests from the domain.
             mixer.mutedByMixer.connect(() => {
                 AudioMgr.muteAudio(true);
+                Notify.create({
+                    type: "negative",
+                    textColor: "white",
+                    icon: "information",
+                    message: "You have been muted by an admin."
+                });
             });
         }
     },
