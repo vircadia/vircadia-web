@@ -232,7 +232,15 @@
                         >
                             <q-item-section side>
                                 <q-avatar size="48px">
-                                    <q-icon :name="getProfilePicture" size="xl"/>
+                                    <q-img
+                                        v-if="getProfilePicture"
+                                        :src="getProfilePicture"
+                                    />
+                                    <q-icon
+                                        v-else
+                                        name="account_circle"
+                                        size="xl"
+                                    />
                                 </q-avatar>
                             </q-item-section>
                             <q-item-section>
@@ -634,11 +642,11 @@ export default defineComponent({
         getMetaverseServerLocation: function(): string {
             return this.$store.state.metaverse.server ?? "Not currently connected to a metaverse server.";
         },
-        getProfilePicture: function() {
+        getProfilePicture: function(): string | undefined {
             if (this.$store.state.account.images && this.$store.state.account.images.thumbnail) {
                 return this.$store.state.account.images.thumbnail;
             }
-            return "account_circle";
+            return undefined;
         },
 
         headerStyle: function(): string {
