@@ -87,7 +87,7 @@
             style="background: transparent; box-shadow: none;"
         >
             <q-scroll-area
-                class="col"
+                class="col non-selectable"
                 style="height: 100%;"
             >
                 <div class="row q-mb-md q-px-md">
@@ -604,8 +604,8 @@ export default defineComponent({
         // FIXME This check needs to be more robust.
         validateModelFile(value: string): boolean {
             // Validates against:
-            // 1. File URL has ".glb" at the end.
-            return (/\.glb$/iu).test(value);
+            // 1. File URL has ".glb" or ".gltf" at the end.
+            return (/(?:\.glb|\.gltf)$/iu).test(value);
         },
         // FIXME This check needs to be more robust.
         validateModelImage(value: string): boolean {

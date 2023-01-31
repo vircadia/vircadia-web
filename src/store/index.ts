@@ -43,29 +43,19 @@ import { saveLocalValue, loadLocalValue } from "@Modules/localStorage/index";
  * @returns `true` if it is safe to store that property, `false` if unsafe.
  */
 function isSafeInPersistentStorage(key: keyof IRootState): boolean {
-    // Do not save/load these root properties to/from persistent storage,
-    // as they may be incompatible with persistent storage,
+    // Only save/load these root properties to/from persistent storage.
+    // Any other properties may be incompatible with persistent storage,
     // or contain non-user-configurable properties,
     // or be expected to cause other errors if loaded.
-    const doNotSave = [
-        "globalConsts",             // This object is not configurable by the user, so should not be saved.
-        "defaultConnectionConfig",  // Not configurable by the user.
-        "debugging",                // Contains session-specific properties.
-        "notifications",            // Contains session-specific properties.
-        "error",                    // Contains session-specific properties.
-        "dialog",                   // Contains session-specific properties.
-        "domain",                   // Not configurable by the user.
-        "avatars",                  // Contains session-specific properties.
-        "messages",                 // Contains session-specific properties.
-        "audio",                    // Contains session-specific properties.
-        "metaverse",                // Not configurable by the user.
-        "account",                  // Contains session-specific properties.
-        "renderer",                 // Contains session-specific properties.
-        "theme",                    // Not configurable by the user.
-        "firstTimeWizard",          // Not configurable by the user.
-        "conference"               // This object is known to contain circular references.
+    const safeProperties = [
+        "storeVersion",
+        "avatar",
+        "graphics",
+        "account",
+        "bookmarks",
+        "controls"
     ];
-    return !doNotSave.includes(key); // `false` (unsafe) if the key is in `doNotSave`.
+    return safeProperties.includes(key);
 }
 
 /**
@@ -96,21 +86,25 @@ function saveToPersistentStorage(value: IRootState): void {
     // This function currently uses localStorage as the persistent location.
     // In the future, a location such as Firebase, Amplify, etc, could be used instead.
 
-    function stateReplacer(key: keyof IRootState, entry: unknown): unknown {
+    function stateReplacer(key: string, entry: unknown): unknown {
         // Convert BigInt values to strings, since there is no default serializer for them.
         if (entry instanceof BigInt) {
             return entry.toString();
         }
-        // Remove any properties that are unsafe to keep in persistent storage.
-        if (!isSafeInPersistentStorage(key)) {
-            return {};
-        }
         return entry;
     }
 
+    // Only store properties that are safe to keep in persistent storage.
+    const subStore = {} as { [key: string]: unknown };
+    Object.entries(value).forEach(([key, entry]) => {
+        if (isSafeInPersistentStorage(key as keyof IRootState)) {
+            subStore[key] = entry;
+        }
+    });
+
     saveLocalValue(
         "store",
-        JSON.stringify(value, (key, entry) => stateReplacer(key as keyof IRootState, entry))
+        JSON.stringify(subStore, (key, entry) => stateReplacer(key, entry))
     );
 }
 
@@ -412,8 +406,8 @@ interface VStore extends VuexStore<IRootState> {
 
 const storeDefaults = {
     storeVersion: {
-        major: 2,
-        minor: 1,
+        major: 3,
+        minor: 2,
         patch: 0
     },
     globalConsts: {
@@ -573,7 +567,9 @@ const storeDefaults = {
             walkLeft: { name: "Walk Left", keybind: "KeyA" },
             walkRight: { name: "Walk Right", keybind: "KeyD" },
             run: { name: "Run", keybind: "ShiftLeft" },
-            jump: { name: "Jump", keybind: "Space" }
+            jump: { name: "Jump", keybind: "Space" },
+            crouch: { name: "Crouch", keybind: "KeyC" },
+            fly: { name: "Fly", keybind: "KeyF" }
         },
         camera: {
             pitchUp: { name: "Pitch Up", keybind: "ArrowUp" },

@@ -71,7 +71,6 @@ export class ScriptAvatarController extends ScriptComponent {
         });
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
     public onUpdate():void {
         if (this._gameObject) {
             // sync postion
