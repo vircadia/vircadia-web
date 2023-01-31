@@ -12,6 +12,8 @@ jobs:
   web-deploy:
     name: 🎉 Deploy
     runs-on: ubuntu-latest
+    env:
+      VRCA_DEFAULT_DOMAIN_URL: ${{ secrets.ua92verse_default_domain }}
     steps:
     - name: 🚚 Get latest code
       uses: actions/checkout@v2
