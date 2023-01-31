@@ -510,38 +510,22 @@ const storeDefaults = {
     },
     // Theme configuration.
     theme: {
-        brandName: process.env.VRCA_BRAND_NAME ?? "Vircadia",
-        productName: process.env.VRCA_PRODUCT_NAME ?? "Vircadia Web",
-        tagline: process.env.VRCA_TAGLINE ?? "",
-        logo: process.env.VRCA_LOGO ?? "assets/vircadia-icon.svg",
-        globalServiceTerm: process.env.VRCA_GLOBAL_SERVICE_TERM ?? "Metaverse",
+        brandName: process.env.VRCA_BRAND_NAME,
+        productName: process.env.VRCA_PRODUCT_NAME,
+        tagline: process.env.VRCA_TAGLINE,
+        logo: process.env.VRCA_LOGO,
+        globalServiceTerm: process.env.VRCA_GLOBAL_SERVICE_TERM,
         colors: {
-            primary: process.env.VRCA_COLORS_PRIMARY ?? "#0c71c3",
-            secondary: process.env.VRCA_COLORS_SECONDARY ?? "#8300e9",
-            accent: process.env.VRCA_COLORS_ACCENT ?? "#01bdff"
+            primary: process.env.VRCA_COLORS_PRIMARY,
+            secondary: process.env.VRCA_COLORS_SECONDARY,
+            accent: process.env.VRCA_COLORS_ACCENT
         },
-        defaultMode: process.env.VRCA_DEFAULT_MODE ?? "dark",
-        globalStyle: process.env.VRCA_GLOBAL_STYLE ?? "mica",
-        headerStyle: process.env.VRCA_HEADER_STYLE ?? "gradient-right",
-        windowStyle: process.env.VRCA_WINDOW_STYLE ?? "gradient-right",
+        defaultMode: process.env.VRCA_DEFAULT_MODE,
+        globalStyle: process.env.VRCA_GLOBAL_STYLE,
+        headerStyle: process.env.VRCA_HEADER_STYLE,
+        windowStyle: process.env.VRCA_WINDOW_STYLE,
         // TODO: Move links to their own object (it's not theme related).
-        helpLinks: process.env.VRCA_HELP_LINKS ?? [
-            {
-                icon: "chat",
-                label: "Discord",
-                link: "https://discord.com/invite/Pvx2vke"
-            },
-            {
-                icon: "forum",
-                label: "Forum",
-                link: "https://forum.vircadia.com/"
-            },
-            {
-                icon: "support",
-                label: "User Documentation",
-                link: "https://docs.vircadia.com/"
-            }
-        ]
+        helpLinks: process.env.VRCA_HELP_LINKS
     },
     // First Time Wizard configuration.
     firstTimeWizard: {
