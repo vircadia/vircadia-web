@@ -14,6 +14,14 @@ jobs:
     runs-on: ubuntu-latest
     env:
       VRCA_DEFAULT_DOMAIN_URL: ${{ secrets.ua92verse_default_domain }}
+      VRCA_COLORS_PRIMARY: "#eb0045"
+      VRCA_COLORS_SECONDARY: "#080400"
+      VRCA_COLORS_ACCENT: "#e9511d"
+      VRCA_BRAND_NAME: "UA92"
+      VRCA_PRODUCT_NAME: "UA92verse"
+      VRCA_WIZARD_TITLE: "UA92verse"
+      VRCA_WIZARD_WELCOME_TEXT: ""
+      VRCA_WIZARD_TAGLINE: ""
     steps:
     - name: 🚚 Get latest code
       uses: actions/checkout@v2
