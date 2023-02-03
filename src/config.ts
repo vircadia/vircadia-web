@@ -39,15 +39,13 @@ export const FalseValue = "false";
 // Set to 0 to disable rate limiting, or -1 to disable updates completely.
 export const URL_UPDATE_FREQUENCY = 1000;
 
+// FIXME: This should be removed in favor of using the store.
 export const DefaultConnectionConfig: { [key: string]: string } = {
     "Default_Metaverse_Url": "https://metaverse.vircadia.com/live",
     "Default_Domain_Protocol": "wss:",
     "Default_Domain_Port": "40102",
     "Default_Domain_Url": "ws://localhost/0,0,0/0,0,0,1"
 };
-
-// FIXME: this should be removed at some point in favor of the above object.
-export const DEFAULT_DOMAIN_URL = "wss://antares.digisomni.com/0,0,0/0,0,0,1";
 
 export const Config = {
     // Entries can be prefixed with a qualifier.

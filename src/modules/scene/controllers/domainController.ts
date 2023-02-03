@@ -207,7 +207,7 @@ export class DomainController extends ScriptComponent {
             const domain = avatarList.getAvatar(sessionID);
 
             if (domain.skeletonModelURL !== "") {
-                this._vscene?.loadAvatar(sessionID.stringify(), domain);
+                this._vscene?.loadAvatar(sessionID, domain);
             }
 
             domain.skeletonModelURLChanged.connect(() => {
@@ -219,7 +219,7 @@ export class DomainController extends ScriptComponent {
     private _handleAvatarRemoved = (sessionID: Uuid): void => {
         Log.debug(Log.types.AVATAR,
             `handleAvatarRemoved. Session ID: ${sessionID.stringify()}`);
-        this._vscene?.unloadAvatar(sessionID.stringify());
+        this._vscene?.unloadAvatar(sessionID);
 
     };
 
@@ -227,7 +227,7 @@ export class DomainController extends ScriptComponent {
         Log.debug(Log.types.AVATAR,
             `handleAvatarSkeletonModelURLChanged. Session ID: ${sessionID.stringify()}, ${domain.skeletonModelURL}`);
 
-        this._vscene?.loadAvatar(sessionID.stringify(), domain);
+        this._vscene?.loadAvatar(sessionID, domain);
     }
 
     private _handleOnEntityServerStateChanged(state: AssignmentClientState): void {
