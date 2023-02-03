@@ -45,7 +45,7 @@
         <slot name="manager"></slot>
         <LoadingScreen ref="loadingScreen" />
         <JitsiContainer ref="JitsiContainer" />
-        <div class="versionWatermark">Early Developer Alpha</div>
+        <div class="versionWatermark">{{ $store.state.theme.versionWatermark }}</div>
     </q-page>
 </template>
 

@@ -136,6 +136,7 @@ module.exports = configure(function (ctx) {
                 VRCA_TAGLINE: process.env.VRCA_TAGLINE ?? require("./package.json").description,
                 VRCA_LOGO: process.env.VRCA_LOGO ?? "assets/vircadia-icon.svg",
                 VRCA_GLOBAL_SERVICE_TERM: process.env.VRCA_GLOBAL_SERVICE_TERM ?? "Metaverse",
+                VRCA_VERSION_WATERMARK: process.env.VRCA_VERSION_WATERMARK ?? "Early Developer Alpha",
                 // Theme > Colors
                 VRCA_COLORS_PRIMARY: process.env.VRCA_COLORS_PRIMARY ?? "#0c71c3",
                 VRCA_COLORS_SECONDARY: process.env.VRCA_COLORS_SECONDARY ?? "#8300e9",

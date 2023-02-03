@@ -350,6 +350,7 @@ export interface IRootState {
         tagline: string,
         logo: string,
         globalServiceTerm: string,
+        versionWatermark: string,
         colors: {
             primary: string,
             secondary: string,
@@ -515,6 +516,7 @@ const storeDefaults = {
         tagline: process.env.VRCA_TAGLINE,
         logo: process.env.VRCA_LOGO,
         globalServiceTerm: process.env.VRCA_GLOBAL_SERVICE_TERM,
+        versionWatermark: process.env.VRCA_VERSION_WATERMARK,
         colors: {
             primary: process.env.VRCA_COLORS_PRIMARY,
             secondary: process.env.VRCA_COLORS_SECONDARY,
