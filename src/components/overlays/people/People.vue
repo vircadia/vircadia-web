@@ -120,7 +120,7 @@
                                             disable
                                             @click.stop=""
                                         ></q-btn>
-                                        <template v-if="$store.state.account.isAdmin">
+                                        <template v-if="canKick">
                                             <!--Admin Controls-->
                                             <q-btn
                                                 icon="volume_off"
@@ -130,6 +130,7 @@
                                                 dense
                                                 ripple
                                                 title="Server mute"
+                                                :disable="!canKick"
                                                 @click.stop="adminServerMute(avaInfo.sessionId)"
                                             ></q-btn>
                                             <q-btn
