@@ -104,15 +104,15 @@ declare module "@vircadia/web-sdk" {
         get authRequired(): Signal;
     }
     // ============================
-    export enum BanFlags {
-        NO_BAN = 0,
-        BAN_BY_USERNAME = 1,
-        BAN_BY_FINGERPRINT = 2,
-        BAN_BY_USERNAME_AND_FINGERPRINT = 3,
-        BAN_BY_IP = 4,
-        BAN_BY_USERNAME_AND_IP = 5,
-        BAN_BY_FINGERPRINT_AND_IP = 6,
-        BAN_BY_USERNAME_AND_FINGERPRINT_AND_IP = 7
+    // ============================
+    export class ModerationFlags {
+        static readonly BanFlags: {
+            NO_BAN: number;
+            BAN_BY_USERNAME: number;
+            BAN_BY_FINGERPRINT: number;
+            BAN_BY_IP: number;
+        };
+        static getDefaultBanFlags(): number;
     }
     // ============================
     export class UsersInterface {

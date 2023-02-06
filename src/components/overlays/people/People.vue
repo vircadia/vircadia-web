@@ -144,6 +144,17 @@
                                                 :disable="!canKick"
                                                 @click.stop="adminKick(avaInfo.sessionId)"
                                             ></q-btn>
+                                            <q-btn
+                                                icon="remove_circle"
+                                                text-color="negative"
+                                                flat
+                                                round
+                                                dense
+                                                ripple
+                                                title="Kick player with IP"
+                                                :disable="!canKick"
+                                                @click.stop="adminKick(avaInfo.sessionId, banByIP())"
+                                            ></q-btn>
                                         </template>
                                     </div>
                                     <div
@@ -192,7 +203,7 @@ import OverlayShell from "../OverlayShell.vue";
 import { Store, Mutations as StoreMutations, AvatarInfo } from "@Store/index";
 import { DomainMgr } from "@Modules/domain";
 import { Renderer } from "@Modules/scene";
-import { Uuid } from "@vircadia/web-sdk";
+import { ModerationFlags, Uuid } from "@vircadia/web-sdk";
 
 export interface PeopleEntry {
     displayName: string;
@@ -262,6 +273,11 @@ export default defineComponent({
             Renderer.getScene().teleportMyAvatarToOtherPeople(pAvaInfo.sessionId.stringify());
         },
 
+        banByIP(): number {
+            return ModerationFlags.BanFlags.BAN_BY_USERNAME + ModerationFlags.BanFlags.BAN_BY_FINGERPRINT
+                + ModerationFlags.BanFlags.BAN_BY_IP;
+        },
+
         adminServerMute(sessionId: Uuid): void {
             const domainServer = DomainMgr.ActiveDomain?.DomainClient;
             if (domainServer) {
@@ -269,10 +285,10 @@ export default defineComponent({
             }
         },
 
-        adminKick(sessionId: Uuid): void {
+        adminKick(sessionId: Uuid, banFlags?: number): void {
             const domainServer = DomainMgr.ActiveDomain?.DomainClient;
             if (domainServer) {
-                domainServer.users.kick(sessionId);
+                domainServer.users.kick(sessionId, banFlags);
             }
         }
     },
