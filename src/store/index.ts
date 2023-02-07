@@ -757,7 +757,7 @@ export const Store = createStore<IRootState>({
         // Remove old messages if the limit has passed.
         [Mutations.ADD_MESSAGE](state: IRootState, payload: AddMessagePayload) {
             const msg = payload.message;
-            // If the message doesn't have some unique identification, add it
+            // If the message doesn't have some unique identification, add it.
             if (typeof msg.id === "undefined") {
                 msg.id = state.messages.nextMessageId;
                 state.messages.nextMessageId += 1;
@@ -765,11 +765,9 @@ export const Store = createStore<IRootState>({
 
             state.messages.messages.push(payload.message);
 
-            // If a maximum is specified, remove the old from the list
-            if (typeof payload.maxMessages === "number") {
-                while (state.messages.messages.length > payload.maxMessages) {
-                    state.messages.messages.pop();
-                }
+            // If a maximum is specified, remove old messages from the list.
+            if (typeof payload.maxMessages === "number" && state.messages.messages.length > payload.maxMessages) {
+                state.messages.messages = state.messages.messages.slice(state.messages.messages.length - payload.maxMessages);
             }
 
             saveToPersistentStorage(state);
@@ -983,7 +981,7 @@ export const Store = createStore<IRootState>({
             pContext.commit(Mutations.ADD_MESSAGE, {
                 message: pMsg,
                 // FIXME: Define this in a constant somewhere, editable later by setting.
-                maxMessages: 100
+                maxMessages: 150
             });
         },
         // Example action. Any script should be calling the Metavsere component directly
