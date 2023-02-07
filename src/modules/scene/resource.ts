@@ -86,12 +86,12 @@ export class ResourceManager {
             sourceAnimGroup.targetedAnimations.forEach((targetAnim) => {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 if (targetAnim.target?.name === "Hips") {
-                    // Recaculate the postion and roatation of the Hip animation key.
+                    // Recalculate the position and rotation of the Hip animation key.
                     if (targetAnim.animation.targetProperty === "position") {
                         const anim = targetAnim.animation.clone();
                         const keys = anim.getKeys();
                         keys.forEach((keyFrame, index) => {
-                            // Apply the roation and scale of the Armatue node.
+                            // Apply the rotation and scale of the Armature node.
                             let pos = keyFrame.value as Vector3;
                             pos = pos.applyRotationQuaternion(mesh.rotationQuaternion as Quaternion);
                             pos = pos.multiply(mesh.scaling);
@@ -110,7 +110,7 @@ export class ResourceManager {
                         const anim = targetAnim.animation.clone();
                         const keys = anim.getKeys();
                         keys.forEach((keyFrame) => {
-                            // Apply the roation of the Armatue node.
+                            // Apply the rotation of the Armature node.
                             const rot = keyFrame.value as Quaternion;
                             if (mesh.rotationQuaternion) {
                                 keyFrame.value = mesh.rotationQuaternion.multiply(rot);
