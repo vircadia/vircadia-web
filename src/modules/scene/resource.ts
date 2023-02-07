@@ -173,14 +173,6 @@ export class ResourceManager {
             // For matching the orientation of vircadia
             mesh.rotationQuaternion = Quaternion.FromEulerAngles(0, Math.PI, 0);
 
-            // make the pivot to the center of the bounding
-            const bounding = mesh.getHierarchyBoundingVectors(true);
-            const pivot = bounding.max.add(bounding.min).scale(-0.5);
-            // add some offset
-            pivot.addInPlace(new Vector3(0, -0.1, 0));
-            // move the mesh to the pivot
-            mesh.position = pivot;
-
             const skeleton = result.skeletons.length > 0 ? result.skeletons[0] : null;
 
             return {
