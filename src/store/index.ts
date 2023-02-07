@@ -981,7 +981,7 @@ export const Store = createStore<IRootState>({
             pContext.commit(Mutations.ADD_MESSAGE, {
                 message: pMsg,
                 // FIXME: Define this in a constant somewhere, editable later by setting.
-                maxMessages: 100
+                maxMessages: 150
             });
         },
         // Example action. Any script should be calling the Metavsere component directly
