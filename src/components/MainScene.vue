@@ -45,7 +45,7 @@
         <slot name="manager"></slot>
         <LoadingScreen ref="loadingScreen" />
         <JitsiContainer ref="JitsiContainer" />
-        <div class="versionWatermark">Early Developer Alpha</div>
+        <div class="versionWatermark">{{ $store.state.theme.versionWatermark }}</div>
     </q-page>
 </template>
 
@@ -60,7 +60,7 @@ import { Renderer } from "@Modules/scene/renderer";
 import { Utility } from "@Modules/utility";
 import { Location } from "@Modules/domain/location";
 import { AvatarStoreInterface } from "@Modules/avatar/StoreInterface";
-import { DEFAULT_DOMAIN_URL, URL_UPDATE_FREQUENCY } from "@Base/config";
+import { URL_UPDATE_FREQUENCY } from "@Base/config";
 import { DomainMgr } from "@Modules/domain";
 import Log from "@Modules/debugging/log";
 
@@ -163,7 +163,7 @@ export default defineComponent({
                 : this.$route.params.location;
 
             if (!location || location === "") {
-                location = DEFAULT_DOMAIN_URL;
+                location = this.$store.state.defaultConnectionConfig.DEFAULT_DOMAIN_URL;
             }
 
             // Check if just the position/rotation values differ from the current location.

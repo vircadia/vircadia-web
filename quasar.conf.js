@@ -15,10 +15,6 @@
 */
 const path = require("path");
 
-// Fetch package.json info for use in the manifest
-const { productName } = process.env.VRCA_PRODUCT_NAME ?? require("./package.json").productName;
-const { productShortName } = process.env.VRCA_PRODUCT_NAME ?? require("./package.json").name;
-const { productDescription } = process.env.VRCA_TAGLINE ?? require("./package.json").description;
 // Configuration for your app
 // https://v2.quasar.dev/quasar-cli/quasar-conf-js
 
@@ -135,28 +131,45 @@ module.exports = configure(function (ctx) {
                 VRCA_DEFAULT_DOMAIN_PORT: process.env.VRCA_DEFAULT_DOMAIN_PORT,
                 VRCA_DEFAULT_DOMAIN_URL: process.env.VRCA_DEFAULT_DOMAIN_URL,
                 // Theme
-                VRCA_BRAND_NAME: process.env.VRCA_BRAND_NAME,
-                VRCA_PRODUCT_NAME: process.env.VRCA_PRODUCT_NAME,
-                VRCA_TAGLINE: process.env.VRCA_TAGLINE,
-                VRCA_LOGO: process.env.VRCA_LOGO,
-                VRCA_GLOBAL_SERVICE_TERM: process.env.VRCA_GLOBAL_SERVICE_TERM,
+                VRCA_BRAND_NAME: process.env.VRCA_BRAND_NAME ?? require("./package.json").productName,
+                VRCA_PRODUCT_NAME: process.env.VRCA_PRODUCT_NAME ?? require("./package.json").name,
+                VRCA_TAGLINE: process.env.VRCA_TAGLINE ?? require("./package.json").description,
+                VRCA_LOGO: process.env.VRCA_LOGO ?? "assets/vircadia-icon.svg",
+                VRCA_GLOBAL_SERVICE_TERM: process.env.VRCA_GLOBAL_SERVICE_TERM ?? "Metaverse",
+                VRCA_VERSION_WATERMARK: process.env.VRCA_VERSION_WATERMARK ?? "Early Developer Alpha",
                 // Theme > Colors
-                VRCA_COLORS_PRIMARY: process.env.VRCA_COLORS_PRIMARY,
-                VRCA_COLORS_SECONDARY: process.env.VRCA_COLORS_SECONDARY,
-                VRCA_COLORS_ACCENT: process.env.VRCA_COLORS_ACCENT,
+                VRCA_COLORS_PRIMARY: process.env.VRCA_COLORS_PRIMARY ?? "#0c71c3",
+                VRCA_COLORS_SECONDARY: process.env.VRCA_COLORS_SECONDARY ?? "#8300e9",
+                VRCA_COLORS_ACCENT: process.env.VRCA_COLORS_ACCENT ?? "#01bdff",
                 // Theme > Styles
-                VRCA_DEFAULT_MODE: process.env.VRCA_DEFAULT_MODE,
-                VRCA_GLOBAL_STYLE: process.env.VRCA_GLOBAL_STYLE,
-                VRCA_HEADER_STYLE: process.env.VRCA_HEADER_STYLE,
-                VRCA_WINDOW_STYLE: process.env.VRCA_WINDOW_STYLE,
+                VRCA_DEFAULT_MODE: process.env.VRCA_DEFAULT_MODE ?? "dark",
+                VRCA_GLOBAL_STYLE: process.env.VRCA_GLOBAL_STYLE ?? "mica",
+                VRCA_HEADER_STYLE: process.env.VRCA_HEADER_STYLE ?? "gradient-right",
+                VRCA_WINDOW_STYLE: process.env.VRCA_WINDOW_STYLE ?? "gradient-right",
                 // Links
                 // Links > Help Links (must be JSON stringied)
-                VRCA_HELP_LINKS: process.env.HELP_LINKS ? JSON.parse(process.env.HELP_LINKS) : undefined,
+                VRCA_HELP_LINKS: process.env.HELP_LINKS ? JSON.parse(process.env.HELP_LINKS) : [
+                    {
+                        icon: "chat",
+                        label: "Discord",
+                        link: "https://discord.com/invite/Pvx2vke"
+                    },
+                    {
+                        icon: "forum",
+                        label: "Forum",
+                        link: "https://forum.vircadia.com/"
+                    },
+                    {
+                        icon: "support",
+                        label: "User Documentation",
+                        link: "https://docs.vircadia.com/"
+                    }
+                ],
                 // First Time Wizard
-                VRCA_WIZARD_TITLE: process.env.VRCA_WIZARD_TITLE,
-                VRCA_WIZARD_WELCOME_TEXT: process.env.VRCA_WIZARD_WELCOME_TEXT,
-                VRCA_WIZARD_TAGLINE: process.env.VRCA_WIZARD_TAGLINE,
-                VRCA_WIZARD_BUTTON_TEXT: process.env.VRCA_WIZARD_BUTTON_TEXT
+                VRCA_WIZARD_TITLE: process.env.VRCA_WIZARD_TITLE ?? require("./package.json").name,
+                VRCA_WIZARD_WELCOME_TEXT: process.env.VRCA_WIZARD_WELCOME_TEXT ?? "Welcome to",
+                VRCA_WIZARD_TAGLINE: process.env.VRCA_WIZARD_TAGLINE ?? "Your portal to the metaverse.",
+                VRCA_WIZARD_BUTTON_TEXT: process.env.VRCA_WIZARD_BUTTON_TEXT ?? "Get Started"
             }
         },
 
@@ -230,9 +243,9 @@ module.exports = configure(function (ctx) {
             },
 
             manifest: {
-                name: productName,
-                short_name: productShortName,
-                description: productDescription,
+                name: process.env.VRCA_PRODUCT_NAME ?? require("./package.json").productName,
+                short_name: process.env.VRCA_PRODUCT_NAME ?? require("./package.json").name,
+                description: process.env.VRCA_TAGLINE ?? require("./package.json").description,
                 display: "standalone",
                 orientation: "portrait",
                 background_color: "#ffffff",

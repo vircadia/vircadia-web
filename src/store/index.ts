@@ -350,6 +350,7 @@ export interface IRootState {
         tagline: string,
         logo: string,
         globalServiceTerm: string,
+        versionWatermark: string,
         colors: {
             primary: string,
             secondary: string,
@@ -510,38 +511,23 @@ const storeDefaults = {
     },
     // Theme configuration.
     theme: {
-        brandName: process.env.VRCA_BRAND_NAME ?? "Vircadia",
-        productName: process.env.VRCA_PRODUCT_NAME ?? "Vircadia Web",
-        tagline: process.env.VRCA_TAGLINE ?? "",
-        logo: process.env.VRCA_LOGO ?? "assets/vircadia-icon.svg",
-        globalServiceTerm: process.env.VRCA_GLOBAL_SERVICE_TERM ?? "Metaverse",
+        brandName: process.env.VRCA_BRAND_NAME,
+        productName: process.env.VRCA_PRODUCT_NAME,
+        tagline: process.env.VRCA_TAGLINE,
+        logo: process.env.VRCA_LOGO,
+        globalServiceTerm: process.env.VRCA_GLOBAL_SERVICE_TERM,
+        versionWatermark: process.env.VRCA_VERSION_WATERMARK,
         colors: {
-            primary: process.env.VRCA_COLORS_PRIMARY ?? "#0c71c3",
-            secondary: process.env.VRCA_COLORS_SECONDARY ?? "#8300e9",
-            accent: process.env.VRCA_COLORS_ACCENT ?? "#01bdff"
+            primary: process.env.VRCA_COLORS_PRIMARY,
+            secondary: process.env.VRCA_COLORS_SECONDARY,
+            accent: process.env.VRCA_COLORS_ACCENT
         },
-        defaultMode: process.env.VRCA_DEFAULT_MODE ?? "dark",
-        globalStyle: process.env.VRCA_GLOBAL_STYLE ?? "mica",
-        headerStyle: process.env.VRCA_HEADER_STYLE ?? "gradient-right",
-        windowStyle: process.env.VRCA_WINDOW_STYLE ?? "gradient-right",
+        defaultMode: process.env.VRCA_DEFAULT_MODE,
+        globalStyle: process.env.VRCA_GLOBAL_STYLE,
+        headerStyle: process.env.VRCA_HEADER_STYLE,
+        windowStyle: process.env.VRCA_WINDOW_STYLE,
         // TODO: Move links to their own object (it's not theme related).
-        helpLinks: process.env.VRCA_HELP_LINKS ?? [
-            {
-                icon: "chat",
-                label: "Discord",
-                link: "https://discord.com/invite/Pvx2vke"
-            },
-            {
-                icon: "forum",
-                label: "Forum",
-                link: "https://forum.vircadia.com/"
-            },
-            {
-                icon: "support",
-                label: "User Documentation",
-                link: "https://docs.vircadia.com/"
-            }
-        ]
+        helpLinks: process.env.VRCA_HELP_LINKS
     },
     // First Time Wizard configuration.
     firstTimeWizard: {
@@ -771,7 +757,7 @@ export const Store = createStore<IRootState>({
         // Remove old messages if the limit has passed.
         [Mutations.ADD_MESSAGE](state: IRootState, payload: AddMessagePayload) {
             const msg = payload.message;
-            // If the message doesn't have some unique identification, add it
+            // If the message doesn't have some unique identification, add it.
             if (typeof msg.id === "undefined") {
                 msg.id = state.messages.nextMessageId;
                 state.messages.nextMessageId += 1;
@@ -779,11 +765,9 @@ export const Store = createStore<IRootState>({
 
             state.messages.messages.push(payload.message);
 
-            // If a maximum is specified, remove the old from the list
-            if (typeof payload.maxMessages === "number") {
-                while (state.messages.messages.length > payload.maxMessages) {
-                    state.messages.messages.pop();
-                }
+            // If a maximum is specified, remove old messages from the list.
+            if (typeof payload.maxMessages === "number" && state.messages.messages.length > payload.maxMessages) {
+                state.messages.messages = state.messages.messages.slice(state.messages.messages.length - payload.maxMessages);
             }
 
             saveToPersistentStorage(state);
@@ -997,7 +981,7 @@ export const Store = createStore<IRootState>({
             pContext.commit(Mutations.ADD_MESSAGE, {
                 message: pMsg,
                 // FIXME: Define this in a constant somewhere, editable later by setting.
-                maxMessages: 100
+                maxMessages: 150
             });
         },
         // Example action. Any script should be calling the Metavsere component directly
