@@ -64,7 +64,7 @@ export class ResourceManager {
     }
 
 
-    public async loadAvatarAnimations(modelUrl: string, hipPosition = Vector3.Zero()): Promise<IAvatarAnimationResult> {
+    public async loadAvatarAnimations(modelUrl: string, hipPosition?: Vector3): Promise<IAvatarAnimationResult> {
         const modelAssetName = modelUrl.split("/");
         const result = await SceneLoader.ImportMeshAsync(
             "",
@@ -100,7 +100,9 @@ export class ResourceManager {
                             if (index === 0) {
                                 animationInitialHipPosition = pos.clone();
                             }
-                            offset = animationInitialHipPosition.y - hipPosition.y;
+                            if (hipPosition) {
+                                offset = animationInitialHipPosition.y - hipPosition.y;
+                            }
                             pos.y = pos.y - offset;
                             keyFrame.value = pos;
                         });
