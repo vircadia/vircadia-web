@@ -585,9 +585,9 @@ const storeDefaults = {
             }
         },
         mouse: {
-            acceleration: false,
+            acceleration: true,
             invert: false,
-            sensitivity: 100
+            sensitivity: 50
         }
     }
 } as IRootState;
