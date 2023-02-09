@@ -848,13 +848,13 @@ export default defineComponent({
                 && target?.tagName !== "TEXTAREA"
             ) {
                 // Toggle the menu.
-                if (event.code === this.$store.state.controls.other.toggleMenu?.keybind) {
+                if (event.code === this.$store.state.controls.keyboard.other.toggleMenu?.keybind) {
                     // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution.
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
                     (this.$refs.OverlayManager as typeof OverlayManager)?.toggleOverlay("menu");
                 }
                 // Open the chat.
-                if (event.code === this.$store.state.controls.other.openChat?.keybind) {
+                if (event.code === this.$store.state.controls.keyboard.other.openChat?.keybind) {
                     // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution.
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
                     (this.$refs.OverlayManager as typeof OverlayManager)?.toggleOverlay("ChatWindow");

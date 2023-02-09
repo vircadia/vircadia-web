@@ -108,7 +108,7 @@ export default defineComponent({
     data() {
         return {
             currentlyBinding: {
-                category: undefined as keyof typeof Store.state.controls | undefined,
+                category: undefined as keyof typeof Store.state.controls.keyboard | undefined,
                 control: undefined as string | undefined
             }
         };
@@ -175,9 +175,9 @@ export default defineComponent({
         },
         keybindAlreadyInUse(keybind: string): boolean {
             // eslint-disable-next-line max-len
-            return Boolean(Object.entries(Store.state.controls).find((category) => Object.entries(category[1]).find((value) => value[1].keybind === keybind)));
+            return Boolean(Object.entries(Store.state.controls.keyboard).find((category) => Object.entries(category[1]).find((value) => value[1].keybind === keybind)));
         },
-        setCurrentlyBinding(category?: keyof typeof Store.state.controls, control?: string): void {
+        setCurrentlyBinding(category?: keyof typeof Store.state.controls.keyboard, control?: string): void {
             if (!category || !control) {
                 this.currentlyBinding.category = undefined;
                 this.currentlyBinding.control = undefined;
@@ -203,7 +203,8 @@ export default defineComponent({
                 if (
                     this.currentlyBinding.category
                     && this.currentlyBinding.control
-                    && Store.state.controls[this.currentlyBinding.category][this.currentlyBinding.control].keybind !== keycode
+                    // eslint-disable-next-line max-len
+                    && Store.state.controls.keyboard[this.currentlyBinding.category][this.currentlyBinding.control].keybind !== keycode
                 ) {
                     this.$q.notify({
                         type: "negative",
@@ -226,8 +227,8 @@ export default defineComponent({
                 this.rebindKey(category, key, event.code);
             }
         },
-        rebindKey(category: keyof typeof Store.state.controls, control: string, newBind: string): void {
-            if (category in Store.state.controls && control in Store.state.controls[category]) {
+        rebindKey(category: keyof typeof Store.state.controls.keyboard, control: string, newBind: string): void {
+            if (category in Store.state.controls && control in Store.state.controls.keyboard[category]) {
                 Store.commit(StoreMutations.MUTATE, {
                     property: `controls.${category}.${control}.keybind`,
                     value: newBind
