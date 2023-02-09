@@ -733,10 +733,11 @@ export class InputController extends ScriptComponent {
                 : CameraMode.ThirdPersion;
             if (cameraMode === CameraMode.FirstPersion) {
                 this._cameraViewTransitionThreshold = this._camera.lowerRadiusLimit;
-                this._camera.wheelDeltaPercentage = 1.0;
+                this._camera.wheelDeltaPercentage = MouseSettingsController.sensitivityComponents.wheelDeltaMultiplier;
             } else {
                 this._cameraViewTransitionThreshold = 1.5;
-                this._camera.wheelDeltaPercentage = this._defaultwheelDeltaPercentage;
+                this._camera.wheelDeltaPercentage
+                    = this._defaultwheelDeltaPercentage * MouseSettingsController.sensitivityComponents.wheelDeltaMultiplier;
             }
             if (cameraMode !== this._inputState.cameraMode) {
                 this.setCameraMode(cameraMode);

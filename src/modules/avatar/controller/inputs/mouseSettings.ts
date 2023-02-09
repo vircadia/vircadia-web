@@ -35,7 +35,8 @@ function logInterpolation(start: number, end: number, t: number): number {
 interface MouseSensitivityComponents {
     angularSensibilityX: number,
     angularSensibilityY: number,
-    inertia: number
+    inertia: number,
+    wheelDeltaMultiplier: number
 }
 
 const Sensitivity = "sensitivity";
@@ -74,7 +75,8 @@ class MouseSettingsControllerSingleton {
             min: 200,
             max: 5000,
             value: 5000,
-            accelerationMultiplier: 4.5
+            accelerationMultiplier: 4.5,
+            accelerationWheelDeltaMultiplier: 5.5
         },
         inertia: {
             min: 0.4,
@@ -122,7 +124,7 @@ class MouseSettingsControllerSingleton {
             this.#motionComponents.sensibility.min,
             // eslint-disable-next-line @typescript-eslint/no-magic-numbers
             value / 100
-        ) * (this.acceleration ? this.#motionComponents.sensibility.accelerationMultiplier : 1);
+        ) * (this.#acceleration ? this.#motionComponents.sensibility.accelerationMultiplier : 1);
 
         // Update the value in the store.
         Store.commit(StoreMutations.MUTATE, {
@@ -142,9 +144,10 @@ class MouseSettingsControllerSingleton {
             ? 0 - this.#motionComponents.sensibility.value
             : this.#motionComponents.sensibility.value;
         return {
-            inertia: this.#motionComponents.inertia.value
             angularSensibilityX: sensibility,
             angularSensibilityY: sensibility,
+            inertia: this.#motionComponents.inertia.value,
+            wheelDeltaMultiplier: this.#acceleration ? 1 : this.#motionComponents.sensibility.accelerationWheelDeltaMultiplier
         };
     }
 
@@ -186,6 +189,8 @@ class MouseSettingsControllerSingleton {
      */
     set invert(value: boolean) {
         this.#invert = value;
+
+        this.sensitivity = this.#sensitivity.value;
 
         // Update the value in the store.
         Store.commit(StoreMutations.MUTATE, {
