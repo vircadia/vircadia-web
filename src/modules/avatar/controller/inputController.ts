@@ -30,7 +30,7 @@ import { IInputHandler } from "./inputs/inputHandler";
 import { KeyboardInput } from "./inputs/keyboardInput";
 import { VirtualJoystickInput } from "./inputs/virtualJoystickInput";
 import { Store } from "@Store/index";
-import { MouseSensitivityController } from "@Base/modules/avatar/controller/inputs/mouseSettings";
+import { MouseSettingsController } from "@Base/modules/avatar/controller/inputs/mouseSettings";
 
 // General Modules
 // import Log from "@Modules/debugging/log";
@@ -217,20 +217,20 @@ export class InputController extends ScriptComponent {
             this._camera.wheelDeltaPercentage = this._defaultwheelDeltaPercentage;
             this._camera.lowerRadiusLimit = 0.001;
             this._camera.upperRadiusLimit = 9;
-            this._camera.angularSensibilityX = MouseSensitivityController.sensitivityComponents.angularSensibilityX;
-            this._camera.angularSensibilityY = MouseSensitivityController.sensitivityComponents.angularSensibilityY;
-            this._camera.inertia = MouseSensitivityController.sensitivityComponents.inertia;
+            this._camera.angularSensibilityX = MouseSettingsController.sensitivityComponents.angularSensibilityX;
+            this._camera.angularSensibilityY = MouseSettingsController.sensitivityComponents.angularSensibilityY;
+            this._camera.inertia = MouseSettingsController.sensitivityComponents.inertia;
             this._camera.checkCollisions = this._inputState.cameraCheckCollisions;
             this._camera.collisionRadius = new Vector3(this._cameraSkin, this._cameraSkin, this._cameraSkin);
 
-            MouseSensitivityController.on("sensitivity", (eventValue) => {
+            MouseSettingsController.on("sensitivity", (eventValue) => {
                 if (this._camera) {
                     this._camera.angularSensibilityX = eventValue.angularSensibilityX;
                     this._camera.angularSensibilityY = eventValue.angularSensibilityY;
                     this._camera.inertia = eventValue.inertia;
                 }
             });
-            MouseSensitivityController.on("invert", (eventValue) => {
+            MouseSettingsController.on("invert", (eventValue) => {
                 if (this._camera) {
                     this._camera.invertRotation = eventValue;
                 }

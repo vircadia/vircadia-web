@@ -209,4 +209,4 @@ class MouseSettingsControllerSingleton {
 /**
  * The MouseSensitivityController singleton instance.
  */
-export const MouseSensitivityController = MouseSettingsControllerSingleton.getInstance();
+export const MouseSettingsController = MouseSettingsControllerSingleton.getInstance();
