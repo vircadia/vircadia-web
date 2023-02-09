@@ -41,52 +41,114 @@
         :defaultWidth="400"
     >
         <q-card
-            class="column no-wrap items-stretch full-height"
+            class="flex column no-wrap full-height"
             style="background: transparent;box-shadow: none;"
         >
-            <p
-                class="q-mt-sm q-mb-none text-caption text-grey-6"
-                style="width: 100%;text-align: center;"
-            >Select a control to rebind it.</p>
-            <p
-                class="q-mb-sm text-caption text-grey-6"
-                style="width: 100%;text-align: center;"
-            >Press ESC to cancel.</p>
-            <q-scroll-area class="full-height">
-                <q-list class="q-pb-md" @keydown.prevent.stop="listenForRebind($event)">
-                    <template v-for="(category, key) of $store.state.controls" :key="key">
-                        <!-- <q-separator /> -->
-                        <q-item-label header style="text-transform: capitalize;">{{ key }}</q-item-label>
-                        <template v-for="(bind, control) of category" :key="control">
-                            <q-item
-                                clickable
-                                v-ripple
-                                :inset-level="1"
-                                @click="setCurrentlyBinding(key, control as string)"
-                            >
+            <q-tabs v-model="tab">
+                <q-tab name="mouse" icon="mouse" label="">
+                    <q-tooltip class="bg-black">Mouse</q-tooltip>
+                </q-tab>
+                <q-tab name="keyboard" icon="keyboard" label="">
+                    <q-tooltip class="bg-black">Keyboard</q-tooltip>
+                </q-tab>
+            </q-tabs>
+            <q-tab-panels
+                v-model="tab"
+                animated
+                class="full-height"
+                style="background: transparent;"
+            >
+                <q-tab-panel name="mouse">
+                    <q-scroll-area class="full-height">
+                        <q-list class="q-pb-md">
+                            <q-item>
                                 <q-item-section>
-                                    <q-item-label>{{ bind.name }}</q-item-label>
+                                    <q-item-label>Sensitivity</q-item-label>
                                 </q-item-section>
-                                <q-item-section>
-                                    <div
-                                        v-if="currentlyBinding.control === control"
-                                        class="rebindPrompt text-grey-6"
-                                    >Press any key...</div>
-                                    <div v-else class="row q-gutter-x-sm">
-                                        <div class="keyboardKey">{{ formatKeyName(bind.keybind) }}</div>
-                                        <q-icon
-                                            v-if="specialKeyIndicator(bind.keybind)"
-                                            :name="specialKeyIndicator(bind.keybind)?.icon"
-                                            :title="specialKeyIndicator(bind.keybind)?.message"
-                                            class="q-mt-sm"
-                                        />
-                                    </div>
+                                <q-item-section class="q-pl-xl">
+                                    <q-slider
+                                        name="mouseSensitivity"
+                                        :min="0"
+                                        :max="100"
+                                        :step="5"
+                                        snap
+                                        v-model="mouseSensitivity"
+                                    />
+                                </q-item-section>
+                                <q-item-section side style="min-width: 5ch;">
+                                    <output for="mouseSensitivity">{{ mouseSensitivity }}</output>
                                 </q-item-section>
                             </q-item>
-                        </template>
-                    </template>
-                </q-list>
-            </q-scroll-area>
+                            <q-item>
+                                <q-item-section>
+                                    <q-item-label>Acceleration</q-item-label>
+                                </q-item-section>
+                                <q-item-section>
+                                    <q-toggle
+                                        v-model="mouseAcceleration"
+                                    />
+                                </q-item-section>
+                            </q-item>
+                            <q-item>
+                                <q-item-section>
+                                    <q-item-label>Invert</q-item-label>
+                                </q-item-section>
+                                <q-item-section>
+                                    <q-toggle
+                                        v-model="mouseInvert"
+                                    />
+                                </q-item-section>
+                            </q-item>
+                        </q-list>
+                    </q-scroll-area>
+                </q-tab-panel>
+
+                <q-tab-panel name="keyboard" class="q-px-none q-pb-none column no-wrap items-stretch">
+                    <p
+                        class="q-mt-xs q-mb-xs text-caption text-grey-6"
+                        style="width: 100%;text-align: center;"
+                    >Select a control to rebind it.</p>
+                    <p
+                        class="q-mb-sm text-caption text-grey-6"
+                        style="width: 100%;text-align: center;"
+                    >Press ESC to cancel.</p>
+                    <q-scroll-area class="full-height">
+                        <q-list class="q-pb-md" @keydown.prevent.stop="listenForRebind($event)">
+                            <template v-for="(category, key) of $store.state.controls.keyboard" :key="key">
+                                <!-- <q-separator /> -->
+                                <q-item-label header style="text-transform: capitalize;">{{ key }}</q-item-label>
+                                <template v-for="(bind, control) of category" :key="control">
+                                    <q-item
+                                        clickable
+                                        v-ripple
+                                        :inset-level="1"
+                                        @click="setCurrentlyBinding(key, control as string)"
+                                    >
+                                        <q-item-section>
+                                            <q-item-label>{{ bind.name }}</q-item-label>
+                                        </q-item-section>
+                                        <q-item-section>
+                                            <div
+                                                v-if="currentlyBinding.control === control"
+                                                class="rebindPrompt text-grey-6"
+                                            >Press any key...</div>
+                                            <div v-else class="row q-gutter-x-sm">
+                                                <div class="keyboardKey">{{ formatKeyName(bind.keybind) }}</div>
+                                                <q-icon
+                                                    v-if="specialKeyIndicator(bind.keybind)"
+                                                    :name="specialKeyIndicator(bind.keybind)?.icon"
+                                                    :title="specialKeyIndicator(bind.keybind)?.message"
+                                                    class="q-mt-sm"
+                                                />
+                                            </div>
+                                        </q-item-section>
+                                    </q-item>
+                                </template>
+                            </template>
+                        </q-list>
+                    </q-scroll-area>
+                </q-tab-panel>
+            </q-tab-panels>
         </q-card>
     </OverlayShell>
 </template>
@@ -107,6 +169,7 @@ export default defineComponent({
     },
     data() {
         return {
+            tab: "mouse",
             currentlyBinding: {
                 category: undefined as keyof typeof Store.state.controls.keyboard | undefined,
                 control: undefined as string | undefined
