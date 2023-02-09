@@ -1,5 +1,5 @@
 //
-//  input.ts
+//  inputHandler.ts
 //
 //  Created by Nolan Huang on 17 Oct 2022.
 //  Copyright 2022 Vircadia contributors.
