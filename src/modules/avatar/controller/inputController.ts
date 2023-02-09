@@ -230,11 +230,6 @@ export class InputController extends ScriptComponent {
                     this._camera.inertia = eventValue.inertia;
                 }
             });
-            MouseSettingsController.on("invert", (eventValue) => {
-                if (this._camera) {
-                    this._camera.invertRotation = eventValue;
-                }
-            });
 
             // Remove the default camera controls.
             this._camera.inputs.removeByType("ArcRotateCameraKeyboardMoveInput");

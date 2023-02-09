@@ -138,10 +138,13 @@ class MouseSettingsControllerSingleton {
      * Mouse sensitivity components that can be used to set camera movement values in Babylon.
      */
     get sensitivityComponents(): MouseSensitivityComponents {
+        const sensibility = this.#invert
+            ? 0 - this.#motionComponents.sensibility.value
+            : this.#motionComponents.sensibility.value;
         return {
-            angularSensibilityX: this.#motionComponents.sensibility.value,
-            angularSensibilityY: this.#motionComponents.sensibility.value,
             inertia: this.#motionComponents.inertia.value
+            angularSensibilityX: sensibility,
+            angularSensibilityY: sensibility,
         };
     }
 
