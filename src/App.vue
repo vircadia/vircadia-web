@@ -24,6 +24,8 @@ export default defineComponent({
         Utility.initializeConfig();
     },
     mounted: async function() {
+        // Log the SDK version.
+        console.log("Starting Vircadia Web using SDK version:", this.$store.state.globalConsts.SDK_VERSION_TAG);
         // Called after the APP is visible. This starts the engines doing things.
         // Start connections if we are restoring the session
         // eslint-disable-next-line @typescript-eslint/unbound-method
