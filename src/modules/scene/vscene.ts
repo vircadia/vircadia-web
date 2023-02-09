@@ -299,10 +299,6 @@ export class VScene {
         if (!this._avatarIsLoading && this._resourceManager) {
             this._avatarIsLoading = true;
             const lastQueuedModelURL = this._avatarLoadQueue.pop(); // Only load the last model in the request queue.
-            if (this._avatarAnimationGroups.length === 0) {
-                const result = await this._resourceManager.loadAvatarAnimations(AvatarAnimationUrl);
-                this._avatarAnimationGroups = result.animGroups;
-            }
             if (lastQueuedModelURL) {
                 // Ignore repeated attempts to load the same model, unless required.
                 if (this._myAvatarModelURL === lastQueuedModelURL && this._myAvatar && !reload) {
@@ -346,10 +342,17 @@ export class VScene {
             }
             const avatarHeight = boundingVectors.max.y - boundingVectors.min.y;
 
+            const hipPosition = result.skeleton?.bones.find((bone) => bone.name === "Hips")?.position;
+
+            // Reload the avatar animations file in case the new avatar is a different size than the previous one.
+            // The browser cache will prevent this from being fetched over the network if the avatar is switched frequently.
+            const animResult = await this._resourceManager.loadAvatarAnimations(AvatarAnimationUrl, hipPosition);
+            this._avatarAnimationGroups = animResult.animGroups;
+
             const defaultColliderProperties = {
                 radius: 0.3,
                 height: 1.8,
-                offset: new Vector3(0, -0.1, -0.04), // Offset coordinates are local (relative to the avatar).
+                offset: new Vector3(0, 0, -0.04), // Offset coordinates are local (relative to the avatar).
                 mass: 1,
                 friction: 3
             };
@@ -366,7 +369,7 @@ export class VScene {
                 avatarHeight || defaultColliderProperties.height,
                 new Vector3(
                     defaultColliderProperties.offset.x,
-                    boundingVectors.max.y - defaultColliderProperties.offset.y,
+                    (avatarHeight || defaultColliderProperties.height) / 2 + defaultColliderProperties.offset.y,
                     defaultColliderProperties.offset.z
                 )
             );

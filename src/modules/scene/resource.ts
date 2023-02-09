@@ -64,7 +64,7 @@ export class ResourceManager {
     }
 
 
-    public async loadAvatarAnimations(modelUrl: string): Promise<IAvatarAnimationResult> {
+    public async loadAvatarAnimations(modelUrl: string, hipPosition?: Vector3): Promise<IAvatarAnimationResult> {
         const modelAssetName = modelUrl.split("/");
         const result = await SceneLoader.ImportMeshAsync(
             "",
@@ -78,22 +78,33 @@ export class ResourceManager {
 
         const mesh = result.meshes[0].getChildren()[0] as AbstractMesh;
         const animationGroups = new Array<AnimationGroup>();
+        let animationInitialHipPosition = Vector3.Zero();
 
         result.animationGroups.forEach((sourceAnimGroup) => {
             const animGroup = new AnimationGroup(sourceAnimGroup.name);
-            // trim unnecessary animation data
+            // Trim unnecessary animation data.
             sourceAnimGroup.targetedAnimations.forEach((targetAnim) => {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                if (targetAnim.target.name === "Hips") {
-                    // recaculate the postion and roatation quaternion animation key of Hip
+                if (targetAnim.target?.name === "Hips") {
+                    // Recalculate the position and rotation of the Hip animation key.
                     if (targetAnim.animation.targetProperty === "position") {
                         const anim = targetAnim.animation.clone();
                         const keys = anim.getKeys();
-                        keys.forEach((keyFrame) => {
-                            // apply the roation and scale of Armatue node
+                        keys.forEach((keyFrame, index) => {
+                            // Apply the rotation and scale of the Armature node.
                             let pos = keyFrame.value as Vector3;
                             pos = pos.applyRotationQuaternion(mesh.rotationQuaternion as Quaternion);
-                            keyFrame.value = pos.multiply(mesh.scaling);
+                            pos = pos.multiply(mesh.scaling);
+                            // Account for a difference in the hip positions of the avatar and animation model.
+                            let offset = 0;
+                            if (index === 0) {
+                                animationInitialHipPosition = pos.clone();
+                            }
+                            if (hipPosition) {
+                                offset = animationInitialHipPosition.y - hipPosition.y;
+                            }
+                            pos.y = pos.y - offset;
+                            keyFrame.value = pos;
                         });
                         animGroup.addTargetedAnimation(anim, targetAnim.target);
 
@@ -101,7 +112,7 @@ export class ResourceManager {
                         const anim = targetAnim.animation.clone();
                         const keys = anim.getKeys();
                         keys.forEach((keyFrame) => {
-                            // apply the roation Armatue node
+                            // Apply the rotation of the Armature node.
                             const rot = keyFrame.value as Quaternion;
                             if (mesh.rotationQuaternion) {
                                 keyFrame.value = mesh.rotationQuaternion.multiply(rot);
@@ -110,12 +121,12 @@ export class ResourceManager {
                         animGroup.addTargetedAnimation(targetAnim.animation, targetAnim.target);
                     }
                 } else if (targetAnim.animation.targetProperty === "rotationQuaternion") {
-                // keep rotationQuaternion animation of all other nodes
+                    // Keep the original position and rotation of all other nodes.
                     animGroup.addTargetedAnimation(targetAnim.animation, targetAnim.target);
                 }
             });
 
-            // remove from scene to prevent animation group is disposed when dispose scene
+            // Remove from the scene to prevent the animation group from being disposed when the scene is disposed.
             this._scene.removeAnimationGroup(animGroup);
 
             animationGroups.push(animGroup);
@@ -172,14 +183,6 @@ export class ResourceManager {
             mesh.id = uuidv4();
             // For matching the orientation of vircadia
             mesh.rotationQuaternion = Quaternion.FromEulerAngles(0, Math.PI, 0);
-
-            // make the pivot to the center of the bounding
-            const bounding = mesh.getHierarchyBoundingVectors(true);
-            const pivot = bounding.max.add(bounding.min).scale(-0.5);
-            // add some offset
-            pivot.addInPlace(new Vector3(0, -0.1, 0));
-            // move the mesh to the pivot
-            mesh.position = pivot;
 
             const skeleton = result.skeletons.length > 0 ? result.skeletons[0] : null;
 
