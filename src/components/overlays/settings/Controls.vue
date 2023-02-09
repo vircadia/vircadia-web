@@ -157,6 +157,7 @@
 import { defineComponent } from "vue";
 import OverlayShell from "../OverlayShell.vue";
 import { Store, Mutations as StoreMutations } from "@Store/index";
+import { MouseSensitivityController } from "@Base/modules/avatar/controller/inputs/mouseSettings";
 
 export default defineComponent({
     name: "Controls",
@@ -175,6 +176,32 @@ export default defineComponent({
                 control: undefined as string | undefined
             }
         };
+    },
+    computed: {
+        mouseSensitivity: {
+            get(): number {
+                return Store.state.controls.mouse.sensitivity;
+            },
+            set(value: number) {
+                MouseSensitivityController.sensitivity = value;
+            }
+        },
+        mouseAcceleration: {
+            get(): boolean {
+                return Store.state.controls.mouse.acceleration;
+            },
+            set(value: boolean) {
+                MouseSensitivityController.acceleration = value;
+            }
+        },
+        mouseInvert: {
+            get(): boolean {
+                return Store.state.controls.mouse.invert;
+            },
+            set(value: boolean) {
+                MouseSensitivityController.invert = value;
+            }
+        }
     },
     methods: {
         formatKeyName(keyCode: string): string {
