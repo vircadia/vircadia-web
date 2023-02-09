@@ -212,6 +212,7 @@ export class InputController extends ScriptComponent {
             this._camera.beta = this._defaultCameraBeta;
             this._camera.radius = this._defaultCameraRadius;
             this._camera.minZ = 0.1;
+            this._camera.maxZ = 250000;
             this._camera.wheelDeltaPercentage = this._defaultwheelDeltaPercentage;
             this._camera.lowerRadiusLimit = 0.001;
             this._camera.upperRadiusLimit = 9;
