@@ -30,6 +30,7 @@ import { IInputHandler } from "./inputs/inputHandler";
 import { KeyboardInput } from "./inputs/keyboardInput";
 import { VirtualJoystickInput } from "./inputs/virtualJoystickInput";
 import { Store } from "@Store/index";
+import { MouseSettingsController } from "@Base/modules/avatar/controller/inputs/mouseSettings";
 
 // General Modules
 // import Log from "@Modules/debugging/log";
@@ -144,13 +145,13 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
         if (this._onKeyDown) {
             for (let index = 0; index < this._keysPressed.length; index++) {
                 const code = this._keysPressed[index];
-                if (Store.state.controls.camera.yawLeft?.keybind === code) {
+                if (Store.state.controls.keyboard.camera.yawLeft?.keybind === code) {
                     this.camera.alpha -= this.sensibility;
-                } else if (Store.state.controls.camera.yawRight?.keybind === code) {
+                } else if (Store.state.controls.keyboard.camera.yawRight?.keybind === code) {
                     this.camera.alpha += this.sensibility;
-                } else if (Store.state.controls.camera.pitchUp?.keybind === code) {
+                } else if (Store.state.controls.keyboard.camera.pitchUp?.keybind === code) {
                     this.camera.beta += this.sensibility;
-                } else if (Store.state.controls.camera.pitchDown?.keybind === code) {
+                } else if (Store.state.controls.keyboard.camera.pitchDown?.keybind === code) {
                     this.camera.beta -= this.sensibility;
                 }
             }
@@ -212,13 +213,23 @@ export class InputController extends ScriptComponent {
             this._camera.beta = this._defaultCameraBeta;
             this._camera.radius = this._defaultCameraRadius;
             this._camera.minZ = 0.1;
+            this._camera.maxZ = 250000;
             this._camera.wheelDeltaPercentage = this._defaultwheelDeltaPercentage;
             this._camera.lowerRadiusLimit = 0.001;
             this._camera.upperRadiusLimit = 9;
-            this._camera.angularSensibilityX = 5000;
-            this._camera.angularSensibilityY = 5000;
+            this._camera.angularSensibilityX = MouseSettingsController.sensitivityComponents.angularSensibilityX;
+            this._camera.angularSensibilityY = MouseSettingsController.sensitivityComponents.angularSensibilityY;
+            this._camera.inertia = MouseSettingsController.sensitivityComponents.inertia;
             this._camera.checkCollisions = this._inputState.cameraCheckCollisions;
             this._camera.collisionRadius = new Vector3(this._cameraSkin, this._cameraSkin, this._cameraSkin);
+
+            MouseSettingsController.on("sensitivity", (eventValue) => {
+                if (this._camera) {
+                    this._camera.angularSensibilityX = eventValue.angularSensibilityX;
+                    this._camera.angularSensibilityY = eventValue.angularSensibilityY;
+                    this._camera.inertia = eventValue.inertia;
+                }
+            });
 
             // Remove the default camera controls.
             this._camera.inputs.removeByType("ArcRotateCameraKeyboardMoveInput");
@@ -722,10 +733,11 @@ export class InputController extends ScriptComponent {
                 : CameraMode.ThirdPersion;
             if (cameraMode === CameraMode.FirstPersion) {
                 this._cameraViewTransitionThreshold = this._camera.lowerRadiusLimit;
-                this._camera.wheelDeltaPercentage = 1.0;
+                this._camera.wheelDeltaPercentage = MouseSettingsController.sensitivityComponents.wheelDeltaMultiplier;
             } else {
                 this._cameraViewTransitionThreshold = 1.5;
-                this._camera.wheelDeltaPercentage = this._defaultwheelDeltaPercentage;
+                this._camera.wheelDeltaPercentage
+                    = this._defaultwheelDeltaPercentage * MouseSettingsController.sensitivityComponents.wheelDeltaMultiplier;
             }
             if (cameraMode !== this._inputState.cameraMode) {
                 this.setCameraMode(cameraMode);

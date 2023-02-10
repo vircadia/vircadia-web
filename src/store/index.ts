@@ -385,17 +385,24 @@ export interface IRootState {
     },
     // Control keybinds.
     controls: {
-        movement: {
-            [key: string]: ControlKeybind
+        keyboard: {
+            movement: {
+                [key: string]: ControlKeybind
+            },
+            camera: {
+                [key: string]: ControlKeybind
+            },
+            audio: {
+                [key: string]: ControlKeybind
+            },
+            other: {
+                [key: string]: ControlKeybind
+            }
         },
-        camera: {
-            [key: string]: ControlKeybind
-        },
-        audio: {
-            [key: string]: ControlKeybind
-        },
-        other: {
-            [key: string]: ControlKeybind
+        mouse: {
+            acceleration: boolean,
+            invert: boolean,
+            sensitivity: number
         }
     }
 }
@@ -408,8 +415,8 @@ interface VStore extends VuexStore<IRootState> {
 
 const storeDefaults = {
     storeVersion: {
-        major: 3,
-        minor: 2,
+        major: 4,
+        minor: 0,
         patch: 0
     },
     globalConsts: {
@@ -547,35 +554,42 @@ const storeDefaults = {
     bookmarks: {
         locations: []
     },
-    // Control keybinds.
+    // Controls.
     controls: {
-        movement: {
-            walkForwards: { name: "Walk Forwards", keybind: "KeyW" },
-            walkBackwards: { name: "Walk Backwards", keybind: "KeyS" },
-            walkLeft: { name: "Walk Left", keybind: "KeyA" },
-            walkRight: { name: "Walk Right", keybind: "KeyD" },
-            run: { name: "Run", keybind: "ShiftLeft" },
-            jump: { name: "Jump", keybind: "Space" },
-            crouch: { name: "Crouch", keybind: "KeyC" },
-            fly: { name: "Fly", keybind: "KeyF" }
+        keyboard: {
+            movement: {
+                walkForwards: { name: "Walk Forwards", keybind: "KeyW" },
+                walkBackwards: { name: "Walk Backwards", keybind: "KeyS" },
+                walkLeft: { name: "Walk Left", keybind: "KeyA" },
+                walkRight: { name: "Walk Right", keybind: "KeyD" },
+                run: { name: "Run", keybind: "ShiftLeft" },
+                jump: { name: "Jump", keybind: "Space" },
+                crouch: { name: "Crouch", keybind: "KeyC" },
+                fly: { name: "Fly", keybind: "KeyF" }
+            },
+            camera: {
+                pitchUp: { name: "Pitch Up", keybind: "ArrowUp" },
+                pitchDown: { name: "Pitch Down", keybind: "ArrowDown" },
+                yawLeft: { name: "Yaw Left", keybind: "ArrowLeft" },
+                yawRight: { name: "Yaw Right", keybind: "ArrowRight" },
+                firstPerson: { name: "First-Person", keybind: "Digit1" },
+                thirdPerson: { name: "Third-Person", keybind: "Digit3" },
+                collisions: { name: "Toggle Collisions", keybind: "Digit4" }
+            },
+            audio: {
+                mute: { name: "Toggle Mic Mute", keybind: "KeyV" },
+                pushToTalk: { name: "Push-To-Talk", keybind: "KeyB" }
+            },
+            other: {
+                resetPosition: { name: "Reset Position", keybind: "KeyK" },
+                toggleMenu: { name: "Toggle Menu", keybind: "KeyM" },
+                openChat: { name: "Open Chat", keybind: "KeyT" }
+            }
         },
-        camera: {
-            pitchUp: { name: "Pitch Up", keybind: "ArrowUp" },
-            pitchDown: { name: "Pitch Down", keybind: "ArrowDown" },
-            yawLeft: { name: "Yaw Left", keybind: "ArrowLeft" },
-            yawRight: { name: "Yaw Right", keybind: "ArrowRight" },
-            firstPerson: { name: "First-Person", keybind: "Digit1" },
-            thirdPerson: { name: "Third-Person", keybind: "Digit3" },
-            collisions: { name: "Toggle Collisions", keybind: "Digit4" }
-        },
-        audio: {
-            mute: { name: "Toggle Mic Mute", keybind: "KeyV" },
-            pushToTalk: { name: "Push-To-Talk", keybind: "KeyB" }
-        },
-        other: {
-            resetPosition: { name: "Reset Position", keybind: "KeyK" },
-            toggleMenu: { name: "Toggle Menu", keybind: "KeyM" },
-            openChat: { name: "Open Chat", keybind: "KeyT" }
+        mouse: {
+            acceleration: true,
+            invert: false,
+            sensitivity: 50
         }
     }
 } as IRootState;

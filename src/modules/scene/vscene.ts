@@ -154,12 +154,7 @@ export class VScene {
         }
 
         // create camera
-        const camera = new ArcRotateCamera(
-            "MainCamera", -Math.PI / 2, Math.PI / 2, 6,
-            new Vector3(0, 1, 0), this._scene);
-
-        camera.minZ = 1;
-        camera.maxZ = 250000;
+        const camera = new ArcRotateCamera("MainCamera", -Math.PI / 2, Math.PI / 2, 6, new Vector3(0, 1, 0), this._scene);
 
         this._scene.activeCamera = camera;
         this._camera = camera;
@@ -797,7 +792,7 @@ export class VScene {
                     }
                 }
                 break;
-            case Store.state.controls.other.resetPosition?.keybind:
+            case Store.state.controls.keyboard.other.resetPosition?.keybind:
                 this.resetMyAvatarPositionAndOrientation();
                 break;
             case "KeyM":
