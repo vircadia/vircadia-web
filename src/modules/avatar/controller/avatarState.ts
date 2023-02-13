@@ -49,6 +49,7 @@ export enum Action {
     SitBeanbag,
     SitChair,
     Clap,
+    Salute,
     RunForward
 }
 
@@ -69,6 +70,7 @@ export const AnimationMap = new Map([
     [Action.SitBeanbag, "sitting_beanbag"],
     [Action.SitChair, "sitting_chair"],
     [Action.Clap, "emote_clap01_all"],
+    [Action.Salute, "salute"]
 ]);
 
 export class AvatarState {

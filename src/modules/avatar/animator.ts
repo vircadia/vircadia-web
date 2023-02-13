@@ -54,6 +54,7 @@ export class Animator {
                 || animGroup.name === "sitting_beanbag"
                 || animGroup.name === "sitting_chair"
                 || animGroup.name === "emote_clap01_all"
+                || animGroup.name === "salute"
             ) {
                 loopAnimation = false;
             }
