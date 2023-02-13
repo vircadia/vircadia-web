@@ -24,7 +24,7 @@ import {
 import { Animator } from "../animator";
 import { GameObject, MeshComponent } from "@Modules/object";
 import { ScriptComponent, inspector, inspectorAccessor } from "@Modules/script";
-import { AvatarState, Action, JumpSubState, State } from "./avatarState";
+import { AvatarState, Action, JumpSubState, State, AnimationMap } from "./avatarState";
 import { InputState, CameraMode } from "./inputState";
 import { IInputHandler } from "./inputs/inputHandler";
 import { KeyboardInput } from "./inputs/keyboardInput";
@@ -654,48 +654,7 @@ export class InputController extends ScriptComponent {
             return;
         }
 
-        let anim = "idle02";
-        switch (this._avatarState.action) {
-            case Action.WalkForward:
-                anim = "walk_fwd";
-                break;
-            case Action.RunForward:
-                anim = "run_fast_fwd";
-                break;
-            case Action.WalkBackward:
-                anim = "walk_bwd";
-                break;
-            case Action.WalkLeft:
-                anim = "walk_left";
-                break;
-            case Action.WalkRight:
-                anim = "walk_right";
-                break;
-            case Action.TurnLeft:
-                anim = "turn_left";
-                break;
-            case Action.TurnRight:
-                anim = "turn_right";
-                break;
-            case Action.Jump:
-                anim = "jump_standing_apex_all";
-                break;
-            case Action.Land:
-                anim = "jump_standing_land_settle_all";
-                break;
-            case Action.Fly:
-                anim = "fly";
-                break;
-            case Action.FlyFast:
-                anim = "fly";
-                break;
-            case Action.Sit:
-                anim = "sitting_crosslegged";
-                break;
-            default:
-                anim = "idle02";
-        }
-
+        const anim = AnimationMap.get(this._avatarState.action) || "idle02";
         this._animator.play(anim);
         this._animator.update();
     }

@@ -48,11 +48,21 @@ export enum Action {
     RunForward
 }
 
-export type AnimationName =
-    "idle02" | "walk_fwd" | "walk_bwd" | "walk_left" | "walk_right" |
-    "turn_left" | "turn_right" | "jumping_temp" | "sitting_crosslegged" |
-    "jump_standing_land_settle_all" | "jump_standing_launch_all" | "jump_standing_apex_all" |
-    "run_bwd" | "run_fast_fwd" | "run_fast_left" | "run_fast_right" | "fly";
+export const AnimationMap = new Map([
+    [Action.Idle, "idle02"],
+    [Action.WalkForward, "walk_fwd"],
+    [Action.RunForward, "run_fast_fwd"],
+    [Action.WalkBackward, "walk_bwd"],
+    [Action.WalkLeft, "walk_left"],
+    [Action.WalkRight, "walk_right"],
+    [Action.TurnLeft, "turn_left"],
+    [Action.TurnRight, "turn_right"],
+    [Action.Jump, "jump_standing_apex_all"],
+    [Action.Land, "jump_standing_land_settle_all"],
+    [Action.Fly, "fly"],
+    [Action.FlyFast, "fly"],
+    [Action.Sit, "sitting_idle"],
+]);
 
 export class AvatarState {
     public walkSpeed = 2.4;
