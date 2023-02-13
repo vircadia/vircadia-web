@@ -45,9 +45,15 @@ export class Animator {
 
         animGroups.forEach((animGroup : AnimationGroup) => {
             let loopAnimation = true;
-            if (animGroup.name === "jumping_temp" || animGroup.name === "sitting_crosslegged"
-            || animGroup.name === "jump_standing_land_settle_all" || animGroup.name === "jump_standing_launch_all"
-            || animGroup.name === "jump_standing_apex_all") {
+            if (
+                animGroup.name === "jumping_temp"
+                || animGroup.name === "jump_standing_land_settle_all"
+                || animGroup.name === "jump_standing_launch_all"
+                || animGroup.name === "jump_standing_apex_all"
+                || animGroup.name === "sitting_idle"
+                || animGroup.name === "sitting_beanbag"
+                || animGroup.name === "sitting_chair"
+            ) {
                 loopAnimation = false;
             }
             const newAnimGroup = Animator._cloneAnimGroup(animGroup, nodes, loopAnimation);

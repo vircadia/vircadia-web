@@ -17,9 +17,11 @@ import { Scene,
     Nullable,
     ActionEvent,
     Scalar,
-    IAction } from "@babylonjs/core";
+    IAction,
+    AbstractMesh,
+    Vector3 } from "@babylonjs/core";
 
-import { AvatarState, Action, State, JumpSubState } from "../avatarState";
+import { AvatarState, Action, State, JumpSubState, AnimationMap } from "../avatarState";
 import { InputState, CameraMode, InputMode } from "../inputState";
 import { Store } from "@Store/index";
 import { AudioMgr } from "@Modules/scene/audio";
@@ -161,6 +163,70 @@ export class KeyboardInput implements IInputHandler {
             this._runKey = this._shiftKey;
         } else {
             this._runKey = evt.sourceEvent.code === Store.state.controls.movement.run?.keybind ? true : this._runKey;
+        }
+
+        // Sit.
+        if (evt.sourceEvent.code === Store.state.controls.movement.sit?.keybind) {
+            const sitDistanceLimit = 2;
+
+            // Get the player's avatar.
+            const avatar = this._scene.meshes.find((mesh) => mesh.name === "MyAvatar");
+
+            if (avatar) {
+                // Check for sittable objects.
+                const sitObjects = this._scene.meshes.filter((mesh) => (/^animate_/iu).test(mesh.name));
+
+                // Filter out any that are too far away.
+                const avatarAbsolutePosition = avatar.getAbsolutePosition();
+                const distances = [] as [AbstractMesh, number][];
+                sitObjects.forEach((object) => {
+                    const distance = object.getAbsolutePosition()
+                        .subtract(avatarAbsolutePosition)
+                        .length();
+                    if (distance <= sitDistanceLimit) {
+                        distances.push([object, distance]);
+                    }
+                });
+
+                // If there are some sittable objects in range, use the closest one.
+                if (distances.length > 0) {
+                    const selectedSitObject = distances.reduce((previousObject, currentObject) => {
+                        if (previousObject[1] <= currentObject[1]) {
+                            return previousObject;
+                        }
+                        return currentObject;
+                    });
+
+                    // Remove gravity.
+                    const sceneManager = this._scene.rootNodes.find((node) => node.id === "SceneManager") as GameObject;
+                    const sceneController = sceneManager.components.get("SceneController") as SceneController | undefined;
+                    sceneController?.removeGravity();
+
+                    // Snap to the sittable object.
+                    avatar.setAbsolutePosition(selectedSitObject[0].getAbsolutePosition());
+                    avatar.rotationQuaternion = selectedSitObject[0].rotationQuaternion?.clone() ?? avatar.rotationQuaternion;
+
+                    // Clear the move direction state.
+                    this._state.moveDir = Vector3.Zero();
+
+                    // Animate the avatar based on the model name.
+                    this._state.duration = 0;
+                    this._state.state = State.Pose;
+                    let animation = Action.SitBeanbag;
+                    for (const entry of AnimationMap.entries()) {
+                        if (selectedSitObject[0].name.includes(entry[1])) {
+                            animation = entry[0];
+                            break;
+                        }
+                    }
+                    this._state.action = animation;
+                } else {
+                    // Otherwise, sit on the ground.
+                    this._state.duration = 0;
+                    this._state.state = State.Pose;
+                    this._state.action = Action.Sit;
+                }
+            }
         }
     }
 

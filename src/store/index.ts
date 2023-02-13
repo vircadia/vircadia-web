@@ -569,7 +569,8 @@ const storeDefaults = {
             run: { name: "Run", keybind: "ShiftLeft" },
             jump: { name: "Jump", keybind: "Space" },
             crouch: { name: "Crouch", keybind: "KeyC" },
-            fly: { name: "Fly", keybind: "KeyF" }
+            fly: { name: "Fly", keybind: "KeyF" },
+            sit: { name: "Sit", keybind: "KeyG" },
         },
         camera: {
             pitchUp: { name: "Pitch Up", keybind: "ArrowUp" },
