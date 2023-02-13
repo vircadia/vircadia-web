@@ -100,7 +100,12 @@ export class ResourceManager {
                             if (index === 0) {
                                 animationInitialHipPosition = pos.clone();
                             }
-                            if (hipPosition) {
+                            // Don't apply the offset if the hipPosition is undefined,
+                            // or if the target animation is a sitting animation.
+                            if (
+                                hipPosition
+                                && !targetAnim.animation.name.includes("sit")
+                            ) {
                                 offset = animationInitialHipPosition.y - hipPosition.y;
                             }
                             pos.y = pos.y - offset;
