@@ -800,16 +800,6 @@ export class VScene {
             case Store.state.controls.other.resetPosition?.keybind:
                 this.resetMyAvatarPositionAndOrientation();
                 break;
-            case "KeyM":
-                if (process.env.NODE_ENV === "development" && evt.sourceEvent.shiftKey) {
-                    await this.loadMyAvatar();
-                }
-                break;
-            case "KeyG":
-                if (process.env.NODE_ENV === "development") {
-                    this._sceneController?.applyGravity();
-                }
-                break;
             case "KeyP":
                 if (process.env.NODE_ENV === "development") {
                     this._scene.meshes.forEach((mesh, index) => {
