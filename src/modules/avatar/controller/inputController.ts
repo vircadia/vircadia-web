@@ -30,6 +30,7 @@ import { IInputHandler } from "./inputs/inputHandler";
 import { KeyboardInput } from "./inputs/keyboardInput";
 import { VirtualJoystickInput } from "./inputs/virtualJoystickInput";
 import { Store } from "@Store/index";
+import type { SceneController } from "@Modules/scene/controllers";
 
 // General Modules
 // import Log from "@Modules/debugging/log";
@@ -496,6 +497,10 @@ export class InputController extends ScriptComponent {
             this._gameObject.rotationQuaternion.x = 0;
             this._gameObject.rotationQuaternion.z = 0;
         }
+
+        const sceneManager = this._scene.rootNodes.find((node) => node.id === "SceneManager") as GameObject;
+        const sceneController = sceneManager.components.get("SceneController") as SceneController | undefined;
+        sceneController?.applyGravity();
 
         this._avatarState.duration += delta;
 
