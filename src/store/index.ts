@@ -571,6 +571,7 @@ const storeDefaults = {
             crouch: { name: "Crouch", keybind: "KeyC" },
             fly: { name: "Fly", keybind: "KeyF" },
             sit: { name: "Sit", keybind: "KeyG" },
+            clap: { name: "Clap", keybind: "KeyH" },
         },
         camera: {
             pitchUp: { name: "Pitch Up", keybind: "ArrowUp" },

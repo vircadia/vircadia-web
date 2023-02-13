@@ -228,6 +228,13 @@ export class KeyboardInput implements IInputHandler {
                 }
             }
         }
+
+        // Clap.
+        if (evt.sourceEvent.code === Store.state.controls.movement.clap?.keybind) {
+            this._state.state = State.Pose;
+            this._state.action = Action.Clap;
+
+        }
     }
 
     private _onKeyUp(evt: ActionEvent):void {
