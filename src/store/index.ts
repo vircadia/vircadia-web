@@ -406,8 +406,8 @@ interface VStore extends VuexStore<IRootState> {
 
 const storeDefaults = {
     storeVersion: {
-        major: 3,
-        minor: 2,
+        major: 5,
+        minor: 0,
         patch: 0
     },
     globalConsts: {
