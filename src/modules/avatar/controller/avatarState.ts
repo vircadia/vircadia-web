@@ -74,7 +74,7 @@ export const AnimationMap = new Map([
 ]);
 
 export class AvatarState {
-    public walkSpeed = 2.4;
+    public walkSpeed = 1.8;
     public runSpeed = 5.2;
     public landSpeed = 4;
     public flySpeed = 8; // Flying on the X-Z plane.
