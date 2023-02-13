@@ -80,7 +80,7 @@ export class AvatarState {
     public flySpeed = 8; // Flying on the X-Z plane.
     public fastFlySpeed = 27;
     public ascendSpeed = 0.05; // Flying on the Y axis.
-    public fastAscendSpeed = 0.1;
+    public fastAscendSpeed = 0.14;
     public currentSpeed = 0;
 
     public rotationSpeed = 40 * Math.PI / 180;
