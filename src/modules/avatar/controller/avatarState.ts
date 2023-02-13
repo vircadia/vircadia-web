@@ -20,7 +20,8 @@ export enum State {
     Jump,
     Fly,
     Teleport,
-    Stop
+    Stop,
+    Pose
 }
 
 export enum JumpSubState {

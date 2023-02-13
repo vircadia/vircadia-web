@@ -414,6 +414,9 @@ export class InputController extends ScriptComponent {
             case State.Teleport:
                 this._doTeleport(delta);
                 break;
+            case State.Pose:
+                this._doPose(delta);
+                break;
             case State.Stop:
                 this._doStop(delta);
                 break;
@@ -453,6 +456,19 @@ export class InputController extends ScriptComponent {
             if (this._avatarState.moveDir.x !== 0 || this._avatarState.moveDir.z !== 0) {
                 this._avatarState.state = State.Idle;
             }
+        }
+    }
+
+    private _doPose(delta : number) {
+        this._avatarState.duration += delta;
+        if (this._avatarState.duration > 0.5) {
+            if (this._avatarState.moveDir.x === 0 && this._avatarState.moveDir.z === 0) {
+                return;
+            }
+            this._avatarState.state = State.Idle;
+            const sceneManager = this._scene.rootNodes.find((node) => node.id === "SceneManager") as GameObject;
+            const sceneController = sceneManager.components.get("SceneController") as SceneController | undefined;
+            sceneController?.applyGravity();
         }
     }
 
