@@ -1031,3 +1031,13 @@ export const storeKey: InjectionKey<VuexStore<IRootState>> = Symbol("vuex-key");
 export function useStore(): VStore {
     return vuexUseStore(storeKey);
 }
+
+/**
+ * Resets the contents of the Store and persistent storage to default.
+ */
+export function clearStoreAndPersistentStorage(): void {
+    // Reset all settings to default.
+    Store.replaceState(storeDefaults);
+    // Reload the window.
+    window.location.reload();
+}
