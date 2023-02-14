@@ -59,7 +59,6 @@ export default route<IRootState>(function(/* { store, ssrContext } */) {
             // Avoid an infinite redirect
             && to.path !== "/first-time-setup"
         ) {
-            // redirect the user to the login page
             return { path: "/first-time-setup" };
         }
         return undefined;
