@@ -28,6 +28,7 @@ export class NametagEntity {
      * @param meshHeight The height of the mesh object (the nametag will be positioned above this point).
      * @param name The name to be displayed on the nametag.
      * @param color The color of the nametag's background.
+     * @param popDistance The distance from the active camera at which the nametag will stop being visible.
      * @returns A reference to the new nametag mesh.
      */
     public static create(
@@ -35,6 +36,7 @@ export class NametagEntity {
         meshHeight: number,
         name: string,
         color?: Color3,
+        popDistance = 20,
     ): Mesh | undefined {
         const scene = mesh.getScene();
         const font = {
@@ -185,6 +187,21 @@ export class NametagEntity {
         nametagMergedMesh.parent = mesh;
         nametagMergedMesh.isPickable = false;
         nametagMergedMesh.renderingGroupId = MASK_MESH_RENDER_GROUP_ID;
+
+        // Pop the nametag if it is too far from the camera.
+        scene.registerBeforeRender(() => {
+            if (!nametagMergedMesh || !scene.activeCamera) {
+                return;
+            }
+            const cameraPosition = scene.activeCamera.globalPosition.clone();
+            const nametagPosition = nametagMergedMesh.getAbsolutePosition();
+            const distanceToCamera = cameraPosition.subtract(nametagPosition).length();
+            if (distanceToCamera > popDistance) {
+                nametagMergedMesh.visibility = 0;
+            } else {
+                nametagMergedMesh.visibility = 1;
+            }
+        });
 
         return nametagMergedMesh;
     }
