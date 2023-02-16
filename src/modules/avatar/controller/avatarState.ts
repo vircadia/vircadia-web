@@ -48,30 +48,41 @@ export enum Action {
     Sit,
     SitBeanbag,
     SitChair,
+    SitAuditorium,
     Clap,
     Salute,
     RunForward
 }
 
+interface AnimationLoopData {
+    name: string,
+    loop: boolean,
+    loopStart?: number,
+    loopEnd?: number
+}
+
+/* eslint-disable no-multi-spaces */
 export const AnimationMap = new Map([
-    [Action.Idle, "idle02"],
-    [Action.WalkForward, "walk_fwd"],
-    [Action.RunForward, "run_fast_fwd"],
-    [Action.WalkBackward, "walk_bwd"],
-    [Action.WalkLeft, "walk_left"],
-    [Action.WalkRight, "walk_right"],
-    [Action.TurnLeft, "turn_left"],
-    [Action.TurnRight, "turn_right"],
-    [Action.Jump, "jump_standing_apex_all"],
-    [Action.Land, "jump_standing_land_settle_all"],
-    [Action.Fly, "fly"],
-    [Action.FlyFast, "fly"],
-    [Action.Sit, "sitting_idle"],
-    [Action.SitBeanbag, "sitting_beanbag"],
-    [Action.SitChair, "sitting_chair"],
-    [Action.Clap, "emote_clap01_all"],
-    [Action.Salute, "salute"]
-]);
+    [Action.Idle,           { name: "idle02", loop: true }],
+    [Action.WalkForward,    { name: "walk_fwd", loop: true }],
+    [Action.RunForward,     { name: "run_fast_fwd", loop: true }],
+    [Action.WalkBackward,   { name: "walk_bwd", loop: true }],
+    [Action.WalkLeft,       { name: "walk_left", loop: true }],
+    [Action.WalkRight,      { name: "walk_right", loop: true }],
+    [Action.TurnLeft,       { name: "turn_left", loop: true }],
+    [Action.TurnRight,      { name: "turn_right", loop: true }],
+    [Action.Jump,           { name: "jump_standing_apex_all", loop: false }],
+    [Action.Land,           { name: "jump_standing_land_settle_all", loop: false }],
+    [Action.Fly,            { name: "fly", loop: true }],
+    [Action.FlyFast,        { name: "fly", loop: true }],
+    [Action.Sit,            { name: "sitting_idle", loop: false }],
+    [Action.SitBeanbag,     { name: "sitting_beanbag", loop: false }],
+    [Action.SitChair,       { name: "sitting_chair", loop: false }],
+    [Action.SitAuditorium,  { name: "sitting_auditorium", loop: false }],
+    [Action.Clap,           { name: "emote_clap01_all", loop: true, loopStart: 17, loopEnd: 111 }],
+    [Action.Salute,         { name: "salute", loop: true, loopStart: 10, loopEnd: 30 }]
+]) as Map<Action, AnimationLoopData>;
+/* eslint-enable no-multi-spaces */
 
 export class AvatarState {
     public walkSpeed = 1.8;

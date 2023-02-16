@@ -675,8 +675,8 @@ export class InputController extends ScriptComponent {
             return;
         }
 
-        const anim = AnimationMap.get(this._avatarState.action) || "idle02";
-        this._animator.play(anim);
+        const anim = AnimationMap.get(this._avatarState.action);
+        this._animator.play(anim?.name ?? "idle02");
         this._animator.update();
     }
 

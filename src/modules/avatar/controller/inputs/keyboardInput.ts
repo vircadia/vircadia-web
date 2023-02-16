@@ -214,7 +214,7 @@ export class KeyboardInput implements IInputHandler {
                     this._state.state = State.Pose;
                     let animation = Action.SitBeanbag;
                     for (const entry of AnimationMap.entries()) {
-                        if (selectedSitObject[0].name.includes(entry[1])) {
+                        if (selectedSitObject[0].name.includes(entry[1].name)) {
                             animation = entry[0];
                             break;
                         }
@@ -233,7 +233,6 @@ export class KeyboardInput implements IInputHandler {
         if (evt.sourceEvent.code === Store.state.controls.movement.clap?.keybind) {
             this._state.state = State.Pose;
             this._state.action = Action.Clap;
-
         }
 
         // Salute.

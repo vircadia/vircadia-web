@@ -18,6 +18,8 @@ import {
     Mesh
 } from "@babylonjs/core";
 
+import { AnimationMap } from "@Modules/avatar/controller/avatarState";
+
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
@@ -44,20 +46,8 @@ export class Animator {
         }, false);
 
         animGroups.forEach((animGroup : AnimationGroup) => {
-            let loopAnimation = true;
-            if (
-                animGroup.name === "jumping_temp"
-                || animGroup.name === "jump_standing_land_settle_all"
-                || animGroup.name === "jump_standing_launch_all"
-                || animGroup.name === "jump_standing_apex_all"
-                || animGroup.name === "sitting_idle"
-                || animGroup.name === "sitting_beanbag"
-                || animGroup.name === "sitting_chair"
-                || animGroup.name === "emote_clap01_all"
-                || animGroup.name === "salute"
-            ) {
-                loopAnimation = false;
-            }
+            const animationLoopData = [...AnimationMap.values()].find((value) => value.name === animGroup.name);
+            const loopAnimation = animationLoopData?.loop ?? true;
             const newAnimGroup = Animator._cloneAnimGroup(animGroup, nodes, loopAnimation);
             this._animGroups.set(animGroup.name, newAnimGroup);
         });
