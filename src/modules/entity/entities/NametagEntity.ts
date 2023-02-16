@@ -12,7 +12,13 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable new-cap */
 
-import { Color3, DynamicTexture, Mesh, MeshBuilder, StandardMaterial, Vector3 } from "@babylonjs/core";
+import { AbstractMesh,
+    Color3,
+    DynamicTexture,
+    Mesh,
+    MeshBuilder,
+    StandardMaterial,
+    Vector3 } from "@babylonjs/core";
 import { MASK_MESH_RENDER_GROUP_ID } from "@Modules/object";
 
 export class NametagEntity {
@@ -24,7 +30,12 @@ export class NametagEntity {
      * @param color The color of the nametag's background.
      * @returns A reference to the new nametag mesh.
      */
-    public static create(mesh: Mesh, meshHeight: number, name: string, color?: Color3): Mesh | undefined {
+    public static create(
+        mesh: Mesh | AbstractMesh,
+        meshHeight: number,
+        name: string,
+        color?: Color3,
+    ): Mesh | undefined {
         const scene = mesh.getScene();
         const font = {
             name: "monospace",
@@ -73,7 +84,6 @@ export class NametagEntity {
             true
         );
         nametagBackgroundTexture.getAlphaFromRGB = true;
-
 
         // Materials.
         const nametagMaterial = new StandardMaterial("NametagMaterial", scene);
@@ -183,7 +193,7 @@ export class NametagEntity {
      * Remove a nametag entity from a mesh object.
      * @param nametagMesh The nametag mesh to remove.
      */
-    public static remove(nametagMesh: Mesh | undefined | null): void {
+    public static remove(nametagMesh: Mesh | AbstractMesh | undefined | null): void {
         if (!nametagMesh || !(/^Nametag/ui).test(nametagMesh.name)) {
             return;
         }
@@ -194,7 +204,7 @@ export class NametagEntity {
      * Remove all nametag entities from a mesh object.
      * @param mesh The mesh to remove all nametags from.
      */
-    public static removeAll(mesh: Mesh | undefined | null): void {
+    public static removeAll(mesh: Mesh | AbstractMesh | undefined | null): void {
         if (!mesh) {
             return;
         }
