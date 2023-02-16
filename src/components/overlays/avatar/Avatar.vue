@@ -566,10 +566,8 @@ export default defineComponent({
             }
             for (let i = 0; i < newAvatarListLength; i++) {
                 const key = storeModelsList[i][0];
-                if (key !== fallbackAvatarModel()) { // Don't show the fallback model in the list.
-                    const value = storeModelsList[i][1];
-                    this.avatarList[key] = { avatar: value, showMoreOptions: false };
-                }
+                const value = storeModelsList[i][1];
+                this.avatarList[key] = { avatar: value, showMoreOptions: false };
             }
         },
         async selectAvatar(modelId: string | number, reload?: boolean): Promise<void> {
