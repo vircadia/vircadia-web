@@ -333,13 +333,26 @@ export class InputController extends ScriptComponent {
             this._gameObject as GameObject,
             this._animGroups as AnimationGroup[]);
 
+        // Jump animation-end handler.
         const jumpAnim = this._animator.getAnimationGroup("jump_standing_land_settle_all");
-        if (jumpAnim) {
-            jumpAnim.onAnimationGroupEndObservable.add(() => {
-                this._avatarState.state = State.Idle;
-                this._avatarState.action = Action.Idle;
-            });
-        }
+        jumpAnim?.onAnimationGroupEndObservable.add(() => {
+            this._avatarState.state = State.Idle;
+            this._avatarState.action = Action.Idle;
+        });
+
+        // Clap animation-end handler.
+        const clapAnim = this._animator.getAnimationGroup("emote_clap01_all");
+        clapAnim?.onAnimationGroupEndObservable.add(() => {
+            this._avatarState.state = State.Idle;
+            this._avatarState.action = Action.Idle;
+        });
+
+        // Salute animation-end handler.
+        const saluteAnim = this._animator.getAnimationGroup("salute");
+        saluteAnim?.onAnimationGroupEndObservable.add(() => {
+            this._avatarState.state = State.Idle;
+            this._avatarState.action = Action.Idle;
+        });
 
         this._avatarState.state = State.Idle;
         this._avatarState.action = Action.Idle;
