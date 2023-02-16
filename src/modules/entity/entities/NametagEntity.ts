@@ -22,6 +22,22 @@ import { AbstractMesh,
 import { MASK_MESH_RENDER_GROUP_ID } from "@Modules/object";
 
 export class NametagEntity {
+    private static textFont = {
+        name: "monospace",
+        size: 70,
+        characterWidth: 38.5,
+        characterRatio: 1.43,
+        contentRatio: 0.1
+    };
+
+    private static iconFont = {
+        name: "Material Icons",
+        size: 100,
+        characterWidth: 100,
+        characterRatio: 1,
+        contentRatio: 0.16
+    };
+
     /**
      * Create a new nametag entity and attach it to a mesh object.
      * @param mesh The mesh to attach the nametag to.
@@ -29,6 +45,7 @@ export class NametagEntity {
      * @param name The name to be displayed on the nametag.
      * @param color The color of the nametag's background.
      * @param popDistance The distance from the active camera at which the nametag will stop being visible.
+     * @param icon Display the name as an icon instead of text.
      * @returns A reference to the new nametag mesh.
      */
     public static create(
@@ -37,18 +54,14 @@ export class NametagEntity {
         name: string,
         color?: Color3,
         popDistance = 20,
+        icon = false
     ): Mesh | undefined {
         const scene = mesh.getScene();
-        const font = {
-            name: "monospace",
-            size: 70,
-            characterWidth: 38.5,
-            characterRatio: 1.43
-        };
-        const tagTextureWidth = (name.length + 1) * font.characterWidth;
+        const font = icon ? this.iconFont : this.textFont;
+        const tagTextureWidth = icon ? font.characterWidth * 1.2 : (name.length + 1) * font.characterWidth;
         const tagTextureHeight = font.size * font.characterRatio;
-        const tagWidth = 0.1 * tagTextureWidth / tagTextureHeight;
-        const tagHeight = 0.1;
+        const tagWidth = font.contentRatio * tagTextureWidth / tagTextureHeight;
+        const tagHeight = font.contentRatio;
         const tagCornerRadius = tagHeight / 6;
         const tagCornerSegments = 16;
         const nametagArrowSize = 0.02;
@@ -59,9 +72,13 @@ export class NametagEntity {
             width: tagTextureWidth,
             height: tagTextureHeight
         }, scene);
+        // Center the name on the tag.
+        const textPosition = icon
+            ? tagTextureWidth / 2 - font.characterWidth / 2
+            : tagTextureWidth / 2 - name.length / 2 * font.characterWidth;
         nametagTexture.drawText(
             name,
-            tagTextureWidth / 2 - name.length / 2 * font.characterWidth, // Center the name on the tag.
+            textPosition,
             font.size,
             `${font.size}px ${font.name}`,
             "white",
