@@ -76,8 +76,16 @@ export class Animator {
     public update():void {
         if (this._nextAnim && this._nextAnim !== this._currentAnim) {
             this._prevAnim?.stop();
-            this._nextAnim.start(this._nextAnim.loopAnimation, 1.0,
-                this._nextAnim.from, this._nextAnim.to, false);
+            const animationFramerate = 30;
+            const engineTimestep = 1000 / this._mesh.getEngine().getTimeStep();
+            const animLoopData = [...AnimationMap.values()].find((animMapValue) => animMapValue.name === this._nextAnim?.name);
+            this._nextAnim.start(
+                this._nextAnim.loopAnimation,
+                1.0,
+                animLoopData?.loopStart ? animLoopData.loopStart * (engineTimestep / animationFramerate) : this._nextAnim.from,
+                animLoopData?.loopEnd ? animLoopData.loopEnd * (engineTimestep / animationFramerate) : this._nextAnim.to,
+                false
+            );
 
             this._prevAnim = this._currentAnim;
             this._currentAnim = this._nextAnim;

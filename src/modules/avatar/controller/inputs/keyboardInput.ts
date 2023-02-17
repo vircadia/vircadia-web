@@ -271,6 +271,26 @@ export class KeyboardInput implements IInputHandler {
         } else {
             this._runKey = evt.sourceEvent.code === Store.state.controls.movement.run?.keybind ? false : this._runKey;
         }
+
+        // Clap.
+        if (
+            evt.sourceEvent.code === Store.state.controls.movement.clap?.keybind
+            && this._state.state === State.Pose
+            && this._state.action === Action.Clap
+        ) {
+            this._state.state = State.Idle;
+            this._state.action = Action.Idle;
+        }
+
+        // Salute.
+        if (
+            evt.sourceEvent.code === Store.state.controls.movement.salute?.keybind
+            && this._state.state === State.Pose
+            && this._state.action === Action.Salute
+        ) {
+            this._state.state = State.Idle;
+            this._state.action = Action.Idle;
+        }
     }
 
     private _setMoveAction() {
