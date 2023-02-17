@@ -104,7 +104,7 @@ export class ResourceManager {
                             // or if the target animation is a sitting animation.
                             if (
                                 hipPosition
-                                && !targetAnim.animation.name.includes("sit")
+                                && !targetAnim.animation.name.includes("sitting")
                             ) {
                                 offset = animationInitialHipPosition.y - hipPosition.y;
                             }
