@@ -396,35 +396,27 @@ export class VScene {
 
             this._onMyAvatarModelChangedObservable.notifyObservers(this._myAvatar);
 
+            // Add a nametag to the avatar.
             let nametagColor = Store.state.account.isAdmin ? Color3.FromHexString(Store.state.theme.colors.primary) : undefined;
-            if (Store.state.avatar.showNametags) {
-                NametagEntity.create(
-                    this._myAvatar,
-                    avatarHeight,
-                    Store.state.avatar.displayName,
-                    nametagColor
-                );
-            }
+            NametagEntity.create(
+                this._myAvatar,
+                avatarHeight,
+                Store.state.avatar.displayName,
+                nametagColor
+            );
             // Update the nametag color when the player's admin state is changed in the Store.
             Store.watch((state) => state.account.isAdmin, (value: boolean) => {
                 nametagColor = value ? Color3.FromHexString(Store.state.theme.colors.primary) : undefined;
                 NametagEntity.removeAll(this._myAvatar);
-                if (this._myAvatar && Store.state.avatar.showNametags) {
+                if (this._myAvatar) {
                     NametagEntity.create(this._myAvatar, avatarHeight, Store.state.avatar.displayName, nametagColor);
                 }
             });
             // Update the nametag when the displayName is changed in the Store.
             Store.watch((state) => state.avatar.displayName, (value: string) => {
                 NametagEntity.removeAll(this._myAvatar);
-                if (this._myAvatar && Store.state.avatar.showNametags) {
+                if (this._myAvatar) {
                     NametagEntity.create(this._myAvatar, avatarHeight, value, nametagColor);
-                }
-            });
-            // Show/Hide the nametag when showNametags is changed in the Store.
-            Store.watch((state) => state.avatar.showNametags, (value: boolean) => {
-                NametagEntity.removeAll(this._myAvatar);
-                if (value && this._myAvatar) { // Nametags are enabled.
-                    NametagEntity.create(this._myAvatar, avatarHeight, Store.state.avatar.displayName, nametagColor);
                 }
             });
 
@@ -476,17 +468,17 @@ export class VScene {
 
             this._avatarList.set(stringId, avatar);
 
-            // eslint-disable-next-line max-len
-            let nametagColor = Store.state.avatars.avatarsInfo.get(id)?.isAdmin ? Color3.FromHexString(Store.state.theme.colors.primary) : undefined;
-            if (Store.state.avatar.showNametags) {
-                NametagEntity.create(avatar, avatarHeight, domain.displayName, nametagColor);
-            }
+            // Add a nametag to the avatar.
+            let nametagColor = Store.state.avatars.avatarsInfo.get(id)?.isAdmin
+                ? Color3.FromHexString(Store.state.theme.colors.primary)
+                : undefined;
+            NametagEntity.create(avatar, avatarHeight, domain.displayName, nametagColor);
             // Update the nametag color when the player's admin state is changed.
             Store.watch((state) => Boolean(state.avatars.avatarsInfo.get(id)?.isAdmin), (value: boolean) => {
                 nametagColor = value ? Color3.FromHexString(Store.state.theme.colors.primary) : undefined;
                 const nametagAvatar = this._avatarList.get(stringId);
                 NametagEntity.removeAll(nametagAvatar);
-                if (nametagAvatar && Store.state.avatar.showNametags) {
+                if (nametagAvatar) {
                     NametagEntity.create(nametagAvatar, avatarHeight, domain.displayName, nametagColor);
                 }
             });
@@ -494,15 +486,7 @@ export class VScene {
             domain.displayNameChanged.connect(() => {
                 const nametagAvatar = this._avatarList.get(stringId);
                 NametagEntity.removeAll(nametagAvatar);
-                if (nametagAvatar && Store.state.avatar.showNametags) {
-                    NametagEntity.create(nametagAvatar, avatarHeight, domain.displayName, nametagColor);
-                }
-            });
-            // Show/Hide the nametag when showNametags is changed in the Store.
-            Store.watch((state) => state.avatar.showNametags, (value: boolean) => {
-                const nametagAvatar = this._avatarList.get(stringId);
-                NametagEntity.removeAll(nametagAvatar);
-                if (value && nametagAvatar) { // Nametags are enabled
+                if (nametagAvatar) {
                     NametagEntity.create(nametagAvatar, avatarHeight, domain.displayName, nametagColor);
                 }
             });

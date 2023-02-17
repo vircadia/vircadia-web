@@ -20,6 +20,7 @@ import { AbstractMesh,
     StandardMaterial,
     Vector3 } from "@babylonjs/core";
 import { MASK_MESH_RENDER_GROUP_ID } from "@Modules/object";
+import { Store } from "@Store/index";
 
 export class NametagEntity {
     private static textFont = {
@@ -205,7 +206,8 @@ export class NametagEntity {
         nametagMergedMesh.isPickable = false;
         nametagMergedMesh.renderingGroupId = MASK_MESH_RENDER_GROUP_ID;
 
-        // Pop the nametag if it is too far from the camera.
+        // Pop the nametag if it is too far from the camera,
+        // or if `showNametags` has been turned off in the Store.
         scene.registerBeforeRender(() => {
             if (!nametagMergedMesh || !scene.activeCamera) {
                 return;
@@ -213,7 +215,10 @@ export class NametagEntity {
             const cameraPosition = scene.activeCamera.globalPosition.clone();
             const nametagPosition = nametagMergedMesh.getAbsolutePosition();
             const distanceToCamera = cameraPosition.subtract(nametagPosition).length();
-            if (distanceToCamera > popDistance) {
+            if (
+                distanceToCamera > popDistance
+                || !Store.state.avatar.showNametags
+            ) {
                 nametagMergedMesh.visibility = 0;
             } else {
                 nametagMergedMesh.visibility = 1;
