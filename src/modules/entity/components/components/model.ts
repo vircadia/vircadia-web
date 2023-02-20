@@ -11,6 +11,8 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable class-methods-use-this */
+/* eslint-disable new-cap */
+
 import { MeshComponent, DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { SceneLoader, PhysicsImpostor } from "@babylonjs/core";
 import { IModelEntity } from "../../EntityInterfaces";
@@ -18,13 +20,12 @@ import { ShapeType } from "../../EntityProperties";
 import { updateContentLoadingProgress } from "@Modules/scene/LoadingScreen";
 import Log from "@Modules/debugging/log";
 
-/* eslint-disable new-cap */
 
 export class ModelComponent extends MeshComponent {
 
     private _modelURL = "";
 
-    public get componentType():string {
+    public get componentType(): string {
         return ModelComponent.typeName;
     }
 
@@ -32,7 +33,7 @@ export class ModelComponent extends MeshComponent {
         return "Model";
     }
 
-    public load(entity: IModelEntity) : void {
+    public load(entity: IModelEntity): void {
         if (!entity.modelURL || entity.modelURL === "" || this._modelURL === entity.modelURL
         || !this._gameObject) {
             return;
@@ -80,7 +81,7 @@ export class ModelComponent extends MeshComponent {
             });
     }
 
-    public updateAnimationProperties(entity: IModelEntity):void {
+    public updateAnimationProperties(entity: IModelEntity): void {
         if (this._animationGroups && this._animationGroups.length > 0) {
             const anim = this._animationGroups[0];
             // stop all defaul animations
@@ -92,7 +93,7 @@ export class ModelComponent extends MeshComponent {
         }
     }
 
-    public updateCollisionProperties(entity: IModelEntity):void {
+    public updateCollisionProperties(entity: IModelEntity): void {
         if (this._gameObject && this._mesh) {
             if (entity.collisionless) {
                 this._disposeColliders();
@@ -108,7 +109,7 @@ export class ModelComponent extends MeshComponent {
         }
     }
 
-    public updatePhysicsProperties(entity: IModelEntity):void {
+    public updatePhysicsProperties(entity: IModelEntity): void {
         if (this._gameObject && this._gameObject.physicsImpostor) {
             if (entity.friction) {
                 this._gameObject.physicsImpostor.friction = entity.friction;
@@ -126,7 +127,7 @@ export class ModelComponent extends MeshComponent {
         return 0;
     }
 
-    protected _createColliders(entity: IModelEntity) : void {
+    protected _createColliders(entity: IModelEntity): void {
         if (!this._gameObject || !this._mesh) {
             return;
         }
@@ -143,7 +144,7 @@ export class ModelComponent extends MeshComponent {
         }
     }
 
-    protected _disposeColliders() : void {
+    protected _disposeColliders(): void {
         if (this._mesh && this._mesh.physicsImpostor) {
             this._mesh.physicsImpostor.dispose();
             this._mesh.physicsImpostor = null;
