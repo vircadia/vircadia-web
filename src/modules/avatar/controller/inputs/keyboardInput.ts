@@ -167,7 +167,7 @@ export class KeyboardInput implements IInputHandler {
 
         // Sit.
         if (evt.sourceEvent.code === Store.state.controls.movement.sit?.keybind) {
-            const sitDistanceLimit = 2;
+            const sitDistanceLimit = 1.5;
 
             // Get the player's avatar.
             const avatar = this._scene.meshes.find((mesh) => mesh.name === "MyAvatar");
