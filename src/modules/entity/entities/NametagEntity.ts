@@ -18,6 +18,7 @@ import { AbstractMesh,
     Mesh,
     MeshBuilder,
     StandardMaterial,
+    TransformNode,
     Vector3 } from "@babylonjs/core";
 import { MASK_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { Store } from "@Store/index";
@@ -40,9 +41,9 @@ export class NametagEntity {
     };
 
     /**
-     * Create a new nametag entity and attach it to a mesh object.
-     * @param mesh The mesh to attach the nametag to.
-     * @param meshHeight The height of the mesh object (the nametag will be positioned above this point).
+     * Create a new nametag entity and attach it to an object.
+     * @param object The mesh/transform node to attach the nametag to.
+     * @param height The height of the object (the nametag will be positioned above this point).
      * @param name The name to be displayed on the nametag.
      * @param color The color of the nametag's background.
      * @param popDistance The distance from the active camera at which the nametag will stop being visible.
@@ -50,14 +51,14 @@ export class NametagEntity {
      * @returns A reference to the new nametag mesh.
      */
     public static create(
-        mesh: Mesh | AbstractMesh,
-        meshHeight: number,
+        object: Mesh | AbstractMesh | TransformNode,
+        height: number,
         name: string,
         color?: Color3,
         popDistance = 20,
         icon = false
     ): Mesh | undefined {
-        const scene = mesh.getScene();
+        const scene = object.getScene();
         const font = icon ? this.iconFont : this.textFont;
         const tagTextureWidth = icon ? font.characterWidth * 1.2 : (name.length + 1) * font.characterWidth;
         const tagTextureHeight = font.size * font.characterRatio;
@@ -193,16 +194,16 @@ export class NametagEntity {
             return undefined;
         }
 
-        // Position the nametag above the center of the mesh.
+        // Position the nametag above the center of the object.
         const positionOffset = new Vector3(0, 0.15, 0);
         nametagMergedMesh.position = new Vector3(
             positionOffset.x,
-            meshHeight + positionOffset.y,
+            height + positionOffset.y,
             positionOffset.z
         );
 
         nametagMergedMesh.billboardMode = Mesh.BILLBOARDMODE_Y;
-        nametagMergedMesh.parent = mesh;
+        nametagMergedMesh.parent = object;
         nametagMergedMesh.isPickable = false;
         nametagMergedMesh.renderingGroupId = MASK_MESH_RENDER_GROUP_ID;
 
@@ -229,10 +230,10 @@ export class NametagEntity {
     }
 
     /**
-     * Remove a nametag entity from a mesh object.
+     * Remove a nametag entity from an object.
      * @param nametagMesh The nametag mesh to remove.
      */
-    public static remove(nametagMesh: Mesh | AbstractMesh | undefined | null): void {
+    public static remove(nametagMesh: Mesh | AbstractMesh | TransformNode | undefined | null): void {
         if (!nametagMesh || !(/^Nametag/ui).test(nametagMesh.name)) {
             return;
         }
@@ -240,14 +241,14 @@ export class NametagEntity {
     }
 
     /**
-     * Remove all nametag entities from a mesh object.
-     * @param mesh The mesh to remove all nametags from.
+     * Remove all nametag entities from an object.
+     * @param object The object to remove all nametags from.
      */
-    public static removeAll(mesh: Mesh | AbstractMesh | undefined | null): void {
-        if (!mesh) {
+    public static removeAll(object: Mesh | AbstractMesh | TransformNode | undefined | null): void {
+        if (!object) {
             return;
         }
-        const nametagMeshes = mesh.getChildMeshes(false, (node) => (/^Nametag/ui).test(node.name));
+        const nametagMeshes = object.getChildMeshes(false, (node) => (/^Nametag/ui).test(node.name));
         nametagMeshes.forEach((nametagMesh) => nametagMesh.dispose(false, true));
     }
 }
