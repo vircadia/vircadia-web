@@ -3,7 +3,6 @@ on:
   # Triggers the workflow on PRs in "master"
   pull_request:
     branches: [ "master" ]
-    types: [ "open" ]
 
   # Allows this workflow to be run manually from the Actions tab.
   workflow_dispatch:
