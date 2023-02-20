@@ -1,0 +1,36 @@
+# Automatically deploy the latest changes of a branch to the FTP server.
+on:
+  # Triggers the workflow on PRs in "master"
+  pull_request:
+    branches: [ "master" ]
+    types: [ "open" ]
+
+  # Allows this workflow to be run manually from the Actions tab.
+  workflow_dispatch:
+
+name: 🚀 PR Auto-Deploy
+jobs:
+  web-deploy:
+    name: 🎉 Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v2
+
+    - uses: actions/setup-node@master
+
+    - name: 📥 Install project dependencies
+      run: npm install
+
+    - name: ⚒️ Build the project
+      run: npm run build
+
+    - name: 📂 Sync files
+      uses: SamKirkland/FTP-Deploy-Action@4.3.0
+      with:
+        server: ftp.vircadia.com
+        username: ${{ secrets.ftp_username }}
+        password: ${{ secrets.ftp_password }}
+        local-dir: dist/spa/
+        server-dir: /staging/${{ github.head_ref }}
+        dry-run: false
