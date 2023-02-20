@@ -15,21 +15,12 @@ jobs:
     name: 🧹 PR Auto-Deploy Cleanup
     runs-on: ubuntu-latest
     steps:
-    - name: 📂 Sync files
-      uses: SamKirkland/FTP-Deploy-Action@4.3.0
-      with:
-        server: ftp.vircadia.com
-        username: ${{ secrets.ftp_username }}
-        password: ${{ secrets.ftp_password }}
-        local-dir: dist/spa/
-        server-dir: /staging
-        dry-run: false
     - name: 🧹 Clean files and folder
-        uses: StephanThierry/ftp-delete-action@v2.1
-        with:
-          host: ftp.vircadia.com
-          user: ${{ secrets.ftp_username }}
-          password: ${{ secrets.ftp_password }}
-          remoteDirectories: "/${{ github.head_ref }}"
-          workingDir: "/staging"
-          ignoreSSL: "1"
+      uses: StephanThierry/ftp-delete-action@v2.1
+      with:
+        host: ftp.vircadia.com
+        user: ${{ secrets.ftp_username }}
+        password: ${{ secrets.ftp_password }}
+        remoteDirectories: "/${{ github.head_ref }}"
+        workingDir: "/staging"
+        ignoreSSL: "1"
