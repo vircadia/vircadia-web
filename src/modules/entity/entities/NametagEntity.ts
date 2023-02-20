@@ -15,13 +15,65 @@
 import { AbstractMesh,
     Color3,
     DynamicTexture,
+    Matrix,
     Mesh,
     MeshBuilder,
+    Scene,
     StandardMaterial,
     TransformNode,
     Vector3 } from "@babylonjs/core";
 import { MASK_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { Store } from "@Store/index";
+
+/**
+ * Create a sector mesh.
+ * @param name The name of the mesh.
+ * @param vector1 The vector at the leading edge of the sector.
+ * @param vector2 The vector at the trailing edge of the sector.
+ * @param radius The radius of the sector.
+ * @param scene The hosting scene.
+ * @returns The new sector mesh.
+ */
+function createSector(name: string, vector1: Vector3, vector2: Vector3, radius = 1, scene?: Scene): Mesh {
+    // Get the angle between the two vectors.
+    const sectorAngle = Math.acos(Vector3.Dot(vector1, vector2) / (vector1.length() * vector2.length()));
+    const minNumberOfSegments = 5;
+    const diameter = radius * 2;
+    const origin = Vector3.Zero();
+    const firstPoint = Vector3.Normalize(vector1).scale(radius);
+    const lastPoint = Vector3.Normalize(vector2).scale(radius);
+
+    // Divide the sector angle into a number of segments angles.
+    const segments = Math.max(Math.floor(diameter * sectorAngle), minNumberOfSegments);
+    const segmentAngle = sectorAngle / segments;
+
+    // Create points to connect each segment.
+    const points = [] as Vector3[];
+    for (let i = 0; i < segments; i++) {
+        const matrix = Matrix.RotationAxis(Vector3.Cross(vector1, vector2), segmentAngle * i);
+        const rotated = Vector3.TransformCoordinates(firstPoint, matrix);
+        points.push(rotated.add(origin));
+    }
+    points.push(lastPoint.add(origin));
+
+    // Connect each segment point back to the origin.
+    const originPoints = [] as Vector3[];
+    points.forEach(() => {
+        originPoints.push(origin);
+    });
+
+    // Create a ribbon mesh from the points.
+    const sector = MeshBuilder.CreateRibbon(
+        name,
+        {
+            pathArray: [points, originPoints],
+            offset: 0
+        },
+        scene
+    );
+
+    return sector;
+}
 
 export class NametagEntity {
     private static textFont = {
@@ -65,7 +117,6 @@ export class NametagEntity {
         const tagWidth = font.contentRatio * tagTextureWidth / tagTextureHeight;
         const tagHeight = font.contentRatio;
         const tagCornerRadius = tagHeight / 6;
-        const tagCornerSegments = 16;
         const nametagArrowSize = 0.02;
         const tagBackgroundColor = color ?? new Color3(0.07, 0.07, 0.07);
 
@@ -130,25 +181,27 @@ export class NametagEntity {
 
         // Rounded corners.
         const nametagCorners = [] as Mesh[];
-        const nametagCornerOptions = {
-            radius: tagCornerRadius,
-            tessellation: tagCornerSegments,
-            sideOrientation: Mesh.DOUBLESIDE,
-            updatable: true
-        };
         const nametagCornerPositions = [
             new Vector3(-tagWidth / 2, tagHeight / 2 - tagCornerRadius, 0),
             new Vector3(tagWidth / 2, tagHeight / 2 - tagCornerRadius, 0),
             new Vector3(tagWidth / 2, -tagHeight / 2 + tagCornerRadius, 0),
             new Vector3(-tagWidth / 2, -tagHeight / 2 + tagCornerRadius, 0)
         ];
-        nametagCorners.push(MeshBuilder.CreateDisc("NametagTopLeftCorner", nametagCornerOptions, scene));
-        nametagCorners.push(MeshBuilder.CreateDisc("NametagTopRightCorner", nametagCornerOptions, scene));
-        nametagCorners.push(MeshBuilder.CreateDisc("NametagBottomRightCorner", nametagCornerOptions, scene));
-        nametagCorners.push(MeshBuilder.CreateDisc("NametagBottomLeftCorner", nametagCornerOptions, scene));
+        const sector = createSector(
+            "NametagCorner",
+            Vector3.Up(),
+            Vector3.Left(),
+            tagCornerRadius,
+            scene
+        );
+        nametagCorners.push(sector);
+        nametagCorners.push(sector.clone());
+        nametagCorners.push(sector.clone());
+        nametagCorners.push(sector.clone());
         nametagCorners.forEach((cornerMesh, index) => {
             cornerMesh.material = nametagBackgroundMaterial;
             cornerMesh.position = nametagCornerPositions[index];
+            cornerMesh.rotate(new Vector3(0, 0, 1), -index * (Math.PI / 2));
         });
 
         // Left and right edges.
