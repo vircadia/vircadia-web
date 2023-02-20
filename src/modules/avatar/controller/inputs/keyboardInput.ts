@@ -19,7 +19,10 @@ import { Scene,
     Scalar,
     IAction,
     AbstractMesh,
-    Vector3 } from "@babylonjs/core";
+    Node,
+    TransformNode,
+    Vector3,
+    Quaternion } from "@babylonjs/core";
 
 import { AvatarState, Action, State, JumpSubState, AnimationMap } from "../avatarState";
 import { InputState, CameraMode, InputMode } from "../inputState";
@@ -169,17 +172,21 @@ export class KeyboardInput implements IInputHandler {
         if (evt.sourceEvent.code === Store.state.controls.movement.sit?.keybind) {
             const sitDistanceLimit = 1.5;
 
-            // Get the player's avatar.
-            const avatar = this._scene.meshes.find((mesh) => mesh.name === "MyAvatar");
+            // Get the player's avatar mesh.
+            const avatarMesh = this._scene.meshes.find((mesh) => mesh.name === "MyAvatar");
 
-            if (avatar) {
+            if (avatarMesh) {
                 // Check for sittable objects.
-                const sitObjects = this._scene.meshes.filter((mesh) => (/^animate_/iu).test(mesh.name));
+                // eslint-disable-next-line max-len
+                const sitObjects = this._scene.getNodes().filter((node) => (/^animate_/iu).test(node.name)) as (Node | TransformNode | AbstractMesh)[];
 
-                // Filter out any that are too far away.
-                const avatarAbsolutePosition = avatar.getAbsolutePosition();
-                const distances = [] as [AbstractMesh, number][];
+                // Filter out any that are too far away, or don't have an absolute position.
+                const avatarAbsolutePosition = avatarMesh.getAbsolutePosition();
+                const distances = [] as [TransformNode | AbstractMesh, number][];
                 sitObjects.forEach((object) => {
+                    if (!("getAbsolutePosition" in object)) {
+                        return;
+                    }
                     const distance = object.getAbsolutePosition()
                         .subtract(avatarAbsolutePosition)
                         .length();
@@ -197,14 +204,7 @@ export class KeyboardInput implements IInputHandler {
                         return currentObject;
                     });
 
-                    // Remove gravity.
-                    const sceneManager = this._scene.rootNodes.find((node) => node.id === "SceneManager") as GameObject;
-                    const sceneController = sceneManager.components.get("SceneController") as SceneController | undefined;
-                    sceneController?.removeGravity();
 
-                    // Snap to the sittable object.
-                    avatar.setAbsolutePosition(selectedSitObject[0].getAbsolutePosition());
-                    avatar.rotationQuaternion = selectedSitObject[0].rotationQuaternion?.clone() ?? avatar.rotationQuaternion;
 
                     // Clear the move direction state.
                     this._state.moveDir = Vector3.Zero();
@@ -220,6 +220,17 @@ export class KeyboardInput implements IInputHandler {
                         }
                     }
                     this._state.action = animation;
+
+                    // Remove gravity.
+                    const sceneManager = this._scene.rootNodes.find((node) => node.id === "SceneManager") as GameObject;
+                    const sceneController = sceneManager.components.get("SceneController") as SceneController | undefined;
+                    sceneController?.removeGravity();
+
+                    // Snap to the sittable object.
+                    avatarMesh.setAbsolutePosition(selectedSitObject[0].getAbsolutePosition());
+                    avatarMesh.rotationQuaternion = selectedSitObject[0].absoluteRotationQuaternion?.clone()
+                        .multiply(new Quaternion(0, -1, 0, 0))
+                        ?? avatarMesh.rotationQuaternion;
                 } else {
                     // Otherwise, sit on the ground.
                     this._state.duration = 0;
