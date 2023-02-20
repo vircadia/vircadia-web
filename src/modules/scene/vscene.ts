@@ -606,7 +606,6 @@ export class VScene {
         });
     }
 
-    // TODO: Move this code/set of code into its own module.
     private _onKeyUp(evt: ActionEvent) : void {
         // eslint-disable-next-line no-void
         void this._handleKeyUp(evt);
