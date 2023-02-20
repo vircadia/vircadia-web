@@ -25,7 +25,7 @@ jobs:
         server-dir: /staging
         dry-run: false
     - name: 🧹 Clean files and folder
-        uses: StephanThierry/ftp-delete-action@v2.1
+        uses: "StephanThierry/ftp-delete-action@v2.1"
         with:
           host: ftp.vircadia.com
           user: ${{ secrets.ftp_username }}
