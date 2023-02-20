@@ -90,6 +90,20 @@ export class ModelComponent extends MeshComponent {
                         true
                     );
                 });
+                result.transformNodes.forEach((childNode) => {
+                    const genericModelType = InteractiveModelTypes.find((type) => type.condition.test(childNode.name));
+                    if (!genericModelType) {
+                        return;
+                    }
+                    NametagEntity.create(
+                        childNode,
+                        defaultNametagHeight,
+                        genericModelType.name,
+                        undefined,
+                        nametagPopDistance,
+                        true
+                    );
+                });
 
                 // Add a nametag to the model itself if it matches any of the InteractiveModelTypes.
                 const genericModelType = InteractiveModelTypes.find((type) => type.condition.test(this.mesh?.name ?? ""));
