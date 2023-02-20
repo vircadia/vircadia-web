@@ -14,12 +14,17 @@
 /* eslint-disable new-cap */
 
 import { MeshComponent, DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
-import { SceneLoader, PhysicsImpostor } from "@babylonjs/core";
+import { SceneLoader, PhysicsImpostor, AbstractMesh, TransformNode, Node } from "@babylonjs/core";
 import { IModelEntity } from "../../EntityInterfaces";
 import { ShapeType } from "../../EntityProperties";
+import { NametagEntity } from "@Modules/entity/entities";
 import { updateContentLoadingProgress } from "@Modules/scene/LoadingScreen";
 import Log from "@Modules/debugging/log";
 
+const InteractiveModelTypes = [
+    { name: "chair", condition: /^(?:animate_sitting|animate_seat)/iu },
+    { name: "emoji_people", condition: /^animate_/iu }
+];
 
 export class ModelComponent extends MeshComponent {
 
@@ -60,6 +65,44 @@ export class ModelComponent extends MeshComponent {
                 const meshes = result.meshes;
                 this.mesh = meshes[0];
                 this.renderGroupId = DEFAULT_MESH_RENDER_GROUP_ID;
+
+                // Add a nametag to any of the model's children if they match any of the InteractiveModelTypes.
+                const defaultNametagHeight = 0.6;
+                const nametagOffset = 0.25;
+                const nametagPopDistance = 7;
+                const childNodes = this.mesh.getChildren(
+                    (node) => "getBoundingInfo" in node,
+                    false
+                ) as (AbstractMesh | TransformNode | Node)[];
+                childNodes.forEach((childNode) => {
+                    const genericModelType = InteractiveModelTypes.find((type) => type.condition.test(childNode.name));
+                    if (!genericModelType || !("getBoundingInfo" in childNode)) {
+                        return;
+                    }
+                    const boundingInfo = childNode.getBoundingInfo();
+                    const height = boundingInfo.maximum.y - boundingInfo.minimum.y;
+                    NametagEntity.create(
+                        childNode,
+                        height + nametagOffset,
+                        genericModelType.name,
+                        undefined,
+                        nametagPopDistance,
+                        true
+                    );
+                });
+
+                // Add a nametag to the model itself if it matches any of the InteractiveModelTypes.
+                const genericModelType = InteractiveModelTypes.find((type) => type.condition.test(this.mesh?.name ?? ""));
+                if (genericModelType) {
+                    NametagEntity.create(
+                        this.mesh,
+                        defaultNametagHeight,
+                        genericModelType.name,
+                        undefined,
+                        nametagPopDistance,
+                        true
+                    );
+                }
 
                 if (entity.animation && result.animationGroups) {
                     this.animationGroups = result.animationGroups;
