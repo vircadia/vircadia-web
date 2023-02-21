@@ -204,8 +204,6 @@ export class KeyboardInput implements IInputHandler {
                         return currentObject;
                     });
 
-
-
                     // Clear the move direction state.
                     this._state.moveDir = Vector3.Zero();
 
