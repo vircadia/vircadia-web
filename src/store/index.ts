@@ -303,7 +303,8 @@ export interface IRootState {
         bloom: boolean,
         fxaaEnabled: boolean,
         msaa: number,
-        sharpen: boolean
+        sharpen: boolean,
+        ssao: boolean
     },
     // Information about the metaverse-server. Updated when connection state changes.
     metaverse: {
@@ -406,7 +407,7 @@ interface VStore extends VuexStore<IRootState> {
 
 const storeDefaults = {
     storeVersion: {
-        major: 5,
+        major: 6,
         minor: 0,
         patch: 0
     },
@@ -475,7 +476,8 @@ const storeDefaults = {
         bloom: true,
         fxaaEnabled: true,
         msaa: 2,
-        sharpen: false
+        sharpen: false,
+        ssao: true
     },
     // Information about the metaverse-server we're connected to.
     metaverse: {

@@ -580,6 +580,11 @@ export class VScene {
             defaultPipeline.samples = Number(Store.state.graphics.msaa);
             defaultPipeline.sharpenEnabled = Boolean(Store.state.graphics.sharpen);
         }
+        // Update the SSAO pipeline settings.
+        if (this._ssaoPipeline) {
+            this._ssaoPipeline.totalStrength = Store.state.graphics.ssao ? 1 : 0;
+            this._ssaoPipeline.textureSamples = Number(Store.state.graphics.msaa);
+        }
     }
 
     private _handleDontDestroyOnLoadObjects() : void {
@@ -676,7 +681,7 @@ export class VScene {
             false
         );
         this._ssaoPipeline.radius = 8;
-        this._ssaoPipeline.totalStrength = 1;
+        this._ssaoPipeline.totalStrength = Store.state.graphics.ssao ? 1 : 0;
         this._ssaoPipeline.expensiveBlur = true;
         this._ssaoPipeline.samples = 16;
         this._ssaoPipeline.maxZ = 100;
