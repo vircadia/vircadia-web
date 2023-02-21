@@ -89,6 +89,9 @@ export class ModelComponent extends MeshComponent {
                         nametagPopDistance,
                         true
                     );
+                    if (childNode instanceof AbstractMesh) {
+                        this.updateLightingProperties(childNode);
+                    }
                 });
                 result.transformNodes.forEach((childNode) => {
                     const genericModelType = InteractiveModelTypes.find((type) => type.condition.test(childNode.name));
@@ -174,6 +177,12 @@ export class ModelComponent extends MeshComponent {
             if (entity.restitution) {
                 this._gameObject.physicsImpostor.restitution = entity.restitution;
             }
+        }
+    }
+
+    public updateLightingProperties(mesh: AbstractMesh): void {
+        if (Object.getOwnPropertyDescriptor(mesh, "receiveShadows")?.set) {
+            mesh.receiveShadows = true;
         }
     }
 

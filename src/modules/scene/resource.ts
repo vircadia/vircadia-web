@@ -182,6 +182,7 @@ export class ResourceManager {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 mesh.renderingGroupId = DEFAULT_MESH_RENDER_GROUP_ID;
                 mesh.checkCollisions = false;
+                mesh.receiveShadows = true;
             });
 
             const mesh = result.meshes[0];
