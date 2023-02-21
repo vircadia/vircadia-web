@@ -576,6 +576,7 @@ export class VScene {
         // Update the rendering pipeline from the Store.
         if (defaultPipeline instanceof DefaultRenderingPipeline) {
             defaultPipeline.bloomEnabled = Boolean(Store.state.graphics.bloom);
+            defaultPipeline.bloomWeight = Store.state.graphics.ssao ? 1.8 : 0.5;
             defaultPipeline.fxaaEnabled = Boolean(Store.state.graphics.fxaaEnabled);
             defaultPipeline.samples = Number(Store.state.graphics.msaa);
             defaultPipeline.sharpenEnabled = Boolean(Store.state.graphics.sharpen);
