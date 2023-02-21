@@ -266,11 +266,16 @@ export class NametagEntity {
             if (!nametagMergedMesh || !scene.activeCamera) {
                 return;
             }
-            const cameraPosition = scene.activeCamera.globalPosition.clone();
-            const nametagPosition = nametagMergedMesh.getAbsolutePosition();
-            const distanceToCamera = cameraPosition.subtract(nametagPosition).length();
-            const opacity = Math.min(Math.max(popDistance + 1 - distanceToCamera, 0), 1); // Clamp the opacity between 0 and 1.
-            nametagMergedMesh.visibility = opacity * Number(Store.state.avatar.showNametags);
+            const avatar = scene.meshes.find((mesh) => mesh.name === "MyAvatar");
+            if (avatar) {
+                const avatarPosition = avatar.getAbsolutePosition().clone();
+                const nametagPosition = nametagMergedMesh.getAbsolutePosition();
+                const distance = avatarPosition.subtract(nametagPosition).length();
+                // Clamp the opacity between 0 and 0.94.
+                // Max opacity of 0.94 reduces the chance that the nametag will be affected by bloom.
+                const opacity = Math.min(Math.max(popDistance + 1 - distance, 0), 0.94);
+                nametagMergedMesh.visibility = opacity * Number(Store.state.avatar.showNametags);
+            }
         });
 
         return nametagMergedMesh;
