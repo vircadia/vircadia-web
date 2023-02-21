@@ -136,6 +136,22 @@ body.desktop .q-slider.q-slider--editable:hover .q-slider__focus-ring {
                             <output for="sharpen">{{ sharpen ? `On` : `Off` }}</output>
                         </q-item-section>
                     </q-item>
+                    <q-item>
+                        <q-item-section
+                            title="SSAO"
+                        >
+                            Ambient Occlusion
+                        </q-item-section>
+                        <q-item-section class="q-pl-sm">
+                            <q-toggle
+                                name="ssao"
+                                v-model="ssao"
+                            />
+                        </q-item-section>
+                        <q-item-section side style="min-width: 5ch;">
+                            <output for="ssao">{{ ssao ? `On` : `Off` }}</output>
+                        </q-item-section>
+                    </q-item>
                 </q-list>
             </q-scroll-area>
         </q-card>
@@ -170,7 +186,8 @@ export default defineComponent({
                         bloom: this.bloom,
                         fxaaEnabled: this.fxaaEnabled,
                         msaa: this.msaa,
-                        sharpen: this.sharpen
+                        sharpen: this.sharpen,
+                        ssao: this.ssao
                     }
                 });
             }
@@ -188,7 +205,8 @@ export default defineComponent({
                         bloom: Boolean(value),
                         fxaaEnabled: this.fxaaEnabled,
                         msaa: this.msaa,
-                        sharpen: this.sharpen
+                        sharpen: this.sharpen,
+                        ssao: this.ssao
                     }
                 });
             }
@@ -206,7 +224,8 @@ export default defineComponent({
                         bloom: this.bloom,
                         fxaaEnabled: Boolean(value),
                         msaa: this.msaa,
-                        sharpen: this.sharpen
+                        sharpen: this.sharpen,
+                        ssao: this.ssao
                     }
                 });
             }
@@ -224,7 +243,8 @@ export default defineComponent({
                         bloom: this.bloom,
                         fxaaEnabled: this.fxaaEnabled,
                         msaa: typeof value === "string" ? parseInt(value, 10) : value,
-                        sharpen: this.sharpen
+                        sharpen: this.sharpen,
+                        ssao: this.ssao
                     }
                 });
             }
@@ -242,7 +262,27 @@ export default defineComponent({
                         bloom: this.bloom,
                         fxaaEnabled: this.fxaaEnabled,
                         msaa: this.msaa,
-                        sharpen: Boolean(value)
+                        sharpen: Boolean(value),
+                        ssao: this.ssao
+                    }
+                });
+            }
+        },
+        ssao: {
+            get(): boolean {
+                return this.$store.state.graphics.ssao;
+            },
+            set(value: boolean) {
+                // Mutate the parent "graphics" object so that the vscene responds.
+                this.$store.commit(StoreMutations.MUTATE, {
+                    property: "graphics",
+                    value: {
+                        fieldOfView: this.fieldOfView,
+                        bloom: this.bloom,
+                        fxaaEnabled: this.fxaaEnabled,
+                        msaa: this.msaa,
+                        sharpen: this.sharpen,
+                        ssao: Boolean(value)
                     }
                 });
             }
