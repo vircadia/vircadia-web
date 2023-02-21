@@ -16,7 +16,8 @@
 import { AnimationGroup, Engine, Scene, Color3,
     ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, Camera,
     Observable, Nullable, AmmoJSPlugin, Quaternion, Vector3, StandardMaterial,
-    Mesh, MeshBuilder, DynamicTexture, Color4, DefaultRenderingPipeline } from "@babylonjs/core";
+    Mesh, MeshBuilder, DynamicTexture, Color4, DefaultRenderingPipeline,
+    SSAO2RenderingPipeline } from "@babylonjs/core";
 
 import "@babylonjs/loaders/glTF";
 import { ResourceManager } from "./resource";
@@ -67,6 +68,7 @@ export class VScene {
     _sceneController : Nullable<SceneController> = null;
     _sceneManager : Nullable<GameObject> = null;
     _currentSceneURL = "";
+    _ssaoPipeline = undefined as SSAO2RenderingPipeline | undefined;
     private _onMyAvatarModelChangedObservable: Observable<GameObject> = new Observable<GameObject>();
     private _onEntityEventObservable: Observable<EntityEvent> = new Observable<EntityEvent>();
 
@@ -662,6 +664,23 @@ export class VScene {
         if (!this._scene.activeCamera) {
             this._scene.createDefaultCamera(true, true, true);
         }
+
+        // Initialize the SSAO pipeline.
+        this._ssaoPipeline?.dispose();
+        this._ssaoPipeline = undefined;
+        this._ssaoPipeline = new SSAO2RenderingPipeline(
+            "ssaopipeline",
+            this._scene,
+            1,
+            this._scene.cameras,
+            false
+        );
+        this._ssaoPipeline.radius = 8;
+        this._ssaoPipeline.totalStrength = 1;
+        this._ssaoPipeline.expensiveBlur = true;
+        this._ssaoPipeline.samples = 16;
+        this._ssaoPipeline.maxZ = 100;
+        this._ssaoPipeline.textureSamples = Number(Store.state.graphics.msaa);
 
         // Update the rendering pipeline when graphics settings are changed.
         this._updateRenderPipelineSettings();
