@@ -471,8 +471,8 @@ const storeDefaults = {
     },
     // Graphics configuration.
     graphics: {
-        fieldOfView: 80,
-        bloom: false,
+        fieldOfView: 85,
+        bloom: true,
         fxaaEnabled: true,
         msaa: 2,
         sharpen: false
