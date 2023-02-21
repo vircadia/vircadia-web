@@ -672,6 +672,7 @@ export class VScene {
         }
 
         // Initialize the SSAO pipeline.
+        // TODO: Move the SSAO pipeline into a RenderOverlay so it doesn't interfere with the DefaultRenderingPipeline.
         this._ssaoPipeline?.dispose();
         this._ssaoPipeline = undefined;
         this._ssaoPipeline = new SSAO2RenderingPipeline(
