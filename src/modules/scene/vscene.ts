@@ -34,6 +34,7 @@ import { DataMapper } from "@Modules/domain/dataMapper";
 import { AvatarStoreInterface } from "@Modules/avatar/StoreInterface";
 import { Store } from "@Base/store";
 import { CSS3DRenderer } from "./css3DRenderer";
+import { LocalShadowGenerator } from "./localShadowGenerator";
 
 // General Modules
 import Log from "@Modules/debugging/log";
@@ -380,6 +381,11 @@ export class VScene {
                 capsuleCollider.collider.isPickable = false;
             }
             this._myAvatar.addComponent(capsuleCollider);
+
+            // Add local shadows around the avatar.
+            const localShadows = new LocalShadowGenerator(this._myAvatar, {
+                shadowResolution: "high"
+            }, this._scene);
 
             const avatarController = new InputController();
             avatarController.animGroups = this._avatarAnimationGroups;
