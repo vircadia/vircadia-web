@@ -25,7 +25,7 @@ jobs:
       run: npm run build
 
     - name: 📂 Sync files
-      uses: SamKirkland/FTP-Deploy-Action@4.3.0
+      uses: SamKirkland/FTP-Deploy-Action@4.3.3
       with:
         server: ftp.vircadia.com
         username: ${{ secrets.ftp_username }}
