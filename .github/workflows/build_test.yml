@@ -16,6 +16,9 @@ jobs:
     name: ⚒️ Build
     runs-on: ubuntu-latest
     steps:
+    - name: Workaround for Node 17 Breaking Change, 0308010C
+      run: export NODE_OPTIONS=--openssl-legacy-provider
+
     - name: 🚚 Get latest code
       uses: actions/checkout@v2
 
@@ -25,4 +28,4 @@ jobs:
       run: npm install
 
     - name: ⚒️ Build the project
-      run: npm run build --openssl-legacy-provider
+      run: npm run build
