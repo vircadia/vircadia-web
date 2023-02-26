@@ -85,7 +85,7 @@ export class KeyboardInput implements IInputHandler {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     public handleInputs(delta: number) : void {
-        if (this._inputMap[Store.state.controls.movement.jump?.keybind] && this._state.state !== State.Fly) {
+        if (this._inputMap[Store.state.controls.keyboard.movement.jump?.keybind] && this._state.state !== State.Fly) {
             if (this._state.state !== State.Jump) {
                 this._state.state = State.Jump;
                 this._state.jumpSubstate = JumpSubState.Start;
@@ -95,26 +95,26 @@ export class KeyboardInput implements IInputHandler {
         }
 
         if (this._state.state === State.Fly) {
-            if (this._inputMap[Store.state.controls.movement.jump?.keybind]) {
+            if (this._inputMap[Store.state.controls.keyboard.movement.jump?.keybind]) {
                 this._state.moveDir.y = Scalar.Lerp(Math.abs(this._state.moveDir.y), 1, 0.1);
-            } else if (this._inputMap[Store.state.controls.movement.crouch?.keybind]) {
+            } else if (this._inputMap[Store.state.controls.keyboard.movement.crouch?.keybind]) {
                 this._state.moveDir.y = -Scalar.Lerp(Math.abs(this._state.moveDir.y), 1, 0.1);
             } else {
                 this._state.moveDir.y = 0;
             }
         }
 
-        if (this._inputMap[Store.state.controls.movement.walkLeft?.keybind]) {
+        if (this._inputMap[Store.state.controls.keyboard.movement.walkLeft?.keybind]) {
             this._state.moveDir.x = Scalar.Lerp(Math.abs(this._state.moveDir.x), 1, 0.1);
-        } else if (this._inputMap[Store.state.controls.movement.walkRight?.keybind]) {
+        } else if (this._inputMap[Store.state.controls.keyboard.movement.walkRight?.keybind]) {
             this._state.moveDir.x = -Scalar.Lerp(Math.abs(this._state.moveDir.x), 1, 0.1);
         } else {
             this._state.moveDir.x = 0;
         }
 
-        if (this._inputMap[Store.state.controls.movement.walkForwards?.keybind]) {
+        if (this._inputMap[Store.state.controls.keyboard.movement.walkForwards?.keybind]) {
             this._state.moveDir.z = -Scalar.Lerp(Math.abs(this._state.moveDir.z), 1, 0.1);
-        } else if (this._inputMap[Store.state.controls.movement.walkBackwards?.keybind]) {
+        } else if (this._inputMap[Store.state.controls.keyboard.movement.walkBackwards?.keybind]) {
             this._state.moveDir.z = Scalar.Lerp(Math.abs(this._state.moveDir.z), 1, 0.1);
         } else {
             this._state.moveDir.z = 0;
@@ -139,13 +139,16 @@ export class KeyboardInput implements IInputHandler {
         }
 
         // Push-to-talk.
-        if (evt.sourceEvent.code === Store.state.controls.audio.pushToTalk?.keybind && Store.state.audio.user.muted === true) {
+        if (
+            evt.sourceEvent.code === Store.state.controls.keyboard.audio.pushToTalk?.keybind
+            && Store.state.audio.user.muted === true
+        ) {
             this._previousMuteInput = Store.state.audio.user.muted;
             AudioMgr.muteAudio(false);
         }
 
         // Fly.
-        if (evt.sourceEvent.code === Store.state.controls.movement.fly?.keybind) {
+        if (evt.sourceEvent.code === Store.state.controls.keyboard.movement.fly?.keybind) {
             const sceneManager = this._scene.rootNodes.find((node) => node.id === "SceneManager") as GameObject;
             const sceneController = sceneManager.components.get("SceneController") as SceneController | undefined;
 
@@ -162,10 +165,10 @@ export class KeyboardInput implements IInputHandler {
         }
 
         // Run.
-        if (Store.state.controls.movement.run?.keybind.includes("Shift")) {
+        if (Store.state.controls.keyboard.movement.run?.keybind.includes("Shift")) {
             this._runKey = this._shiftKey;
         } else {
-            this._runKey = evt.sourceEvent.code === Store.state.controls.movement.run?.keybind ? true : this._runKey;
+            this._runKey = evt.sourceEvent.code === Store.state.controls.keyboard.movement.run?.keybind ? true : this._runKey;
         }
 
         // Sit.
@@ -255,30 +258,30 @@ export class KeyboardInput implements IInputHandler {
         this._inputMap[evt.sourceEvent.code] = evt.sourceEvent.type === "keydown";
         this._shiftKey = evt.sourceEvent.shiftKey === true;
 
-        if (evt.sourceEvent.code === Store.state.controls.camera.firstPerson?.keybind) {
+        if (evt.sourceEvent.code === Store.state.controls.keyboard.camera.firstPerson?.keybind) {
             this._inputState.cameraMode = CameraMode.FirstPersion;
-        } else if (evt.sourceEvent.code === Store.state.controls.camera.thirdPerson?.keybind) {
+        } else if (evt.sourceEvent.code === Store.state.controls.keyboard.camera.thirdPerson?.keybind) {
             this._inputState.cameraMode = CameraMode.ThirdPersion;
-        } else if (evt.sourceEvent.code === Store.state.controls.camera.collisions?.keybind) {
+        } else if (evt.sourceEvent.code === Store.state.controls.keyboard.camera.collisions?.keybind) {
             this._inputState.cameraCheckCollisions = !this._inputState.cameraCheckCollisions;
             this._inputState.cameraElastic = !this._inputState.cameraElastic;
         }
 
         // Mute toggle.
-        if (evt.sourceEvent.code === Store.state.controls.audio.mute?.keybind) {
+        if (evt.sourceEvent.code === Store.state.controls.keyboard.audio.mute?.keybind) {
             this._previousMuteInput = AudioMgr.muteAudio();
         }
 
         // Push-to-talk.
-        if (evt.sourceEvent.code === Store.state.controls.audio.pushToTalk?.keybind) {
+        if (evt.sourceEvent.code === Store.state.controls.keyboard.audio.pushToTalk?.keybind) {
             AudioMgr.muteAudio(this._previousMuteInput);
         }
 
         // Run.
-        if (Store.state.controls.movement.run?.keybind.includes("Shift")) {
+        if (Store.state.controls.keyboard.movement.run?.keybind.includes("Shift")) {
             this._runKey = this._shiftKey;
         } else {
-            this._runKey = evt.sourceEvent.code === Store.state.controls.movement.run?.keybind ? false : this._runKey;
+            this._runKey = evt.sourceEvent.code === Store.state.controls.keyboard.movement.run?.keybind ? false : this._runKey;
         }
 
         // Clap.

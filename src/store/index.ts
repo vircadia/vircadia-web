@@ -26,7 +26,7 @@ import { Domain, ConnectionState } from "@Modules/domain/domain";
 import { AssignmentClientState } from "@Modules/domain/client";
 import { DomainAvatar } from "@Modules/domain/avatar";
 import { AMessage } from "@Modules/domain/message";
-import { onAccessTokenChangePayload, onAttributeChangePayload } from "@Modules/account";
+import { Account, onAccessTokenChangePayload, onAttributeChangePayload } from "@Modules/account";
 import { defaultActiveAvatarModel, defaultAvatarModels } from "@Modules/avatar/DefaultModels";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -317,6 +317,7 @@ export interface IRootState {
     },
     // Information about metaverse account that is logged in.
     account: {
+        id: string,
         username: string;
         isLoggedIn: boolean;
         // Token data.
@@ -350,6 +351,7 @@ export interface IRootState {
         tagline: string,
         logo: string,
         globalServiceTerm: string,
+        versionWatermark: string,
         colors: {
             primary: string,
             secondary: string,
@@ -383,17 +385,24 @@ export interface IRootState {
     },
     // Control keybinds.
     controls: {
-        movement: {
-            [key: string]: ControlKeybind
+        keyboard: {
+            movement: {
+                [key: string]: ControlKeybind
+            },
+            camera: {
+                [key: string]: ControlKeybind
+            },
+            audio: {
+                [key: string]: ControlKeybind
+            },
+            other: {
+                [key: string]: ControlKeybind
+            }
         },
-        camera: {
-            [key: string]: ControlKeybind
-        },
-        audio: {
-            [key: string]: ControlKeybind
-        },
-        other: {
-            [key: string]: ControlKeybind
+        mouse: {
+            acceleration: boolean,
+            invert: boolean,
+            sensitivity: number
         }
     }
 }
@@ -489,6 +498,7 @@ const storeDefaults = {
     },
     // Information about the logged in account. Refer to Account module.
     account: {
+        id: "UNKNOWN",
         username: "Guest",
         isLoggedIn: false,
         accessToken: "UNKNOWN",
@@ -510,38 +520,23 @@ const storeDefaults = {
     },
     // Theme configuration.
     theme: {
-        brandName: process.env.VRCA_BRAND_NAME ?? "Vircadia",
-        productName: process.env.VRCA_PRODUCT_NAME ?? "Vircadia Web",
-        tagline: process.env.VRCA_TAGLINE ?? "",
-        logo: process.env.VRCA_LOGO ?? "assets/vircadia-icon.svg",
-        globalServiceTerm: process.env.VRCA_GLOBAL_SERVICE_TERM ?? "Metaverse",
+        brandName: process.env.VRCA_BRAND_NAME,
+        productName: process.env.VRCA_PRODUCT_NAME,
+        tagline: process.env.VRCA_TAGLINE,
+        logo: process.env.VRCA_LOGO,
+        globalServiceTerm: process.env.VRCA_GLOBAL_SERVICE_TERM,
+        versionWatermark: process.env.VRCA_VERSION_WATERMARK,
         colors: {
-            primary: process.env.VRCA_COLORS_PRIMARY ?? "#0c71c3",
-            secondary: process.env.VRCA_COLORS_SECONDARY ?? "#8300e9",
-            accent: process.env.VRCA_COLORS_ACCENT ?? "#01bdff"
+            primary: process.env.VRCA_COLORS_PRIMARY,
+            secondary: process.env.VRCA_COLORS_SECONDARY,
+            accent: process.env.VRCA_COLORS_ACCENT
         },
-        defaultMode: process.env.VRCA_DEFAULT_MODE ?? "dark",
-        globalStyle: process.env.VRCA_GLOBAL_STYLE ?? "mica",
-        headerStyle: process.env.VRCA_HEADER_STYLE ?? "gradient-right",
-        windowStyle: process.env.VRCA_WINDOW_STYLE ?? "gradient-right",
+        defaultMode: process.env.VRCA_DEFAULT_MODE,
+        globalStyle: process.env.VRCA_GLOBAL_STYLE,
+        headerStyle: process.env.VRCA_HEADER_STYLE,
+        windowStyle: process.env.VRCA_WINDOW_STYLE,
         // TODO: Move links to their own object (it's not theme related).
-        helpLinks: process.env.VRCA_HELP_LINKS ?? [
-            {
-                icon: "chat",
-                label: "Discord",
-                link: "https://discord.com/invite/Pvx2vke"
-            },
-            {
-                icon: "forum",
-                label: "Forum",
-                link: "https://forum.vircadia.com/"
-            },
-            {
-                icon: "support",
-                label: "User Documentation",
-                link: "https://docs.vircadia.com/"
-            }
-        ]
+        helpLinks: process.env.VRCA_HELP_LINKS
     },
     // First Time Wizard configuration.
     firstTimeWizard: {
@@ -559,38 +554,45 @@ const storeDefaults = {
     bookmarks: {
         locations: []
     },
-    // Control keybinds.
+    // Controls.
     controls: {
-        movement: {
-            walkForwards: { name: "Walk Forwards", keybind: "KeyW" },
-            walkBackwards: { name: "Walk Backwards", keybind: "KeyS" },
-            walkLeft: { name: "Walk Left", keybind: "KeyA" },
-            walkRight: { name: "Walk Right", keybind: "KeyD" },
-            run: { name: "Run", keybind: "ShiftLeft" },
-            jump: { name: "Jump", keybind: "Space" },
-            crouch: { name: "Crouch", keybind: "KeyC" },
-            fly: { name: "Fly", keybind: "KeyF" },
-            sit: { name: "Sit", keybind: "KeyG" },
-            clap: { name: "Clap", keybind: "KeyH" },
-            salute: { name: "Salute", keybind: "KeyJ" }
+        keyboard: {
+            movement: {
+                walkForwards: { name: "Walk Forwards", keybind: "KeyW" },
+                walkBackwards: { name: "Walk Backwards", keybind: "KeyS" },
+                walkLeft: { name: "Walk Left", keybind: "KeyA" },
+                walkRight: { name: "Walk Right", keybind: "KeyD" },
+                run: { name: "Run", keybind: "ShiftLeft" },
+                jump: { name: "Jump", keybind: "Space" },
+                crouch: { name: "Crouch", keybind: "KeyC" },
+                fly: { name: "Fly", keybind: "KeyF" },
+                sit: { name: "Sit", keybind: "KeyG" },
+                clap: { name: "Clap", keybind: "KeyH" },
+                salute: { name: "Salute", keybind: "KeyJ" }
+            },
+            camera: {
+                pitchUp: { name: "Pitch Up", keybind: "ArrowUp" },
+                pitchDown: { name: "Pitch Down", keybind: "ArrowDown" },
+                yawLeft: { name: "Yaw Left", keybind: "ArrowLeft" },
+                yawRight: { name: "Yaw Right", keybind: "ArrowRight" },
+                firstPerson: { name: "First-Person", keybind: "Digit1" },
+                thirdPerson: { name: "Third-Person", keybind: "Digit3" },
+                collisions: { name: "Toggle Collisions", keybind: "Digit4" }
+            },
+            audio: {
+                mute: { name: "Toggle Mic Mute", keybind: "KeyV" },
+                pushToTalk: { name: "Push-To-Talk", keybind: "KeyB" }
+            },
+            other: {
+                resetPosition: { name: "Reset Position", keybind: "KeyK" },
+                toggleMenu: { name: "Toggle Menu", keybind: "KeyM" },
+                openChat: { name: "Open Chat", keybind: "KeyT" }
+            }
         },
-        camera: {
-            pitchUp: { name: "Pitch Up", keybind: "ArrowUp" },
-            pitchDown: { name: "Pitch Down", keybind: "ArrowDown" },
-            yawLeft: { name: "Yaw Left", keybind: "ArrowLeft" },
-            yawRight: { name: "Yaw Right", keybind: "ArrowRight" },
-            firstPerson: { name: "First-Person", keybind: "Digit1" },
-            thirdPerson: { name: "Third-Person", keybind: "Digit3" },
-            collisions: { name: "Toggle Collisions", keybind: "Digit4" }
-        },
-        audio: {
-            mute: { name: "Toggle Mic Mute", keybind: "KeyV" },
-            pushToTalk: { name: "Push-To-Talk", keybind: "KeyB" }
-        },
-        other: {
-            resetPosition: { name: "Reset Position", keybind: "KeyK" },
-            toggleMenu: { name: "Toggle Menu", keybind: "KeyM" },
-            openChat: { name: "Open Chat", keybind: "KeyT" }
+        mouse: {
+            acceleration: true,
+            invert: false,
+            sensitivity: 50
         }
     }
 } as IRootState;
@@ -661,6 +663,37 @@ export const Store = createStore<IRootState>({
                 });
             }
         });
+
+        // Update the `Account` object with account data from persistent storage.
+        Account.id = outputState.account.id;
+        Account.accountName = outputState.account.username;
+        Account.accessToken = outputState.account.accessToken;
+        Account.accessTokenType = outputState.account.tokenType;
+        Account.scope = outputState.account.scope;
+        Account.roles = outputState.account.isAdmin ? ["admin"] : [];
+
+        // Subscribe to changes in the player's account info.
+        Account.onAttributeChange.connect(() => {
+            Store.commit(Mutations.MUTATE, {
+                property: "account",
+                with: {
+                    id: Account.id,
+                    username: Account.accountName,
+                    isLoggedIn: Account.isLoggedIn,
+                    accessToken: Account.accessToken,
+                    tokenType: Account.accessTokenType,
+                    scope: Account.scope ?? "UNKNOWN",
+                    isAdmin: "admin" in Account.roles,
+                    useAsAdmin: "admin" in Account.roles,
+                    images: {}
+                }
+            });
+        });
+
+        // Make sure the account info is up-to-date.
+        // eslint-disable-next-line no-void
+        void Account.updateAccountInfo();
+
         // Note: We are using an intermediary variable (`outputState`) to store the returned state
         // so that extraneous properties within the persistent state are not retained.
         return outputState;
@@ -774,7 +807,7 @@ export const Store = createStore<IRootState>({
         // Remove old messages if the limit has passed.
         [Mutations.ADD_MESSAGE](state: IRootState, payload: AddMessagePayload) {
             const msg = payload.message;
-            // If the message doesn't have some unique identification, add it
+            // If the message doesn't have some unique identification, add it.
             if (typeof msg.id === "undefined") {
                 msg.id = state.messages.nextMessageId;
                 state.messages.nextMessageId += 1;
@@ -782,11 +815,9 @@ export const Store = createStore<IRootState>({
 
             state.messages.messages.push(payload.message);
 
-            // If a maximum is specified, remove the old from the list
-            if (typeof payload.maxMessages === "number") {
-                while (state.messages.messages.length > payload.maxMessages) {
-                    state.messages.messages.pop();
-                }
+            // If a maximum is specified, remove old messages from the list.
+            if (typeof payload.maxMessages === "number" && state.messages.messages.length > payload.maxMessages) {
+                state.messages.messages = state.messages.messages.slice(state.messages.messages.length - payload.maxMessages);
             }
 
             saveToPersistentStorage(state);
@@ -1000,7 +1031,7 @@ export const Store = createStore<IRootState>({
             pContext.commit(Mutations.ADD_MESSAGE, {
                 message: pMsg,
                 // FIXME: Define this in a constant somewhere, editable later by setting.
-                maxMessages: 100
+                maxMessages: 150
             });
         },
         // Example action. Any script should be calling the Metavsere component directly
