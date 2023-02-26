@@ -415,7 +415,7 @@ interface VStore extends VuexStore<IRootState> {
 
 const storeDefaults = {
     storeVersion: {
-        major: 4,
+        major: 5,
         minor: 0,
         patch: 0
     },
@@ -480,8 +480,8 @@ const storeDefaults = {
     },
     // Graphics configuration.
     graphics: {
-        fieldOfView: 80,
-        bloom: false,
+        fieldOfView: 85,
+        bloom: true,
         fxaaEnabled: true,
         msaa: 2,
         sharpen: false
@@ -565,7 +565,10 @@ const storeDefaults = {
                 run: { name: "Run", keybind: "ShiftLeft" },
                 jump: { name: "Jump", keybind: "Space" },
                 crouch: { name: "Crouch", keybind: "KeyC" },
-                fly: { name: "Fly", keybind: "KeyF" }
+                fly: { name: "Fly", keybind: "KeyF" },
+                sit: { name: "Sit", keybind: "KeyG" },
+                clap: { name: "Clap", keybind: "KeyH" },
+                salute: { name: "Salute", keybind: "KeyJ" }
             },
             camera: {
                 pitchUp: { name: "Pitch Up", keybind: "ArrowUp" },
@@ -1058,4 +1061,14 @@ export const storeKey: InjectionKey<VuexStore<IRootState>> = Symbol("vuex-key");
 
 export function useStore(): VStore {
     return vuexUseStore(storeKey);
+}
+
+/**
+ * Resets the contents of the Store and persistent storage to default.
+ */
+export function clearStoreAndPersistentStorage(): void {
+    // Reset all settings to default.
+    Store.replaceState(storeDefaults);
+    // Reload the window.
+    window.location.reload();
 }

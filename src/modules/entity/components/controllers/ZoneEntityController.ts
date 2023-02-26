@@ -10,7 +10,9 @@
 //
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable new-cap */
+
 // General Modules
 import Log from "@Modules/debugging/log";
 // Domain Modules
@@ -19,9 +21,6 @@ import { IZoneEntity } from "../../EntityInterfaces";
 import { SkyboxComponent, KeyLightComponent, HazeComponent } from "../components";
 import { AmbientLightComponent } from "@Modules/object";
 import { AssetUrl } from "../../builders";
-
-/* eslint-disable @typescript-eslint/no-magic-numbers */
-
 import {
     HemisphericLight, Vector3, DefaultRenderingPipeline, CubeTexture, HDRCubeTexture,
     VolumetricLightScatteringPostProcess, Nullable,
@@ -234,7 +233,6 @@ export class ZoneEntityController extends EntityController {
 
             if (url.fileExtension === "hdr") {
                 this._scene.environmentTexture = new HDRCubeTexture(userData.environment.environmentTexture,
-                    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
                     this._scene, 512, false, true, false, true);
 
             } else if (url.fileExtension === "env") {

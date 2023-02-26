@@ -24,12 +24,13 @@ import {
 import { Animator } from "../animator";
 import { GameObject, MeshComponent } from "@Modules/object";
 import { ScriptComponent, inspector, inspectorAccessor } from "@Modules/script";
-import { AvatarState, Action, JumpSubState, State } from "./avatarState";
+import { AvatarState, Action, JumpSubState, State, AnimationMap } from "./avatarState";
 import { InputState, CameraMode } from "./inputState";
 import { IInputHandler } from "./inputs/inputHandler";
 import { KeyboardInput } from "./inputs/keyboardInput";
 import { VirtualJoystickInput } from "./inputs/virtualJoystickInput";
 import { Store } from "@Store/index";
+import type { SceneController } from "@Modules/scene/controllers";
 import { MouseSettingsController } from "@Base/modules/avatar/controller/inputs/mouseSettings";
 
 // General Modules
@@ -343,13 +344,26 @@ export class InputController extends ScriptComponent {
             this._gameObject as GameObject,
             this._animGroups as AnimationGroup[]);
 
+        // Jump animation-end handler.
         const jumpAnim = this._animator.getAnimationGroup("jump_standing_land_settle_all");
-        if (jumpAnim) {
-            jumpAnim.onAnimationGroupEndObservable.add(() => {
-                this._avatarState.state = State.Idle;
-                this._avatarState.action = Action.Idle;
-            });
-        }
+        jumpAnim?.onAnimationGroupEndObservable.add(() => {
+            this._avatarState.state = State.Idle;
+            this._avatarState.action = Action.Idle;
+        });
+
+        // Clap animation-end handler.
+        const clapAnim = this._animator.getAnimationGroup("emote_clap01_all");
+        clapAnim?.onAnimationGroupEndObservable.add(() => {
+            this._avatarState.state = State.Idle;
+            this._avatarState.action = Action.Idle;
+        });
+
+        // Salute animation-end handler.
+        const saluteAnim = this._animator.getAnimationGroup("salute");
+        saluteAnim?.onAnimationGroupEndObservable.add(() => {
+            this._avatarState.state = State.Idle;
+            this._avatarState.action = Action.Idle;
+        });
 
         this._avatarState.state = State.Idle;
         this._avatarState.action = Action.Idle;
@@ -424,6 +438,9 @@ export class InputController extends ScriptComponent {
             case State.Teleport:
                 this._doTeleport(delta);
                 break;
+            case State.Pose:
+                this._doPose(delta);
+                break;
             case State.Stop:
                 this._doStop(delta);
                 break;
@@ -463,6 +480,19 @@ export class InputController extends ScriptComponent {
             if (this._avatarState.moveDir.x !== 0 || this._avatarState.moveDir.z !== 0) {
                 this._avatarState.state = State.Idle;
             }
+        }
+    }
+
+    private _doPose(delta : number) {
+        this._avatarState.duration += delta;
+        if (this._avatarState.duration > 0.5) {
+            if (this._avatarState.moveDir.x === 0 && this._avatarState.moveDir.z === 0) {
+                return;
+            }
+            this._avatarState.state = State.Idle;
+            const sceneManager = this._scene.rootNodes.find((node) => node.id === "SceneManager") as GameObject;
+            const sceneController = sceneManager.components.get("SceneController") as SceneController | undefined;
+            sceneController?.applyGravity();
         }
     }
 
@@ -507,6 +537,10 @@ export class InputController extends ScriptComponent {
             this._gameObject.rotationQuaternion.x = 0;
             this._gameObject.rotationQuaternion.z = 0;
         }
+
+        const sceneManager = this._scene.rootNodes.find((node) => node.id === "SceneManager") as GameObject;
+        const sceneController = sceneManager.components.get("SceneController") as SceneController | undefined;
+        sceneController?.applyGravity();
 
         this._avatarState.duration += delta;
 
@@ -665,49 +699,8 @@ export class InputController extends ScriptComponent {
             return;
         }
 
-        let anim = "idle02";
-        switch (this._avatarState.action) {
-            case Action.WalkForward:
-                anim = "walk_fwd";
-                break;
-            case Action.RunForward:
-                anim = "run_fast_fwd";
-                break;
-            case Action.WalkBackward:
-                anim = "walk_bwd";
-                break;
-            case Action.WalkLeft:
-                anim = "walk_left";
-                break;
-            case Action.WalkRight:
-                anim = "walk_right";
-                break;
-            case Action.TurnLeft:
-                anim = "turn_left";
-                break;
-            case Action.TurnRight:
-                anim = "turn_right";
-                break;
-            case Action.Jump:
-                anim = "jump_standing_apex_all";
-                break;
-            case Action.Land:
-                anim = "jump_standing_land_settle_all";
-                break;
-            case Action.Fly:
-                anim = "fly";
-                break;
-            case Action.FlyFast:
-                anim = "fly";
-                break;
-            case Action.Sit:
-                anim = "sitting_crosslegged";
-                break;
-            default:
-                anim = "idle02";
-        }
-
-        this._animator.play(anim);
+        const anim = AnimationMap.get(this._avatarState.action);
+        this._animator.play(anim?.name ?? "idle02");
         this._animator.update();
     }
 
