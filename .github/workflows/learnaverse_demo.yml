@@ -7,7 +7,7 @@ on:
   # Allows this workflow to be run manually from the Actions tab.
   workflow_dispatch:
 
-name: 🚀 Auto-Deploy
+name: 🚀 Auto-Deploy (Learnaverse)
 jobs:
   web-deploy:
     name: 🎉 Deploy
