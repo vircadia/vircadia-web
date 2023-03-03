@@ -26,6 +26,7 @@ import { GameObject, MeshComponent, CapsuleColliderComponent,
 import { ScriptComponent, requireScript, requireScripts, reattachScript } from "@Modules/script";
 import { InputController, MyAvatarController, ScriptAvatarController, AvatarMapper } from "@Modules/avatar";
 import { IEntity, IEntityDescription, EntityBuilder, EntityEvent } from "@Modules/entity";
+import { NametagEntity } from "@Modules/entity/entities";
 import { ScriptAvatar, Uuid } from "@vircadia/web-sdk";
 import { Utility } from "@Modules/utility";
 import { Location } from "@Modules/domain/location";
@@ -356,6 +357,7 @@ export class VScene {
                 defaultColliderProperties.mass,
                 defaultColliderProperties.friction
             );
+
             // Create a collider based on the dimensions of the avatar model.
             capsuleCollider.createCollider(
                 // eslint-disable-next-line @typescript-eslint/no-extra-parens
@@ -389,35 +391,27 @@ export class VScene {
 
             this._onMyAvatarModelChangedObservable.notifyObservers(this._myAvatar);
 
+            // Add a nametag to the avatar.
             let nametagColor = Store.state.account.isAdmin ? Color3.FromHexString(Store.state.theme.colors.primary) : undefined;
-            if (Store.state.avatar.showNametags) {
-                this._loadNametag(
-                    this._myAvatar,
-                    avatarHeight,
-                    Store.state.avatar.displayName,
-                    nametagColor
-                );
-            }
+            NametagEntity.create(
+                this._myAvatar,
+                avatarHeight,
+                Store.state.avatar.displayName,
+                nametagColor
+            );
             // Update the nametag color when the player's admin state is changed in the Store.
             Store.watch((state) => state.account.isAdmin, (value: boolean) => {
                 nametagColor = value ? Color3.FromHexString(Store.state.theme.colors.primary) : undefined;
-                this._unloadNametag(this._myAvatar);
-                if (this._myAvatar && Store.state.avatar.showNametags) {
-                    this._loadNametag(this._myAvatar, avatarHeight, Store.state.avatar.displayName, nametagColor);
+                NametagEntity.removeAll(this._myAvatar);
+                if (this._myAvatar) {
+                    NametagEntity.create(this._myAvatar, avatarHeight, Store.state.avatar.displayName, nametagColor);
                 }
             });
             // Update the nametag when the displayName is changed in the Store.
             Store.watch((state) => state.avatar.displayName, (value: string) => {
-                this._unloadNametag(this._myAvatar);
-                if (this._myAvatar && Store.state.avatar.showNametags) {
-                    this._loadNametag(this._myAvatar, avatarHeight, value, nametagColor);
-                }
-            });
-            // Show/Hide the nametag when showNametags is changed in the Store.
-            Store.watch((state) => state.avatar.showNametags, (value: boolean) => {
-                this._unloadNametag(this._myAvatar);
-                if (value && this._myAvatar) { // Nametags are enabled.
-                    this._loadNametag(this._myAvatar, avatarHeight, Store.state.avatar.displayName, nametagColor);
+                NametagEntity.removeAll(this._myAvatar);
+                if (this._myAvatar) {
+                    NametagEntity.create(this._myAvatar, avatarHeight, value, nametagColor);
                 }
             });
 
@@ -469,34 +463,26 @@ export class VScene {
 
             this._avatarList.set(stringId, avatar);
 
-            // eslint-disable-next-line max-len
-            let nametagColor = Store.state.avatars.avatarsInfo.get(id)?.isAdmin ? Color3.FromHexString(Store.state.theme.colors.primary) : undefined;
-            if (Store.state.avatar.showNametags) {
-                this._loadNametag(avatar, avatarHeight, domain.displayName, nametagColor);
-            }
+            // Add a nametag to the avatar.
+            let nametagColor = Store.state.avatars.avatarsInfo.get(id)?.isAdmin
+                ? Color3.FromHexString(Store.state.theme.colors.primary)
+                : undefined;
+            NametagEntity.create(avatar, avatarHeight, domain.displayName, nametagColor);
             // Update the nametag color when the player's admin state is changed.
             Store.watch((state) => Boolean(state.avatars.avatarsInfo.get(id)?.isAdmin), (value: boolean) => {
                 nametagColor = value ? Color3.FromHexString(Store.state.theme.colors.primary) : undefined;
                 const nametagAvatar = this._avatarList.get(stringId);
-                this._unloadNametag(nametagAvatar);
-                if (nametagAvatar && Store.state.avatar.showNametags) {
-                    this._loadNametag(nametagAvatar, avatarHeight, domain.displayName, nametagColor);
+                NametagEntity.removeAll(nametagAvatar);
+                if (nametagAvatar) {
+                    NametagEntity.create(nametagAvatar, avatarHeight, domain.displayName, nametagColor);
                 }
             });
             // Update the nametag when the displayName is changed.
             domain.displayNameChanged.connect(() => {
                 const nametagAvatar = this._avatarList.get(stringId);
-                this._unloadNametag(nametagAvatar);
-                if (nametagAvatar && Store.state.avatar.showNametags) {
-                    this._loadNametag(nametagAvatar, avatarHeight, domain.displayName, nametagColor);
-                }
-            });
-            // Show/Hide the nametag when showNametags is changed in the Store.
-            Store.watch((state) => state.avatar.showNametags, (value: boolean) => {
-                const nametagAvatar = this._avatarList.get(stringId);
-                this._unloadNametag(nametagAvatar);
-                if (value && nametagAvatar) { // Nametags are enabled
-                    this._loadNametag(nametagAvatar, avatarHeight, domain.displayName, nametagColor);
+                NametagEntity.removeAll(nametagAvatar);
+                if (nametagAvatar) {
+                    NametagEntity.create(nametagAvatar, avatarHeight, domain.displayName, nametagColor);
                 }
             });
         }
@@ -519,164 +505,6 @@ export class VScene {
             gameObj.dispose();
         });
         this._avatarList.clear();
-    }
-
-    // TODO: Move all nametag code into a dedicated module.
-    private _loadNametag(avatar: GameObject, avatarHeight: number, name: string, color?: Color3) : Mesh | undefined {
-        const fontSize = 70;
-        const characterWidth = 38.5;
-        const tagTextureWidth = (name.length + 1) * characterWidth;
-        const tagTextureHeight = fontSize * 1.43;
-        const tagWidth = 0.1 * tagTextureWidth / tagTextureHeight;
-        const tagHeight = 0.1;
-        const tagCornerRadius = tagHeight / 6;
-        const tagCornerSegments = 16;
-        const nametagArrowSize = 0.02;
-        const tagBackgroundColor = color ?? new Color3(0.07, 0.07, 0.07);
-
-        // Textures.
-        const nametagTexture = new DynamicTexture("NametagTexture", {
-            width: tagTextureWidth,
-            height: tagTextureHeight
-        }, this._scene);
-        nametagTexture.drawText(
-            name,
-            tagTextureWidth / 2 - name.length / 2 * characterWidth, // Center the name on the tag.
-            fontSize,
-            `${fontSize}px monospace`,
-            "white",
-            tagBackgroundColor.toHexString(),
-            true,
-            true
-        );
-        nametagTexture.getAlphaFromRGB = true;
-
-        const nametagBackgroundTexture = new DynamicTexture("NametagTexture2", {
-            width: tagTextureWidth,
-            height: tagTextureHeight
-        }, this._scene);
-        nametagBackgroundTexture.drawText(
-            "",
-            0,
-            0,
-            `${fontSize}px monospace`,
-            "white",
-            tagBackgroundColor.toHexString(),
-            true,
-            true
-        );
-        nametagBackgroundTexture.getAlphaFromRGB = true;
-
-
-        // Materials.
-        const nametagMaterial = new StandardMaterial("NametagMaterial", this._scene);
-        nametagMaterial.diffuseTexture = nametagTexture;
-        nametagMaterial.specularTexture = nametagTexture;
-        nametagMaterial.emissiveTexture = nametagTexture;
-        nametagMaterial.disableLighting = true;
-
-        const nametagBackgroundMaterial = new StandardMaterial("NametagBackgroundMaterial", this._scene);
-        nametagBackgroundMaterial.diffuseTexture = nametagBackgroundTexture;
-        nametagBackgroundMaterial.specularTexture = nametagBackgroundTexture;
-        nametagBackgroundMaterial.emissiveTexture = nametagBackgroundTexture;
-        nametagBackgroundMaterial.disableLighting = true;
-
-        // Meshes.
-        const nametagPlane = MeshBuilder.CreatePlane("Nametag", {
-            width: tagWidth,
-            height: tagHeight,
-            sideOrientation: Mesh.DOUBLESIDE,
-            updatable: true
-        }, this._scene);
-        nametagPlane.material = nametagMaterial;
-
-        // Rounded corners.
-        const nametagCorners = [] as Mesh[];
-        const nametagCornerOptions = {
-            radius: tagCornerRadius,
-            tessellation: tagCornerSegments,
-            sideOrientation: Mesh.DOUBLESIDE,
-            updatable: true
-        };
-        const nametagCornerPositions = [
-            new Vector3(-tagWidth / 2, tagHeight / 2 - tagCornerRadius, 0),
-            new Vector3(tagWidth / 2, tagHeight / 2 - tagCornerRadius, 0),
-            new Vector3(tagWidth / 2, -tagHeight / 2 + tagCornerRadius, 0),
-            new Vector3(-tagWidth / 2, -tagHeight / 2 + tagCornerRadius, 0)
-        ];
-        nametagCorners.push(MeshBuilder.CreateDisc("NametagTopLeftCorner", nametagCornerOptions, this._scene));
-        nametagCorners.push(MeshBuilder.CreateDisc("NametagTopRightCorner", nametagCornerOptions, this._scene));
-        nametagCorners.push(MeshBuilder.CreateDisc("NametagBottomRightCorner", nametagCornerOptions, this._scene));
-        nametagCorners.push(MeshBuilder.CreateDisc("NametagBottomLeftCorner", nametagCornerOptions, this._scene));
-        nametagCorners.forEach((cornerMesh, index) => {
-            cornerMesh.material = nametagBackgroundMaterial;
-            cornerMesh.position = nametagCornerPositions[index];
-        });
-
-        // Left and right edges.
-        const nametagEdges = [] as Mesh[];
-        const nametagEdgeOptions = {
-            width: tagCornerRadius,
-            height: tagHeight - tagCornerRadius * 2,
-            sideOrientation: Mesh.DOUBLESIDE,
-            updatable: true
-        };
-        const nametagEdgePositions = [
-            new Vector3(-tagWidth / 2 - tagCornerRadius / 2, 0, 0),
-            new Vector3(tagWidth / 2 + tagCornerRadius / 2, 0, 0)
-        ];
-        nametagEdges.push(MeshBuilder.CreatePlane("NametagLeftEdge", nametagEdgeOptions, this._scene));
-        nametagEdges.push(MeshBuilder.CreatePlane("NametagRightEdge", nametagEdgeOptions, this._scene));
-        nametagEdges.forEach((cornerMesh, index) => {
-            cornerMesh.material = nametagBackgroundMaterial;
-            cornerMesh.position = nametagEdgePositions[index];
-        });
-
-        // Arrow mesh.
-        const nametagArrow = MeshBuilder.CreateDisc("NametagArrow", {
-            radius: nametagArrowSize,
-            tessellation: 3,
-            sideOrientation: Mesh.DOUBLESIDE,
-            updatable: true
-        }, this._scene);
-        nametagArrow.material = nametagBackgroundMaterial;
-        nametagArrow.position = new Vector3(0, -(tagHeight / 2 + nametagArrowSize / 4), 0);
-        nametagArrow.rotation.z = -Math.PI / 2;
-        nametagArrow.scaling.x = 0.5;
-
-        // Merge the meshes.
-        const nametagMergedMesh = Mesh.MergeMeshes([
-            nametagPlane,
-            ...nametagCorners,
-            ...nametagEdges,
-            nametagArrow
-        ], true, true, undefined, false, true);
-
-        if (!nametagMergedMesh) {
-            return undefined;
-        }
-
-        // Position the nametag above the center of the avatar.
-        const positionOffset = new Vector3(0, 0.15, 0);
-        nametagMergedMesh.position = new Vector3(
-            positionOffset.x,
-            avatarHeight + positionOffset.y,
-            positionOffset.z
-        );
-
-        nametagMergedMesh.billboardMode = Mesh.BILLBOARDMODE_Y;
-        nametagMergedMesh.parent = avatar;
-        nametagMergedMesh.isPickable = false;
-        nametagMergedMesh.renderingGroupId = MASK_MESH_RENDER_GROUP_ID;
-
-        return nametagPlane;
-    }
-
-    private _unloadNametag(avatar: GameObject | undefined | null) : void {
-        const nametagMeshes = avatar?.getChildMeshes(false, (node) => node.name.includes("Nametag"));
-        if (nametagMeshes) {
-            nametagMeshes.forEach((mesh) => mesh.dispose(false, true));
-        }
     }
 
     private _createScene() : void {
@@ -773,7 +601,6 @@ export class VScene {
         });
     }
 
-    // TODO: Move this code/set of code into its own module.
     private _onKeyUp(evt: ActionEvent) : void {
         // eslint-disable-next-line no-void
         void this._handleKeyUp(evt);
@@ -794,16 +621,6 @@ export class VScene {
                 break;
             case Store.state.controls.keyboard.other.resetPosition?.keybind:
                 this.resetMyAvatarPositionAndOrientation();
-                break;
-            case "KeyM":
-                if (process.env.NODE_ENV === "development" && evt.sourceEvent.shiftKey) {
-                    await this.loadMyAvatar();
-                }
-                break;
-            case "KeyG":
-                if (process.env.NODE_ENV === "development") {
-                    this._sceneController?.applyGravity();
-                }
                 break;
             case "KeyP":
                 if (process.env.NODE_ENV === "development") {

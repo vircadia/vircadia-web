@@ -11,20 +11,26 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable class-methods-use-this */
+/* eslint-disable new-cap */
+
 import { MeshComponent, DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
-import { SceneLoader, PhysicsImpostor } from "@babylonjs/core";
+import { SceneLoader, PhysicsImpostor, AbstractMesh, TransformNode, Node } from "@babylonjs/core";
 import { IModelEntity } from "../../EntityInterfaces";
 import { ShapeType } from "../../EntityProperties";
+import { NametagEntity } from "@Modules/entity/entities";
 import { updateContentLoadingProgress } from "@Modules/scene/LoadingScreen";
 import Log from "@Modules/debugging/log";
 
-/* eslint-disable new-cap */
+const InteractiveModelTypes = [
+    { name: "chair", condition: /^(?:animate_sitting|animate_seat)/iu },
+    { name: "emoji_people", condition: /^animate_/iu }
+];
 
 export class ModelComponent extends MeshComponent {
 
     private _modelURL = "";
 
-    public get componentType():string {
+    public get componentType(): string {
         return ModelComponent.typeName;
     }
 
@@ -32,7 +38,7 @@ export class ModelComponent extends MeshComponent {
         return "Model";
     }
 
-    public load(entity: IModelEntity) : void {
+    public load(entity: IModelEntity): void {
         if (!entity.modelURL || entity.modelURL === "" || this._modelURL === entity.modelURL
         || !this._gameObject) {
             return;
@@ -60,6 +66,58 @@ export class ModelComponent extends MeshComponent {
                 this.mesh = meshes[0];
                 this.renderGroupId = DEFAULT_MESH_RENDER_GROUP_ID;
 
+                // Add a nametag to any of the model's children if they match any of the InteractiveModelTypes.
+                const defaultNametagHeight = 0.6;
+                const nametagOffset = 0.25;
+                const nametagPopDistance = 2.5;
+                const childNodes = this.mesh.getChildren(
+                    (node) => "getBoundingInfo" in node,
+                    false
+                ) as (AbstractMesh | TransformNode | Node)[];
+                childNodes.forEach((childNode) => {
+                    const genericModelType = InteractiveModelTypes.find((type) => type.condition.test(childNode.name));
+                    if (!genericModelType || !("getBoundingInfo" in childNode)) {
+                        return;
+                    }
+                    const boundingInfo = childNode.getBoundingInfo();
+                    const height = boundingInfo.maximum.y - boundingInfo.minimum.y;
+                    NametagEntity.create(
+                        childNode,
+                        height + nametagOffset,
+                        genericModelType.name,
+                        undefined,
+                        nametagPopDistance,
+                        true
+                    );
+                });
+                result.transformNodes.forEach((childNode) => {
+                    const genericModelType = InteractiveModelTypes.find((type) => type.condition.test(childNode.name));
+                    if (!genericModelType) {
+                        return;
+                    }
+                    NametagEntity.create(
+                        childNode,
+                        defaultNametagHeight,
+                        genericModelType.name,
+                        undefined,
+                        nametagPopDistance,
+                        true
+                    );
+                });
+
+                // Add a nametag to the model itself if it matches any of the InteractiveModelTypes.
+                const genericModelType = InteractiveModelTypes.find((type) => type.condition.test(this.mesh?.name ?? ""));
+                if (genericModelType) {
+                    NametagEntity.create(
+                        this.mesh,
+                        defaultNametagHeight,
+                        genericModelType.name,
+                        undefined,
+                        nametagPopDistance,
+                        true
+                    );
+                }
+
                 if (entity.animation && result.animationGroups) {
                     this.animationGroups = result.animationGroups;
                     this.updateAnimationProperties(entity);
@@ -80,7 +138,7 @@ export class ModelComponent extends MeshComponent {
             });
     }
 
-    public updateAnimationProperties(entity: IModelEntity):void {
+    public updateAnimationProperties(entity: IModelEntity): void {
         if (this._animationGroups && this._animationGroups.length > 0) {
             const anim = this._animationGroups[0];
             // stop all defaul animations
@@ -92,7 +150,7 @@ export class ModelComponent extends MeshComponent {
         }
     }
 
-    public updateCollisionProperties(entity: IModelEntity):void {
+    public updateCollisionProperties(entity: IModelEntity): void {
         if (this._gameObject && this._mesh) {
             if (entity.collisionless) {
                 this._disposeColliders();
@@ -108,7 +166,7 @@ export class ModelComponent extends MeshComponent {
         }
     }
 
-    public updatePhysicsProperties(entity: IModelEntity):void {
+    public updatePhysicsProperties(entity: IModelEntity): void {
         if (this._gameObject && this._gameObject.physicsImpostor) {
             if (entity.friction) {
                 this._gameObject.physicsImpostor.friction = entity.friction;
@@ -126,7 +184,7 @@ export class ModelComponent extends MeshComponent {
         return 0;
     }
 
-    protected _createColliders(entity: IModelEntity) : void {
+    protected _createColliders(entity: IModelEntity): void {
         if (!this._gameObject || !this._mesh) {
             return;
         }
@@ -143,7 +201,7 @@ export class ModelComponent extends MeshComponent {
         }
     }
 
-    protected _disposeColliders() : void {
+    protected _disposeColliders(): void {
         if (this._mesh && this._mesh.physicsImpostor) {
             this._mesh.physicsImpostor.dispose();
             this._mesh.physicsImpostor = null;
