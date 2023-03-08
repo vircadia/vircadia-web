@@ -84,7 +84,7 @@ function loadFromPersistentStorage(): IRootState | undefined {
  */
 function saveToPersistentStorage(value: IRootState): void {
     // This function currently uses localStorage as the persistent location.
-    // In the future, a location such as Firebase, Amplify, etc, could be used instead.
+    // TODO: location such as the Metaverse server, Firebase, Amplify, etc, could be added as a secondary storage location.
 
     function stateReplacer(key: string, entry: unknown): unknown {
         // Convert BigInt values to strings, since there is no default serializer for them.
@@ -540,10 +540,10 @@ const storeDefaults = {
     },
     // First Time Wizard configuration.
     firstTimeWizard: {
-        title: process.env.VRCA_WIZARD_TITLE ?? "Vircadia",
-        welcomeText: process.env.VRCA_WIZARD_WELCOME_TEXT ?? "Welcome to",
-        tagline: process.env.VRCA_WIZARD_TAGLINE ?? "Your portal to the metaverse.",
-        buttonText: process.env.VRCA_WIZARD_BUTTON_TEXT ?? "Get Started"
+        title: process.env.VRCA_WIZARD_TITLE,
+        welcomeText: process.env.VRCA_WIZARD_WELCOME_TEXT,
+        tagline: process.env.VRCA_WIZARD_TAGLINE,
+        buttonText: process.env.VRCA_WIZARD_BUTTON_TEXT
     },
     // Conference data.
     conference: {
