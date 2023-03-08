@@ -47,12 +47,11 @@ export default route<IRootState>(function(/* { store, ssrContext } */) {
         )
     });
 
-    Router.beforeEach((to, from): { name: string } | false | undefined => {
+    Router.beforeEach((to): { name: string } | false | undefined => {
         // Note:
         // `return { path: string }` to navigate.
         // `return false` to cancel the current navigation.
         // `return undefined` to do nothing and continue the current navigation.
-        console.info("beforePath", to, from);
         // Redirect to First-Time-Setup if needed.
         if (
             firstTimeSetupIsNeeded()

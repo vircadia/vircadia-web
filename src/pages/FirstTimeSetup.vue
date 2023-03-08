@@ -309,7 +309,7 @@
                             <q-btn
                                 color="primary"
                                 label="Continue"
-                                @click="() => { done1 = true; step = 2; }"
+                                @click="() => { step = 2; }"
                             />
                         </q-stepper-navigation>
                     </q-step>
@@ -378,7 +378,7 @@
                         >
                             <q-btn flat @click="step = 1" color="primary" label="Back" class="q-ml-sm" />
                             <q-space />
-                            <q-btn @click="() => { done2 = true; step = 3 }" color="primary" label="Continue" />
+                            <q-btn @click="() => { step = 3 }" color="primary" label="Continue" />
                         </q-stepper-navigation>
                     </q-step>
 
@@ -392,9 +392,10 @@
                         :header-nav="step > 3"
                         class="stepInner"
                     >
-                        <p>Select a world</p>
+                        <p v-if="placesList.length > 0">Select a world</p>
+                        <p v-else>Oops! We couldn't find any worlds at the moment.</p>
                         <q-scroll-area style="height: 12rem;">
-                            <q-list>
+                            <q-list v-if="placesList.length > 0">
                                 <q-item
                                     v-for="place in filteredAndSortedPlaces"
                                     :key="place.placeId"
@@ -477,9 +478,6 @@ export default defineComponent({
             showInitialWelcome: true,
             transition: false,
             step: 1,
-            done1: false,
-            done2: false,
-            done3: false,
             AvatarStoreInterface,
             AudioIOInstance: new AudioIO(),
             placesList: [] as PlaceEntry[],
@@ -576,9 +574,6 @@ export default defineComponent({
             this.transition = false;
             this.showInitialWelcome = true;
             this.step = 1;
-            this.done1 = false;
-            this.done2 = false;
-            this.done3 = false;
         },
         generateRandomName(): void {
             this.displayNameStore = uniqueNamesGenerator({
@@ -597,7 +592,6 @@ export default defineComponent({
             await this.AudioIOInstance.requestInputAccess();
         },
         async completeSetup(): Promise<void> {
-            this.done3 = true;
             window.localStorage.setItem("hasCompletedSetup", "true");
             if (this.$store.state.firstTimeWizard.pendingLocation !== "") {
                 await this.$router.push({ path: this.$store.state.firstTimeWizard.pendingLocation });
