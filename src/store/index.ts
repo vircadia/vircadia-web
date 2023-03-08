@@ -367,12 +367,14 @@ export interface IRootState {
             link: string
         }[]
     },
-    // First Time Wizard configuration.
+    // First Time Wizard configuration and data.
     firstTimeWizard: {
         title: string,
         welcomeText: string,
         tagline: string,
-        buttonText: string
+        buttonText: string,
+        // If a path was passed to prior to the wizard, after the wizard completes, we will send them here.
+        pendingLocation: string
     },
     // Conference data.
     conference: {
@@ -543,7 +545,8 @@ const storeDefaults = {
         title: process.env.VRCA_WIZARD_TITLE,
         welcomeText: process.env.VRCA_WIZARD_WELCOME_TEXT,
         tagline: process.env.VRCA_WIZARD_TAGLINE,
-        buttonText: process.env.VRCA_WIZARD_BUTTON_TEXT
+        buttonText: process.env.VRCA_WIZARD_BUTTON_TEXT,
+        pendingLocation: ""
     },
     // Conference data.
     conference: {

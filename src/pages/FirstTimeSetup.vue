@@ -547,6 +547,16 @@ export default defineComponent({
             return returnData;
         }
     },
+    watch: {
+        step(newValue) {
+            // Wait until the first step is complete before asking for mic permission.
+            // This is less spooky than requesting mic access as soon at the webpage is loaded.
+            if (newValue === 2) {
+                // eslint-disable-next-line no-void
+                void this.requestInputAccess();
+            }
+        }
+    },
     methods: {
         transitionToSteps(): void {
             const second = 1000;
@@ -583,18 +593,16 @@ export default defineComponent({
                 AvatarStoreInterface.setActiveModel(modelId);
             }
         },
+        async requestInputAccess(): Promise<void> {
+            await this.AudioIOInstance.requestInputAccess();
+        },
         async completeSetup(): Promise<void> {
             this.done3 = true;
             window.localStorage.setItem("hasCompletedSetup", "true");
-            await this.$router.push("/");
-        }
-    },
-    watch: {
-        async done1(newValue): Promise<void> {
-            // Wait until the first step is complete before asking for mic permission.
-            // This is less spooky than requesting mic access as soon at the webpage is loaded.
-            if (newValue) {
-                await this.AudioIOInstance.requestInputAccess();
+            if (this.$store.state.firstTimeWizard.pendingLocation !== "") {
+                await this.$router.push({ path: this.$store.state.firstTimeWizard.pendingLocation });
+            } else {
+                await this.$router.push({ name: "Primary" });
             }
         }
     },
