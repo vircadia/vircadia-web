@@ -21,14 +21,14 @@ This interface is tested and validated for the following browser platforms:
 
 ## Project Setup
 
-### Prequisites
+### Prerequisites
 
 We currently use the following:
 
 * Node `16.18.1`
 * NPM `8.19.2`
 
-*(Use of Node versions greater than stated is untested and may not support all features.)*
+*(Use of Node versions other than stated is untested and may not support all features.)*
 
 ### Clone the Repo
 
@@ -45,6 +45,12 @@ yarn
 ```
 
 ## Run, Compile, and Test
+
+### Customization Options
+
+The web client's settings such as branding, default servers, and more, can be customized directly from [environment variables](https://github.com/vircadia/vircadia-web/blob/master/quasar.conf.js#L131) which you must set at or prior to build/compile time.
+
+See [Configuring quasar.conf.js](https://v2.quasar.dev/quasar-cli/quasar-conf-js) for a full set of customization options.
 
 ### Start the app in development mode
 
@@ -82,11 +88,7 @@ npm run test
 npm run build
 ```
 
-### Customize the configuration
-
-See [Configuring quasar.conf.js](https://v2.quasar.dev/quasar-cli/quasar-conf-js).
-
-### To Update Contributors
+## To Update Contributors
 
 ```sh
 npm run update-contributors

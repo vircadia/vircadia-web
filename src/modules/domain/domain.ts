@@ -10,15 +10,17 @@
 /* eslint-disable @typescript-eslint/brace-style */
 
 import { DomainServer, SignalEmitter, Camera, EntityServer } from "@vircadia/web-sdk";
+import { Account } from "@Modules/account";
 import { DomainAudio } from "@Modules/domain/audio";
 import { DomainMessage } from "@Modules/domain/message";
 import { DomainAvatar } from "@Modules/domain/avatar";
 
-import { Store, Actions } from "@Store/index";
+import { Store, Actions, Mutations as StoreMutations } from "@Store/index";
 
 import Log from "@Modules/debugging/log";
 import { Client } from "./client";
 import { Location } from "./location";
+import assert from "../utility/assert";
 
 // Routines connected to the onStateChange Signal, receive calls of this format:
 export type OnDomainStateChangeCallback = (d: Domain, newState: string, info: string) => void;
@@ -93,6 +95,7 @@ export class Domain {
     constructor() {
         this.onStateChange = new SignalEmitter();
         // this.restorePersistentVariables();
+        Account.onAttributeChange.connect(this.#updateDomainLogin);
     }
 
     public static get DISCONNECTED(): string { return DomainServer.stateToString(DomainServer.DISCONNECTED); }
@@ -123,6 +126,26 @@ export class Domain {
 
         Log.debug(Log.types.COMM, `Creating a new DomainServer`);
         this.#_domain = new DomainServer();
+        this.#_domain.account.authRequired.connect(() => {
+            console.debug("AUTH REQUIRED: Open login dialog");
+            // Reset the dialog element.
+            Store.commit(StoreMutations.MUTATE, {
+                property: "dialog",
+                with: {
+                    "show": false,
+                    "which": ""
+                }
+            });
+            // Open the login dialog.
+            Store.commit(StoreMutations.MUTATE, {
+                property: "dialog",
+                with: {
+                    "show": true,
+                    "which": "Login"
+                }
+            });
+        });
+        this.#updateDomainLogin();
 
         this.#_camera = new Camera(this.#_domain.contextID);
         this.#_camera.centerRadius = 1000;
@@ -136,7 +159,7 @@ export class Domain {
 
         this.#_entityClient = new EntityServer(this.ContextId);
 
-        // connect to the domain. The 'connected' event will say if the connection as made.
+        // Connect to the domain. The 'connected' event will say if the connection was made.
         // Log.debug(Log.types.COMM, `Connecting to domain at ${this.#_domainUrl}`);
         Log.debug(Log.types.COMM, `Connecting to domain at ${this.#_location.href}`);
         this.#_domain.onStateChanged = this._handleOnDomainStateChange.bind(this);
@@ -266,4 +289,27 @@ export class Domain {
             this.#_camera.update();
         } */
     }
+
+
+    #updateDomainLogin = (): void => {
+        if (!this.#_domain) {
+            return;
+        }
+
+        if (Account.isLoggedIn) {
+            const MS_PER_SECOND = 1000;
+            /* eslint-disable camelcase */
+            assert(Account.accessToken !== null && Account.accessTokenType !== null && Account.refreshToken !== null);
+            this.#_domain.account.login(Account.accountName, {
+                access_token: Account.accessToken,
+                token_type: Account.accessTokenType,
+                expires_in: Math.round((Account.accessTokenExpiration.getTime() - Date.now()) / MS_PER_SECOND),
+                refresh_token: Account.refreshToken
+            });
+            /* eslint-enable camelcase */
+        } else if (this.#_domain.account.isLoggedIn()) {
+            this.#_domain.account.logout();
+        }
+    };
+
 }

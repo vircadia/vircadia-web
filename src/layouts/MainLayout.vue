@@ -232,7 +232,15 @@
                         >
                             <q-item-section side>
                                 <q-avatar size="48px">
-                                    <q-icon :name="getProfilePicture" size="xl"/>
+                                    <q-img
+                                        v-if="getProfilePicture"
+                                        :src="getProfilePicture"
+                                    />
+                                    <q-icon
+                                        v-else
+                                        name="account_circle"
+                                        size="xl"
+                                    />
                                 </q-avatar>
                             </q-item-section>
                             <q-item-section>
@@ -648,11 +656,11 @@ export default defineComponent({
         getMetaverseServerLocation: function(): string {
             return this.$store.state.metaverse.server ?? "Not currently connected to a metaverse server.";
         },
-        getProfilePicture: function() {
+        getProfilePicture: function(): string | undefined {
             if (this.$store.state.account.images && this.$store.state.account.images.thumbnail) {
                 return this.$store.state.account.images.thumbnail;
             }
-            return "account_circle";
+            return undefined;
         },
 
         headerStyle: function(): string {
@@ -854,13 +862,13 @@ export default defineComponent({
                 && target?.tagName !== "TEXTAREA"
             ) {
                 // Toggle the menu.
-                if (event.code === this.$store.state.controls.other.toggleMenu?.keybind) {
+                if (event.code === this.$store.state.controls.keyboard.other.toggleMenu?.keybind) {
                     // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution.
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
                     (this.$refs.OverlayManager as typeof OverlayManager)?.toggleOverlay("menu");
                 }
                 // Open the chat.
-                if (event.code === this.$store.state.controls.other.openChat?.keybind) {
+                if (event.code === this.$store.state.controls.keyboard.other.openChat?.keybind) {
                     // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution.
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
                     (this.$refs.OverlayManager as typeof OverlayManager)?.toggleOverlay("ChatWindow");
