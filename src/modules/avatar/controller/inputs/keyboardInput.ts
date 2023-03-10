@@ -172,7 +172,7 @@ export class KeyboardInput implements IInputHandler {
         }
 
         // Sit.
-        if (evt.sourceEvent.code === Store.state.controls.movement.sit?.keybind) {
+        if (evt.sourceEvent.code === Store.state.controls.keyboard.movement.sit?.keybind) {
             const sitDistanceLimit = 1.5;
 
             // Get the player's avatar mesh.
@@ -242,13 +242,13 @@ export class KeyboardInput implements IInputHandler {
         }
 
         // Clap.
-        if (evt.sourceEvent.code === Store.state.controls.movement.clap?.keybind) {
+        if (evt.sourceEvent.code === Store.state.controls.keyboard.movement.clap?.keybind) {
             this._state.state = State.Pose;
             this._state.action = Action.Clap;
         }
 
         // Salute.
-        if (evt.sourceEvent.code === Store.state.controls.movement.salute?.keybind) {
+        if (evt.sourceEvent.code === Store.state.controls.keyboard.movement.salute?.keybind) {
             this._state.state = State.Pose;
             this._state.action = Action.Salute;
         }
@@ -286,7 +286,7 @@ export class KeyboardInput implements IInputHandler {
 
         // Clap.
         if (
-            evt.sourceEvent.code === Store.state.controls.movement.clap?.keybind
+            evt.sourceEvent.code === Store.state.controls.keyboard.movement.clap?.keybind
             && this._state.state === State.Pose
             && this._state.action === Action.Clap
         ) {
@@ -296,7 +296,7 @@ export class KeyboardInput implements IInputHandler {
 
         // Salute.
         if (
-            evt.sourceEvent.code === Store.state.controls.movement.salute?.keybind
+            evt.sourceEvent.code === Store.state.controls.keyboard.movement.salute?.keybind
             && this._state.state === State.Pose
             && this._state.action === Action.Salute
         ) {

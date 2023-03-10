@@ -7,7 +7,7 @@ on:
   # Allows this workflow to be run manually from the Actions tab.
   workflow_dispatch:
 
-name: 🚀 Auto-Deploy
+name: 🚀 Auto-Deploy (UA92)
 jobs:
   web-deploy:
     name: 🎉 Deploy
@@ -27,6 +27,8 @@ jobs:
       uses: actions/checkout@v2
 
     - uses: actions/setup-node@master
+      with:
+        node-version: 16.x
 
     - name: 📥 Install project dependencies
       run: npm install
