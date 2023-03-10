@@ -1,0 +1,26 @@
+# Automatically deploy the latest changes of a branch to the FTP server.
+on:
+  # Triggers the workflow on PRs in "master"
+  pull_request:
+    branches: [ "master" ]
+    types: [ "closed" ]
+
+  # Allows this workflow to be run manually from the Actions tab.
+  workflow_dispatch:
+
+
+name: 🧹 PR Auto-Deploy Cleanup
+jobs:
+  web-deploy-cleanup:
+    name: 🧹 PR Auto-Deploy Cleanup
+    runs-on: ubuntu-latest
+    steps:
+    - name: 🧹 Clean files and folder
+      uses: StephanThierry/ftp-delete-action@v2.1
+      with:
+        host: ftp.vircadia.com
+        user: ${{ secrets.ftp_username }}
+        password: ${{ secrets.ftp_password }}
+        remoteDirectories: "/${{ github.head_ref }}"
+        workingDir: "/staging"
+        ignoreSSL: "1"

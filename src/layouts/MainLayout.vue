@@ -393,7 +393,7 @@
                                 clickable
                                 v-ripple
                                 class="non-selectable"
-                                @click="openUrl(menuItem.link)"
+                                @click="menuItem.action ? menuItem.action() : openUrl(menuItem.link)"
                             >
                                 <q-item-section avatar dense>
                                     <q-icon :name="menuItem.icon" />
@@ -509,7 +509,13 @@ import { openURL } from "quasar";
 import MainScene from "@Components/MainScene.vue";
 import OverlayManager from "@Components/overlays/OverlayManager.vue";
 
-import { Store, Mutations as StoreMutations, Actions as StoreActions, JitsiRoomInfo } from "@Store/index";
+import {
+    Store,
+    Mutations as StoreMutations,
+    Actions as StoreActions,
+    JitsiRoomInfo,
+    clearStoreAndPersistentStorage
+} from "@Store/index";
 import { Utility } from "@Modules/utility";
 import { Account } from "@Modules/account";
 import { AudioMgr } from "@Modules/scene/audio";
@@ -604,6 +610,14 @@ export default defineComponent({
                     icon: "support",
                     label: "User Documentation",
                     link: "https://docs.vircadia.com/"
+                },
+                {
+                    icon: "delete_sweep",
+                    label: "Clear All Settings",
+                    action: () => {
+                        clearStoreAndPersistentStorage();
+                        window.location.reload();
+                    }
                 }
             ],
             helpMenuState: false,

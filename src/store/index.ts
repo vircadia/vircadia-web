@@ -26,7 +26,7 @@ import { Domain, ConnectionState } from "@Modules/domain/domain";
 import { AssignmentClientState } from "@Modules/domain/client";
 import { DomainAvatar } from "@Modules/domain/avatar";
 import { AMessage } from "@Modules/domain/message";
-import { onAccessTokenChangePayload, onAttributeChangePayload } from "@Modules/account";
+import { Account, onAccessTokenChangePayload, onAttributeChangePayload } from "@Modules/account";
 import { defaultActiveAvatarModel, defaultAvatarModels } from "@Modules/avatar/DefaultModels";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -317,6 +317,7 @@ export interface IRootState {
     },
     // Information about metaverse account that is logged in.
     account: {
+        id: string,
         username: string;
         isLoggedIn: boolean;
         // Token data.
@@ -414,7 +415,7 @@ interface VStore extends VuexStore<IRootState> {
 
 const storeDefaults = {
     storeVersion: {
-        major: 4,
+        major: 5,
         minor: 0,
         patch: 0
     },
@@ -479,8 +480,8 @@ const storeDefaults = {
     },
     // Graphics configuration.
     graphics: {
-        fieldOfView: 80,
-        bloom: false,
+        fieldOfView: 85,
+        bloom: true,
         fxaaEnabled: true,
         msaa: 2,
         sharpen: false
@@ -497,6 +498,7 @@ const storeDefaults = {
     },
     // Information about the logged in account. Refer to Account module.
     account: {
+        id: "UNKNOWN",
         username: "Guest",
         isLoggedIn: false,
         accessToken: "UNKNOWN",
@@ -563,7 +565,10 @@ const storeDefaults = {
                 run: { name: "Run", keybind: "ShiftLeft" },
                 jump: { name: "Jump", keybind: "Space" },
                 crouch: { name: "Crouch", keybind: "KeyC" },
-                fly: { name: "Fly", keybind: "KeyF" }
+                fly: { name: "Fly", keybind: "KeyF" },
+                sit: { name: "Sit", keybind: "KeyG" },
+                clap: { name: "Clap", keybind: "KeyH" },
+                salute: { name: "Salute", keybind: "KeyJ" }
             },
             camera: {
                 pitchUp: { name: "Pitch Up", keybind: "ArrowUp" },
@@ -658,6 +663,37 @@ export const Store = createStore<IRootState>({
                 });
             }
         });
+
+        // Update the `Account` object with account data from persistent storage.
+        Account.id = outputState.account.id;
+        Account.accountName = outputState.account.username;
+        Account.accessToken = outputState.account.accessToken;
+        Account.accessTokenType = outputState.account.tokenType;
+        Account.scope = outputState.account.scope;
+        Account.roles = outputState.account.isAdmin ? ["admin"] : [];
+
+        // Subscribe to changes in the player's account info.
+        Account.onAttributeChange.connect(() => {
+            Store.commit(Mutations.MUTATE, {
+                property: "account",
+                with: {
+                    id: Account.id,
+                    username: Account.accountName,
+                    isLoggedIn: Account.isLoggedIn,
+                    accessToken: Account.accessToken,
+                    tokenType: Account.accessTokenType,
+                    scope: Account.scope ?? "UNKNOWN",
+                    isAdmin: "admin" in Account.roles,
+                    useAsAdmin: "admin" in Account.roles,
+                    images: {}
+                }
+            });
+        });
+
+        // Make sure the account info is up-to-date.
+        // eslint-disable-next-line no-void
+        void Account.updateAccountInfo();
+
         // Note: We are using an intermediary variable (`outputState`) to store the returned state
         // so that extraneous properties within the persistent state are not retained.
         return outputState;
@@ -1025,4 +1061,14 @@ export const storeKey: InjectionKey<VuexStore<IRootState>> = Symbol("vuex-key");
 
 export function useStore(): VStore {
     return vuexUseStore(storeKey);
+}
+
+/**
+ * Resets the contents of the Store and persistent storage to default.
+ */
+export function clearStoreAndPersistentStorage(): void {
+    // Reset all settings to default.
+    Store.replaceState(storeDefaults);
+    // Reload the window.
+    window.location.reload();
 }

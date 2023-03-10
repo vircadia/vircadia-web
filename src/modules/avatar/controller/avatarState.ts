@@ -20,7 +20,8 @@ export enum State {
     Jump,
     Fly,
     Teleport,
-    Stop
+    Stop,
+    Pose
 }
 
 export enum JumpSubState {
@@ -45,23 +46,52 @@ export enum Action {
     Fly,
     FlyFast,
     Sit,
+    SitBeanbag,
+    SitChair,
+    SitAuditorium,
+    Clap,
+    Salute,
     RunForward
 }
 
-export type AnimationName =
-    "idle02" | "walk_fwd" | "walk_bwd" | "walk_left" | "walk_right" |
-    "turn_left" | "turn_right" | "jumping_temp" | "sitting_crosslegged" |
-    "jump_standing_land_settle_all" | "jump_standing_launch_all" | "jump_standing_apex_all" |
-    "run_bwd" | "run_fast_fwd" | "run_fast_left" | "run_fast_right" | "fly";
+interface AnimationLoopData {
+    name: string,
+    loop: boolean,
+    loopStart?: number,
+    loopEnd?: number
+}
+
+/* eslint-disable no-multi-spaces */
+export const AnimationMap = new Map([
+    [Action.Idle,           { name: "idle02", loop: true }],
+    [Action.WalkForward,    { name: "walk_fwd", loop: true }],
+    [Action.RunForward,     { name: "run_fast_fwd", loop: true }],
+    [Action.WalkBackward,   { name: "walk_bwd", loop: true }],
+    [Action.WalkLeft,       { name: "walk_left", loop: true }],
+    [Action.WalkRight,      { name: "walk_right", loop: true }],
+    [Action.TurnLeft,       { name: "turn_left", loop: true }],
+    [Action.TurnRight,      { name: "turn_right", loop: true }],
+    [Action.Jump,           { name: "jump_standing_apex_all", loop: false }],
+    [Action.Land,           { name: "jump_standing_land_settle_all", loop: false }],
+    [Action.Fly,            { name: "fly", loop: true }],
+    [Action.FlyFast,        { name: "fly", loop: true }],
+    [Action.Sit,            { name: "sitting_idle", loop: false }],
+    [Action.SitBeanbag,     { name: "sitting_beanbag", loop: false }],
+    [Action.SitChair,       { name: "sitting_chair", loop: false }],
+    [Action.SitAuditorium,  { name: "sitting_auditorium", loop: false }],
+    [Action.Clap,           { name: "emote_clap01_all", loop: true, loopStart: 17, loopEnd: 111 }],
+    [Action.Salute,         { name: "salute", loop: true, loopStart: 10, loopEnd: 30 }]
+]) as Map<Action, AnimationLoopData>;
+/* eslint-enable no-multi-spaces */
 
 export class AvatarState {
-    public walkSpeed = 2.4;
+    public walkSpeed = 1.8;
     public runSpeed = 5.2;
     public landSpeed = 4;
     public flySpeed = 8; // Flying on the X-Z plane.
     public fastFlySpeed = 27;
     public ascendSpeed = 0.05; // Flying on the Y axis.
-    public fastAscendSpeed = 0.1;
+    public fastAscendSpeed = 0.14;
     public currentSpeed = 0;
 
     public rotationSpeed = 40 * Math.PI / 180;
