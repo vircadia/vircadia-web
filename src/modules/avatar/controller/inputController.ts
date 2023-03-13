@@ -29,7 +29,7 @@ import { InputState, CameraMode } from "./inputState";
 import { IInputHandler } from "./inputs/inputHandler";
 import { KeyboardInput } from "./inputs/keyboardInput";
 import { VirtualJoystickInput } from "./inputs/virtualJoystickInput";
-import { Store } from "@Store/index";
+import { Store, Mutations as StoreMutations } from "@Store/index";
 import type { SceneController } from "@Modules/scene/controllers";
 import { MouseSettingsController } from "@Base/modules/avatar/controller/inputs/mouseSettings";
 
@@ -422,6 +422,10 @@ export class InputController extends ScriptComponent {
     }
 
     private _updateAvatar(delta : number) {
+        Store.commit(StoreMutations.MUTATE, {
+            property: "interactions.isInteracting",
+            value: false
+        });
         switch (this._avatarState.state) {
             case State.Idle:
                 this._doIdle(delta);
@@ -484,6 +488,10 @@ export class InputController extends ScriptComponent {
     }
 
     private _doPose(delta : number) {
+        Store.commit(StoreMutations.MUTATE, {
+            property: "interactions.isInteracting",
+            value: true
+        });
         this._avatarState.duration += delta;
         if (this._avatarState.duration > 0.5) {
             if (this._avatarState.moveDir.x === 0 && this._avatarState.moveDir.z === 0) {

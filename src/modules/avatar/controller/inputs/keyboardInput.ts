@@ -173,8 +173,6 @@ export class KeyboardInput implements IInputHandler {
 
         // Sit.
         if (evt.sourceEvent.code === Store.state.controls.keyboard.movement.sit?.keybind) {
-            const sitDistanceLimit = 1.5;
-
             // Get the player's avatar mesh.
             const avatarMesh = this._scene.meshes.find((mesh) => mesh.name === "MyAvatar");
 
@@ -193,7 +191,7 @@ export class KeyboardInput implements IInputHandler {
                     const distance = object.getAbsolutePosition()
                         .subtract(avatarAbsolutePosition)
                         .length();
-                    if (distance <= sitDistanceLimit) {
+                    if (distance <= Store.state.interactions.interactionDistance) {
                         distances.push([object, distance]);
                     }
                 });

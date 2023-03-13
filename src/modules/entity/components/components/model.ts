@@ -19,6 +19,7 @@ import { IModelEntity } from "../../EntityInterfaces";
 import { ShapeType } from "../../EntityProperties";
 import { NametagEntity } from "@Modules/entity/entities";
 import { updateContentLoadingProgress } from "@Modules/scene/LoadingScreen";
+import { Store } from "@Store/index";
 import Log from "@Modules/debugging/log";
 
 const InteractiveModelTypes = [
@@ -69,7 +70,7 @@ export class ModelComponent extends MeshComponent {
                 // Add a nametag to any of the model's children if they match any of the InteractiveModelTypes.
                 const defaultNametagHeight = 0.6;
                 const nametagOffset = 0.25;
-                const nametagPopDistance = 2.5;
+                const nametagPopDistance = Store.state.interactions.interactionDistance;
                 const childNodes = this.mesh.getChildren(
                     (node) => "getBoundingInfo" in node,
                     false

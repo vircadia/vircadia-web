@@ -404,6 +404,11 @@ export interface IRootState {
             invert: boolean,
             sensitivity: number
         }
+    },
+    // State of interactions with the player's avatar.
+    interactions: {
+        interactionDistance: number,
+        isInteracting: boolean
     }
 }
 
@@ -594,6 +599,11 @@ const storeDefaults = {
             invert: false,
             sensitivity: 50
         }
+    },
+    // State of interactions with the player's avatar.
+    interactions: {
+        interactionDistance: 1.5,
+        isInteracting: false
     }
 } as IRootState;
 
