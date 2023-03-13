@@ -383,7 +383,7 @@ export interface IRootState {
     bookmarks: {
         locations: { name: string, color: string, url: string }[]
     },
-    // Control keybinds.
+    // Controls.
     controls: {
         keyboard: {
             movement: {

@@ -166,7 +166,7 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
 class CameraObtacleDetectInfo {
     direction = Vector3.Zero();
     length = 0;
-    isCameraSanpping = false;
+    isCameraSnapping = false;
     elapse = 0;
     detectDuration = 0.5;
 }
@@ -782,12 +782,12 @@ export class InputController extends ScriptComponent {
 
             const pickInfo = this._scene.pickWithRay(ray);
             if (pickInfo && pickInfo.hit && pickInfo.pickedPoint) {
-                if (!this._cameraObtacleDetectInfo.isCameraSanpping) {
+                if (!this._cameraObtacleDetectInfo.isCameraSnapping) {
                     // store camera state before camera is snapped
                     this._camera.storeState();
                     this._cameraObtacleDetectInfo.length = length;
                     this._cameraObtacleDetectInfo.direction = dir;
-                    this._cameraObtacleDetectInfo.isCameraSanpping = true;
+                    this._cameraObtacleDetectInfo.isCameraSnapping = true;
                 }
 
                 if (this._camera.checkCollisions) {
@@ -802,7 +802,7 @@ export class InputController extends ScriptComponent {
             }
         }
 
-        if (!isCameraObstructed && this._cameraObtacleDetectInfo.isCameraSanpping) {
+        if (!isCameraObstructed && this._cameraObtacleDetectInfo.isCameraSnapping) {
             // detect whether camera original position still obstructed or not
             const pickInfo = this._scene.pickWithRay(new Ray(this._camera.target,
                 this._cameraObtacleDetectInfo.direction,
@@ -821,7 +821,7 @@ export class InputController extends ScriptComponent {
                 }
 
                 const vec = this._cameraObtacleDetectInfo.direction.scale(this._cameraObtacleDetectInfo.length);
-                this._cameraObtacleDetectInfo.isCameraSanpping = false;
+                this._cameraObtacleDetectInfo.isCameraSnapping = false;
             }
         }
     }
