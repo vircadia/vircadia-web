@@ -323,7 +323,7 @@ module.exports = {
         "jsx-quotes": ["error", "prefer-double"],
         "key-spacing": "error",
         // "keyword-spacing": "error",  // TypeScript extension overrides.
-        "max-len": ["error", { "code": 128, "tabWidth": 4 }],
+        "max-len": ["error", { "code": 160, "tabWidth": 4 }],
         "multiline-ternary": ["error", "always-multiline"],
         "new-cap": "error",
         "new-parens": "error",

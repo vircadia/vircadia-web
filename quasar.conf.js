@@ -132,7 +132,7 @@ module.exports = configure(function (ctx) {
                 VRCA_DEFAULT_DOMAIN_URL: process.env.VRCA_DEFAULT_DOMAIN_URL,
                 // Theme
                 VRCA_BRAND_NAME: process.env.VRCA_BRAND_NAME ?? require("./package.json").productName,
-                VRCA_PRODUCT_NAME: process.env.VRCA_PRODUCT_NAME ?? require("./package.json").name,
+                VRCA_PRODUCT_NAME: process.env.VRCA_PRODUCT_NAME ?? require("./package.json").productName,
                 VRCA_TAGLINE: process.env.VRCA_TAGLINE ?? require("./package.json").description,
                 VRCA_LOGO: process.env.VRCA_LOGO ?? "assets/vircadia-icon.svg",
                 VRCA_GLOBAL_SERVICE_TERM: process.env.VRCA_GLOBAL_SERVICE_TERM ?? "Metaverse",
@@ -166,9 +166,9 @@ module.exports = configure(function (ctx) {
                     }
                 ],
                 // First Time Wizard
-                VRCA_WIZARD_TITLE: process.env.VRCA_WIZARD_TITLE ?? require("./package.json").name,
+                VRCA_WIZARD_TITLE: process.env.VRCA_WIZARD_TITLE ?? require("./package.json").productName,
                 VRCA_WIZARD_WELCOME_TEXT: process.env.VRCA_WIZARD_WELCOME_TEXT ?? "Welcome to",
-                VRCA_WIZARD_TAGLINE: process.env.VRCA_WIZARD_TAGLINE ?? "Your portal to the metaverse.",
+                VRCA_WIZARD_TAGLINE: process.env.VRCA_WIZARD_TAGLINE ?? "Explore virtual worlds.",
                 VRCA_WIZARD_BUTTON_TEXT: process.env.VRCA_WIZARD_BUTTON_TEXT ?? "Get Started"
             }
         },
