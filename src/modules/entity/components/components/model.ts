@@ -88,7 +88,8 @@ export class ModelComponent extends MeshComponent {
                         genericModelType.name,
                         true,
                         undefined,
-                        nametagPopDistance
+                        nametagPopDistance,
+                        () => !Store.state.interactions.isInteracting
                     );
                 });
                 result.transformNodes.forEach((childNode) => {
@@ -102,7 +103,8 @@ export class ModelComponent extends MeshComponent {
                         genericModelType.name,
                         true,
                         undefined,
-                        nametagPopDistance
+                        nametagPopDistance,
+                        () => !Store.state.interactions.isInteracting
                     );
                 });
 
@@ -115,7 +117,8 @@ export class ModelComponent extends MeshComponent {
                         genericModelType.name,
                         true,
                         undefined,
-                        nametagPopDistance
+                        nametagPopDistance,
+                        () => !Store.state.interactions.isInteracting
                     );
                 }
 
