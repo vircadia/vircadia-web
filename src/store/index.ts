@@ -520,21 +520,24 @@ const storeDefaults = {
     },
     // Theme configuration.
     theme: {
-        brandName: process.env.VRCA_BRAND_NAME,
-        productName: process.env.VRCA_PRODUCT_NAME,
-        tagline: process.env.VRCA_TAGLINE,
-        logo: process.env.VRCA_LOGO,
-        globalServiceTerm: process.env.VRCA_GLOBAL_SERVICE_TERM,
-        versionWatermark: process.env.VRCA_VERSION_WATERMARK,
+        brandName: process.env.VRCA_BRAND_NAME ?? "Vircadia",
+        productName: process.env.VRCA_PRODUCT_NAME ?? "Vircadia Web",
+        tagline: process.env.VRCA_TAGLINE ?? "Your portal to the metaverse.",
+        logo: process.env.VRCA_LOGO ?? "/icons/favicon.svg",
+        banner: process.env.VRCA_BANNER ?? "/assets/OpenGraph_banner.png",
+        bannerAlt: process.env.VRCA_BANNER_ALT ?? "Vircadia's logo",
+        url: process.env.VRCA_URL ?? "https://app.vircadia.com/",
+        globalServiceTerm: process.env.VRCA_GLOBAL_SERVICE_TERM ?? "Metaverse",
+        versionWatermark: process.env.VRCA_VERSION_WATERMARK ?? "",
         colors: {
-            primary: process.env.VRCA_COLORS_PRIMARY,
-            secondary: process.env.VRCA_COLORS_SECONDARY,
-            accent: process.env.VRCA_COLORS_ACCENT
+            primary: process.env.VRCA_COLORS_PRIMARY ?? "#0c71c3",
+            secondary: process.env.VRCA_COLORS_SECONDARY ?? "#8300e9",
+            accent: process.env.VRCA_COLORS_ACCENT ?? "#01bdff"
         },
-        defaultMode: process.env.VRCA_DEFAULT_MODE,
-        globalStyle: process.env.VRCA_GLOBAL_STYLE,
-        headerStyle: process.env.VRCA_HEADER_STYLE,
-        windowStyle: process.env.VRCA_WINDOW_STYLE,
+        defaultMode: process.env.VRCA_DEFAULT_MODE ?? "dark",
+        globalStyle: process.env.VRCA_GLOBAL_STYLE ?? "mica",
+        headerStyle: process.env.VRCA_HEADER_STYLE ?? "gradient-right",
+        windowStyle: process.env.VRCA_WINDOW_STYLE ?? "gradient-right",
         // TODO: Move links to their own object (it's not theme related).
         helpLinks: process.env.VRCA_HELP_LINKS
     },
