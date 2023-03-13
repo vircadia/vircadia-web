@@ -85,9 +85,9 @@ export class ModelComponent extends MeshComponent {
                         childNode,
                         height + nametagOffset,
                         genericModelType.name,
+                        true,
                         undefined,
-                        nametagPopDistance,
-                        true
+                        nametagPopDistance
                     );
                 });
                 result.transformNodes.forEach((childNode) => {
@@ -99,9 +99,9 @@ export class ModelComponent extends MeshComponent {
                         childNode,
                         defaultNametagHeight,
                         genericModelType.name,
+                        true,
                         undefined,
-                        nametagPopDistance,
-                        true
+                        nametagPopDistance
                     );
                 });
 
@@ -112,9 +112,9 @@ export class ModelComponent extends MeshComponent {
                         this.mesh,
                         defaultNametagHeight,
                         genericModelType.name,
+                        true,
                         undefined,
-                        nametagPopDistance,
-                        true
+                        nametagPopDistance
                     );
                 }
 
