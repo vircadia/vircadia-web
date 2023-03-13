@@ -89,7 +89,7 @@
     }
 
     .wizardCard {
-        width: clamp(200px, 100%, 450px);
+        width: clamp(200px, 100%, 650px);
         margin: auto;
 
         &::before {
@@ -309,7 +309,7 @@
                             <q-btn
                                 color="primary"
                                 label="Continue"
-                                @click="() => { step = 2; }"
+                                @click="() => { $refs.stepper.next(); }"
                             />
                         </q-stepper-navigation>
                     </q-step>
@@ -376,9 +376,9 @@
                             class="flex stepNavigation"
                             :style="{ background: $q.dark.isActive ? 'var(--q-dark)' : '#fff' }"
                         >
-                            <q-btn flat @click="step = 1" color="primary" label="Back" class="q-ml-sm" />
+                            <q-btn flat @click="() => { $refs.stepper.previous() }" color="primary" label="Back" class="q-ml-sm" />
                             <q-space />
-                            <q-btn @click="() => { step = 3 }" color="primary" label="Continue" />
+                            <q-btn @click="() => { $refs.stepper.next() }" color="primary" label="Continue" />
                         </q-stepper-navigation>
                     </q-step>
 
@@ -390,10 +390,11 @@
                         active-color="accent"
                         done-color="primary"
                         :header-nav="step > 3"
+                        :disable="hasLocationPending"
                         class="stepInner"
                     >
                         <p v-if="placesList.length > 0">Select a world</p>
-                        <p v-else>Oops! We couldn't find any worlds at the moment.</p>
+                        <p v-else class="text-center">Oops! We couldn't find any worlds at the moment.</p>
                         <q-scroll-area style="height: 12rem;">
                             <q-list v-if="placesList.length > 0">
                                 <q-item
@@ -445,9 +446,35 @@
                             class="flex stepNavigation"
                             :style="{ background: $q.dark.isActive ? 'var(--q-dark)' : '#fff' }"
                         >
-                            <q-btn flat @click="step = 2" color="primary" label="Back" class="q-ml-sm" />
+                            <q-btn flat @click="() => { $refs.stepper.previous() }" color="primary" label="Back" class="q-ml-sm" />
                             <q-space />
-                            <q-btn color="primary" @click="completeSetup()" label="Finish" />
+                            <q-btn color="primary" @click="() => { $refs.stepper.next() }" label="Next" />
+                        </q-stepper-navigation>
+                    </q-step>
+                    <q-step
+                        :name="4"
+                        title="Complete"
+                        icon="done"
+                        active-icon="done"
+                        active-color="accent"
+                        done-color="primary"
+                        :header-nav="true"
+                        class="stepInner"
+                    >
+                        <div class="text-center">
+                            <h4 class="q-mb-sm">
+                                Good to go!
+                            </h4>
+                            <p class="text-subtitle1 text-italic q-mb-xl">You can change these settings later.</p>
+                        </div>
+
+                        <q-stepper-navigation
+                            class="flex stepNavigation"
+                            :style="{ background: $q.dark.isActive ? 'var(--q-dark)' : '#fff' }"
+                        >
+                            <q-btn flat @click="() => { $refs.stepper.previous() }" color="primary" label="Back" class="q-ml-sm" />
+                            <q-space />
+                            <q-btn color="primary" @click="() => { completeSetup() }" label="Finish" />
                         </q-stepper-navigation>
                     </q-step>
                 </q-stepper>
@@ -543,6 +570,9 @@ export default defineComponent({
             });
 
             return returnData;
+        },
+        hasLocationPending(): boolean {
+            return this.$store.state.firstTimeWizard.pendingLocation !== "";
         }
     },
     watch: {
@@ -593,7 +623,7 @@ export default defineComponent({
         },
         async completeSetup(): Promise<void> {
             window.localStorage.setItem("hasCompletedSetup", "true");
-            if (this.$store.state.firstTimeWizard.pendingLocation !== "") {
+            if (this.hasLocationPending) {
                 await this.$router.push({ path: this.$store.state.firstTimeWizard.pendingLocation });
             } else {
                 await this.$router.push({ name: "Primary" });
