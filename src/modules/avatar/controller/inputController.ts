@@ -521,6 +521,17 @@ export class InputController extends ScriptComponent {
             this._gameObject.rotationQuaternion.x = 0;
             this._gameObject.rotationQuaternion.z = 0;
         }
+
+        // Rotate the avatar to follow the yaw direction of the camera.
+        if (this._camera && this._gameObject && this._inputState.cameraMode === CameraMode.FirstPersion) {
+            const angle = Vector3.GetAngleBetweenVectors(
+                this._avatarState.moveDir.normalize(),
+                Vector3.Forward(true),
+                Vector3.Up()
+            );
+            const rotation = this._defaultCameraAlpha + angle - this._camera.alpha + Math.PI / 2;
+            Quaternion.FromEulerAnglesToRef(0, rotation, 0, this._gameObject.rotationQuaternion as Quaternion);
+        }
     }
 
     private _doJump(delta : number) {
@@ -650,7 +661,10 @@ export class InputController extends ScriptComponent {
 
         // Rotate the avatar relative to the yaw direction of the camera.
         const angle = Vector3.GetAngleBetweenVectors(
-            this._avatarState.moveDir.normalize(), Vector3.Forward(true), Vector3.Up());
+            this._avatarState.moveDir.normalize(),
+            Vector3.Forward(true),
+            Vector3.Up()
+        );
         const rotation = this._defaultCameraAlpha + angle - this._camera.alpha;
         Quaternion.FromEulerAnglesToRef(0, rotation, 0, this._gameObject.rotationQuaternion as Quaternion);
 
