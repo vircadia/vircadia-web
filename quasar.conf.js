@@ -126,15 +126,19 @@ module.exports = configure(function (ctx) {
             },
             env: {
                 // Default Connection Config
-                VRCA_DEFAULT_METAVERSE_URL: process.env.VRCA_DEFAULT_METAVERSE_URL,
-                VRCA_DEFAULT_DOMAIN_PROTOCOL: process.env.VRCA_DEFAULT_DOMAIN_PROTOCOL,
-                VRCA_DEFAULT_DOMAIN_PORT: process.env.VRCA_DEFAULT_DOMAIN_PORT,
-                VRCA_DEFAULT_DOMAIN_URL: process.env.VRCA_DEFAULT_DOMAIN_URL,
+                VRCA_DEFAULT_METAVERSE_URL: process.env.VRCA_DEFAULT_METAVERSE_URL ?? "https://metaverse.vircadia.com/live",
+                VRCA_DEFAULT_DOMAIN_PROTOCOL: process.env.VRCA_DEFAULT_DOMAIN_PROTOCOL ?? "wss:",
+                VRCA_DEFAULT_DOMAIN_PORT: process.env.VRCA_DEFAULT_DOMAIN_PORT ?? "40102",
+                VRCA_DEFAULT_DOMAIN_URL: process.env.VRCA_DEFAULT_DOMAIN_URL ?? "wss://antares.digisomni.com/0,0,0/0,0,0,1",
                 // Theme
                 VRCA_BRAND_NAME: process.env.VRCA_BRAND_NAME ?? require("./package.json").productName,
                 VRCA_PRODUCT_NAME: process.env.VRCA_PRODUCT_NAME ?? require("./package.json").productName,
                 VRCA_TAGLINE: process.env.VRCA_TAGLINE ?? require("./package.json").description,
+                VRCA_PRODUCT_DESCRIPTION: process.env.VRCA_PRODUCT_DESCRIPTION ?? require("./package.json").description,
                 VRCA_LOGO: process.env.VRCA_LOGO ?? "assets/vircadia-icon.svg",
+                // NOTE: VRCA_BANNER should be an absolute URL for Open Graph support.
+                VRCA_BANNER: process.env.VRCA_BANNER ?? "assets/vircadia-icon.svg",
+                VRCA_BANNER_ALT: process.env.VRCA_BANNER_ALT ?? require("./package.json").productName,
                 VRCA_GLOBAL_SERVICE_TERM: process.env.VRCA_GLOBAL_SERVICE_TERM ?? "Metaverse",
                 VRCA_VERSION_WATERMARK: process.env.VRCA_VERSION_WATERMARK ?? "Early Developer Alpha",
                 // Theme > Colors
@@ -147,6 +151,7 @@ module.exports = configure(function (ctx) {
                 VRCA_HEADER_STYLE: process.env.VRCA_HEADER_STYLE ?? "gradient-right",
                 VRCA_WINDOW_STYLE: process.env.VRCA_WINDOW_STYLE ?? "gradient-right",
                 // Links
+                VRCA_HOSTED_URL: process.env.VRCA_HOSTED_URL ?? "https://app.vircadia.com",
                 // Links > Help Links (must be JSON stringied)
                 VRCA_HELP_LINKS: process.env.HELP_LINKS ? JSON.parse(process.env.HELP_LINKS) : [
                     {

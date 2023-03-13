@@ -1,8 +1,8 @@
 {
   "name": "vircadia-web",
-  "version": "2023.1.1",
-  "description": "Vircadia Web Interface for virtual worlds.",
-  "productName": "Vircadia Web",
+  "version": "2023.1.2",
+  "description": "Vircadia open source metaverse web interface for virtual worlds.",
+  "productName": "Vircadia",
   "author": "DigiSomni LLC | Vircadia Contributors",
   "license": "Apache-2.0",
   "scripts": {
