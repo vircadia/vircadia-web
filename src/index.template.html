@@ -5,6 +5,8 @@
 
     <meta charset="utf-8">
     <meta name="description" content="<%= process.env.VRCA_PRODUCT_DESCRIPTION %>">
+    <meta name="keywords" content="Vircadia, VR, virtual, reality, metaverse, game, 3D, open-world, open-source, open, future" />
+    <meta name="author" content="Vircadia Contributors" />
     <meta name="format-detection" content="telephone=no">
     <meta name="msapplication-tap-highlight" content="no">
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width<% if (ctx.mode.cordova || ctx.mode.capacitor) { %>, viewport-fit=cover<% } %>">
@@ -13,14 +15,28 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png?v=1.0.0">
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/android-chrome-192x192.png?v=1.0.0">
     <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png?v=1.0.0">
-    <link rel="manifest" href="/icons/site.webmanifest?v=1.0.0">
-    <link rel="mask-icon" href="/icons/safari-pinned-tab.svg?v=1.0.0" color="#0c71c3">
     <link rel="shortcut icon" href="/icons/favicon.ico?v=1.0.0">
+    <link rel="mask-icon" href="/icons/safari-pinned-tab.svg?v=1.0.0" color="#0c71c3">
+    <link rel="manifest" href="/icons/site.webmanifest?v=1.0.0">
     <meta name="apple-mobile-web-app-title" content="<% process.env.VRCA_PRODUCT_NAME %>">
     <meta name="application-name" content="<% process.env.VRCA_PRODUCT_NAME %>">
     <meta name="msapplication-TileColor" content="<% process.env.VRCA_COLORS_PRIMARY %>">
     <meta name="msapplication-config" content="/icons/browserconfig.xml?v=1.0.0">
     <meta name="theme-color" content="<% process.env.VRCA_COLORS_PRIMARY %>">
+
+    <meta property="og:title" content="<%= process.env.VRCA_PRODUCT_NAME %>" />
+    <meta property="og:site_name" content="<%= process.env.VRCA_BRAND_NAME %>" />
+    <meta property="og:description" content="<%= process.env.VRCA_PRODUCT_DESCRIPTION %>" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="<%= process.env.VRCA_BANNER %>" />
+    <meta property="og:image:alt" content="<%= process.env.VRCA_BANNER_ALT %>" />
+    <meta property="og:url" content="<%= process.env.VRCA_URL %>" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@vircadia" />
+    <meta name="twitter:title" content="<%= process.env.VRCA_PRODUCT_NAME %>" />
+    <meta name="twitter:description" content="<%= process.env.VRCA_PRODUCT_DESCRIPTION %>" />
+    <meta name="twitter:image" content="<%= process.env.VRCA_BANNER %>" />
+    <meta name="twitter:image:alt" content="<%= process.env.VRCA_BANNER_ALT %>" />
   </head>
   <body>
     <!-- DO NOT touch the following DIV -->
