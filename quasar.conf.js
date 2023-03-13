@@ -137,7 +137,7 @@ module.exports = configure(function (ctx) {
                 VRCA_PRODUCT_DESCRIPTION: process.env.VRCA_PRODUCT_DESCRIPTION ?? require("./package.json").description,
                 VRCA_LOGO: process.env.VRCA_LOGO ?? "assets/vircadia-icon.svg",
                 // NOTE: VRCA_BANNER should be an absolute URL for Open Graph support.
-                VRCA_BANNER: process.env.VRCA_BANNER ?? "assets/vircadia-icon.svg",
+                VRCA_BANNER: process.env.VRCA_BANNER ?? "assets/og_banner.png",
                 VRCA_BANNER_ALT: process.env.VRCA_BANNER_ALT ?? require("./package.json").productName,
                 VRCA_GLOBAL_SERVICE_TERM: process.env.VRCA_GLOBAL_SERVICE_TERM ?? "Metaverse",
                 VRCA_VERSION_WATERMARK: process.env.VRCA_VERSION_WATERMARK ?? "Early Developer Alpha",
