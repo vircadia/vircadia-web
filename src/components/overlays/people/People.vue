@@ -170,7 +170,7 @@
                                             :color="avaInfo.muted || avaInfo.volume === 0 ? 'red' : 'primary'"
                                             style="width: calc(100% - 48px);"
                                             :model-value="avaInfo.volume"
-                                            @update:model-value="(value) => updateVolume(avaInfo.sessionId, value)"
+                                            @update:model-value="(value) => setVolume(avaInfo.sessionId, value)"
                                         />
                                         <q-icon
                                             role="button"
@@ -244,13 +244,20 @@ export default defineComponent({
             return undefined;
         },
 
-        // Get the avatar's display name from the info.
+        /**
+         * Get the display name for a given avatar.
+         * @param pAvaInfo The avatar's session info.
+         */
         getDisplayName(pAvaInfo: AvatarInfo): string {
             return pAvaInfo.displayName ?? "anonymous";
         },
 
-        // Update the volume of a given avatar.
-        updateVolume(sessionId: Uuid, value: number | null): void {
+        /**
+         * Set the audio volume of a given avatar.
+         * @param sessionId The session ID of the avatar.
+         * @param value The audio volume, expressed as a percentage.
+         */
+        setVolume(sessionId: Uuid, value: number | null): void {
             if (value) {
                 // Request the desired gain from the Domain server.
                 const domainServer = DomainMgr.ActiveDomain?.DomainClient;
@@ -270,7 +277,10 @@ export default defineComponent({
             }
         },
 
-        // Complement the value of the muted data for this particular avatar.
+        /**
+         * Complement the muted state of a given avatar.
+         * @param pAvaInfo The avatar's session info.
+         */
         complementMuted(pAvaInfo: AvatarInfo): void {
             const newMute = !pAvaInfo.muted;
 
@@ -291,7 +301,11 @@ export default defineComponent({
             });
         },
 
-        teleportToAvatar(pAvaInfo: AvatarInfo) {
+        /**
+         * Teleport to a particular avatar.
+         * @param pAvaInfo The avatar's session info.
+         */
+        teleportToAvatar(pAvaInfo: AvatarInfo): void {
             Renderer.getScene().teleportMyAvatarToOtherPeople(pAvaInfo.sessionId.stringify());
         },
 
