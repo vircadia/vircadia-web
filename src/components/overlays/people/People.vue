@@ -165,12 +165,12 @@
                                         <q-slider
                                             :min="0"
                                             :max="100"
-                                            :step="10"
+                                            :step="5"
                                             snap
                                             :color="avaInfo.muted || avaInfo.volume === 0 ? 'red' : 'primary'"
                                             style="width: calc(100% - 48px);"
                                             :model-value="avaInfo.volume"
-                                            @update:model-value="(value) => updateVolume(avaInfo.sessionId, value)"
+                                            @update:model-value="(value) => setVolume(avaInfo.sessionId, value)"
                                         />
                                         <q-icon
                                             role="button"
@@ -204,6 +204,7 @@ import { Store, Mutations as StoreMutations, AvatarInfo } from "@Store/index";
 import { DomainMgr } from "@Modules/domain";
 import { Renderer } from "@Modules/scene";
 import { ModerationFlags, Uuid } from "@vircadia/web-sdk";
+import { DomainAudio } from "@Modules/domain/audio";
 
 export interface PeopleEntry {
     displayName: string;
@@ -243,14 +244,31 @@ export default defineComponent({
             return undefined;
         },
 
-        // Get the avatar's display name from the info.
+        /**
+         * Get the display name for a given avatar.
+         * @param pAvaInfo The avatar's session info.
+         */
         getDisplayName(pAvaInfo: AvatarInfo): string {
             return pAvaInfo.displayName ?? "anonymous";
         },
 
-        // Update the volume of a given avatar.
-        updateVolume(sessionId: Uuid, value: number | null) {
+        /**
+         * Set the audio volume of a given avatar.
+         * @param sessionId The session ID of the avatar.
+         * @param value The audio volume, expressed as a percentage.
+         */
+        setVolume(sessionId: Uuid, value: number | null): void {
             if (value) {
+                // Request the desired gain from the Domain server.
+                const domainServer = DomainMgr.ActiveDomain?.DomainClient;
+                if (domainServer) {
+                    domainServer.users.setAvatarGain(
+                        sessionId,
+                        DomainAudio.getGainFromPercentage(value)
+                    );
+                }
+
+                // Update the avatar's gain value in the Store.
                 Store.commit(StoreMutations.UPDATE_AVATAR_VALUE, {
                     sessionId,
                     field: "volume",
@@ -259,9 +277,23 @@ export default defineComponent({
             }
         },
 
-        // Complement the value of the muted data for this particular avatar.
+        /**
+         * Complement the muted state of a given avatar.
+         * @param pAvaInfo The avatar's session info.
+         */
         complementMuted(pAvaInfo: AvatarInfo): void {
             const newMute = !pAvaInfo.muted;
+
+            // Request the desired mute state from the Domain server.
+            const domainServer = DomainMgr.ActiveDomain?.DomainClient;
+            if (domainServer) {
+                domainServer.users.setPersonalMute(
+                    pAvaInfo.sessionId,
+                    newMute
+                );
+            }
+
+            // Update the avatar's mute value in the Store.
             Store.commit(StoreMutations.UPDATE_AVATAR_VALUE, {
                 sessionId: pAvaInfo.sessionId,
                 field: "muted",
@@ -269,7 +301,11 @@ export default defineComponent({
             });
         },
 
-        teleportToAvatar(pAvaInfo: AvatarInfo) {
+        /**
+         * Teleport to a particular avatar.
+         * @param pAvaInfo The avatar's session info.
+         */
+        teleportToAvatar(pAvaInfo: AvatarInfo): void {
             Renderer.getScene().teleportMyAvatarToOtherPeople(pAvaInfo.sessionId.stringify());
         },
 

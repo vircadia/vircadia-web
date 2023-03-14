@@ -20,6 +20,8 @@ import { ScriptAvatar, Vec3, vec3, Vircadia, Uuid } from "@vircadia/web-sdk";
 import { VVector3, VVector4 } from "@Modules/scene";
 
 import { MetaverseMgr } from "@Modules/metaverse";
+import { DomainMgr } from "@Modules/domain";
+import { DomainAudio } from "@Modules/domain/audio";
 
 import { Metaverse, MetaverseState } from "@Base/modules/metaverse/metaverse";
 import { Domain, ConnectionState } from "@Modules/domain/domain";
@@ -1005,6 +1007,10 @@ export const Store = createStore<IRootState>({
                 const newList = new Map<Uuid, AvatarInfo>();
                 pPayload.avatarsInfo.forEach((v, k) => {
                     const inPrev = prevList.get(k);
+                    // Fetch the avatar's audio gain from the Domain server.
+                    const gain = DomainMgr.ActiveDomain?.DomainClient?.users.getAvatarGain(k);
+                    // If it can't be fetched, assume a default value of 0dB.
+                    const defaultGain = 0;
                     if (inPrev) {
                         // clone previous entry so setting pos and displayName isn't changing $store
                         const inPrevC = { ...inPrev };
@@ -1015,8 +1021,7 @@ export const Store = createStore<IRootState>({
                     } else {
                         newList.set(k, {
                             sessionId: k,
-                            // FIXME: Define this in a constant somewhere, editable later by setting.
-                            volume: 50,
+                            volume: DomainAudio.getPercentageFromGain(gain ?? defaultGain),
                             muted: false,
                             isAdmin: false,
                             isValid: v.isValid,
