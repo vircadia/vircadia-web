@@ -29,6 +29,12 @@ export class DomainAudio extends Client {
 
     public get Mixer(): Nullable<AudioMixer> { return this.#_audioMixer; }
 
+    private static gain = {
+        min: -60,
+        max: 20,
+        range: 80
+    } as const;
+
     constructor(pD: Domain) {
         super();
         this.#_domain = pD;
@@ -70,5 +76,25 @@ export class DomainAudio extends Client {
 
     public pause(): void {
         this.#_audioMixer?.pause();
+    }
+
+    /**
+     * Get the audio gain in dB for a given volume percentage.
+     * @param percentage The volume percentage (`0%` - `100%`).
+     * @returns The gain value.
+     */
+    public static getGainFromPercentage(percentage: number): number {
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        return this.gain.range / 100 * percentage + this.gain.min;
+    }
+
+    /**
+     * Get the volume percentage for a given audio gain in dB.
+     * @param gain The audio gain (`-60dB` - `20dB`)
+     * @returns The volume percentage.
+     */
+    public static getPercentageFromGain(gain: number): number {
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        return 100 * (gain - this.gain.min) / this.gain.range;
     }
 }
