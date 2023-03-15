@@ -526,7 +526,7 @@ export default defineComponent({
         },
         activeModelNameStore: {
             get: function(): string {
-                return AvatarStoreInterface.getActiveModelData("name") as string;
+                return AvatarStoreInterface.getActiveModelData("name");
             },
             set: function(pVal: string): void {
                 AvatarStoreInterface.setActiveModelData("name", pVal);
@@ -534,7 +534,7 @@ export default defineComponent({
         },
         activeModelFileStore: {
             get: function(): string {
-                return AvatarStoreInterface.getActiveModelData("file") as string;
+                return AvatarStoreInterface.getActiveModelData("file");
             },
             set: function(pVal: string): void {
                 AvatarStoreInterface.setActiveModelData("file", pVal);
@@ -575,7 +575,7 @@ export default defineComponent({
                 this.loadingAvatar = true;
                 AvatarStoreInterface.setActiveModel(modelId);
                 const scene = Renderer.getScene();
-                await scene.loadMyAvatar(AvatarStoreInterface.getModelData(modelId, "file") as string, reload);
+                await scene.loadMyAvatar(AvatarStoreInterface.getModelData(modelId, "file"), reload);
                 this.loadingAvatar = false;
             }
         },
