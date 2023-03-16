@@ -54,7 +54,7 @@ export class VScene {
     _preScene: Nullable<Scene> = null;
     private _css3DRenderer: Nullable<CSS3DRenderer> = null;
     _myAvatar: Nullable<GameObject> = null;
-    _myAvatarModelURL = AvatarStoreInterface.getActiveModelData("file") as string;
+    _myAvatarModelURL = AvatarStoreInterface.getActiveModelData("file");
 
     _avatarList : Map<string, GameObject>;
     _avatarIsLoading = false;

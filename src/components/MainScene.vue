@@ -236,7 +236,7 @@ export default defineComponent({
             }
         });
         // NOTE: The scene must be loaded to register domain events before connecting to the domain.
-        await scene.load(undefined, AvatarStoreInterface.getActiveModelData("file") as string);
+        await scene.load(undefined, AvatarStoreInterface.getActiveModelData("file"));
         await this.connect();
 
         Renderer.startRenderLoop([scene]);
