@@ -108,10 +108,10 @@
                                 >
                                     <div
                                         :style="{
-                                            opacity: !showMoreOptions[avaInfo.sessionId.stringify()] ? 1 : 0,
-                                            transition: !showMoreOptions[avaInfo.sessionId.stringify()]
+                                            opacity: !showVolumeSlider[avaInfo.sessionId.stringify()] ? 1 : 0,
+                                            transition: !showVolumeSlider[avaInfo.sessionId.stringify()]
                                                 ? '0.25s ease opacity' : 'none',
-                                            pointerEvents: !showMoreOptions[avaInfo.sessionId.stringify()] ? 'all' : 'none'
+                                            pointerEvents: !showVolumeSlider[avaInfo.sessionId.stringify()] ? 'all' : 'none'
                                         }"
                                     >
                                         <q-btn
@@ -183,10 +183,10 @@
                                             :title="`Volume: ${avaInfo.volume}%`"
                                             class="volumeSlider"
                                             :style="{
-                                                opacity: showMoreOptions[avaInfo.sessionId.stringify()] ? 1 : 0,
-                                                transition: showMoreOptions[avaInfo.sessionId.stringify()]
+                                                opacity: showVolumeSlider[avaInfo.sessionId.stringify()] ? 1 : 0,
+                                                transition: showVolumeSlider[avaInfo.sessionId.stringify()]
                                                     ? '0.25s ease opacity' : 'none',
-                                                pointerEvents: showMoreOptions[avaInfo.sessionId.stringify()] ? 'all' : 'none'
+                                                pointerEvents: showVolumeSlider[avaInfo.sessionId.stringify()] ? 'all' : 'none'
                                             }"
                                             :model-value="avaInfo.volume"
                                             @update:model-value="(value) => setVolume(avaInfo.sessionId, value)"
@@ -202,8 +202,8 @@
                                                 ? avaInfo.displayName + '\''
                                                 : avaInfo.displayName + '\'s'
                                             } volume`"
-                                            @click.stop="showMoreOptions[avaInfo.sessionId.stringify()] =
-                                                !showMoreOptions[avaInfo.sessionId.stringify()]"
+                                            @click.stop="showVolumeSlider[avaInfo.sessionId.stringify()] =
+                                                !showVolumeSlider[avaInfo.sessionId.stringify()]"
                                         >
                                             <span class="volumeIcon" :style="`--volume: ${avaInfo.volume}%;`"></span>
                                         </q-btn>
@@ -262,7 +262,7 @@ export default defineComponent({
     },
 
     data: () => ({
-        showMoreOptions: {} as { [key: string]: boolean },
+        showVolumeSlider: {} as { [key: string]: boolean },
         canKick: false
     }),
 
