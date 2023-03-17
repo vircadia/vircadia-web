@@ -97,18 +97,22 @@ export class NametagEntity {
      * @param object The mesh/transform node to attach the nametag to.
      * @param height The height of the object (the nametag will be positioned above this point).
      * @param name The name to be displayed on the nametag.
-     * @param color The color of the nametag's background.
-     * @param popDistance The distance from the active camera at which the nametag will stop being visible.
      * @param icon Display the name as an icon instead of text.
+     * @param color The color of the nametag's background.
+     * @param popDistance The distance from the player's avatar at which the nametag will stop being visible.
+     * @param popOverride A function overriding the visibility of the nametag.
+     * This function receives the distance from the player's avatar to the nametag,
+     * and should return a boolean indicating whether the nametag should be visible (`true`) or not (`false`).
      * @returns A reference to the new nametag mesh.
      */
     public static create(
         object: Mesh | AbstractMesh | TransformNode,
         height: number,
         name: string,
+        icon = false,
         color?: Color3,
         popDistance = 20,
-        icon = false
+        popOverride?: ((distance: number) => boolean)
     ): Mesh | undefined {
         const scene = object.getScene();
         const font = icon ? this.iconFont : this.textFont;
@@ -274,7 +278,9 @@ export class NametagEntity {
                 // Clamp the opacity between 0 and 0.94.
                 // Max opacity of 0.94 reduces the chance that the nametag will be affected by bloom.
                 const opacity = Math.min(Math.max(popDistance + 1 - distance, 0), 0.94);
-                nametagMergedMesh.visibility = opacity * Number(Store.state.avatar.showNametags);
+                nametagMergedMesh.visibility = opacity * Number(
+                    Store.state.avatar.showNametags && (popOverride?.(distance) ?? true)
+                );
             }
         });
 

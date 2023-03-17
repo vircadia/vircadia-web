@@ -29,7 +29,7 @@ import { InputState, CameraMode } from "./inputState";
 import { IInputHandler } from "./inputs/inputHandler";
 import { KeyboardInput } from "./inputs/keyboardInput";
 import { VirtualJoystickInput } from "./inputs/virtualJoystickInput";
-import { Store } from "@Store/index";
+import { Store, Mutations as StoreMutations } from "@Store/index";
 import type { SceneController } from "@Modules/scene/controllers";
 import { MouseSettingsController } from "@Base/modules/avatar/controller/inputs/mouseSettings";
 
@@ -166,7 +166,7 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
 class CameraObtacleDetectInfo {
     direction = Vector3.Zero();
     length = 0;
-    isCameraSanpping = false;
+    isCameraSnapping = false;
     elapse = 0;
     detectDuration = 0.5;
 }
@@ -422,6 +422,10 @@ export class InputController extends ScriptComponent {
     }
 
     private _updateAvatar(delta : number) {
+        Store.commit(StoreMutations.MUTATE, {
+            property: "interactions.isInteracting",
+            value: false
+        });
         switch (this._avatarState.state) {
             case State.Idle:
                 this._doIdle(delta);
@@ -484,6 +488,10 @@ export class InputController extends ScriptComponent {
     }
 
     private _doPose(delta : number) {
+        Store.commit(StoreMutations.MUTATE, {
+            property: "interactions.isInteracting",
+            value: true
+        });
         this._avatarState.duration += delta;
         if (this._avatarState.duration > 0.5) {
             if (this._avatarState.moveDir.x === 0 && this._avatarState.moveDir.z === 0) {
@@ -520,6 +528,17 @@ export class InputController extends ScriptComponent {
         if (this._gameObject && this._gameObject.rotationQuaternion) {
             this._gameObject.rotationQuaternion.x = 0;
             this._gameObject.rotationQuaternion.z = 0;
+        }
+
+        // Rotate the avatar to follow the yaw direction of the camera.
+        if (this._camera && this._gameObject && this._inputState.cameraMode === CameraMode.FirstPersion) {
+            const angle = Vector3.GetAngleBetweenVectors(
+                this._avatarState.moveDir.normalize(),
+                Vector3.Forward(true),
+                Vector3.Up()
+            );
+            const rotation = this._defaultCameraAlpha + angle - this._camera.alpha + Math.PI / 2;
+            Quaternion.FromEulerAnglesToRef(0, rotation, 0, this._gameObject.rotationQuaternion as Quaternion);
         }
     }
 
@@ -650,7 +669,10 @@ export class InputController extends ScriptComponent {
 
         // Rotate the avatar relative to the yaw direction of the camera.
         const angle = Vector3.GetAngleBetweenVectors(
-            this._avatarState.moveDir.normalize(), Vector3.Forward(true), Vector3.Up());
+            this._avatarState.moveDir.normalize(),
+            Vector3.Forward(true),
+            Vector3.Up()
+        );
         const rotation = this._defaultCameraAlpha + angle - this._camera.alpha;
         Quaternion.FromEulerAnglesToRef(0, rotation, 0, this._gameObject.rotationQuaternion as Quaternion);
 
@@ -760,12 +782,12 @@ export class InputController extends ScriptComponent {
 
             const pickInfo = this._scene.pickWithRay(ray);
             if (pickInfo && pickInfo.hit && pickInfo.pickedPoint) {
-                if (!this._cameraObtacleDetectInfo.isCameraSanpping) {
+                if (!this._cameraObtacleDetectInfo.isCameraSnapping) {
                     // store camera state before camera is snapped
                     this._camera.storeState();
                     this._cameraObtacleDetectInfo.length = length;
                     this._cameraObtacleDetectInfo.direction = dir;
-                    this._cameraObtacleDetectInfo.isCameraSanpping = true;
+                    this._cameraObtacleDetectInfo.isCameraSnapping = true;
                 }
 
                 if (this._camera.checkCollisions) {
@@ -780,7 +802,7 @@ export class InputController extends ScriptComponent {
             }
         }
 
-        if (!isCameraObstructed && this._cameraObtacleDetectInfo.isCameraSanpping) {
+        if (!isCameraObstructed && this._cameraObtacleDetectInfo.isCameraSnapping) {
             // detect whether camera original position still obstructed or not
             const pickInfo = this._scene.pickWithRay(new Ray(this._camera.target,
                 this._cameraObtacleDetectInfo.direction,
@@ -799,7 +821,7 @@ export class InputController extends ScriptComponent {
                 }
 
                 const vec = this._cameraObtacleDetectInfo.direction.scale(this._cameraObtacleDetectInfo.length);
-                this._cameraObtacleDetectInfo.isCameraSanpping = false;
+                this._cameraObtacleDetectInfo.isCameraSnapping = false;
             }
         }
     }
