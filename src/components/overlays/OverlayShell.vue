@@ -102,7 +102,8 @@
             backgroundAttachment: 'fixed',
             backdropFilter: $store.state.theme.globalStyle === 'aero' ? 'blur(10px)' : 'unset',
             borderRadius: isMaximized ? '0px' : '5px',
-            transition: '0.2s ease background'
+            transition: '0.2s ease background',
+            overflow: showWindowContent ? 'hidden' : 'show'
         }"
     >
         <div
