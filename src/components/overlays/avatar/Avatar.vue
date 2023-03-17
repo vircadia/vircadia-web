@@ -457,7 +457,6 @@ import OverlayShell from "../OverlayShell.vue";
 import { Renderer } from "@Modules/scene";
 import { MyAvatarController } from "@Modules/avatar";
 import { AvatarEntry, AvatarStoreInterface } from "@Modules/avatar/StoreInterface";
-import { fallbackAvatarModel } from "@Modules/avatar/DefaultModels";
 import { Store, Mutations as StoreMutations } from "@Store/index";
 
 import Log from "@Modules/debugging/log";
@@ -539,10 +538,8 @@ export default defineComponent({
             const storeModelsList = this.sortAvatarList(this.listFilterValue);
             for (let i = 0; i < storeModelsList.length; i++) {
                 const key = storeModelsList[i][0];
-                if (key !== fallbackAvatarModel()) { // Don't show the fallback model in the list.
-                    const value = storeModelsList[i][1];
-                    this.avatarList[key] = { avatar: value, showMoreOptions: false };
-                }
+                const value = storeModelsList[i][1];
+                this.avatarList[key] = { avatar: value, showMoreOptions: false };
             }
         },
         async selectAvatar(modelId: string | number, reload?: boolean): Promise<void> {
