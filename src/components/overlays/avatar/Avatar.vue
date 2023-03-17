@@ -138,16 +138,18 @@
                         </div>
                         <div class="row q-ml-md q-pl-xs" style="border: 1px solid #8888;border-radius: 7px;">
                             <div
-                                class="q-my-auto q-ml-sm text-subtitle2 text-no-wrap ellipsis cursor-pointer"
+                                class="q-my-auto q-ml-sm text-subtitle2 text-no-wrap ellipsis"
+                                :class="{ 'cursor-pointer': $store.state.avatar.activeModel !== fallbackModelId }"
                                 title="Avatar name"
                             >
                                 {{ activeModelNameStore }}
                                 <q-popup-edit
+                                    v-if="$store.state.avatar.activeModel !== fallbackModelId"
                                     v-model="activeModelNameStore"
                                     auto-save
                                     v-slot="scope"
                                     :validate="validateModelName"
-                                    >
+                                >
                                     <q-input
                                         v-model="scope.value"
                                         dense
@@ -295,109 +297,111 @@
                                             style="top: 8px !important;flex-flow: row nowrap;justify-content: flex-start;
                                             height: 60%;margin-top: 3px;"
                                         >
-                                            <q-btn
-                                                flat
-                                                round
-                                                dense
-                                                ripple
-                                                icon="edit"
-                                                :text-color="$q.dark.isActive ? 'white' : 'dark'"
-                                                title="Rename"
-                                                @click.stop=""
-                                            >
-                                                <q-popup-edit
-                                                    :model-value="avatar.avatar.name"
-                                                    @update:model-value="(value: string) => {
-                                                        AvatarStoreInterface.setModelData(id, 'name', value);
-                                                    }"
-                                                    auto-save
-                                                    v-slot="scope"
-                                                    :validate="validateModelName"
-                                                    buttons
+                                            <template v-if="id !== fallbackModelId">
+                                                <q-btn
+                                                    flat
+                                                    round
+                                                    dense
+                                                    ripple
+                                                    icon="edit"
+                                                    :text-color="$q.dark.isActive ? 'white' : 'dark'"
+                                                    title="Rename"
+                                                    @click.stop=""
                                                 >
-                                                    <q-input
-                                                        v-model="scope.value"
-                                                        dense
-                                                        autofocus
-                                                        counter
-                                                        label="Avatar Name"
-                                                        :color="validateModelName(scope.value) ? 'primary' : 'negative'"
-                                                        @keyup.enter="scope.set"
-                                                    />
-                                                </q-popup-edit>
-                                            </q-btn>
-                                            <q-btn
-                                                flat
-                                                round
-                                                dense
-                                                ripple
-                                                icon="image"
-                                                :text-color="$q.dark.isActive ? 'white' : 'dark'"
-                                                title="Change avatar image"
-                                                @click.stop=""
-                                            >
-                                                <q-popup-edit
-                                                    :model-value="avatar.avatar.image"
-                                                    @update:model-value="(value: string) => {
-                                                        AvatarStoreInterface.setModelData(id, 'image', value);
-                                                    }"
-                                                    auto-save
-                                                    v-slot="scope"
-                                                    :validate="validateModelImage"
-                                                    buttons
+                                                    <q-popup-edit
+                                                        :model-value="avatar.avatar.name"
+                                                        @update:model-value="(value: string) => {
+                                                            AvatarStoreInterface.setModelData(id, 'name', value);
+                                                        }"
+                                                        auto-save
+                                                        v-slot="scope"
+                                                        :validate="validateModelName"
+                                                        buttons
+                                                    >
+                                                        <q-input
+                                                            v-model="scope.value"
+                                                            dense
+                                                            autofocus
+                                                            counter
+                                                            label="Avatar Name"
+                                                            :color="validateModelName(scope.value) ? 'primary' : 'negative'"
+                                                            @keyup.enter="scope.set"
+                                                        />
+                                                    </q-popup-edit>
+                                                </q-btn>
+                                                <q-btn
+                                                    flat
+                                                    round
+                                                    dense
+                                                    ripple
+                                                    icon="image"
+                                                    :text-color="$q.dark.isActive ? 'white' : 'dark'"
+                                                    title="Change avatar image"
+                                                    @click.stop=""
                                                 >
-                                                    <q-input
-                                                        v-model="scope.value"
-                                                        dense
-                                                        autofocus
-                                                        counter
-                                                        label="Image URL"
-                                                        :color="validateModelImage(scope.value) ? 'primary' : 'negative'"
-                                                        @keyup.enter="scope.set"
-                                                    />
-                                                </q-popup-edit>
-                                            </q-btn>
-                                            <q-btn
-                                                flat
-                                                round
-                                                dense
-                                                ripple
-                                                icon="link"
-                                                :text-color="$q.dark.isActive ? 'white' : 'dark'"
-                                                title="Change avatar file"
-                                                @click.stop=""
-                                            >
-                                                <q-popup-edit
-                                                    :model-value="avatar.avatar.file"
-                                                    @update:model-value="(value: string) => {
-                                                        AvatarStoreInterface.setModelData(id, 'file', value);
-                                                    }"
-                                                    auto-save
-                                                    v-slot="scope"
-                                                    :validate="validateModelFile"
-                                                    buttons
+                                                    <q-popup-edit
+                                                        :model-value="avatar.avatar.image"
+                                                        @update:model-value="(value: string) => {
+                                                            AvatarStoreInterface.setModelData(id, 'image', value);
+                                                        }"
+                                                        auto-save
+                                                        v-slot="scope"
+                                                        :validate="validateModelImage"
+                                                        buttons
+                                                    >
+                                                        <q-input
+                                                            v-model="scope.value"
+                                                            dense
+                                                            autofocus
+                                                            counter
+                                                            label="Image URL"
+                                                            :color="validateModelImage(scope.value) ? 'primary' : 'negative'"
+                                                            @keyup.enter="scope.set"
+                                                        />
+                                                    </q-popup-edit>
+                                                </q-btn>
+                                                <q-btn
+                                                    flat
+                                                    round
+                                                    dense
+                                                    ripple
+                                                    icon="link"
+                                                    :text-color="$q.dark.isActive ? 'white' : 'dark'"
+                                                    title="Change avatar file"
+                                                    @click.stop=""
                                                 >
-                                                    <q-input
-                                                        v-model="scope.value"
-                                                        dense
-                                                        autofocus
-                                                        counter
-                                                        label="Model URL"
-                                                        :color="validateModelFile(scope.value) ? 'primary' : 'negative'"
-                                                        @keyup.enter="scope.set"
-                                                    />
-                                                </q-popup-edit>
-                                            </q-btn>
-                                            <q-btn
-                                                flat
-                                                round
-                                                dense
-                                                ripple
-                                                icon="delete"
-                                                text-color="red"
-                                                title="Remove avatar"
-                                                @click.stop="AvatarStoreInterface.removeModel(id);loadAvatarList();"
-                                            />
+                                                    <q-popup-edit
+                                                        :model-value="avatar.avatar.file"
+                                                        @update:model-value="(value: string) => {
+                                                            AvatarStoreInterface.setModelData(id, 'file', value);
+                                                        }"
+                                                        auto-save
+                                                        v-slot="scope"
+                                                        :validate="validateModelFile"
+                                                        buttons
+                                                    >
+                                                        <q-input
+                                                            v-model="scope.value"
+                                                            dense
+                                                            autofocus
+                                                            counter
+                                                            label="Model URL"
+                                                            :color="validateModelFile(scope.value) ? 'primary' : 'negative'"
+                                                            @keyup.enter="scope.set"
+                                                        />
+                                                    </q-popup-edit>
+                                                </q-btn>
+                                                <q-btn
+                                                    flat
+                                                    round
+                                                    dense
+                                                    ripple
+                                                    icon="delete"
+                                                    text-color="red"
+                                                    title="Remove avatar"
+                                                    @click.stop="AvatarStoreInterface.removeModel(id);loadAvatarList();"
+                                                />
+                                            </template>
                                         </q-item-section>
                                     </TransitionGroup>
                                     <q-item-section
@@ -405,6 +409,7 @@
                                         height: 100%;margin-top: 3px;"
                                     >
                                         <q-btn
+                                            v-if="id !== fallbackModelId"
                                             flat
                                             round
                                             dense
@@ -457,6 +462,7 @@ import OverlayShell from "../OverlayShell.vue";
 import { Renderer } from "@Modules/scene";
 import { MyAvatarController } from "@Modules/avatar";
 import { AvatarEntry, AvatarStoreInterface } from "@Modules/avatar/StoreInterface";
+import { fallbackAvatarModel } from "@Modules/avatar/DefaultModels";
 import { Store, Mutations as StoreMutations } from "@Store/index";
 
 import Log from "@Modules/debugging/log";
@@ -492,7 +498,8 @@ export default defineComponent({
                 image: "",
                 url: ""
             },
-            loadingAvatar: false
+            loadingAvatar: false,
+            fallbackModelId: fallbackAvatarModel()
         };
     },
 

@@ -105,15 +105,21 @@ export const AvatarStoreInterface = {
     },
 
     removeModel(modelId: string | number): void {
+        // Prevent the fallback model from being deleted.
+        if (modelId === fallbackAvatarModel()) {
+            return;
+        }
+
+        // Switch to the fallback model if the removed model is currently equipped.
         if (modelId === Store.state.avatar.activeModel) {
             this.setActiveModel(fallbackAvatarModel());
         }
-        const currentModels = { ...Store.state.avatar.models };
 
+        // Remove the requested model from the Store.
+        const currentModels = { ...Store.state.avatar.models };
         if (modelId in currentModels) {
             delete currentModels[modelId];
         }
-
         Store.commit(StoreMutations.MUTATE, {
             property: `avatar.models`,
             value: currentModels
