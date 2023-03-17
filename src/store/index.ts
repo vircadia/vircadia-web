@@ -86,7 +86,7 @@ function loadFromPersistentStorage(): IRootState | undefined {
  */
 function saveToPersistentStorage(value: IRootState): void {
     // This function currently uses localStorage as the persistent location.
-    // In the future, a location such as Firebase, Amplify, etc, could be used instead.
+    // TODO: location such as the Metaverse server, Firebase, Amplify, etc, could be added as a secondary storage location.
 
     function stateReplacer(key: string, entry: unknown): unknown {
         // Convert BigInt values to strings, since there is no default serializer for them.
@@ -350,8 +350,11 @@ export interface IRootState {
     theme: {
         brandName: string,
         productName: string,
+        productDescription: string,
         tagline: string,
         logo: string,
+        banner: string,
+        bannerAlt: string,
         globalServiceTerm: string,
         versionWatermark: string,
         colors: {
@@ -369,12 +372,14 @@ export interface IRootState {
             link: string
         }[]
     },
-    // First Time Wizard configuration.
+    // First Time Wizard configuration and data.
     firstTimeWizard: {
         title: string,
         welcomeText: string,
         tagline: string,
-        buttonText: string
+        buttonText: string,
+        // If a path was passed to prior to the wizard, after the wizard completes, we will send them here.
+        pendingLocation: string
     },
     // Conference data.
     conference: {
@@ -422,17 +427,17 @@ const storeDefaults = {
         patch: 0
     },
     globalConsts: {
-        APP_NAME: process.env.VRCA_PRODUCT_NAME ?? packageInfo.productName,
+        APP_NAME: process.env.VRCA_PRODUCT_NAME,
         APP_VERSION: packageInfo.version,
         APP_VERSION_TAG: versionInfo["version-tag"],
         SDK_VERSION_TAG: Vircadia.verboseVersion ?? "probably 0.0.4",
         SAFETY_BEFORE_SESSION_TIMEOUT: 21600 // If a token has 6 or less hours left on its life, refresh it.
     },
     defaultConnectionConfig: {
-        DEFAULT_METAVERSE_URL: process.env.VRCA_DEFAULT_METAVERSE_URL ?? "https://metaverse.vircadia.com/live",
-        DEFAULT_DOMAIN_PROTOCOL: process.env.VRCA_DEFAULT_DOMAIN_PROTOCOL ?? "wss:",
-        DEFAULT_DOMAIN_PORT: process.env.VRCA_DEFAULT_DOMAIN_PORT ?? "40102",
-        DEFAULT_DOMAIN_URL: process.env.VRCA_DEFAULT_DOMAIN_URL ?? "wss://antares.digisomni.com/0,0,0/0,0,0,1"
+        DEFAULT_METAVERSE_URL: process.env.VRCA_DEFAULT_METAVERSE_URL,
+        DEFAULT_DOMAIN_PROTOCOL: process.env.VRCA_DEFAULT_DOMAIN_PROTOCOL,
+        DEFAULT_DOMAIN_PORT: process.env.VRCA_DEFAULT_DOMAIN_PORT,
+        DEFAULT_DOMAIN_URL: process.env.VRCA_DEFAULT_DOMAIN_URL
     },
     debugging: {},
     notifications: {},
@@ -524,8 +529,12 @@ const storeDefaults = {
     theme: {
         brandName: process.env.VRCA_BRAND_NAME,
         productName: process.env.VRCA_PRODUCT_NAME,
+        productDescription: process.env.VRCA_PRODUCT_DESCRIPTION,
         tagline: process.env.VRCA_TAGLINE,
-        logo: process.env.VRCA_LOGO,
+        logo: process.env.VRCA_LOGO ?? "/icons/favicon.svg",
+        banner: process.env.VRCA_BANNER ?? "/assets/OpenGraph_banner.png",
+        bannerAlt: process.env.VRCA_BANNER_ALT,
+        url: process.env.VRCA_HOSTED_URL,
         globalServiceTerm: process.env.VRCA_GLOBAL_SERVICE_TERM,
         versionWatermark: process.env.VRCA_VERSION_WATERMARK,
         colors: {
@@ -542,10 +551,11 @@ const storeDefaults = {
     },
     // First Time Wizard configuration.
     firstTimeWizard: {
-        title: process.env.VRCA_WIZARD_TITLE ?? "Vircadia",
-        welcomeText: process.env.VRCA_WIZARD_WELCOME_TEXT ?? "Welcome to",
-        tagline: process.env.VRCA_WIZARD_TAGLINE ?? "Your portal to the metaverse.",
-        buttonText: process.env.VRCA_WIZARD_BUTTON_TEXT ?? "Get Started"
+        title: process.env.VRCA_WIZARD_TITLE,
+        welcomeText: process.env.VRCA_WIZARD_WELCOME_TEXT,
+        tagline: process.env.VRCA_WIZARD_TAGLINE,
+        buttonText: process.env.VRCA_WIZARD_BUTTON_TEXT,
+        pendingLocation: ""
     },
     // Conference data.
     conference: {
