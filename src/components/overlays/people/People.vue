@@ -9,6 +9,29 @@
 -->
 
 <style lang="scss" scoped>
+.volumeIcon {
+    --offset: 0.15em;
+    --volume: 0%;
+    position: relative;
+    display: inline-flex;
+    width: 1.5em;
+    height: 1.25em;
+    color: inherit;
+    background-color: currentColor;
+    clip-path: polygon(
+        100% 100%,
+        0% 100%,
+        100% 0%,
+        100% 100%,
+        calc(100% - var(--offset)) calc(100% - var(--offset)),
+        calc(100% - var(--offset)) calc(var(--offset) * 2.1),
+        calc((var(--offset) * 2.7) + (var(--volume) * 0.75 - var(--offset)))
+        calc(var(--offset) * 2.1 + (95% - var(--volume)) * 0.78),
+        calc((var(--offset) * 2.7) + (var(--volume) * 0.75 - var(--offset))) calc(100% - var(--offset)),
+        calc(100% - var(--offset)) calc(100% - var(--offset))
+    );
+    transform: translate(-5%, -5%);
+}
 </style>
 
 <template>
@@ -120,11 +143,7 @@
                                             />
                                         </template>
                                     </div>
-                                    <div
-                                        style="all: inherit;position: relative;gap: 16px;"
-                                        @mouseenter="showMoreOptions[avaInfo.sessionId.stringify()] = true"
-                                        @mouseleave="showMoreOptions[avaInfo.sessionId.stringify()] = false"
-                                    >
+                                    <div style="all: inherit;position: relative;">
                                         <q-slider
                                             :min="0"
                                             :max="100"
@@ -135,7 +154,7 @@
                                             style="
                                                 position: absolute;
                                                 width: calc(48px * 2.5);
-                                                margin-right: 34px;
+                                                margin-right: 48px;
                                             "
                                             :style="{
                                                 opacity: showMoreOptions[avaInfo.sessionId.stringify()] ? 1 : 0,
@@ -145,20 +164,35 @@
                                             }"
                                             :model-value="avaInfo.volume"
                                             @update:model-value="(value) => setVolume(avaInfo.sessionId, value)"
-                                            @mouseenter="showMoreOptions[avaInfo.sessionId.stringify()] = true"
                                         />
                                         <q-btn
-                                            :icon="avaInfo.muted || avaInfo.volume === 0 ? 'volume_off' : 'volume_up'"
                                             :text-color="avaInfo.muted || avaInfo.volume === 0 ? 'red' : 'primary'"
                                             flat
                                             round
                                             dense
                                             ripple
-                                            :title="avaInfo.muted || avaInfo.volume === 0
-                                                ? `Unmute ${avaInfo.displayName}` : `Mute ${avaInfo.displayName}`"
-                                            @click.stop="complementMuted(avaInfo)"
-                                        />
+                                            :title="`Adjust ${
+                                                avaInfo.displayName[avaInfo.displayName.length - 1]?.toLowerCase() === 's'
+                                                ? avaInfo.displayName + '\''
+                                                : avaInfo.displayName + '\'s'
+                                            } volume`"
+                                            @click.stop="showMoreOptions[avaInfo.sessionId.stringify()] =
+                                                !showMoreOptions[avaInfo.sessionId.stringify()]"
+                                        >
+                                            <span class="volumeIcon" :style="`--volume: ${avaInfo.volume}%;`"></span>
+                                        </q-btn>
                                     </div>
+                                    <q-btn
+                                        :icon="avaInfo.muted || avaInfo.volume === 0 ? 'volume_off' : 'volume_up'"
+                                        :text-color="avaInfo.muted || avaInfo.volume === 0 ? 'red' : 'primary'"
+                                        flat
+                                        round
+                                        dense
+                                        ripple
+                                        :title="avaInfo.muted || avaInfo.volume === 0
+                                            ? `Unmute ${avaInfo.displayName}` : `Mute ${avaInfo.displayName}`"
+                                        @click.stop="complementMuted(avaInfo)"
+                                    />
                                 </div>
                             </div>
                         </q-item-section>
