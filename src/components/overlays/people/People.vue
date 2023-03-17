@@ -32,6 +32,35 @@
     );
     transform: translate(-5%, -5%);
 }
+.volumeSlider {
+    position: absolute;
+    z-index: 1;
+    width: calc(48px * 2.5);
+    margin-right: 50px;
+}
+.volumeSlider::before {
+    content: '';
+    position: absolute;
+    z-index: -2;
+    inset: 0 -12px;
+    background-color: $dark;
+    border: 1px solid #8882;
+    border-radius: 5px;
+}
+.volumeSlider::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: 50%;
+    right: -12px;
+    width: 0.75em;
+    height: 0.75em;
+    background-color: $dark;
+    border: 1px solid #8882;
+    border-bottom: unset;
+    border-left: unset;
+    transform: translate(calc(50% - 1px), -50%) rotate(45deg);
+}
 </style>
 
 <template>
@@ -60,7 +89,7 @@
                     <q-item
                         v-for="avaInfo in $store.state.avatars.avatarsInfo.values()"
                         :key="avaInfo.sessionId.stringify()"
-                        class="q-mb-none q-py-sm"
+                        class="q-mb-none q-pa-sm"
                         dense
                     >
                         <q-item-section avatar class="q-gutter-y-sm">
@@ -149,13 +178,10 @@
                                             :max="100"
                                             :step="5"
                                             snap
+                                            dark
                                             :color="avaInfo.muted || avaInfo.volume === 0 ? 'red' : 'primary'"
                                             :title="`Volume: ${avaInfo.volume}%`"
-                                            style="
-                                                position: absolute;
-                                                width: calc(48px * 2.5);
-                                                margin-right: 48px;
-                                            "
+                                            class="volumeSlider"
                                             :style="{
                                                 opacity: showMoreOptions[avaInfo.sessionId.stringify()] ? 1 : 0,
                                                 transition: showMoreOptions[avaInfo.sessionId.stringify()]
