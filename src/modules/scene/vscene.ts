@@ -15,14 +15,13 @@
 
 import { AnimationGroup, Engine, Scene, Color3,
     ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, Camera,
-    Observable, Nullable, AmmoJSPlugin, Quaternion, Vector3, StandardMaterial,
-    Mesh, MeshBuilder, DynamicTexture, Color4, DefaultRenderingPipeline } from "@babylonjs/core";
+    Observable, Nullable, AmmoJSPlugin, Quaternion, Vector3, Color4, DefaultRenderingPipeline } from "@babylonjs/core";
 
 import "@babylonjs/loaders/glTF";
 import { ResourceManager } from "./resource";
 import { DomainController, SceneController } from "./controllers";
 import { GameObject, MeshComponent, CapsuleColliderComponent,
-    DEFAULT_MESH_RENDER_GROUP_ID, MASK_MESH_RENDER_GROUP_ID } from "@Modules/object";
+    DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { ScriptComponent, requireScript, requireScripts, reattachScript } from "@Modules/script";
 import { InputController, MyAvatarController, ScriptAvatarController, AvatarMapper } from "@Modules/avatar";
 import { IEntity, IEntityDescription, EntityBuilder, EntityEvent } from "@Modules/entity";
@@ -54,7 +53,7 @@ export class VScene {
     _preScene: Nullable<Scene> = null;
     private _css3DRenderer: Nullable<CSS3DRenderer> = null;
     _myAvatar: Nullable<GameObject> = null;
-    _myAvatarModelURL = AvatarStoreInterface.getActiveModelData("file") as string;
+    _myAvatarModelURL = AvatarStoreInterface.getActiveModelData("file");
 
     _avatarList : Map<string, GameObject>;
     _avatarIsLoading = false;

@@ -39,14 +39,6 @@ export const FalseValue = "false";
 // Set to 0 to disable rate limiting, or -1 to disable updates completely.
 export const URL_UPDATE_FREQUENCY = 1000;
 
-// FIXME: This should be removed in favor of using the store.
-export const DefaultConnectionConfig: { [key: string]: string } = {
-    "Default_Metaverse_Url": "https://metaverse.vircadia.com/live",
-    "Default_Domain_Protocol": "wss:",
-    "Default_Domain_Port": "40102",
-    "Default_Domain_Url": "ws://localhost/0,0,0/0,0,0,1"
-};
-
 export const Config = {
     // Entries can be prefixed with a qualifier.
     // This is often the account name to allow multiple accounts on one computer
@@ -58,8 +50,8 @@ export const Config = {
      * While there is not much to be done today, someday the configuration infomation
      * might be stored in the cloud so some setup will be needed.
      */
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     initialize(): void {
-        Config._setDefaultValues();
     },
 
     /** Fetch a configuration value from configuration storage.
@@ -105,12 +97,5 @@ export const Config = {
         } else {
             Config._qualify = pQualifier + ".";
         }
-    },
-
-    /** Set the default values for configuration */
-    _setDefaultValues(): void {
-        Object.keys(DefaultConnectionConfig).forEach((key) => {
-            localStorage.setItem(key, DefaultConnectionConfig[key]);
-        });
     }
 };

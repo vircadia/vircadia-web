@@ -26,7 +26,6 @@ export interface AvatarEntryMap {
 }
 
 function generateID(): string {
-    // eslint-disable-next-line max-len
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     const idLength = 8;
     let ID = "";
@@ -36,19 +35,30 @@ function generateID(): string {
     return ID;
 }
 
-export const AvatarStoreInterface = {
-    getModelData(modelId: string | number, key?: keyof AvatarEntry): AvatarEntry | string | number | boolean {
-        const models = Store.state.avatar.models as { [key: string]: AvatarEntry };
-        if (key && key in (models[modelId] || fallbackAvatar())) {
-            return models[modelId][key];
-        }
-        return models[modelId] || fallbackAvatar();
-    },
+function getModelData(modelId: string | number): AvatarEntry;
+function getModelData<T extends keyof AvatarEntry>(modelId: string | number, key: T): AvatarEntry[T];
+function getModelData<T extends keyof AvatarEntry>(modelId: string | number, key?: T): AvatarEntry | AvatarEntry[T] {
+    const models = Store.state.avatar.models as { [key: string]: AvatarEntry };
+    if (key && key in (models[modelId] || fallbackAvatar())) {
+        return models[modelId][key];
+    }
+    return models[modelId] || fallbackAvatar();
+}
 
-    getActiveModelData(key?: keyof AvatarEntry): AvatarEntry | string | number | boolean {
-        const activeModel = Store.state.avatar.activeModel;
-        return this.getModelData(activeModel, key);
-    },
+function getActiveModelData(): AvatarEntry;
+function getActiveModelData<T extends keyof AvatarEntry>(key: T): AvatarEntry[T];
+function getActiveModelData<T extends keyof AvatarEntry>(key?: T): AvatarEntry | AvatarEntry[T] {
+    const activeModel = Store.state.avatar.activeModel;
+    if (key) {
+        return getModelData(activeModel, key);
+    }
+    return getModelData(activeModel);
+}
+
+export const AvatarStoreInterface = {
+    getModelData,
+
+    getActiveModelData,
 
     getAllModelsJSON(): string {
         return JSON.stringify(Store.state.avatar.models);
@@ -95,15 +105,21 @@ export const AvatarStoreInterface = {
     },
 
     removeModel(modelId: string | number): void {
+        // Prevent the fallback model from being deleted.
+        if (modelId === fallbackAvatarModel()) {
+            return;
+        }
+
+        // Switch to the fallback model if the removed model is currently equipped.
         if (modelId === Store.state.avatar.activeModel) {
             this.setActiveModel(fallbackAvatarModel());
         }
-        const currentModels = { ...Store.state.avatar.models };
 
+        // Remove the requested model from the Store.
+        const currentModels = { ...Store.state.avatar.models };
         if (modelId in currentModels) {
             delete currentModels[modelId];
         }
-
         Store.commit(StoreMutations.MUTATE, {
             property: `avatar.models`,
             value: currentModels
@@ -119,13 +135,12 @@ export const AvatarStoreInterface = {
         }
         try {
             const scene = Renderer.getScene();
-            scene.loadMyAvatar(AvatarStoreInterface.getModelData(modelId, "file") as string)
+            scene.loadMyAvatar(AvatarStoreInterface.getModelData(modelId, "file"))
                 // .catch is a syntax error!?
                 // eslint-disable-next-line @typescript-eslint/dot-notation
                 .catch((err) => console.warn("Failed to load avatar:", err));
         } catch (error) {
-            console.warn(error);
-            console.warn("Cannot render active avatar model before the scene has been loaded.");
+            console.warn("Cannot render active avatar model before the scene has been loaded.", error);
         }
     }
 };

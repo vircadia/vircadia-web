@@ -9,30 +9,58 @@
 -->
 
 <style lang="scss" scoped>
-    .slide-left-enter-active,
-    .slide-left-leave-active {
-        transition: all 0.25s ease-out;
-    }
-
-    .slide-left-enter-active {
-        margin-left: 0px;
-    }
-
-    .slide-left-leave-active {
-        position: absolute;
-        // top: 18px;
-        // left: 4.5rem;
-    }
-
-    .slide-left-enter-from {
-        opacity: 0;
-        transform: translateX(30px);
-    }
-
-    .slide-left-leave-to {
-        opacity: 0;
-        transform: translateX(-30px);
-    }
+.volumeIcon {
+    --offset: 0.15em;
+    --volume: 0%;
+    position: relative;
+    display: inline-flex;
+    width: 1.5em;
+    height: 1.25em;
+    color: inherit;
+    background-color: currentColor;
+    clip-path: polygon(
+        100% 100%,
+        0% 100%,
+        100% 0%,
+        100% 100%,
+        calc(100% - var(--offset)) calc(100% - var(--offset)),
+        calc(100% - var(--offset)) calc(var(--offset) * 2.1),
+        calc((var(--offset) * 2.7) + (var(--volume) * 0.75 - var(--offset)))
+        calc(var(--offset) * 2.1 + (95% - var(--volume)) * 0.78),
+        calc((var(--offset) * 2.7) + (var(--volume) * 0.75 - var(--offset))) calc(100% - var(--offset)),
+        calc(100% - var(--offset)) calc(100% - var(--offset))
+    );
+    transform: translate(-5%, -5%);
+}
+.volumeSlider {
+    position: absolute;
+    z-index: 1;
+    width: calc(48px * 2.5);
+    margin-right: 50px;
+}
+.volumeSlider::before {
+    content: '';
+    position: absolute;
+    z-index: -2;
+    inset: 0 -12px;
+    background-color: $dark;
+    border: 1px solid #8882;
+    border-radius: 5px;
+}
+.volumeSlider::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: 50%;
+    right: -12px;
+    width: 0.75em;
+    height: 0.75em;
+    background-color: $dark;
+    border: 1px solid #8882;
+    border-bottom: unset;
+    border-left: unset;
+    transform: translate(calc(50% - 1px), -50%) rotate(45deg);
+}
 </style>
 
 <template>
@@ -41,7 +69,7 @@
         :title="`People (${Array.from($store.state.avatars.avatarsInfo.keys()).length})`"
         :managerProps="propsToPass"
         :defaultHeight="500"
-        :defaultWidth="350"
+        :defaultWidth="400"
         :defaultLeft="300"
         :hoverShowBar="false"
         :style="{
@@ -55,49 +83,36 @@
         >
             <q-scroll-area
                 class="col"
-                style="height: 100%"
+                style="height: 100%;"
             >
                 <q-list v-if="Array.from($store.state.avatars.avatarsInfo.keys()).length > 0">
                     <q-item
                         v-for="avaInfo in $store.state.avatars.avatarsInfo.values()"
                         :key="avaInfo.sessionId.stringify()"
-                        class="q-mb-none"
+                        class="q-mb-none q-pa-sm"
                         dense
-                        clickable
-                        v-ripple
-                        @click="
-                            showMoreOptions[avaInfo.sessionId.stringify()] = !showMoreOptions[avaInfo.sessionId.stringify()]"
                     >
-                        <q-item-section avatar>
-                            <q-avatar class="q-mb-sm" color="primary" >
+                        <q-item-section avatar class="q-gutter-y-sm">
+                            <q-avatar color="primary">
                                 <img v-if="getProfilePicture(avaInfo)" :src="getProfilePicture(avaInfo)">
                                 <span v-else style="user-select: none;">{{ getDisplayName(avaInfo).substring(0, 2) }}</span>
                             </q-avatar>
+                            <q-item-label v-if="avaInfo.isAdmin" caption lines="1">Admin</q-item-label>
                         </q-item-section>
                         <q-item-section>
-                            <div class="col q-pt-none">
-                                <div class="row" style="align-items: center;gap: 16px;">
-                                    <q-item-label>{{ getDisplayName(avaInfo) }}</q-item-label>
-                                    <q-item-label v-if="avaInfo.isAdmin" caption lines="1">Admin</q-item-label>
-                                    <q-btn
-                                        flat
-                                        round
-                                        dense
-                                        ripple
-                                        icon="more_horiz"
-                                        :text-color="$q.dark.isActive ? 'white' : 'dark'"
-                                        title="More options"
-                                        style="margin-left: auto;"
-                                        @click.stop="
-                                            showMoreOptions[avaInfo.sessionId.stringify()] =
-                                            !showMoreOptions[avaInfo.sessionId.stringify()]"
-                                    />
-                                </div>
-                                <TransitionGroup name="slide-left">
+                            <div class="row" style="justify-content: space-between;align-items: center;gap: 16px;">
+                                <q-item-label>{{ getDisplayName(avaInfo) }}</q-item-label>
+                                <div
+                                    class="row"
+                                    style="position: relative;justify-content: flex-end;align-items: center;gap: 4px;"
+                                >
                                     <div
-                                        v-if="showMoreOptions[avaInfo.sessionId.stringify()]"
-                                        class="row q-mb-none q-pt-xs"
-                                        style="align-items: center;gap: 4px;width: 100%;"
+                                        :style="{
+                                            opacity: !showVolumeSlider[avaInfo.sessionId.stringify()] ? 1 : 0,
+                                            transition: !showVolumeSlider[avaInfo.sessionId.stringify()]
+                                                ? '0.25s ease opacity' : 'none',
+                                            pointerEvents: !showVolumeSlider[avaInfo.sessionId.stringify()] ? 'all' : 'none'
+                                        }"
                                     >
                                         <q-btn
                                             icon="place"
@@ -108,7 +123,7 @@
                                             ripple
                                             :title="`Teleport to ${avaInfo.displayName}`"
                                             @click.stop="teleportToAvatar(avaInfo)"
-                                        ></q-btn>
+                                        />
                                         <q-btn
                                             icon="person_add_alt_1"
                                             text-color="primary"
@@ -116,12 +131,34 @@
                                             round
                                             dense
                                             ripple
-                                            title="Add friend"
+                                            :title="`Add ${avaInfo.displayName} as a friend`"
                                             disable
                                             @click.stop=""
-                                        ></q-btn>
+                                        />
                                         <template v-if="canKick">
                                             <!--Admin Controls-->
+                                            <q-btn
+                                                icon="logout"
+                                                text-color="negative"
+                                                flat
+                                                round
+                                                dense
+                                                ripple
+                                                :title="`Kick ${avaInfo.displayName}`"
+                                                :disable="!canKick"
+                                                @click.stop="adminKick(avaInfo.sessionId)"
+                                            />
+                                            <q-btn
+                                                icon="remove_circle"
+                                                text-color="negative"
+                                                flat
+                                                round
+                                                dense
+                                                ripple
+                                                :title="`IP Ban ${avaInfo.displayName}`"
+                                                :disable="!canKick"
+                                                @click.stop="adminKick(avaInfo.sessionId, banByIP())"
+                                            />
                                             <q-btn
                                                 icon="volume_off"
                                                 text-color="negative"
@@ -129,63 +166,60 @@
                                                 round
                                                 dense
                                                 ripple
-                                                title="Server mute"
+                                                :title="`Server mute ${avaInfo.displayName}`"
                                                 :disable="!canKick"
                                                 @click.stop="adminServerMute(avaInfo.sessionId)"
-                                            ></q-btn>
-                                            <q-btn
-                                                icon="remove_circle"
-                                                text-color="negative"
-                                                flat
-                                                round
-                                                dense
-                                                ripple
-                                                title="Kick player"
-                                                :disable="!canKick"
-                                                @click.stop="adminKick(avaInfo.sessionId)"
-                                            ></q-btn>
-                                            <q-btn
-                                                icon="remove_circle"
-                                                text-color="negative"
-                                                flat
-                                                round
-                                                dense
-                                                ripple
-                                                title="Kick player with IP"
-                                                :disable="!canKick"
-                                                @click.stop="adminKick(avaInfo.sessionId, banByIP())"
-                                            ></q-btn>
+                                            />
                                         </template>
                                     </div>
-                                    <div
-                                        v-else
-                                        class="row"
-                                        style="align-items: center;gap: 16px;min-width: 70%;"
-                                    >
+                                    <div style="all: inherit;position: relative;">
                                         <q-slider
                                             :min="0"
                                             :max="100"
-                                            :step="10"
+                                            :step="5"
                                             snap
+                                            dark
                                             :color="avaInfo.muted || avaInfo.volume === 0 ? 'red' : 'primary'"
-                                            style="width: calc(100% - 48px);"
+                                            :title="`Volume: ${avaInfo.volume}%`"
+                                            class="volumeSlider"
+                                            :style="{
+                                                opacity: showVolumeSlider[avaInfo.sessionId.stringify()] ? 1 : 0,
+                                                transition: showVolumeSlider[avaInfo.sessionId.stringify()]
+                                                    ? '0.25s ease opacity' : 'none',
+                                                pointerEvents: showVolumeSlider[avaInfo.sessionId.stringify()] ? 'all' : 'none'
+                                            }"
                                             :model-value="avaInfo.volume"
-                                            @update:model-value="(value) => updateVolume(avaInfo.sessionId, value)"
+                                            @update:model-value="(value) => setVolume(avaInfo.sessionId, value)"
                                         />
-                                        <q-icon
-                                            role="button"
-                                            size="sm"
+                                        <q-btn
+                                            :text-color="avaInfo.muted || avaInfo.volume === 0 ? 'red' : 'primary'"
                                             flat
                                             round
+                                            dense
                                             ripple
-                                            :color="avaInfo.muted || avaInfo.volume === 0 ? 'red' : 'primary'"
-                                            :name="avaInfo.muted || avaInfo.volume === 0 ? 'volume_off' : 'volume_up'"
-                                            :title="avaInfo.muted || avaInfo.volume === 0 ?
-                                                `Unmute ${avaInfo.displayName}` : `Mute ${avaInfo.displayName}`"
-                                            @click.stop="complementMuted(avaInfo)"
-                                        />
+                                            :title="`Adjust ${
+                                                avaInfo.displayName[avaInfo.displayName.length - 1]?.toLowerCase() === 's'
+                                                ? avaInfo.displayName + '\''
+                                                : avaInfo.displayName + '\'s'
+                                            } volume`"
+                                            @click.stop="showVolumeSlider[avaInfo.sessionId.stringify()] =
+                                                !showVolumeSlider[avaInfo.sessionId.stringify()]"
+                                        >
+                                            <span class="volumeIcon" :style="`--volume: ${avaInfo.volume}%;`"></span>
+                                        </q-btn>
                                     </div>
-                                </TransitionGroup>
+                                    <q-btn
+                                        :icon="avaInfo.muted || avaInfo.volume === 0 ? 'volume_off' : 'volume_up'"
+                                        :text-color="avaInfo.muted || avaInfo.volume === 0 ? 'red' : 'primary'"
+                                        flat
+                                        round
+                                        dense
+                                        ripple
+                                        :title="avaInfo.muted || avaInfo.volume === 0
+                                            ? `Unmute ${avaInfo.displayName}` : `Mute ${avaInfo.displayName}`"
+                                        @click.stop="complementMuted(avaInfo)"
+                                    />
+                                </div>
                             </div>
                         </q-item-section>
                     </q-item>
@@ -204,6 +238,7 @@ import { Store, Mutations as StoreMutations, AvatarInfo } from "@Store/index";
 import { DomainMgr } from "@Modules/domain";
 import { Renderer } from "@Modules/scene";
 import { ModerationFlags, Uuid } from "@vircadia/web-sdk";
+import { DomainAudio } from "@Modules/domain/audio";
 
 export interface PeopleEntry {
     displayName: string;
@@ -227,7 +262,7 @@ export default defineComponent({
     },
 
     data: () => ({
-        showMoreOptions: {} as { [key: string]: boolean },
+        showVolumeSlider: {} as { [key: string]: boolean },
         canKick: false
     }),
 
@@ -243,14 +278,31 @@ export default defineComponent({
             return undefined;
         },
 
-        // Get the avatar's display name from the info.
+        /**
+         * Get the display name for a given avatar.
+         * @param pAvaInfo The avatar's session info.
+         */
         getDisplayName(pAvaInfo: AvatarInfo): string {
             return pAvaInfo.displayName ?? "anonymous";
         },
 
-        // Update the volume of a given avatar.
-        updateVolume(sessionId: Uuid, value: number | null) {
+        /**
+         * Set the audio volume of a given avatar.
+         * @param sessionId The session ID of the avatar.
+         * @param value The audio volume, expressed as a percentage.
+         */
+        setVolume(sessionId: Uuid, value: number | null): void {
             if (value) {
+                // Request the desired gain from the Domain server.
+                const domainServer = DomainMgr.ActiveDomain?.DomainClient;
+                if (domainServer) {
+                    domainServer.users.setAvatarGain(
+                        sessionId,
+                        DomainAudio.getGainFromPercentage(value)
+                    );
+                }
+
+                // Update the avatar's gain value in the Store.
                 Store.commit(StoreMutations.UPDATE_AVATAR_VALUE, {
                     sessionId,
                     field: "volume",
@@ -259,9 +311,23 @@ export default defineComponent({
             }
         },
 
-        // Complement the value of the muted data for this particular avatar.
+        /**
+         * Complement the muted state of a given avatar.
+         * @param pAvaInfo The avatar's session info.
+         */
         complementMuted(pAvaInfo: AvatarInfo): void {
             const newMute = !pAvaInfo.muted;
+
+            // Request the desired mute state from the Domain server.
+            const domainServer = DomainMgr.ActiveDomain?.DomainClient;
+            if (domainServer) {
+                domainServer.users.setPersonalMute(
+                    pAvaInfo.sessionId,
+                    newMute
+                );
+            }
+
+            // Update the avatar's mute value in the Store.
             Store.commit(StoreMutations.UPDATE_AVATAR_VALUE, {
                 sessionId: pAvaInfo.sessionId,
                 field: "muted",
@@ -269,7 +335,11 @@ export default defineComponent({
             });
         },
 
-        teleportToAvatar(pAvaInfo: AvatarInfo) {
+        /**
+         * Teleport to a particular avatar.
+         * @param pAvaInfo The avatar's session info.
+         */
+        teleportToAvatar(pAvaInfo: AvatarInfo): void {
             Renderer.getScene().teleportMyAvatarToOtherPeople(pAvaInfo.sessionId.stringify());
         },
 
