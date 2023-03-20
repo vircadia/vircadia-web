@@ -49,6 +49,7 @@ export enum Action {
     SitBeanbag,
     SitChair,
     SitAuditorium,
+    SitCouch,
     Clap,
     Salute,
     RunForward
@@ -79,6 +80,7 @@ export const AnimationMap = new Map([
     [Action.SitBeanbag,     { name: "sitting_beanbag", loop: false }],
     [Action.SitChair,       { name: "sitting_chair", loop: false }],
     [Action.SitAuditorium,  { name: "sitting_auditorium", loop: false }],
+    [Action.SitCouch,       { name: "sitting_couch", loop: false }],
     [Action.Clap,           { name: "emote_clap01_all", loop: true, loopStart: 17, loopEnd: 111 }],
     [Action.Salute,         { name: "salute", loop: true, loopStart: 10, loopEnd: 30 }]
 ]) as Map<Action, AnimationLoopData>;
