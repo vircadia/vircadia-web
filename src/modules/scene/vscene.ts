@@ -396,6 +396,7 @@ export class VScene {
                 this._myAvatar,
                 avatarHeight,
                 Store.state.avatar.displayName,
+                false,
                 nametagColor
             );
             // Update the nametag color when the player's admin state is changed in the Store.
@@ -403,14 +404,14 @@ export class VScene {
                 nametagColor = value ? Color3.FromHexString(Store.state.theme.colors.primary) : undefined;
                 NametagEntity.removeAll(this._myAvatar);
                 if (this._myAvatar) {
-                    NametagEntity.create(this._myAvatar, avatarHeight, Store.state.avatar.displayName, nametagColor);
+                    NametagEntity.create(this._myAvatar, avatarHeight, Store.state.avatar.displayName, false, nametagColor);
                 }
             });
             // Update the nametag when the displayName is changed in the Store.
             Store.watch((state) => state.avatar.displayName, (value: string) => {
                 NametagEntity.removeAll(this._myAvatar);
                 if (this._myAvatar) {
-                    NametagEntity.create(this._myAvatar, avatarHeight, value, nametagColor);
+                    NametagEntity.create(this._myAvatar, avatarHeight, value, false, nametagColor);
                 }
             });
 
@@ -466,14 +467,14 @@ export class VScene {
             let nametagColor = Store.state.avatars.avatarsInfo.get(id)?.isAdmin
                 ? Color3.FromHexString(Store.state.theme.colors.primary)
                 : undefined;
-            NametagEntity.create(avatar, avatarHeight, domain.displayName, nametagColor);
+            NametagEntity.create(avatar, avatarHeight, domain.displayName, false, nametagColor);
             // Update the nametag color when the player's admin state is changed.
             Store.watch((state) => Boolean(state.avatars.avatarsInfo.get(id)?.isAdmin), (value: boolean) => {
                 nametagColor = value ? Color3.FromHexString(Store.state.theme.colors.primary) : undefined;
                 const nametagAvatar = this._avatarList.get(stringId);
                 NametagEntity.removeAll(nametagAvatar);
                 if (nametagAvatar) {
-                    NametagEntity.create(nametagAvatar, avatarHeight, domain.displayName, nametagColor);
+                    NametagEntity.create(nametagAvatar, avatarHeight, domain.displayName, false, nametagColor);
                 }
             });
             // Update the nametag when the displayName is changed.
@@ -481,7 +482,7 @@ export class VScene {
                 const nametagAvatar = this._avatarList.get(stringId);
                 NametagEntity.removeAll(nametagAvatar);
                 if (nametagAvatar) {
-                    NametagEntity.create(nametagAvatar, avatarHeight, domain.displayName, nametagColor);
+                    NametagEntity.create(nametagAvatar, avatarHeight, domain.displayName, false, nametagColor);
                 }
             });
         }
