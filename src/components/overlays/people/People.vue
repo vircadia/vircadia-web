@@ -146,7 +146,7 @@
                                                 @click.stop="adminKick(avaInfo.sessionId, banByIP())"
                                             />
                                             <q-btn
-                                                icon="volume_off"
+                                                icon="mic_off"
                                                 text-color="negative"
                                                 flat
                                                 round
