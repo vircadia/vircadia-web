@@ -10,27 +10,13 @@
 
 <style lang="scss" scoped>
 .volumeIcon {
-    --offset: 0.15em;
-    --volume: 0%;
-    position: relative;
-    display: inline-flex;
+    display: inline-block;
     width: 1.5em;
-    height: 1.25em;
+    height: 1.5em;
+    aspect-ratio: 1;
     color: inherit;
     background-color: currentColor;
-    clip-path: polygon(
-        100% 100%,
-        0% 100%,
-        100% 0%,
-        100% 100%,
-        calc(100% - var(--offset)) calc(100% - var(--offset)),
-        calc(100% - var(--offset)) calc(var(--offset) * 2.1),
-        calc((var(--offset) * 2.7) + (var(--volume) * 0.75 - var(--offset)))
-        calc(var(--offset) * 2.1 + (95% - var(--volume)) * 0.78),
-        calc((var(--offset) * 2.7) + (var(--volume) * 0.75 - var(--offset))) calc(100% - var(--offset)),
-        calc(100% - var(--offset)) calc(100% - var(--offset))
-    );
-    transform: translate(-5%, -5%);
+    border-radius: 50%;
 }
 .volumeSlider {
     position: absolute;
@@ -205,7 +191,18 @@
                                             @click.stop="showVolumeSlider[avaInfo.sessionId.stringify()] =
                                                 !showVolumeSlider[avaInfo.sessionId.stringify()]"
                                         >
-                                            <span class="volumeIcon" :style="`--volume: ${avaInfo.volume}%;`"></span>
+                                            <q-circular-progress
+                                                :angle="180"
+                                                :value="avaInfo.volume"
+                                                instant-feedback
+                                                size="xs"
+                                                :thickness="0.3"
+                                                track-color="transparent"
+                                                show-value
+                                                class="q-ma-none"
+                                            >
+                                                <span class="volumeIcon"></span>
+                                            </q-circular-progress>
                                         </q-btn>
                                     </div>
                                     <q-btn
