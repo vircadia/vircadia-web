@@ -179,6 +179,7 @@ export class ZoneEntityController extends EntityController {
                 this._ambientLight.light.setEnabled(true);
                 if (typeof this._zoneEntity.ambientLight.ambientIntensity === "number") {
                     this._ambientLight.light.intensity = this._zoneEntity.ambientLight.ambientIntensity;
+                    this._scene.environmentIntensity = this._zoneEntity.ambientLight.ambientIntensity;
                 }
             }
 
