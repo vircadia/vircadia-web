@@ -34,25 +34,34 @@ export const Renderer = {
     // eslint-disable-next-line @typescript-eslint/require-await
     async initialize(pCanvas: HTMLCanvasElement, pLoadingScreen: HTMLElement): Promise<void> {
         this._webgpuSupported = await WebGPUEngine.IsSupportedAsync;
+        console.log("WebGPU Supported: ", this._webgpuSupported ? "Yes" : "No");
         if (this._webgpuSupported) {
-
-            Renderer._engine = new WebGPUEngine(pCanvas, {
-                deviceDescriptor: {
-                    requiredFeatures: [
-                        "depth-clip-control",
-                        "depth24unorm-stencil8",
-                        "depth32float-stencil8",
-                        "texture-compression-bc",
-                        "texture-compression-etc2",
-                        "texture-compression-astc",
-                        "timestamp-query",
-                        "indirect-first-instance"
-                    ]
-                }
-            });
-            Renderer._engine.loadingScreen = new CustomLoadingScreen(pLoadingScreen);
-            await (Renderer._engine as WebGPUEngine).initAsync();
-            Renderer._engine.displayLoadingUI();
+            try {
+                Renderer._engine = new WebGPUEngine(pCanvas, {
+                    deviceDescriptor: {
+                        requiredFeatures: [
+                            "depth-clip-control",
+                            "depth24unorm-stencil8",
+                            "depth32float-stencil8",
+                            "texture-compression-bc",
+                            "texture-compression-etc2",
+                            "texture-compression-astc",
+                            "timestamp-query",
+                            "indirect-first-instance"
+                        ]
+                    }
+                });
+                Renderer._engine.loadingScreen = new CustomLoadingScreen(pLoadingScreen);
+                await (Renderer._engine as WebGPUEngine).initAsync();
+                Renderer._engine.displayLoadingUI();
+            } catch (e) {
+                console.error("Error initializing WebGPU: ", e);
+                console.log("Trying to initialize WebGL instead.");
+                Renderer._engine = new Engine(pCanvas, true);
+                Renderer._engine.renderEvenInBackground = true;
+                Renderer._engine.loadingScreen = new CustomLoadingScreen(pLoadingScreen);
+                Renderer._engine.displayLoadingUI();
+            }
         } else {
             Renderer._engine = new Engine(pCanvas, true);
             Renderer._engine.renderEvenInBackground = true;
