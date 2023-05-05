@@ -34,7 +34,7 @@ export const Renderer = {
     // eslint-disable-next-line @typescript-eslint/require-await
     async initialize(pCanvas: HTMLCanvasElement, pLoadingScreen: HTMLElement): Promise<void> {
         this._webgpuSupported = await WebGPUEngine.IsSupportedAsync;
-        console.log("WebGPU Supported: ", this._webgpuSupported ? "Yes" : "No");
+        console.log("WebGPU Supported:", this._webgpuSupported ? "Yes" : "No");
         if (this._webgpuSupported) {
             try {
                 Renderer._engine = new WebGPUEngine(pCanvas, {
@@ -55,7 +55,7 @@ export const Renderer = {
                 await (Renderer._engine as WebGPUEngine).initAsync();
                 Renderer._engine.displayLoadingUI();
             } catch (e) {
-                console.error("Error initializing WebGPU: ", e);
+                console.error("Error initializing WebGPU:", e);
                 console.log("Trying to initialize WebGL instead.");
                 Renderer._engine = new Engine(pCanvas, true);
                 Renderer._engine.renderEvenInBackground = true;
