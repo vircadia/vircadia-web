@@ -33,11 +33,11 @@ export const Renderer = {
 
     // eslint-disable-next-line @typescript-eslint/require-await
     async initialize(pCanvas: HTMLCanvasElement, pLoadingScreen: HTMLElement): Promise<void> {
-        // FIXME: This is a temporary hack to disable WebGPU on MacOS.
+        // FIXME: This is a temporary hack to disable WebGPU on Chrome and Edge.
         // this._webgpuSupported = await WebGPUEngine.IsSupportedAsync;
-        const isMacOS = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
-        console.debug("Is MacOS:", isMacOS);
-        this._webgpuSupported = !isMacOS && await WebGPUEngine.IsSupportedAsync;
+        const isChrome = navigator.userAgent.indexOf("Chrome") >= 0;
+        console.debug("Is Chrome:", isChrome);
+        this._webgpuSupported = !isChrome && await WebGPUEngine.IsSupportedAsync;
         if (this._webgpuSupported) {
 
             Renderer._engine = new WebGPUEngine(pCanvas, {
