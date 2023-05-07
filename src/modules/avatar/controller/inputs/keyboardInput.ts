@@ -129,6 +129,10 @@ export class KeyboardInput implements IInputHandler {
     }
 
     private _onKeyDown(evt: ActionEvent):void {
+        if (!evt.sourceEvent?.code) {
+            return;
+        }
+
         this._inputMap[evt.sourceEvent.code] = evt.sourceEvent.type === "keydown";
         this._shiftKey = evt.sourceEvent.shiftKey === true;
 
@@ -253,6 +257,12 @@ export class KeyboardInput implements IInputHandler {
     }
 
     private _onKeyUp(evt: ActionEvent):void {
+        if (!evt.sourceEvent?.code) {
+            // Work around "continue walking forever" browser / Babylon.js bug in which the code value can be undefined if the
+            // key-up event is due to clicking on an app window while a key is pressed.
+            this._inputMap = {};
+            return;
+        }
         this._inputMap[evt.sourceEvent.code] = evt.sourceEvent.type === "keydown";
         this._shiftKey = evt.sourceEvent.shiftKey === true;
 
