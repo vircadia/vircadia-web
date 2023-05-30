@@ -19,7 +19,10 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { Store, Mutations as StoreMutations } from "@Base/store";
+import { pinia } from "@Stores/index";
+import { useUserStore } from "@Stores/user-store";
+
+const userStore = useUserStore(pinia);
 
 /**
  * Logarithmically interpolate between two values (`start` & `end`) at a given percentage (`t`).
@@ -102,9 +105,9 @@ class MouseSettingsControllerSingleton {
     } as { [T in MouseSettingsControllerEvents]: MouseSettingsControllerEventCallback<T>[] };
 
     constructor() {
-        this.sensitivity = Store.state.controls.mouse.sensitivity;
-        this.acceleration = Store.state.controls.mouse.acceleration;
-        this.invert = Store.state.controls.mouse.invert;
+        this.sensitivity = userStore.controls.mouse.sensitivity;
+        this.acceleration = userStore.controls.mouse.acceleration;
+        this.invert = userStore.controls.mouse.invert;
     }
 
     /**
@@ -127,10 +130,7 @@ class MouseSettingsControllerSingleton {
         ) * (this.#acceleration ? this.#motionComponents.sensibility.accelerationMultiplier : 1);
 
         // Update the value in the store.
-        Store.commit(StoreMutations.MUTATE, {
-            property: "controls.mouse.sensitivity",
-            value
-        });
+        userStore.controls.mouse.sensitivity = value;
 
         // Run all callback functions associated with this value.
         this.#callbacks[Sensitivity].forEach((callback) => callback(this.sensitivityComponents));
@@ -168,10 +168,7 @@ class MouseSettingsControllerSingleton {
         this.sensitivity = this.#sensitivity.value;
 
         // Update the value in the store.
-        Store.commit(StoreMutations.MUTATE, {
-            property: "controls.mouse.acceleration",
-            value
-        });
+        userStore.controls.mouse.acceleration = value;
 
         // Run all callback functions associated with this value.
         this.#callbacks[Acceleration].forEach((callback) => callback(value));
@@ -193,10 +190,7 @@ class MouseSettingsControllerSingleton {
         this.sensitivity = this.#sensitivity.value;
 
         // Update the value in the store.
-        Store.commit(StoreMutations.MUTATE, {
-            property: "controls.mouse.invert",
-            value
-        });
+        userStore.controls.mouse.invert = value;
 
         // Run all callback functions associated with this value.
         this.#callbacks[Invert].forEach((callback) => callback(value));

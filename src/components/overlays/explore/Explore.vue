@@ -160,14 +160,14 @@
             <div
                 class="exploreLocationInfo q-pa-sm"
                 :class="{
-                    'connected': $store.state.metaverse.connectionState === 'CONNECTED',
-                    'connecting': $store.state.metaverse.connectionState === 'CONNECTING',
-                    'disconnected': $store.state.metaverse.connectionState === 'DISCONNECTED'
+                    'connected': applicationStore.metaverse.connectionState === 'CONNECTED',
+                    'connecting': applicationStore.metaverse.connectionState === 'CONNECTING',
+                    'disconnected': applicationStore.metaverse.connectionState === 'DISCONNECTED'
                 }"
             >
                 <img
-                    :src="$store.state.theme.logo"
-                    :alt="`${$store.state.theme.productName} logo`"
+                    :src="applicationStore.theme.logo"
+                    :alt="`${applicationStore.theme.productName} logo`"
                 >
                 <p
                     class="locationDomain text-no-wrap ellipsis cursor-pointer"
@@ -187,7 +187,7 @@
                         Domain
                         <q-input dense autofocus v-model="domain" />
                         <div class="row q-gutter-x-md q-mt-xs">
-                            <q-btn @click="() => { scope.cancel();loadLocation($store.state.avatar.location); }">Cancel</q-btn>
+                            <q-btn @click="() => { scope.cancel();loadLocation(userStore.avatar.location); }">Cancel</q-btn>
                             <q-btn color="primary" @click="() => { scope.set();setLocation(); }">Ok</q-btn>
                         </div>
                     </q-popup-edit>
@@ -203,7 +203,7 @@
                         <q-input dense type="number" label="Y" v-model="position.y" />
                         <q-input dense type="number" label="Z" v-model="position.z" />
                         <div class="row q-gutter-x-md q-mt-xs">
-                            <q-btn @click="() => { scope.cancel();loadLocation($store.state.avatar.location); }">Cancel</q-btn>
+                            <q-btn @click="() => { scope.cancel();loadLocation(userStore.avatar.location); }">Cancel</q-btn>
                             <q-btn color="primary" @click="() => { scope.set();setLocation(); }">Ok</q-btn>
                         </div>
                     </q-popup-edit>
@@ -220,7 +220,7 @@
                         <q-input dense type="number" label="Z" v-model="rotation.z" />
                         <q-input dense type="number" label="W" v-model="rotation.w" />
                         <div class="row q-gutter-x-md q-mt-xs">
-                            <q-btn @click="() => { scope.cancel();loadLocation($store.state.avatar.location); }">Cancel</q-btn>
+                            <q-btn @click="() => { scope.cancel();loadLocation(userStore.avatar.location); }">Cancel</q-btn>
                             <q-btn color="primary" @click="() => { scope.set();setLocation(); }">Ok</q-btn>
                         </div>
                     </q-popup-edit>
@@ -379,13 +379,13 @@
                 <q-tab-panel name="bookmarks" class="full-height q-pa-none non-selectable">
                     <q-list :showing="!loading">
                         <p
-                            v-if="$store.state.bookmarks.locations.length <= 0"
+                            v-if="userStore.bookmarks.locations.length <= 0"
                             class="text-grey-6 q-pt-lg"
                             style="width: 100%;text-align: center;"
                         >You have no bookmarks</p>
                         <q-item
                             v-else
-                            v-for="(bookmark, index) of $store.state.bookmarks.locations"
+                            v-for="(bookmark, index) of userStore.bookmarks.locations"
                             :key="bookmark.name"
                             clickable
                             v-ripple
@@ -474,15 +474,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, watch } from "vue";
 import { Vector3, Vector4 } from "@babylonjs/core";
+import { useApplicationStore } from "@Stores/application-store";
+import { useUserStore } from "@Stores/user-store";
 import { Utility } from "@Modules/utility";
 import { Location } from "@Modules/domain/location";
 import { Places, PlaceEntry } from "@Modules/places";
 import { Renderer } from "@Modules/scene";
-import { Mutations as StoreMutations } from "@Store/index";
 import Log from "@Modules/debugging/log";
-
 import OverlayShell from "../OverlayShell.vue";
 
 // Conditional types for the `parseLocation()` method.
@@ -505,6 +505,13 @@ export default defineComponent({
 
     components: {
         OverlayShell
+    },
+
+    setup() {
+        return {
+            applicationStore: useApplicationStore(),
+            userStore: useUserStore()
+        };
     },
 
     data() {
@@ -531,34 +538,34 @@ export default defineComponent({
 
     computed: {
         getLocation: function(): string {
-            return this.$store.state.avatar.location ?? "Not currently connected to a domain.";
+            return this.userStore.avatar.location ?? "Not currently connected to a domain.";
         },
         // Displays the state of the domain server on the user interface
         getDomainServerState: function(): string {
-            if (this.$store.state.domain.url && this.$store.state.domain.url.length > 0) {
-                return `${this.$store.state.domain.connectionState} (${this.$store.state.domain.url})`;
+            if (this.applicationStore.domain.url && this.applicationStore.domain.url.length > 0) {
+                return `${this.applicationStore.domain.connectionState} (${this.applicationStore.domain.url})`;
             }
-            return this.$store.state.domain.connectionState;
+            return this.applicationStore.domain.connectionState;
         },
         getShowConnect: function() : boolean {
-            if (this.$store.state.domain.url && this.$store.state.domain.url.length > 0
-                    && this.$store.state.domain.connectionState === "DISCONNECTED" && this.lastConnectedDomain) {
+            if (this.applicationStore.domain.url && this.applicationStore.domain.url.length > 0
+                    && this.applicationStore.domain.connectionState === "DISCONNECTED" && this.lastConnectedDomain) {
                 return true;
             }
             return false;
         },
         getShowDisconnect: function() : boolean {
-            if (this.$store.state.domain.url && this.$store.state.domain.url.length > 0
-                    && this.$store.state.domain.connectionState.startsWith("CONNECT")) {
+            if (this.applicationStore.domain.url && this.applicationStore.domain.url.length > 0
+                    && this.applicationStore.domain.connectionState.startsWith("CONNECT")) {
                 return true;
             }
             return false;
         },
         getDisconnectLabel: function() : string {
-            if (this.$store.state.domain.connectionState === "CONNECTING") {
+            if (this.applicationStore.domain.connectionState === "CONNECTING") {
                 return "Cancel";
             }
-            if (this.$store.state.domain.connectionState === "CONNECTED") {
+            if (this.applicationStore.domain.connectionState === "CONNECTED") {
                 return "Disconnect";
             }
             return "false";
@@ -642,8 +649,8 @@ export default defineComponent({
         },
 
         disconnect: async function() {
-            Log.info(Log.types.UI, `Disconnecting from... ${this.$store.state.avatar.location}`);
-            this.lastConnectedDomain = this.$store.state.avatar.location;
+            Log.info(Log.types.UI, `Disconnecting from... ${this.userStore.avatar.location}`);
+            this.lastConnectedDomain = this.userStore.avatar.location;
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             await Utility.disconnectActiveDomain();
         },
@@ -710,45 +717,28 @@ export default defineComponent({
 
         addLocationToBookmarks(): void {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-            const bookmarks = [...this.$store.state.bookmarks.locations];
-            bookmarks.push({
+            this.userStore.bookmarks.locations.push({
                 name: this.newBookmark.name,
                 color: this.newBookmark.color,
-                url: this.$store.state.avatar.location
-            });
-            this.$store.commit(StoreMutations.MUTATE, {
-                property: "bookmarks.locations",
-                value: bookmarks
+                url: this.userStore.avatar.location
             });
             this.newBookmark.name = "";
             this.newBookmark.color = "";
         },
 
         updateBookmark(index: number): void {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-            const bookmarks = [...this.$store.state.bookmarks.locations];
-            const location = this.$store.state.bookmarks.locations[index].url;
-            bookmarks.splice(index, 1, {
+            const location = this.userStore.bookmarks.locations[index].url;
+            this.userStore.bookmarks.locations.splice(index, 1, {
                 name: this.newBookmark.name,
                 color: this.newBookmark.color,
                 url: location
-            });
-            this.$store.commit(StoreMutations.MUTATE, {
-                property: "bookmarks.locations",
-                value: bookmarks
             });
             this.newBookmark.name = "";
             this.newBookmark.color = "";
         },
 
         deleteBookmark(index: number): void {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-            const bookmarks = [...this.$store.state.bookmarks.locations];
-            bookmarks.splice(index, 1);
-            this.$store.commit(StoreMutations.MUTATE, {
-                property: "bookmarks.locations",
-                value: bookmarks
-            });
+            this.userStore.bookmarks.locations.splice(index, 1);
         },
 
         async copyLocationToClipboard(): Promise<void> {
@@ -772,15 +762,13 @@ export default defineComponent({
         }
     },
 
-    created: async function(): Promise<void> {
-        await this.loadPlacesList();
+    created() {
+        void this.loadPlacesList();
     },
 
     beforeMount() {
-        this.loadLocation(this.$store.state.avatar.location);
-        this.$store.watch((state) => state.avatar.location, (value) => {
-            this.loadLocation(value);
-        });
+        this.loadLocation(this.userStore.avatar.location);
+        watch(() => this.userStore.avatar.location, (value) => this.loadLocation(value));
     }
 });
 </script>

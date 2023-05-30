@@ -45,16 +45,17 @@
         <slot name="manager"></slot>
         <LoadingScreen ref="loadingScreen" />
         <JitsiContainer ref="JitsiContainer" />
-        <div class="versionWatermark">{{ $store.state.theme.versionWatermark }}</div>
+        <div class="versionWatermark">{{ applicationStore.theme.versionWatermark }}</div>
     </q-page>
 </template>
 
 <script lang="ts">
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { defineComponent } from "vue";
+import { defineComponent, watch } from "vue";
 
-import { Mutations as StoreMutations } from "@Store/index";
+import { useApplicationStore } from "@Stores/application-store";
+import { useUserStore } from "@Stores/user-store";
 import { AudioMgr } from "@Modules/scene/audio";
 import { Renderer } from "@Modules/scene/renderer";
 import { Utility } from "@Modules/utility";
@@ -94,14 +95,23 @@ export default defineComponent({
         mainSceneAudioElement: HTMLFormElement
     },
 
-    data: () => ({
-        sceneCreated: false,
-        canvasHeight: 200,
-        canvasWidth: 200,
-        updateUrlReady: true,
-        locationUnwatch: () => { /* This function will be populated once connected to a domain. */ },
-        previousLocation: undefined as Location | undefined
-    }),
+    setup() {
+        return {
+            applicationStore: useApplicationStore(),
+            userStore: useUserStore()
+        };
+    },
+
+    data() {
+        return {
+            sceneCreated: false,
+            canvasHeight: 200,
+            canvasWidth: 200,
+            updateUrlReady: true,
+            locationUnwatch: () => { /* This function will be populated once connected to a domain. */ },
+            previousLocation: undefined as Location | undefined
+        };
+    },
 
     watch: {
         // call again the method if the route changes
@@ -139,7 +149,7 @@ export default defineComponent({
             }
 
             // Remove the protocol from the displayed location.
-            const location = this.$store.state.avatar.location
+            const location = this.userStore.avatar.location
                 .replace("ws://", "")
                 .replace("wss://", "")
                 .replace("http://", "")
@@ -158,12 +168,16 @@ export default defineComponent({
             }
         },
         async connect() {
-            let location = Array.isArray(this.$route.params.location)
+            let location: string | undefined = Array.isArray(this.$route.params.location)
                 ? this.$route.params.location.join("/")
                 : this.$route.params.location;
 
-            if (!location || location === "") {
-                location = this.$store.state.defaultConnectionConfig.DEFAULT_DOMAIN_URL;
+            if (!location) {
+                location = this.applicationStore.defaultConnectionConfig.DEFAULT_DOMAIN_URL;
+            }
+
+            if (!location) {
+                return;
             }
 
             // Check if just the position/rotation values differ from the current location.
@@ -176,7 +190,7 @@ export default defineComponent({
 
             // If the URL is configured to be updated, bind the watcher function.
             if (URL_UPDATE_FREQUENCY >= 0) {
-                this.locationUnwatch = this.$store.watch((state) => state.avatar.location, () => this.updateURL());
+                this.locationUnwatch = watch(() => this.userStore.avatar.location, () => this.updateURL());
             } else {
                 // If URL updating is disbled (by having a negative frequency) then don't bind the watcher function.
                 // And remove the path from the URL bar.
@@ -201,45 +215,45 @@ export default defineComponent({
     },
 
     // Called after MainScene is loaded onto the page.
-    mounted: async function() {
-        // Initialize the graphics display.
-        const canvas = this.$refs.renderCanvas as HTMLCanvasElement;
-        const loadingScreenComponent = this.$refs.loadingScreen as typeof LoadingScreen;
-        const loadingScreenElement = loadingScreenComponent.$el as HTMLElement;
-        await Renderer.initialize(canvas, loadingScreenElement);
-        this.$store.commit(StoreMutations.MUTATE, {
-            property: "renderer/focusSceneId",
-            value: 0
-        });
+    mounted: function() {
+        const boot = async () => {
+            // Initialize the graphics display.
+            const canvas = this.$refs.renderCanvas as HTMLCanvasElement;
+            const loadingScreenComponent = this.$refs.loadingScreen as typeof LoadingScreen;
+            const loadingScreenElement = loadingScreenComponent.$el as HTMLElement;
+            await Renderer.initialize(canvas, loadingScreenElement);
+            this.applicationStore.renderer.focusSceneId = 0;
 
-        canvas.addEventListener("pointerdown", () => {
-            // FIXME: Pointer-lock hinders the interactivity of web-entities.
-            // canvas.requestPointerLock();
-        });
-        canvas.addEventListener("pointerup", () => {
-            document.exitPointerLock();
-        });
-        document.addEventListener("pointerup", () => {
-            document.exitPointerLock();
-        });
+            canvas.addEventListener("pointerdown", () => {
+                // FIXME: Pointer-lock hinders the interactivity of web-entities.
+                // canvas.requestPointerLock();
+            });
+            canvas.addEventListener("pointerup", () => {
+                document.exitPointerLock();
+            });
+            document.addEventListener("pointerup", () => {
+                document.exitPointerLock();
+            });
 
-        DomainMgr.startGameLoop();
+            DomainMgr.startGameLoop();
 
-        // Initialize the audio for the scene.
-        await AudioMgr.initialize(this.setOutputStream.bind(this));
+            // Initialize the audio for the scene.
+            await AudioMgr.initialize(this.setOutputStream.bind(this));
 
-        const scene = Renderer.createScene();
-        scene.onEntityEventObservable.add((entityEvent) => {
-            // handle web entity event
-            if (entityEvent.type === EntityEventType.JOIN_CONFERENCE_ROOM) {
-                this.$emit("joint-conference-room", entityEvent.data);
-            }
-        });
-        // NOTE: The scene must be loaded to register domain events before connecting to the domain.
-        await scene.load(undefined, AvatarStoreInterface.getActiveModelData("file"));
-        await this.connect();
+            const scene = Renderer.createScene();
+            scene.onEntityEventObservable.add((entityEvent) => {
+                // handle web entity event
+                if (entityEvent.type === EntityEventType.JOIN_CONFERENCE_ROOM) {
+                    this.$emit("joint-conference-room", entityEvent.data);
+                }
+            });
+            // NOTE: The scene must be loaded to register domain events before connecting to the domain.
+            await scene.load(undefined, AvatarStoreInterface.getActiveModelData("file"));
+            await this.connect();
 
-        Renderer.startRenderLoop([scene]);
+            Renderer.startRenderLoop([scene]);
+        };
+        void boot();
     }
 });
 </script>

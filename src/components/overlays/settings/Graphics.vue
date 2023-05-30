@@ -77,11 +77,11 @@ body.desktop .q-slider.q-slider--editable:hover .q-slider__focus-ring {
                         <q-item-section class="q-pl-sm">
                             <q-toggle
                                 name="bloom"
-                                v-model="bloom"
+                                v-model="userStore.graphics.bloom"
                             />
                         </q-item-section>
                         <q-item-section side style="min-width: 5ch;">
-                            <output for="bloom">{{ bloom ? `On` : `Off` }}</output>
+                            <output for="bloom">{{ userStore.graphics.bloom ? `On` : `Off` }}</output>
                         </q-item-section>
                     </q-item>
                     <q-item>
@@ -93,11 +93,11 @@ body.desktop .q-slider.q-slider--editable:hover .q-slider__focus-ring {
                         <q-item-section class="q-pl-sm">
                             <q-toggle
                                 name="fxaaEnabled"
-                                v-model="fxaaEnabled"
+                                v-model="userStore.graphics.fxaaEnabled"
                             />
                         </q-item-section>
                         <q-item-section side style="min-width: 5ch;">
-                            <output for="fxaaEnabled">{{ fxaaEnabled ? `On` : `Off` }}</output>
+                            <output for="fxaaEnabled">{{ userStore.graphics.fxaaEnabled ? `On` : `Off` }}</output>
                         </q-item-section>
                     </q-item>
                     <q-item>
@@ -129,11 +129,11 @@ body.desktop .q-slider.q-slider--editable:hover .q-slider__focus-ring {
                         <q-item-section class="q-pl-sm">
                             <q-toggle
                                 name="sharpen"
-                                v-model="sharpen"
+                                v-model="userStore.graphics.sharpen"
                             />
                         </q-item-section>
                         <q-item-section side style="min-width: 5ch;">
-                            <output for="sharpen">{{ sharpen ? `On` : `Off` }}</output>
+                            <output for="sharpen">{{ userStore.graphics.sharpen ? `On` : `Off` }}</output>
                         </q-item-section>
                     </q-item>
                 </q-list>
@@ -144,8 +144,8 @@ body.desktop .q-slider.q-slider--editable:hover .q-slider__focus-ring {
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { useUserStore } from "@Stores/user-store";
 import OverlayShell from "../OverlayShell.vue";
-import { Mutations as StoreMutations } from "@Store/index";
 
 export default defineComponent({
     name: "Graphics",
@@ -156,95 +156,26 @@ export default defineComponent({
     components: {
         OverlayShell
     },
+    setup() {
+        return {
+            userStore: useUserStore()
+        };
+    },
     computed: {
         fieldOfView: {
             get(): number {
-                return this.$store.state.graphics.fieldOfView;
+                return this.userStore.graphics.fieldOfView;
             },
             set(value: number | string) {
-                // Mutate the parent "graphics" object so that the vscene responds.
-                this.$store.commit(StoreMutations.MUTATE, {
-                    property: "graphics",
-                    value: {
-                        fieldOfView: typeof value === "string" ? parseInt(value, 10) : value,
-                        bloom: this.bloom,
-                        fxaaEnabled: this.fxaaEnabled,
-                        msaa: this.msaa,
-                        sharpen: this.sharpen
-                    }
-                });
-            }
-        },
-        bloom: {
-            get(): boolean {
-                return this.$store.state.graphics.bloom;
-            },
-            set(value: boolean) {
-                // Mutate the parent "graphics" object so that the vscene responds.
-                this.$store.commit(StoreMutations.MUTATE, {
-                    property: "graphics",
-                    value: {
-                        fieldOfView: this.fieldOfView,
-                        bloom: Boolean(value),
-                        fxaaEnabled: this.fxaaEnabled,
-                        msaa: this.msaa,
-                        sharpen: this.sharpen
-                    }
-                });
-            }
-        },
-        fxaaEnabled: {
-            get(): boolean {
-                return this.$store.state.graphics.fxaaEnabled;
-            },
-            set(value: boolean) {
-                // Mutate the parent "graphics" object so that the vscene responds.
-                this.$store.commit(StoreMutations.MUTATE, {
-                    property: "graphics",
-                    value: {
-                        fieldOfView: this.fieldOfView,
-                        bloom: this.bloom,
-                        fxaaEnabled: Boolean(value),
-                        msaa: this.msaa,
-                        sharpen: this.sharpen
-                    }
-                });
+                this.userStore.graphics.fieldOfView = typeof value === "string" ? parseInt(value, 10) : value;
             }
         },
         msaa: {
             get(): number {
-                return this.$store.state.graphics.msaa;
+                return this.userStore.graphics.msaa;
             },
             set(value: number | string) {
-                // Mutate the parent "graphics" object so that the vscene responds.
-                this.$store.commit(StoreMutations.MUTATE, {
-                    property: "graphics",
-                    value: {
-                        fieldOfView: this.fieldOfView,
-                        bloom: this.bloom,
-                        fxaaEnabled: this.fxaaEnabled,
-                        msaa: typeof value === "string" ? parseInt(value, 10) : value,
-                        sharpen: this.sharpen
-                    }
-                });
-            }
-        },
-        sharpen: {
-            get(): boolean {
-                return this.$store.state.graphics.sharpen;
-            },
-            set(value: boolean) {
-                // Mutate the parent "graphics" object so that the vscene responds.
-                this.$store.commit(StoreMutations.MUTATE, {
-                    property: "graphics",
-                    value: {
-                        fieldOfView: this.fieldOfView,
-                        bloom: this.bloom,
-                        fxaaEnabled: this.fxaaEnabled,
-                        msaa: this.msaa,
-                        sharpen: Boolean(value)
-                    }
-                });
+                this.userStore.graphics.msaa = typeof value === "string" ? parseInt(value, 10) : value;
             }
         }
     }

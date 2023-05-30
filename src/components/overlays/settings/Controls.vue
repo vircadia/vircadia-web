@@ -147,7 +147,7 @@ body.desktop .q-slider.q-slider--editable:hover .q-slider__focus-ring {
                     >Press ESC to cancel.</p>
                     <q-scroll-area class="full-height">
                         <q-list class="q-pb-md" @keydown.prevent.stop="listenForRebind($event)">
-                            <template v-for="(category, key) of $store.state.controls.keyboard" :key="key">
+                            <template v-for="(category, key) of userStore.controls.keyboard" :key="key">
                                 <!-- <q-separator /> -->
                                 <q-item-label header style="text-transform: capitalize;">{{ key }}</q-item-label>
                                 <template v-for="(bind, control) of category" :key="control">
@@ -188,9 +188,9 @@ body.desktop .q-slider.q-slider--editable:hover .q-slider__focus-ring {
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import OverlayShell from "../OverlayShell.vue";
-import { Store, Mutations as StoreMutations } from "@Store/index";
+import { useUserStore } from "@Stores/user-store";
 import { MouseSettingsController } from "@Base/modules/avatar/controller/inputs/mouseSettings";
+import OverlayShell from "../OverlayShell.vue";
 
 export default defineComponent({
     name: "Controls",
@@ -201,11 +201,17 @@ export default defineComponent({
     components: {
         OverlayShell
     },
+    setup() {
+        return {
+            userStore: useUserStore()
+        };
+    },
     data() {
+        const userStore = useUserStore();
         return {
             tab: "mouse",
             currentlyBinding: {
-                category: undefined as keyof typeof Store.state.controls.keyboard | undefined,
+                category: undefined as keyof typeof userStore.controls.keyboard | undefined,
                 control: undefined as string | undefined
             }
         };
@@ -213,7 +219,7 @@ export default defineComponent({
     computed: {
         mouseSensitivity: {
             get(): number {
-                return Store.state.controls.mouse.sensitivity;
+                return this.userStore.controls.mouse.sensitivity;
             },
             set(value: number) {
                 MouseSettingsController.sensitivity = value;
@@ -221,7 +227,7 @@ export default defineComponent({
         },
         mouseAcceleration: {
             get(): boolean {
-                return Store.state.controls.mouse.acceleration;
+                return this.userStore.controls.mouse.acceleration;
             },
             set(value: boolean) {
                 MouseSettingsController.acceleration = value;
@@ -229,7 +235,7 @@ export default defineComponent({
         },
         mouseInvert: {
             get(): boolean {
-                return Store.state.controls.mouse.invert;
+                return this.userStore.controls.mouse.invert;
             },
             set(value: boolean) {
                 MouseSettingsController.invert = value;
@@ -298,9 +304,9 @@ export default defineComponent({
         },
         keybindAlreadyInUse(keybind: string): boolean {
             // eslint-disable-next-line max-len
-            return Boolean(Object.entries(Store.state.controls.keyboard).find((category) => Object.entries(category[1]).find((value) => value[1].keybind === keybind)));
+            return Boolean(Object.entries(this.userStore.controls.keyboard).find((category) => Object.entries(category[1]).find((value) => value[1].keybind === keybind)));
         },
-        setCurrentlyBinding(category?: keyof typeof Store.state.controls.keyboard, control?: string): void {
+        setCurrentlyBinding(category?: keyof typeof this.userStore.controls.keyboard, control?: string): void {
             if (!category || !control) {
                 this.currentlyBinding.category = undefined;
                 this.currentlyBinding.control = undefined;
@@ -327,7 +333,7 @@ export default defineComponent({
                     this.currentlyBinding.category
                     && this.currentlyBinding.control
                     // eslint-disable-next-line max-len
-                    && Store.state.controls.keyboard[this.currentlyBinding.category][this.currentlyBinding.control].keybind !== keycode
+                    && this.userStore.controls.keyboard[this.currentlyBinding.category][this.currentlyBinding.control].keybind !== keycode
                 ) {
                     this.$q.notify({
                         type: "negative",
@@ -343,19 +349,11 @@ export default defineComponent({
             if (this.currentlyBinding.category && this.currentlyBinding.control) {
                 // Reset the `currentlyBinding` vars ASAP to reduce the risk of binding a bounced keypress.
                 const category = this.currentlyBinding.category;
-                const key = this.currentlyBinding.control;
+                const control = this.currentlyBinding.control;
                 this.currentlyBinding.category = undefined;
                 this.currentlyBinding.control = undefined;
                 // Rebind the key.
-                this.rebindKey(category, key, event.code);
-            }
-        },
-        rebindKey(category: keyof typeof Store.state.controls.keyboard, control: string, newBind: string): void {
-            if (category in Store.state.controls && control in Store.state.controls.keyboard[category]) {
-                Store.commit(StoreMutations.MUTATE, {
-                    property: `controls.${category}.${control}.keybind`,
-                    value: newBind
-                });
+                this.userStore.updateControlKeybind(category, control, event.code);
             }
         }
     }

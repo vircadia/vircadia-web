@@ -37,9 +37,9 @@
                 class="col"
                 style="height: 100%"
             >
-            <q-list v-if="Array.from($store.state.conference.activeRooms.keys()).length > 0">
+            <q-list v-if="Array.from(applicationStore.conference.activeRooms.keys()).length > 0">
                 <q-item
-                    v-for="room in $store.state.conference.activeRooms"
+                    v-for="room in applicationStore.conference.activeRooms"
                     :key="room.name"
                     class="q-mb-sm"
                     clickable
@@ -81,7 +81,7 @@
                         <q-btn
                             color="cyan-12"
                             text-color="dark"
-                            @click="joinConferenceRoom(room)"
+                            @click="joinConferenceRoom(room as JitsiRoomInfo)"
                         >Join</q-btn>
                     </q-item-section>
                 </q-item>
@@ -94,9 +94,8 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-
+import { useApplicationStore, type JitsiRoomInfo } from "@Stores/application-store";
 import OverlayShell from "../OverlayShell.vue";
-import { Mutations, JitsiRoomInfo } from "@Store/index";
 
 export default defineComponent({
     name: "Conference",
@@ -110,16 +109,24 @@ export default defineComponent({
         OverlayShell
     },
 
-    data: () => ({
-        isAdmin: true
-    }),
+    setup() {
+        return {
+            applicationStore: useApplicationStore()
+        };
+    },
+
+    data() {
+        return {
+            isAdmin: true
+        };
+    },
 
     computed: {
     },
 
     methods: {
         joinConferenceRoom(room: JitsiRoomInfo) {
-            this.$store.commit(Mutations.JOIN_CONFERENCE_ROOM, room);
+            this.applicationStore.joinConferenceRoom(room);
             this.$emit("overlay-action", "openOverlay:Jitsi");
         }
     }

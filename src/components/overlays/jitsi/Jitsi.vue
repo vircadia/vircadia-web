@@ -45,11 +45,10 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-
-import OverlayShell from "../OverlayShell.vue";
+import { useApplicationStore, type JitsiRoomInfo } from "@Stores/application-store";
 import { GameObject } from "@Modules/object";
 import { WebEntityController } from "@Modules/entity";
-import { JitsiRoomInfo } from "@Store/index";
+import OverlayShell from "../OverlayShell.vue";
 
 export default defineComponent({
     name: "Jitsi",
@@ -74,7 +73,7 @@ export default defineComponent({
         }
     },
     mounted() {
-        this.room = this.$store.state.conference.currentRoom;
+        this.room = useApplicationStore().conference.currentRoom;
         const controller = this.getWebEntityController();
         if (controller && controller.externalElement) {
             this.jitisElement = controller.externalElement;

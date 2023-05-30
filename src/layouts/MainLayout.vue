@@ -14,7 +14,7 @@
     The page is a usual Vue page with a hidden menu bar on the left controlled by
     an "account_circle" in the top menu bar.
     The page top bar contains connected information.
-    Overlay dialogs are controlled by $store.state.dialog settings.
+    Overlay dialogs are controlled by ApplicationStore.dialog settings.
 -->
 
 <style scoped lang="scss">
@@ -76,8 +76,8 @@
                     <q-space />
 
                     <div>
-                        <div>{{ $store.state.globalConsts.APP_NAME }}</div>
-                        <div>{{ $store.state.globalConsts.APP_VERSION_TAG }}</div>
+                        <div>{{ applicationStore.globalConsts.APP_NAME }}</div>
+                        <div>{{ applicationStore.globalConsts.APP_VERSION_TAG }}</div>
                     </div>
                 </q-toolbar> -->
                 <q-toolbar :style="{ padding: isMobile ? '0px 0px 0px 8px' : '0px 12px' }">
@@ -125,23 +125,23 @@
                             dense
                             fab-mini
                             :title="
-                                !$store.state.audio.user.hasInputAccess ?
+                                !applicationStore.audio.user.hasInputAccess ?
                                 undefined :
-                                $store.state.audio.user.muted ?
+                                applicationStore.audio.user.muted ?
                                 'Unmute microphone' :
                                 'Mute microphone'"
-                            :icon="$store.state.audio.user.muted || !$store.state.audio.user.hasInputAccess ? 'mic_off' : 'mic'"
+                            :icon="applicationStore.audio.user.muted || !applicationStore.audio.user.hasInputAccess ? 'mic_off' : 'mic'"
                             :color="microphoneColor"
                             class="q-mr-sm q-ml-sm"
                             :style="{
                                 backgroundColor: $q.dark.isActive ? '#282828' : '#e8e8e8'
                             }"
-                            :disable-dropdown="!$store.state.audio.user.hasInputAccess"
+                            :disable-dropdown="!applicationStore.audio.user.hasInputAccess"
                             v-model="micMenuState"
                             @click="toggleMicrophoneMute"
                         >
                             <q-list style="max-width: 300px;" @click.stop="">
-                                <q-item v-for="input in $store.state.audio.inputsList" :key="input.deviceId">
+                                <q-item v-for="input in applicationStore.audio.inputsList" :key="input.deviceId">
                                     <q-radio
                                         @click="AudioIOInstance.requestInputAccess(input.deviceId);micMenuState = false;"
                                         v-model="AudioIOInstance.selectedInput"
@@ -162,12 +162,12 @@
                             dense
                             fab-mini
                             :title="
-                                !$store.state.audio.user.hasInputAccess ?
+                                !applicationStore.audio.user.hasInputAccess ?
                                 undefined :
-                                $store.state.audio.user.muted ?
+                                applicationStore.audio.user.muted ?
                                 'Unmute microphone' :
                                 'Mute microphone'"
-                            :icon="$store.state.audio.user.muted || !$store.state.audio.user.hasInputAccess ? 'mic_off' : 'mic'"
+                            :icon="applicationStore.audio.user.muted || !applicationStore.audio.user.hasInputAccess ? 'mic_off' : 'mic'"
                             :color="microphoneColor"
                             @click="toggleMicrophoneMute"
                             class="q-mr-sm q-ml-sm"
@@ -176,7 +176,7 @@
                             }"
                         />
                         <q-tooltip
-                            v-if="!$store.state.audio.user.hasInputAccess"
+                            v-if="!applicationStore.audio.user.hasInputAccess"
                             class="bg-black"
                             transition-show="jump-down"
                             transition-hide="jump-up"
@@ -195,17 +195,17 @@
                                 {{ getDomainServerState }}
                                 <Transition>
                                     <div
-                                        v-show="getDomainServerState === 'CONNECTING' || $store.state.renderer.contentIsLoading"
+                                        v-show="getDomainServerState === 'CONNECTING' || applicationStore.renderer.contentIsLoading"
                                         class="q-ml-md"
                                         style="display: flex;
                                             flex-direction: row;justify-content: flex-start;align-items: center;"
                                     >
                                         <q-spinner
                                             :size="isMobile ? 'xs' : 'sm'"
-                                            :title="$store.state.renderer.contentIsLoading ? 'Loading content' : undefined"
+                                            :title="applicationStore.renderer.contentIsLoading ? 'Loading content' : undefined"
                                         />
                                         <p class="q-my-none q-ml-md text-caption">
-                                            {{ `${$store.state.renderer.contentLoadingSpeed.toFixed(1)}MB&sol;s` }}
+                                            {{ `${applicationStore.renderer.contentLoadingSpeed.toFixed(1)}MB&sol;s` }}
                                         </p>
                                         <q-tooltip
                                             :class="{
@@ -214,9 +214,9 @@
                                             }"
                                             :hide-delay="300"
                                         >
-                                            {{ $store.state.renderer.contentIsLoading
-                                                && $store.state.renderer.contentLoadingInfo
-                                                ? $store.state.renderer.contentLoadingInfo : "Loading..." }}
+                                            {{ applicationStore.renderer.contentIsLoading
+                                                && applicationStore.renderer.contentLoadingInfo
+                                                ? applicationStore.renderer.contentLoadingInfo : "Loading..." }}
                                         </q-tooltip>
                                     </div>
                                 </Transition>
@@ -227,7 +227,7 @@
                     <template v-if="isDesktop">
                         <q-item clickable v-ripple
                             class="non-selectable"
-                            @click="$store.state.account.isLoggedIn ?
+                            @click="userStore.account.isLoggedIn ?
                             onClickOpenOverlay('Account') : openDialog('Login', true)"
                         >
                             <q-item-section side>
@@ -245,18 +245,18 @@
                             </q-item-section>
                             <q-item-section>
                                 <q-item-label>
-                                    {{ $store.state.account.isLoggedIn ? $store.state.account.username : "Guest" }}
+                                    {{ userStore.account.isLoggedIn ? userStore.account.username : "Guest" }}
                                 </q-item-label>
                                 <q-item-label caption>
-                                    {{ $store.state.account.isLoggedIn ?
+                                    {{ userStore.account.isLoggedIn ?
                                     "Logged in" :
-                                    `Click to log in to the ${$store.state.theme.globalServiceTerm.toLowerCase()}.` }}
+                                    `Click to log in to the ${applicationStore.theme.globalServiceTerm.toLowerCase()}.` }}
                                 </q-item-label>
                             </q-item-section>
                         </q-item>
 
                         <q-btn
-                            v-show="$store.state.account.isLoggedIn"
+                            v-show="userStore.account.isLoggedIn"
                             flat
                             round
                             dense
@@ -322,14 +322,14 @@
                     >
                         <template v-slot:label>
                             <q-avatar rounded :size="isDesktop ? '48px' : '32px'">
-                                <img :src="$store.state.theme.logo">
+                                <img :src="applicationStore.theme.logo">
                             </q-avatar>
                         </template>
                         <q-list class="q-pb-sm">
                             <template v-if="isMobile">
                                 <q-item-label header>Account</q-item-label>
                                 <q-item clickable v-ripple
-                                    @click="$store.state.account.isLoggedIn ?
+                                    @click="userStore.account.isLoggedIn ?
                                     onClickOpenOverlay('Account') : openDialog('Login', true)"
                                 >
                                     <q-item-section side>
@@ -339,17 +339,17 @@
                                     </q-item-section>
                                     <q-item-section>
                                         <q-item-label>
-                                            {{ $store.state.account.isLoggedIn ? $store.state.account.username : "Guest" }}
+                                            {{ userStore.account.isLoggedIn ? userStore.account.username : "Guest" }}
                                         </q-item-label>
                                         <q-item-label caption>
-                                            {{ $store.state.account.isLoggedIn ?
+                                            {{ userStore.account.isLoggedIn ?
                                             "Logged in" :
-                                            `Click to log in to the ${$store.state.theme.globalServiceTerm.toLowerCase()}.` }}
+                                            `Click to log in to the ${applicationStore.theme.globalServiceTerm.toLowerCase()}.` }}
                                         </q-item-label>
                                     </q-item-section>
                                 </q-item>
                                 <q-btn
-                                    v-show="$store.state.account.isLoggedIn"
+                                    v-show="userStore.account.isLoggedIn"
                                     flat
                                     round
                                     dense
@@ -432,7 +432,7 @@
                             </q-item>
                             <q-item class="non-selectable">
                                 <q-item-section>
-                                    <q-item-label>{{ $store.state.theme.globalServiceTerm }}</q-item-label>
+                                    <q-item-label>{{ applicationStore.theme.globalServiceTerm }}</q-item-label>
                                     <q-item-label caption>{{ getMetaverseServerState.toUpperCase() }}</q-item-label>
                                     <q-item-label
                                         caption
@@ -460,14 +460,14 @@
                             <q-item-label header class="non-selectable">About</q-item-label>
                             <q-item>
                                 <q-item-section>
-                                    <q-item-label>{{ $store.state.globalConsts.APP_NAME }}</q-item-label>
-                                    <q-item-label caption>{{ $store.state.globalConsts.APP_VERSION_TAG }}</q-item-label>
+                                    <q-item-label>{{ applicationStore.globalConsts.APP_NAME }}</q-item-label>
+                                    <q-item-label caption>{{ applicationStore.globalConsts.APP_VERSION_TAG }}</q-item-label>
                                 </q-item-section>
                             </q-item>
                             <q-item>
                                 <q-item-section>
                                     <q-item-label>Vircadia Web SDK</q-item-label>
-                                    <q-item-label caption>{{ $store.state.globalConsts.SDK_VERSION_TAG }}</q-item-label>
+                                    <q-item-label caption>{{ applicationStore.globalConsts.SDK_VERSION_TAG }}</q-item-label>
                                 </q-item-section>
                             </q-item>
                         </q-list>
@@ -493,7 +493,7 @@
                 class="column no-wrap items-stretch"
                 style="width: 310px;"
             >
-                <component @closeDialog='closeDialog' :is="$store.state.dialog.which"></component>
+                <component @closeDialog='closeDialog' :is="applicationStore.dialog.which"></component>
             </q-card>
         </q-dialog>
 
@@ -509,18 +509,12 @@ import { openURL } from "quasar";
 import MainScene from "@Components/MainScene.vue";
 import OverlayManager from "@Components/overlays/OverlayManager.vue";
 
-import {
-    Store,
-    Mutations as StoreMutations,
-    Actions as StoreActions,
-    JitsiRoomInfo,
-    clearStoreAndPersistentStorage
-} from "@Store/index";
+import { useApplicationStore, type JitsiRoomInfo } from "@Stores/application-store";
+import { useUserStore } from "@Stores/user-store";
 import { Utility } from "@Modules/utility";
-import { Account } from "@Modules/account";
+import { Account, type onAttributeChangePayload } from "@Modules/account";
 import { AudioMgr } from "@Modules/scene/audio";
 import { AudioIO } from "@Modules/ui/audioIO";
-
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
@@ -536,6 +530,13 @@ export default defineComponent({
     components: {
         MainScene,
         OverlayManager
+    },
+
+    setup() {
+        return {
+            applicationStore: useApplicationStore(),
+            userStore: useUserStore()
+        };
     },
 
     data() {
@@ -573,10 +574,7 @@ export default defineComponent({
                     icon: "badge",
                     label: "Nametags",
                     action: () => {
-                        this.$store.commit(StoreMutations.MUTATE, {
-                            property: "avatar.showNametags",
-                            value: !this.$store.state.avatar.showNametags
-                        });
+                        useUserStore().avatar.showNametags = !useUserStore().avatar.showNametags;
                         Log.info(Log.types.OTHER, "Toggle Avatar Nametags");
                     },
                     isCategory: false,
@@ -615,7 +613,7 @@ export default defineComponent({
                     icon: "delete_sweep",
                     label: "Clear All Settings",
                     action: () => {
-                        clearStoreAndPersistentStorage();
+                        useUserStore().reset();
                         window.location.reload();
                     }
                 }
@@ -633,7 +631,7 @@ export default defineComponent({
             get(): boolean {
                 // ESLint doesn't seem to know about 'this' inside a 'get' function
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
-                return this.$store.state.dialog.show;
+                return this.applicationStore.dialog.show;
             },
             set(newValue: boolean) {
                 // ESLint doesn't seem to know about 'this' inside a 'set' function
@@ -643,55 +641,52 @@ export default defineComponent({
         },
 
         getLocation: function(): string {
-            return this.$store.state.avatar.location ?? "Not currently connected to a domain.";
+            return this.userStore.avatar.location ?? "Not currently connected to a domain.";
         },
 
         // Displays the state of the domain server on the user interface
         getDomainServerState: function(): string {
-            return this.$store.state.domain.connectionState ?? "DISCONNECTED";
+            return this.applicationStore.domain.connectionState ?? "DISCONNECTED";
         },
         getMetaverseServerState: function(): string {
-            return this.$store.state.metaverse.connectionState;
+            return this.applicationStore.metaverse.connectionState;
         },
         getMetaverseServerLocation: function(): string {
-            return this.$store.state.metaverse.server ?? "Not currently connected to a metaverse server.";
+            return this.applicationStore.metaverse.server ?? "Not currently connected to a metaverse server.";
         },
         getProfilePicture: function(): string | undefined {
-            if (this.$store.state.account.images && this.$store.state.account.images.thumbnail) {
-                return this.$store.state.account.images.thumbnail;
-            }
-            return undefined;
+            return this.userStore.account.images?.thumbnail;
         },
 
         headerStyle: function(): string {
             // Style the header bar based on the Theme config.
-            if (this.$store.state.theme.globalStyle === "none") {
+            if (this.applicationStore.theme.globalStyle === "none") {
                 return "unset";
             }
             const opacities = {
                 "aero": "5c",
                 "mica": "30"
             };
-            if (this.$store.state.theme.headerStyle === "none") {
+            if (this.applicationStore.theme.headerStyle === "none") {
                 return "unset";
             }
             const gradients = {
                 "gradient-left": "circle at 0% 50%",
                 "gradient-right": "circle at 100% 50%"
             };
-            const gradient = gradients[this.$store.state.theme.headerStyle];
-            const primary = this.$store.state.theme.colors.primary;
-            const secondary = this.$store.state.theme.colors.secondary;
+            const gradient = gradients[this.applicationStore.theme.headerStyle];
+            const primary = this.applicationStore.theme.colors.primary;
+            const secondary = this.applicationStore.theme.colors.secondary;
             const end = this.$q.dark.isActive ? "#121212" : "#ffffff";
-            const opacity = opacities[this.$store.state.theme.globalStyle];
+            const opacity = opacities[this.applicationStore.theme.globalStyle];
             return `radial-gradient(${gradient}, ${secondary}${opacity} 15%, ${primary}${opacity} 40%, ${end}${opacity} 95%)`;
         },
 
         microphoneColor: function(): string {
-            if (!this.$store.state.audio.user.hasInputAccess) {
+            if (!this.applicationStore.audio.user.hasInputAccess) {
                 return "grey-6";
             }
-            if (this.$store.state.audio.user.muted) {
+            if (this.applicationStore.audio.user.muted) {
                 return "red";
             }
             return "primary";
@@ -699,10 +694,7 @@ export default defineComponent({
     },
     methods: {
         setDialogState: function(newValue: boolean) {
-            this.$store.commit(StoreMutations.MUTATE, {
-                property: "dialog.show",
-                value: newValue
-            });
+            this.applicationStore.dialog.show = newValue;
         },
         // Drawers
         toggleUserMenu: function(): void {
@@ -735,8 +727,8 @@ export default defineComponent({
         },
 
         disconnect: async function() {
-            Log.info(Log.types.UI, `Disconnecting from... ${this.$store.state.avatar.location}`);
-            this.lastConnectedDomain = this.$store.state.avatar.location;
+            Log.info(Log.types.UI, `Disconnecting from... ${this.userStore.avatar.location}`);
+            this.lastConnectedDomain = this.userStore.avatar.location;
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             await Utility.disconnectActiveDomain();
         },
@@ -756,48 +748,28 @@ export default defineComponent({
 
         // Dialog Handling
         openDialog: function(pWhich: string, shouldShow: boolean) {
-            // We want to reset the element first.
-            this.$store.commit(StoreMutations.MUTATE, {
-                property: "dialog",
-                with: {
-                    "show": false,
-                    "which": ""
-                }
-            });
-
-            this.$store.commit(StoreMutations.MUTATE, {
-                property: "dialog",
-                with: {
-                    "show": shouldShow,
-                    "which": pWhich
-                }
-            });
+            this.applicationStore.dialog.show = shouldShow;
+            this.applicationStore.dialog.which = pWhich;
         },
-
         closeDialog: function() {
-            this.$store.commit(StoreMutations.MUTATE, {
-                property: "dialog",
-                with: {
-                    "show": false,
-                    "which": ""
-                }
-            });
+            this.applicationStore.dialog.show = false;
+            this.applicationStore.dialog.which = "";
         },
+
         onClickOpenOverlay: function(pOverlay: string) {
             // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution.
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             (this.$refs.OverlayManager as typeof OverlayManager).openOverlay(pOverlay);
         },
         joinConferenceRoom: function(room: JitsiRoomInfo) {
-            this.$store.commit(StoreMutations.JOIN_CONFERENCE_ROOM, room);
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            (this.$refs.OverlayManager as typeof OverlayManager).toggleOverlay("Jitsi");
+            this.applicationStore.joinConferenceRoom(room);
+            (this.$refs.OverlayManager as typeof OverlayManager)?.toggleOverlay("Jitsi");
         },
         openUrl: function(pUrl: string) {
             openURL(pUrl);
         },
         toggleMicrophoneMute: function() {
-            if (this.$store.state.audio.user.hasInputAccess) {
+            if (this.applicationStore.audio.user.hasInputAccess) {
                 AudioMgr.muteAudio();
             }
         },
@@ -820,7 +792,7 @@ export default defineComponent({
         formatMenuItemCaption: function(caption: string) {
             switch (caption) {
                 case "nametag_setting":
-                    return this.$store.state.avatar.showNametags ? "On" : "Off";
+                    return this.userStore.avatar.showNametags ? "On" : "Off";
                 default:
                     return caption;
             }
@@ -828,9 +800,9 @@ export default defineComponent({
     },
     beforeMount: function() {
         // Ensure that Quasar's global color variables are in sync with the Store's theme colors.
-        document.documentElement.style.setProperty("--q-primary", this.$store.state.theme.colors.primary);
-        document.documentElement.style.setProperty("--q-secondary", this.$store.state.theme.colors.secondary);
-        document.documentElement.style.setProperty("--q-accent", this.$store.state.theme.colors.accent);
+        document.documentElement.style.setProperty("--q-primary", this.applicationStore.theme.colors.primary ?? null);
+        document.documentElement.style.setProperty("--q-secondary", this.applicationStore.theme.colors.secondary ?? null);
+        document.documentElement.style.setProperty("--q-accent", this.applicationStore.theme.colors.accent ?? null);
     },
     mounted: function() {
         // Set the isDesktop and isMobile flags according to the window's width.
@@ -841,16 +813,13 @@ export default defineComponent({
             this.isDesktop = !this.isMobile;
         });
 
-        Account.onAttributeChange.connect(function(pPayload: { [key: string]: unknown }) {
-            // eslint-disable-next-line no-void
-            void Store.dispatch(StoreActions.UPDATE_ACCOUNT_INFO, pPayload);
+        Account.onAttributeChange.connect((pPayload: onAttributeChangePayload) => {
+            this.userStore.updateAccountInfo(pPayload);
         });
 
         if (this.isDesktop) {
-            // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution.
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            // TODO: figure out how to properly type $ref references.
             (this.$refs.OverlayManager as typeof OverlayManager)?.openOverlay("menu");
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             (this.$refs.OverlayManager as typeof OverlayManager)?.openOverlay("ChatWindow");
         }
 
@@ -862,15 +831,13 @@ export default defineComponent({
                 && target?.tagName !== "TEXTAREA"
             ) {
                 // Toggle the menu.
-                if (event.code === this.$store.state.controls.keyboard.other.toggleMenu?.keybind) {
-                    // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution.
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+                if (event.code === this.userStore.controls.keyboard.other.toggleMenu?.keybind) {
+                    // TODO: figure out how to properly type $ref references.
                     (this.$refs.OverlayManager as typeof OverlayManager)?.toggleOverlay("menu");
                 }
                 // Open the chat.
-                if (event.code === this.$store.state.controls.keyboard.other.openChat?.keybind) {
-                    // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution.
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+                if (event.code === this.userStore.controls.keyboard.other.openChat?.keybind) {
+                    // TODO: figure out how to properly type $ref references.
                     (this.$refs.OverlayManager as typeof OverlayManager)?.toggleOverlay("ChatWindow");
                 }
             }

@@ -13,8 +13,7 @@ import { AnimationGroup, Scene, SceneLoader, AssetsManager,
     AbstractMesh, Vector3, Quaternion, MeshBuilder, StandardMaterial, Color3, Skeleton } from "@babylonjs/core";
 import { DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { updateContentLoadingProgress } from "@Modules/scene/LoadingScreen";
-// System Modules
-import { v4 as uuidv4 } from "uuid";
+import { Uuid } from "@vircadia/web-sdk";
 // General Modules
 import Log from "@Modules/debugging/log";
 
@@ -185,7 +184,7 @@ export class ResourceManager {
             });
 
             const mesh = result.meshes[0];
-            mesh.id = uuidv4();
+            mesh.id = new Uuid().stringify();
             // For matching the orientation of vircadia
             mesh.rotationQuaternion = Quaternion.FromEulerAngles(0, Math.PI, 0);
 
@@ -226,7 +225,7 @@ export class ResourceManager {
     // eslint-disable-next-line class-methods-use-this
 /*
     private _processSceneMesh(mesh : AbstractMesh) : void {
-        mesh.id = uuidv4();
+        mesh.id = new Uuid().stringify();
         ResourceManager._applySceneMeshRule(mesh);
     }
 

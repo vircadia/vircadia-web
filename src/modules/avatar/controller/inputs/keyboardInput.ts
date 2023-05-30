@@ -26,10 +26,15 @@ import { Scene,
 
 import { AvatarState, Action, State, JumpSubState, AnimationMap } from "../avatarState";
 import { InputState, CameraMode, InputMode } from "../inputState";
-import { Store } from "@Store/index";
+import { pinia } from "@Stores/index";
+import { useApplicationStore } from "@Stores/application-store";
+import { useUserStore } from "@Stores/user-store";
 import { AudioMgr } from "@Modules/scene/audio";
 import type { GameObject } from "@Modules/object";
 import type { SceneController } from "@Modules/scene/controllers";
+
+const applicationStore = useApplicationStore(pinia);
+const userStore = useUserStore(pinia);
 
 // This is disabled because TS complains about BABYLON's use of cap'ed function names
 /* eslint-disable new-cap */
@@ -38,7 +43,6 @@ import type { SceneController } from "@Modules/scene/controllers";
 /* eslint-disable @typescript-eslint/dot-notation */
 
 export class KeyboardInput implements IInputHandler {
-
     private _scene : Scene;
     private _state : AvatarState;
     private _inputState : InputState;
@@ -48,7 +52,7 @@ export class KeyboardInput implements IInputHandler {
     private _runKey = false;
     private _keyDownAction:Nullable<IAction> = null;
     private _keyUpAction:Nullable<IAction> = null;
-    private _previousMuteInput = Store.state.audio.user.muted;
+    private _previousMuteInput = applicationStore.audio.user.muted;
 
     constructor(state : AvatarState, inputState : InputState, scene: Scene) {
         this._state = state;
@@ -85,7 +89,7 @@ export class KeyboardInput implements IInputHandler {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     public handleInputs(delta: number) : void {
-        if (this._inputMap[Store.state.controls.keyboard.movement.jump?.keybind] && this._state.state !== State.Fly) {
+        if (this._inputMap[userStore.controls.keyboard.movement.jump?.keybind] && this._state.state !== State.Fly) {
             if (this._state.state !== State.Jump) {
                 this._state.state = State.Jump;
                 this._state.jumpSubstate = JumpSubState.Start;
@@ -95,26 +99,26 @@ export class KeyboardInput implements IInputHandler {
         }
 
         if (this._state.state === State.Fly) {
-            if (this._inputMap[Store.state.controls.keyboard.movement.jump?.keybind]) {
+            if (this._inputMap[userStore.controls.keyboard.movement.jump?.keybind]) {
                 this._state.moveDir.y = Scalar.Lerp(Math.abs(this._state.moveDir.y), 1, 0.1);
-            } else if (this._inputMap[Store.state.controls.keyboard.movement.crouch?.keybind]) {
+            } else if (this._inputMap[userStore.controls.keyboard.movement.crouch?.keybind]) {
                 this._state.moveDir.y = -Scalar.Lerp(Math.abs(this._state.moveDir.y), 1, 0.1);
             } else {
                 this._state.moveDir.y = 0;
             }
         }
 
-        if (this._inputMap[Store.state.controls.keyboard.movement.walkLeft?.keybind]) {
+        if (this._inputMap[userStore.controls.keyboard.movement.walkLeft?.keybind]) {
             this._state.moveDir.x = Scalar.Lerp(Math.abs(this._state.moveDir.x), 1, 0.1);
-        } else if (this._inputMap[Store.state.controls.keyboard.movement.walkRight?.keybind]) {
+        } else if (this._inputMap[userStore.controls.keyboard.movement.walkRight?.keybind]) {
             this._state.moveDir.x = -Scalar.Lerp(Math.abs(this._state.moveDir.x), 1, 0.1);
         } else {
             this._state.moveDir.x = 0;
         }
 
-        if (this._inputMap[Store.state.controls.keyboard.movement.walkForwards?.keybind]) {
+        if (this._inputMap[userStore.controls.keyboard.movement.walkForwards?.keybind]) {
             this._state.moveDir.z = -Scalar.Lerp(Math.abs(this._state.moveDir.z), 1, 0.1);
-        } else if (this._inputMap[Store.state.controls.keyboard.movement.walkBackwards?.keybind]) {
+        } else if (this._inputMap[userStore.controls.keyboard.movement.walkBackwards?.keybind]) {
             this._state.moveDir.z = Scalar.Lerp(Math.abs(this._state.moveDir.z), 1, 0.1);
         } else {
             this._state.moveDir.z = 0;
@@ -144,15 +148,15 @@ export class KeyboardInput implements IInputHandler {
 
         // Push-to-talk.
         if (
-            evt.sourceEvent.code === Store.state.controls.keyboard.audio.pushToTalk?.keybind
-            && Store.state.audio.user.muted === true
+            evt.sourceEvent.code === userStore.controls.keyboard.audio.pushToTalk?.keybind
+            && applicationStore.audio.user.muted === true
         ) {
-            this._previousMuteInput = Store.state.audio.user.muted;
+            this._previousMuteInput = applicationStore.audio.user.muted;
             AudioMgr.muteAudio(false);
         }
 
         // Fly.
-        if (evt.sourceEvent.code === Store.state.controls.keyboard.movement.fly?.keybind) {
+        if (evt.sourceEvent.code === userStore.controls.keyboard.movement.fly?.keybind) {
             const sceneManager = this._scene.rootNodes.find((node) => node.id === "SceneManager") as GameObject;
             const sceneController = sceneManager.components.get("SceneController") as SceneController | undefined;
 
@@ -169,14 +173,14 @@ export class KeyboardInput implements IInputHandler {
         }
 
         // Run.
-        if (Store.state.controls.keyboard.movement.run?.keybind.includes("Shift")) {
+        if (userStore.controls.keyboard.movement.run?.keybind.includes("Shift")) {
             this._runKey = this._shiftKey;
         } else {
-            this._runKey = evt.sourceEvent.code === Store.state.controls.keyboard.movement.run?.keybind ? true : this._runKey;
+            this._runKey = evt.sourceEvent.code === userStore.controls.keyboard.movement.run?.keybind ? true : this._runKey;
         }
 
         // Sit.
-        if (evt.sourceEvent.code === Store.state.controls.keyboard.movement.sit?.keybind) {
+        if (evt.sourceEvent.code === userStore.controls.keyboard.movement.sit?.keybind) {
             // Get the player's avatar mesh.
             const avatarMesh = this._scene.meshes.find((mesh) => mesh.name === "MyAvatar");
 
@@ -195,7 +199,7 @@ export class KeyboardInput implements IInputHandler {
                     const distance = object.getAbsolutePosition()
                         .subtract(avatarAbsolutePosition)
                         .length();
-                    if (distance <= Store.state.interactions.interactionDistance) {
+                    if (distance <= applicationStore.interactions.interactionDistance) {
                         distances.push([object, distance]);
                     }
                 });
@@ -244,13 +248,13 @@ export class KeyboardInput implements IInputHandler {
         }
 
         // Clap.
-        if (evt.sourceEvent.code === Store.state.controls.keyboard.movement.clap?.keybind) {
+        if (evt.sourceEvent.code === userStore.controls.keyboard.movement.clap?.keybind) {
             this._state.state = State.Pose;
             this._state.action = Action.Clap;
         }
 
         // Salute.
-        if (evt.sourceEvent.code === Store.state.controls.keyboard.movement.salute?.keybind) {
+        if (evt.sourceEvent.code === userStore.controls.keyboard.movement.salute?.keybind) {
             this._state.state = State.Pose;
             this._state.action = Action.Salute;
         }
@@ -266,35 +270,35 @@ export class KeyboardInput implements IInputHandler {
         this._inputMap[evt.sourceEvent.code] = evt.sourceEvent.type === "keydown";
         this._shiftKey = evt.sourceEvent.shiftKey === true;
 
-        if (evt.sourceEvent.code === Store.state.controls.keyboard.camera.firstPerson?.keybind) {
+        if (evt.sourceEvent.code === userStore.controls.keyboard.camera.firstPerson?.keybind) {
             this._inputState.cameraMode = CameraMode.FirstPersion;
-        } else if (evt.sourceEvent.code === Store.state.controls.keyboard.camera.thirdPerson?.keybind) {
+        } else if (evt.sourceEvent.code === userStore.controls.keyboard.camera.thirdPerson?.keybind) {
             this._inputState.cameraMode = CameraMode.ThirdPersion;
-        } else if (evt.sourceEvent.code === Store.state.controls.keyboard.camera.collisions?.keybind) {
+        } else if (evt.sourceEvent.code === userStore.controls.keyboard.camera.collisions?.keybind) {
             this._inputState.cameraCheckCollisions = !this._inputState.cameraCheckCollisions;
             this._inputState.cameraElastic = !this._inputState.cameraElastic;
         }
 
         // Mute toggle.
-        if (evt.sourceEvent.code === Store.state.controls.keyboard.audio.mute?.keybind) {
+        if (evt.sourceEvent.code === userStore.controls.keyboard.audio.mute?.keybind) {
             this._previousMuteInput = AudioMgr.muteAudio();
         }
 
         // Push-to-talk.
-        if (evt.sourceEvent.code === Store.state.controls.keyboard.audio.pushToTalk?.keybind) {
+        if (evt.sourceEvent.code === userStore.controls.keyboard.audio.pushToTalk?.keybind) {
             AudioMgr.muteAudio(this._previousMuteInput);
         }
 
         // Run.
-        if (Store.state.controls.keyboard.movement.run?.keybind.includes("Shift")) {
+        if (userStore.controls.keyboard.movement.run?.keybind.includes("Shift")) {
             this._runKey = this._shiftKey;
         } else {
-            this._runKey = evt.sourceEvent.code === Store.state.controls.keyboard.movement.run?.keybind ? false : this._runKey;
+            this._runKey = evt.sourceEvent.code === userStore.controls.keyboard.movement.run?.keybind ? false : this._runKey;
         }
 
         // Clap.
         if (
-            evt.sourceEvent.code === Store.state.controls.keyboard.movement.clap?.keybind
+            evt.sourceEvent.code === userStore.controls.keyboard.movement.clap?.keybind
             && this._state.state === State.Pose
             && this._state.action === Action.Clap
         ) {
@@ -304,7 +308,7 @@ export class KeyboardInput implements IInputHandler {
 
         // Salute.
         if (
-            evt.sourceEvent.code === Store.state.controls.keyboard.movement.salute?.keybind
+            evt.sourceEvent.code === userStore.controls.keyboard.movement.salute?.keybind
             && this._state.state === State.Pose
             && this._state.action === Action.Salute
         ) {

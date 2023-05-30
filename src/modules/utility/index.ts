@@ -7,14 +7,10 @@
 */
 
 import { MetaverseMgr } from "@Modules/metaverse";
-
 import { DomainMgr } from "@Modules/domain";
-
 import { Domain } from "@Modules/domain/domain";
 import { Location } from "@Modules/domain/location";
-
-import { Store } from "@Store/index";
-
+import { useApplicationStore } from "@Base/stores/application-store";
 import {
     Config, TrueValue, FalseValue, RECONNECT_ON_STARTUP, LAST_DOMAIN_SERVER,
     LOG_LEVEL
@@ -56,7 +52,7 @@ export const Utility = {
 
         // if we haven't connected to a metaverse already from a domain reconnect at startup
         if (!MetaverseMgr.ActiveMetaverse) {
-            const metaverseUrl = Store.state.defaultConnectionConfig.DEFAULT_METAVERSE_URL;
+            const metaverseUrl = useApplicationStore().defaultConnectionConfig.DEFAULT_METAVERSE_URL;
             await Utility.metaverseConnectionSetup(metaverseUrl);
         }
     },
@@ -111,7 +107,6 @@ export const Utility = {
         try {
             if (pMetaverseUrl) {
                 Log.debug(Log.types.COMM, `metaverseConnectionSetup: connecting to metaverse ${pMetaverseUrl}`);
-                // eslint-disable-next-line @typescript-eslint/unbound-method
                 const metaverse = await MetaverseMgr.metaverseFactory(pMetaverseUrl);
                 MetaverseMgr.ActiveMetaverse = metaverse;
             }

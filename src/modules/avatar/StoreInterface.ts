@@ -9,21 +9,12 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { fallbackAvatar, fallbackAvatarModel } from "./DefaultModels";
-import { Store, Mutations as StoreMutations } from "@Store/index";
+import { fallbackAvatar, fallbackAvatarModel, type AvatarEntry } from "./DefaultModels";
+import { pinia } from "@Stores/index";
+import { useUserStore } from "@Stores/user-store";
 import { Renderer } from "@Modules/scene";
 
-export interface AvatarEntry {
-    name: string,
-    image: string,
-    file: string,
-    scale: number,
-    starred: boolean
-}
-
-export interface AvatarEntryMap {
-    [key: string]: AvatarEntry
-}
+const userStore = useUserStore(pinia);
 
 function generateID(): string {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -38,7 +29,7 @@ function generateID(): string {
 function getModelData(modelId: string | number): AvatarEntry;
 function getModelData<T extends keyof AvatarEntry>(modelId: string | number, key: T): AvatarEntry[T];
 function getModelData<T extends keyof AvatarEntry>(modelId: string | number, key?: T): AvatarEntry | AvatarEntry[T] {
-    const models = Store.state.avatar.models as { [key: string]: AvatarEntry };
+    const models = userStore.avatar.models as { [key: string]: AvatarEntry };
     if (key && key in (models[modelId] || fallbackAvatar())) {
         return models[modelId][key];
     }
@@ -48,7 +39,7 @@ function getModelData<T extends keyof AvatarEntry>(modelId: string | number, key
 function getActiveModelData(): AvatarEntry;
 function getActiveModelData<T extends keyof AvatarEntry>(key: T): AvatarEntry[T];
 function getActiveModelData<T extends keyof AvatarEntry>(key?: T): AvatarEntry | AvatarEntry[T] {
-    const activeModel = Store.state.avatar.activeModel;
+    const activeModel = userStore.avatar.activeModel;
     if (key) {
         return getModelData(activeModel, key);
     }
@@ -61,15 +52,12 @@ export const AvatarStoreInterface = {
     getActiveModelData,
 
     getAllModelsJSON(): string {
-        return JSON.stringify(Store.state.avatar.models);
+        return JSON.stringify(userStore.avatar.models);
     },
 
-    setModelData(modelId: string | number, key: keyof AvatarEntry, value: string | number | boolean): void {
-        if (modelId in Store.state.avatar.models) {
-            Store.commit(StoreMutations.MUTATE, {
-                property: `avatar.models.${modelId}.${key}`,
-                value
-            });
+    setModelData<T extends keyof AvatarEntry>(modelId: string | number, key: T, value: AvatarEntry[T]): void {
+        if (modelId in userStore.avatar.models) {
+            userStore.avatar.models[modelId][key] = value;
 
             if (key === "file") {
                 this.setActiveModel(modelId);
@@ -78,24 +66,18 @@ export const AvatarStoreInterface = {
     },
 
     setActiveModelData(key: keyof AvatarEntry, value: string | number | boolean): void {
-        const activeModel = Store.state.avatar.activeModel;
+        const activeModel = userStore.avatar.activeModel;
         this.setModelData(activeModel, key, value);
     },
 
     createNewModel(modelData: AvatarEntry, setToActive = true): string {
         let ID = generateID();
         // Ensure that the model ID doesn't already exist.
-        while (ID in Store.state.avatar.models) {
+        while (ID in userStore.avatar.models) {
             ID = generateID();
         }
 
-        const currentModels = { ...Store.state.avatar.models };
-        currentModels[ID] = modelData;
-
-        Store.commit(StoreMutations.MUTATE, {
-            property: `avatar.models`,
-            value: currentModels
-        });
+        userStore.avatar.models[ID] = modelData;
 
         if (setToActive) {
             this.setActiveModel(ID);
@@ -111,27 +93,19 @@ export const AvatarStoreInterface = {
         }
 
         // Switch to the fallback model if the removed model is currently equipped.
-        if (modelId === Store.state.avatar.activeModel) {
+        if (modelId === userStore.avatar.activeModel) {
             this.setActiveModel(fallbackAvatarModel());
         }
 
         // Remove the requested model from the Store.
-        const currentModels = { ...Store.state.avatar.models };
-        if (modelId in currentModels) {
-            delete currentModels[modelId];
+        if (modelId in userStore.avatar.models) {
+            delete userStore.avatar.models[modelId];
         }
-        Store.commit(StoreMutations.MUTATE, {
-            property: `avatar.models`,
-            value: currentModels
-        });
     },
 
     setActiveModel(modelId: string | number): void {
-        if (modelId in Store.state.avatar.models) {
-            Store.commit(StoreMutations.MUTATE, {
-                property: "avatar.activeModel",
-                value: modelId
-            });
+        if (modelId in userStore.avatar.models) {
+            userStore.avatar.activeModel = typeof modelId === "number" ? modelId.toString() : modelId;
         }
         try {
             const scene = Renderer.getScene();

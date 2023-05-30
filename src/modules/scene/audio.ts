@@ -10,8 +10,7 @@ import { DomainMgr } from "@Modules/domain";
 import { Domain, ConnectionState } from "@Modules/domain/domain";
 import { DomainAudio } from "@Modules/domain/audio";
 import { AssignmentClientState } from "@Modules/domain/client";
-
-import { Store, Mutations as StoreMutations } from "@Store/index";
+import { useApplicationStore } from "@Stores/application-store";
 import { Config, USER_AUDIO_INPUT, USER_AUDIO_OUTPUT } from "@Base/config";
 import { Notify } from "quasar";
 import Log from "@Modules/debugging/log";
@@ -21,13 +20,13 @@ export type SetAudioOutputCallback = (pStream: Nullable<MediaStream>) => void;
 /**
  * Methods for the handling of the scene's audio.
  *
- * The central audio parameters are kept in $store so the UI can see them.
+ * The central audio parameters are kept in the Store so the UI can see them.
  *
  * There are two ends to the audio system: the user end and the domain-server end:
  *
  * The user end has the selection of the input and output devices which can
  * change at any time. The selection of the input and output devices is done
- * with a UI dialog and saved in $store and in the browser application store.
+ * with a UI dialog and saved in the Store and in the browser application store.
  * The latter is so the same audio devices will be selected when the application
  * is restarted.
  *
@@ -76,12 +75,8 @@ export const AudioMgr = {
      * @returns The new mute state.
      */
     muteAudio(pMute?: boolean): boolean {
-        const newMute = pMute ?? !Store.state.audio.user.muted;
-        // eslint-disable-next-line no-void
-        void Store.commit(StoreMutations.MUTATE, {
-            property: "audio.user.muted",
-            value: newMute
-        });
+        const newMute = pMute ?? !useApplicationStore().audio.user.muted;
+        useApplicationStore().audio.user.muted = newMute;
         AudioMgr.setDomainAudioMuted(newMute);
         AudioMgr.setUserAudioMuted(newMute);
         return newMute;
@@ -143,7 +138,7 @@ export const AudioMgr = {
      * Restore the microphone's muted/unmuted state from the store.
      */
     _restoreMicrophoneMuteState(): void {
-        AudioMgr.muteAudio(Store.state.audio.user.muted);
+        AudioMgr.muteAudio(useApplicationStore().audio.user.muted);
     },
 
     // Utility routine called when DomainAudio is CONNECTED.
@@ -172,9 +167,9 @@ export const AudioMgr = {
     async _connectInputStreamsToOutputStreams(pDomain: Domain): Promise<void> {
         Log.debug(Log.types.AUDIO, `AudioMgr._connectInputAndOutputStreams`);
         if (pDomain.AudioClient && pDomain.AudioClient.Mixer) {
-            if (Store.state.audio.user.userInputStream) {
+            if (useApplicationStore().audio.user.userInputStream) {
                 // The user has an input device. Give it to the domain
-                await AudioMgr.setAudioToDomain(Store.state.audio.user.userInputStream);
+                await AudioMgr.setAudioToDomain(useApplicationStore().audio.user.userInputStream);
             } else {
                 Log.debug(Log.types.AUDIO, `AudioMgr._connectInputAndOutputStreams. Have mixer but no user mic`);
             }
@@ -214,16 +209,12 @@ export const AudioMgr = {
      * @param pDeviceInfo information on the stream
      */
     async setUserAudioInputStream(pStream: Nullable<MediaStream>, pDeviceInfo: Nullable<MediaDeviceInfo>): Promise<void> {
-        Store.commit(StoreMutations.MUTATE, {
-            property: "audio.user",
-            with: {
-                connected: Boolean(pStream),
-                awaitingCapturePermissions: false,
-                hasInputAccess: Boolean(pStream),
-                userInputStream: pStream,
-                currentInputDevice: pDeviceInfo
-            }
-        });
+        const applicationStore = useApplicationStore();
+        applicationStore.audio.user.awaitingCapturePermissions = false;
+        applicationStore.audio.user.connected = Boolean(pStream);
+        applicationStore.audio.user.currentInputDevice = pDeviceInfo;
+        applicationStore.audio.user.hasInputAccess = Boolean(pStream);
+        applicationStore.audio.user.userInputStream = pStream;
 
         // If there is a stream, set up the muted state
         if (pStream) {
@@ -285,7 +276,7 @@ export const AudioMgr = {
      * @returns muted state
      */
     setDomainAudioMuted(pMute?: boolean): boolean {
-        const newMute = pMute ?? !Store.state.audio.user.muted;
+        const newMute = pMute ?? !useApplicationStore().audio.user.muted;
         if (DomainMgr.ActiveDomain && DomainMgr.ActiveDomain.AudioClient) {
             if (DomainMgr.ActiveDomain.AudioClient.clientState === AssignmentClientState.CONNECTED) {
                 const mixer = DomainMgr.ActiveDomain.AudioClient.Mixer;
@@ -298,10 +289,10 @@ export const AudioMgr = {
     },
 
     setUserAudioMuted(pMute?: boolean): boolean {
-        const newMute = pMute ?? !Store.state.audio.user.muted;
+        const newMute = pMute ?? !useApplicationStore().audio.user.muted;
         Log.debug(Log.types.AUDIO, `AudioMgr.setUserAudioMuted: ${String(newMute)}`);
         // Disable all media tracks.
-        const mediaTracks = Store.state.audio.user.userInputStream?.getTracks();
+        const mediaTracks = useApplicationStore().audio.user.userInputStream?.getTracks();
         mediaTracks?.forEach((track) => {
             track.enabled = !newMute;
         });
@@ -317,12 +308,7 @@ export const AudioMgr = {
      * @param pDeviceInfo information on the stream
      */
     setAudioOutputStream(pDeviceInfo: Nullable<MediaDeviceInfo>): void {
-        Store.commit(StoreMutations.MUTATE, {
-            property: "audio.user",
-            with: {
-                currentOutputDevice: pDeviceInfo
-            }
-        });
+        useApplicationStore().audio.user.currentOutputDevice = pDeviceInfo;
         // Remember the last selected input device for next session
         if (pDeviceInfo) {
             Log.debug(Log.types.AUDIO, `store user AudioOutputStream: ${pDeviceInfo.label}`);
@@ -390,13 +376,8 @@ export const AudioMgr = {
             Log.debug(Log.types.AUDIO, `AudioMgr: getAvailableInputOutputDevices. output count=${outputsList.length}`);
         }
         // Update the information the UI sees
-        Store.commit(StoreMutations.MUTATE, {
-            property: "audio",
-            with: {
-                inputsList,
-                outputsList
-            }
-        });
+        useApplicationStore().audio.inputsList = inputsList;
+        useApplicationStore().audio.outputsList = outputsList;
     },
 
     /**
@@ -414,15 +395,10 @@ export const AudioMgr = {
                 const constraint = lastSessionInput === "none"
                     ? { video: false, audio: true }
                     : { audio: { deviceId: { exact: lastSessionInput } }, video: false };
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 inputStream = await navigator.mediaDevices.getUserMedia(constraint);
                 Log.debug(Log.types.AUDIO, `AudioMgr.getAudioInputAccess: have user input stream`);
                 // If we get access, say we're connected
-                // eslint-disable-next-line no-void
-                void Store.commit(StoreMutations.MUTATE, {
-                    property: "audio.user.hasInputAccess",
-                    value: true
-                });
+                useApplicationStore().audio.user.hasInputAccess = true;
             } catch (e) {
                 Log.error(Log.types.AUDIO, `EXCEPTION getting audio device access`);
             }
@@ -442,8 +418,8 @@ export const AudioMgr = {
             Log.debug(Log.types.AUDIO, `AudioMgr: set inital Input audio device`);
             if (pInitial) {
                 await AudioMgr.setUserAudioInputStream(pInitial, await AudioMgr.getDeviceInfoForStream(pInitial));
-            } else if (Store.state.audio.inputsList.length > 0) {
-                const firstInput = Store.state.audio.inputsList[0];
+            } else if (useApplicationStore().audio.inputsList.length > 0) {
+                const firstInput = useApplicationStore().audio.inputsList[0];
                 await AudioMgr.setUserAudioInputStream(await AudioMgr.getStreamForDeviceInfo(firstInput), firstInput);
             }
         } catch (e) {
@@ -456,13 +432,12 @@ export const AudioMgr = {
     // eslint-disable-next-line @typescript-eslint/require-await
     async setInitialOutputAudioDevice(): Promise<void> {
         Log.debug(Log.types.AUDIO, `AudioMgr.setInitialOutputAudioDevice`);
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const lastSessionOutput = Config.getItem(USER_AUDIO_OUTPUT, "none");
         try {
             if (lastSessionOutput === "none") {
                 Log.debug(Log.types.AUDIO, `AudioMgr: set inital output audio device`);
-                if (Store.state.audio.outputsList.length > 0) {
-                    const firstOutput = Store.state.audio.outputsList[0];
+                if (useApplicationStore().audio.outputsList.length > 0) {
+                    const firstOutput = useApplicationStore().audio.outputsList[0];
                     AudioMgr.setAudioOutputStream(firstOutput);
                 } else {
                     // Some browsers don't have output selection so say none selected
@@ -470,7 +445,7 @@ export const AudioMgr = {
                 }
             } else {
                 // The user is specifying a device. Reselect that one.
-                const userDev = Store.state.audio.outputsList.filter((ii) => ii.deviceId === lastSessionOutput);
+                const userDev = useApplicationStore().audio.outputsList.filter((ii) => ii.deviceId === lastSessionOutput);
                 if (userDev.length > 0) {
                     Log.debug(Log.types.AUDIO, `AudioMgr: Found output audio device from last session`);
                     // Found the output device from last session.
@@ -479,7 +454,7 @@ export const AudioMgr = {
                 } else {
                     // The device is not found from last session. Default to first one
                     Log.debug(Log.types.AUDIO, `AudioMgr: Did not found output audio device from last session`);
-                    const firstOutput = Store.state.audio.outputsList[0];
+                    const firstOutput = useApplicationStore().audio.outputsList[0];
                     AudioMgr.setAudioOutputStream(firstOutput);
                 }
             }

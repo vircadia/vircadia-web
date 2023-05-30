@@ -100,7 +100,7 @@
             left: `${isMaximized ? 0 : left < 0 ? 0 : left > windowCache.innerWidth - width ? windowCache.innerWidth - width : left}px`,
             background: getWindowStyle,
             backgroundAttachment: 'fixed',
-            backdropFilter: $store.state.theme.globalStyle === 'aero' ? 'blur(10px)' : 'unset',
+            backdropFilter: applicationStore.theme.globalStyle === 'aero' ? 'blur(10px)' : 'unset',
             borderRadius: isMaximized ? '0px' : '5px',
             transition: '0.2s ease background',
             overflow: showWindowContent ? 'hidden' : 'show'
@@ -214,6 +214,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { useApplicationStore } from "@Stores/application-store";
 
 interface WindowCache {
     innerWidth: number,
@@ -250,22 +251,30 @@ export default defineComponent({
         // parentSize: { type: Object, required: true }
     },
 
-    data: (vm) => ({
-        // Settings and Properties
-        height: vm.defaultHeight,
-        width: vm.defaultWidth,
-        top: vm.defaultTop,
-        left: vm.defaultLeft,
-        // Internal
-        overlayStatus: "restored",
-        heightWhenMinimized: 32,
-        hovered: false,
-        dragAction: "NONE",
-        dragStart: { x: 0, y: 0 },
-        mouseCaptured: false,
-        onDragMoveReady: true,
-        windowCache: {} as WindowCache
-    }),
+    setup() {
+        return {
+            applicationStore: useApplicationStore()
+        };
+    },
+
+    data(vm) {
+        return {
+            // Settings and Properties
+            height: vm.defaultHeight,
+            width: vm.defaultWidth,
+            top: vm.defaultTop,
+            left: vm.defaultLeft,
+            // Internal
+            overlayStatus: "restored",
+            heightWhenMinimized: 32,
+            hovered: false,
+            dragAction: "NONE",
+            dragStart: { x: 0, y: 0 },
+            mouseCaptured: false,
+            onDragMoveReady: true,
+            windowCache: {} as WindowCache
+        };
+    },
 
     computed: {
         isMaximized(): boolean {
@@ -282,7 +291,7 @@ export default defineComponent({
         },
         getWindowStyle(): string {
             // Style the overlay window based on the Theme config.
-            if (this.$store.state.theme.globalStyle === "none") {
+            if (this.applicationStore.theme.globalStyle === "none") {
                 return this.$q.dark.isActive ? "#121212" : "#ffffff";
             }
             const opacities = {
@@ -292,7 +301,7 @@ export default defineComponent({
             if (this.$props.transparentOnIdle && !this.hovered) {
                 return "#0002";
             }
-            if (this.$store.state.theme.windowStyle === "none") {
+            if (this.applicationStore.theme.windowStyle === "none") {
                 return this.$q.dark.isActive ? "#1D1D1D" : "#fff";
             }
             const gradients = {
@@ -301,12 +310,11 @@ export default defineComponent({
                 "gradient-bottom": "circle at 50% 100%",
                 "gradient-left": "circle at 0% 50%"
             };
-            const gradient = gradients[this.$store.state.theme.windowStyle];
-            const primary = this.$store.state.theme.colors.primary;
-            const secondary = this.$store.state.theme.colors.secondary;
+            const gradient = gradients[this.applicationStore.theme.windowStyle];
+            const primary = this.applicationStore.theme.colors.primary;
+            const secondary = this.applicationStore.theme.colors.secondary;
             const end = this.$q.dark.isActive ? "#121212" : "#ffffff";
-            const opacity = opacities[this.$store.state.theme.globalStyle];
-            // eslint-disable-next-line max-len
+            const opacity = opacities[this.applicationStore.theme.globalStyle];
             return `radial-gradient(${gradient}, ${secondary}30 15%, ${primary}30 40%, ${end} 95%), linear-gradient(${end}${opacity}, ${end}${opacity})`;
         }
     },

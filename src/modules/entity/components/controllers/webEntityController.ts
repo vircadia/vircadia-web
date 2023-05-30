@@ -18,11 +18,14 @@ import { IWebEntity, WebExtensions } from "../../EntityInterfaces";
 import { MeshComponent, MASK_MESH_RENDER_GROUP_ID } from "@Base/modules/object";
 import { EntityMapper } from "../../package";
 import { MeshBuilder, Mesh, StandardMaterial, Nullable } from "@babylonjs/core";
-import { Store, Mutations } from "@Store/index";
+import { pinia } from "@Stores/index";
+import { useApplicationStore } from "@Stores/application-store";
 import { CSS3DObject } from "@Modules/scene/css3DRenderer";
 import { Renderer } from "@Modules/scene";
 import { EntityEventType, EntityEvent } from "../../entityEvent";
 
+
+const applicationStore = useApplicationStore(pinia);
 
 export class WebEntityController extends EntityController {
     // domain properties
@@ -118,8 +121,8 @@ export class WebEntityController extends EntityController {
         this._destroyCSSObject();
         this._destroyMesh();
 
-        if (this._isJitsi) {
-            Store.commit(Mutations.REMOVE_CONFERENCE_ROOM, this._webEntity.name);
+        if (this._isJitsi && this._webEntity.name) {
+            applicationStore.removeConferenceRoom(this._webEntity.name);
             this._webExtensions = null;
         }
     }
@@ -186,7 +189,7 @@ export class WebEntityController extends EntityController {
 
         this._isJitsi = this._webExtensions?.jitsi !== undefined;
         if (this._isJitsi) {
-            Store.commit(Mutations.ADD_CONFERENCE_ROOM, this._webEntity);
+            applicationStore.addConferenceRoom(this._webEntity);
         }
         /*
         if (this._cssObject) {

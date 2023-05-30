@@ -11,7 +11,7 @@ import {
     createWebHashHistory,
     createWebHistory
 } from "vue-router";
-import { IRootState, Store, Mutations as StoreMutations } from "@Store/index";
+import { useApplicationStore } from "@Stores/application-store";
 import routes from "./routes";
 
 function firstTimeSetupIsNeeded(): boolean {
@@ -28,7 +28,7 @@ function firstTimeSetupIsNeeded(): boolean {
  * with the Router instance.
  */
 
-export default route<IRootState>(function(/* { store, ssrContext } */) {
+export default route(() => {
     // eslint-disable-next-line no-nested-ternary
     const createHistory = process.env.SERVER
         ? createMemoryHistory
@@ -59,10 +59,7 @@ export default route<IRootState>(function(/* { store, ssrContext } */) {
             && to.path !== "/first-time-setup" && to.name !== "FirstTimeSetup"
         ) {
             if (to.path !== "/") {
-                Store.commit(StoreMutations.MUTATE, {
-                    property: "firstTimeWizard.pendingLocation",
-                    value: to.path
-                });
+                useApplicationStore().firstTimeWizard.pendingLocation = to.path;
             }
             return { name: "FirstTimeSetup" };
         }

@@ -14,10 +14,8 @@ import { Account } from "@Modules/account";
 import { DomainAudio } from "@Modules/domain/audio";
 import { DomainMessage } from "@Modules/domain/message";
 import { DomainAvatar } from "@Modules/domain/avatar";
-
-import { Store, Actions, Mutations as StoreMutations } from "@Store/index";
-
 import Log from "@Modules/debugging/log";
+import { useApplicationStore } from "@Stores/application-store";
 import { Client } from "./client";
 import { Location } from "./location";
 import assert from "../utility/assert";
@@ -118,32 +116,18 @@ export class Domain {
         // this.#_domainUrl = Domain.cleanDomainUrl(pUrl);
         this.#_location = new Location(pUrl);
         if (this.#_location.protocol === "") {
-            this.#_location.protocol = Store.state.defaultConnectionConfig.DEFAULT_DOMAIN_PROTOCOL;
+            this.#_location.protocol = useApplicationStore().defaultConnectionConfig.DEFAULT_DOMAIN_PROTOCOL;
         }
         if (this.#_location.port === "") {
-            this.#_location.port = Store.state.defaultConnectionConfig.DEFAULT_DOMAIN_PORT;
+            this.#_location.port = useApplicationStore().defaultConnectionConfig.DEFAULT_DOMAIN_PORT;
         }
 
         Log.debug(Log.types.COMM, `Creating a new DomainServer`);
         this.#_domain = new DomainServer();
         this.#_domain.account.authRequired.connect(() => {
             console.debug("AUTH REQUIRED: Open login dialog");
-            // Reset the dialog element.
-            Store.commit(StoreMutations.MUTATE, {
-                property: "dialog",
-                with: {
-                    "show": false,
-                    "which": ""
-                }
-            });
-            // Open the login dialog.
-            Store.commit(StoreMutations.MUTATE, {
-                property: "dialog",
-                with: {
-                    "show": true,
-                    "which": "Login"
-                }
-            });
+            useApplicationStore().dialog.show = true;
+            useApplicationStore().dialog.which = "Login";
         });
         this.#updateDomainLogin();
 
@@ -186,13 +170,9 @@ export class Domain {
     private _handleOnDomainStateChange(pState: ConnectionState, pInfo: string): void {
         Log.debug(Log.types.COMM, `DomainStateChange: new state ${Domain.stateToString(pState)}, ${pInfo}`);
         this.onStateChange.emit(this, pState, pInfo);
-
-        // eslint-disable-next-line no-void
-        void Store.dispatch(Actions.UPDATE_DOMAIN, {
-            domain: this,
-            newState: this.#_domain?.state,
-            info: pInfo
-        });
+        if (this.#_domain) {
+            useApplicationStore().updateDomainState(this, this.#_domain.state, pInfo);
+        }
     }
 
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
@@ -217,7 +197,7 @@ export class Domain {
     // eslint-disable-next-line class-methods-use-this,@typescript-eslint/require-await
     async getMetaverseUrl(): Promise<string> {
         // Eventually need to talk to the domain-server to get the URL
-        return Store.state.defaultConnectionConfig.DEFAULT_METAVERSE_URL;
+        return useApplicationStore().defaultConnectionConfig.DEFAULT_METAVERSE_URL;
     }
 
     /**
@@ -238,12 +218,12 @@ export class Domain {
             url = url.substring(8);
         }
         if (!(url.startsWith("ws://") || url.startsWith("wss://"))) {
-            url = Store.state.defaultConnectionConfig.DEFAULT_DOMAIN_PROTOCOL + "//" + url;
+            url = useApplicationStore().defaultConnectionConfig.DEFAULT_DOMAIN_PROTOCOL + "//" + url;
         }
 
         const fullUrl = new URL(url);
         if (fullUrl.port === "") {
-            fullUrl.port = Store.state.defaultConnectionConfig.DEFAULT_DOMAIN_PORT;
+            fullUrl.port = useApplicationStore().defaultConnectionConfig.DEFAULT_DOMAIN_PORT;
         }
 
         url = fullUrl.href;

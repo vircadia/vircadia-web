@@ -10,12 +10,9 @@
 /* eslint-disable new-cap */
 
 import { Engine, Nullable } from "@babylonjs/core";
-import Ammo from "ammojs-typed";
-import { Store, Mutations } from "@Store/index";
+import { useApplicationStore } from "@Stores/application-store";
 import { Config } from "@Base/config";
 import { WebGPUEngine } from "@babylonjs/core/Engines/webgpuEngine";
-// import { DomainMgr } from "@Modules/domain";
-
 
 // General Modules
 import { VScene } from "@Modules/scene/vscene";
@@ -23,6 +20,9 @@ import { CustomLoadingScreen } from "@Modules/scene/LoadingScreen";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
+
+// Store reference.
+const applicationStore = useApplicationStore();
 
 export const Renderer = {
     _engine: <Engine><unknown>undefined,
@@ -42,7 +42,6 @@ export const Renderer = {
                 deviceDescriptor: {
                     requiredFeatures: [
                         "depth-clip-control",
-                        "depth24unorm-stencil8",
                         "depth32float-stencil8",
                         "texture-compression-bc",
                         "texture-compression-etc2",
@@ -68,20 +67,12 @@ export const Renderer = {
         setInterval(() => {
             if (Renderer._engine) {
                 if (Renderer._renderingScenes.length > 0 && Renderer._renderingScenes[0]) {
-                    Store.commit(Mutations.MUTATE, {
-                        property: "renderer",
-                        with: {
-                            fps: Renderer._engine.getFps(),
-                            cameraLocation: Renderer._renderingScenes[0]._scene.activeCamera?.globalPosition.clone(),
-                            cameraRotation: Renderer._renderingScenes[0]._scene.activeCamera?.absoluteRotation.clone()
-                        }
-                    });
+                    applicationStore.renderer.fps = Renderer._engine.getFps();
+                    applicationStore.renderer.cameraLocation = Renderer._renderingScenes[0]._scene.activeCamera?.globalPosition.clone();
+                    applicationStore.renderer.cameraRotation = Renderer._renderingScenes[0]._scene.activeCamera?.absoluteRotation.clone();
                 }
             }
         }, Number(Config.getItem("Renderer.StatUpdateSeconds", "1000")));
-
-        // Enable physics
-        await Ammo();
     },
     createScene(pSceneIndex = 0): VScene {
         const scene = new VScene(Renderer._engine, pSceneIndex);
@@ -94,7 +85,7 @@ export const Renderer = {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     resize(pHeight: number, pWidth: number): void {
         if (!this._webgpuSupported) {
-            this._engine.resize();
+            this._engine?.resize();
         }
     },
     startRenderLoop(pScenes: VScene[]): void {

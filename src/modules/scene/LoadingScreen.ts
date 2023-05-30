@@ -11,7 +11,10 @@
 
 import { ILoadingScreen } from "@babylonjs/core";
 import type { ISceneLoaderProgressEvent } from "@babylonjs/core";
-import { Store, Mutations as StoreMutations } from "@Store/index";
+import { pinia } from "@Stores/index";
+import { useApplicationStore } from "@Stores/application-store";
+
+const applicationStore = useApplicationStore(pinia);
 
 const BYTES_PER_MEGABYTE = 1000000;
 const MS_PER_SECOND = 1000;
@@ -68,24 +71,15 @@ export function updateContentLoadingProgress(event: ISceneLoaderProgressEvent, c
     averageSpeed = isNaN(averageSpeed) || !isFinite(averageSpeed) ? 0 : averageSpeed;
 
     // Set the speed in the store.
-    Store.commit(StoreMutations.MUTATE, {
-        property: "renderer.contentLoadingSpeed",
-        value: event.loaded < event.total ? Math.abs(averageSpeed) : 0
-    });
+    applicationStore.renderer.contentLoadingSpeed = event.loaded < event.total ? Math.abs(averageSpeed) : 0;
     previousDownloadAmount = event.loaded;
     previousDownloadTime = currentTime;
 
     // Set the download message.
-    Store.commit(StoreMutations.MUTATE, {
-        property: "renderer.contentLoadingInfo",
-        value: contentName ?? ""
-    });
+    applicationStore.renderer.contentLoadingInfo = contentName ?? "";
 
     // Set the download state.
     if (event.lengthComputable) {
-        Store.commit(StoreMutations.MUTATE, {
-            property: "renderer.contentIsLoading",
-            value: event.loaded < event.total
-        });
+        applicationStore.renderer.contentIsLoading = event.loaded < event.total;
     }
 }

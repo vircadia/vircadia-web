@@ -8,18 +8,14 @@
 
 import axios from "axios";
 
+import { SignalEmitter } from "@vircadia/web-sdk";
 import { buildUrl, cleanMetaverseUrl, findErrorMsg } from "@Modules/metaverse/metaverseOps";
 import { MetaverseInfoResp, MetaverseInfoAPI } from "@Modules/metaverse/APIAccount";
-
-import { Store, Actions } from "@Store/index";
-
-import { SignalEmitter } from "@vircadia/web-sdk";
-
+import { useApplicationStore } from "@Stores/application-store";
 import { Config, DEFAULT_METAVERSE_URL } from "@Base/config";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
 
-// Allow 'get' lines to be compact
+// Allow getters to be compact.
 /* eslint-disable @typescript-eslint/brace-style */
 
 /** Connection states for talking to the metaverse-server */
@@ -57,7 +53,7 @@ export const MetaversePersist = {
  * ```
  */
 export class Metaverse {
-    #_metaverseUrl = Store.state.defaultConnectionConfig.DEFAULT_METAVERSE_URL;
+    #_metaverseUrl = useApplicationStore().defaultConnectionConfig.DEFAULT_METAVERSE_URL;
     public get MetaverseUrl(): string { return this.#_metaverseUrl; }
 
     #_connectionState: MetaverseState = MetaverseState.UNITIALIZED;
@@ -96,7 +92,7 @@ export class Metaverse {
      * Update the URL to the metaverse.
      *
      * This causes accessing the metaverse_info access point of the metaverse-server
-     * and updating the locally stored information and the metaverse info in $store.
+     * and updating the locally stored information and the metaverse info in the Store.
      *
      * @param pNewUrl Url to the new metaverse
      * @throws {Error} if the metaverse access gives and error (not found or response error)
@@ -110,7 +106,6 @@ export class Metaverse {
         // Access the metaverse-server and get its configuration info
         const accessUrl = buildUrl(MetaverseInfoAPI, newUrl);
         try {
-            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
             const resp = await axios.get(accessUrl);
             const data = resp.data as MetaverseInfoResp;
             this.#_metaverseUrl = cleanMetaverseUrl(data.metaverse_url);
@@ -139,11 +134,7 @@ export class Metaverse {
         this.#_connectionState = pNewState;
         this.onStateChange.emit(this, pNewState);
 
-        // eslint-disable-next-line no-void
-        void Store.dispatch(Actions.UPDATE_METAVERSE, {
-            metaverse: this,
-            newState: pNewState
-        });
+        useApplicationStore().updateMetaverseState(this, pNewState);
     }
 
     /**
