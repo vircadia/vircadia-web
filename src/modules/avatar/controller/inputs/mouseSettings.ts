@@ -31,7 +31,7 @@ const userStore = useUserStore(pinia);
  * @param t The percentage within the range to interpolate the value from.
  * @returns The interpolated value.
  */
-function logInterpolation(start: number, end: number, t: number): number {
+function logInterpolate(start: number, end: number, t: number): number {
     return start * (end / start) ** t;
 }
 
@@ -122,7 +122,7 @@ class MouseSettingsControllerSingleton {
      */
     set sensitivity(value: number) {
         this.#sensitivity.value = value;
-        this.#motionComponents.sensibility.value = logInterpolation(
+        this.#motionComponents.sensibility.value = logInterpolate(
             this.#motionComponents.sensibility.max,
             this.#motionComponents.sensibility.min,
             // eslint-disable-next-line @typescript-eslint/no-magic-numbers
