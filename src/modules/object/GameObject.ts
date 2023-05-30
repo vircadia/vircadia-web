@@ -9,20 +9,13 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable class-methods-use-this */
-// This is disabled because TS complains about BABYLON's use of cap'ed function names
-/* eslint-disable new-cap */
-
 import {
     Scene,
     Mesh,
     Observable,
     Nullable
 } from "@babylonjs/core";
-
 import { IComponent } from "./component";
-
 import Log from "@Modules/debugging/log";
 
 
@@ -31,6 +24,7 @@ import Log from "@Modules/debugging/log";
  */
 export class GameObject extends Mesh {
     _components : Map<string, IComponent>;
+    private _typeName = "GameObject";
     protected _childGameObjects: Array<GameObject> = new Array<GameObject>();
     protected _onComponentAddedObservable: Observable<IComponent> = new Observable<IComponent>();
 
@@ -46,7 +40,7 @@ export class GameObject extends Mesh {
     }
 
     public get type():string {
-        return "GameObject";
+        return this._typeName;
     }
 
     public get components() : Map<string, IComponent> {
@@ -121,7 +115,7 @@ export class GameObject extends Mesh {
             if (dispose) {
                 component.dispose();
             }
-            return this._components["delete"](componentType);
+            return this._components.delete(componentType);
         }
         return false;
     }

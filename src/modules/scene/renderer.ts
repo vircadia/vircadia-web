@@ -18,9 +18,6 @@ import { WebGPUEngine } from "@babylonjs/core/Engines/webgpuEngine";
 import { VScene } from "@Modules/scene/vscene";
 import { CustomLoadingScreen } from "@Modules/scene/LoadingScreen";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import Log from "@Modules/debugging/log";
-
 // Store reference.
 const applicationStore = useApplicationStore();
 
@@ -31,7 +28,6 @@ export const Renderer = {
     _boundRenderFunction: <Nullable<()=>void>>null,
     _intervalID: <Nullable<NodeJS.Timeout>> null,
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     async initialize(pCanvas: HTMLCanvasElement, pLoadingScreen: HTMLElement): Promise<void> {
         this._webgpuSupported = await WebGPUEngine.IsSupportedAsync;
         // FIXME: Temporarily disable WebGPU on MacOS until update to a Babylon version that supports it.
@@ -94,7 +90,7 @@ export const Renderer = {
         document.addEventListener("visibilitychange", this._runRenderLoop.bind(this), false);
     },
     // NOTE:
-    // The render loop of babylon engine relaies on requestAnimationFrame().
+    // The render loop of babylon engine relies on requestAnimationFrame().
     // Most browsers stop sending requestAnimationFrame() callbacks to background tabs
     // in order to improve performance and battery life.
     // To make scene still render in background, use setInterval() to run the render loop when the web page is hidden.
@@ -105,7 +101,7 @@ export const Renderer = {
         if (document.hidden) {
             this._engine.stopRenderLoop();
             if (!this._intervalID) {
-            // eslint-disable-next-line @typescript-eslint/no-magic-numbers, @typescript-eslint/no-implied-eval
+                // eslint-disable-next-line @typescript-eslint/no-magic-numbers
                 this._intervalID = setInterval(this._boundRenderFunction, 16);
             }
         } else {

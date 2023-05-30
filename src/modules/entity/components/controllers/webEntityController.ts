@@ -9,7 +9,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable new-cap */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
@@ -64,7 +63,6 @@ export class WebEntityController extends EntityController {
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
     public onInitialize(): void {
         super.onInitialize();
 

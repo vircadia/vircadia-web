@@ -9,13 +9,9 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable new-cap */
 
-// General Modules
-import Log from "@Modules/debugging/log";
-// Domain Modules
 import { EntityController } from "./EntityController";
 import { IZoneEntity } from "../../EntityInterfaces";
 import { SkyboxComponent, KeyLightComponent, HazeComponent } from "../components";
@@ -24,7 +20,7 @@ import { AssetUrl } from "../../builders";
 import {
     HemisphericLight, Vector3, DefaultRenderingPipeline, CubeTexture, HDRCubeTexture,
     VolumetricLightScatteringPostProcess, Nullable,
-    Camera, Texture, PointLight, StandardMaterial
+    Camera, Texture, StandardMaterial
 } from "@babylonjs/core";
 import { IVector3Property } from "../../EntityProperties";
 import { EntityMapper } from "../../package";
@@ -56,6 +52,7 @@ type PostProcessingSettings = {
     volumetricLight?: VolumetricLightSettings | undefined
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type SkyBoxSettings = {
     fxaaEnabled?: boolean | undefined,
     glowLayerEnabled?: boolean | undefined,
@@ -97,7 +94,6 @@ export class ZoneEntityController extends EntityController {
         return "ZoneEntityController";
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
     public onInitialize(): void {
         super.onInitialize();
 
@@ -301,7 +297,6 @@ export class ZoneEntityController extends EntityController {
             }
 
             if (volumetricLightSettings.dimensions) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 this._vls.mesh.scaling = EntityMapper.mapToScale(volumetricLightSettings.dimensions);
             }
 

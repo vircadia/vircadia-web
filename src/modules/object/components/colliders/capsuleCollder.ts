@@ -9,15 +9,11 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { ColliderComponent } from "./collider";
-
-import {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    Scene, Vector3, MeshBuilder, Color4, Color3, PhysicsImpostor
-} from "@babylonjs/core";
-
 /* eslint-disable new-cap */
 /* eslint-disable class-methods-use-this */
+
+import { ColliderComponent } from "./collider";
+import { Vector3, MeshBuilder, PhysicsImpostor } from "@babylonjs/core";
 
 export class CapsuleColliderComponent extends ColliderComponent {
     /**
@@ -50,7 +46,6 @@ export class CapsuleColliderComponent extends ColliderComponent {
         this.collider = capsule;
     }
 
-    // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-empty-function
     protected _createColliderImposter() : void {
         if (this.collider) {
             // create CapsuleImpostor with zero mass

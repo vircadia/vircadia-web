@@ -9,10 +9,6 @@
 import axios, { AxiosRequestConfig } from "axios";
 
 import { MetaverseMgr } from "@Modules/metaverse";
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Config } from "@Base/config";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
 import { Account } from "../account";
 

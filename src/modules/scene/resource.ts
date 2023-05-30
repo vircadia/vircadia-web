@@ -17,8 +17,6 @@ import { Uuid } from "@vircadia/web-sdk";
 // General Modules
 import Log from "@Modules/debugging/log";
 
-/* eslint-disable @typescript-eslint/no-magic-numbers */
-
 interface IAvatarResult {
     mesh: AbstractMesh,
     skeleton: Skeleton | null
@@ -34,7 +32,7 @@ interface IResourceUrl {
     filename : string;
 }
 
-// This is disabled because TS complains about BABYLON's use of cap'ed function names
+// This is disabled because TS complains about BABYLON's use of capitalized function names.
 /* eslint-disable new-cap */
 
 export class ResourceManager {
@@ -178,7 +176,6 @@ export class ResourceManager {
 
             result.meshes.forEach((mesh) => {
                 mesh.isPickable = false;
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 mesh.renderingGroupId = DEFAULT_MESH_RENDER_GROUP_ID;
                 mesh.checkCollisions = false;
             });
@@ -222,7 +219,6 @@ export class ResourceManager {
         return mesh;
     }
 
-    // eslint-disable-next-line class-methods-use-this
 /*
     private _processSceneMesh(mesh : AbstractMesh) : void {
         mesh.id = new Uuid().stringify();

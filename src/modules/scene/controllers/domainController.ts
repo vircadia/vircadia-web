@@ -9,7 +9,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
 import { ScriptComponent, inspectorAccessor, inspector } from "@Modules/script";
@@ -28,11 +27,6 @@ import { AvatarMixer, Uuid, ScriptAvatar, DomainServer,
 import { EntityManager, IEntity, EntityMapper } from "@Modules/entity";
 import { VScene } from "../vscene";
 import { Camera } from "@babylonjs/core";
-
-
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-/* eslint-disable @typescript-eslint/unbound-method */
 
 export class DomainController extends ScriptComponent {
     _avatarMixer : Nullable<AvatarMixer> = null;
@@ -89,8 +83,7 @@ export class DomainController extends ScriptComponent {
             `DomainController onInitialize`);
 
         // Listen for the domain to connect and disconnect
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        DomainMgr.onActiveDomainStateChange.connect(this._handleActiveDomainStateChange);
+        DomainMgr.onActiveDomainStateChange.connect(this._handleActiveDomainStateChange.bind(this));
 
         GameObject.dontDestroyOnLoad(this._gameObject as GameObject);
     }
@@ -107,16 +100,16 @@ export class DomainController extends ScriptComponent {
     public onStop(): void {
         Log.debug(Log.types.OTHER,
             `DomainController onStop`);
-        DomainMgr.onActiveDomainStateChange.disconnect(this._handleActiveDomainStateChange);
+        DomainMgr.onActiveDomainStateChange.disconnect(this._handleActiveDomainStateChange.bind(this));
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     public _handleActiveDomainStateChange(pDomain: Domain, pState: ConnectionState, pInfo: string): void {
 
         Log.debug(Log.types.COMM, `handleActiveDomainStateChange: ${Domain.stateToString(pState)}`);
 
         if (pState === ConnectionState.CONNECTED) {
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this._handleDomainConnected(pDomain);
+            void this._handleDomainConnected(pDomain);
 
         } else if (pState === ConnectionState.DISCONNECTED) {
             this._vscene?.unloadAllAvatars();

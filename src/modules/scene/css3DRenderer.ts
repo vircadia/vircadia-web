@@ -331,7 +331,7 @@ export class CSS3DRenderer {
     }
 
     public removeCSS3DObject(object : CSS3DObject) : void {
-        this._css3DObjects["delete"](object.mesh.id);
+        this._css3DObjects.delete(object.mesh.id);
     }
 
     public removeAllCSS3DObjects() : void {

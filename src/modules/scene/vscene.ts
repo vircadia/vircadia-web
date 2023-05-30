@@ -6,12 +6,9 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
-// This is disabled because TS complains about BABYLON's use of cap'ed function names
+// This is disabled because TS complains about BABYLON's use of capitalized function names.
 /* eslint-disable new-cap */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable class-methods-use-this */
 
 import { AnimationGroup, Engine, Scene, Color3,
     ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, Camera,
@@ -28,7 +25,6 @@ import { InputController, MyAvatarController, ScriptAvatarController, AvatarMapp
 import { IEntity, IEntityDescription, EntityBuilder, EntityEvent } from "@Modules/entity";
 import { NametagEntity } from "@Modules/entity/entities";
 import { ScriptAvatar, Uuid } from "@vircadia/web-sdk";
-import { Utility } from "@Modules/utility";
 import { Location } from "@Modules/domain/location";
 import { DataMapper } from "@Modules/domain/dataMapper";
 import { AvatarStoreInterface } from "@Modules/avatar/StoreInterface";
@@ -176,8 +172,7 @@ export class VScene {
 
         if (sceneUrl) {
             this._scene.onAfterRenderObservable.addOnce(() => {
-                // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                this.loadEntities(sceneUrl);
+                void this.loadEntities(sceneUrl);
             });
         }
 
@@ -273,8 +268,8 @@ export class VScene {
 
     public async loadEntities(url: string) : Promise<void> {
         const response = await fetch(url);
-        const json = await response.json();
-        const entityDescription = json as IEntityDescription;
+        const json = await response.json() as IEntityDescription;
+        const entityDescription = json;
         Log.info(Log.types.ENTITIES, `Load Entities from ${url}`);
         Log.info(Log.types.ENTITIES,
             `DataVersion: ${entityDescription.DataVersion}
@@ -502,7 +497,6 @@ export class VScene {
         const avatar = this._avatarList.get(stringId);
         if (avatar) {
             avatar.dispose();
-            // eslint-disable-next-line @typescript-eslint/dot-notation
             this._avatarList.delete(stringId);
         }
 
@@ -613,7 +607,6 @@ export class VScene {
     }
 
     private _onKeyUp(evt: ActionEvent) : void {
-        // eslint-disable-next-line no-void
         void this._handleKeyUp(evt);
     }
 
@@ -643,6 +636,7 @@ export class VScene {
             default:
                 break;
         }
+        /* eslint-enable @typescript-eslint/no-unsafe-member-access */
     }
 
     private _onSceneReady():void {

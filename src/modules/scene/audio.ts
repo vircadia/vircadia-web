@@ -49,13 +49,11 @@ export const AudioMgr = {
      * This gets any preset values from stored configuration, sets up the input
      * and output.
      */
-    // eslint-disable-next-line @typescript-eslint/require-await
     async initialize(pAudioOuter: SetAudioOutputCallback): Promise<void> {
         Log.debug(Log.types.AUDIO, `AudioMgr.initialize()`);
         AudioMgr._setAudioOutputFunction = pAudioOuter;
 
         // Listen for the domain to connect and disconnect
-        // eslint-disable-next-line @typescript-eslint/unbound-method
         DomainMgr.onActiveDomainStateChange.connect(AudioMgr._handleActiveDomainStateChange.bind(this));
 
         // See if device selection was saved otherwise setup some default audio devices
@@ -100,7 +98,6 @@ export const AudioMgr = {
                 // Domain is connected. Connect the inputs to the outputs
                 if (pDomain.AudioClient) {
                     // setup to wait for the audio device to get connected
-                    // eslint-disable-next-line @typescript-eslint/unbound-method
                     pDomain.AudioClient.onStateChange.connect(AudioMgr._handleDomainAudioStateChange.bind(this));
                     // but, if already connected, connect the audio end points
                     if (pDomain.AudioClient.clientState === AssignmentClientState.CONNECTED) {
@@ -181,11 +178,9 @@ export const AudioMgr = {
                     const domainStream = aClient.getDomainAudioStream();
                     AudioMgr._setAudioOutputFunction(domainStream);
                 } else {
-                    // eslint-disable-next-line max-len
                     Log.debug(Log.types.AUDIO, `AudioMgr._connectInputAndOutputStreams. Could not set domain audio because no mixer`);
                 }
             } else {
-                // eslint-disable-next-line max-len
                 Log.debug(Log.types.AUDIO, `AudioMgr._connectInputAndOutputStreams. No output assignment function so no audio output`);
             }
         }
@@ -257,10 +252,8 @@ export const AudioMgr = {
                 const mixer = DomainMgr.ActiveDomain.AudioClient.Mixer;
                 if (mixer) {
                     if (pPlay) {
-                        // eslint-disable-next-line no-void
                         await mixer.play();
                     } else {
-                        // eslint-disable-next-line no-void
                         await mixer.pause();
                     }
                     return pPlay;
