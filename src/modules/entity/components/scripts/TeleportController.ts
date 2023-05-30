@@ -29,7 +29,7 @@ type ScriptParameters = {
 
 export class TeleportController extends EntityScriptComponent {
     @inspector()
-    _destination = "";
+        _destination = "";
 
     private _vscene: VScene;
 

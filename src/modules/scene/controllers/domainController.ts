@@ -44,7 +44,7 @@ export class DomainController extends ScriptComponent {
     _camera : Nullable<Camera> = null;
 
     @inspector()
-    _sessionID = "";
+        _sessionID = "";
 
     constructor() {
         super("DomainController");
