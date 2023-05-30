@@ -17,8 +17,6 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
 
 export interface Overlay {

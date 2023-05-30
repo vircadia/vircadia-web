@@ -6,19 +6,13 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Config, LAST_DOMAIN_SERVER } from "@Base/config";
 import { SignalEmitter } from "@vircadia/web-sdk";
-
 import { Client } from "@Modules/domain/client";
 import { Domain, ConnectionState } from "@Modules/domain/domain";
-
 import Log from "../debugging/log";
 
 export type OnActiveDomainStateChangeSlot = (pDomain: Domain, pState: ConnectionState, pInfo: string) => void;
-
-// Allow 'get' statements to be compact
-/* eslint-disable @typescript-eslint/brace-style */
 
 export const DomainMgr = {
     _activeDomain: undefined as unknown as Domain,
@@ -28,19 +22,20 @@ export const DomainMgr = {
     _intervalID: <Nullable<NodeJS.Timeout>>null,
 
     // There is one main domain we're working with
-    get ActiveDomain(): Nullable<Domain> { return DomainMgr._activeDomain; },
+    get ActiveDomain(): Nullable<Domain> {
+        return DomainMgr._activeDomain;
+    },
+
     set ActiveDomain(pDomain: Nullable<Domain>) {
         if (DomainMgr._activeDomain) {
             Log.debug(Log.types.OTHER, `DomainMgr: setting active domain. Disconnecting old`);
             // If already have an active domain, disconnect from the state change event
-            // eslint-disable-next-line @typescript-eslint/unbound-method
-            DomainMgr._activeDomain.onStateChange.disconnect(DomainMgr._handleActiveDomainStateChange);
+            DomainMgr._activeDomain.onStateChange.disconnect(DomainMgr._handleActiveDomainStateChange.bind(this));
         }
         DomainMgr._activeDomain = pDomain as Domain;
         if (pDomain) {
             Log.debug(Log.types.OTHER, `DomainMgr: setting active domain`);
-            // eslint-disable-next-line @typescript-eslint/unbound-method
-            pDomain.onStateChange.connect(DomainMgr._handleActiveDomainStateChange);
+            pDomain.onStateChange.connect(DomainMgr._handleActiveDomainStateChange.bind(this));
             if (pDomain.DomainClient?.state === ConnectionState.CONNECTED) {
                 Log.debug(Log.types.OTHER, `DomainMgr: setting active domain. Domain already CONNECTED`);
                 DomainMgr._handleActiveDomainStateChange(pDomain, pDomain.DomainClient.state, "init");
@@ -109,7 +104,8 @@ export const DomainMgr = {
         if (!this._intervalID) {
             this._boundUpdateFunction = this.update.bind(this);
             const TICK_TIME = 33;
-            this._intervalID = setInterval(this._boundUpdateFunction, TICK_TIME); }
+            this._intervalID = setInterval(this._boundUpdateFunction, TICK_TIME);
+        }
     },
 
     stopGameLoop(): void {

@@ -632,26 +632,21 @@ export default defineComponent({
         // Connect to the specified domain-server and the associated metaverse-server
         // Also add state update links to keep the Vuex state variables up to date.
         connect: async function() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             await this.connectToAddress(this.locationInput);
         },
         connectToLastAddress: async function() {
             if (this.lastConnectedDomain) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 await this.connectToAddress(this.lastConnectedDomain);
             }
         },
         connectToAddress: async function(locationAddress: string) {
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             Log.info(Log.types.UI, `Connecting to... ${locationAddress}`);
-            // eslint-disable-next-line @typescript-eslint/unbound-method
             await Utility.connectionSetup(locationAddress);
         },
 
         disconnect: async function() {
             Log.info(Log.types.UI, `Disconnecting from... ${this.userStore.avatar.location}`);
             this.lastConnectedDomain = this.userStore.avatar.location;
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             await Utility.disconnectActiveDomain();
         },
 
@@ -702,7 +697,6 @@ export default defineComponent({
 
         setLocation(): void {
             const position = `${this.position.x.toString()},${this.position.y.toString()},${this.position.z.toString()}`;
-            // eslint-disable-next-line max-len
             const rotation = `${this.rotation.x.toString()},${this.rotation.y.toString()},${this.rotation.z.toString()},${this.rotation.w.toString()}`;
 
             const newLocation = `${this.domain}/${position}/${rotation}`;
@@ -716,7 +710,6 @@ export default defineComponent({
         },
 
         addLocationToBookmarks(): void {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
             this.userStore.bookmarks.locations.push({
                 name: this.newBookmark.name,
                 color: this.newBookmark.color,

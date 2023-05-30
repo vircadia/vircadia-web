@@ -107,24 +107,10 @@ export class DomainMessage extends Client {
             else {
                 this.#_subscribedToDefaultChannels = false;
             }
-            this._updateMessageInfo();
         } else {
             Log.error(Log.types.COMM, `DomainMessage: no MessageMixer`);
         }
         this.onStateChange.emit(this.#_domain, this, pNewState);
-    }
-
-    /**
-     * Update the message info in the Vue store.
-     *
-     * This called the Store dispatcher with the structures for messages.
-     * The called dispatcher extracts the information for the Store.
-     */
-    // eslint-disable-next-line class-methods-use-this
-    private _updateMessageInfo() {
-        // eslint-disable-next-line no-void
-        // void Store.dispatch(StoreActions.RECEIVE_CHAT_MESSAGE, {
-        // });
     }
 
     // eslint-disable-next-line class-methods-use-this
@@ -155,7 +141,6 @@ export class DomainMessage extends Client {
 
         // If the message was not sent from this client, play a sound effect to notify the user.
         if (!msg.self) {
-            // eslint-disable-next-line no-void
             void playSound("SFXMessageNotification");
         }
     }

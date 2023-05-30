@@ -508,15 +508,12 @@ import { openURL } from "quasar";
 // Components
 import MainScene from "@Components/MainScene.vue";
 import OverlayManager from "@Components/overlays/OverlayManager.vue";
-
 import { useApplicationStore, type JitsiRoomInfo } from "@Stores/application-store";
 import { useUserStore } from "@Stores/user-store";
 import { Utility } from "@Modules/utility";
 import { Account, type onAttributeChangePayload } from "@Modules/account";
 import { AudioMgr } from "@Modules/scene/audio";
 import { AudioIO } from "@Modules/ui/audioIO";
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
 
 export default defineComponent({
@@ -629,13 +626,9 @@ export default defineComponent({
     computed: {
         getDialogState: {
             get(): boolean {
-                // ESLint doesn't seem to know about 'this' inside a 'get' function
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
                 return this.applicationStore.dialog.show;
             },
             set(newValue: boolean) {
-                // ESLint doesn't seem to know about 'this' inside a 'set' function
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 this.setDialogState(newValue);
             }
         },
@@ -700,7 +693,6 @@ export default defineComponent({
         toggleUserMenu: function(): void {
             // this.userMenuOpen = !this.userMenuOpen;
             // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             (this.$refs.OverlayManager as typeof OverlayManager).toggleOverlay("menu");
         },
         // Settings & Help menus clickaway
@@ -716,28 +708,23 @@ export default defineComponent({
         // Connect to the specified domain-server and the associated metaverse-server
         // Also add state update links to keep the Vuex state variables up to date.
         connect: async function() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             await this.connectToAddress(this.locationInput);
         },
         connectToAddress: async function(locationAddress: string) {
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             Log.info(Log.types.UI, `Connecting to... ${locationAddress}`);
-            // eslint-disable-next-line @typescript-eslint/unbound-method
             await Utility.connectionSetup(locationAddress);
         },
 
         disconnect: async function() {
             Log.info(Log.types.UI, `Disconnecting from... ${this.userStore.avatar.location}`);
             this.lastConnectedDomain = this.userStore.avatar.location;
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             await Utility.disconnectActiveDomain();
         },
 
         // Metaverse
 
         logout: function() {
-            // eslint-disable-next-line no-void
-            void Account.logout();
+            Account.logout();
             this.$q.notify({
                 type: "positive",
                 textColor: "white",
@@ -758,7 +745,6 @@ export default defineComponent({
 
         onClickOpenOverlay: function(pOverlay: string) {
             // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution.
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             (this.$refs.OverlayManager as typeof OverlayManager).openOverlay(pOverlay);
         },
         joinConferenceRoom: function(room: JitsiRoomInfo) {

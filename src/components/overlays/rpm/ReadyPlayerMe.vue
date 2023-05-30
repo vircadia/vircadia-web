@@ -68,9 +68,9 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { Renderer } from "@Modules/scene";
-
+import type { AvatarEntry } from "@Base/modules/avatar/DefaultModels";
+import { AvatarStoreInterface } from "@Base/modules/avatar/StoreInterface";
 import OverlayShell from "../OverlayShell.vue";
-import { AvatarEntry, AvatarStoreInterface } from "@Base/modules/avatar/StoreInterface";
 
 interface RPMEvent extends MessageEvent {
     data: string

@@ -109,10 +109,7 @@ export const AvatarStoreInterface = {
         }
         try {
             const scene = Renderer.getScene();
-            scene.loadMyAvatar(AvatarStoreInterface.getModelData(modelId, "file"))
-                // .catch is a syntax error!?
-                // eslint-disable-next-line @typescript-eslint/dot-notation
-                .catch((err) => console.warn("Failed to load avatar:", err));
+            scene.loadMyAvatar(AvatarStoreInterface.getModelData(modelId, "file")).catch((err) => console.warn("Failed to load avatar:", err));
         } catch (error) {
             console.warn("Cannot render active avatar model before the scene has been loaded.", error);
         }

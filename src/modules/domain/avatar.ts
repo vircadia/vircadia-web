@@ -91,7 +91,6 @@ export class DomainAvatar extends Client {
      */
     private _handleOnStateChanged(pNewState: AssignmentClientState): void {
         Log.debug(Log.types.AVATAR,
-            // eslint-disable-next-line max-len
             `DomainAvatar: AvatarMixer state=${AvatarMixer.stateToString(this.#_avaMixer?.state ?? AssignmentClientState.DISCONNECTED)}`);
         this.onStateChange.emit(this.#_domain, this, pNewState);
     }
@@ -105,7 +104,6 @@ export class DomainAvatar extends Client {
      *
      * @param pAvatarId the BigInt ID of the added avatar.
      */
-    // eslint-disable-next-line class-methods-use-this
     private _handleOnAvatarAdded(pAvatarId: Uuid) {
         Log.debug(Log.types.AVATAR, `DomainAvatar: Avatar added: ${pAvatarId.stringify()}`);
         if (this.#_avaMixer) {
@@ -116,7 +114,6 @@ export class DomainAvatar extends Client {
                     info.sessionDisplayNameChanged.connect(this._updateOtherAvatarInfo.bind(this));
                     this.#_avatarsInfo.set(pAvatarId, info);
                 } else {
-                    // eslint-disable-next-line max-len
                     Log.error(Log.types.AVATAR, `DomainAvatar: attempt to add avatar that is already in list: ${pAvatarId.stringify()}`);
                 }
             } else {
@@ -133,14 +130,12 @@ export class DomainAvatar extends Client {
      *
      * @param pAvatarId The BitInt ID of the removed avatar.
      */
-    // eslint-disable-next-line class-methods-use-this
     private _handleOnAvatarRemoved(pAvatarId: Uuid) {
         Log.debug(Log.types.AVATAR, `DomainAvatar: Avatar removed: ${pAvatarId.stringify()}`);
         const info = this.#_avatarsInfo.get(pAvatarId);
         if (info) {
             // undo the .connect that happened when added. (Does this method signature work?)
             info.sessionDisplayNameChanged.disconnect(this._updateOtherAvatarInfo.bind(this));
-            // eslint-disable-next-line @typescript-eslint/dot-notation
             this.#_avatarsInfo.delete(pAvatarId);
         }
         this._updateOtherAvatarInfo();

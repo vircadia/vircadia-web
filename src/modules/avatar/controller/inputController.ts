@@ -47,6 +47,8 @@ const userStore = useUserStore(pinia);
 
 // Ccustom camera controls.
 class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
+    className = "ArcRotateCameraCustomInput";
+    simpleName = "customKeyboardRotate";
     camera: ArcRotateCamera;
     _keysPressed = [] as string[];
     sensibility = 0.01;
@@ -56,14 +58,12 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
         this.camera = camera;
     }
 
-    // eslint-disable-next-line class-methods-use-this
     getClassName(): string {
-        return "ArcRotateCameraCustomInput";
+        return this.className;
     }
 
-    // eslint-disable-next-line class-methods-use-this
     getSimpleName(): string {
-        return "customKeyboardRotate";
+        return this.simpleName;
     }
 
     _onKeyDown: ((event: KeyboardEvent) => void) | undefined = undefined;

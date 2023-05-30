@@ -202,8 +202,6 @@ class MouseSettingsControllerSingleton {
      * @param callback The callback function to attach to the event.
      */
     on<T extends MouseSettingsControllerEvents>(event: T, callback: MouseSettingsControllerEventCallback<T>): void {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore: TypeScript is not narrowing the generic on this method correctly, which prevents HMR in development.
         this.#callbacks[event].push(callback);
     }
 }

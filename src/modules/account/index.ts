@@ -7,7 +7,6 @@
 */
 
 import axios from "axios";
-
 import { MetaverseMgr } from "@Modules/metaverse";
 import { doAPIGet, doAPIPost, buildUrl, findErrorMsg } from "@Modules/metaverse/metaverseOps";
 import { OAuthTokenAPI, OAuthTokenResp, OAuthTokenError } from "@Modules/metaverse/APIToken";
@@ -15,10 +14,6 @@ import { GetAccountByIdAPI, GetAccountByIdResp,
     PostUsersAPI, PostUsersReq, PostUsersResp } from "@Modules/metaverse/APIAccount";
 import { AccountInfo } from "@Modules/metaverse/APIInfo";
 import { SignalEmitter } from "@vircadia/web-sdk";
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Config } from "@Base/config";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
 
 // ESLint thinks there are race conditions which don't exist (:fingers-crossed:)
@@ -215,8 +210,7 @@ export const Account = {
     /**
      * Log out of the current metaverse account.
      */
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async logout(): Promise<void> {
+    logout(): void {
         const accountName = Account.accountName;
         Account.accountName = guestAccountName;
         Account.accountInfo = {} as AccountInfo;

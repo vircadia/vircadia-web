@@ -186,7 +186,6 @@ export class KeyboardInput implements IInputHandler {
 
             if (avatarMesh) {
                 // Check for sittable objects.
-                // eslint-disable-next-line max-len
                 const sitObjects = this._scene.getNodes().filter((node) => (/^animate_/iu).test(node.name)) as (Node | TransformNode | AbstractMesh)[];
 
                 // Filter out any that are too far away, or don't have an absolute position.

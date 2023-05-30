@@ -624,13 +624,15 @@ export default defineComponent({
             }
         }
     },
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    async created() {
-        // Connect to the metaverse server so that we can get the list of available places.
-        await Utility.metaverseConnectionSetup(
-            this.applicationStore.defaultConnectionConfig.DEFAULT_METAVERSE_URL ?? ""
-        );
-        this.placesList = await Places.getActiveList();
+    created() {
+        const boot = async () => {
+            // Connect to the metaverse server so that we can get the list of available places.
+            await Utility.metaverseConnectionSetup(
+                this.applicationStore.defaultConnectionConfig.DEFAULT_METAVERSE_URL ?? ""
+            );
+            this.placesList = await Places.getActiveList();
+        };
+        void boot();
     },
     beforeMount(): void {
         // Ensure that Quasar's global color variables are in sync with the Store's theme colors.

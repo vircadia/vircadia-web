@@ -13,8 +13,6 @@ import { IEntity, ILightEntity } from "../EntityInterfaces";
 import { AbstractEntityBuilder } from "./AbstractEntityBuilder";
 import { GameObject } from "@Base/modules/object";
 import { LightEntityController } from "../components";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import Log from "@Base/modules/debugging/log";
 
 export class LightEntityBuilder extends AbstractEntityBuilder {
     // eslint-disable-next-line class-methods-use-this

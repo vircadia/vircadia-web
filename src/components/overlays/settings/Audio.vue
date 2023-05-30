@@ -168,9 +168,6 @@ import { AudioMgr } from "@Modules/scene/audio";
 import { AudioIO } from "@Modules/ui/audioIO";
 import OverlayShell from "@Components/overlays/OverlayShell.vue";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import Log from "@Modules/debugging/log";
-
 export default defineComponent({
     name: "Audio",
 
@@ -213,7 +210,6 @@ export default defineComponent({
 
             if (this.isListeningToFeedback === true) {
                 (this.$refs.audioInputFeedbackPlayer as HTMLMediaElement).muted = false;
-                // eslint-disable-next-line no-void
                 void (this.$refs.audioInputFeedbackPlayer as HTMLMediaElement).play();
             } else {
                 (this.$refs.audioInputFeedbackPlayer as HTMLMediaElement).pause();

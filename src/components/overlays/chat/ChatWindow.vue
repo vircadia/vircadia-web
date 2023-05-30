@@ -274,10 +274,7 @@ export default defineComponent({
         // Return the sender Id included in the message. Returns the ID string if no displayname
         msgSender(pMsg: AMessage): string {
             if (pMsg.messageJSON) {
-                // eslint-disable-next-line max-len
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unnecessary-type-assertion
                 const fMsg = <DefaultChatMessage>pMsg.messageJSON;
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
                 return fMsg.displayName;
             }
             return pMsg.senderId.stringify();
@@ -319,7 +316,6 @@ export default defineComponent({
         // Return 'true' if the chat message was sent by this session
         // Relies of the message queuer to add the "self: true" to the added message
         msgSentBySelf(pMsg: AMessage): boolean {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return pMsg.self ?? false;
         },
         msgIsFromThisClient(senderId: Uuid | string): boolean {

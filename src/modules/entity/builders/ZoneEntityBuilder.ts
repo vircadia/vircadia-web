@@ -9,12 +9,9 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { IEntity, IZoneEntity } from "../EntityInterfaces";
 import { GameObject } from "@Base/modules/object";
 import { ZoneEntityController } from "../components";
-
 
 export class ZoneEntityBuilder {
     // eslint-disable-next-line class-methods-use-this

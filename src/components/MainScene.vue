@@ -129,7 +129,6 @@ export default defineComponent({
             const element = this.$refs.mainSceneAudioElement as HTMLMediaElement;
             if (pStream) {
                 element.srcObject = pStream;
-                // eslint-disable-next-line no-void
                 void element.play();
             } else {
                 element.pause();
@@ -137,8 +136,7 @@ export default defineComponent({
             }
         },
         onBeforeunload() {
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            Utility.disconnectActiveDomain();
+            void Utility.disconnectActiveDomain();
             Renderer.dispose();
         },
         // Update the world location that's shown in the browser's URL bar.
@@ -204,13 +202,11 @@ export default defineComponent({
     },
 
     beforeMount: function() {
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        window.addEventListener("beforeunload", this.onBeforeunload);
+        window.addEventListener("beforeunload", () => this.onBeforeunload());
     },
 
     beforeUnmount: function() {
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        window.removeEventListener("beforeunload", this.onBeforeunload);
+        window.removeEventListener("beforeunload", () => this.onBeforeunload());
         this.locationUnwatch();
     },
 

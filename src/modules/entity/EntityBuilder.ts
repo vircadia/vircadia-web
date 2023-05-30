@@ -9,17 +9,13 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import {
-    Scene
-} from "@babylonjs/core";
-
+import { Scene } from "@babylonjs/core";
 import { GameObject } from "@Modules/object";
 import { IEntity } from "./EntityInterfaces";
 import { EntityType } from "./EntityProperties";
 import { AbstractEntityBuilder, ShapeEntityBuilder, LightEntityBuilder, ZoneEntityBuilder, ModelEntityBuilder,
     ImageEntityBuilder, MaterialEntityBuilder, WebEntityBuilder } from "./builders";
 import { EntityMapper } from "./package";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
 
 class EntityGameObjectBuilder {
