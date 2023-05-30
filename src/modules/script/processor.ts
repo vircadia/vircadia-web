@@ -13,7 +13,6 @@
 import { Scene, Node, InspectableType, Color3, Vector3 } from "@babylonjs/core";
 import { ScriptComponent } from "./script";
 import { requireDecoratorInspectorPropertyDescs } from "./decorators";
-
 import Log from "@Modules/debugging/log";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -46,7 +45,7 @@ function preprocress(script : ScriptComponent):void {
     let prototype = Object.getPrototypeOf(script);
     // recursively add custom properties to node.inspectableCustomProperties
     while (prototype) {
-        const propertyDescriptions = requireDecoratorInspectorPropertyDescs(prototype.constructor.name);
+        const propertyDescriptions = requireDecoratorInspectorPropertyDescs(String(prototype.constructor.name));
 
         if (propertyDescriptions) {
             script.inspectableCustomProperties = script.inspectableCustomProperties ?? [];

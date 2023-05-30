@@ -63,7 +63,7 @@ export function inspector(options ?: IInspectorPropertyOptions | undefined) {
             ? options.label
             : propertyKey[index].toUpperCase() + propertyKey.slice(index + 1);
 
-        const descs = getAndCreateDecoratorInspectorPropertyDescs(target.constructor.name);
+        const descs = getAndCreateDecoratorInspectorPropertyDescs(String(target.constructor.name));
         descs.push({
             label,
             propertyName: propertyKey,
@@ -88,7 +88,7 @@ export function inspectorAccessor(options ?: IInspectorPropertyOptions | undefin
             ? options.label
             : propertyKey[index].toUpperCase() + propertyKey.slice(index + 1);
 
-        const descs = getAndCreateDecoratorInspectorPropertyDescs(target.constructor.name);
+        const descs = getAndCreateDecoratorInspectorPropertyDescs(String(target.constructor.name));
         descs.push({
             label,
             propertyName: propertyKey,
