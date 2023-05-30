@@ -42,7 +42,6 @@ export default route(() => {
         // quasar.conf.js -> build -> vueRouterMode
         // quasar.conf.js -> build -> publicPath
         history: createHistory(
-            // eslint-disable-next-line no-void
             process.env.MODE === "ssr" ? void 0 : process.env.VUE_ROUTER_BASE
         )
     });

@@ -161,7 +161,6 @@ export const useApplicationStore = defineStore("application", {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         updateAllAvatars(data: Map<Uuid, ScriptAvatar>): void {
             //
-            // console.log(data);
         },
         joinConferenceRoom(room: JitsiRoomInfo): void {
             this.conference.currentRoom = room;

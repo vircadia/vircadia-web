@@ -574,7 +574,6 @@ export default defineComponent({
             // Wait until the first step is complete before asking for mic permission.
             // This is less spooky than requesting mic access as soon at the webpage is loaded.
             if (newValue === 2) {
-                // eslint-disable-next-line no-void
                 void this.requestInputAccess();
             }
         }

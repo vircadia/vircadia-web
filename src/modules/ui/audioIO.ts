@@ -79,8 +79,8 @@ export class AudioIO {
         this.$analyser.smoothingTimeConstant = 0.5;
         this.$analyser.fftSize = 1024;
         this.$microphone = this.$audioContext.createMediaStreamSource(applicationStore.audio.user.userInputStream);
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        this.$scriptProcessor = this.$audioContext.createScriptProcessor(2048, 1, 1);
+        const bufferSize = 2048;
+        this.$scriptProcessor = this.$audioContext.createScriptProcessor(bufferSize, 1, 1);
 
         this.$microphone.connect(this.$analyser);
         this.$analyser.connect(this.$scriptProcessor);

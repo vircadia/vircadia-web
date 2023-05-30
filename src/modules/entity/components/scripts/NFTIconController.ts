@@ -10,14 +10,9 @@
 //
 
 /* eslint-disable new-cap */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-// General Modules
-import {
-    Vector3,
-    Scalar
-} from "@babylonjs/core";
 
+import { Vector3, Scalar } from "@babylonjs/core";
 import { inspector } from "@Modules/script";
 import { EntityScriptComponent } from "./EntityScript";
 

@@ -9,18 +9,14 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import {
-    TransformNode
-} from "@babylonjs/core";
-
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable new-cap */
+
+import { TransformNode } from "@babylonjs/core";
 import { AvatarMapper, BoneType } from "../AvatarMapper";
 import { ScriptComponent, inspectorAccessor } from "@Modules/script";
 
 // Domain Modules
 import { MyAvatarInterface, SkeletonJoint } from "@vircadia/web-sdk";
-import Log from "@Modules/debugging/log";
 import { MeshComponent } from "../../object";
 
 export class MyAvatarController extends ScriptComponent {
@@ -132,7 +128,7 @@ export class MyAvatarController extends ScriptComponent {
 
         const jointNames: string[] = [];
         let jointIndex = 0;
-        this._skeletonNodes.forEach((node, key) => {
+        this._skeletonNodes.forEach((node) => {
             const jointName = node.name;
             jointNames.push(jointName);
 

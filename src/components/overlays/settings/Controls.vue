@@ -303,8 +303,10 @@ export default defineComponent({
             return undefined;
         },
         keybindAlreadyInUse(keybind: string): boolean {
-            // eslint-disable-next-line max-len
-            return Boolean(Object.entries(this.userStore.controls.keyboard).find((category) => Object.entries(category[1]).find((value) => value[1].keybind === keybind)));
+            return Boolean(
+                Object.entries(this.userStore.controls.keyboard)
+                    .find((category) => Object.entries(category[1]).find((value) => value[1].keybind === keybind))
+            );
         },
         setCurrentlyBinding(category?: keyof typeof this.userStore.controls.keyboard, control?: string): void {
             if (!category || !control) {
@@ -332,7 +334,6 @@ export default defineComponent({
                 if (
                     this.currentlyBinding.category
                     && this.currentlyBinding.control
-                    // eslint-disable-next-line max-len
                     && this.userStore.controls.keyboard[this.currentlyBinding.category][this.currentlyBinding.control].keybind !== keycode
                 ) {
                     this.$q.notify({

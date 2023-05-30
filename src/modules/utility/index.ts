@@ -6,6 +6,8 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
+/* eslint-disable require-atomic-updates */
+
 import { MetaverseMgr } from "@Modules/metaverse";
 import { DomainMgr } from "@Modules/domain";
 import { Domain } from "@Modules/domain/domain";
@@ -15,12 +17,8 @@ import {
     Config, TrueValue, FalseValue, RECONNECT_ON_STARTUP, LAST_DOMAIN_SERVER,
     LOG_LEVEL
 } from "@Base/config";
-
-/* eslint-disable require-atomic-updates */
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import Log from "@Modules/debugging/log";
 import { Renderer } from "@Modules/scene";
+import Log from "@Modules/debugging/log";
 
 export const Utility = {
     /**

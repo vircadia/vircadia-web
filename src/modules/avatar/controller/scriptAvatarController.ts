@@ -22,6 +22,7 @@ import { ScriptComponent, inspectorAccessor } from "@Modules/script";
 
 export class ScriptAvatarController extends ScriptComponent {
     // domain properties
+    private _componentTypeName = "ScriptAvatarController";
     private _avatar : ScriptAvatar;
     private _skeletonNodes: Map<string, TransformNode> = new Map<string, TransformNode>();
     private _skeletonJointsCache = new Array<SkeletonJoint>();
@@ -50,9 +51,8 @@ export class ScriptAvatarController extends ScriptComponent {
     * Gets a string identifying the type of this Component
     * @returns "ScriptAvatarController" string
     */
-    // eslint-disable-next-line class-methods-use-this
     public get componentType():string {
-        return "ScriptAvatarController";
+        return this._componentTypeName;
     }
 
     public onInitialize(): void {

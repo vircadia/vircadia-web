@@ -10,15 +10,14 @@
 //
 
 /* eslint-disable new-cap */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
+
 import Log from "@Modules/debugging/log";
 import { inspector } from "@Modules/script";
 import { Renderer, VScene } from "@Modules/scene";
 import { EntityScriptComponent } from "./EntityScript";
 import { Utility } from "@Modules/utility";
-
-import { GameObject, MeshComponent } from "@Modules/object";
+import { GameObject } from "@Modules/object";
 import { InputController } from "@Modules/avatar";
 
 
@@ -81,8 +80,7 @@ export class TeleportController extends EntityScriptComponent {
         const controller = avatar.getComponent(InputController.typeName) as InputController;
 
         if (controller && !controller.isTeleported) {
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            Utility.connectionSetup(this._destination);
+            void Utility.connectionSetup(this._destination);
         }
     }
 

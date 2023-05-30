@@ -9,14 +9,12 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable class-methods-use-this */
-import { GenericNodeComponent, GameObject, MeshComponent, IComponent } from "@Modules/object";
-import { Node, Material, StandardMaterial, AbstractMesh, Nullable,
-    Observer } from "@babylonjs/core";
-import { IMaterialEntity } from "../../EntityInterfaces";
-
 /* eslint-disable new-cap */
+
+import { GenericNodeComponent, GameObject, MeshComponent, IComponent } from "@Modules/object";
+import { Node, Material, StandardMaterial, AbstractMesh, Nullable, Observer } from "@babylonjs/core";
+import { IMaterialEntity } from "../../EntityInterfaces";
 
 export class MaterialComponent extends GenericNodeComponent<Node> {
     _material : Nullable<Material> = null;
@@ -53,7 +51,7 @@ export class MaterialComponent extends GenericNodeComponent<Node> {
         this.updateParent(entity);
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
     public updateDimensions(entity: IMaterialEntity) : void {
 
     }

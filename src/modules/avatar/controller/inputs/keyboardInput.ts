@@ -9,9 +9,14 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
+// This is disabled because TS complains about BABYLON's use of capitalized function names.
+/* eslint-disable new-cap */
+/* eslint-disable @typescript-eslint/no-magic-numbers */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+
 import { IInputHandler } from "./inputHandler";
-import { Scene,
+import {
+    Scene,
     ActionManager,
     ExecuteCodeAction,
     Nullable,
@@ -22,8 +27,8 @@ import { Scene,
     Node,
     TransformNode,
     Vector3,
-    Quaternion } from "@babylonjs/core";
-
+    Quaternion
+} from "@babylonjs/core";
 import { AvatarState, Action, State, JumpSubState, AnimationMap } from "../avatarState";
 import { InputState, CameraMode, InputMode } from "../inputState";
 import { pinia } from "@Stores/index";
@@ -35,12 +40,6 @@ import type { SceneController } from "@Modules/scene/controllers";
 
 const applicationStore = useApplicationStore(pinia);
 const userStore = useUserStore(pinia);
-
-// This is disabled because TS complains about BABYLON's use of cap'ed function names
-/* eslint-disable new-cap */
-/* eslint-disable @typescript-eslint/no-magic-numbers */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/dot-notation */
 
 export class KeyboardInput implements IInputHandler {
     private _scene : Scene;
