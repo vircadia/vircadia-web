@@ -71,11 +71,11 @@ export class DomainAudio extends Client {
     }
 
     public play(): void {
-        this.#_audioMixer?.play();
+        void this.#_audioMixer?.play();
     }
 
     public pause(): void {
-        this.#_audioMixer?.pause();
+        void this.#_audioMixer?.pause();
     }
 
     /**

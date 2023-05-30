@@ -207,7 +207,7 @@ export class DomainController extends ScriptComponent {
             const domain = avatarList.getAvatar(sessionID);
 
             if (domain.skeletonModelURL !== "") {
-                this._vscene?.loadAvatar(sessionID, domain);
+                void this._vscene?.loadAvatar(sessionID, domain);
             }
 
             domain.skeletonModelURLChanged.connect(() => {
@@ -227,7 +227,7 @@ export class DomainController extends ScriptComponent {
         Log.debug(Log.types.AVATAR,
             `handleAvatarSkeletonModelURLChanged. Session ID: ${sessionID.stringify()}, ${domain.skeletonModelURL}`);
 
-        this._vscene?.loadAvatar(sessionID, domain);
+        void this._vscene?.loadAvatar(sessionID, domain);
     }
 
     private _handleOnEntityServerStateChanged(state: AssignmentClientState): void {
