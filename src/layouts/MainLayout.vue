@@ -500,13 +500,8 @@
 </template>
 
 <script lang="ts">
-
 import { defineComponent } from "vue";
 import { openURL } from "quasar";
-
-// Components
-import MainScene from "@Components/MainScene.vue";
-import OverlayManager from "@Components/overlays/OverlayManager.vue";
 import { applicationStore, userStore } from "@Stores/index";
 import { type JitsiRoomInfo } from "@Stores/application-store";
 import { Utility } from "@Modules/utility";
@@ -514,14 +509,16 @@ import { Account, type onAttributeChangePayload } from "@Modules/account";
 import { AudioMgr } from "@Modules/scene/audio";
 import { AudioIO } from "@Modules/ui/audioIO";
 import Log from "@Modules/debugging/log";
+// Components
+import MainScene from "@Components/MainScene.vue";
+import OverlayManager from "@Components/overlays/OverlayManager.vue";
+
+type ComponentTemplateRefs = {
+    OverlayManager: typeof OverlayManager.methods
+};
 
 export default defineComponent({
     name: "MainLayout",
-
-    $refs: {   // definition to make this.$ref work with TypeScript
-        MainScene: HTMLFormElement,
-        OverlayManager: HTMLFormElement
-    },
 
     components: {
         MainScene,
@@ -690,8 +687,7 @@ export default defineComponent({
         },
         // Drawers
         toggleUserMenu: function(): void {
-            // TODO: figure out how to properly type $ref references.
-            (this.$refs.OverlayManager as typeof OverlayManager).toggleOverlay("Menu");
+            (this.$refs as ComponentTemplateRefs).OverlayManager?.toggleOverlay("Menu");
         },
         // Settings & Help menus clickaway
         hideSettingsAndHelpMenus: function(): void {
@@ -742,12 +738,11 @@ export default defineComponent({
         },
 
         onClickOpenOverlay: function(pOverlay: string) {
-            // TODO: figure out how to properly type $ref references.
-            (this.$refs.OverlayManager as typeof OverlayManager).openOverlay(pOverlay);
+            (this.$refs as ComponentTemplateRefs).OverlayManager?.openOverlay(pOverlay);
         },
         joinConferenceRoom: function(room: JitsiRoomInfo) {
             this.applicationStore.joinConferenceRoom(room);
-            (this.$refs.OverlayManager as typeof OverlayManager)?.toggleOverlay("Jitsi");
+            (this.$refs as ComponentTemplateRefs).OverlayManager?.toggleOverlay("Jitsi");
         },
         openUrl: function(pUrl: string) {
             openURL(pUrl);
@@ -802,9 +797,8 @@ export default defineComponent({
         });
 
         if (this.isDesktop) {
-            // TODO: figure out how to properly type $ref references.
-            (this.$refs.OverlayManager as typeof OverlayManager)?.openOverlay("Menu");
-            (this.$refs.OverlayManager as typeof OverlayManager)?.openOverlay("Chat");
+            (this.$refs as ComponentTemplateRefs).OverlayManager?.openOverlay("Menu");
+            (this.$refs as ComponentTemplateRefs).OverlayManager?.openOverlay("Chat");
         }
 
         // Set up event listeners for UI-based controls.
@@ -816,13 +810,11 @@ export default defineComponent({
             ) {
                 // Toggle the menu.
                 if (event.code === this.userStore.controls.keyboard.other.toggleMenu?.keycode) {
-                    // TODO: figure out how to properly type $ref references.
-                    (this.$refs.OverlayManager as typeof OverlayManager)?.toggleOverlay("Menu");
+                    (this.$refs as ComponentTemplateRefs).OverlayManager?.toggleOverlay("Menu");
                 }
                 // Open the chat.
                 if (event.code === this.userStore.controls.keyboard.other.openChat?.keycode) {
-                    // TODO: figure out how to properly type $ref references.
-                    (this.$refs.OverlayManager as typeof OverlayManager)?.toggleOverlay("Chat");
+                    (this.$refs as ComponentTemplateRefs).OverlayManager?.toggleOverlay("Chat");
                 }
             }
         });

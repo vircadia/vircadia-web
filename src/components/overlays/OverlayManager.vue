@@ -27,11 +27,6 @@ export interface Overlay {
 export default defineComponent({
     name: "OverlayManager",
 
-    props: {
-        // Primary
-        // parentSize: { type: Object, required: true }
-    },
-
     data: () => ({
         overlays: [] as Overlay[]
     }),

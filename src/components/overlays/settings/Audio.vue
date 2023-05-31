@@ -171,11 +171,6 @@ import OverlayShell from "@Components/overlays/OverlayShell.vue";
 export default defineComponent({
     name: "AudioOverlay",
 
-    // This is a solution mentioned on the net but it doesn't seem to work. More research needed.
-    $refs: {   // definition to make this.$ref work with TypeScript
-        audioInputFeedbackPlayer: HTMLMediaElement
-    },
-
     props: {
         propsToPass: { type: Object, default: () => ({}), required: false }
     },
@@ -209,10 +204,10 @@ export default defineComponent({
             this.isListeningToFeedback = !this.isListeningToFeedback;
 
             if (this.isListeningToFeedback === true) {
-                (this.$refs.audioInputFeedbackPlayer as HTMLMediaElement).muted = false;
-                void (this.$refs.audioInputFeedbackPlayer as HTMLMediaElement).play();
+                (this.$refs.audioInputFeedbackPlayer as HTMLAudioElement).muted = false;
+                void (this.$refs.audioInputFeedbackPlayer as HTMLAudioElement).play();
             } else {
-                (this.$refs.audioInputFeedbackPlayer as HTMLMediaElement).pause();
+                (this.$refs.audioInputFeedbackPlayer as HTMLAudioElement).pause();
             }
         },
         setFeedbackPlayerStream(pStream: MediaStream | string | null): void {
@@ -220,9 +215,9 @@ export default defineComponent({
                 // if doing that feedback test thing, link input to the output
                 if (this.$refs.audioInputFeedbackPlayer) {
                     if (typeof pStream === "string") {
-                        (this.$refs.audioInputFeedbackPlayer as HTMLMediaElement).src = pStream;
+                        (this.$refs.audioInputFeedbackPlayer as HTMLAudioElement).src = pStream;
                     } else {
-                        (this.$refs.audioInputFeedbackPlayer as HTMLMediaElement).srcObject = pStream;
+                        (this.$refs.audioInputFeedbackPlayer as HTMLAudioElement).srcObject = pStream;
                     }
                 }
             }

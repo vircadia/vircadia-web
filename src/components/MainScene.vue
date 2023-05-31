@@ -43,15 +43,13 @@
             class="renderCanvas"
         ></canvas>
         <slot name="manager"></slot>
-        <LoadingScreen ref="loadingScreen" />
+        <LoadingScreen ref="LoadingScreen" />
         <JitsiContainer ref="JitsiContainer" />
         <div class="versionWatermark">{{ applicationStore.theme.versionWatermark }}</div>
     </q-page>
 </template>
 
 <script lang="ts">
-
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { defineComponent, watch } from "vue";
 
 import { applicationStore, userStore } from "@Stores/index";
@@ -62,7 +60,6 @@ import { Location } from "@Modules/domain/location";
 import { AvatarStoreInterface } from "@Modules/avatar/StoreInterface";
 import { URL_UPDATE_FREQUENCY } from "@Base/config";
 import { DomainMgr } from "@Modules/domain";
-import Log from "@Modules/debugging/log";
 
 import LoadingScreen from "@Components/LoadingScreen.vue";
 import JitsiContainer from "@Components/JitsiContainer.vue";
@@ -70,6 +67,12 @@ import { EntityEventType } from "@Base/modules/entity";
 
 type Nullable<T> = T | null | undefined;
 
+type ComponentTemplateRefs = {
+    mainSceneAudioElement: HTMLAudioElement,
+    renderCanvas: HTMLCanvasElement,
+    JitsiContainer: typeof JitsiContainer,
+    LoadingScreen: typeof LoadingScreen
+};
 
 export interface ResizeShape {
     height: number,
@@ -78,6 +81,7 @@ export interface ResizeShape {
 
 export default defineComponent({
     name: "MainScene",
+
     props: {
         interactive: {
             type: Boolean,
@@ -88,10 +92,6 @@ export default defineComponent({
     components: {
         LoadingScreen,
         JitsiContainer
-    },
-
-    $refs: {   // Definition to make this.$ref work with TypeScript.
-        mainSceneAudioElement: HTMLFormElement
     },
 
     setup() {
@@ -125,7 +125,7 @@ export default defineComponent({
             Renderer.resize(newSize.height, newSize.width);
         },
         setOutputStream(pStream: Nullable<MediaStream>) {
-            const element = this.$refs.mainSceneAudioElement as HTMLMediaElement;
+            const element = (this.$refs as ComponentTemplateRefs).mainSceneAudioElement;
             if (pStream) {
                 element.srcObject = pStream;
                 void element.play();
@@ -213,8 +213,8 @@ export default defineComponent({
     mounted: function() {
         const boot = async () => {
             // Initialize the graphics display.
-            const canvas = this.$refs.renderCanvas as HTMLCanvasElement;
-            const loadingScreenComponent = this.$refs.loadingScreen as typeof LoadingScreen;
+            const canvas = (this.$refs as ComponentTemplateRefs).renderCanvas;
+            const loadingScreenComponent = (this.$refs as ComponentTemplateRefs).LoadingScreen;
             const loadingScreenElement = loadingScreenComponent.$el as HTMLElement;
             await Renderer.initialize(canvas, loadingScreenElement);
             this.applicationStore.renderer.focusSceneId = 0;
