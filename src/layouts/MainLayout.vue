@@ -508,8 +508,8 @@ import { openURL } from "quasar";
 // Components
 import MainScene from "@Components/MainScene.vue";
 import OverlayManager from "@Components/overlays/OverlayManager.vue";
-import { useApplicationStore, type JitsiRoomInfo } from "@Stores/application-store";
-import { useUserStore } from "@Stores/user-store";
+import { applicationStore, userStore } from "@Stores/index";
+import { type JitsiRoomInfo } from "@Stores/application-store";
 import { Utility } from "@Modules/utility";
 import { Account, type onAttributeChangePayload } from "@Modules/account";
 import { AudioMgr } from "@Modules/scene/audio";
@@ -531,8 +531,8 @@ export default defineComponent({
 
     setup() {
         return {
-            applicationStore: useApplicationStore(),
-            userStore: useUserStore()
+            applicationStore,
+            userStore
         };
     },
 
@@ -571,7 +571,7 @@ export default defineComponent({
                     icon: "badge",
                     label: "Nametags",
                     action: () => {
-                        useUserStore().avatar.showNametags = !useUserStore().avatar.showNametags;
+                        userStore.avatar.showNametags = !userStore.avatar.showNametags;
                         Log.info(Log.types.OTHER, "Toggle Avatar Nametags");
                     },
                     isCategory: false,
@@ -610,7 +610,7 @@ export default defineComponent({
                     icon: "delete_sweep",
                     label: "Clear All Settings",
                     action: () => {
-                        useUserStore().reset();
+                        userStore.reset();
                         window.location.reload();
                     }
                 }

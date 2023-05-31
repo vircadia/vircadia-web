@@ -9,8 +9,7 @@
 import { AvatarMixer, SignalEmitter, vec3, Uuid, MyAvatarInterface, ScriptAvatar, Vec3 } from "@vircadia/web-sdk";
 import { Domain } from "@Modules/domain/domain";
 import { Client, AssignmentClientState } from "@Modules/domain/client";
-import { useApplicationStore } from "@Stores/application-store";
-import { useUserStore } from "@Stores/user-store";
+import { applicationStore, userStore } from "@Stores/index";
 import Log from "@Modules/debugging/log";
 
 // Function signature called for state changing
@@ -43,7 +42,7 @@ export class DomainAvatar extends Client {
         this.#_gameLoopFunction = undefined;
 
         this.#_avaMixer = new AvatarMixer(pD.ContextId);
-        this.#_avaMixer.myAvatar.displayName = useUserStore().avatar.displayName;
+        this.#_avaMixer.myAvatar.displayName = userStore.avatar.displayName;
         this.onStateChange = new SignalEmitter();
         this.#_avaMixer.onStateChanged = this._handleOnStateChanged.bind(this);
 
@@ -147,7 +146,7 @@ export class DomainAvatar extends Client {
      * The called dispatcher extracts the information for the Store.
      */
     private _updateMyAvatarInfo() {
-        useUserStore().updateLocalAvatarInfo(this.#_domain, this);
+        userStore.updateLocalAvatarInfo(this.#_domain, this);
     }
 
     /**
@@ -156,13 +155,13 @@ export class DomainAvatar extends Client {
      * The called dispatcher extracts the information for the Store.
      */
     private _updateOtherAvatarInfo() {
-        useUserStore().updateLocalAvatarInfo(this.#_domain, this);
-        useApplicationStore().updateAllAvatars(this.#_avatarsInfo);
+        userStore.updateLocalAvatarInfo(this.#_domain, this);
+        applicationStore.updateAllAvatars(this.#_avatarsInfo);
     }
 
     // Just update my avatar's position
     private _updateAvatarPosition(pPos: vec3) {
-        useUserStore().updateLocalAvatarInfo(this.#_domain, this, pPos);
+        userStore.updateLocalAvatarInfo(this.#_domain, this, pPos);
     }
 
     // Turn a vector position into a displayable string

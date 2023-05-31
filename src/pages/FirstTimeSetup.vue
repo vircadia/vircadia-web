@@ -485,8 +485,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useApplicationStore } from "@Stores/application-store";
-import { useUserStore } from "@Stores/user-store";
+import { applicationStore, userStore } from "@Stores/index";
 import { uniqueNamesGenerator, adjectives, colors, animals } from "unique-names-generator";
 import { AvatarStoreInterface } from "@Modules/avatar/StoreInterface";
 import { AudioIO } from "@Modules/ui/audioIO";
@@ -501,8 +500,8 @@ export default defineComponent({
 
     setup() {
         return {
-            applicationStore: useApplicationStore(),
-            userStore: useUserStore()
+            applicationStore,
+            userStore
         };
     },
 

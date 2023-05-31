@@ -168,8 +168,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useApplicationStore } from "@Stores/application-store";
-import { useUserStore } from "@Stores/user-store";
+import { applicationStore, userStore } from "@Stores/index";
 import { AMessage, DefaultChatMessage } from "@Modules/domain/message";
 import OverlayShell from "../OverlayShell.vue";
 
@@ -186,8 +185,8 @@ export default defineComponent({
 
     setup() {
         return {
-            applicationStore: useApplicationStore(),
-            userStore: useUserStore()
+            applicationStore,
+            userStore
         };
     },
 

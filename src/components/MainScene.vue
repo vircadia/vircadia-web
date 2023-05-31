@@ -54,8 +54,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { defineComponent, watch } from "vue";
 
-import { useApplicationStore } from "@Stores/application-store";
-import { useUserStore } from "@Stores/user-store";
+import { applicationStore, userStore } from "@Stores/index";
 import { AudioMgr } from "@Modules/scene/audio";
 import { Renderer } from "@Modules/scene/renderer";
 import { Utility } from "@Modules/utility";
@@ -97,8 +96,8 @@ export default defineComponent({
 
     setup() {
         return {
-            applicationStore: useApplicationStore(),
-            userStore: useUserStore()
+            applicationStore,
+            userStore
         };
     },
 

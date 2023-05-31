@@ -37,8 +37,8 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useApplicationStore, type JitsiRoomInfo } from "@Stores/application-store";
-import { useUserStore } from "@Stores/user-store";
+import { applicationStore, userStore } from "@Stores/index";
+import { type JitsiRoomInfo } from "@Stores/application-store";
 import { GameObject } from "@Modules/object";
 import { WebEntityController } from "@Modules/entity";
 import Jitsi from "@Components/overlays/jitsi/Jitsi.vue";
@@ -57,8 +57,8 @@ export default defineComponent({
 
     setup() {
         return {
-            applicationStore: useApplicationStore(),
-            userStore: useUserStore()
+            applicationStore,
+            userStore
         };
     },
 

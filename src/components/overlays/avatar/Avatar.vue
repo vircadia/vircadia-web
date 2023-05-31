@@ -457,7 +457,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useUserStore } from "@Stores/user-store";
+import { userStore } from "@Stores/index";
 import { Renderer } from "@Modules/scene";
 import { MyAvatarController } from "@Modules/avatar";
 import { type AvatarEntry, fallbackAvatarModel } from "@Modules/avatar/DefaultModels";
@@ -487,7 +487,7 @@ export default defineComponent({
 
     setup() {
         return {
-            userStore: useUserStore()
+            userStore
         };
     },
 

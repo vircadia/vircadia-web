@@ -94,7 +94,8 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useApplicationStore, type JitsiRoomInfo } from "@Stores/application-store";
+import { applicationStore } from "@Stores/index";
+import { type JitsiRoomInfo } from "@Stores/application-store";
 import OverlayShell from "../OverlayShell.vue";
 
 export default defineComponent({
@@ -111,7 +112,7 @@ export default defineComponent({
 
     setup() {
         return {
-            applicationStore: useApplicationStore()
+            applicationStore
         };
     },
 

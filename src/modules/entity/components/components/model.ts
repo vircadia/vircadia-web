@@ -17,7 +17,7 @@ import { SceneLoader, PhysicsImpostor, AbstractMesh, TransformNode, Node } from 
 import { IModelEntity } from "../../EntityInterfaces";
 import { NametagEntity } from "@Modules/entity/entities";
 import { updateContentLoadingProgress } from "@Modules/scene/LoadingScreen";
-import { useApplicationStore } from "@Stores/application-store";
+import { applicationStore } from "@Stores/index";
 import Log from "@Modules/debugging/log";
 
 const InteractiveModelTypes = [
@@ -60,7 +60,6 @@ export class ModelComponent extends MeshComponent {
             }
         )
             .then((result) => {
-                const applicationStore = useApplicationStore();
                 const meshes = result.meshes;
                 this.mesh = meshes[0];
                 this.renderGroupId = DEFAULT_MESH_RENDER_GROUP_ID;

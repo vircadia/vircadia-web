@@ -213,7 +213,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useApplicationStore } from "@Stores/application-store";
+import { applicationStore } from "@Stores/index";
 
 interface WindowCache {
     innerWidth: number,
@@ -252,7 +252,7 @@ export default defineComponent({
 
     setup() {
         return {
-            applicationStore: useApplicationStore()
+            applicationStore
         };
     },
 

@@ -7,7 +7,7 @@
 */
 
 import { MessageMixer, SignalEmitter, Uuid } from "@vircadia/web-sdk";
-import { useApplicationStore } from "@Stores/application-store";
+import { applicationStore } from "@Stores/index";
 import { Domain } from "@Modules/domain/domain";
 import { DomainMgr } from "@Modules/domain";
 import { Client, AssignmentClientState } from "@Modules/domain/client";
@@ -137,7 +137,7 @@ export class DomainMessage extends Client {
         };
 
         // Add the message to the Store.
-        useApplicationStore().addChatMessage(msg);
+        applicationStore.addChatMessage(msg);
 
         // If the message was not sent from this client, play a sound effect to notify the user.
         if (!msg.self) {

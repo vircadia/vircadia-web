@@ -1,6 +1,8 @@
 import { store } from "quasar/wrappers";
 import { createPinia } from "pinia";
 import { Router } from "vue-router";
+import { useApplicationStore } from "@Stores/application-store";
+import { useUserStore } from "@Stores/user-store";
 
 /*
  * When adding new properties to stores, you should also
@@ -14,6 +16,10 @@ declare module "pinia" {
 }
 
 export const pinia = createPinia();
+
+export const applicationStore = useApplicationStore(pinia);
+
+export const userStore = useUserStore(pinia);
 
 /*
  * If not building with SSR mode, you can

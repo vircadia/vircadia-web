@@ -15,7 +15,7 @@ import { DomainAudio } from "@Modules/domain/audio";
 import { DomainMessage } from "@Modules/domain/message";
 import { DomainAvatar } from "@Modules/domain/avatar";
 import Log from "@Modules/debugging/log";
-import { useApplicationStore } from "@Stores/application-store";
+import { applicationStore } from "@Stores/index";
 import { Client } from "./client";
 import { Location } from "./location";
 import assert from "../utility/assert";
@@ -116,18 +116,18 @@ export class Domain {
         // this.#_domainUrl = Domain.cleanDomainUrl(pUrl);
         this.#_location = new Location(pUrl);
         if (this.#_location.protocol === "") {
-            this.#_location.protocol = useApplicationStore().defaultConnectionConfig.DEFAULT_DOMAIN_PROTOCOL;
+            this.#_location.protocol = applicationStore.defaultConnectionConfig.DEFAULT_DOMAIN_PROTOCOL;
         }
         if (this.#_location.port === "") {
-            this.#_location.port = useApplicationStore().defaultConnectionConfig.DEFAULT_DOMAIN_PORT;
+            this.#_location.port = applicationStore.defaultConnectionConfig.DEFAULT_DOMAIN_PORT;
         }
 
         Log.debug(Log.types.COMM, `Creating a new DomainServer`);
         this.#_domain = new DomainServer();
         this.#_domain.account.authRequired.connect(() => {
             console.debug("AUTH REQUIRED: Open login dialog");
-            useApplicationStore().dialog.show = true;
-            useApplicationStore().dialog.which = "Login";
+            applicationStore.dialog.show = true;
+            applicationStore.dialog.which = "Login";
         });
         this.#updateDomainLogin();
 
@@ -171,7 +171,7 @@ export class Domain {
         Log.debug(Log.types.COMM, `DomainStateChange: new state ${Domain.stateToString(pState)}, ${pInfo}`);
         this.onStateChange.emit(this, pState, pInfo);
         if (this.#_domain) {
-            useApplicationStore().updateDomainState(this, this.#_domain.state, pInfo);
+            applicationStore.updateDomainState(this, this.#_domain.state, pInfo);
         }
     }
 
@@ -197,7 +197,7 @@ export class Domain {
     // eslint-disable-next-line class-methods-use-this,@typescript-eslint/require-await
     async getMetaverseUrl(): Promise<string> {
         // Eventually need to talk to the domain-server to get the URL
-        return useApplicationStore().defaultConnectionConfig.DEFAULT_METAVERSE_URL;
+        return applicationStore.defaultConnectionConfig.DEFAULT_METAVERSE_URL;
     }
 
     /**
@@ -218,12 +218,12 @@ export class Domain {
             url = url.substring(8);
         }
         if (!(url.startsWith("ws://") || url.startsWith("wss://"))) {
-            url = useApplicationStore().defaultConnectionConfig.DEFAULT_DOMAIN_PROTOCOL + "//" + url;
+            url = applicationStore.defaultConnectionConfig.DEFAULT_DOMAIN_PROTOCOL + "//" + url;
         }
 
         const fullUrl = new URL(url);
         if (fullUrl.port === "") {
-            fullUrl.port = useApplicationStore().defaultConnectionConfig.DEFAULT_DOMAIN_PORT;
+            fullUrl.port = applicationStore.defaultConnectionConfig.DEFAULT_DOMAIN_PORT;
         }
 
         url = fullUrl.href;

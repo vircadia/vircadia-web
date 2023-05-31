@@ -31,15 +31,11 @@ import {
 } from "@babylonjs/core";
 import { AvatarState, Action, State, JumpSubState, AnimationMap } from "../avatarState";
 import { InputState, CameraMode, InputMode } from "../inputState";
-import { pinia } from "@Stores/index";
-import { useApplicationStore } from "@Stores/application-store";
-import { useUserStore } from "@Stores/user-store";
+import { applicationStore, userStore } from "@Stores/index";
 import { AudioMgr } from "@Modules/scene/audio";
 import type { GameObject } from "@Modules/object";
 import type { SceneController } from "@Modules/scene/controllers";
 
-const applicationStore = useApplicationStore(pinia);
-const userStore = useUserStore(pinia);
 
 export class KeyboardInput implements IInputHandler {
     private _scene : Scene;

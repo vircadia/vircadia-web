@@ -107,8 +107,7 @@
 <script lang="ts">
 import { defineComponent, watch } from "vue";
 import * as DOMPurify from "dompurify";
-import { useApplicationStore } from "@Stores/application-store";
-import { useUserStore } from "@Stores/user-store";
+import { applicationStore, userStore } from "@Stores/index";
 import { AMessage, DomainMessage, DefaultChatMessage } from "@Modules/domain/message";
 import { DomainMgr } from "@Modules/domain";
 import { Uuid } from "@vircadia/web-sdk";
@@ -134,8 +133,8 @@ export default defineComponent({
 
     setup() {
         return {
-            applicationStore: useApplicationStore(),
-            userStore: useUserStore()
+            applicationStore,
+            userStore
         };
     },
 

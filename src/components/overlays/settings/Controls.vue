@@ -188,7 +188,7 @@ body.desktop .q-slider.q-slider--editable:hover .q-slider__focus-ring {
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useUserStore } from "@Stores/user-store";
+import { userStore } from "@Stores/index";
 import { MouseSettingsController } from "@Base/modules/avatar/controller/inputs/mouseSettings";
 import OverlayShell from "../OverlayShell.vue";
 
@@ -203,11 +203,10 @@ export default defineComponent({
     },
     setup() {
         return {
-            userStore: useUserStore()
+            userStore
         };
     },
     data() {
-        const userStore = useUserStore();
         return {
             tab: "mouse",
             currentlyBinding: {

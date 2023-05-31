@@ -28,9 +28,7 @@ import { ScriptAvatar, Uuid } from "@vircadia/web-sdk";
 import { Location } from "@Modules/domain/location";
 import { DataMapper } from "@Modules/domain/dataMapper";
 import { AvatarStoreInterface } from "@Modules/avatar/StoreInterface";
-import { pinia } from "@Stores/index";
-import { useApplicationStore } from "@Stores/application-store";
-import { useUserStore } from "@Stores/user-store";
+import { applicationStore, userStore } from "@Stores/index";
 import { CSS3DRenderer } from "./css3DRenderer";
 import { watch } from "vue";
 
@@ -42,10 +40,6 @@ import { DomainMgr } from "../domain";
 
 // File containing all avatar animations.
 const AvatarAnimationUrl = "assets/AnimationsBasic.glb";
-
-// Store references.
-const applicationStore = useApplicationStore(pinia);
-const userStore = useUserStore(pinia);
 
 /**
  * VScene is the interface to a single scene's state, entities, and operations.

@@ -9,15 +9,12 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { useApplicationStore } from "@Stores/application-store";
+import { applicationStore } from "@Stores/index";
 import { AudioMgr } from "@Modules/scene/audio";
-
 import Log from "@Modules/debugging/log";
 import { toJSON } from "@Modules/debugging";
 
 type Nullable<T> = T | null | undefined;
-
-const applicationStore = useApplicationStore();
 
 export class AudioIO {
     $selectedInputDevice = applicationStore.audio.user.currentInputDevice as MediaDeviceInfo | undefined;

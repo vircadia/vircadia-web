@@ -23,10 +23,8 @@ import { AbstractMesh,
     TransformNode,
     Vector3 } from "@babylonjs/core";
 import { DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
-import { pinia } from "@Stores/index";
-import { useUserStore } from "@Stores/user-store";
+import { userStore } from "@Stores/index";
 
-const userStore = useUserStore(pinia);
 
 /**
  * Create a sector mesh.

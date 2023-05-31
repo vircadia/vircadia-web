@@ -47,7 +47,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useApplicationStore } from "@Stores/application-store";
+import { applicationStore } from "@Stores/index";
 import MetaverseLogin from "@Components/components/login/MetaverseLogin.vue";
 import MetaverseRegister from "@Components/components/login/MetaverseRegister.vue";
 
@@ -63,7 +63,7 @@ export default defineComponent({
 
     setup() {
         return {
-            applicationStore: useApplicationStore()
+            applicationStore
         };
     },
 

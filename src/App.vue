@@ -12,7 +12,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useApplicationStore } from "@Stores/application-store";
+import { applicationStore } from "@Stores/index";
 import { Utility } from "@Modules/utility";
 import Log from "@Modules/debugging/log";
 
@@ -25,7 +25,7 @@ export default defineComponent({
     },
     mounted() {
         // Log the SDK version.
-        console.log("Starting Vircadia Web using SDK version:", useApplicationStore().globalConsts.SDK_VERSION_TAG);
+        console.log("Starting Vircadia Web using SDK version:", applicationStore.globalConsts.SDK_VERSION_TAG);
         // Called after the APP is visible. This starts the engines doing things.
         // Start connections if we are restoring the session
         void Utility.initialConnectionSetup();

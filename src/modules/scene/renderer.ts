@@ -10,16 +10,11 @@
 /* eslint-disable new-cap */
 
 import { Engine, Nullable } from "@babylonjs/core";
-import { useApplicationStore } from "@Stores/application-store";
+import { applicationStore } from "@Stores/index";
 import { Config } from "@Base/config";
 import { WebGPUEngine } from "@babylonjs/core/Engines/webgpuEngine";
-
-// General Modules
 import { VScene } from "@Modules/scene/vscene";
 import { CustomLoadingScreen } from "@Modules/scene/LoadingScreen";
-
-// Store reference.
-const applicationStore = useApplicationStore();
 
 export const Renderer = {
     _engine: <Engine><unknown>undefined,

@@ -11,7 +11,7 @@ import {
     createWebHashHistory,
     createWebHistory
 } from "vue-router";
-import { useApplicationStore } from "@Stores/application-store";
+import { applicationStore } from "@Stores/index";
 import routes from "./routes";
 
 function firstTimeSetupIsNeeded(): boolean {
@@ -58,7 +58,7 @@ export default route(() => {
             && to.path !== "/first-time-setup" && to.name !== "FirstTimeSetup"
         ) {
             if (to.path !== "/") {
-                useApplicationStore().firstTimeWizard.pendingLocation = to.path;
+                applicationStore.firstTimeWizard.pendingLocation = to.path;
             }
             return { name: "FirstTimeSetup" };
         }

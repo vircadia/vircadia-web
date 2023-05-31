@@ -19,10 +19,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { pinia } from "@Stores/index";
-import { useUserStore } from "@Stores/user-store";
-
-const userStore = useUserStore(pinia);
+import { userStore } from "@Stores/index";
 
 /**
  * Logarithmically interpolate between two values (`start` & `end`) at a given percentage (`t`).

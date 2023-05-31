@@ -11,7 +11,7 @@ import axios from "axios";
 import { SignalEmitter } from "@vircadia/web-sdk";
 import { buildUrl, cleanMetaverseUrl, findErrorMsg } from "@Modules/metaverse/metaverseOps";
 import { MetaverseInfoResp, MetaverseInfoAPI } from "@Modules/metaverse/APIAccount";
-import { useApplicationStore } from "@Stores/application-store";
+import { applicationStore } from "@Stores/index";
 import { Config, DEFAULT_METAVERSE_URL } from "@Base/config";
 import Log from "@Modules/debugging/log";
 
@@ -53,7 +53,7 @@ export const MetaversePersist = {
  * ```
  */
 export class Metaverse {
-    #_metaverseUrl = useApplicationStore().defaultConnectionConfig.DEFAULT_METAVERSE_URL;
+    #_metaverseUrl = applicationStore.defaultConnectionConfig.DEFAULT_METAVERSE_URL;
     public get MetaverseUrl(): string { return this.#_metaverseUrl; }
 
     #_connectionState: MetaverseState = MetaverseState.UNITIALIZED;
@@ -134,7 +134,7 @@ export class Metaverse {
         this.#_connectionState = pNewState;
         this.onStateChange.emit(this, pNewState);
 
-        useApplicationStore().updateMetaverseState(this, pNewState);
+        applicationStore.updateMetaverseState(this, pNewState);
     }
 
     /**

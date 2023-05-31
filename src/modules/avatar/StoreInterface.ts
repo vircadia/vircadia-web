@@ -10,11 +10,8 @@
 //
 
 import { fallbackAvatar, fallbackAvatarModel, type AvatarEntry } from "./DefaultModels";
-import { pinia } from "@Stores/index";
-import { useUserStore } from "@Stores/user-store";
+import { userStore } from "@Stores/index";
 import { Renderer } from "@Modules/scene";
-
-const userStore = useUserStore(pinia);
 
 function generateID(): string {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

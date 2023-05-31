@@ -17,14 +17,11 @@ import { IWebEntity, WebExtensions } from "../../EntityInterfaces";
 import { MeshComponent, MASK_MESH_RENDER_GROUP_ID } from "@Base/modules/object";
 import { EntityMapper } from "../../package";
 import { MeshBuilder, Mesh, StandardMaterial, Nullable } from "@babylonjs/core";
-import { pinia } from "@Stores/index";
-import { useApplicationStore } from "@Stores/application-store";
+import { applicationStore } from "@Stores/index";
 import { CSS3DObject } from "@Modules/scene/css3DRenderer";
 import { Renderer } from "@Modules/scene";
 import { EntityEventType, EntityEvent } from "../../entityEvent";
 
-
-const applicationStore = useApplicationStore(pinia);
 
 export class WebEntityController extends EntityController {
     // domain properties

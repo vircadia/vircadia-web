@@ -32,16 +32,12 @@ import { InputState, CameraMode } from "./inputState";
 import { IInputHandler } from "./inputs/inputHandler";
 import { KeyboardInput } from "./inputs/keyboardInput";
 import { VirtualJoystickInput } from "./inputs/virtualJoystickInput";
-import { pinia } from "@Stores/index";
-import { useApplicationStore } from "@Stores/application-store";
-import { useUserStore } from "@Stores/user-store";
+import { applicationStore, userStore } from "@Stores/index";
 import type { SceneController } from "@Modules/scene/controllers";
 import { MouseSettingsController } from "@Base/modules/avatar/controller/inputs/mouseSettings";
 
-const applicationStore = useApplicationStore(pinia);
-const userStore = useUserStore(pinia);
 
-// Ccustom camera controls.
+// Custom camera controls.
 class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
     className = "ArcRotateCameraCustomInput";
     simpleName = "customKeyboardRotate";

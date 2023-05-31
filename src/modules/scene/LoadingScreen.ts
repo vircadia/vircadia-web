@@ -11,10 +11,7 @@
 
 import { ILoadingScreen } from "@babylonjs/core";
 import type { ISceneLoaderProgressEvent } from "@babylonjs/core";
-import { pinia } from "@Stores/index";
-import { useApplicationStore } from "@Stores/application-store";
-
-const applicationStore = useApplicationStore(pinia);
+import { applicationStore } from "@Stores/index";
 
 const BYTES_PER_MEGABYTE = 1000000;
 const MS_PER_SECOND = 1000;

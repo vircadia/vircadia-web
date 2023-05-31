@@ -476,8 +476,7 @@
 <script lang="ts">
 import { defineComponent, watch } from "vue";
 import { Vector3, Vector4 } from "@babylonjs/core";
-import { useApplicationStore } from "@Stores/application-store";
-import { useUserStore } from "@Stores/user-store";
+import { applicationStore, userStore } from "@Stores/index";
 import { Utility } from "@Modules/utility";
 import { Location } from "@Modules/domain/location";
 import { Places, PlaceEntry } from "@Modules/places";
@@ -509,8 +508,8 @@ export default defineComponent({
 
     setup() {
         return {
-            applicationStore: useApplicationStore(),
-            userStore: useUserStore()
+            applicationStore,
+            userStore
         };
     },
 

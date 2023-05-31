@@ -231,7 +231,8 @@
 import { defineComponent } from "vue";
 
 import OverlayShell from "../OverlayShell.vue";
-import { useApplicationStore, type AvatarInfo } from "@Stores/application-store";
+import { applicationStore } from "@Stores/index";
+import { type AvatarInfo } from "@Stores/application-store";
 import { DomainMgr } from "@Modules/domain";
 import { Renderer } from "@Modules/scene";
 import { ModerationFlags, Uuid } from "@vircadia/web-sdk";
@@ -260,7 +261,7 @@ export default defineComponent({
 
     setup() {
         return {
-            applicationStore: useApplicationStore()
+            applicationStore
         };
     },
 
