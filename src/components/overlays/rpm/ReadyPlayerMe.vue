@@ -88,7 +88,7 @@ interface RPMRenderData {
 }
 
 export default defineComponent({
-    name: "ReadyPlayerMe",
+    name: "ReadyPlayerMeOverlay",
 
     props: {
         // Primary

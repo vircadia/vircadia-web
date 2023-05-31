@@ -373,8 +373,7 @@
                                         v-else
                                         clickable
                                         v-ripple
-                                        @click="menuItem.action ? menuItem.action()
-                                            : onClickOpenOverlay(menuItem.link || menuItem.label)"
+                                        @click="menuItem.action ? menuItem.action() : onClickOpenOverlay(menuItem.link || menuItem.label)"
                                         @touch-end="helpMenuState = false"
                                     >
                                         <q-item-section avatar>
@@ -691,9 +690,8 @@ export default defineComponent({
         },
         // Drawers
         toggleUserMenu: function(): void {
-            // this.userMenuOpen = !this.userMenuOpen;
-            // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution
-            (this.$refs.OverlayManager as typeof OverlayManager).toggleOverlay("menu");
+            // TODO: figure out how to properly type $ref references.
+            (this.$refs.OverlayManager as typeof OverlayManager).toggleOverlay("Menu");
         },
         // Settings & Help menus clickaway
         hideSettingsAndHelpMenus: function(): void {
@@ -744,7 +742,7 @@ export default defineComponent({
         },
 
         onClickOpenOverlay: function(pOverlay: string) {
-            // TODO: figure out how to properly type $ref references. Following 'disable' is a poor solution.
+            // TODO: figure out how to properly type $ref references.
             (this.$refs.OverlayManager as typeof OverlayManager).openOverlay(pOverlay);
         },
         joinConferenceRoom: function(room: JitsiRoomInfo) {
@@ -805,8 +803,8 @@ export default defineComponent({
 
         if (this.isDesktop) {
             // TODO: figure out how to properly type $ref references.
-            (this.$refs.OverlayManager as typeof OverlayManager)?.openOverlay("menu");
-            (this.$refs.OverlayManager as typeof OverlayManager)?.openOverlay("ChatWindow");
+            (this.$refs.OverlayManager as typeof OverlayManager)?.openOverlay("Menu");
+            (this.$refs.OverlayManager as typeof OverlayManager)?.openOverlay("Chat");
         }
 
         // Set up event listeners for UI-based controls.
@@ -819,12 +817,12 @@ export default defineComponent({
                 // Toggle the menu.
                 if (event.code === this.userStore.controls.keyboard.other.toggleMenu?.keycode) {
                     // TODO: figure out how to properly type $ref references.
-                    (this.$refs.OverlayManager as typeof OverlayManager)?.toggleOverlay("menu");
+                    (this.$refs.OverlayManager as typeof OverlayManager)?.toggleOverlay("Menu");
                 }
                 // Open the chat.
                 if (event.code === this.userStore.controls.keyboard.other.openChat?.keycode) {
                     // TODO: figure out how to properly type $ref references.
-                    (this.$refs.OverlayManager as typeof OverlayManager)?.toggleOverlay("ChatWindow");
+                    (this.$refs.OverlayManager as typeof OverlayManager)?.toggleOverlay("Chat");
                 }
             }
         });

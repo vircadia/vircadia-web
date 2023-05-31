@@ -52,7 +52,7 @@ import { WebEntityController } from "@Modules/entity";
 import OverlayShell from "../OverlayShell.vue";
 
 export default defineComponent({
-    name: "Jitsi",
+    name: "JitsiOverlay",
 
     props: {
         // Primary

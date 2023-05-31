@@ -173,7 +173,7 @@ import { AMessage, DefaultChatMessage } from "@Modules/domain/message";
 import OverlayShell from "../OverlayShell.vue";
 
 export default defineComponent({
-    name: "DebugWindow",
+    name: "DebugOverlay",
 
     props: {
         propsToPass: { type: Object, default: () => ({}) }

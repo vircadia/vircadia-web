@@ -11,7 +11,7 @@
 
 <template>
     <div v-for="overlay in overlays" :key="overlay.name">
-        <component :is="overlay.name" :propsToPass="overlay" @overlay-action="onAction(overlay.name, $event)"/>
+        <component :is="overlay.name + 'Overlay'" :propsToPass="overlay" @overlay-action="onAction(overlay.name, $event)"/>
     </div>
 </template>
 
@@ -111,7 +111,7 @@ export default defineComponent({
         },
 
         toggleOverlay(overlay: string) {
-            Log.debug(Log.types.OTHER, `OverlayManager.openOverlay: ${overlay}`);
+            Log.debug(Log.types.OTHER, `OverlayManager.toggleOverlay: ${overlay}`);
             const index = this.getOverlayIndex(overlay);
 
             if (index >= 0) {

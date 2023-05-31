@@ -248,7 +248,7 @@ export interface PeopleEntry {
 }
 
 export default defineComponent({
-    name: "People",
+    name: "PeopleOverlay",
 
     props: {
         // Primary

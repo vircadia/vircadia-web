@@ -474,7 +474,7 @@ interface AvatarEntryListItemMap {
 }
 
 export default defineComponent({
-    name: "Avatar",
+    name: "AvatarOverlay",
 
     props: {
         // Primary

@@ -99,7 +99,7 @@ import { type JitsiRoomInfo } from "@Stores/application-store";
 import OverlayShell from "../OverlayShell.vue";
 
 export default defineComponent({
-    name: "Conference",
+    name: "ConferenceOverlay",
 
     props: {
         // Primary

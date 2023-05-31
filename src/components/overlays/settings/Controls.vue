@@ -195,7 +195,7 @@ import { MouseSettingsController } from "@Base/modules/avatar/controller/inputs/
 import OverlayShell from "../OverlayShell.vue";
 
 export default defineComponent({
-    name: "Controls",
+    name: "ControlsOverlay",
     props: {
         // Primary.
         propsToPass: { type: Object, default: () => ({}) }

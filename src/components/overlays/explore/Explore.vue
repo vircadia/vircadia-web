@@ -495,7 +495,7 @@ type LocationSegment<T> =
                         string;
 
 export default defineComponent({
-    name: "Explore",
+    name: "ExploreOverlay",
 
     props: {
         // Primary

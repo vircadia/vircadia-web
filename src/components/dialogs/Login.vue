@@ -52,7 +52,7 @@ import MetaverseLogin from "@Components/components/login/MetaverseLogin.vue";
 import MetaverseRegister from "@Components/components/login/MetaverseRegister.vue";
 
 export default defineComponent({
-    name: "Login",
+    name: "LoginDialog",
 
     emits: ["closeDialog"],
 

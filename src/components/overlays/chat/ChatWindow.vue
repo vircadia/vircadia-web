@@ -121,7 +121,7 @@ interface ACombinedMessage {
 }
 
 export default defineComponent({
-    name: "ChatWindow",
+    name: "ChatOverlay",
 
     props: {
         propsToPass: { type: Object, default: () => ({}) }

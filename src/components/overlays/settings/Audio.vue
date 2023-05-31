@@ -169,7 +169,7 @@ import { AudioIO } from "@Modules/ui/audioIO";
 import OverlayShell from "@Components/overlays/OverlayShell.vue";
 
 export default defineComponent({
-    name: "Audio",
+    name: "AudioOverlay",
 
     // This is a solution mentioned on the net but it doesn't seem to work. More research needed.
     $refs: {   // definition to make this.$ref work with TypeScript

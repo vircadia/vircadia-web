@@ -148,7 +148,7 @@ import { userStore } from "@Stores/index";
 import OverlayShell from "../OverlayShell.vue";
 
 export default defineComponent({
-    name: "Graphics",
+    name: "GraphicsOverlay",
     props: {
         // Primary.
         propsToPass: { type: Object, default: () => ({}) }
