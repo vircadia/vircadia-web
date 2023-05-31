@@ -143,13 +143,13 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
         if (this._onKeyDown) {
             for (let index = 0; index < this._keysPressed.length; index++) {
                 const code = this._keysPressed[index];
-                if (userStore.controls.keyboard.camera.yawLeft?.keybind === code) {
+                if (userStore.controls.keyboard.camera.yawLeft?.keycode === code) {
                     this.camera.alpha -= this.sensibility;
-                } else if (userStore.controls.keyboard.camera.yawRight?.keybind === code) {
+                } else if (userStore.controls.keyboard.camera.yawRight?.keycode === code) {
                     this.camera.alpha += this.sensibility;
-                } else if (userStore.controls.keyboard.camera.pitchUp?.keybind === code) {
+                } else if (userStore.controls.keyboard.camera.pitchUp?.keycode === code) {
                     this.camera.beta += this.sensibility;
-                } else if (userStore.controls.keyboard.camera.pitchDown?.keybind === code) {
+                } else if (userStore.controls.keyboard.camera.pitchDown?.keycode === code) {
                     this.camera.beta -= this.sensibility;
                 }
             }

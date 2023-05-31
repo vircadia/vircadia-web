@@ -14,7 +14,7 @@
     padding: 2px 1ch;
     border: 2px dashed currentColor;
 }
-.keyboardKey {
+kbd {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -22,6 +22,7 @@
     min-width: 3.5ch;
     padding: 2px 1ch;
     color: white;
+    font-family: inherit;
     font-size: 1.0rem;
     text-align: center;
     background: radial-gradient(circle at center, #888 20%, #556);
@@ -150,27 +151,27 @@ body.desktop .q-slider.q-slider--editable:hover .q-slider__focus-ring {
                             <template v-for="(category, key) of userStore.controls.keyboard" :key="key">
                                 <!-- <q-separator /> -->
                                 <q-item-label header style="text-transform: capitalize;">{{ key }}</q-item-label>
-                                <template v-for="(bind, control) of category" :key="control">
+                                <template v-for="bind of category" :key="(bind.name as string)">
                                     <q-item
                                         clickable
                                         v-ripple
                                         :inset-level="1"
-                                        @click="setCurrentlyBinding(key, control as string)"
+                                        @click="currentlyBinding = bind"
                                     >
                                         <q-item-section>
                                             <q-item-label>{{ bind.name }}</q-item-label>
                                         </q-item-section>
                                         <q-item-section>
                                             <div
-                                                v-if="currentlyBinding.control === control"
+                                                v-if="currentlyBinding?.name === bind.name"
                                                 class="rebindPrompt text-grey-6"
                                             >Press any key...</div>
                                             <div v-else class="row q-gutter-x-sm">
-                                                <div class="keyboardKey">{{ formatKeyName(bind.keybind) }}</div>
+                                                <kbd>{{ KeyboardSettings.formatKeyName(bind.keycode) }}</kbd>
                                                 <q-icon
-                                                    v-if="specialKeyIndicator(bind.keybind)"
-                                                    :name="specialKeyIndicator(bind.keybind)?.icon"
-                                                    :title="specialKeyIndicator(bind.keybind)?.message"
+                                                    v-if="KeyboardSettings.getSpecialKeyIndicator(bind.keycode)"
+                                                    :name="KeyboardSettings.getSpecialKeyIndicator(bind.keycode)?.icon"
+                                                    :title="KeyboardSettings.getSpecialKeyIndicator(bind.keycode)?.message"
                                                     class="q-mt-sm"
                                                 />
                                             </div>
@@ -189,6 +190,7 @@ body.desktop .q-slider.q-slider--editable:hover .q-slider__focus-ring {
 <script lang="ts">
 import { defineComponent } from "vue";
 import { userStore } from "@Stores/index";
+import { KeyboardSettings, type Keybind } from "@Base/modules/avatar/controller/inputs/keyboardSettings";
 import { MouseSettingsController } from "@Base/modules/avatar/controller/inputs/mouseSettings";
 import OverlayShell from "../OverlayShell.vue";
 
@@ -203,16 +205,14 @@ export default defineComponent({
     },
     setup() {
         return {
-            userStore
+            userStore,
+            KeyboardSettings
         };
     },
     data() {
         return {
             tab: "mouse",
-            currentlyBinding: {
-                category: undefined as keyof typeof userStore.controls.keyboard | undefined,
-                control: undefined as string | undefined
-            }
+            currentlyBinding: undefined as Keybind | undefined
         };
     },
     computed: {
@@ -242,119 +242,13 @@ export default defineComponent({
         }
     },
     methods: {
-        formatKeyName(keyCode: string): string {
-            // Letters.
-            if (keyCode.includes("Key")) {
-                return keyCode.split("Key")[1];
-            }
-            // Top-row numbers.
-            if (keyCode.includes("Digit")) {
-                return keyCode.split("Digit")[1];
-            }
-            // Number pad numbers.
-            if (keyCode.includes("Numpad")) {
-                return keyCode.split("Numpad")[1];
-            }
-            // Arrow keys.
-            const arrowKeys = {
-                "ArrowUp": "↑",
-                "ArrowDown": "↓",
-                "ArrowLeft": "←",
-                "ArrowRight": "→"
-            } as { [key: string]: string };
-            if (keyCode in arrowKeys) {
-                return arrowKeys[keyCode];
-            }
-            // Control keys.
-            const controlKeys = {
-                "ShiftLeft": "Left Shift",
-                "ShiftRight": "Right Shift",
-                "ControlLeft": "Left Control",
-                "ControlRight": "Right Control",
-                "AltLeft": "Left Alt",
-                "AltRight": "Right Alt"
-            } as { [key: string]: string };
-            if (keyCode in controlKeys) {
-                return controlKeys[keyCode];
-            }
-            // Other (symbols, specials, etc).
-            return keyCode;
-        },
-        specialKeyIndicator(keyCode: string): { icon: string, message: string } | undefined {
-            if (keyCode.includes("Control") || keyCode.includes("Alt")) {
-                return {
-                    icon: "priority_high",
-                    message: "This key may have unintended side effects"
-                };
-            }
-            if (keyCode.includes("Numpad")) {
-                return {
-                    icon: "dialpad",
-                    message: "This key is on the number pad"
-                };
-            }
-            if (keyCode.includes("Gamepad")) {
-                return {
-                    icon: "gamepad",
-                    message: "This button is on a gamepad"
-                };
-            }
-            return undefined;
-        },
-        keybindAlreadyInUse(keybind: string): boolean {
-            return Boolean(
-                Object.entries(this.userStore.controls.keyboard)
-                    .find((category) => Object.entries(category[1]).find((value) => value[1].keybind === keybind))
-            );
-        },
-        setCurrentlyBinding(category?: keyof typeof this.userStore.controls.keyboard, control?: string): void {
-            if (!category || !control) {
-                this.currentlyBinding.category = undefined;
-                this.currentlyBinding.control = undefined;
-            }
-            this.currentlyBinding.category = category;
-            this.currentlyBinding.control = control;
-        },
         listenForRebind(event: KeyboardEvent): void {
             const keycode = event.code;
-            // Disallow binding Escape, NumLock, Meta keys, and Function keys.
-            if (
-                keycode === ""
-                || keycode === "Escape"
-                || keycode === "NumLock"
-                || keycode.includes("Meta")
-                || (/^F[0-9]{1,2}$/iu).test(keycode)
-            ) {
-                this.currentlyBinding.category = undefined;
-                this.currentlyBinding.control = undefined;
+            if (!keycode || !this.currentlyBinding) {
+                return;
             }
-            // Disallow binding multiple controls to the same key.
-            if (this.keybindAlreadyInUse(keycode)) {
-                if (
-                    this.currentlyBinding.category
-                    && this.currentlyBinding.control
-                    && this.userStore.controls.keyboard[this.currentlyBinding.category][this.currentlyBinding.control].keybind !== keycode
-                ) {
-                    this.$q.notify({
-                        type: "negative",
-                        textColor: "white",
-                        icon: "warning",
-                        message: `"${this.formatKeyName(keycode)}" is already in use.`
-                    });
-                }
-                this.currentlyBinding.category = undefined;
-                this.currentlyBinding.control = undefined;
-            }
-            // Otherwise, bind the new key.
-            if (this.currentlyBinding.category && this.currentlyBinding.control) {
-                // Reset the `currentlyBinding` vars ASAP to reduce the risk of binding a bounced keypress.
-                const category = this.currentlyBinding.category;
-                const control = this.currentlyBinding.control;
-                this.currentlyBinding.category = undefined;
-                this.currentlyBinding.control = undefined;
-                // Rebind the key.
-                this.userStore.updateControlKeybind(category, control, event.code);
-            }
+            KeyboardSettings.rebindControl(this.currentlyBinding, keycode);
+            this.currentlyBinding = undefined;
         }
     }
 });

@@ -617,7 +617,7 @@ export class VScene {
                     }
                 }
                 break;
-            case userStore.controls.keyboard.other.resetPosition?.keybind:
+            case userStore.controls.keyboard.other.resetPosition?.keycode:
                 this.resetMyAvatarPositionAndOrientation();
                 break;
             case "KeyP":

@@ -817,12 +817,12 @@ export default defineComponent({
                 && target?.tagName !== "TEXTAREA"
             ) {
                 // Toggle the menu.
-                if (event.code === this.userStore.controls.keyboard.other.toggleMenu?.keybind) {
+                if (event.code === this.userStore.controls.keyboard.other.toggleMenu?.keycode) {
                     // TODO: figure out how to properly type $ref references.
                     (this.$refs.OverlayManager as typeof OverlayManager)?.toggleOverlay("menu");
                 }
                 // Open the chat.
-                if (event.code === this.userStore.controls.keyboard.other.openChat?.keybind) {
+                if (event.code === this.userStore.controls.keyboard.other.openChat?.keycode) {
                     // TODO: figure out how to properly type $ref references.
                     (this.$refs.OverlayManager as typeof OverlayManager)?.toggleOverlay("ChatWindow");
                 }

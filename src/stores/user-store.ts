@@ -10,35 +10,35 @@ import type { vec3 } from "@vircadia/web-sdk";
 const defaultControls = {
     keyboard: {
         movement: {
-            walkForwards: { name: "Walk Forwards", keybind: "KeyW" } as ControlKeybind,
-            walkBackwards: { name: "Walk Backwards", keybind: "KeyS" } as ControlKeybind,
-            walkLeft: { name: "Walk Left", keybind: "KeyA" } as ControlKeybind,
-            walkRight: { name: "Walk Right", keybind: "KeyD" } as ControlKeybind,
-            run: { name: "Run", keybind: "ShiftLeft" } as ControlKeybind,
-            jump: { name: "Jump", keybind: "Space" } as ControlKeybind,
-            crouch: { name: "Crouch", keybind: "KeyC" } as ControlKeybind,
-            fly: { name: "Fly", keybind: "KeyF" } as ControlKeybind,
-            sit: { name: "Sit", keybind: "KeyG" } as ControlKeybind,
-            clap: { name: "Clap", keybind: "KeyH" } as ControlKeybind,
-            salute: { name: "Salute", keybind: "KeyJ" } as ControlKeybind
+            walkForwards: { name: "Walk Forwards", keycode: "KeyW" } as Keybind,
+            walkBackwards: { name: "Walk Backwards", keycode: "KeyS" } as Keybind,
+            walkLeft: { name: "Walk Left", keycode: "KeyA" } as Keybind,
+            walkRight: { name: "Walk Right", keycode: "KeyD" } as Keybind,
+            run: { name: "Run", keycode: "ShiftLeft" } as Keybind,
+            jump: { name: "Jump", keycode: "Space" } as Keybind,
+            crouch: { name: "Crouch", keycode: "KeyC" } as Keybind,
+            fly: { name: "Fly", keycode: "KeyF" } as Keybind,
+            sit: { name: "Sit", keycode: "KeyG" } as Keybind,
+            clap: { name: "Clap", keycode: "KeyH" } as Keybind,
+            salute: { name: "Salute", keycode: "KeyJ" } as Keybind
         },
         camera: {
-            pitchUp: { name: "Pitch Up", keybind: "ArrowUp" } as ControlKeybind,
-            pitchDown: { name: "Pitch Down", keybind: "ArrowDown" } as ControlKeybind,
-            yawLeft: { name: "Yaw Left", keybind: "ArrowLeft" } as ControlKeybind,
-            yawRight: { name: "Yaw Right", keybind: "ArrowRight" } as ControlKeybind,
-            firstPerson: { name: "First-Person", keybind: "Digit1" } as ControlKeybind,
-            thirdPerson: { name: "Third-Person", keybind: "Digit3" } as ControlKeybind,
-            collisions: { name: "Toggle Collisions", keybind: "Digit4" } as ControlKeybind
+            pitchUp: { name: "Pitch Up", keycode: "ArrowUp" } as Keybind,
+            pitchDown: { name: "Pitch Down", keycode: "ArrowDown" } as Keybind,
+            yawLeft: { name: "Yaw Left", keycode: "ArrowLeft" } as Keybind,
+            yawRight: { name: "Yaw Right", keycode: "ArrowRight" } as Keybind,
+            firstPerson: { name: "First-Person", keycode: "Digit1" } as Keybind,
+            thirdPerson: { name: "Third-Person", keycode: "Digit3" } as Keybind,
+            collisions: { name: "Toggle Collisions", keycode: "Digit4" } as Keybind
         },
         audio: {
-            mute: { name: "Toggle Mic Mute", keybind: "KeyV" } as ControlKeybind,
-            pushToTalk: { name: "Push-To-Talk", keybind: "KeyB" } as ControlKeybind
+            mute: { name: "Toggle Mic Mute", keycode: "KeyV" } as Keybind,
+            pushToTalk: { name: "Push-To-Talk", keycode: "KeyB" } as Keybind
         },
         other: {
-            resetPosition: { name: "Reset Position", keybind: "KeyK" } as ControlKeybind,
-            toggleMenu: { name: "Toggle Menu", keybind: "KeyM" } as ControlKeybind,
-            openChat: { name: "Open Chat", keybind: "KeyT" } as ControlKeybind
+            resetPosition: { name: "Reset Position", keycode: "KeyK" } as Keybind,
+            toggleMenu: { name: "Toggle Menu", keycode: "KeyM" } as Keybind,
+            openChat: { name: "Open Chat", keycode: "KeyT" } as Keybind
         }
     },
     mouse: {
@@ -48,9 +48,11 @@ const defaultControls = {
     }
 };
 
-export interface ControlKeybind {
+export type KeyboardControlCategory = keyof typeof defaultControls.keyboard;
+export type KeyboardControl<T extends KeyboardControlCategory> = keyof typeof defaultControls.keyboard[T];
+export interface Keybind {
     name: string,
-    keybind: string
+    keycode: string
 }
 
 export interface LocationBookmark {
@@ -138,14 +140,6 @@ export const useUserStore = defineStore("user", {
                 this.avatar.position = position;
                 this.avatar.location = `${domainLocation}/${DataMapper.mapVec3ToString(position)}/${DataMapper.mapQuaternionToString(null)}`;
             }
-            this.updateControlKeybind("movement", "clap", "hat");
-        },
-        updateControlKeybind<T extends keyof typeof defaultControls.keyboard>(
-            category: T,
-            control: keyof typeof defaultControls.keyboard[T],
-            keybind: string
-        ): void {
-            (this.controls.keyboard[category][control] as ControlKeybind).keybind = keybind;
         }
     }
 });
