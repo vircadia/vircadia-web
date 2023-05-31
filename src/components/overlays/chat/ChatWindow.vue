@@ -106,7 +106,7 @@
 
 <script lang="ts">
 import { defineComponent, watch } from "vue";
-import * as DOMPurify from "dompurify";
+import DOMPurify from "dompurify";
 import { applicationStore, userStore } from "@Stores/index";
 import { AMessage, DomainMessage, DefaultChatMessage } from "@Modules/domain/message";
 import { DomainMgr } from "@Modules/domain";
