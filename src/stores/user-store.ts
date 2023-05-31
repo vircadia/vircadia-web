@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { useStorage } from "@vueuse/core";
 import { Vec3 } from "@vircadia/web-sdk";
 import { onAttributeChangePayload } from "@Modules/account";
 import { defaultActiveAvatarModel, defaultAvatarModels } from "@Modules/avatar/DefaultModels";
@@ -6,6 +7,8 @@ import type { Domain } from "@Base/modules/domain/domain";
 import type { DomainAvatar } from "@Base/modules/domain/avatar";
 import { DataMapper } from "@Modules/domain/dataMapper";
 import type { vec3 } from "@vircadia/web-sdk";
+
+const persistentStorageMedium = localStorage;
 
 const defaultControls = {
     keyboard: {
@@ -63,58 +66,81 @@ export interface LocationBookmark {
 
 export const useUserStore = defineStore("user", {
     state: () => ({
-        storeVersion: {
-            major: 5,
-            minor: 0,
-            patch: 0
-        },
-        avatar: {
-            displayName: "anonymous",
-            showNametags: true,
-            position: Vec3.ZERO,
-            location: "0,0,0",
-            models: defaultAvatarModels(),
-            activeModel: defaultActiveAvatarModel()
-        },
+
+        avatar: useStorage(
+            "userAvatarSettings",
+            {
+                displayName: "anonymous",
+                showNametags: true,
+                position: Vec3.ZERO,
+                location: "0,0,0",
+                models: defaultAvatarModels(),
+                activeModel: defaultActiveAvatarModel()
+            },
+            persistentStorageMedium,
+            { mergeDefaults: true }
+        ),
+
         // Graphics configuration.
-        graphics: {
-            fieldOfView: 85,
-            bloom: true,
-            fxaaEnabled: true,
-            msaa: 2,
-            sharpen: false
-        },
+        graphics: useStorage(
+            "userGraphicsSettings",
+            {
+                fieldOfView: 85,
+                bloom: true,
+                fxaaEnabled: true,
+                msaa: 2,
+                sharpen: false
+            },
+            persistentStorageMedium,
+            { mergeDefaults: true }
+        ),
+
         // Information about the logged in account. Refer to Account module.
-        account: {
-            id: "UNKNOWN",
-            username: "Guest",
-            isLoggedIn: false,
-            accessToken: "UNKNOWN",
-            tokenType: "Bearer",
-            scope: "UNKNOWN",
-            isAdmin: false,
-            useAsAdmin: false,
-            images: {
-                hero: undefined as string | undefined,
-                tiny: undefined as string | undefined,
-                thumbnail: undefined as string | undefined
-            }
-        },
+        account: useStorage(
+            "userAccountSettings",
+            {
+                id: "UNKNOWN",
+                username: "Guest",
+                isLoggedIn: false,
+                accessToken: "UNKNOWN",
+                tokenType: "Bearer",
+                scope: "UNKNOWN",
+                isAdmin: false,
+                useAsAdmin: false,
+                images: {
+                    hero: undefined as string | undefined,
+                    tiny: undefined as string | undefined,
+                    thumbnail: undefined as string | undefined
+                }
+            },
+            persistentStorageMedium,
+            { mergeDefaults: true }
+        ),
+
         // Saved bookmarks.
-        bookmarks: {
-            locations: [] as Array<LocationBookmark>
-        },
+        bookmarks: useStorage(
+            "userBookmarks",
+            {
+                locations: [] as Array<LocationBookmark>
+            },
+            persistentStorageMedium,
+            { mergeDefaults: true }
+        ),
+
         // Controls.
-        controls: defaultControls
+        controls: useStorage("userControlSettings", defaultControls, persistentStorageMedium, { mergeDefaults: true })
+
     }),
 
     getters: {
     },
 
     actions: {
+
         reset(): void {
             this.$reset();
         },
+
         updateAccountInfo(data: onAttributeChangePayload): void {
             this.account.accessToken = data.accessToken;
             this.account.isAdmin = data.isAdmin;
@@ -124,6 +150,7 @@ export const useUserStore = defineStore("user", {
             this.account.username = data.accountInfo.username;
             Object.assign(this.account.images, data.accountInfo.images ?? {});
         },
+
         updateLocalAvatarInfo(domain: Domain, domainAvatar?: DomainAvatar, position?: vec3): void {
             const domainLocation = domain.DomainClient
                 ? domain.Location.protocol + "//" + domain.Location.host
@@ -141,5 +168,6 @@ export const useUserStore = defineStore("user", {
                 this.avatar.location = `${domainLocation}/${DataMapper.mapVec3ToString(position)}/${DataMapper.mapQuaternionToString(null)}`;
             }
         }
+
     }
 });
