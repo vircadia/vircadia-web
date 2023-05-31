@@ -160,6 +160,7 @@
                                     </div>
                                     <div style="all: inherit;position: relative;">
                                         <q-slider
+                                            thumbSize="26px"
                                             :min="0"
                                             :max="100"
                                             :step="5"

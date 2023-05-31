@@ -10,28 +10,6 @@
 -->
 
 <style lang="scss">
-/* TODO: Replace these style overrides with inline props once we have upgraded to Quasar >2.4.0. */
-.q-slider__track-container--h {
-    height: 5px;
-    margin-top: -2.5px;
-    border-radius: 3px;
-}
-.q-slider__track--h {
-    border-radius: inherit;
-}
-.q-slider__thumb {
-    transform: scale(1.3);
-}
-.q-slider__focus-ring {
-    transition:
-        transform 0.22s cubic-bezier(0, 0, 0.2, 1),
-        opacity 0.22s cubic-bezier(0, 0, 0.2, 1),
-        background-color 0.22s cubic-bezier(0, 0, 0.2, 1);
-}
-.q-slider--focus .q-slider__focus-ring,
-body.desktop .q-slider.q-slider--editable:hover .q-slider__focus-ring {
-    transform: scale3d(2, 2, 1);
-}
 </style>
 
 <template>
@@ -57,6 +35,7 @@ body.desktop .q-slider.q-slider--editable:hover .q-slider__focus-ring {
                         <q-item-section class="q-pl-xl">
                             <q-slider
                                 name="fieldOfView"
+                                thumbSize="26px"
                                 :min="70"
                                 :max="120"
                                 :step="5"
@@ -109,6 +88,7 @@ body.desktop .q-slider.q-slider--editable:hover .q-slider__focus-ring {
                         <q-item-section class="q-pl-xl">
                             <q-slider
                                 name="msaa"
+                                thumbSize="26px"
                                 :min="1"
                                 :max="8"
                                 :step="1"
