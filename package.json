@@ -43,7 +43,7 @@
     "eslint-plugin-n": "^15.0.0",
     "eslint-plugin-promise": "^6.0.0",
     "eslint-plugin-vue": "^9.0.0",
-    "micro-test-runner": "^1.5.0",
+    "micro-test-runner": "^1.5.1",
     "typescript": "^4.5.4"
   },
   "engines": {
