@@ -1,3 +1,14 @@
+//
+//  user-store.ts
+//
+//  Created by Giga on 30 May 2023.
+//  Copyright 2023 Vircadia contributors.
+//  Copyright 2023 DigiSomni LLC.
+//
+//  Distributed under the Apache License, Version 2.0.
+//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+//
+
 import { defineStore } from "pinia";
 import { useStorage } from "@vueuse/core";
 import { Vec3 } from "@vircadia/web-sdk";
@@ -66,7 +77,6 @@ export interface LocationBookmark {
 
 export const useUserStore = defineStore("user", {
     state: () => ({
-
         avatar: useStorage(
             "userAvatarSettings",
             {
@@ -80,7 +90,6 @@ export const useUserStore = defineStore("user", {
             persistentStorageMedium,
             { mergeDefaults: true }
         ),
-
         // Graphics configuration.
         graphics: useStorage(
             "userGraphicsSettings",
@@ -94,7 +103,6 @@ export const useUserStore = defineStore("user", {
             persistentStorageMedium,
             { mergeDefaults: true }
         ),
-
         // Information about the logged in account. Refer to Account module.
         account: useStorage(
             "userAccountSettings",
@@ -116,7 +124,6 @@ export const useUserStore = defineStore("user", {
             persistentStorageMedium,
             { mergeDefaults: true }
         ),
-
         // Saved bookmarks.
         bookmarks: useStorage(
             "userBookmarks",
@@ -126,21 +133,21 @@ export const useUserStore = defineStore("user", {
             persistentStorageMedium,
             { mergeDefaults: true }
         ),
-
         // Controls.
         controls: useStorage("userControlSettings", defaultControls, persistentStorageMedium, { mergeDefaults: true })
-
     }),
 
-    getters: {
-    },
-
     actions: {
-
+        /**
+         * Reset the state of the store to default.
+         */
         reset(): void {
             this.$reset();
         },
-
+        /**
+         * Update the stored account information for the current user.
+         * @param data
+         */
         updateAccountInfo(data: onAttributeChangePayload): void {
             this.account.accessToken = data.accessToken;
             this.account.isAdmin = data.isAdmin;
@@ -150,7 +157,12 @@ export const useUserStore = defineStore("user", {
             this.account.username = data.accountInfo.username;
             Object.assign(this.account.images, data.accountInfo.images ?? {});
         },
-
+        /**
+         * Update the stored information for the local avatar.
+         * @param domain A reference to the domain server connection instance.
+         * @param domainAvatar `(Optional)` A reference to the local avatar instance.
+         * @param position `(Optional)` The new position of the local avatar in the world.
+         */
         updateLocalAvatarInfo(domain: Domain, domainAvatar?: DomainAvatar, position?: vec3): void {
             const domainLocation = domain.DomainClient
                 ? domain.Location.protocol + "//" + domain.Location.host
@@ -168,6 +180,5 @@ export const useUserStore = defineStore("user", {
                 this.avatar.location = `${domainLocation}/${DataMapper.mapVec3ToString(position)}/${DataMapper.mapQuaternionToString(null)}`;
             }
         }
-
     }
 });

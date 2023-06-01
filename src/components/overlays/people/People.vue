@@ -310,7 +310,7 @@ export default defineComponent({
                 }
 
                 // Update the avatar's gain value in the Store.
-                this.applicationStore.updateAvatarValue(sessionId, "volume", value);
+                this.applicationStore.updateAvatarProperty(sessionId, "volume", value);
             }
         },
 
@@ -331,7 +331,7 @@ export default defineComponent({
             }
 
             // Update the avatar's mute value in the Store.
-            this.applicationStore.updateAvatarValue(pAvaInfo.sessionId, "muted", newMute);
+            this.applicationStore.updateAvatarProperty(pAvaInfo.sessionId, "muted", newMute);
         },
 
         /**

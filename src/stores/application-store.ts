@@ -1,3 +1,14 @@
+//
+//  application-store.ts
+//
+//  Created by Giga on 30 May 2023.
+//  Copyright 2023 Vircadia contributors.
+//  Copyright 2023 DigiSomni LLC.
+//
+//  Distributed under the Apache License, Version 2.0.
+//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+//
+
 import { defineStore } from "pinia";
 import packageInfo from "@Base/../package.json";
 import versionInfo from "@Base/../VERSION.json";
@@ -148,11 +159,20 @@ export const useApplicationStore = defineStore("application", {
         }
     }),
 
-    getters: {
-    },
-
     actions: {
-        updateAvatarValue<T extends keyof AvatarInfo>(sessionId: Uuid, key: T, value: AvatarInfo[T]): void {
+        /**
+         * Reset the state of the store to default.
+         */
+        reset(): void {
+            this.$reset();
+        },
+        /**
+         * Update any property of a given avatar.
+         * @param sessionId The avatar's unique session ID.
+         * @param key The key of the property to update.
+         * @param value The new value.
+         */
+        updateAvatarProperty<T extends keyof AvatarInfo>(sessionId: Uuid, key: T, value: AvatarInfo[T]): void {
             const avatarData = this.avatars.avatarsInfo.get(sessionId);
             if (avatarData) {
                 avatarData[key] = value;
@@ -162,9 +182,18 @@ export const useApplicationStore = defineStore("application", {
         updateAllAvatars(data: Map<Uuid, ScriptAvatar>): void {
             //
         },
+        /**
+         * Join a new conference room.
+         * @param room A conference room instance/reference.
+         */
         joinConferenceRoom(room: JitsiRoomInfo): void {
             this.conference.currentRoom = room;
         },
+        /**
+         * Add a new conference room to the Store.
+         * @param entity The web entity to display the conference room in.
+         * @returns A reference to the new room.
+         */
         addConferenceRoom(entity: WebEntity | IWebEntity): JitsiRoomInfo {
             const roomName = entity.name ?? "";
             const newRoom = {
@@ -175,12 +204,20 @@ export const useApplicationStore = defineStore("application", {
             this.conference.activeRooms.push(newRoom);
             return newRoom;
         },
+        /**
+         * Remove a conference room from the Store.
+         * @param name The name of the room to remove.
+         */
         removeConferenceRoom(name: string): void {
             const roomIndex = this.conference.activeRooms.findIndex((room) => room.name === name);
             if (roomIndex !== -1) {
                 this.conference.activeRooms.splice(roomIndex, 1);
             }
         },
+        /**
+         * Add a new chat message to the Store.
+         * @param message
+         */
         addChatMessage(message: AMessage): void {
             // If the message doesn't have some unique identification, add it.
             if (typeof message.id !== "number") {
@@ -194,11 +231,22 @@ export const useApplicationStore = defineStore("application", {
                 this.messages.messages.slice(this.messages.messages.length - this.messages.maxMessages);
             }
         },
+        /**
+         * Update the stored state of the connected domain server.
+         * @param domain A reference to the domain server connection instance.
+         * @param state The new state of the server connection.
+         * @param info `(Optional)` Additional information about the server.
+         */
         updateDomainState(domain: Domain, state: ConnectionState, info?: string): void {
             this.domain.connectionState = Domain.stateToString(state);
             this.domain.info = info ?? this.domain.info;
             this.domain.url = domain.Location.href;
         },
+        /**
+         * Update the stored state of the connected metaverse server.
+         * @param metaverse A reference to the metaverse server connection instance.
+         * @param state The new state of the server connection.
+         */
         updateMetaverseState(metaverse: Metaverse, state: MetaverseState): void {
             this.metaverse.name = metaverse.MetaverseName;
             this.metaverse.nickname = metaverse.MetaverseNickname;
