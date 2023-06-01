@@ -1,113 +1,132 @@
+import test, { FailureLogSeverity } from "micro-test-runner";
 import { Location } from "@Modules/domain/location";
 
-test("Test full location", () => {
-    // Arrange
-    const protocol = "wss:";
-    const hostname = "localhost";
-    const port = "40102";
-    const host = hostname + ":" + port;
-    const position = "100,5,1";
-    const orientation = "0,0,1,1";
-    const pathname = "/" + position + "/" + orientation;
-    const url = protocol + "//" + host + pathname;
+const candidate = (candidateUrl: string) => new Location(candidateUrl);
 
-    // Act
-    const location = new Location(url);
 
-    // Assert
-    expect(location.href).toBe(url);
-    expect(location.protocol).toBe(protocol);
-    expect(location.host).toBe(host);
-    expect(location.port).toBe(port);
-    expect(location.pathname).toBe(pathname);
-    expect(location.position).toBe(position);
-    expect(location.orientation).toBe(orientation);
-});
+// =============== FULL LOCATION =============== //
 
-test("Test incomplete location", () => {
-    // Arrange
-    const protocol = "";
-    const hostname = "localhost";
-    const port = "";
-    const host = hostname;
-    const position = "100,5,1";
-    const orientation = "";
-    const pathname = "/" + position;
-    const url = host + pathname;
+// Arrange
+let protocol = "wss:";
+let hostname = "localhost";
+let port = "40102";
+let host = hostname + ":" + port;
+let position = "100,5,1";
+let orientation = "0,0,1,1";
+let pathname = "/" + position + "/" + orientation;
+let url = protocol + "//" + host + pathname;
+// Act
+test(candidate)
+    .logging("Full location", FailureLogSeverity.ERROR)
+    .with([url])
+// Assert
+    .expect([
+        (result: Location) => result.href === url
+                && result.protocol === protocol
+                && result.host === host
+                && result.port === port
+                && result.pathname === pathname
+                && result.position === position
+                && result.orientation === orientation
+    ]);
 
-    // Act
-    const location = new Location(url);
 
-    // Assert
-    expect(location.href).toBe(url);
-    expect(location.protocol).toBe(protocol);
-    expect(location.host).toBe(host);
-    expect(location.port).toBe(port);
-    expect(location.pathname).toBe(pathname);
-    expect(location.position).toBe(position);
-    expect(location.orientation).toBe(orientation);
-});
+// ============ INCOMPLETE LOCATION ============ //
 
-test("Test pure path location", () => {
-    // Arrange
-    const protocol = "";
-    const port = "";
-    const host = "";
-    const position = "100,5,1";
-    const orientation = "0,0,1,1";
-    const pathname = "/" + position + "/" + orientation;
-    const url = pathname;
+// Arrange
+protocol = "";
+hostname = "localhost";
+port = "";
+host = hostname;
+position = "100,5,1";
+orientation = "";
+pathname = "/" + position;
+url = host + pathname;
+// Act
+test(candidate)
+    .logging("Incomplete location", FailureLogSeverity.ERROR)
+    .with([url])
+// Assert
+    .expect([
+        (result: Location) => result.href === url
+                && result.protocol === protocol
+                && result.host === host
+                && result.port === port
+                && result.pathname === pathname
+                && result.position === position
+                && result.orientation === orientation
+    ]);
 
-    // Act
-    const location = new Location(url);
 
-    // Assert
-    expect(location.href).toBe(url);
-    expect(location.protocol).toBe(protocol);
-    expect(location.host).toBe(host);
-    expect(location.port).toBe(port);
-    expect(location.pathname).toBe(pathname);
-    expect(location.position).toBe(position);
-    expect(location.orientation).toBe(orientation);
-});
+// ============= PURE PATH LOCATION ============ //
 
-test("Test location trim extra path", () => {
-    // Arrange
-    const protocol = "wss:";
-    const hostname = "localhost";
-    const port = "";
-    const host = hostname;
-    const position = "100,5,1";
-    const orientation = "0,0,1,1";
-    const pathname = "/" + position + "/" + orientation;
-    const url = protocol + "//" + host + pathname;
+// Arrange
+protocol = "";
+hostname = "";
+port = "";
+host = hostname;
+position = "100,5,1";
+orientation = "0,0,1,1";
+pathname = "/" + position + "/" + orientation;
+url = pathname;
+// Act
+test(candidate)
+    .logging("Pure path location", FailureLogSeverity.ERROR)
+    .with([url])
+// Assert
+    .expect([
+        (result: Location) => result.href === url
+                && result.protocol === protocol
+                && result.host === host
+                && result.port === port
+                && result.pathname === pathname
+                && result.position === position
+                && result.orientation === orientation
+    ]);
 
-    // Act
-    const location = new Location(url + "/abcd");
 
-    // Assert
-    expect(location.href).toBe(url);
-    expect(location.protocol).toBe(protocol);
-    expect(location.host).toBe(host);
-    expect(location.port).toBe(port);
-    expect(location.pathname).toBe(pathname);
-    expect(location.position).toBe(position);
-    expect(location.orientation).toBe(orientation);
-});
+// ============== TRIM EXTRA PATH ============== //
 
-test("Test update location", () => {
-    // Arrange
-    let protocol = "";
-    const hostname = "localhost";
-    let port = "";
-    let host = hostname;
-    const position = "100,5,1";
-    const orientation = "";
-    const pathname = "/" + position;
-    let url = host + pathname;
+// Arrange
+protocol = "wss:";
+hostname = "localhost";
+port = "";
+host = hostname;
+position = "100,5,1";
+orientation = "0,0,1,1";
+pathname = "/" + position + "/" + orientation;
+url = protocol + "//" + host + pathname;
+// Act
+test(candidate)
+    .logging("Location trim extra path", FailureLogSeverity.ERROR)
+    .with([url + "/abcd"])
+// Assert
+    .expect([
+        (result: Location) => result.href === url
+                && result.protocol === protocol
+                && result.host === host
+                && result.port === port
+                && result.pathname === pathname
+                && result.position === position
+                && result.orientation === orientation
+    ]);
 
-    // Act
-    const location = new Location(url);
+
+// ============== UPDATE LOCATION ============== //
+
+// Arrange
+protocol = "";
+hostname = "localhost";
+port = "";
+host = hostname;
+position = "100,5,1";
+orientation = "";
+pathname = "/" + position;
+url = host + pathname;
+// Act
+test((candidateUrl: string) => {
+    const location = new Location(candidateUrl);
+
     protocol = "wss:";
     port = "12345";
     host = hostname + ":" + port;
@@ -116,13 +135,17 @@ test("Test update location", () => {
     location.protocol = protocol;
     location.port = port;
 
-    // Assert
-    location.protocol = protocol;
-    expect(location.href).toBe(url);
-    expect(location.protocol).toBe(protocol);
-    expect(location.host).toBe(host);
-    expect(location.port).toBe(port);
-    expect(location.pathname).toBe(pathname);
-    expect(location.position).toBe(position);
-    expect(location.orientation).toBe(orientation);
-});
+    return location;
+})
+    .logging("Update location", FailureLogSeverity.ERROR)
+    .with([url])
+// Assert
+    .expect([
+        (result: Location) => result.href === url
+                && result.protocol === protocol
+                && result.host === host
+                && result.port === port
+                && result.pathname === pathname
+                && result.position === position
+                && result.orientation === orientation
+    ]);
