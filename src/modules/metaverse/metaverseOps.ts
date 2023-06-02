@@ -100,9 +100,8 @@ export async function doAPIGet(pAPIUrl: string, pMetaverseUrl?: string): Promise
     const accessUrl = buildUrl(pAPIUrl, pMetaverseUrl);
     const response = await fetch(accessUrl, buildRequestConfig());
     const data = await response.json() as APIResponse;
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-    if (response && response.status === 200 && data) {
-        return data;
+    if (response && data && data.status === "success") {
+        return data.data;
     }
     throw new Error(`Vircadia API GET request to ${pAPIUrl} failed: ${response.statusText}`);
 }
@@ -113,9 +112,8 @@ export async function doAPIPost(pAPIUrl: string, pBody: KeyedCollection, pMetave
     requestConfig.body = pBody;
     const response = await fetch(accessUrl, requestConfig);
     const data = await response.json() as APIResponse;
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-    if (response && response.status === 200 && data) {
-        return data;
+    if (response && data && data.status === "success") {
+        return data.data;
     }
     throw new Error(`Vircadia API POST request to ${pAPIUrl} failed: ${response.statusText}`);
 }
