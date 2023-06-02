@@ -6,8 +6,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
-import axios from "axios";
-
 import { SignalEmitter } from "@vircadia/web-sdk";
 import { buildUrl, cleanMetaverseUrl, findErrorMsg } from "@Modules/metaverse/metaverseOps";
 import { MetaverseInfoResp, MetaverseInfoAPI } from "@Modules/metaverse/APIAccount";
@@ -106,8 +104,8 @@ export class Metaverse {
         // Access the metaverse-server and get its configuration info
         const accessUrl = buildUrl(MetaverseInfoAPI, newUrl);
         try {
-            const resp = await axios.get(accessUrl);
-            const data = resp.data as MetaverseInfoResp;
+            const response = await fetch(accessUrl, { method: "GET" });
+            const data = await response.json() as MetaverseInfoResp;
             this.#_metaverseUrl = cleanMetaverseUrl(data.metaverse_url);
             this.#_metaverseName = data.metaverse_name;
             this.#_metaverseNickname = data.metaverse_nick_name ?? data.metaverse_name;

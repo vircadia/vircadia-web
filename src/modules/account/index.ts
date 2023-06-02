@@ -6,7 +6,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
-import axios from "axios";
 import { MetaverseMgr } from "@Modules/metaverse";
 import { doAPIGet, doAPIPost, buildUrl, findErrorMsg } from "@Modules/metaverse/metaverseOps";
 import { OAuthTokenAPI, OAuthTokenResp, OAuthTokenError } from "@Modules/metaverse/APIToken";
@@ -96,45 +95,42 @@ export const Account = {
 
         // Attempt to login with the given credentials.
         try {
-            // Log.debug(Log.types.ACCOUNT, `Login: ${pUsername}`);
-            const params = new URLSearchParams();
+            const params = new FormData();
             params.append("grant_type", "password");
             params.append("username", pUsername);
             params.append("password", pPassword);
 
             const loginUrl = buildUrl(OAuthTokenAPI);
-            const resp = await axios.post(loginUrl, params);
-            console.log(resp);
-            if (resp.data) {
-                const maybeError = resp.data as unknown as OAuthTokenError;
-                if (maybeError.error) {
-                    Log.error(Log.types.ACCOUNT, `Login failure. User ${pUsername}`);
-                    return false;
-                }
-                const loginResp = resp.data as unknown as OAuthTokenResp;
-                // Log.debug(Log.types.ACCOUNT, `Login: success: ${JSON.stringify(loginResp)}`);
-                Account.accountName = loginResp.account_name;
-                Account.id = loginResp.account_id;
-                Account.accessToken = loginResp.access_token;
-                Account.accessTokenType = loginResp.token_type;
-                Account.accessTokenExpiration = new Date(Date.now() + loginResp.expires_in * oneSecond);
-                Account.refreshToken = loginResp.refresh_token;
-                Account.scope = loginResp.scope;
-                Account.roles = loginResp.account_roles ?? [];
-                Account.createdAt = new Date(Date.now() + loginResp.created_at * oneSecond);
 
-                Account.isLoggedIn = true;
+            const response = await fetch(loginUrl, { method: "POST", body: params });
+            const responseData = await response.json() as OAuthTokenResp | OAuthTokenError;
 
-                // Fetch and update all the visible account info.
-                await Account.updateAccountInfo();
-                return true;
+            if ("error" in responseData) {
+                Log.error(Log.types.ACCOUNT, `Login failure for user: ${pUsername}. Error: ${responseData.error}`);
+                return false;
             }
+
+            Log.debug(Log.types.ACCOUNT, `Login success for user: ${pUsername}`);
+            Account.accountName = responseData.account_name;
+            Account.id = responseData.account_id;
+            Account.accessToken = responseData.access_token;
+            Account.accessTokenType = responseData.token_type;
+            Account.accessTokenExpiration = new Date(Date.now() + responseData.expires_in * oneSecond);
+            Account.refreshToken = responseData.refresh_token;
+            Account.scope = responseData.scope;
+            Account.roles = responseData.account_roles ?? [];
+            Account.createdAt = new Date(Date.now() + responseData.created_at * oneSecond);
+
+            Account.isLoggedIn = true;
+
+            // Fetch and update all the visible account info.
+            await Account.updateAccountInfo();
+            return true;
         } catch (error) {
             const errorMessage = findErrorMsg(error);
             Log.error(Log.types.ACCOUNT, `Exception while attempting to login user ${pUsername}: ${errorMessage}`);
             return false;
         }
-        return false;
     },
 
     _emitAttributeChange(): void {
