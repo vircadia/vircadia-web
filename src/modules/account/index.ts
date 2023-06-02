@@ -137,7 +137,7 @@ export const Account = {
         Log.debug(Log.types.ACCOUNT, `emitAttributeChange:`);
         Account.onAttributeChange.emit({
             isLoggedIn: Account.isLoggedIn,
-            isAdmin: "admin" in Account.roles,
+            isAdmin: Account.roles.includes("admin"),
             accountName: Account.accountName,
             id: Account.id,
             accessToken: Account.accessToken,
