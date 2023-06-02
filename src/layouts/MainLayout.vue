@@ -492,7 +492,7 @@
                 class="column no-wrap items-stretch"
                 style="width: 310px;"
             >
-                <component @closeDialog='closeDialog' :is="applicationStore.dialog.which"></component>
+                <component @closeDialog='closeDialog' :is="applicationStore.dialog.which + 'Dialog'"></component>
             </q-card>
         </q-dialog>
 
