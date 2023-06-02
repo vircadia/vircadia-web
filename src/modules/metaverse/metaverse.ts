@@ -155,7 +155,9 @@ export class Metaverse {
      * Note that this does not do any reactive pushing so this is best used to initialize.
      */
     _restorePersistentVariables(): void {
-        this.#_metaverseUrl = Config.getItem(MetaversePersist.METAVERSE_URL, Config.getItem(DEFAULT_METAVERSE_URL));
+        this.#_metaverseUrl = Config.getItem(MetaversePersist.METAVERSE_URL,
+            Config.getItem(DEFAULT_METAVERSE_URL, applicationStore.defaultConnectionConfig.DEFAULT_METAVERSE_URL)
+        );
         this.#_metaverseName = Config.getItem(MetaversePersist.METAVERSE_NAME, "UNKNOWN");
         this.#_metaverseNickname = Config.getItem(MetaversePersist.METAVERSE_NICK_NAME, "UNKN");
     }
