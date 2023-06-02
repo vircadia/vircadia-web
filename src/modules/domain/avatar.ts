@@ -156,7 +156,7 @@ export class DomainAvatar extends Client {
      */
     private _updateOtherAvatarInfo() {
         userStore.updateLocalAvatarInfo(this.#_domain, this);
-        applicationStore.updateAllAvatars(this.#_avatarsInfo);
+        applicationStore.updateAllAvatars(this, this.#_avatarsInfo);
     }
 
     // Just update my avatar's position

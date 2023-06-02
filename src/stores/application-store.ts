@@ -13,6 +13,8 @@ import { defineStore } from "pinia";
 import packageInfo from "@Base/../package.json";
 import versionInfo from "@Base/../VERSION.json";
 import { type ScriptAvatar, type vec3, Vircadia, type Uuid } from "@vircadia/web-sdk";
+import { DomainMgr } from "@Modules/domain";
+import { DomainAudio } from "@Modules/domain/audio";
 import { DomainAvatar } from "@Modules/domain/avatar";
 import { AssignmentClientState } from "@Modules/domain/client";
 import { Domain, ConnectionState } from "@Modules/domain/domain";
@@ -178,9 +180,41 @@ export const useApplicationStore = defineStore("application", {
                 avatarData[key] = value;
             }
         },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        updateAllAvatars(data: Map<Uuid, ScriptAvatar>): void {
-            //
+        /**
+         * Update the stored data for all avatars in the connected domain server.
+         * @param domainAvatar A reference to the local avatar instance.
+         * @param data A map of all other avatars in the server.
+         */
+        updateAllAvatars(domainAvatar: DomainAvatar, data: Map<Uuid, ScriptAvatar>): void {
+            const existingAvatars = this.avatars.avatarsInfo;
+            const newAvatars = new Map<Uuid, AvatarInfo>();
+            data.forEach((avatar, id) => {
+                const existingEntry = existingAvatars.get(id);
+                // Fetch the avatar's audio gain from the Domain server.
+                const gain = DomainMgr.ActiveDomain?.DomainClient?.users?.getAvatarGain(id);
+                // If it can't be fetched, assume a default value of 0dB.
+                const defaultGain = 0;
+                if (existingEntry) {
+                    // Update the existing avatar entry.
+                    existingEntry.position = avatar.position;
+                    existingEntry.displayName = avatar.displayName ? avatar.displayName : avatar.sessionDisplayName;
+                    newAvatars.set(id, existingEntry);
+                } else {
+                    // Add a new entry to the map.
+                    newAvatars.set(id, {
+                        sessionId: id,
+                        volume: DomainAudio.getPercentageFromGain(gain ?? defaultGain),
+                        muted: false,
+                        isAdmin: false,
+                        isValid: avatar.isValid,
+                        displayName: avatar.displayName ? avatar.displayName : avatar.sessionDisplayName,
+                        position: avatar.position
+                    });
+                }
+            });
+            this.avatars.avatarsInfo = newAvatars;
+            this.avatars.count = newAvatars.size;
+            this.avatars.connectionState = DomainAvatar.stateToString(domainAvatar?.Mixer?.state ?? AssignmentClientState.DISCONNECTED);
         },
         /**
          * Join a new conference room.
