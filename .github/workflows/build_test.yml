@@ -14,7 +14,7 @@ name: ⚙️ Build Test
 jobs:
   build-test:
     name: ⚒️ Build
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
     - name: 🚚 Get latest code
       uses: actions/checkout@v2
