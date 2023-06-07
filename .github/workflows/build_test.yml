@@ -14,7 +14,7 @@ name: ⚙️ Build Test
 jobs:
   build-test:
     name: ⚒️ Build
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
     - name: 🚚 Get latest code
       uses: actions/checkout@v2
@@ -27,4 +27,6 @@ jobs:
       run: npm install
 
     - name: ⚒️ Build the project
+      env:
+        NODE_OPTIONS: "--max_old_space_size=4096"
       run: npm run build
