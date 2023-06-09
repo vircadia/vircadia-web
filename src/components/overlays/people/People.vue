@@ -52,7 +52,7 @@
 <template>
     <OverlayShell
         icon="people"
-        :title="`People (${Array.from($store.state.avatars.avatarsInfo.keys()).length})`"
+        :title="`People (${Array.from(applicationStore.avatars.avatarsInfo.keys()).length})`"
         :managerProps="propsToPass"
         :defaultHeight="500"
         :defaultWidth="400"
@@ -71,9 +71,9 @@
                 class="col"
                 style="height: 100%;"
             >
-                <q-list v-if="Array.from($store.state.avatars.avatarsInfo.keys()).length > 0">
+                <q-list v-if="Array.from(applicationStore.avatars.avatarsInfo.keys()).length > 0">
                     <q-item
-                        v-for="avaInfo in $store.state.avatars.avatarsInfo.values()"
+                        v-for="avaInfo in applicationStore.avatars.avatarsInfo.values()"
                         :key="avaInfo.sessionId.stringify()"
                         class="q-mb-none q-pa-sm"
                         dense
@@ -160,6 +160,7 @@
                                     </div>
                                     <div style="all: inherit;position: relative;">
                                         <q-slider
+                                            thumbSize="26px"
                                             :min="0"
                                             :max="100"
                                             :step="5"
@@ -231,7 +232,8 @@
 import { defineComponent } from "vue";
 
 import OverlayShell from "../OverlayShell.vue";
-import { Store, Mutations as StoreMutations, AvatarInfo } from "@Store/index";
+import { applicationStore } from "@Stores/index";
+import { type AvatarInfo } from "@Stores/application-store";
 import { DomainMgr } from "@Modules/domain";
 import { Renderer } from "@Modules/scene";
 import { ModerationFlags, Uuid } from "@vircadia/web-sdk";
@@ -247,7 +249,7 @@ export interface PeopleEntry {
 }
 
 export default defineComponent({
-    name: "People",
+    name: "PeopleOverlay",
 
     props: {
         // Primary
@@ -258,10 +260,18 @@ export default defineComponent({
         OverlayShell
     },
 
-    data: () => ({
-        showVolumeSlider: {} as { [key: string]: boolean },
-        canKick: false
-    }),
+    setup() {
+        return {
+            applicationStore
+        };
+    },
+
+    data() {
+        return {
+            showVolumeSlider: {} as { [key: string]: boolean },
+            canKick: false
+        };
+    },
 
     methods: {
         // Get the profile picture for this avatar or 'undefined' if none.
@@ -289,7 +299,7 @@ export default defineComponent({
          * @param value The audio volume, expressed as a percentage.
          */
         setVolume(sessionId: Uuid, value: number | null): void {
-            if (value) {
+            if (typeof value === "number") {
                 // Request the desired gain from the Domain server.
                 const domainServer = DomainMgr.ActiveDomain?.DomainClient;
                 if (domainServer) {
@@ -300,11 +310,7 @@ export default defineComponent({
                 }
 
                 // Update the avatar's gain value in the Store.
-                Store.commit(StoreMutations.UPDATE_AVATAR_VALUE, {
-                    sessionId,
-                    field: "volume",
-                    value
-                });
+                this.applicationStore.updateAvatarProperty(sessionId, "volume", value);
             }
         },
 
@@ -325,11 +331,7 @@ export default defineComponent({
             }
 
             // Update the avatar's mute value in the Store.
-            Store.commit(StoreMutations.UPDATE_AVATAR_VALUE, {
-                sessionId: pAvaInfo.sessionId,
-                field: "muted",
-                value: newMute
-            });
+            this.applicationStore.updateAvatarProperty(pAvaInfo.sessionId, "muted", newMute);
         },
 
         /**

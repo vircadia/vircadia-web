@@ -9,13 +9,9 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import {
-    Quaternion,
-    TransformNode,
-    Vector3
-} from "@babylonjs/core";
+/* eslint-disable new-cap */
 
-// General Modules
+import { Quaternion, TransformNode, Vector3 } from "@babylonjs/core";
 import { SkeletonJoint, vec3, quat } from "@vircadia/web-sdk";
 
 export enum BoneType {
@@ -25,7 +21,6 @@ export enum BoneType {
     NonSkeletonChild
 }
 
-/* eslint-disable new-cap */
 export class AvatarMapper {
 
     public static mapToDomainPosition(position : Vector3) : vec3 {

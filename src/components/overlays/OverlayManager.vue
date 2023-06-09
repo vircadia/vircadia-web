@@ -11,14 +11,12 @@
 
 <template>
     <div v-for="overlay in overlays" :key="overlay.name">
-        <component :is="overlay.name" :propsToPass="overlay" @overlay-action="onAction(overlay.name, $event)"/>
+        <component :is="overlay.name + 'Overlay'" :propsToPass="overlay" @overlay-action="onAction(overlay.name, $event)"/>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
 
 export interface Overlay {
@@ -28,11 +26,6 @@ export interface Overlay {
 
 export default defineComponent({
     name: "OverlayManager",
-
-    props: {
-        // Primary
-        // parentSize: { type: Object, required: true }
-    },
 
     data: () => ({
         overlays: [] as Overlay[]
@@ -113,7 +106,7 @@ export default defineComponent({
         },
 
         toggleOverlay(overlay: string) {
-            Log.debug(Log.types.OTHER, `OverlayManager.openOverlay: ${overlay}`);
+            Log.debug(Log.types.OTHER, `OverlayManager.toggleOverlay: ${overlay}`);
             const index = this.getOverlayIndex(overlay);
 
             if (index >= 0) {

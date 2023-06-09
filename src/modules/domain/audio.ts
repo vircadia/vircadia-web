@@ -8,14 +8,8 @@
 
 import { Domain } from "@Modules/domain/domain";
 import { Client, AssignmentClientState } from "@Modules/domain/client";
-
 import { AudioMixer, SignalEmitter, Vec3, Quat, vec3, quat } from "@vircadia/web-sdk";
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
-
-// Allow 'get' lines to be compact
-/* eslint-disable @typescript-eslint/brace-style */
 
 // Function signature called for state changing
 export type DomainAudioStateChangeCallback = (pD: Domain, pA: DomainAudio, pS: AssignmentClientState) => void;
@@ -27,7 +21,9 @@ export class DomainAudio extends Client {
     #_domain: Domain;
     #_audioMixer: Nullable<AudioMixer>;
 
-    public get Mixer(): Nullable<AudioMixer> { return this.#_audioMixer; }
+    public get Mixer(): Nullable<AudioMixer> {
+        return this.#_audioMixer;
+    }
 
     private static gain = {
         min: -60,
@@ -55,7 +51,9 @@ export class DomainAudio extends Client {
     }
 
     // Return the state of the underlying assignment client
-    public get clientState(): AssignmentClientState { return this.#_audioMixer?.state ?? AssignmentClientState.DISCONNECTED; }
+    public get clientState(): AssignmentClientState {
+        return this.#_audioMixer?.state ?? AssignmentClientState.DISCONNECTED;
+    }
 
     private _handleOnStateChanged(pNewState: AssignmentClientState): void {
         Log.debug(Log.types.AUDIO, `DomainAudio: state change = ${DomainAudio.stateToString(pNewState)}`);
@@ -71,11 +69,11 @@ export class DomainAudio extends Client {
     }
 
     public play(): void {
-        this.#_audioMixer?.play();
+        void this.#_audioMixer?.play();
     }
 
     public pause(): void {
-        this.#_audioMixer?.pause();
+        void this.#_audioMixer?.pause();
     }
 
     /**

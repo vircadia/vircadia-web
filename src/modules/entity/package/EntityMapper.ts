@@ -9,6 +9,9 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
+/* eslint-disable new-cap */
+/* eslint-disable @typescript-eslint/no-magic-numbers */
+
 import {
     Color3,
     Quaternion,
@@ -26,7 +29,6 @@ import { ShapeType as PackageShapeType,
 import { HazeProperties, BloomProperties, AmbientLightProperties } from "@vircadia/web-sdk";
 
 
-/* eslint-disable new-cap */
 export class EntityMapper {
 
     public static mapToVector3(vec? : IVector3Property) : Vector3 {
@@ -42,7 +44,6 @@ export class EntityMapper {
     }
 
     public static mapToColor3(c?: IColorProperty) : Color3 {
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         return c ? new Color3(c.red / 255, c.green / 255, c.blue / 255) : Color3.White();
     }
 
@@ -51,12 +52,10 @@ export class EntityMapper {
     }
 
     public static toRadians(degree:number) : number {
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         return degree * Math.PI / 180;
     }
 
     public static toDegree(radians:number) : number {
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         return radians * 180 / Math.PI;
     }
 
@@ -180,7 +179,6 @@ export class EntityMapper {
         }
     }
 
-    /* eslint-disable @typescript-eslint/no-magic-numbers */
     public static mapToMeshBillboardMode(mode: string) : number {
         switch (mode) {
             case "none":

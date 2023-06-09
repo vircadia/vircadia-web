@@ -8,10 +8,19 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
-/* eslint-disable max-len */
 // TODO: Get most of these variables from the store instead of this file (so it can be overridden with environment variables correctly)
 
-import { AvatarEntry, AvatarEntryMap } from "@Modules/avatar/StoreInterface";
+export interface AvatarEntry {
+    name: string,
+    image: string,
+    file: string,
+    scale: number,
+    starred: boolean
+}
+
+export interface AvatarEntryMap {
+    [key: string]: AvatarEntry
+}
 
 export function defaultActiveAvatarUrl(): string {
     return "https://staging.vircadia.com/O12OR634/UA92/sara.glb";

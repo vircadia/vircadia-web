@@ -6,16 +6,14 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
-// This is disabled because TS complains about BABYLON's use of cap'ed function names
+// This is disabled because TS complains about BABYLON's use of capitalized function names.
 /* eslint-disable new-cap */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable class-methods-use-this */
 
 import { AnimationGroup, Engine, Scene, Color3,
     ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, Camera,
     Observable, Nullable, AmmoJSPlugin, Quaternion, Vector3, Color4, DefaultRenderingPipeline } from "@babylonjs/core";
+import Ammo from "ammojs-typed";
 
 import "@babylonjs/loaders/glTF";
 import { ResourceManager } from "./resource";
@@ -27,12 +25,12 @@ import { InputController, MyAvatarController, ScriptAvatarController, AvatarMapp
 import { IEntity, IEntityDescription, EntityBuilder, EntityEvent } from "@Modules/entity";
 import { NametagEntity } from "@Modules/entity/entities";
 import { ScriptAvatar, Uuid } from "@vircadia/web-sdk";
-import { Utility } from "@Modules/utility";
 import { Location } from "@Modules/domain/location";
 import { DataMapper } from "@Modules/domain/dataMapper";
 import { AvatarStoreInterface } from "@Modules/avatar/StoreInterface";
-import { Store } from "@Base/store";
+import { applicationStore, userStore } from "@Stores/index";
 import { CSS3DRenderer } from "./css3DRenderer";
+import { watch } from "vue";
 
 // General Modules
 import Log from "@Modules/debugging/log";
@@ -146,7 +144,7 @@ export class VScene {
 
         this._engine.displayLoadingUI();
         this._preScene = this._scene;
-        this._createScene();
+        await this._createScene();
         this._scene.detachControl();
 
         if (beforeLoading) {
@@ -168,8 +166,7 @@ export class VScene {
 
         if (sceneUrl) {
             this._scene.onAfterRenderObservable.addOnce(() => {
-                // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                this.loadEntities(sceneUrl);
+                void this.loadEntities(sceneUrl);
             });
         }
 
@@ -265,8 +262,8 @@ export class VScene {
 
     public async loadEntities(url: string) : Promise<void> {
         const response = await fetch(url);
-        const json = await response.json();
-        const entityDescription = json as IEntityDescription;
+        const json = await response.json() as IEntityDescription;
+        const entityDescription = json;
         Log.info(Log.types.ENTITIES, `Load Entities from ${url}`);
         Log.info(Log.types.ENTITIES,
             `DataVersion: ${entityDescription.DataVersion}
@@ -391,24 +388,24 @@ export class VScene {
             this._onMyAvatarModelChangedObservable.notifyObservers(this._myAvatar);
 
             // Add a nametag to the avatar.
-            let nametagColor = Store.state.account.isAdmin ? Color3.FromHexString(Store.state.theme.colors.primary) : undefined;
+            let nametagColor = userStore.account.isAdmin ? Color3.FromHexString(applicationStore.theme.colors.primary) : undefined;
             NametagEntity.create(
                 this._myAvatar,
                 avatarHeight,
-                Store.state.avatar.displayName,
+                userStore.avatar.displayName,
                 false,
                 nametagColor
             );
             // Update the nametag color when the player's admin state is changed in the Store.
-            Store.watch((state) => state.account.isAdmin, (value: boolean) => {
-                nametagColor = value ? Color3.FromHexString(Store.state.theme.colors.primary) : undefined;
+            watch(() => userStore.account.isAdmin, (value: boolean) => {
+                nametagColor = value ? Color3.FromHexString(applicationStore.theme.colors.primary) : undefined;
                 NametagEntity.removeAll(this._myAvatar);
                 if (this._myAvatar) {
-                    NametagEntity.create(this._myAvatar, avatarHeight, Store.state.avatar.displayName, false, nametagColor);
+                    NametagEntity.create(this._myAvatar, avatarHeight, userStore.avatar.displayName, false, nametagColor);
                 }
             });
             // Update the nametag when the displayName is changed in the Store.
-            Store.watch((state) => state.avatar.displayName, (value: string) => {
+            watch(() => userStore.avatar.displayName, (value: string) => {
                 NametagEntity.removeAll(this._myAvatar);
                 if (this._myAvatar) {
                     NametagEntity.create(this._myAvatar, avatarHeight, value, false, nametagColor);
@@ -464,13 +461,13 @@ export class VScene {
             this._avatarList.set(stringId, avatar);
 
             // Add a nametag to the avatar.
-            let nametagColor = Store.state.avatars.avatarsInfo.get(id)?.isAdmin
-                ? Color3.FromHexString(Store.state.theme.colors.primary)
+            let nametagColor = applicationStore.avatars.avatarsInfo.get(id)?.isAdmin
+                ? Color3.FromHexString(applicationStore.theme.colors.primary)
                 : undefined;
             NametagEntity.create(avatar, avatarHeight, domain.displayName, false, nametagColor);
             // Update the nametag color when the player's admin state is changed.
-            Store.watch((state) => Boolean(state.avatars.avatarsInfo.get(id)?.isAdmin), (value: boolean) => {
-                nametagColor = value ? Color3.FromHexString(Store.state.theme.colors.primary) : undefined;
+            watch(() => Boolean(applicationStore.avatars.avatarsInfo.get(id)?.isAdmin), (value: boolean) => {
+                nametagColor = value ? Color3.FromHexString(applicationStore.theme.colors.primary) : undefined;
                 const nametagAvatar = this._avatarList.get(stringId);
                 NametagEntity.removeAll(nametagAvatar);
                 if (nametagAvatar) {
@@ -494,7 +491,6 @@ export class VScene {
         const avatar = this._avatarList.get(stringId);
         if (avatar) {
             avatar.dispose();
-            // eslint-disable-next-line @typescript-eslint/dot-notation
             this._avatarList.delete(stringId);
         }
 
@@ -507,7 +503,7 @@ export class VScene {
         this._avatarList.clear();
     }
 
-    private _createScene() : void {
+    private async _createScene() : Promise<void> {
         this._scene = new Scene(this._engine);
         // use right handed system to match vircadia coordinate system
         this._scene.useRightHandedSystem = true;
@@ -539,7 +535,10 @@ export class VScene {
             });
 
         // Enable physics
-        this._scene.enablePhysics(Vector3.Zero(), new AmmoJSPlugin());
+        const ammoReference = await Ammo.apply(window);
+        this._scene.enablePhysics(Vector3.Zero(), new AmmoJSPlugin(true, ammoReference));
+        /* const hk = await HavokPhysics();
+        this._scene.enablePhysics(Vector3.Zero(), new HavokPlugin(true, hk)); */
         // Prevent to clear the buffer of mask mesh render groud
         this._scene.setRenderingAutoClearDepthStencil(DEFAULT_MESH_RENDER_GROUP_ID, false);
         // Needs to be transparent for web entity to be seen
@@ -562,10 +561,10 @@ export class VScene {
         }
         // Update the rendering pipeline from the Store.
         if (defaultPipeline instanceof DefaultRenderingPipeline) {
-            defaultPipeline.bloomEnabled = Boolean(Store.state.graphics.bloom);
-            defaultPipeline.fxaaEnabled = Boolean(Store.state.graphics.fxaaEnabled);
-            defaultPipeline.samples = Number(Store.state.graphics.msaa);
-            defaultPipeline.sharpenEnabled = Boolean(Store.state.graphics.sharpen);
+            defaultPipeline.bloomEnabled = Boolean(userStore.graphics.bloom);
+            defaultPipeline.fxaaEnabled = Boolean(userStore.graphics.fxaaEnabled);
+            defaultPipeline.samples = Number(userStore.graphics.msaa);
+            defaultPipeline.sharpenEnabled = Boolean(userStore.graphics.sharpen);
         }
     }
 
@@ -602,7 +601,6 @@ export class VScene {
     }
 
     private _onKeyUp(evt: ActionEvent) : void {
-        // eslint-disable-next-line no-void
         void this._handleKeyUp(evt);
     }
 
@@ -619,7 +617,7 @@ export class VScene {
                     }
                 }
                 break;
-            case Store.state.controls.keyboard.other.resetPosition?.keybind:
+            case userStore.controls.keyboard.other.resetPosition?.keycode:
                 this.resetMyAvatarPositionAndOrientation();
                 break;
             case "KeyP":
@@ -632,6 +630,7 @@ export class VScene {
             default:
                 break;
         }
+        /* eslint-enable @typescript-eslint/no-unsafe-member-access */
     }
 
     private _onSceneReady():void {
@@ -654,8 +653,12 @@ export class VScene {
 
         // Update the rendering pipeline when graphics settings are changed.
         this._updateRenderPipelineSettings();
-        Store.watch((state) => state.graphics, () => {
-            this._updateRenderPipelineSettings();
-        });
+        watch(
+            () => userStore.graphics,
+            () => {
+                this._updateRenderPipelineSettings();
+            },
+            { deep: true }
+        );
     }
 }

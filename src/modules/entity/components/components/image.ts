@@ -9,17 +9,14 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable class-methods-use-this */
+/* eslint-disable new-cap */
+
 import { MeshComponent, DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
-import { MeshBuilder, Mesh, Texture,
-    VideoTexture, StandardMaterial, Color3 } from "@babylonjs/core";
+import { MeshBuilder, Mesh, Texture, VideoTexture, StandardMaterial } from "@babylonjs/core";
 import { IImageEntity } from "../../EntityInterfaces";
-import Log from "@Modules/debugging/log";
 import { EntityMapper } from "../../package";
 import { AssetUrl } from "../../builders/asset";
-
-/* eslint-disable new-cap */
 
 export class ImageComponent extends MeshComponent {
 

@@ -17,12 +17,6 @@
         :defaultHeight="500"
         :defaultWidth="400"
     >
-        <!--
-        <q-card
-            class="column full-height"
-            v-if="$store.state.audio.user.inputsList.length > 0"
-        >
-        -->
         <q-card
             class="column full-height"
         >
@@ -48,9 +42,9 @@
                                 <q-btn
                                     fab
                                     class="q-mr-sm"
-                                    :color="!$store.state.audio.user.hasInputAccess ?
-                                        'grey' : $store.state.audio.user.muted ? 'red' : 'primary'"
-                                    :icon="$store.state.audio.user.muted ? 'mic_off' : 'mic'"
+                                    :color="!applicationStore.audio.user.hasInputAccess ?
+                                        'grey' : applicationStore.audio.user.muted ? 'red' : 'primary'"
+                                    :icon="applicationStore.audio.user.muted ? 'mic_off' : 'mic'"
                                     @click="toggleMicrophoneMute"
                                 />
                             </div>
@@ -73,7 +67,7 @@
                         </div>
 
                         <div
-                            v-show="$store.state.audio.user.hasInputAccess"
+                            v-show="applicationStore.audio.user.hasInputAccess"
                             class="row q-mt-sm"
                         >
                             <q-btn
@@ -81,7 +75,7 @@
                                 dense
                                 round
                                 class="q-mr-sm"
-                                :disabled="!$store.state.audio.user.hasInputAccess"
+                                :disabled="!applicationStore.audio.user.hasInputAccess"
                                 :color="isListeningToFeedback ? 'primary' : 'red'"
                                 :icon="isListeningToFeedback ? 'hearing' : 'hearing_disabled'"
                                 @click="toggleInputFeedback"
@@ -107,14 +101,14 @@
                         <q-separator class="q-my-md" />
 
                         <div
-                            v-if="!$store.state.audio.user.hasInputAccess"
+                            v-if="!applicationStore.audio.user.hasInputAccess"
                             class="text-subtitle1 text-grey text-center"
                         >
                             Please grant mic access to the app in order to speak.
                         </div>
 
                         <q-list v-else>
-                            <div v-for="input in $store.state.audio.inputsList" :key="input.deviceId">
+                            <div v-for="input in applicationStore.audio.inputsList" :key="input.deviceId">
                                 <q-radio
                                     @click="AudioIOInstance.requestInputAccess(input.deviceId)"
                                     v-model="AudioIOInstance.selectedInput"
@@ -146,7 +140,7 @@
                         <q-separator class="q-my-md" />
 
                         <q-list>
-                            <div v-for="output in $store.state.audio.outputsList" :key="output.deviceId">
+                            <div v-for="output in applicationStore.audio.outputsList" :key="output.deviceId">
                                 <q-radio
                                     @click="AudioIOInstance.requestOutputAccess(output.deviceId)"
                                     v-model="AudioIOInstance.selectedOutput"
@@ -161,7 +155,7 @@
             </q-scroll-area>
         </q-card>
 
-        <q-inner-loading :showing="$store.state.audio.inputsList.length === 0">
+        <q-inner-loading :showing="applicationStore.audio.inputsList.length === 0">
             <q-spinner-gears size="50px" color="primary" />
         </q-inner-loading>
     </OverlayShell>
@@ -169,22 +163,13 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-
-import OverlayShell from "@Components/overlays/OverlayShell.vue";
-
+import { applicationStore } from "@Stores/index";
 import { AudioMgr } from "@Modules/scene/audio";
 import { AudioIO } from "@Modules/ui/audioIO";
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import Log from "@Modules/debugging/log";
+import OverlayShell from "@Components/overlays/OverlayShell.vue";
 
 export default defineComponent({
-    name: "Audio",
-
-    // This is a solution mentioned on the net but it doesn't seem to work. More research needed.
-    $refs: {   // definition to make this.$ref work with TypeScript
-        audioInputFeedbackPlayer: HTMLMediaElement
-    },
+    name: "AudioOverlay",
 
     props: {
         propsToPass: { type: Object, default: () => ({}), required: false }
@@ -194,16 +179,24 @@ export default defineComponent({
         OverlayShell
     },
 
-    data: () => ({
-        AudioIOInstance: new AudioIO(),
-        tab: "input",
-        isListeningToFeedback: false
-    }),
+    setup() {
+        return {
+            applicationStore
+        };
+    },
+
+    data() {
+        return {
+            AudioIOInstance: new AudioIO(),
+            tab: "input",
+            isListeningToFeedback: false
+        };
+    },
 
     methods: {
         // Complement the state of the user's audio input device
         toggleMicrophoneMute(): void {
-            if (this.$store.state.audio.user.hasInputAccess) {
+            if (this.applicationStore.audio.user.hasInputAccess) {
                 AudioMgr.muteAudio();
             }
         },
@@ -211,11 +204,10 @@ export default defineComponent({
             this.isListeningToFeedback = !this.isListeningToFeedback;
 
             if (this.isListeningToFeedback === true) {
-                (this.$refs.audioInputFeedbackPlayer as HTMLMediaElement).muted = false;
-                // eslint-disable-next-line no-void
-                void (this.$refs.audioInputFeedbackPlayer as HTMLMediaElement).play();
+                (this.$refs.audioInputFeedbackPlayer as HTMLAudioElement).muted = false;
+                void (this.$refs.audioInputFeedbackPlayer as HTMLAudioElement).play();
             } else {
-                (this.$refs.audioInputFeedbackPlayer as HTMLMediaElement).pause();
+                (this.$refs.audioInputFeedbackPlayer as HTMLAudioElement).pause();
             }
         },
         setFeedbackPlayerStream(pStream: MediaStream | string | null): void {
@@ -223,9 +215,9 @@ export default defineComponent({
                 // if doing that feedback test thing, link input to the output
                 if (this.$refs.audioInputFeedbackPlayer) {
                     if (typeof pStream === "string") {
-                        (this.$refs.audioInputFeedbackPlayer as HTMLMediaElement).src = pStream;
+                        (this.$refs.audioInputFeedbackPlayer as HTMLAudioElement).src = pStream;
                     } else {
-                        (this.$refs.audioInputFeedbackPlayer as HTMLMediaElement).srcObject = pStream;
+                        (this.$refs.audioInputFeedbackPlayer as HTMLAudioElement).srcObject = pStream;
                     }
                 }
             }

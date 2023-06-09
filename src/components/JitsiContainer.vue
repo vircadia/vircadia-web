@@ -19,27 +19,29 @@
     <q-card id="jitsi-container" class="column no-wrap items-stretch full-height"
         style="background: transparent;box-shadow: none; display: none;"
     >
-        <div v-for="room in $store.state.conference.activeRooms" :key="room.name">
-            <JitsiMeeting
-                :domain="$store.state.metaverse.jitsiServer"
+        <div v-for="room in applicationStore.conference.activeRooms" :key="room.name">
+            <Jitsi
+                :domain="applicationStore.metaverse.jitsiServer"
                 :room-name="room.id"
-                :user-info="{'displayName': $store.state.avatar.displayName}"
+                :user-info="{'displayName': userStore.avatar.displayName}"
                 @get-iframe-ref-on-api-ready="(parentNode: HTMLDivElement) => {
                     parentNode.id = room.id;
                     styleIframe(parentNode);
-                    setupWebEntity(room, parentNode);
+                    setupWebEntity((room as JitsiRoomInfo), parentNode);
                 }"
             >
-            </JitsiMeeting>
+            </Jitsi>
         </div>
     </q-card>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { JitsiRoomInfo } from "@Store/index";
+import { applicationStore, userStore } from "@Stores/index";
+import { type JitsiRoomInfo } from "@Stores/application-store";
 import { GameObject } from "@Modules/object";
 import { WebEntityController } from "@Modules/entity";
+import Jitsi from "@Components/overlays/jitsi/Jitsi.vue";
 
 export default defineComponent({
     name: "JitsiContainer",
@@ -47,6 +49,17 @@ export default defineComponent({
     props: {
         // Primary
         propsToPass: { type: Object, default: () => ({}) }
+    },
+
+    components: {
+        Jitsi
+    },
+
+    setup() {
+        return {
+            applicationStore,
+            userStore
+        };
     },
 
     methods: {

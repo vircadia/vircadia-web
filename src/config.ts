@@ -50,8 +50,8 @@ export const Config = {
      * While there is not much to be done today, someday the configuration infomation
      * might be stored in the cloud so some setup will be needed.
      */
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
     initialize(): void {
+        //
     },
 
     /** Fetch a configuration value from configuration storage.

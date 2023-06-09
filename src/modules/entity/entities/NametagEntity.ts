@@ -23,7 +23,8 @@ import { AbstractMesh,
     TransformNode,
     Vector3 } from "@babylonjs/core";
 import { DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
-import { Store } from "@Store/index";
+import { userStore } from "@Stores/index";
+
 
 /**
  * Create a sector mesh.
@@ -279,7 +280,7 @@ export class NametagEntity {
                 // Max opacity of 0.94 reduces the chance that the nametag will be affected by bloom.
                 const opacity = Math.min(Math.max(popDistance + 1 - distance, 0), 0.94);
                 nametagMergedMesh.visibility = opacity * Number(
-                    Store.state.avatar.showNametags && (popOverride?.(distance) ?? true)
+                    userStore.avatar.showNametags && (popOverride?.(distance) ?? true)
                 );
             }
         });

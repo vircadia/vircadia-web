@@ -8,10 +8,7 @@
 
 import { MetaverseMgr } from "@Modules/metaverse";
 import { doAPIGet, findErrorMsg } from "@Modules/metaverse/metaverseOps";
-
 import { GetPlacesAPI, GetPlacesResp } from "@Modules/metaverse/APIPlaces";
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
 
 export interface PlaceEntry {

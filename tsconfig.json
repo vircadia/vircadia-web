@@ -1,16 +1,15 @@
 {
-    "extends": "@quasar/app/tsconfig-preset",
+    "extends": "@quasar/app-vite/tsconfig-preset",
     "compilerOptions": {
         "experimentalDecorators": true,
         "baseUrl": ".",
         "paths": {
             // Path aliases to reduce number of dot-dot relative paths.
-            // Need to add here and in quasar.conf.js
+            // Need to add here and in quasar.config.js
             "@Base/*": ["./src/*"],
             "@Components/*": ["./src/components/*"],
             "@Modules/*": ["./src/modules/*"],
-            "@Store/*": ["./src/store/*"]
+            "@Stores/*": ["./src/stores/*"]
         }
     }
-
 }

@@ -115,7 +115,6 @@ export abstract class ColliderComponent extends GenericNodeComponent<AbstractMes
 
     protected abstract _createColliderImposter() : void;
 
-    // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-empty-function
     protected _disposeImposters() : void {
         if (this._gameObject && this._gameObject.physicsImpostor) {
             this._gameObject.physicsImpostor.dispose();

@@ -9,7 +9,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
 // Domain Modules
 import { EntityController } from "./EntityController";
 import { IMaterialEntity } from "../../EntityInterfaces";
@@ -38,7 +37,6 @@ export class MaterialEntityController extends EntityController {
         return MaterialEntityController.typeName;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
     public onInitialize(): void {
         super.onInitialize();
 

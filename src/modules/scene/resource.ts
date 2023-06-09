@@ -13,12 +13,9 @@ import { AnimationGroup, Scene, SceneLoader, AssetsManager,
     AbstractMesh, Vector3, Quaternion, MeshBuilder, StandardMaterial, Color3, Skeleton } from "@babylonjs/core";
 import { DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { updateContentLoadingProgress } from "@Modules/scene/LoadingScreen";
-// System Modules
-import { v4 as uuidv4 } from "uuid";
+import { Uuid } from "@vircadia/web-sdk";
 // General Modules
 import Log from "@Modules/debugging/log";
-
-/* eslint-disable @typescript-eslint/no-magic-numbers */
 
 interface IAvatarResult {
     mesh: AbstractMesh,
@@ -35,7 +32,7 @@ interface IResourceUrl {
     filename : string;
 }
 
-// This is disabled because TS complains about BABYLON's use of cap'ed function names
+// This is disabled because TS complains about BABYLON's use of capitalized function names.
 /* eslint-disable new-cap */
 
 export class ResourceManager {
@@ -179,13 +176,12 @@ export class ResourceManager {
 
             result.meshes.forEach((mesh) => {
                 mesh.isPickable = false;
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 mesh.renderingGroupId = DEFAULT_MESH_RENDER_GROUP_ID;
                 mesh.checkCollisions = false;
             });
 
             const mesh = result.meshes[0];
-            mesh.id = uuidv4();
+            mesh.id = new Uuid().stringify();
             // For matching the orientation of vircadia
             mesh.rotationQuaternion = Quaternion.FromEulerAngles(0, Math.PI, 0);
 
@@ -223,10 +219,9 @@ export class ResourceManager {
         return mesh;
     }
 
-    // eslint-disable-next-line class-methods-use-this
 /*
     private _processSceneMesh(mesh : AbstractMesh) : void {
-        mesh.id = uuidv4();
+        mesh.id = new Uuid().stringify();
         ResourceManager._applySceneMeshRule(mesh);
     }
 

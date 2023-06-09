@@ -11,9 +11,16 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { applicationStore } from "@Stores/index";
 
 export default defineComponent({
-    name: "LoadingScreen"
+    name: "LoadingScreen",
+
+    setup() {
+        return {
+            applicationStore
+        };
+    }
 });
 </script>
 
@@ -23,7 +30,7 @@ export default defineComponent({
         @click.stop=""
     >
         <div class="inner">
-            <img :src="$store.state.theme.logo" draggable="false" alt="" width="200" height="200">
+            <img :src="applicationStore.theme.logo" draggable="false" alt="" width="200" height="200">
             <q-spinner-tail
                 size="xl"
             />

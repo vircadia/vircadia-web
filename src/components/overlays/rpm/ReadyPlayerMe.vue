@@ -68,9 +68,9 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { Renderer } from "@Modules/scene";
-
+import type { AvatarEntry } from "@Base/modules/avatar/DefaultModels";
+import { AvatarStoreInterface } from "@Base/modules/avatar/StoreInterface";
 import OverlayShell from "../OverlayShell.vue";
-import { AvatarEntry, AvatarStoreInterface } from "@Base/modules/avatar/StoreInterface";
 
 interface RPMEvent extends MessageEvent {
     data: string
@@ -88,7 +88,7 @@ interface RPMRenderData {
 }
 
 export default defineComponent({
-    name: "ReadyPlayerMe",
+    name: "ReadyPlayerMeOverlay",
 
     props: {
         // Primary
@@ -200,8 +200,6 @@ export default defineComponent({
                     this.longLoad = false;
                     this.closeOverlay();
                 })
-                // .catch is a syntax error!?
-                // eslint-disable-next-line @typescript-eslint/dot-notation
                 .catch((err) => {
                     console.warn("Failed to load RPM avatar:", err);
                     this.loading = false;

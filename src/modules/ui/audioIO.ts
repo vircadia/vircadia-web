@@ -9,17 +9,16 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { Store, Mutations as StoreMutations } from "@Store/index";
+import { applicationStore } from "@Stores/index";
 import { AudioMgr } from "@Modules/scene/audio";
-
 import Log from "@Modules/debugging/log";
 import { toJSON } from "@Modules/debugging";
 
 type Nullable<T> = T | null | undefined;
 
 export class AudioIO {
-    $selectedInputDevice = Store.state.audio.user.currentInputDevice as MediaDeviceInfo | undefined;
-    $selectedOutputDevice = Store.state.audio.user.currentOutputDevice as MediaDeviceInfo | undefined;
+    $selectedInputDevice = applicationStore.audio.user.currentInputDevice as MediaDeviceInfo | undefined;
+    $selectedOutputDevice = applicationStore.audio.user.currentOutputDevice as MediaDeviceInfo | undefined;
     $audioContext = new AudioContext();
     $analyser = {} as AnalyserNode;
     $microphone = {} as MediaStreamAudioSourceNode;
@@ -32,36 +31,30 @@ export class AudioIO {
     }
 
     get selectedInput(): string {
-        return Store.state.audio.user.currentInputDevice?.label ?? this.$selectedInputDevice?.label ?? "None selected";
+        return applicationStore.audio.user.currentInputDevice?.label ?? this.$selectedInputDevice?.label ?? "None selected";
     }
 
     set selectedInput(device: string) {
-        const inputInfo = Store.state.audio.inputsList.filter((info) => info.label === device);
+        const inputInfo = applicationStore.audio.inputsList.filter((info) => info.label === device);
         if (inputInfo.length === 1) {
             Log.debug(Log.types.AUDIO, `AudioIO: set selectedInputStore. inputInfo=${toJSON(inputInfo[0])}`);
             this.$selectedInputDevice = inputInfo[0];
-            Store.commit(StoreMutations.MUTATE, {
-                property: "audio.user.currentInputDevice",
-                value: this.$selectedInputDevice
-            });
+            applicationStore.audio.user.currentInputDevice = this.$selectedInputDevice;
             return;
         }
         Log.debug(Log.types.AUDIO, `AudioIO: set selectedInputStore. no device selected`);
     }
 
     get selectedOutput(): string {
-        return Store.state.audio.user.currentOutputDevice?.label ?? this.$selectedOutputDevice?.label ?? "None selected";
+        return applicationStore.audio.user.currentOutputDevice?.label ?? this.$selectedOutputDevice?.label ?? "None selected";
     }
 
     set selectedOutput(device: string) {
-        const outputInfo = Store.state.audio.outputsList.filter((info) => info.label === device);
+        const outputInfo = applicationStore.audio.outputsList.filter((info) => info.label === device);
         if (outputInfo.length === 1) {
             Log.debug(Log.types.AUDIO, `AudioIO: set selectedOutputStore. inputInfo=${toJSON(outputInfo[0])}`);
             this.$selectedOutputDevice = outputInfo[0];
-            Store.commit(StoreMutations.MUTATE, {
-                property: "audio.user.currentOutputDevice",
-                value: this.$selectedOutputDevice
-            });
+            applicationStore.audio.user.currentOutputDevice = this.$selectedOutputDevice;
             return;
         }
         Log.debug(Log.types.AUDIO, `AudioIO: set selectedOutputStore. no device selected`);
@@ -75,16 +68,16 @@ export class AudioIO {
     }
 
     $createAudioAnalysisContext(): void {
-        if (!Store.state.audio.user.userInputStream || !(Store.state.audio.user.userInputStream instanceof MediaStream)) {
+        if (!applicationStore.audio.user.userInputStream || !(applicationStore.audio.user.userInputStream instanceof MediaStream)) {
             return;
         }
         this.$audioContext = new AudioContext();
         this.$analyser = this.$audioContext.createAnalyser();
         this.$analyser.smoothingTimeConstant = 0.5;
         this.$analyser.fftSize = 1024;
-        this.$microphone = this.$audioContext.createMediaStreamSource(Store.state.audio.user.userInputStream);
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        this.$scriptProcessor = this.$audioContext.createScriptProcessor(2048, 1, 1);
+        this.$microphone = this.$audioContext.createMediaStreamSource(applicationStore.audio.user.userInputStream);
+        const bufferSize = 2048;
+        this.$scriptProcessor = this.$audioContext.createScriptProcessor(bufferSize, 1, 1);
 
         this.$microphone.connect(this.$analyser);
         this.$analyser.connect(this.$scriptProcessor);
@@ -103,33 +96,25 @@ export class AudioIO {
     }
 
     static setAwaitingCapturePermissions(isAwaitingCapturePermissions: boolean): void {
-        Store.commit(StoreMutations.MUTATE, {
-            property: "audio.user.awaitingCapturePermissions",
-            value: isAwaitingCapturePermissions
-        });
+        applicationStore.audio.user.awaitingCapturePermissions = isAwaitingCapturePermissions;
     }
 
     /**
      * Set the state of the audio device to disconnected and unallocated.
      */
     static revokeCaptureAccess(): void {
-        Store.commit(StoreMutations.MUTATE, {
-            property: "audio.user",
-            with: {
-                connected: false,
-                currentInputDevice: undefined,
-                userInputStream: undefined,
-                hasInputAccess: false
-            }
-        });
+        applicationStore.audio.user.connected = false;
+        applicationStore.audio.user.currentInputDevice = undefined;
+        applicationStore.audio.user.userInputStream = undefined;
+        applicationStore.audio.user.hasInputAccess = false;
     }
 
     /**
      * Stop all audio activities on the stream.
      */
     static stopCurrentInputStream(): void {
-        if (Store.state.audio.user.userInputStream) {
-            Store.state.audio.user.userInputStream.getTracks().forEach((track) => {
+        if (applicationStore.audio.user.userInputStream) {
+            applicationStore.audio.user.userInputStream.getTracks().forEach((track) => {
                 track.stop();
             });
         }
@@ -156,7 +141,7 @@ export class AudioIO {
      */
     async requestInputAccess(pRequestedDeviceId?: string): Promise<Nullable<MediaStream>> {
         // If a stream is currently active, stop it.
-        if (Store.state.audio.user.userInputStream) {
+        if (applicationStore.audio.user.userInputStream) {
             AudioIO.stopCurrentInputStream();
         }
 
@@ -165,7 +150,7 @@ export class AudioIO {
             ? { audio: { deviceId: { exact: pRequestedDeviceId } }, video: false }
             : { audio: true, video: false };
 
-        if (Store.state.audio.user.awaitingCapturePermissions === true) {
+        if (applicationStore.audio.user.awaitingCapturePermissions === true) {
             Log.error(
                 Log.types.AUDIO,
                 `Failed to request specific input device ID ${pRequestedDeviceId ?? "audio"}`
@@ -204,7 +189,7 @@ export class AudioIO {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     requestOutputAccess(pRequestedDeviceId: string): void {
-        if (Store.state.audio.user.userInputStream) {
+        if (applicationStore.audio.user.userInputStream) {
             AudioIO.stopCurrentOutputStream();
         }
 

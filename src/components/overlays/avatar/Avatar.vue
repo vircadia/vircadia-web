@@ -139,12 +139,12 @@
                         <div class="row q-ml-md q-pl-xs" style="border: 1px solid #8888;border-radius: 7px;">
                             <div
                                 class="q-my-auto q-ml-sm text-subtitle2 text-no-wrap ellipsis"
-                                :class="{ 'cursor-pointer': $store.state.avatar.activeModel !== fallbackModelId }"
+                                :class="{ 'cursor-pointer': userStore.avatar.activeModel !== fallbackModelId }"
                                 title="Avatar name"
                             >
                                 {{ activeModelNameStore }}
                                 <q-popup-edit
-                                    v-if="$store.state.avatar.activeModel !== fallbackModelId"
+                                    v-if="userStore.avatar.activeModel !== fallbackModelId"
                                     v-model="activeModelNameStore"
                                     auto-save
                                     v-slot="scope"
@@ -188,7 +188,7 @@
                                     icon="refresh"
                                     title="Reload"
                                     class="text-caption"
-                                    @click.stop="selectAvatar($store.state.avatar.activeModel, true)"
+                                    @click.stop="selectAvatar(userStore.avatar.activeModel, true)"
                                 />
                             </div>
                         </div>
@@ -266,7 +266,7 @@
                                 <q-item
                                     v-for="(avatar, id) in avatarList"
                                     :key="id"
-                                    :active="id === $store.state.avatar.activeModel"
+                                    :active="id === userStore.avatar.activeModel"
                                     class="q-mb-sm"
                                     clickable
                                     v-ripple
@@ -440,7 +440,7 @@
                 </div>
                 <q-separator inset spaced />
                 <p class="text-subtitle1 text-center q-mt-xs q-mb-xs">
-                    {{ Object.entries($store.state.avatar.models).length > 0 ? 'Or c' : 'C' }}reate your own avatar with:
+                    {{ Object.entries(userStore.avatar.models).length > 0 ? 'Or c' : 'C' }}reate your own avatar with:
                 </p>
                 <q-item class="q-pb-lg">
                     <q-item-section>
@@ -457,14 +457,12 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-
-import OverlayShell from "../OverlayShell.vue";
+import { userStore } from "@Stores/index";
 import { Renderer } from "@Modules/scene";
 import { MyAvatarController } from "@Modules/avatar";
-import { AvatarEntry, AvatarStoreInterface } from "@Modules/avatar/StoreInterface";
-import { fallbackAvatarModel } from "@Modules/avatar/DefaultModels";
-import { Store, Mutations as StoreMutations } from "@Store/index";
-
+import { type AvatarEntry, fallbackAvatarModel } from "@Modules/avatar/DefaultModels";
+import { AvatarStoreInterface } from "@Modules/avatar/StoreInterface";
+import OverlayShell from "../OverlayShell.vue";
 import Log from "@Modules/debugging/log";
 
 // This interface allows us to add UI-only properties to each avatar entry.
@@ -476,7 +474,7 @@ interface AvatarEntryListItemMap {
 }
 
 export default defineComponent({
-    name: "Avatar",
+    name: "AvatarOverlay",
 
     props: {
         // Primary
@@ -485,6 +483,12 @@ export default defineComponent({
 
     components: {
         OverlayShell
+    },
+
+    setup() {
+        return {
+            userStore
+        };
     },
 
     data() {
@@ -506,7 +510,7 @@ export default defineComponent({
     computed: {
         displayNameStore: {
             get: function(): string {
-                return this.$store.state.avatar.displayName;
+                return this.userStore.avatar.displayName;
             },
             set: function(pVal: string): void {
                 Log.debug(Log.types.AVATAR, `Avatar.vue: set displayNameStore. inputInfo=${pVal}`);
@@ -515,10 +519,7 @@ export default defineComponent({
                 if (avatarController) {
                     avatarController.displayName = pVal;
                 }
-                Store.commit(StoreMutations.MUTATE, {
-                    property: "avatar.displayName",
-                    value: pVal
-                });
+                this.userStore.avatar.displayName = pVal;
             }
         },
         activeModelNameStore: {
@@ -550,7 +551,7 @@ export default defineComponent({
             }
         },
         async selectAvatar(modelId: string | number, reload?: boolean): Promise<void> {
-            if (!this.loadingAvatar && modelId in this.$store.state.avatar.models) {
+            if (!this.loadingAvatar && modelId in this.userStore.avatar.models) {
                 this.loadingAvatar = true;
                 AvatarStoreInterface.setActiveModel(modelId);
                 const scene = Renderer.getScene();
@@ -592,10 +593,10 @@ export default defineComponent({
         },
         filterAvatarList(filterValue?: string) {
             if (!filterValue || filterValue === "") {
-                return this.$store.state.avatar.models;
+                return this.userStore.avatar.models;
             }
             const filteredList = {} as { [key: string]: AvatarEntry };
-            Object.entries(this.$store.state.avatar.models).forEach((avatar) => {
+            Object.entries(this.userStore.avatar.models).forEach((avatar) => {
                 if (avatar[1].name.toLowerCase().includes(filterValue.toLowerCase())) {
                     filteredList[avatar[0]] = avatar[1];
                 }

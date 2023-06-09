@@ -9,7 +9,6 @@
 // This will be replaced with an official definition.
 declare module "@vircadia/web-sdk" {
 
-    // eslint-disable-next-line @typescript-eslint/init-declarations
     export const Vircadia: {
         version: string;
         verboseVersion: string;
@@ -26,7 +25,7 @@ declare module "@vircadia/web-sdk" {
         y: number;
         z: number;
     };
-    // eslint-disable-next-line @typescript-eslint/init-declarations
+
     export const Vec3: {
         readonly ZERO: vec3;
         equal(v1: vec3, v2: vec3): boolean;
@@ -37,7 +36,7 @@ declare module "@vircadia/web-sdk" {
         z: number;
         w: number;
     };
-    // eslint-disable-next-line @typescript-eslint/init-declarations
+
     export const Quat: {
         readonly IDENTITY: quat;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -186,7 +185,6 @@ declare module "@vircadia/web-sdk" {
         DownstreamAvatarMixer = "w",
         Unassigned = "\u0001"
     }
-    // eslint-disable-next-line @typescript-eslint/init-declarations
     export const NodeType: {
         readonly DomainServer: NodeTypeValue.DomainServer;
         readonly EntityServer: NodeTypeValue.EntityServer;

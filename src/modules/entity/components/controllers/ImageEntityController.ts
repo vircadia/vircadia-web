@@ -9,15 +9,14 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
 // Domain Modules
 import { EntityController } from "./EntityController";
 import { IImageEntity } from "../../EntityInterfaces";
 import { ImageComponent } from "../components";
-import Log from "@Base/modules/debugging/log";
 
 export class ImageEntityController extends EntityController {
     // domain properties
+    _componentTypeName = "ImageEntityController";
     _imageEntity : IImageEntity;
     _imageComponent : Nullable<ImageComponent>;
 
@@ -28,14 +27,12 @@ export class ImageEntityController extends EntityController {
 
     /**
     * Gets a string identifying the type of this Component
-    * @returns "EntityController" string
+    * @returns "ImageEntityController" string
     */
-    // eslint-disable-next-line class-methods-use-this
     public get componentType():string {
-        return "ImageEntityController";
+        return this._componentTypeName;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
     public onInitialize(): void {
         super.onInitialize();
 
@@ -54,9 +51,7 @@ export class ImageEntityController extends EntityController {
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
     public onUpdate():void {
-
     }
-
 
     private _handleImageURLChanged(): void {
         this._imageComponent?.load(this._imageEntity);

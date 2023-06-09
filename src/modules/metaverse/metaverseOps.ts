@@ -6,14 +6,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
-import axios, { AxiosRequestConfig } from "axios";
-
 import { MetaverseMgr } from "@Modules/metaverse";
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Config } from "@Base/config";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import Log from "@Modules/debugging/log";
 import { Account } from "../account";
 
 // Standard response from metavers-server API requests
@@ -75,20 +68,18 @@ export function buildUrl(pAPIUrl: string, pMetaverseUrl?: string): string {
 
 /**
  * Build configuration parameters for sending with REST requests to the metaverse-server.
- *
- * Mostly add the Authentication: header.
- *
- * @returns a configuration object for an Axios GET or POST request
+ * @param method The REST method of the request.
+ * @returns A configuration object for a GET or POST request.
  */
-function buildRequestConfig(): AxiosRequestConfig | undefined {
-    const config: KeyedCollection = {};
-    if (Account.accessToken) {
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        if (Account.accessToken.length > 10) {
-            config.headers = {
-                "Authorization": (Account.accessTokenType ?? "Bearer") + " " + Account.accessToken
-            };
-        }
+function buildRequestConfig(method = "GET"): KeyedCollection {
+    const config: KeyedCollection = {
+        method
+    };
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+    if (Account.accessToken && Account.accessToken.length > 10) {
+        config.headers = {
+            "Authorization": (Account.accessTokenType ?? "Bearer") + " " + Account.accessToken
+        };
     }
     return config;
 }
@@ -107,38 +98,22 @@ function buildRequestConfig(): AxiosRequestConfig | undefined {
  */
 export async function doAPIGet(pAPIUrl: string, pMetaverseUrl?: string): Promise<unknown> {
     const accessUrl = buildUrl(pAPIUrl, pMetaverseUrl);
-    // Log.debug(Log.types.COMM, `doAPIGet: url=${pAPIUrl}`);
-    let errorString = "";
-    try {
-        const resp = await axios.get(accessUrl, buildRequestConfig());
-        const response = resp.data as unknown as APIResponse;
-        if (response && response.status) {
-            if (response.status === "success") {
-                return response.data;
-            }
-            errorString = `${response.error ?? "unspecified"}`;
-        } else {
-            errorString = `Poorly formed response to GET ${pAPIUrl}: ${JSON.stringify(resp)}`;
-        }
-    } catch (err) {
-        const errMsg = findErrorMsg(err);
-        Log.error(Log.types.OTHER, `Exception on GET ${pAPIUrl}: ${errMsg}`);
-        errorString = `Exception on GET ${pAPIUrl}: ${errMsg}`;
+    const response = await fetch(accessUrl, buildRequestConfig());
+    const data = await response.json() as APIResponse;
+    if (response && data && data.status === "success") {
+        return data.data;
     }
-    throw new Error(errorString);
+    throw new Error(`Vircadia API GET request to ${pAPIUrl} failed: ${response.statusText}`);
 }
 
-export async function doAPIPost(pAPIUrl: string, pBody: KeyedCollection): Promise<unknown> {
-    const accessUrl = buildUrl(pAPIUrl);
-    try {
-        const resp = await axios.post(accessUrl, pBody, buildRequestConfig());
-        const response = resp.data as unknown as APIResponse;
-        if (response.status && response.status === "success") {
-            return response.data;
-        }
-        throw new Error(`Error return on POST ${pAPIUrl}: ${response.error ?? "??"}`);
-    } catch (err) {
-        Log.error(Log.types.OTHER, `Exception on ${pAPIUrl}: ${(err as Error).message}`);
-        throw new Error(`Exception on POST ${pAPIUrl}: ${(err as Error).message}`);
+export async function doAPIPost(pAPIUrl: string, pBody: KeyedCollection, pMetaverseUrl?: string): Promise<unknown> {
+    const accessUrl = buildUrl(pAPIUrl, pMetaverseUrl);
+    const requestConfig = buildRequestConfig("POST");
+    requestConfig.body = pBody;
+    const response = await fetch(accessUrl, requestConfig);
+    const data = await response.json() as APIResponse;
+    if (response && data && data.status === "success") {
+        return data.data;
     }
+    throw new Error(`Vircadia API POST request to ${pAPIUrl} failed: ${response.statusText}`);
 }

@@ -9,19 +9,14 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { IEntity, IImageEntity } from "../EntityInterfaces";
 import { AbstractEntityBuilder } from "./AbstractEntityBuilder";
-
-
 import { GameObject } from "@Base/modules/object";
 import { ImageEntityController } from "../components";
 
 export class ImageEntityBuilder extends AbstractEntityBuilder {
-
     // eslint-disable-next-line class-methods-use-this
     public build(gameObject: GameObject, entity: IEntity) : void {
         gameObject.addComponent(new ImageEntityController(entity as IImageEntity));
     }
-
 }

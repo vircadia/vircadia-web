@@ -66,7 +66,6 @@ export class EntityManager {
     public removeEntity(id : string) : boolean {
         const entity = this._entities.get(id);
         if (entity) {
-            // eslint-disable-next-line @typescript-eslint/dot-notation
             this._entities.delete(id);
             this._onEntityRemoved.notifyObservers(entity);
             return true;

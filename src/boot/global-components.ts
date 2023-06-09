@@ -35,22 +35,22 @@ import MetaverseRegister from "@Components/components/login/MetaverseRegister.vu
 
 export default boot(({ app }) => {
     // Components -> Overlays
-    app.component("Audio", Audio);
-    app.component("Controls", Controls);
-    app.component("Graphics", Graphics);
-    app.component("ChatWindow", ChatWindow);
-    app.component("Explore", Explore);
-    app.component("People", People);
-    app.component("Avatar", Avatar);
-    app.component("ReadyPlayerMe", ReadyPlayerMe);
-    app.component("Menu", Menu);
-    app.component("DebugWindow", DebugWindow);
-    app.component("Conference", Conference);
-    app.component("Jitsi", Jitsi);
+    app.component("AudioOverlay", Audio);
+    app.component("ControlsOverlay", Controls);
+    app.component("GraphicsOverlay", Graphics);
+    app.component("ChatOverlay", ChatWindow);
+    app.component("ExploreOverlay", Explore);
+    app.component("PeopleOverlay", People);
+    app.component("AvatarOverlay", Avatar);
+    app.component("ReadyPlayerMeOverlay", ReadyPlayerMe);
+    app.component("MenuOverlay", Menu);
+    app.component("DebugOverlay", DebugWindow);
+    app.component("ConferenceOverlay", Conference);
+    app.component("JitsiOverlay", Jitsi);
     app.component("JitsiContainer", JitsiContainer);
     jitsiSDK(app);
     // Components -> Dialogs
-    app.component("Login", Login);
+    app.component("LoginDialog", Login);
     // Components -> Components
     app.component("MetaverseLogin", MetaverseLogin);
     app.component("MetaverseRegister", MetaverseRegister);

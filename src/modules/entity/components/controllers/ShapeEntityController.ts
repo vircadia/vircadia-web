@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 //
 //  ShapeEntityController.ts
 //
@@ -9,7 +8,6 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
-import Log from "@Modules/debugging/log";
 
 import { EntityController } from "./EntityController";
 import { IShapeEntity } from "../../EntityInterfaces";
@@ -37,7 +35,6 @@ export class ShapeEntityController extends EntityController {
         return ShapeEntityController.typeName;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
     public onInitialize(): void {
         super.onInitialize();
 
@@ -65,5 +62,4 @@ export class ShapeEntityController extends EntityController {
         this._shapeComponent?.load(this._shapeEntity);
         super.onStart();
     }
-
 }

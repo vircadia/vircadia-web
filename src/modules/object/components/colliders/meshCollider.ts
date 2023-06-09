@@ -9,16 +9,11 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { ColliderComponent } from "./collider";
-
-import {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    AbstractMesh, Mesh, Scene, Vector3, PhysicsImpostor,
-    Nullable
-} from "@babylonjs/core";
-
 /* eslint-disable new-cap */
 /* eslint-disable class-methods-use-this */
+
+import { ColliderComponent } from "./collider";
+import { AbstractMesh, PhysicsImpostor, Nullable } from "@babylonjs/core";
 
 export class MeshColliderComponent extends ColliderComponent {
     /**

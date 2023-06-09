@@ -6,20 +6,14 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
-import axios from "axios";
-
+import { SignalEmitter } from "@vircadia/web-sdk";
 import { buildUrl, cleanMetaverseUrl, findErrorMsg } from "@Modules/metaverse/metaverseOps";
 import { MetaverseInfoResp, MetaverseInfoAPI } from "@Modules/metaverse/APIAccount";
-
-import { Store, Actions } from "@Store/index";
-
-import { SignalEmitter } from "@vircadia/web-sdk";
-
+import { applicationStore } from "@Stores/index";
 import { Config, DEFAULT_METAVERSE_URL } from "@Base/config";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Log from "@Modules/debugging/log";
 
-// Allow 'get' lines to be compact
+// Allow getters to be compact.
 /* eslint-disable @typescript-eslint/brace-style */
 
 /** Connection states for talking to the metaverse-server */
@@ -57,7 +51,7 @@ export const MetaversePersist = {
  * ```
  */
 export class Metaverse {
-    #_metaverseUrl = Store.state.defaultConnectionConfig.DEFAULT_METAVERSE_URL;
+    #_metaverseUrl = applicationStore.defaultConnectionConfig.DEFAULT_METAVERSE_URL;
     public get MetaverseUrl(): string { return this.#_metaverseUrl; }
 
     #_connectionState: MetaverseState = MetaverseState.UNITIALIZED;
@@ -96,7 +90,7 @@ export class Metaverse {
      * Update the URL to the metaverse.
      *
      * This causes accessing the metaverse_info access point of the metaverse-server
-     * and updating the locally stored information and the metaverse info in $store.
+     * and updating the locally stored information and the metaverse info in the Store.
      *
      * @param pNewUrl Url to the new metaverse
      * @throws {Error} if the metaverse access gives and error (not found or response error)
@@ -110,9 +104,8 @@ export class Metaverse {
         // Access the metaverse-server and get its configuration info
         const accessUrl = buildUrl(MetaverseInfoAPI, newUrl);
         try {
-            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-            const resp = await axios.get(accessUrl);
-            const data = resp.data as MetaverseInfoResp;
+            const response = await fetch(accessUrl, { method: "GET" });
+            const data = await response.json() as MetaverseInfoResp;
             this.#_metaverseUrl = cleanMetaverseUrl(data.metaverse_url);
             this.#_metaverseName = data.metaverse_name;
             this.#_metaverseNickname = data.metaverse_nick_name ?? data.metaverse_name;
@@ -139,11 +132,7 @@ export class Metaverse {
         this.#_connectionState = pNewState;
         this.onStateChange.emit(this, pNewState);
 
-        // eslint-disable-next-line no-void
-        void Store.dispatch(Actions.UPDATE_METAVERSE, {
-            metaverse: this,
-            newState: pNewState
-        });
+        applicationStore.updateMetaverseState(this, pNewState);
     }
 
     /**
@@ -164,7 +153,9 @@ export class Metaverse {
      * Note that this does not do any reactive pushing so this is best used to initialize.
      */
     _restorePersistentVariables(): void {
-        this.#_metaverseUrl = Config.getItem(MetaversePersist.METAVERSE_URL, Config.getItem(DEFAULT_METAVERSE_URL));
+        this.#_metaverseUrl = Config.getItem(MetaversePersist.METAVERSE_URL,
+            Config.getItem(DEFAULT_METAVERSE_URL, applicationStore.defaultConnectionConfig.DEFAULT_METAVERSE_URL)
+        );
         this.#_metaverseName = Config.getItem(MetaversePersist.METAVERSE_NAME, "UNKNOWN");
         this.#_metaverseNickname = Config.getItem(MetaversePersist.METAVERSE_NICK_NAME, "UNKN");
     }

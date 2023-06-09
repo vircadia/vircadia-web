@@ -9,16 +9,11 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import {
-    InspectableType
-} from "@babylonjs/core/Misc";
+import { InspectableType } from "@babylonjs/core/Misc";
 
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 
 export interface IInspectorPropertyDesc {
     propertyName: string;
@@ -68,7 +63,7 @@ export function inspector(options ?: IInspectorPropertyOptions | undefined) {
             ? options.label
             : propertyKey[index].toUpperCase() + propertyKey.slice(index + 1);
 
-        const descs = getAndCreateDecoratorInspectorPropertyDescs(target.constructor.name);
+        const descs = getAndCreateDecoratorInspectorPropertyDescs(String(target.constructor.name));
         descs.push({
             label,
             propertyName: propertyKey,
@@ -93,7 +88,7 @@ export function inspectorAccessor(options ?: IInspectorPropertyOptions | undefin
             ? options.label
             : propertyKey[index].toUpperCase() + propertyKey.slice(index + 1);
 
-        const descs = getAndCreateDecoratorInspectorPropertyDescs(target.constructor.name);
+        const descs = getAndCreateDecoratorInspectorPropertyDescs(String(target.constructor.name));
         descs.push({
             label,
             propertyName: propertyKey,

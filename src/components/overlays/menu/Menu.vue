@@ -78,7 +78,7 @@ import { defineComponent } from "vue";
 import OverlayShell from "../OverlayShell.vue";
 
 export default defineComponent({
-    name: "People",
+    name: "MenuOverlay",
 
     props: {
         // Primary
@@ -103,7 +103,7 @@ export default defineComponent({
             {
                 icon: "chat",
                 label: "Chat",
-                link: "ChatWindow",
+                link: "",
                 isCategory: false,
                 separator: true,
                 action: undefined
@@ -127,7 +127,7 @@ export default defineComponent({
             {
                 icon: "groups",
                 label: "Conference",
-                link: "Conference",
+                link: "",
                 isCategory: false,
                 separator: true,
                 action: undefined
@@ -135,7 +135,7 @@ export default defineComponent({
             {
                 icon: "directions_bus",
                 label: "Debug",
-                link: "DebugWindow",
+                link: "",
                 isCategory: false,
                 separator: true,
                 action: undefined,

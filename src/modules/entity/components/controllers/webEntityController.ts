@@ -9,7 +9,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable new-cap */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
@@ -18,7 +17,7 @@ import { IWebEntity, WebExtensions } from "../../EntityInterfaces";
 import { MeshComponent, MASK_MESH_RENDER_GROUP_ID } from "@Base/modules/object";
 import { EntityMapper } from "../../package";
 import { MeshBuilder, Mesh, StandardMaterial, Nullable } from "@babylonjs/core";
-import { Store, Mutations } from "@Store/index";
+import { applicationStore } from "@Stores/index";
 import { CSS3DObject } from "@Modules/scene/css3DRenderer";
 import { Renderer } from "@Modules/scene";
 import { EntityEventType, EntityEvent } from "../../entityEvent";
@@ -61,7 +60,6 @@ export class WebEntityController extends EntityController {
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
     public onInitialize(): void {
         super.onInitialize();
 
@@ -118,8 +116,8 @@ export class WebEntityController extends EntityController {
         this._destroyCSSObject();
         this._destroyMesh();
 
-        if (this._isJitsi) {
-            Store.commit(Mutations.REMOVE_CONFERENCE_ROOM, this._webEntity.name);
+        if (this._isJitsi && this._webEntity.name) {
+            applicationStore.removeConferenceRoom(this._webEntity.name);
             this._webExtensions = null;
         }
     }
@@ -186,7 +184,7 @@ export class WebEntityController extends EntityController {
 
         this._isJitsi = this._webExtensions?.jitsi !== undefined;
         if (this._isJitsi) {
-            Store.commit(Mutations.ADD_CONFERENCE_ROOM, this._webEntity);
+            applicationStore.addConferenceRoom(this._webEntity);
         }
         /*
         if (this._cssObject) {

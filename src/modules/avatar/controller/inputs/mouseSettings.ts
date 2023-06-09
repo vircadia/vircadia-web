@@ -19,7 +19,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { Store, Mutations as StoreMutations } from "@Base/store";
+import { userStore } from "@Stores/index";
 
 /**
  * Logarithmically interpolate between two values (`start` & `end`) at a given percentage (`t`).
@@ -28,7 +28,7 @@ import { Store, Mutations as StoreMutations } from "@Base/store";
  * @param t The percentage within the range to interpolate the value from.
  * @returns The interpolated value.
  */
-function logInterpolation(start: number, end: number, t: number): number {
+function logInterpolate(start: number, end: number, t: number): number {
     return start * (end / start) ** t;
 }
 
@@ -102,9 +102,9 @@ class MouseSettingsControllerSingleton {
     } as { [T in MouseSettingsControllerEvents]: MouseSettingsControllerEventCallback<T>[] };
 
     constructor() {
-        this.sensitivity = Store.state.controls.mouse.sensitivity;
-        this.acceleration = Store.state.controls.mouse.acceleration;
-        this.invert = Store.state.controls.mouse.invert;
+        this.sensitivity = userStore.controls.mouse.sensitivity;
+        this.acceleration = userStore.controls.mouse.acceleration;
+        this.invert = userStore.controls.mouse.invert;
     }
 
     /**
@@ -119,7 +119,7 @@ class MouseSettingsControllerSingleton {
      */
     set sensitivity(value: number) {
         this.#sensitivity.value = value;
-        this.#motionComponents.sensibility.value = logInterpolation(
+        this.#motionComponents.sensibility.value = logInterpolate(
             this.#motionComponents.sensibility.max,
             this.#motionComponents.sensibility.min,
             // eslint-disable-next-line @typescript-eslint/no-magic-numbers
@@ -127,10 +127,7 @@ class MouseSettingsControllerSingleton {
         ) * (this.#acceleration ? this.#motionComponents.sensibility.accelerationMultiplier : 1);
 
         // Update the value in the store.
-        Store.commit(StoreMutations.MUTATE, {
-            property: "controls.mouse.sensitivity",
-            value
-        });
+        userStore.controls.mouse.sensitivity = value;
 
         // Run all callback functions associated with this value.
         this.#callbacks[Sensitivity].forEach((callback) => callback(this.sensitivityComponents));
@@ -168,10 +165,7 @@ class MouseSettingsControllerSingleton {
         this.sensitivity = this.#sensitivity.value;
 
         // Update the value in the store.
-        Store.commit(StoreMutations.MUTATE, {
-            property: "controls.mouse.acceleration",
-            value
-        });
+        userStore.controls.mouse.acceleration = value;
 
         // Run all callback functions associated with this value.
         this.#callbacks[Acceleration].forEach((callback) => callback(value));
@@ -193,10 +187,7 @@ class MouseSettingsControllerSingleton {
         this.sensitivity = this.#sensitivity.value;
 
         // Update the value in the store.
-        Store.commit(StoreMutations.MUTATE, {
-            property: "controls.mouse.invert",
-            value
-        });
+        userStore.controls.mouse.invert = value;
 
         // Run all callback functions associated with this value.
         this.#callbacks[Invert].forEach((callback) => callback(value));
@@ -208,8 +199,6 @@ class MouseSettingsControllerSingleton {
      * @param callback The callback function to attach to the event.
      */
     on<T extends MouseSettingsControllerEvents>(event: T, callback: MouseSettingsControllerEventCallback<T>): void {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore: TypeScript is not narrowing the generic on this method correctly, which prevents HMR in development.
         this.#callbacks[event].push(callback);
     }
 }

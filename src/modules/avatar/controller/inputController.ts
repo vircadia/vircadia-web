@@ -9,7 +9,10 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
+// This is disabled because TS complains about BABYLON's use of capitalized function names.
+/* eslint-disable new-cap */
+/* eslint-disable @typescript-eslint/no-magic-numbers */
+
 import {
     Vector3,
     AnimationGroup,
@@ -29,19 +32,15 @@ import { InputState, CameraMode } from "./inputState";
 import { IInputHandler } from "./inputs/inputHandler";
 import { KeyboardInput } from "./inputs/keyboardInput";
 import { VirtualJoystickInput } from "./inputs/virtualJoystickInput";
-import { Store, Mutations as StoreMutations } from "@Store/index";
+import { applicationStore, userStore } from "@Stores/index";
 import type { SceneController } from "@Modules/scene/controllers";
 import { MouseSettingsController } from "@Base/modules/avatar/controller/inputs/mouseSettings";
 
-// General Modules
-// import Log from "@Modules/debugging/log";
 
-// This is disabled because TS complains about BABYLON's use of cap'ed function names
-/* eslint-disable new-cap */
-/* eslint-disable @typescript-eslint/no-magic-numbers */
-
-// Ccustom camera controls.
+// Custom camera controls.
 class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
+    className = "ArcRotateCameraCustomInput";
+    simpleName = "customKeyboardRotate";
     camera: ArcRotateCamera;
     _keysPressed = [] as string[];
     sensibility = 0.01;
@@ -51,14 +50,12 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
         this.camera = camera;
     }
 
-    // eslint-disable-next-line class-methods-use-this
     getClassName(): string {
-        return "ArcRotateCameraCustomInput";
+        return this.className;
     }
 
-    // eslint-disable-next-line class-methods-use-this
     getSimpleName(): string {
-        return "customKeyboardRotate";
+        return this.simpleName;
     }
 
     _onKeyDown: ((event: KeyboardEvent) => void) | undefined = undefined;
@@ -146,13 +143,13 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
         if (this._onKeyDown) {
             for (let index = 0; index < this._keysPressed.length; index++) {
                 const code = this._keysPressed[index];
-                if (Store.state.controls.keyboard.camera.yawLeft?.keybind === code) {
+                if (userStore.controls.keyboard.camera.yawLeft?.keycode === code) {
                     this.camera.alpha -= this.sensibility;
-                } else if (Store.state.controls.keyboard.camera.yawRight?.keybind === code) {
+                } else if (userStore.controls.keyboard.camera.yawRight?.keycode === code) {
                     this.camera.alpha += this.sensibility;
-                } else if (Store.state.controls.keyboard.camera.pitchUp?.keybind === code) {
+                } else if (userStore.controls.keyboard.camera.pitchUp?.keycode === code) {
                     this.camera.beta += this.sensibility;
-                } else if (Store.state.controls.keyboard.camera.pitchDown?.keybind === code) {
+                } else if (userStore.controls.keyboard.camera.pitchDown?.keycode === code) {
                     this.camera.beta -= this.sensibility;
                 }
             }
@@ -422,10 +419,7 @@ export class InputController extends ScriptComponent {
     }
 
     private _updateAvatar(delta : number) {
-        Store.commit(StoreMutations.MUTATE, {
-            property: "interactions.isInteracting",
-            value: false
-        });
+        applicationStore.interactions.isInteracting = false;
         switch (this._avatarState.state) {
             case State.Idle:
                 this._doIdle(delta);
@@ -488,10 +482,7 @@ export class InputController extends ScriptComponent {
     }
 
     private _doPose(delta : number) {
-        Store.commit(StoreMutations.MUTATE, {
-            property: "interactions.isInteracting",
-            value: true
-        });
+        applicationStore.interactions.isInteracting = true;
         this._avatarState.duration += delta;
         if (this._avatarState.duration > 0.5) {
             if (this._avatarState.moveDir.x === 0 && this._avatarState.moveDir.z === 0) {
@@ -513,6 +504,7 @@ export class InputController extends ScriptComponent {
         }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private _doIdle(delta : number) {
         this._avatarState.moveDir.x = 0;
         this._avatarState.moveDir.z = 0;
@@ -736,7 +728,7 @@ export class InputController extends ScriptComponent {
         this._gameObject.position.addToRef(this._defaultCameraTarget, this._camera.target);
 
         // Update the FOV.
-        this._camera.fov = Store.state.graphics.fieldOfView / 100;
+        this._camera.fov = userStore.graphics.fieldOfView / 100;
 
         if (this._camera.lowerRadiusLimit) {
             if (this._cameraElastic) {
@@ -810,7 +802,8 @@ export class InputController extends ScriptComponent {
 
             if (!pickInfo || !pickInfo.hit) {
                 if (this._camera.checkCollisions) {
-                    const cameraToAvatar = this._camera.target.subtract(this._camera.position).normalize();
+                    // TODO: Determine if the line below is necessary.
+                    // const cameraToAvatar = this._camera.target.subtract(this._camera.position).normalize();
                     this._camera.target.addToRef(
                         this._cameraObtacleDetectInfo.direction.scale(this._cameraObtacleDetectInfo.length),
                         this._camera.position);
@@ -820,7 +813,8 @@ export class InputController extends ScriptComponent {
                     this._camera.target = target;
                 }
 
-                const vec = this._cameraObtacleDetectInfo.direction.scale(this._cameraObtacleDetectInfo.length);
+                // TODO: Determine if the line below is necessary.
+                // const vec = this._cameraObtacleDetectInfo.direction.scale(this._cameraObtacleDetectInfo.length);
                 this._cameraObtacleDetectInfo.isCameraSnapping = false;
             }
         }

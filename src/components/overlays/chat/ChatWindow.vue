@@ -105,13 +105,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import * as DOMPurify from "dompurify";
-import OverlayShell from "../OverlayShell.vue";
-
+import { defineComponent, watch } from "vue";
+import DOMPurify from "dompurify";
+import { applicationStore, userStore } from "@Stores/index";
 import { AMessage, DomainMessage, DefaultChatMessage } from "@Modules/domain/message";
 import { DomainMgr } from "@Modules/domain";
 import { Uuid } from "@vircadia/web-sdk";
+import OverlayShell from "../OverlayShell.vue";
 
 // Interface for Quasar-compatible messages that have had their text fields combined.
 interface ACombinedMessage {
@@ -121,7 +121,7 @@ interface ACombinedMessage {
 }
 
 export default defineComponent({
-    name: "ChatWindow",
+    name: "ChatOverlay",
 
     props: {
         propsToPass: { type: Object, default: () => ({}) }
@@ -131,55 +131,61 @@ export default defineComponent({
         OverlayShell
     },
 
-    data: () => ({
-        messageInput: "",
-        // The reason for using "self" instead of checking if the username matches our own
-        // is because a user may write chat messages as a guest. Checking "displayName"
-        // won"t help much either as anyone can choose any display name and cause confusion.
-        subscribed: false,  // 'true' if subscribed for messages
+    setup() {
+        return {
+            applicationStore,
+            userStore
+        };
+    },
 
-        // Following is legacy test data. Can be removed when chat is working
-        worldChatHistory: [
-            {
-                displayName: "Hallo",
-                username: "nani",
-                self: false,
-                timestamp: new Date().toString(),
-                message: "Hi, hru?"
-            },
-            {
-                displayName: "Waifu",
-                username: "testerino",
-                self: true,
-                timestamp: new Date().toString(),
-                message: "Sup holmes."
-            },
-            {
-                displayName: "Hallo",
-                username: "nani",
-                self: false,
-                timestamp: new Date().toString(),
-                message: "nammuch you?"
-            },
-            {
-                displayName: "Waifu",
-                username: "testerino",
-                self: true,
-                timestamp: new Date().toString(),
-                message: "you know the life."
-            }
-        ],
+    data() {
+        return {
+            messageInput: "",
+            // The reason for using "self" instead of checking if the username matches our own
+            // is because a user may write chat messages as a guest. Checking "displayName"
+            // won"t help much either as anyone can choose any display name and cause confusion.
+            subscribed: false,  // 'true' if subscribed for messages
 
-        currentPrimaryMessages: [],
-        previousScrollPos: 0,
-        scrollIsAtBottom: true,
-        lastPrimaryMessageIndex: -1,
+            // Following is legacy test data. Can be removed when chat is working
+            worldChatHistory: [
+                {
+                    displayName: "Hallo",
+                    username: "nani",
+                    self: false,
+                    timestamp: new Date().toString(),
+                    message: "Hi, hru?"
+                },
+                {
+                    displayName: "Waifu",
+                    username: "testerino",
+                    self: true,
+                    timestamp: new Date().toString(),
+                    message: "Sup holmes."
+                },
+                {
+                    displayName: "Hallo",
+                    username: "nani",
+                    self: false,
+                    timestamp: new Date().toString(),
+                    message: "nammuch you?"
+                },
+                {
+                    displayName: "Waifu",
+                    username: "testerino",
+                    self: true,
+                    timestamp: new Date().toString(),
+                    message: "you know the life."
+                }
+            ],
 
-        messageCombinationTimeLimit: 120000, // 2 minutes.
-        sortedMessages: [] as ACombinedMessage[]
-    }),
+            currentPrimaryMessages: [],
+            previousScrollPos: 0,
+            scrollIsAtBottom: true,
+            lastPrimaryMessageIndex: -1,
 
-    computed: {
+            messageCombinationTimeLimit: 120000, // 2 minutes.
+            sortedMessages: [] as ACombinedMessage[]
+        };
     },
 
     watch: {
@@ -194,8 +200,8 @@ export default defineComponent({
                         channel: DomainMessage.DefaultChatChannel,
                         message: val,
                         colour: { red: 255, blue: 255, green: 255 },
-                        displayName: this.$store.state.avatar.displayName,
-                        position: this.$store.state.avatar.position
+                        displayName: this.userStore.avatar.displayName,
+                        position: this.userStore.avatar.position
                     };
                     msger.sendMessage(DomainMessage.DefaultChatChannel, JSON.stringify(msg));
                 }
@@ -267,10 +273,7 @@ export default defineComponent({
         // Return the sender Id included in the message. Returns the ID string if no displayname
         msgSender(pMsg: AMessage): string {
             if (pMsg.messageJSON) {
-                // eslint-disable-next-line max-len
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unnecessary-type-assertion
                 const fMsg = <DefaultChatMessage>pMsg.messageJSON;
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
                 return fMsg.displayName;
             }
             return pMsg.senderId.stringify();
@@ -312,7 +315,6 @@ export default defineComponent({
         // Return 'true' if the chat message was sent by this session
         // Relies of the message queuer to add the "self: true" to the added message
         msgSentBySelf(pMsg: AMessage): boolean {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return pMsg.self ?? false;
         },
         msgIsFromThisClient(senderId: Uuid | string): boolean {
@@ -339,8 +341,8 @@ export default defineComponent({
                         channel: "Local",
                         message: this.sanitizeMessageText(this.messageInput),
                         colour: { red: 255, blue: 204, green: 229 }, // orangish
-                        displayName: this.$store.state.avatar.displayName,
-                        position: this.$store.state.avatar.position
+                        displayName: this.userStore.avatar.displayName,
+                        position: this.userStore.avatar.position
                     };
                     msger.sendMessage(DomainMessage.DefaultChatChannel, JSON.stringify(msg));
                     // Clear the input field.
@@ -384,7 +386,7 @@ export default defineComponent({
             this.scrollIsAtBottom = true;
         },
         relatedToPrimaryMessageEntry(pMsg: AMessage, index: number): boolean {
-            const lastPrimaryMessage = this.$store.state.messages.messages[this.lastPrimaryMessageIndex];
+            const lastPrimaryMessage = this.applicationStore.messages.messages[this.lastPrimaryMessageIndex];
 
             if (!lastPrimaryMessage) {
                 this.lastPrimaryMessageIndex = index;
@@ -408,12 +410,12 @@ export default defineComponent({
 
     mounted() {
         // Sort existing messages.
-        this.sortedMessages = this.sortMessages(this.$store.state.messages.messages);
+        this.sortedMessages = this.sortMessages(this.applicationStore.messages.messages);
 
         // Sort any new messages.
-        this.$store.watch(
-            (state) => JSON.stringify(
-                state.messages.messages,
+        watch(
+            () => JSON.stringify(
+                this.applicationStore.messages.messages,
                 (key: string, entry: unknown) => {
                     // Convert BigInt values to strings, since there is no default serializer for them.
                     if (entry instanceof window.BigInt) {
@@ -423,7 +425,7 @@ export default defineComponent({
                 }
             ),
             () => {
-                this.sortedMessages = this.sortMessages(this.$store.state.messages.messages);
+                this.sortedMessages = this.sortMessages(this.applicationStore.messages.messages);
             }
         );
 

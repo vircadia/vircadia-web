@@ -53,18 +53,9 @@ module.exports = {
         'plugin:vue/vue3-essential', // Priority A: Essential (Error Prevention)
         // 'plugin:vue/vue3-strongly-recommended', // Priority B: Strongly Recommended (Improving Readability)
         // 'plugin:vue/vue3-recommended', // Priority C: Recommended (Minimizing Arbitrary Choices and Cognitive Overhead)
-
-        'plugin:jest/style',
-
-        // https://github.com/prettier/eslint-config-prettier#installation
-        // usage with Prettier, provided by 'eslint-config-prettier'.
-        'prettier'
     ],
 
     settings: {
-        'jest': {
-            'version': 27
-        }
     },
 
     plugins: [
@@ -78,8 +69,6 @@ module.exports = {
         // https://github.com/typescript-eslint/typescript-eslint/issues/389#issuecomment-509292674
         // Prettier has not been included as plugin to avoid performance impact
         // add it as an extension for your IDE
-
-        'eslint-plugin-jest'
     ],
 
     globals: {
@@ -118,7 +107,7 @@ module.exports = {
         "default-param-last": "off",
         "@typescript-eslint/default-param-last": ["error"],
         "dot-notation": "off",
-        "@typescript-eslint/dot-notation": ["error", { "allowKeywords": false }],
+        "@typescript-eslint/dot-notation": ["error", { "allowKeywords": true }],
         "func-call-spacing": "off",
         "@typescript-eslint/func-call-spacing": ["error", "never"],
         "indent": "off",
@@ -211,11 +200,6 @@ module.exports = {
         "@typescript-eslint/no-floating-promises": ["error", { "ignoreIIFE": true }],
 
 
-        // eslint 6.8
-        // Excluding TypeScript extension rules that replace desired ESLint rules.
-        // TODO: Review rules and update to eslint 7.30.0.
-        // https://eslint.org/docs/rules/
-
         // "no-extra-semi": "error",  // TypeScript extension overrides.
 
         // Possible errors.
@@ -282,7 +266,7 @@ module.exports = {
         "no-useless-call": "error",
         "no-useless-concat": "error",
         "no-useless-return": "error",
-        "no-void": "error",
+        // "no-void": "error",
         "prefer-named-capture-group": "error",
         "prefer-promise-reject-errors": "error",
         "prefer-regex-literals": "error",
@@ -390,31 +374,5 @@ module.exports = {
         "symbol-description": "error",
         "template-curly-spacing": "error",
         "yield-star-spacing": "error",
-
-
-        // eslint-plugin-jest
-        // Rules extra or exceptions to those in plugin:jest/recommended and plugin:jest/style.
-        // https://www.npmjs.com/package/eslint-plugin-jest
-        // TODO: Review rules.
-        "jest/no-done-callback": "off",
-
-        // BEGIN DEBUG DEBUG
-        /*
-        // Turn off 'any' errors in process of doing JS to TS conversion
-        "prefer-promise-reject-errors": "off",
-        "@typescript-eslint/no-unsafe-call": "off",
-        "@typescript-eslint/no-unused-vars": "off",
-        "@typescript-eslint/no-unsafe-member-access": "off",
-        "@typescript-eslint/no-unsafe-assignment": "off",
-        "@typescript-eslint/restrict-plus-operands": "off",
-        "@typescript-eslint/no-empty-function": "off",
-        "@typescript-eslint/no-unsafe-return": "off",
-        "@typescript-eslint/require-await": "off",
-        "@typescript-eslint/no-var-requires": "off",
-        "@typescript-eslint/no-floating-promises": "off",
-        "@typescript-eslint/no-this-alias": "off"
-        */
-        // END DEBUG DEBUG
-
     }
 }

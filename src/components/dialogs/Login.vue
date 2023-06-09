@@ -11,7 +11,7 @@
 
 <template>
     <q-bar class="bar">
-        <div class="title" >{{ $store.state.theme.globalServiceTerm }} Login</div>
+        <div class="title" >{{ applicationStore.theme.globalServiceTerm }} Login</div>
         <q-space />
         <q-btn dense flat icon="close" @click="$emit('closeDialog', 'close')" />
     </q-bar>
@@ -47,15 +47,12 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import Log from "@Modules/debugging/log";
-
+import { applicationStore } from "@Stores/index";
 import MetaverseLogin from "@Components/components/login/MetaverseLogin.vue";
 import MetaverseRegister from "@Components/components/login/MetaverseRegister.vue";
 
 export default defineComponent({
-    name: "Login",
+    name: "LoginDialog",
 
     emits: ["closeDialog"],
 
@@ -64,9 +61,17 @@ export default defineComponent({
         MetaverseRegister
     },
 
-    data: () => ({
-        tab: "metaverseLogin"
-    }),
+    setup() {
+        return {
+            applicationStore
+        };
+    },
+
+    data() {
+        return {
+            tab: "metaverseLogin"
+        };
+    },
 
     methods: {
         onMetaverseRegister(success: boolean) {

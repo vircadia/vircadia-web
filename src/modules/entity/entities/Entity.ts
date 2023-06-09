@@ -9,14 +9,11 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { IVector3Property, IQuaternionProperty, EntityType } from "../EntityProperties";
 import { IEntity } from "../EntityInterfaces";
 import { Observable } from "@babylonjs/core";
 import { EntityProperties } from "@vircadia/web-sdk";
 import { EntityMapper } from "../package";
-import Log from "@Base/modules/debugging/log";
-
 
 export class EntityPropertyChangeObservable<T extends IEntity> {
     _entity : T;

@@ -37,10 +37,10 @@
             </q-tab-panel>
             <q-tab-panel name="Messages">
                 <q-list
-                    v-if="$store.state.messages.messages.length > 0"
+                    v-if="applicationStore.messages.messages.length > 0"
                 >
                     <div
-                        v-for="msg in $store.state.messages.messages"
+                        v-for="msg in applicationStore.messages.messages"
                         :key="msg.id"
                     >
                         {{ msgSender(msg) }} : {{ msgText(msg) }}
@@ -49,11 +49,11 @@
                 <p v-else class="text-subtitle1 text-grey text-center q-mt-md">There are no messages to show.</p>
             </q-tab-panel>
             <q-tab-panel name="Avatars">
-                <div>DisplayName: {{ $store.state.avatar.displayName }}</div>
-                <div>Location: {{ $store.state.avatar.location }}</div>
+                <div>DisplayName: {{ userStore.avatar.displayName }}</div>
+                <div>Location: {{ userStore.avatar.location }}</div>
                 <div></div>
-                <div>Avatars: {{ $store.state.avatars.count }} </div>
-                <q-list v-for="ava in $store.state.avatars.avatarsInfo.values()" :key="ava">
+                <div>Avatars: {{ applicationStore.avatars.count }} </div>
+                <q-list v-for="ava in applicationStore.avatars.avatarsInfo.values()" :key="ava.sessionId.stringify()">
                     <div>{{ ava }} </div>
                 </q-list>
             </q-tab-panel>
@@ -67,7 +67,7 @@
                                 name="brandName"
                                 dense
                                 style="width: 100%;"
-                                v-model="themeBrandNameStore"
+                                v-model="applicationStore.theme.brandName"
                             />
                         </q-item>
                         <q-item>
@@ -75,7 +75,7 @@
                                 name="productName"
                                 dense
                                 style="width: 100%;"
-                                v-model="themeProductNameStore"
+                                v-model="applicationStore.theme.productName"
                             />
                         </q-item>
                         <q-item>
@@ -83,7 +83,7 @@
                                 name="tagline"
                                 dense
                                 style="width: 100%;"
-                                v-model="themeTaglineStore"
+                                v-model="applicationStore.theme.tagline"
                             />
                         </q-item>
                         <q-item>
@@ -91,7 +91,7 @@
                                 name="globalServiceTerm"
                                 dense
                                 style="width: 100%;"
-                                v-model="themeGlobalServiceTermStore"
+                                v-model="applicationStore.theme.globalServiceTerm"
                             />
                         </q-item>
                         <q-item>
@@ -102,21 +102,21 @@
                                         Primary:
                                         <q-color
                                             name="primary"
-                                            v-model="themeColorPrimaryStore"
+                                            v-model="applicationStore.theme.colors.primary"
                                         />
                                     </div>
                                     <div class="col">
                                         Secondary:
                                         <q-color
                                             name="secondary"
-                                            v-model="themeColorSecondaryStore"
+                                            v-model="applicationStore.theme.colors.secondary"
                                         />
                                     </div>
                                     <div class="col">
                                         Accent:
                                         <q-color
                                             name="accent"
-                                            v-model="themeColorAccentStore"
+                                            v-model="applicationStore.theme.colors.accent"
                                         />
                                     </div>
                                 </div>
@@ -130,7 +130,7 @@
                                 options-dense
                                 style="width: 100%;"
                                 :options="theme.globalStyle.options"
-                                v-model="themeGlobalStyleStore"
+                                v-model="applicationStore.theme.globalStyle"
                             />
                         </q-item>
                         <q-item>
@@ -141,7 +141,7 @@
                                 options-dense
                                 style="width: 100%;"
                                 :options="theme.headerStyle.options"
-                                v-model="themeHeaderStyleStore"
+                                v-model="applicationStore.theme.headerStyle"
                             />
                         </q-item>
                         <q-item>
@@ -152,7 +152,7 @@
                                 options-dense
                                 style="width: 100%;"
                                 :options="theme.windowStyle.options"
-                                v-model="themeWindowStyleStore"
+                                v-model="applicationStore.theme.windowStyle"
                             />
                         </q-item>
                         <q-item>
@@ -167,18 +167,13 @@
 </template>
 
 <script lang="ts">
-
 import { defineComponent } from "vue";
+import { applicationStore, userStore } from "@Stores/index";
 import { AMessage, DefaultChatMessage } from "@Modules/domain/message";
-import { Store, Mutations as StoreMutations } from "@Store/index";
-
-
-// import Log from "@Modules/debugging/log";
-
 import OverlayShell from "../OverlayShell.vue";
 
 export default defineComponent({
-    name: "DebugWindow",
+    name: "DebugOverlay",
 
     props: {
         propsToPass: { type: Object, default: () => ({}) }
@@ -188,137 +183,33 @@ export default defineComponent({
         OverlayShell
     },
 
-    data: () => ({
-        messageInput: "",
-        tab: null,
-        subscribed: false,  // 'true' if subscribed for messages
-        theme: {
-            defaultMode: {
-                options: ["light", "dark"]
-            },
-            globalStyle: {
-                options: ["none", "aero", "mica"]
-            },
-            headerStyle: {
-                options: ["none", "gradient-left", "gradient-right"]
-            },
-            windowStyle: {
-                options: ["none", "gradient-top", "gradient-right", "gradient-bottom", "gradient-left"]
-            }
-        }
-    }),
+    setup() {
+        return {
+            applicationStore,
+            userStore
+        };
+    },
 
-    computed: {
-        themeBrandNameStore: {
-            get: function(): string {
-                return this.$store.state.theme.brandName;
-            },
-            set: function(value: string): void {
-                Store.commit(StoreMutations.MUTATE, {
-                    property: "theme.brandName",
-                    value
-                });
+    data() {
+        return {
+            messageInput: "",
+            tab: null,
+            subscribed: false,  // 'true' if subscribed for messages
+            theme: {
+                defaultMode: {
+                    options: ["light", "dark"]
+                },
+                globalStyle: {
+                    options: ["none", "aero", "mica"]
+                },
+                headerStyle: {
+                    options: ["none", "gradient-left", "gradient-right"]
+                },
+                windowStyle: {
+                    options: ["none", "gradient-top", "gradient-right", "gradient-bottom", "gradient-left"]
+                }
             }
-        },
-        themeProductNameStore: {
-            get: function(): string {
-                return this.$store.state.theme.productName;
-            },
-            set: function(value: string): void {
-                Store.commit(StoreMutations.MUTATE, {
-                    property: "theme.productName",
-                    value
-                });
-            }
-        },
-        themeTaglineStore: {
-            get: function(): string {
-                return this.$store.state.theme.tagline;
-            },
-            set: function(value: string): void {
-                Store.commit(StoreMutations.MUTATE, {
-                    property: "theme.tagline",
-                    value
-                });
-            }
-        },
-        themeGlobalServiceTermStore: {
-            get: function(): string {
-                return this.$store.state.theme.globalServiceTerm;
-            },
-            set: function(value: string): void {
-                Store.commit(StoreMutations.MUTATE, {
-                    property: "theme.globalServiceTerm",
-                    value
-                });
-            }
-        },
-        themeColorPrimaryStore: {
-            get: function(): string {
-                return this.$store.state.theme.colors.primary;
-            },
-            set: function(value: string): void {
-                Store.commit(StoreMutations.MUTATE, {
-                    property: "theme.colors.primary",
-                    value
-                });
-            }
-        },
-        themeColorSecondaryStore: {
-            get: function(): string {
-                return this.$store.state.theme.colors.secondary;
-            },
-            set: function(value: string): void {
-                Store.commit(StoreMutations.MUTATE, {
-                    property: "theme.colors.secondary",
-                    value
-                });
-            }
-        },
-        themeColorAccentStore: {
-            get: function(): string {
-                return this.$store.state.theme.colors.accent;
-            },
-            set: function(value: string): void {
-                Store.commit(StoreMutations.MUTATE, {
-                    property: "theme.colors.accent",
-                    value
-                });
-            }
-        },
-        themeGlobalStyleStore: {
-            get: function(): string {
-                return this.$store.state.theme.globalStyle;
-            },
-            set: function(value: string): void {
-                Store.commit(StoreMutations.MUTATE, {
-                    property: "theme.globalStyle",
-                    value
-                });
-            }
-        },
-        themeHeaderStyleStore: {
-            get: function(): string {
-                return this.$store.state.theme.headerStyle;
-            },
-            set: function(value: string): void {
-                Store.commit(StoreMutations.MUTATE, {
-                    property: "theme.headerStyle",
-                    value
-                });
-            }
-        },
-        themeWindowStyleStore: {
-            get: function(): string {
-                return this.$store.state.theme.windowStyle;
-            },
-            set: function(value: string): void {
-                Store.commit(StoreMutations.MUTATE, {
-                    property: "theme.windowStyle",
-                    value
-                });
-            }
-        }
+        };
     },
 
     methods: {
@@ -335,20 +226,14 @@ export default defineComponent({
         // Return the sender Id included in the message. Returns the ID string if no displayname
         msgSender(pMsg: AMessage): string {
             if (pMsg.messageJSON) {
-                // eslint-disable-next-line max-len
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unnecessary-type-assertion
                 const fMsg = <DefaultChatMessage>pMsg.messageJSON;
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
                 return fMsg.displayName;
             }
             return pMsg.senderId.stringify();
         },
         msgText(pMsg: AMessage): string {
             if (pMsg.messageJSON) {
-                // eslint-disable-next-line max-len
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unnecessary-type-assertion
                 const fMsg = <DefaultChatMessage>pMsg.messageJSON;
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
                 return fMsg.message;
             }
             return pMsg.message;

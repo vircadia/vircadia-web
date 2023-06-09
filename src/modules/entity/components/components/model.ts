@@ -9,17 +9,15 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable new-cap */
 
 import { MeshComponent, DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { SceneLoader, PhysicsImpostor, AbstractMesh, TransformNode, Node } from "@babylonjs/core";
 import { IModelEntity } from "../../EntityInterfaces";
-import { ShapeType } from "../../EntityProperties";
 import { NametagEntity } from "@Modules/entity/entities";
 import { updateContentLoadingProgress } from "@Modules/scene/LoadingScreen";
-import { Store } from "@Store/index";
+import { applicationStore } from "@Stores/index";
 import Log from "@Modules/debugging/log";
 
 const InteractiveModelTypes = [
@@ -52,8 +50,7 @@ export class ModelComponent extends MeshComponent {
 
         this._modelURL = entity.modelURL;
 
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        SceneLoader.ImportMeshAsync(
+        void SceneLoader.ImportMeshAsync(
             "",
             entity.modelURL,
             undefined,
@@ -70,7 +67,7 @@ export class ModelComponent extends MeshComponent {
                 // Add a nametag to any of the model's children if they match any of the InteractiveModelTypes.
                 const defaultNametagHeight = 0.6;
                 const nametagOffset = 0.25;
-                const nametagPopDistance = Store.state.interactions.interactionDistance;
+                const nametagPopDistance = applicationStore.interactions.interactionDistance;
                 const childNodes = this.mesh.getChildren(
                     (node) => "getBoundingInfo" in node,
                     false
@@ -89,7 +86,7 @@ export class ModelComponent extends MeshComponent {
                         true,
                         undefined,
                         nametagPopDistance,
-                        () => !Store.state.interactions.isInteracting
+                        () => !applicationStore.interactions.isInteracting
                     );
                 });
                 result.transformNodes.forEach((childNode) => {
@@ -104,7 +101,7 @@ export class ModelComponent extends MeshComponent {
                         true,
                         undefined,
                         nametagPopDistance,
-                        () => !Store.state.interactions.isInteracting
+                        () => !applicationStore.interactions.isInteracting
                     );
                 });
 
@@ -118,7 +115,7 @@ export class ModelComponent extends MeshComponent {
                         true,
                         undefined,
                         nametagPopDistance,
-                        () => !Store.state.interactions.isInteracting
+                        () => !applicationStore.interactions.isInteracting
                     );
                 }
 
@@ -134,7 +131,6 @@ export class ModelComponent extends MeshComponent {
                 this.updateCollisionProperties(entity);
                 this.updatePhysicsProperties(entity);
             })
-            // eslint-disable-next-line @typescript-eslint/dot-notation
             .catch((err) => {
                 const error = err as Error;
                 Log.error(Log.types.ENTITIES, `${error.message}`);
@@ -194,7 +190,6 @@ export class ModelComponent extends MeshComponent {
         }
         this._disposeColliders();
 
-        const scene = this._gameObject.getScene();
         if (entity.shapeType === "static-mesh") {
             this._gameObject.physicsImpostor = new PhysicsImpostor(
                 this._gameObject, PhysicsImpostor.MeshImpostor,

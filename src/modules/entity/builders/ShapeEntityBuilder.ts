@@ -10,15 +10,12 @@
 //
 
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { IEntity, IShapeEntity } from "../EntityInterfaces";
 import { AbstractEntityBuilder } from "./AbstractEntityBuilder";
-
 import { GameObject } from "@Base/modules/object";
 import { ShapeEntityController } from "../components";
 
 export class ShapeEntityBuilder extends AbstractEntityBuilder {
-
     // eslint-disable-next-line class-methods-use-this
     public build(gameObject:GameObject, entity: IEntity) : void {
         gameObject.addComponent(new ShapeEntityController(entity as IShapeEntity));

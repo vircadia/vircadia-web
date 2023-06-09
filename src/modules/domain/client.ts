@@ -62,9 +62,7 @@ export abstract class Client {
      */
     public async waitUntilConnected(pTimeoutMS?: number): Promise<Client> {
         const waitTimeMS = 100;
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
         return new Promise<Client>((resolve, reject) => {
-            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
             (async () => {
                 // eslint-disable-next-line @typescript-eslint/no-magic-numbers
                 let maxTime = pTimeoutMS ?? 5 * 60 * 1000; // 5 minutes

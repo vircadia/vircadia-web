@@ -11,9 +11,6 @@
 
 /* eslint-disable new-cap */
 /* eslint-disable class-methods-use-this */
-/* eslint-disable @typescript-eslint/no-empty-function */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 
 import { ScriptComponent } from "@Modules/script";
@@ -21,7 +18,7 @@ import { ScriptComponent } from "@Modules/script";
 // Domain Modules
 import { VScene } from "../vscene";
 import { Vector3, Ray } from "@babylonjs/core";
-import { InputController, MyAvatarController, ScriptAvatarController, AvatarMapper } from "@Modules/avatar";
+import { InputController } from "@Modules/avatar";
 import Log from "@Modules/debugging/log";
 
 const DEFAULT_GRAVITY = 9.81;
@@ -47,7 +44,9 @@ export class SceneController extends ScriptComponent {
             physicsEngine.setGravity(new Vector3(0, -DEFAULT_GRAVITY, 0));
             const avatar = this._vscene.getMyAvatar();
             if (avatar) {
-                avatar.physicsImpostor?.physicsBody.setDamping(0, 0);
+                // TODO: Update to the V2 (Havok) physics engine, which provides inproved methods for updating physics properties.
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                avatar.physicsImpostor?.physicsBody?.setDamping(0, 0);
             }
 
             this.isGravityApplied = true;
@@ -61,7 +60,9 @@ export class SceneController extends ScriptComponent {
             physicsEngine.setGravity(new Vector3(0, 0, 0));
             const avatar = this._vscene.getMyAvatar();
             if (avatar) {
-                avatar.physicsImpostor?.physicsBody.setDamping(1, 1);
+                // TODO: Update to the V2 (Havok) physics engine, which provides inproved methods for updating physics properties.
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                avatar.physicsImpostor?.physicsBody?.setDamping(1, 1);
             }
 
             this.isGravityApplied = true;
@@ -72,6 +73,7 @@ export class SceneController extends ScriptComponent {
         return "SceneController";
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     public onInitialize(): void {
 
     }
@@ -94,7 +96,9 @@ export class SceneController extends ScriptComponent {
         const avatar = this._vscene.getMyAvatar();
         if (avatar) {
             // prevent avatar bounce or float
-            avatar.physicsImpostor?.physicsBody.setDamping(1, 1);
+            // TODO: Update to the V2 (Havok) physics engine, which provides inproved methods for updating physics properties.
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            avatar.physicsImpostor?.physicsBody?.setDamping(1, 1);
         }
     }
 

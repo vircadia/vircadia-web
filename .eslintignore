@@ -1,12 +1,10 @@
+.eslintrc.js
 /.quasar
 /build_scripts
 /dist
 /node_modules
-/src/libs
 /src-bex/www
 /src-capacitor
 /src-cordova
 /src-ssr
-.eslintrc.js
-babel.config.js
-quasar.conf.js
+/src/libs

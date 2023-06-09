@@ -9,21 +9,11 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 
-import {
-    AnimationGroup,
-    Nullable,
-    Node,
-    TransformNode,
-    Mesh
-} from "@babylonjs/core";
-
+import { AnimationGroup, Nullable, Node, TransformNode, Mesh } from "@babylonjs/core";
 import { AnimationMap } from "@Modules/avatar/controller/avatarState";
 
-
-/* eslint-disable @typescript-eslint/no-magic-numbers */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/dot-notation */
 export class Animator {
     private _mesh: Mesh;
     private _currentAnim: Nullable<AnimationGroup> = null;

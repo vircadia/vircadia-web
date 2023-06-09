@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 //
 //  LightEntityController.ts
 //
@@ -10,8 +9,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-// General Modules
-import Log from "@Modules/debugging/log";
 // Domain Modules
 import { EntityController } from "./EntityController";
 import { ILightEntity } from "../../EntityInterfaces";
@@ -41,7 +38,6 @@ export class LightEntityController extends EntityController {
         return "LightEntityController";
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
     public onInitialize(): void {
         super.onInitialize();
 

@@ -1,4 +1,3 @@
-/* eslint-disable class-methods-use-this */
 //
 //  haze.ts
 //
@@ -15,8 +14,6 @@ import { Scene, TransformNode } from "@babylonjs/core";
 import { IHazeProperty } from "../../EntityProperties";
 import { EntityMapper } from "../../package";
 
-/* eslint-disable new-cap */
-
 export class HazeComponent extends GenericNodeComponent<TransformNode> {
     _scene : Scene;
 
@@ -28,6 +25,7 @@ export class HazeComponent extends GenericNodeComponent<TransformNode> {
         this.update(props);
     }
 
+    // eslint-disable-next-line class-methods-use-this
     public get componentType():string {
         return HazeComponent.typeName;
     }
@@ -61,5 +59,4 @@ export class HazeComponent extends GenericNodeComponent<TransformNode> {
             this._scene.fogEnd = props.hazeRange;
         }
     }
-
 }

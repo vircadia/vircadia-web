@@ -12,7 +12,6 @@
 
 /* eslint-disable class-methods-use-this */
 /* eslint-disable new-cap */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { LightComponent } from "@Modules/object";
 import { PointLight, SpotLight, Light, Vector3, Scene } from "@babylonjs/core";

@@ -190,14 +190,14 @@
         ></span>
         <div v-if="showInitialWelcome" class="initialWelcome fixed-center" :style="{opacity: transition ? '0' : '1'}">
             <h1 class="q-mb-sm">
-                {{ $store.state.firstTimeWizard.welcomeText }} <span>{{ $store.state.firstTimeWizard.title }}</span>
+                {{ applicationStore.firstTimeWizard.welcomeText }} <span>{{ applicationStore.firstTimeWizard.title }}</span>
             </h1>
-            <p class="text-subtitle1 text-italic q-mb-xl">{{ $store.state.firstTimeWizard.tagline }}</p>
+            <p class="text-subtitle1 text-italic q-mb-xl">{{ applicationStore.firstTimeWizard.tagline }}</p>
             <q-btn
                 color="primary"
                 @click="transitionToSteps()"
             >
-                {{ $store.state.firstTimeWizard.buttonText }}
+                {{ applicationStore.firstTimeWizard.buttonText }}
             </q-btn>
             <q-btn
                 flat
@@ -239,7 +239,7 @@
                             Display Name<br/>
                         </p>
                         <q-input
-                            v-model="displayNameStore"
+                            v-model="userStore.avatar.displayName"
                             outlined
                         >
                             <template v-slot:append>
@@ -260,19 +260,19 @@
 
                         <br>
 
-                        <template v-if="Object.entries($store.state.avatar.models).length > 0">
+                        <template v-if="Object.entries(userStore.avatar.models).length > 0">
                             <p class="text-h6">
                                 Avatar<br/>
                             </p>
                             <q-scroll-area style="height: 12rem;">
                                 <q-list>
                                     <q-item
-                                        v-for="(avatar, id) in $store.state.avatar.models"
+                                        v-for="(avatar, id) in userStore.avatar.models"
                                         :key="id"
                                         class="q-mb-sm"
                                         clickable
                                         v-ripple
-                                        :active="$store.state.avatar.activeModel === id"
+                                        :active="userStore.avatar.activeModel === id"
                                         active-class="selectedAvatar"
                                         @click="selectAvatar(id.toString())"
                                     >
@@ -309,7 +309,7 @@
                             <q-btn
                                 color="primary"
                                 label="Continue"
-                                @click="() => { $refs.stepper.next(); }"
+                                @click="() => { ($refs as ComponentTemplateRefs).stepper?.next(); }"
                             />
                         </q-stepper-navigation>
                     </q-step>
@@ -331,14 +331,14 @@
                         </div>
                         <q-separator class="q-mb-sm" />
                         <p
-                            v-if="!$store.state.audio.user.hasInputAccess"
+                            v-if="!applicationStore.audio.user.hasInputAccess"
                             class="text-subtitle1 text-grey text-center"
                         >
                             Please grant mic access to the app in order to speak.
                         </p>
                         <q-scroll-area v-else style="height: 10rem;">
                             <q-list>
-                                <div v-for="input in $store.state.audio.inputsList" :key="input.deviceId">
+                                <div v-for="input in applicationStore.audio.inputsList" :key="input.deviceId">
                                     <q-radio
                                         :label="input.label"
                                         :val="input.label"
@@ -359,7 +359,7 @@
                         <q-separator class="q-mb-sm" />
                         <q-scroll-area style="height: 10rem;">
                             <q-list>
-                                <div v-for="output in $store.state.audio.outputsList" :key="output.deviceId">
+                                <div v-for="output in applicationStore.audio.outputsList" :key="output.deviceId">
                                     <q-radio
                                         :label="output.label"
                                         :val="output.label"
@@ -376,9 +376,9 @@
                             class="flex stepNavigation"
                             :style="{ background: $q.dark.isActive ? 'var(--q-dark)' : '#fff' }"
                         >
-                            <q-btn flat @click="() => { $refs.stepper.previous() }" color="primary" label="Back" class="q-ml-sm" />
+                            <q-btn flat @click="() => { ($refs as ComponentTemplateRefs).stepper?.previous() }" color="primary" label="Back" class="q-ml-sm" />
                             <q-space />
-                            <q-btn @click="() => { $refs.stepper.next() }" color="primary" label="Continue" />
+                            <q-btn @click="() => { ($refs as ComponentTemplateRefs).stepper?.next() }" color="primary" label="Continue" />
                         </q-stepper-navigation>
                     </q-step>
 
@@ -446,9 +446,9 @@
                             class="flex stepNavigation"
                             :style="{ background: $q.dark.isActive ? 'var(--q-dark)' : '#fff' }"
                         >
-                            <q-btn flat @click="() => { $refs.stepper.previous() }" color="primary" label="Back" class="q-ml-sm" />
+                            <q-btn flat @click="() => { ($refs as ComponentTemplateRefs).stepper?.previous() }" color="primary" label="Back" class="q-ml-sm" />
                             <q-space />
-                            <q-btn color="primary" @click="() => { $refs.stepper.next() }" label="Next" />
+                            <q-btn color="primary" @click="() => { ($refs as ComponentTemplateRefs).stepper?.next() }" label="Next" />
                         </q-stepper-navigation>
                     </q-step>
                     <q-step
@@ -472,7 +472,7 @@
                             class="flex stepNavigation"
                             :style="{ background: $q.dark.isActive ? 'var(--q-dark)' : '#fff' }"
                         >
-                            <q-btn flat @click="() => { $refs.stepper.previous() }" color="primary" label="Back" class="q-ml-sm" />
+                            <q-btn flat @click="() => { ($refs as ComponentTemplateRefs).stepper?.previous() }" color="primary" label="Back" class="q-ml-sm" />
                             <q-space />
                             <q-btn color="primary" @click="() => { completeSetup() }" label="Finish" />
                         </q-stepper-navigation>
@@ -483,22 +483,25 @@
     </div>
 </template>
 
+<script lang="ts" setup>
+import { applicationStore, userStore } from "@Stores/index";
+import type { QStepper } from "quasar";
+
+type ComponentTemplateRefs = {
+    stepper: typeof QStepper.methods
+};
+</script>
+
 <script lang="ts">
 import { defineComponent } from "vue";
-import { Mutations as StoreMutations } from "@Store/index";
 import { uniqueNamesGenerator, adjectives, colors, animals } from "unique-names-generator";
 import { AvatarStoreInterface } from "@Modules/avatar/StoreInterface";
 import { AudioIO } from "@Modules/ui/audioIO";
 import { Utility } from "@Modules/utility";
 import { Places, PlaceEntry } from "@Modules/places";
 
-import Log from "@Modules/debugging/log";
-
 export default defineComponent({
     name: "FirstTimeSetup",
-
-    components: {
-    },
 
     data() {
         return {
@@ -515,14 +518,14 @@ export default defineComponent({
     computed: {
         backgroundStyle(): string {
             // Style the background based on the Theme config.
-            if (this.$store.state.theme.globalStyle === "none" || this.showInitialWelcome) {
+            if (applicationStore.theme.globalStyle === "none" || this.showInitialWelcome) {
                 return this.$q.dark.isActive ? "#121212" : "#ffffff";
             }
             const opacities = {
                 "aero": "5c",
                 "mica": "30"
             };
-            if (this.$store.state.theme.windowStyle === "none") {
+            if (applicationStore.theme.windowStyle === "none") {
                 return "unset";
             }
             const gradients = {
@@ -531,24 +534,12 @@ export default defineComponent({
                 "gradient-bottom": "circle at 50% 100%",
                 "gradient-left": "circle at 0% 50%"
             };
-            const gradient = gradients[this.$store.state.theme.windowStyle];
-            const primary = this.$store.state.theme.colors.primary;
-            const secondary = this.$store.state.theme.colors.secondary;
+            const gradient = gradients[applicationStore.theme.windowStyle];
+            const primary = applicationStore.theme.colors.primary;
+            const secondary = applicationStore.theme.colors.secondary;
             const end = this.$q.dark.isActive ? "#121212" : "#ffffff";
-            const opacity = opacities[this.$store.state.theme.globalStyle];
+            const opacity = opacities[applicationStore.theme.globalStyle];
             return `radial-gradient(${gradient}, ${secondary}${opacity} 15%, ${primary}${opacity} 40%, ${end}${opacity} 95%)`;
-        },
-        displayNameStore: {
-            get(): string {
-                return this.$store.state.avatar.displayName;
-            },
-            set(value: string): void {
-                Log.debug(Log.types.AVATAR, `Avatar.vue: set displayNameStore. inputInfo=${value}`);
-                this.$store.commit(StoreMutations.MUTATE, {
-                    property: "avatar.displayName",
-                    value
-                });
-            }
         },
         filteredAndSortedPlaces(): PlaceEntry[] {
             let returnData = this.placesList;
@@ -572,7 +563,7 @@ export default defineComponent({
             return returnData;
         },
         hasLocationPending(): boolean {
-            return this.$store.state.firstTimeWizard.pendingLocation !== "";
+            return applicationStore.firstTimeWizard.pendingLocation !== "";
         }
     },
     watch: {
@@ -580,7 +571,6 @@ export default defineComponent({
             // Wait until the first step is complete before asking for mic permission.
             // This is less spooky than requesting mic access as soon at the webpage is loaded.
             if (newValue === 2) {
-                // eslint-disable-next-line no-void
                 void this.requestInputAccess();
             }
         }
@@ -606,7 +596,7 @@ export default defineComponent({
             this.step = 1;
         },
         generateRandomName(): void {
-            this.displayNameStore = uniqueNamesGenerator({
+            userStore.avatar.displayName = uniqueNamesGenerator({
                 dictionaries: [adjectives, colors, animals],
                 separator: " ",
                 length: 3,
@@ -614,7 +604,7 @@ export default defineComponent({
             });
         },
         selectAvatar(modelId: string): void {
-            if (modelId in this.$store.state.avatar.models) {
+            if (modelId in userStore.avatar.models) {
                 AvatarStoreInterface.setActiveModel(modelId);
             }
         },
@@ -624,24 +614,27 @@ export default defineComponent({
         async completeSetup(): Promise<void> {
             window.localStorage.setItem("hasCompletedSetup", "true");
             if (this.hasLocationPending) {
-                await this.$router.push({ path: this.$store.state.firstTimeWizard.pendingLocation });
+                await this.$router.push({ path: applicationStore.firstTimeWizard.pendingLocation });
             } else {
                 await this.$router.push({ name: "Primary" });
             }
         }
     },
-    async created(): Promise<void> {
-        // Connect to the metaverse server so that we can get the list of available places.
-        await Utility.metaverseConnectionSetup(
-            this.$store.state.defaultConnectionConfig.DEFAULT_METAVERSE_URL
-        );
-        this.placesList = await Places.getActiveList();
+    created() {
+        const boot = async () => {
+            // Connect to the metaverse server so that we can get the list of available places.
+            await Utility.metaverseConnectionSetup(
+                applicationStore.defaultConnectionConfig.DEFAULT_METAVERSE_URL ?? ""
+            );
+            this.placesList = await Places.getActiveList();
+        };
+        void boot();
     },
     beforeMount(): void {
         // Ensure that Quasar's global color variables are in sync with the Store's theme colors.
-        document.documentElement.style.setProperty("--q-primary", this.$store.state.theme.colors.primary);
-        document.documentElement.style.setProperty("--q-secondary", this.$store.state.theme.colors.secondary);
-        document.documentElement.style.setProperty("--q-accent", this.$store.state.theme.colors.accent);
+        document.documentElement.style.setProperty("--q-primary", applicationStore.theme.colors.primary ?? null);
+        document.documentElement.style.setProperty("--q-secondary", applicationStore.theme.colors.secondary ?? null);
+        document.documentElement.style.setProperty("--q-accent", applicationStore.theme.colors.accent ?? null);
     },
     mounted(): void {
         document.addEventListener("keydown", (event: KeyboardEvent) => {
