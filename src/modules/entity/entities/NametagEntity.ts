@@ -308,6 +308,13 @@ export class NametagEntity {
         const positionOffset = new Vector3(0, 0.15, 0);
         mesh.position = new Vector3(positionOffset.x, height + positionOffset.y, positionOffset.z);
 
+        const scaleAdjustmentFactorX = object.scaling.x > 0 ? 1 / object.scaling.x : 1;
+        const scaleAdjustmentFactorY = object.scaling.y > 0 ? 1 / object.scaling.y : 1;
+        const scaleAdjustmentFactorZ = object.scaling.z > 0 ? 1 / object.scaling.z : 1;
+        mesh.scaling.x = scaleAdjustmentFactorX;
+        mesh.scaling.y = scaleAdjustmentFactorY;
+        mesh.scaling.z = scaleAdjustmentFactorZ;
+
         mesh.billboardMode = Mesh.BILLBOARDMODE_Y;
         mesh.parent = object;
         mesh.isPickable = false;
@@ -329,6 +336,7 @@ export class NametagEntity {
                 // Max opacity of 0.94 reduces the chance that the nametag will be affected by bloom.
                 const opacity = Math.min(Math.max(popDistance + 1 - distance, 0), 0.94);
                 mesh.visibility = opacity * Number(userStore.avatar.showNametags && (popOverride?.(distance) ?? true));
+                mesh.isVisible = true;
             }
         });
 
