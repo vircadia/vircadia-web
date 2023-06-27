@@ -23,13 +23,13 @@ import Log from "@Modules/debugging/log";
  * Base class for all objects in scenes.
  */
 export class GameObject extends Mesh {
-    _components : Map<string, IComponent>;
+    _components: Map<string, IComponent>;
     private _typeName = "GameObject";
     protected _childGameObjects: Array<GameObject> = new Array<GameObject>();
     protected _onComponentAddedObservable: Observable<IComponent> = new Observable<IComponent>();
 
-    private static _gameObjects : Array<GameObject> = new Array<GameObject>();
-    private static _dontDestroyOnLoadList : Array<GameObject> = new Array<GameObject>();
+    private static _gameObjects: Array<GameObject> = new Array<GameObject>();
+    private static _dontDestroyOnLoadList: Array<GameObject> = new Array<GameObject>();
     private static _onGameObjectAddedObservable: Observable<GameObject> = new Observable<GameObject>();
 
     constructor(name: string, scene?: Nullable<Scene>) {
@@ -39,11 +39,11 @@ export class GameObject extends Mesh {
         GameObject._addGameObject(this);
     }
 
-    public get type():string {
+    public get type(): string {
         return this._typeName;
     }
 
-    public get components() : Map<string, IComponent> {
+    public get components(): Map<string, IComponent> {
         return this._components;
     }
 
@@ -54,7 +54,7 @@ export class GameObject extends Mesh {
     /**
     * Adds a component to this game object.
     */
-    public addComponent(component : IComponent) : void {
+    public addComponent(component: IComponent): void {
         this._components.set(component.componentType, component);
         component.attach(this);
         this._onComponentAddedObservable.notifyObservers(component);
@@ -63,26 +63,26 @@ export class GameObject extends Mesh {
     /**
     * Gets the component of specific type from this game object.
     */
-    public getComponent(componentType : string) : IComponent | undefined {
+    public getComponent(componentType: string): IComponent | undefined {
         return this._components.get(componentType);
     }
 
-    public hasComponent(componentType : string) : boolean {
+    public hasComponent(componentType: string): boolean {
         return this._components.has(componentType);
     }
 
-    public addChildGameObject(gameObject: GameObject) : void {
+    public addChildGameObject(gameObject: GameObject): void {
         if (gameObject.parent !== this) {
             gameObject.parent = this;
             this._childGameObjects.push(gameObject);
         }
     }
 
-    public getChildGameObjectByName(name: string) : GameObject | undefined {
+    public getChildGameObjectByName(name: string): GameObject | undefined {
         return this._childGameObjects.find((gameObject) => gameObject.name === name);
     }
 
-    public removeChildGameObject(gameObject: GameObject) : void {
+    public removeChildGameObject(gameObject: GameObject): void {
         if (gameObject.parent !== this) {
             Log.warn(Log.types.ENTITIES, `GameObject ${this.name} does not has child ${gameObject.name}`);
             return;
@@ -96,11 +96,11 @@ export class GameObject extends Mesh {
         gameObject.parent = null;
     }
 
-    public getChildGameObjects() : GameObject[] {
+    public getChildGameObjects(): GameObject[] {
         return this._childGameObjects;
     }
 
-    public getParent() : GameObject {
+    public getParent(): GameObject {
         return this.parent as GameObject;
     }
 
@@ -108,7 +108,7 @@ export class GameObject extends Mesh {
     * Removes the component of specific type from this game object.
     * @param dispose true will also dispose the componet when remove it.
     */
-    public removeComponent(componentType : string, dispose = true) : boolean {
+    public removeComponent(componentType: string, dispose = true): boolean {
         const component = this._components.get(componentType);
         if (component) {
             component.detatch();
@@ -137,15 +137,15 @@ export class GameObject extends Mesh {
         super.dispose(doNotRecurse, disposeMaterialAndTextures);
     }
 
-    public static getGameObjectByID(id:string) : GameObject | undefined {
+    public static getGameObjectByID(id: string): GameObject | undefined {
         return this._gameObjects.find((value) => value.id === id);
     }
 
-    public static get gameObjects() : GameObject[] {
+    public static get gameObjects(): GameObject[] {
         return this._gameObjects;
     }
 
-    public static get dontDestroyOnLoadList() : GameObject[] {
+    public static get dontDestroyOnLoadList(): GameObject[] {
         return this._dontDestroyOnLoadList;
     }
 
@@ -153,7 +153,7 @@ export class GameObject extends Mesh {
         return this._onGameObjectAddedObservable;
     }
 
-    public static dontDestroyOnLoad(target: GameObject) : void {
+    public static dontDestroyOnLoad(target: GameObject): void {
         this._dontDestroyOnLoadList.push(target);
     }
 

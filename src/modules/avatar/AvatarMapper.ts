@@ -23,33 +23,33 @@ export enum BoneType {
 
 export class AvatarMapper {
 
-    public static mapToDomainPosition(position : Vector3) : vec3 {
+    public static mapToDomainPosition(position: Vector3): vec3 {
         return { x: position.x, y: position.y, z: position.z };
     }
 
-    public static mapToDomainOrientation(rotationQuaternion : Nullable<Quaternion>) : quat {
+    public static mapToDomainOrientation(rotationQuaternion: Nullable<Quaternion>): quat {
         // prevent null and w === 0
         const q = rotationQuaternion ? rotationQuaternion : Quaternion.Identity();
         return { x: q.x, y: q.y, z: q.z, w: q.w === 0 ? 1 : q.w };
     }
 
-    public static mapToDomainScale(scaling : Vector3) : number {
+    public static mapToDomainScale(scaling: Vector3): number {
         return scaling.x;
     }
 
-    public static mapDomainPosition(position : vec3 | null) : Vector3 {
+    public static mapDomainPosition(position: vec3 | null): Vector3 {
         return position ? new Vector3(position.x, position.y, position.z) : Vector3.Zero();
     }
 
-    public static mapDomainOrientation(q : quat | null) : Quaternion {
+    public static mapDomainOrientation(q: quat | null): Quaternion {
         return q ? new Quaternion(q.x, q.y, q.z, q.w) : Quaternion.Identity();
     }
 
-    public static mapToNodeScaling(scale :number) : Vector3 {
+    public static mapToNodeScaling(scale: number): Vector3 {
         return new Vector3(scale, scale, scale);
     }
 
-    public static mapToJoint(node:TransformNode, jointIndex : number, parentIndex : number) : SkeletonJoint {
+    public static mapToJoint(node: TransformNode, jointIndex: number, parentIndex: number): SkeletonJoint {
         return {
             jointName: node.name,
             jointIndex,
@@ -61,21 +61,21 @@ export class AvatarMapper {
         };
     }
 
-    public static mapToJointTranslation(vec : Vector3) : vec3 {
+    public static mapToJointTranslation(vec: Vector3): vec3 {
         return { x: vec.x, y: vec.y, z: vec.z };
     }
 
-    public static mapToJointRotation(quaternion : Nullable<Quaternion>) : quat {
+    public static mapToJointRotation(quaternion: Nullable<Quaternion>): quat {
         // prevent null and w === 0
         const q = quaternion ? quaternion : Quaternion.Identity();
         return { x: q.x, y: q.y, z: q.z, w: q.w === 0 ? 1 : q.w };
     }
 
-    public static mapJointTranslation(translation : vec3) : Vector3 {
+    public static mapJointTranslation(translation: vec3): Vector3 {
         return new Vector3(translation.x, translation.y, translation.z);
     }
 
-    public static mapJointRotation(q : quat) : Quaternion {
+    public static mapJointRotation(q: quat): Quaternion {
         return new Quaternion(q.x, q.y, q.z, q.w);
     }
 }

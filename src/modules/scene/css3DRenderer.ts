@@ -28,7 +28,7 @@ export class CSS3DObject {
     private _onPickedObservale: Observable<CSS3DObject> = new Observable<CSS3DObject>();
     private _onFocusChangedObservale: Observable<boolean> = new Observable<boolean>();
 
-    constructor(element : HTMLElement, mesh : AbstractMesh) {
+    constructor(element: HTMLElement, mesh: AbstractMesh) {
         this._element = element;
         this._element.style.position = "absolute";
         this._element.style.pointerEvents = "auto";
@@ -62,18 +62,18 @@ export class CSS3DObject {
         return this._onPickedObservale;
     }
 
-    public setFocus(focus : boolean) : void {
+    public setFocus(focus: boolean): void {
         if (this._isFocused !== focus) {
             this._isFocused = focus;
             this._onFocusChangedObservale.notifyObservers(focus);
         }
     }
 
-    public setPicked() : void {
+    public setPicked(): void {
         this._onPickedObservale.notifyObservers(this);
     }
 
-    public get canGetFocus() : boolean {
+    public get canGetFocus(): boolean {
         return this._canGetFocus;
     }
 
@@ -83,12 +83,12 @@ export class CSS3DObject {
 }
 
 export class CSS3DRenderer {
-    private _canvas : HTMLCanvasElement;
+    private _canvas: HTMLCanvasElement;
     private _scene: Nullable<Scene> = null;
     private _isAttachControl = false;
 
-    _css3DObjects : Map<string, CSS3DObject> = new Map<string, CSS3DObject>();
-    _pickedOjbect : Nullable<CSS3DObject> = null;
+    _css3DObjects: Map<string, CSS3DObject> = new Map<string, CSS3DObject>();
+    _pickedOjbect: Nullable<CSS3DObject> = null;
 
     _cache = {
         camera: { fov: 0, style: "" },
@@ -157,7 +157,7 @@ export class CSS3DRenderer {
         };
     }
 
-    setSize(width:number, height:number) : void {
+    setSize(width: number, height: number): void {
         this._width = width;
         this._height = height;
         this._widthHalf = this._width / 2;
@@ -175,11 +175,11 @@ export class CSS3DRenderer {
     }
 
     // eslint-disable-next-line class-methods-use-this
-    epsilon(value: number) : number {
+    epsilon(value: number): number {
         return Math.abs(value) < 1e-10 ? 0 : value;
     }
 
-    getCameraCSSMatrix(matrix: Matrix) : string {
+    getCameraCSSMatrix(matrix: Matrix): string {
         const elements = matrix.m;
 
         return "matrix3d("
@@ -202,7 +202,7 @@ export class CSS3DRenderer {
             + ")";
     }
 
-    getObjectCSSMatrix(matrix: Matrix, cameraCSSMatrix: string) : string {
+    getObjectCSSMatrix(matrix: Matrix, cameraCSSMatrix: string): string {
         const elements = matrix.m;
         const matrix3d = "matrix3d("
             + this.epsilon(elements[0]).toString() + ","
@@ -231,7 +231,7 @@ export class CSS3DRenderer {
         return "translate(-50%,-50%)" + matrix3d;
     }
 
-    renderObject(object: CSS3DObject, camera: Camera, cameraCSSMatrix: string) : void {
+    renderObject(object: CSS3DObject, camera: Camera, cameraCSSMatrix: string): void {
         const position = new Vector3();
         const rotation = new Quaternion();
         const scale = new Vector3();
@@ -272,7 +272,7 @@ export class CSS3DRenderer {
         }
     }
 
-    render(camera: Camera) : void {
+    render(camera: Camera): void {
         const projectionMatrix = camera.getProjectionMatrix();
         const fov = projectionMatrix.m[5] * this._heightHalf;
 
@@ -322,7 +322,7 @@ export class CSS3DRenderer {
         });
     }
 
-    public addCSS3DObject(object : CSS3DObject) : void {
+    public addCSS3DObject(object: CSS3DObject): void {
         if (object.element.parentNode !== this._cameraElement) {
             this._cameraElement.appendChild(object.element);
         }
@@ -330,15 +330,15 @@ export class CSS3DRenderer {
         this._css3DObjects.set(object.mesh.id, object);
     }
 
-    public removeCSS3DObject(object : CSS3DObject) : void {
+    public removeCSS3DObject(object: CSS3DObject): void {
         this._css3DObjects.delete(object.mesh.id);
     }
 
-    public removeAllCSS3DObjects() : void {
+    public removeAllCSS3DObjects(): void {
         this._css3DObjects.clear();
     }
 
-    private _pickObject(evt : PointerEvent) : CSS3DObject | undefined {
+    private _pickObject(evt: PointerEvent): CSS3DObject | undefined {
         if (this._scene) {
             const pick = this._scene.pick(Math.round(evt.offsetX), Math.round(evt.offsetY));
             if (pick && pick.hit && pick.pickedMesh) {
@@ -348,7 +348,7 @@ export class CSS3DRenderer {
         return undefined;
     }
 
-    private _handlePointDown(evt : PointerEvent) : void {
+    private _handlePointDown(evt: PointerEvent): void {
         const object = this._pickObject(evt);
         if (object) {
             object.setPicked();
@@ -361,7 +361,7 @@ export class CSS3DRenderer {
         }
     }
 
-    public attachControl() : void {
+    public attachControl(): void {
         // make CSS3DObject receive events
         if (!this._isAttachControl) {
             document.body.style.pointerEvents = "none";
@@ -370,7 +370,7 @@ export class CSS3DRenderer {
         }
     }
 
-    public detachControl() : void {
+    public detachControl(): void {
         if (this._isAttachControl) {
             // make babylon.js canvas and document body receive events
             document.body.style.pointerEvents = "auto";

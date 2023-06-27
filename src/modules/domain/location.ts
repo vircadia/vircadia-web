@@ -34,46 +34,46 @@ export class Location {
         this._updateHref();
     }
 
-    public get href() : string {
+    public get href(): string {
         return this._href;
     }
 
-    public get pathname() : string {
+    public get pathname(): string {
         return this._pathname;
     }
 
-    public get protocol() : string {
+    public get protocol(): string {
         return this._protocol;
     }
 
-    public set protocol(value : string) {
+    public set protocol(value: string) {
         this._protocol = value;
         this._updateHref();
     }
 
-    public get host() : string {
+    public get host(): string {
         return this.port.length > 0 ? this._hostname + ":" + this._port : this._hostname;
     }
 
-    public get port() : string {
+    public get port(): string {
         return this._port;
     }
 
-    public set port(value : string) {
+    public set port(value: string) {
         this._port = value;
         this._updateHost();
         this._updateHref();
     }
 
-    public get position() : string {
+    public get position(): string {
         return this._position;
     }
 
-    public get orientation() : string {
+    public get orientation(): string {
         return this._orientation;
     }
 
-    private _parseLocation() {
+    private _parseLocation(): void {
         let start = 0;
         // parse protocol
         let end = this._href.indexOf("://", start);
@@ -92,7 +92,7 @@ export class Location {
         }
     }
 
-    private _parseHost(start: number, end: number) {
+    private _parseHost(start: number, end: number): void {
         this._host = this._href.substring(start, end);
 
         // parse port
@@ -106,7 +106,7 @@ export class Location {
 
     }
 
-    private _parsePath(start: number, end: number) {
+    private _parsePath(start: number, end: number): void {
         this._pathname = this._href.substring(start, end);
         const orientStart = this.pathname.indexOf("/", 1);
         if (orientStart > 0) {
@@ -126,13 +126,13 @@ export class Location {
         }
     }
 
-    private _updateHref() : void {
+    private _updateHref(): void {
         this._href = this._protocol.length > 0
             ? this._protocol + "//" + this.host + this.pathname
             : this.host + this.pathname;
     }
 
-    private _updateHost() : void {
+    private _updateHost(): void {
         this._host = this.port.length > 0
             ? this._hostname + ":" + this._port
             : this._hostname;

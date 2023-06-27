@@ -25,19 +25,19 @@ const DEFAULT_GRAVITY = 9.81;
 const GROUND_DETECTION_LENGTH = 5; // FIXME: This is not a good system for detecting the ground.
 
 export class SceneController extends ScriptComponent {
-    _vscene : VScene;
+    _vscene: VScene;
     isGravityApplied = false;
 
-    constructor(vscene : VScene) {
+    constructor(vscene: VScene) {
         super(SceneController.typeName);
         this._vscene = vscene;
     }
 
-    public get componentType():string {
+    public get componentType(): string {
         return SceneController.typeName;
     }
 
-    public applyGravity() : void {
+    public applyGravity(): void {
         const physicsEngine = this._scene.getPhysicsEngine();
         if (physicsEngine) {
             Log.info(Log.types.OTHER, `Apply gravity: ${DEFAULT_GRAVITY}`);
@@ -53,7 +53,7 @@ export class SceneController extends ScriptComponent {
         }
     }
 
-    public removeGravity() : void {
+    public removeGravity(): void {
         const physicsEngine = this._scene.getPhysicsEngine();
         if (physicsEngine) {
             Log.info(Log.types.OTHER, "Remove gravity");
@@ -78,7 +78,7 @@ export class SceneController extends ScriptComponent {
 
     }
 
-    public onUpdate():void {
+    public onUpdate(): void {
         if (this._scene.isReady()) {
             const avatar = this._vscene.getMyAvatar();
             const avatarController = avatar?.getComponent(InputController.typeName) as InputController | null;
@@ -91,7 +91,7 @@ export class SceneController extends ScriptComponent {
         }
     }
 
-    public onSceneReady():void {
+    public onSceneReady(): void {
         this.isGravityApplied = false;
         const avatar = this._vscene.getMyAvatar();
         if (avatar) {
@@ -102,7 +102,7 @@ export class SceneController extends ScriptComponent {
         }
     }
 
-    private _detectGround() : boolean {
+    private _detectGround(): boolean {
         const avatar = this._vscene.getMyAvatar();
         if (avatar) {
             // position the raycast from bottom center of mesh

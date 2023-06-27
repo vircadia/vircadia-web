@@ -19,7 +19,7 @@ export class Animator {
     private _currentAnim: Nullable<AnimationGroup> = null;
     private _prevAnim: Nullable<AnimationGroup> = null;
     private _nextAnim: Nullable<AnimationGroup> = null;
-    private _animGroups : Map<string, AnimationGroup>;
+    private _animGroups: Map<string, AnimationGroup>;
     private _weight = 0;
     private _weightStep = 0;
     private _animTransitionSpeed = 0.1; // A lower number will result in a longer transition between animations.
@@ -30,12 +30,12 @@ export class Animator {
         this._animGroups = new Map<string, AnimationGroup>();
 
         const nodes = new Map<string, Node>();
-        this._mesh.getChildren((node):boolean => {
+        this._mesh.getChildren((node): boolean => {
             nodes.set(node.name, node);
             return true;
         }, false);
 
-        animGroups.forEach((animGroup : AnimationGroup) => {
+        animGroups.forEach((animGroup: AnimationGroup) => {
             const animationLoopData = [...AnimationMap.values()].find((value) => value.name === animGroup.name);
             const loopAnimation = animationLoopData?.loop ?? true;
             const newAnimGroup = Animator._cloneAnimGroup(animGroup, nodes, loopAnimation);
@@ -44,26 +44,26 @@ export class Animator {
 
     }
 
-    public play(animName : string) : void {
+    public play(animName: string): void {
         const animGroup = this._animGroups.get(animName);
         if (animGroup) {
             this._nextAnim = animGroup;
         }
     }
 
-    public pause() : void {
+    public pause(): void {
         this._currentAnim?.pause();
     }
 
-    public resume() : void {
+    public resume(): void {
         this._currentAnim?.play();
     }
 
-    public getAnimationGroup(animName: string) : AnimationGroup | undefined {
+    public getAnimationGroup(animName: string): AnimationGroup | undefined {
         return this._animGroups.get(animName);
     }
 
-    public update():void {
+    public update(): void {
         if (this._nextAnim && this._nextAnim !== this._currentAnim) {
             this._prevAnim?.stop();
             const animationFramerate = 30;
@@ -89,7 +89,7 @@ export class Animator {
     }
 
     // blend previous and current animation
-    private _transitAnimation():void {
+    private _transitAnimation(): void {
         if (this._weight < 1) {
             this._weight += Math.min(this._weightStep, 1);
 
@@ -103,7 +103,7 @@ export class Animator {
         }
     }
 
-    static _cloneAnimGroup(sourceAnimGroup : AnimationGroup, nodes : Map<string, Node>, loop = true):AnimationGroup {
+    static _cloneAnimGroup(sourceAnimGroup: AnimationGroup, nodes: Map<string, Node>, loop = true): AnimationGroup {
         const animGroup = new AnimationGroup(sourceAnimGroup.name);
         animGroup.loopAnimation = loop;
 

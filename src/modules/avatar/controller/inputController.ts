@@ -113,7 +113,7 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
         }
     }
 
-    detachControl() {
+    detachControl(): void {
         const engine = this.camera.getEngine();
         const element = engine.getInputElement() as HTMLElement;
         if (this._onKeyDown || this._onKeyUp) {
@@ -139,7 +139,7 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
         }
     }
 
-    checkInputs() {
+    checkInputs(): void {
         if (this._onKeyDown) {
             for (let index = 0; index < this._keysPressed.length; index++) {
                 const code = this._keysPressed[index];
@@ -243,7 +243,7 @@ export class InputController extends ScriptComponent {
         this._inputState.cameraCheckCollisions = value;
     }
 
-    public get cameraCheckCollisions() : boolean {
+    public get cameraCheckCollisions(): boolean {
         return this._inputState.cameraCheckCollisions;
     }
 
@@ -252,7 +252,7 @@ export class InputController extends ScriptComponent {
         this._inputState.cameraElastic = value;
     }
 
-    public get cameraElastic() : boolean {
+    public get cameraElastic(): boolean {
         return this._inputState.cameraElastic;
     }
 
@@ -261,7 +261,7 @@ export class InputController extends ScriptComponent {
         this._avatarState.walkSpeed = value;
     }
 
-    public get walkSpeed() : number {
+    public get walkSpeed(): number {
         return this._avatarState.walkSpeed;
     }
 
@@ -270,7 +270,7 @@ export class InputController extends ScriptComponent {
         this._avatarState.runSpeed = value;
     }
 
-    public get runSpeed() : number {
+    public get runSpeed(): number {
         return this._avatarState.runSpeed;
     }
 
@@ -279,7 +279,7 @@ export class InputController extends ScriptComponent {
         this._avatarState.landSpeed = value;
     }
 
-    public get landSpeed() : number {
+    public get landSpeed(): number {
         return this._avatarState.landSpeed;
     }
 
@@ -292,11 +292,11 @@ export class InputController extends ScriptComponent {
         return this._avatarState.flySpeed;
     }
 
-    public get isTeleported() : boolean {
+    public get isTeleported(): boolean {
         return this._avatarState.state === State.Teleport;
     }
 
-    public set isTeleported(value : boolean) {
+    public set isTeleported(value: boolean) {
         if (value) {
             this._avatarState.moveDir = Vector3.Zero();
             this._avatarState.angularVelocity = 0;
@@ -309,7 +309,7 @@ export class InputController extends ScriptComponent {
         this._avatarState.duration = 0;
     }
 
-    public get isStopped() : boolean {
+    public get isStopped(): boolean {
         return this._avatarState.state === State.Stop;
     }
 
@@ -398,15 +398,15 @@ export class InputController extends ScriptComponent {
     }
 
 
-    public onStart():void {
+    public onStart(): void {
         this._attachControl();
     }
 
-    public onStop():void {
+    public onStop(): void {
         this._detachControl();
     }
 
-    public onUpdate():void {
+    public onUpdate(): void {
         const delta = this._scene.getEngine().getDeltaTime() / 1000;
 
         this._handleInput(delta);
@@ -418,7 +418,7 @@ export class InputController extends ScriptComponent {
         this._updateCamera(delta);
     }
 
-    private _updateAvatar(delta : number) {
+    private _updateAvatar(delta: number): void {
         applicationStore.interactions.isInteracting = false;
         switch (this._avatarState.state) {
             case State.Idle:
@@ -448,7 +448,7 @@ export class InputController extends ScriptComponent {
         this._animateAvatar();
     }
 
-    private _attachControl() {
+    private _attachControl(): void {
         // TODO: Make this configurable later as a selected input type rather, influenced by mobile by default.
         if (this._isMobile) {
             this._input = new VirtualJoystickInput(this._avatarState, this._scene);
@@ -459,20 +459,20 @@ export class InputController extends ScriptComponent {
         this._input.attachControl();
     }
 
-    private _detachControl() {
+    private _detachControl(): void {
         if (this._input) {
             this._input.detachControl();
             this._input = null;
         }
     }
 
-    private _handleInput(delta : number) {
+    private _handleInput(delta: number): void {
         if (this._input) {
             this._input.handleInputs(delta);
         }
     }
 
-    private _doStop(delta : number) {
+    private _doStop(delta: number): void {
         this._avatarState.duration += delta;
         if (this._avatarState.duration > 5.0) {
             if (this._avatarState.moveDir.x !== 0 || this._avatarState.moveDir.z !== 0) {
@@ -481,7 +481,7 @@ export class InputController extends ScriptComponent {
         }
     }
 
-    private _doPose(delta : number) {
+    private _doPose(delta: number): void {
         applicationStore.interactions.isInteracting = true;
         this._avatarState.duration += delta;
         if (this._avatarState.duration > 0.5) {
@@ -495,7 +495,7 @@ export class InputController extends ScriptComponent {
         }
     }
 
-    private _doTeleport(delta : number) {
+    private _doTeleport(delta: number): void {
         this._avatarState.duration += delta;
         if (this._avatarState.duration > 1) {
             if (this._avatarState.moveDir.x !== 0 || this._avatarState.moveDir.z !== 0) {
@@ -505,7 +505,7 @@ export class InputController extends ScriptComponent {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    private _doIdle(delta : number) {
+    private _doIdle(delta: number): void {
         this._avatarState.moveDir.x = 0;
         this._avatarState.moveDir.z = 0;
         this._avatarState.currentSpeed = 0;
@@ -534,7 +534,7 @@ export class InputController extends ScriptComponent {
         }
     }
 
-    private _doJump(delta : number) {
+    private _doJump(delta: number): void {
         if (this._avatarState.state === State.Fly) {
             return;
         }
@@ -625,7 +625,7 @@ export class InputController extends ScriptComponent {
         }
     }
 
-    private _doFly(delta : number) {
+    private _doFly(delta: number): void {
         if (!this._gameObject || !this._camera) {
             return;
         }
@@ -654,7 +654,7 @@ export class InputController extends ScriptComponent {
         }
     }
 
-    private _doMove(delta : number) {
+    private _doMove(delta: number): void {
         if (!this._gameObject || !this._camera) {
             return;
         }
@@ -674,13 +674,13 @@ export class InputController extends ScriptComponent {
         this._gameObject.position.addInPlace(velocity);
     }
 
-    private _doMoveInJumping(delta : number) {
+    private _doMoveInJumping(delta: number): void {
         if (this._avatarState.moveDir.x !== 0 || this._avatarState.moveDir.z !== 0) {
             this._doMove(delta);
         }
     }
 
-    private _getCurrentSpeed() : void {
+    private _getCurrentSpeed(): void {
         let speed = 0;
         switch (this._avatarState.action) {
             case Action.Idle:
@@ -708,7 +708,7 @@ export class InputController extends ScriptComponent {
         this._avatarState.currentSpeed = Scalar.Lerp(Math.abs(this._avatarState.currentSpeed), speed, 0.1);
     }
 
-    private _animateAvatar() {
+    private _animateAvatar(): void {
         if (!this._animator) {
             return;
         }
@@ -718,7 +718,7 @@ export class InputController extends ScriptComponent {
         this._animator.update();
     }
 
-    private _updateCamera(delta : number) : void {
+    private _updateCamera(delta: number): void {
         if (!this._camera || !this._gameObject) {
             return;
         }
@@ -753,7 +753,7 @@ export class InputController extends ScriptComponent {
         }
     }
 
-    private _snapCamera(delta : number) : void {
+    private _snapCamera(delta: number): void {
         if (!this._camera || !this._camera.lowerRadiusLimit) {
             return;
         }
@@ -824,7 +824,7 @@ export class InputController extends ScriptComponent {
      * Check if there is a ground surface directly below the player's avatar.
      * @returns `true` if ground was detected, `false` if not.
      */
-    private _detectGround() : boolean {
+    private _detectGround(): boolean {
         if (this._gameObject) {
             // The avatar's root position is at the bottom center of the mesh.
             // Project the ray from just above this point in case the mesh has clipped into the ground slightly.
@@ -848,7 +848,7 @@ export class InputController extends ScriptComponent {
         return false;
     }
 
-    public setCameraMode(mode : CameraMode) : void {
+    public setCameraMode(mode: CameraMode): void {
         if (!this._gameObject || !this._camera) {
             return;
         }
@@ -862,7 +862,7 @@ export class InputController extends ScriptComponent {
         }
     }
 
-    public _setAvatarVisible(visible : boolean) : void {
+    public _setAvatarVisible(visible: boolean): void {
         if (!this._gameObject) {
             return;
         }
@@ -882,5 +882,4 @@ export class InputController extends ScriptComponent {
             meshComp.visible = visible;
         }
     }
-
 }

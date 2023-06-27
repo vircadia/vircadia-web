@@ -23,13 +23,13 @@ interface IAvatarResult {
 }
 
 interface IAvatarAnimationResult {
-    mesh : AbstractMesh;
-    animGroups : AnimationGroup[]
+    mesh: AbstractMesh;
+    animGroups: AnimationGroup[]
 }
 
 interface IResourceUrl {
-    rootUrl : string;
-    filename : string;
+    rootUrl: string;
+    filename: string;
 }
 
 // This is disabled because TS complains about BABYLON's use of capitalized function names.
@@ -37,7 +37,7 @@ interface IResourceUrl {
 
 export class ResourceManager {
     _scene: Scene;
-    _assetsManager : AssetsManager;
+    _assetsManager: AssetsManager;
 
     constructor(secne: Scene) {
         this._scene = secne;
@@ -141,7 +141,7 @@ export class ResourceManager {
         return { mesh, animGroups: animationGroups };
     }
     /*
-    public addSceneObjectTasks(taskName:string, rootUrl:string, meshList:string[]): void {
+    public addSceneObjectTasks(taskName: string, rootUrl: string, meshList: string[]): void {
         meshList.forEach((filename) => {
             const task = this._assetsManager.addMeshTask(taskName, "", rootUrl, filename);
             task.onSuccess = (meshAssetTask) => {
@@ -201,7 +201,7 @@ export class ResourceManager {
         }
     }
 
-    private _createDummyMesh() : AbstractMesh {
+    private _createDummyMesh(): AbstractMesh {
         const mesh = MeshBuilder.CreateSphere("DummyMesh");
         mesh.isPickable = false;
 
@@ -219,7 +219,7 @@ export class ResourceManager {
     }
 
 /*
-    private _processSceneMesh(mesh : AbstractMesh) : void {
+    private _processSceneMesh(mesh: AbstractMesh): void {
         mesh.id = new Uuid().stringify();
         ResourceManager._applySceneMeshRule(mesh);
     }

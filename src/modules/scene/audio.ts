@@ -454,5 +454,4 @@ export const AudioMgr = {
             AudioMgr.setAudioOutputStream(undefined);
         }
     }
-
 };

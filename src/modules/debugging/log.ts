@@ -39,26 +39,26 @@ const Log = (function() {
     }
 
     // debug log message. Output if level is set to DEBUG
-    function debug(pType: types, pMsg: string) {
+    function debug(pType: types, pMsg: string): void {
         if (logLevel === levels.DEBUG) {
             print(pType, levels.DEBUG, pMsg);
         }
     }
 
     // error log message. Always output
-    function error(pType: types, pMsg: string) {
+    function error(pType: types, pMsg: string): void {
         print(pType, levels.ERROR, pMsg);
     }
 
     // warn log message. output if level is warn or above
-    function warn(pType: types, pMsg: string) {
+    function warn(pType: types, pMsg: string): void {
         if (logLevel in [levels.WARN, levels.DEBUG, levels.ERROR]) {
             print(pType, levels.WARN, pMsg);
         }
     }
 
     // Info log messages -- always output
-    function info(pType: types, pMsg: string) {
+    function info(pType: types, pMsg: string): void {
         print(pType, levels.INFO, pMsg);
     }
 

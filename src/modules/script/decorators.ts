@@ -38,11 +38,11 @@ export interface IInspectorPropertyOptions {
 
 const inspectorPropertiesDescMap = new Map<string, IInspectorPropertyDesc[]>();
 
-export function requireDecoratorInspectorPropertyDescs(name:string):IInspectorPropertyDesc[] | undefined {
+export function requireDecoratorInspectorPropertyDescs(name: string): IInspectorPropertyDesc[] | undefined {
     return inspectorPropertiesDescMap.get(name);
 }
 
-export function getAndCreateDecoratorInspectorPropertyDescs(name:string):IInspectorPropertyDesc[] {
+export function getAndCreateDecoratorInspectorPropertyDescs(name: string): IInspectorPropertyDesc[] {
     const properties = inspectorPropertiesDescMap.get(name);
     if (properties) {
         return properties;
@@ -55,8 +55,8 @@ export function getAndCreateDecoratorInspectorPropertyDescs(name:string):IInspec
 /**
  * Decorator to make the property display in babylon.js inspector.
  */
-export function inspector(options ?: IInspectorPropertyOptions | undefined) {
-    return (target: any, propertyKey: string):void => {
+export function inspector(options?: IInspectorPropertyOptions | undefined) {
+    return (target: any, propertyKey: string): void => {
         // remove prefix and capatilze the propertyKey
         const index = propertyKey[0] === "_" ? 1 : 0;
         const label = options && options.label
@@ -80,7 +80,7 @@ export function inspector(options ?: IInspectorPropertyOptions | undefined) {
 /**
  * Decorator to make the accessor display in babylon.js inspector.
  */
-export function inspectorAccessor(options ?: IInspectorPropertyOptions | undefined) {
+export function inspectorAccessor(options?: IInspectorPropertyOptions | undefined) {
     return function(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
         const index = 0;
         // capatilze the propertyKey

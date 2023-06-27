@@ -91,7 +91,7 @@ export const DomainMgr = {
         Log.info(Log.types.COMM, `DomainMgr: shutdown`);
     },
 
-    update():void {
+    update(): void {
         if (DomainMgr._activeDomain) {
             DomainMgr._activeDomain.update();
         }

@@ -52,15 +52,15 @@ export class VScene {
     _myAvatar: Nullable<GameObject> = null;
     _myAvatarModelURL = AvatarStoreInterface.getActiveModelData("file");
 
-    _avatarList : Map<string, GameObject>;
+    _avatarList: Map<string, GameObject>;
     _avatarIsLoading = false;
-    _avatarLoadQueue = [] as (string | undefined)[];
-    _camera : Nullable<Camera> = null;
+    _avatarLoadQueue: (string | undefined)[] = [];
+    _camera: Nullable<Camera> = null;
     _avatarAnimationGroups : AnimationGroup[] = [];
-    _resourceManager : Nullable<ResourceManager> = null;
-    _domainController : Nullable<DomainController> = null;
-    _sceneController : Nullable<SceneController> = null;
-    _sceneManager : Nullable<GameObject> = null;
+    _resourceManager: Nullable<ResourceManager> = null;
+    _domainController: Nullable<DomainController> = null;
+    _sceneController: Nullable<SceneController> = null;
+    _sceneManager: Nullable<GameObject> = null;
     _currentSceneURL = "";
     private _onMyAvatarModelChangedObservable: Observable<GameObject> = new Observable<GameObject>();
     private _onEntityEventObservable: Observable<EntityEvent> = new Observable<EntityEvent>();
@@ -91,7 +91,7 @@ export class VScene {
         this._scene.cameras[pCameraId].position.set(pLoc.x, pLoc.y, pLoc.z);
     }
 
-    getMyAvatar() : Nullable<GameObject> {
+    getMyAvatar(): Nullable<GameObject> {
         return this._myAvatar;
     }
 
@@ -103,11 +103,11 @@ export class VScene {
         return this._onEntityEventObservable;
     }
 
-    public get camera() : Nullable<Camera> {
+    public get camera(): Nullable<Camera> {
         return this._camera;
     }
 
-    public get myAvatarModelURL() : string {
+    public get myAvatarModelURL(): string {
         return this._myAvatarModelURL;
     }
 
@@ -115,7 +115,7 @@ export class VScene {
         return this._css3DRenderer;
     }
 
-    public render():void {
+    public render(): void {
         this._scene.render();
 
         if (this._camera) {
@@ -123,18 +123,18 @@ export class VScene {
         }
     }
 
-    public showLoadingUI() : void {
+    public showLoadingUI(): void {
         this._engine.displayLoadingUI();
         this._scene.detachControl();
     }
 
-    public hideLoadingUI() : void {
+    public hideLoadingUI(): void {
         this._scene.attachControl();
         this._engine.hideLoadingUI();
     }
 
-    public async load(sceneUrl ?: string, avatarModelURL ?: string, avatarPos ?: Vector3, avatarQuat ?: Quaternion,
-        beforeLoading ?: ()=> void, afterLoading ?: ()=> void) : Promise<void> {
+    public async load(sceneUrl?: string, avatarModelURL?: string, avatarPos?: Vector3, avatarQuat?: Quaternion,
+        beforeLoading?: () => void, afterLoading?: () => void): Promise<void> {
         if (sceneUrl !== "" && this._currentSceneURL === sceneUrl) {
             return;
         }
@@ -177,12 +177,12 @@ export class VScene {
         this.hideLoadingUI();
     }
 
-    public dispose() : void {
+    public dispose(): void {
         this._scene.dispose();
         this._css3DRenderer?.removeAllCSS3DObjects();
     }
 
-    public resetMyAvatarPositionAndOrientation() : void {
+    public resetMyAvatarPositionAndOrientation(): void {
         if (this._myAvatar) {
             const location = DomainMgr.ActiveDomain
                 ? DomainMgr.ActiveDomain?.Location
@@ -191,7 +191,7 @@ export class VScene {
         }
     }
 
-    public teleportMyAvatar(location : Location) : void {
+    public teleportMyAvatar(location: Location): void {
         // keep the avatar's orientation when orientation is empty
         const q = location.orientation.length > 0
             ? AvatarMapper.mapDomainOrientation(DataMapper.mapStringToQuaternion(location.orientation))
@@ -201,7 +201,7 @@ export class VScene {
             AvatarMapper.mapDomainPosition(DataMapper.mapStringToVec3(location.position)), q);
     }
 
-    public teleportMyAvatarToOtherPeople(sessionId : string) : void {
+    public teleportMyAvatarToOtherPeople(sessionId: string): void {
         Log.info(Log.types.AVATAR, `teleport MyAvatar to avatar ${sessionId}`);
         const avatar = this._avatarList.get(sessionId);
         if (avatar) {
@@ -213,7 +213,7 @@ export class VScene {
         }
     }
 
-    public stopMyAvatar() : void {
+    public stopMyAvatar(): void {
         if (this._myAvatar) {
             const controller = this._myAvatar.getComponent(InputController.typeName) as InputController;
             if (controller) {
@@ -225,7 +225,7 @@ export class VScene {
     // Note:
     // The position and orientation coordinate of babylon.js and doamin are different.
     // Replace this functin with teleportMyAvatar with location to prevent mess.
-    private _teleportMyAvatar(position: Vector3 | undefined, rotation?: Quaternion | undefined) : void {
+    private _teleportMyAvatar(position: Vector3 | undefined, rotation?: Quaternion | undefined): void {
         if (this._myAvatar) {
             if (position) {
                 this._myAvatar.position = position;
@@ -242,18 +242,18 @@ export class VScene {
         }
     }
 
-    public loadEntity(entity: IEntity) : void {
+    public loadEntity(entity: IEntity): void {
         EntityBuilder.createEntity(entity, this._scene);
     }
 
-    public removeEntity(id: string) : void {
+    public removeEntity(id: string): void {
         const mesh = this._scene.getMeshById(id);
         if (mesh) {
             this._scene.removeMesh(mesh, true);
         }
     }
 
-    public async loadEntities(url: string) : Promise<void> {
+    public async loadEntities(url: string): Promise<void> {
         const response = await fetch(url);
         const json = await response.json() as IEntityDescription;
         const entityDescription = json;
@@ -279,7 +279,7 @@ export class VScene {
      * (otherwise repeated attempts to load the same model will be ignored).
      * @returns A reference to the player's avatar.
      */
-    public async loadMyAvatar(modelURL?: string, reload?: boolean) : Promise<Nullable<GameObject>> {
+    public async loadMyAvatar(modelURL?: string, reload?: boolean): Promise<Nullable<GameObject>> {
         this._avatarLoadQueue.push(modelURL); // Queue load requests.
         if (!this._avatarIsLoading && this._resourceManager) {
             this._avatarIsLoading = true;
@@ -417,7 +417,7 @@ export class VScene {
         return this._myAvatar;
     }
 
-    public async loadAvatar(id: Uuid, domain: ScriptAvatar) : Promise<Nullable<GameObject>> {
+    public async loadAvatar(id: Uuid, domain: ScriptAvatar): Promise<Nullable<GameObject>> {
         const stringId = id.stringify();
         let avatar = this._avatarList.get(stringId);
         if (avatar) {
@@ -479,7 +479,7 @@ export class VScene {
         return avatar;
     }
 
-    public unloadAvatar(id: Uuid) : void {
+    public unloadAvatar(id: Uuid): void {
         const stringId = id.stringify();
         const avatar = this._avatarList.get(stringId);
         if (avatar) {
@@ -489,14 +489,14 @@ export class VScene {
 
     }
 
-    public unloadAllAvatars() : void {
+    public unloadAllAvatars(): void {
         this._avatarList.forEach((gameObj) => {
             gameObj.dispose();
         });
         this._avatarList.clear();
     }
 
-    private async _createScene() : Promise<void> {
+    private async _createScene(): Promise<void> {
         if (!this._scene) {
             this._scene = new Scene(this._engine);
         }
@@ -561,11 +561,11 @@ export class VScene {
         }
     }
 
-    private _onKeyUp(evt: ActionEvent) : void {
+    private _onKeyUp(evt: ActionEvent): void {
         void this._handleKeyUp(evt);
     }
 
-    private async _handleKeyUp(evt: ActionEvent) :Promise<void> {
+    private async _handleKeyUp(evt: ActionEvent): Promise<void> {
         /* eslint-disable @typescript-eslint/no-unsafe-member-access */
         switch (evt.sourceEvent.code) {
             case "Slash":
@@ -594,7 +594,7 @@ export class VScene {
         /* eslint-enable @typescript-eslint/no-unsafe-member-access */
     }
 
-    private _onSceneReady():void {
+    private _onSceneReady(): void {
         requireScripts(this._scene, this._scene.transformNodes);
 
         // handle dynamic loaded script

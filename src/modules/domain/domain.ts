@@ -59,7 +59,7 @@ export class Domain {
     // public get DomainUrl(): string { return this.#_domainUrl; }
 
     #_location = new Location("");
-    public get Location() : Location {
+    public get Location(): Location {
         return this.#_location;
     }
 
@@ -68,7 +68,7 @@ export class Domain {
     #_messageClient: Nullable<DomainMessage>;
     #_avatarClient: Nullable<DomainAvatar>;
     #_camera:Nullable<Camera>;
-    #_entityClient : Nullable<EntityServer>;
+    #_entityClient: Nullable<EntityServer>;
 
     public get DomainClient(): Nullable<DomainServer> { return this.#_domain; }
     public get AudioClient(): Nullable<DomainAudio> { return this.#_audioClient; }
@@ -256,7 +256,7 @@ export class Domain {
     //     this.#_location = new Location(Config.getItem(DomainPersist.DOMAIN_URL, "UNKNOWN"));
     // }
 
-    public update() : void {
+    public update(): void {
         if (this.#_avatarClient) {
             this.#_avatarClient.update();
         }
@@ -269,7 +269,6 @@ export class Domain {
             this.#_camera.update();
         } */
     }
-
 
     #updateDomainLogin = (): void => {
         if (!this.#_domain) {
@@ -291,5 +290,4 @@ export class Domain {
             this.#_domain.account.logout();
         }
     };
-
 }

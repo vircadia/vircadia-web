@@ -31,7 +31,7 @@ export class DataMapper {
         return "0,0,0,1";
     }
 
-    static mapStringToVec3(vecStr: string) : vec3 {
+    static mapStringToVec3(vecStr: string): vec3 {
         const array = vecStr.split(",").map((value) => Number(value));
         if (array.length >= 3) {
             return { x: array[0], y: array[1], z: array[2] };
@@ -40,7 +40,7 @@ export class DataMapper {
         return Vec3.ZERO;
     }
 
-    static mapStringToQuaternion(quatStr: string) : quat {
+    static mapStringToQuaternion(quatStr: string): quat {
         const array = quatStr.split(",").map((value) => Number(value));
         if (array.length >= 4) {
             return { x: array[0], y: array[1], z: array[2], w: array[3] };

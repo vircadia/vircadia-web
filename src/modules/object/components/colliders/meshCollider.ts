@@ -20,7 +20,7 @@ export class MeshColliderComponent extends ColliderComponent {
     * Gets a string identifying the type of this Component
     * @returns "Mesh" string
     */
-    public get componentType():string {
+    public get componentType(): string {
         return MeshColliderComponent.typeName;
     }
 
@@ -57,11 +57,10 @@ export class MeshColliderComponent extends ColliderComponent {
     }
 
     // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-empty-function
-    protected _createColliderImposterForCompoundBody() : void {
+    protected _createColliderImposterForCompoundBody(): void {
     }
 
     // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-empty-function
-    protected _createColliderImposter() : void {
-
+    protected _createColliderImposter(): void {
     }
 }

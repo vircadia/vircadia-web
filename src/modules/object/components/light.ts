@@ -1,4 +1,3 @@
-/* eslint-disable class-methods-use-this */
 //
 //  ligth.ts
 //
@@ -9,6 +8,8 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
+
+/* eslint-disable class-methods-use-this */
 
 import { GenericNodeComponent } from "../component";
 import {
@@ -39,7 +40,7 @@ export class LightComponent extends GenericNodeComponent<Light> {
     * Gets a string identifying the type of this Component
     * @returns "Light" string
     */
-    public get componentType():string {
+    public get componentType(): string {
         return LightComponent.typeName;
     }
 
@@ -49,7 +50,7 @@ export class LightComponent extends GenericNodeComponent<Light> {
 }
 
 export class AmbientLightComponent extends LightComponent {
-    public get componentType():string {
+    public get componentType(): string {
         return AmbientLightComponent.typeName;
     }
 
@@ -59,7 +60,7 @@ export class AmbientLightComponent extends LightComponent {
 }
 
 export class DirectionalLightComponent extends GenericNodeComponent<DirectionalLight> {
-    public get componentType():string {
+    public get componentType(): string {
         return DirectionalLightComponent.typeName;
     }
 

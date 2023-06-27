@@ -29,13 +29,13 @@ import { VScene } from "../vscene";
 import { Camera } from "@babylonjs/core";
 
 export class DomainController extends ScriptComponent {
-    _avatarMixer : Nullable<AvatarMixer> = null;
-    _entityServer : Nullable<EntityServer> = null;
-    _domainConnectionState : ConnectionState = ConnectionState.DISCONNECTED;
-    _entityManager : Nullable<EntityManager> = null;
-    _domainCamera : Nullable<DomainCamera> = null;
-    _vscene : Nullable<VScene>;
-    _camera : Nullable<Camera> = null;
+    _avatarMixer: Nullable<AvatarMixer> = null;
+    _entityServer: Nullable<EntityServer> = null;
+    _domainConnectionState: ConnectionState = ConnectionState.DISCONNECTED;
+    _entityManager: Nullable<EntityManager> = null;
+    _domainCamera: Nullable<DomainCamera> = null;
+    _vscene: Nullable<VScene>;
+    _camera: Nullable<Camera> = null;
 
     @inspector()
         _sessionID = "";
@@ -45,7 +45,7 @@ export class DomainController extends ScriptComponent {
         this._handleActiveDomainStateChange = this._handleActiveDomainStateChange.bind(this);
     }
 
-    public set vscene(value : VScene) {
+    public set vscene(value: VScene) {
         this._vscene = value;
     }
 
@@ -74,7 +74,7 @@ export class DomainController extends ScriptComponent {
     * @returns "DomainController" string
     */
     // eslint-disable-next-line class-methods-use-this
-    public get componentType():string {
+    public get componentType(): string {
         return "DomainController";
     }
 
@@ -89,7 +89,7 @@ export class DomainController extends ScriptComponent {
     }
 
 
-    public onUpdate():void {
+    public onUpdate(): void {
         if (this._entityManager) {
             this._entityManager.update();
         }
@@ -236,7 +236,7 @@ export class DomainController extends ScriptComponent {
         }
     }
 
-    private _handleOnEntityAdded(entity : IEntity) {
+    private _handleOnEntityAdded(entity: IEntity): void {
         Log.debug(Log.types.ENTITIES,
             `Add entity ${entity.id}
             name:${entity.name as string}
@@ -245,7 +245,7 @@ export class DomainController extends ScriptComponent {
         this._vscene?.loadEntity(entity);
     }
 
-    private _handleOnEntityRemoved(entity : IEntity) {
+    private _handleOnEntityRemoved(entity: IEntity): void {
         Log.debug(Log.types.ENTITIES,
             `Remove entity ${entity.id}
             name:${entity.name as string}
@@ -254,7 +254,7 @@ export class DomainController extends ScriptComponent {
         this._vscene?.removeEntity(entity.id);
     }
 
-    private _syncCamera() {
+    private _syncCamera(): void {
         if (this._domainCamera && this._camera) {
             this._domainCamera.position = EntityMapper.mapToVector3Property(this._camera.globalPosition);
             this._domainCamera.orientation = EntityMapper.mapToQuaternionProperty(this._camera.absoluteRotation);

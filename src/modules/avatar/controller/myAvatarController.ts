@@ -18,27 +18,27 @@ import { MyAvatarInterface, SkeletonJoint } from "@vircadia/web-sdk";
 import { MeshComponent } from "../../object";
 
 export class MyAvatarController extends ScriptComponent {
-    private _myAvatar : Nullable<MyAvatarInterface> = null;
+    private _myAvatar: Nullable<MyAvatarInterface> = null;
     private _skeletonNodes: Map<string, TransformNode> = new Map<string, TransformNode>();
-    private _modelURL : string | undefined;
+    private _modelURL: string | undefined;
 
     constructor() {
         super(MyAvatarController.typeName);
     }
 
     @inspectorAccessor()
-    public get skeletonModelURL() : string | undefined {
+    public get skeletonModelURL(): string | undefined {
         return this._modelURL;
     }
 
-    public set skeletonModelURL(value:string | undefined) {
+    public set skeletonModelURL(value: string | undefined) {
         this._modelURL = value;
         if (this._myAvatar && value) {
             this._myAvatar.skeletonModelURL = value;
         }
     }
 
-    public set myAvatar(avatar : Nullable<MyAvatarInterface>) {
+    public set myAvatar(avatar: Nullable<MyAvatarInterface>) {
         this._myAvatar = avatar;
         if (!this._gameObject || !this._myAvatar) {
             return;
@@ -53,23 +53,23 @@ export class MyAvatarController extends ScriptComponent {
         this._collectJoints();
     }
 
-    public get myAvatar() : Nullable<MyAvatarInterface> {
+    public get myAvatar(): Nullable<MyAvatarInterface> {
         return this._myAvatar;
     }
 
     @inspectorAccessor()
-    public get displayName() : string {
+    public get displayName(): string {
         return this._myAvatar ? this._myAvatar.displayName : "";
     }
 
-    public set displayName(value:string) {
+    public set displayName(value: string) {
         if (this._myAvatar) {
             this._myAvatar.displayName = value;
         }
     }
 
     @inspectorAccessor()
-    public get sessionDisplayName() : string {
+    public get sessionDisplayName(): string {
         return this._myAvatar ? this._myAvatar.sessionDisplayName : "";
     }
 
@@ -78,7 +78,7 @@ export class MyAvatarController extends ScriptComponent {
     * @returns "MyAvatarController" string
     */
     // eslint-disable-next-line class-methods-use-this
-    public get componentType():string {
+    public get componentType(): string {
         return MyAvatarController.typeName;
     }
 
@@ -86,7 +86,7 @@ export class MyAvatarController extends ScriptComponent {
         return "MyAvatarController";
     }
 
-    public onUpdate():void {
+    public onUpdate(): void {
         if (this._gameObject && this._myAvatar) {
             // sync position
             this._myAvatar.position = AvatarMapper.mapToDomainPosition(this._gameObject.position);
@@ -97,7 +97,7 @@ export class MyAvatarController extends ScriptComponent {
         }
     }
 
-    private _collectJoints() {
+    private _collectJoints(): void {
         if (!this._myAvatar || !this._gameObject) {
             return;
         }
@@ -160,7 +160,7 @@ export class MyAvatarController extends ScriptComponent {
         this._myAvatar.skeleton = skeleton;
     }
 
-    private _syncPoseToDomain() {
+    private _syncPoseToDomain(): void {
         if (!this._gameObject || !this._myAvatar) {
             return;
         }

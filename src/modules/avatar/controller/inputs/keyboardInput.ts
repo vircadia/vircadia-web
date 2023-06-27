@@ -38,18 +38,18 @@ import type { SceneController } from "@Modules/scene/controllers";
 
 
 export class KeyboardInput implements IInputHandler {
-    private _scene : Scene;
-    private _state : AvatarState;
-    private _inputState : InputState;
+    private _scene: Scene;
+    private _state: AvatarState;
+    private _inputState: InputState;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private _inputMap : any = {};
+    private _inputMap: any = {};
     private _shiftKey = false;
     private _runKey = false;
-    private _keyDownAction:Nullable<IAction> = null;
-    private _keyUpAction:Nullable<IAction> = null;
+    private _keyDownAction: Nullable<IAction> = null;
+    private _keyUpAction: Nullable<IAction> = null;
     private _previousMuteInput = applicationStore.audio.user.muted;
 
-    constructor(state : AvatarState, inputState : InputState, scene: Scene) {
+    constructor(state: AvatarState, inputState: InputState, scene: Scene) {
         this._state = state;
         this._inputState = inputState;
         this._scene = scene;
@@ -83,7 +83,7 @@ export class KeyboardInput implements IInputHandler {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    public handleInputs(delta: number) : void {
+    public handleInputs(delta: number): void {
         if (this._inputMap[userStore.controls.keyboard.movement.jump?.keycode] && this._state.state !== State.Fly) {
             if (this._state.state !== State.Jump) {
                 this._state.state = State.Jump;
@@ -127,7 +127,7 @@ export class KeyboardInput implements IInputHandler {
         }
     }
 
-    private _onKeyDown(evt: ActionEvent):void {
+    private _onKeyDown(evt: ActionEvent): void {
         if (!evt.sourceEvent?.code) {
             return;
         }
@@ -254,7 +254,7 @@ export class KeyboardInput implements IInputHandler {
         }
     }
 
-    private _onKeyUp(evt: ActionEvent):void {
+    private _onKeyUp(evt: ActionEvent): void {
         if (!evt.sourceEvent?.code) {
             // Work around "continue walking forever" browser / Babylon.js bug in which the code value can be undefined if the
             // key-up event is due to clicking on an app window while a key is pressed.

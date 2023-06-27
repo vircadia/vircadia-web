@@ -13,6 +13,6 @@ export interface IInputHandler {
 
     detachControl(): void;
 
-    handleInputs (delta: number) : void;
+    handleInputs (delta: number): void;
 
 }

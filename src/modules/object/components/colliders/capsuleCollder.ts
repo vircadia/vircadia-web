@@ -20,7 +20,7 @@ export class CapsuleColliderComponent extends ColliderComponent {
     * Gets a string identifying the type of this Component
     * @returns "Mesh" string
     */
-    public get componentType():string {
+    public get componentType(): string {
         return CapsuleColliderComponent.typeName;
     }
 
@@ -28,7 +28,7 @@ export class CapsuleColliderComponent extends ColliderComponent {
         return "CapsuleCollider";
     }
 
-    public createCollider(radius?: number, height?: number, position?: Vector3) : void {
+    public createCollider(radius?: number, height?: number, position?: Vector3): void {
         const capsule = MeshBuilder.CreateCapsule("CapsuleCollider",
             { radius, height }, this._scene);
 
@@ -46,7 +46,7 @@ export class CapsuleColliderComponent extends ColliderComponent {
         this.collider = capsule;
     }
 
-    protected _createColliderImposter() : void {
+    protected _createColliderImposter(): void {
         if (this.collider) {
             // create CapsuleImpostor with zero mass
             this.collider.physicsImpostor = new PhysicsImpostor(this.collider,

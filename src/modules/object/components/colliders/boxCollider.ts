@@ -20,7 +20,7 @@ export class BoxColliderComponent extends ColliderComponent {
     * Gets a string identifying the type of this Component
     * @returns "Mesh" string
     */
-    public get componentType():string {
+    public get componentType(): string {
         return BoxColliderComponent.typeName;
     }
 
@@ -28,7 +28,7 @@ export class BoxColliderComponent extends ColliderComponent {
         return "BoxCollider";
     }
 
-    public create(scene: Nullable<Scene>, dimensions?: Vector3, position?: Vector3) : void {
+    public create(scene: Nullable<Scene>, dimensions?: Vector3, position?: Vector3): void {
         /*
         const defaultColor = Color3.Blue();
         const color = new Color4(defaultColor.r, defaultColor.g, defaultColor.b, 1);
@@ -56,10 +56,10 @@ export class BoxColliderComponent extends ColliderComponent {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    protected _createColliderImposterForCompoundBody() : void {
+    protected _createColliderImposterForCompoundBody(): void {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    protected _createColliderImposter() : void {
+    protected _createColliderImposter(): void {
     }
 }

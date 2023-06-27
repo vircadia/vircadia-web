@@ -9,13 +9,13 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
+/* eslint-disable class-methods-use-this */
+
 import { GenericNodeComponent } from "../component";
 
 import {
     AbstractMesh, AnimationGroup, Nullable, Skeleton
 } from "@babylonjs/core";
-
-/* eslint-disable class-methods-use-this */
 
 /**
  * A mesh component.
@@ -98,7 +98,7 @@ export class MeshComponent extends GenericNodeComponent<AbstractMesh> {
     * Gets a string identifying the type of this Component
     * @returns "Mesh" string
     */
-    public get componentType():string {
+    public get componentType(): string {
         return MeshComponent.typeName;
     }
 
