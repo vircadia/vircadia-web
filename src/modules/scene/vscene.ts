@@ -20,7 +20,7 @@ import { ResourceManager } from "./resource";
 import { DomainController, SceneController } from "./controllers";
 import { GameObject, MeshComponent, CapsuleColliderComponent,
     DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
-import { ScriptComponent, requireScript, requireScripts, reattachScript } from "@Modules/script";
+import { ScriptComponent, requireScript, requireScripts } from "@Modules/script";
 import { InputController, MyAvatarController, ScriptAvatarController, AvatarMapper } from "@Modules/avatar";
 import { IEntity, IEntityDescription, EntityBuilder, EntityEvent } from "@Modules/entity";
 import { NametagEntity } from "@Modules/entity/entities";
@@ -48,7 +48,6 @@ export class VScene {
     _sceneId: number;
     _engine: Engine;
     _scene: Scene;
-    _preScene: Nullable<Scene> = null;
     private _css3DRenderer: Nullable<CSS3DRenderer> = null;
     _myAvatar: Nullable<GameObject> = null;
     _myAvatarModelURL = AvatarStoreInterface.getActiveModelData("file");
@@ -73,10 +72,10 @@ export class VScene {
         }
 
         this._engine = pEngine;
-        this._scene = new Scene(pEngine);
+        this._scene = new Scene(this._engine);
         this._sceneId = pSceneId;
         this._avatarList = new Map<string, GameObject>();
-        this._css3DRenderer = new CSS3DRenderer(pEngine.getRenderingCanvas() as HTMLCanvasElement);
+        this._css3DRenderer = new CSS3DRenderer(this._engine.getRenderingCanvas() as HTMLCanvasElement);
         this._css3DRenderer.scene = this._scene;
     }
 
@@ -143,7 +142,6 @@ export class VScene {
         this._currentSceneURL = sceneUrl ?? "";
 
         this._engine.displayLoadingUI();
-        this._preScene = this._scene;
         await this._createScene();
         this._scene.detachControl();
 
@@ -174,11 +172,6 @@ export class VScene {
 
         if (afterLoading) {
             afterLoading();
-        }
-
-        if (this._preScene) {
-            this._preScene.dispose();
-            this._preScene = null;
         }
 
         this.hideLoadingUI();
@@ -504,14 +497,15 @@ export class VScene {
     }
 
     private async _createScene() : Promise<void> {
-        this._scene = new Scene(this._engine);
+        if (!this._scene) {
+            this._scene = new Scene(this._engine);
+        }
         // use right handed system to match vircadia coordinate system
         this._scene.useRightHandedSystem = true;
         this._resourceManager = new ResourceManager(this._scene);
         this._scene.actionManager = new ActionManager(this._scene);
         this._scene.actionManager.registerAction(
-            new ExecuteCodeAction(ActionManager.OnKeyUpTrigger,
-                this._onKeyUp.bind(this))
+            new ExecuteCodeAction(ActionManager.OnKeyUpTrigger, this._onKeyUp.bind(this))
         );
 
         if (!this._sceneManager) {
@@ -529,10 +523,9 @@ export class VScene {
         }
 
         this._scene.onReadyObservable.add(this._onSceneReady.bind(this));
-        this._scene.onReadyObservable.add(
-            () => {
-                this._sceneController?.onSceneReady();
-            });
+        this._scene.onReadyObservable.add(() => {
+            this._sceneController?.onSceneReady();
+        });
 
         // Enable physics
         const ammoReference = await Ammo.apply(window);
@@ -566,38 +559,6 @@ export class VScene {
             defaultPipeline.samples = Number(userStore.graphics.msaa);
             defaultPipeline.sharpenEnabled = Boolean(userStore.graphics.sharpen);
         }
-    }
-
-    private _handleDontDestroyOnLoadObjects() : void {
-        if (!this._preScene) {
-            return;
-        }
-
-        GameObject.dontDestroyOnLoadList.forEach((gameObj) => {
-            if (this._preScene === gameObj.getScene()) {
-                // remove GameObject form pervious scene
-                this._preScene.removeMesh(gameObj, true);
-                // add GameObject to new scene
-                gameObj._scene = this._scene;
-                gameObj.uniqueId = this._scene.getUniqueId();
-                this._scene.addMesh(gameObj, true);
-
-                const nodes = gameObj.getChildTransformNodes(false);
-
-                nodes.forEach((component) => {
-                    if (component instanceof ScriptComponent) {
-                        // remove component form pervious scene
-                        this._preScene?.removeTransformNode(component);
-                        // add component to new scene
-                        component._scene = this._scene;
-                        component.uniqueId = this._scene.getUniqueId();
-                        this._scene.addTransformNode(component);
-
-                        reattachScript(this._scene, component);
-                    }
-                });
-            }
-        });
     }
 
     private _onKeyUp(evt: ActionEvent) : void {
@@ -635,8 +596,6 @@ export class VScene {
 
     private _onSceneReady():void {
         requireScripts(this._scene, this._scene.transformNodes);
-
-        this._handleDontDestroyOnLoadObjects();
 
         // handle dynamic loaded script
         this._scene.onNewTransformNodeAddedObservable.add((node) => {
