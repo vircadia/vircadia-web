@@ -16,15 +16,15 @@ import { EntityProperties } from "@vircadia/web-sdk";
 import { EntityMapper } from "../package";
 
 export class EntityPropertyChangeObservable<T extends IEntity> {
-    _entity : T;
-    public observable : Observable<T> = new Observable<T>();
+    _entity: T;
+    public observable: Observable<T> = new Observable<T>();
     public isDirty = false;
 
-    constructor(entity : T) {
+    constructor(entity: T) {
         this._entity = entity;
     }
 
-    public update() : void {
+    public update(): void {
         if (this.isDirty) {
             this.observable.notifyObservers(this._entity);
             this.isDirty = false;
@@ -33,8 +33,8 @@ export class EntityPropertyChangeObservable<T extends IEntity> {
 }
 
 export abstract class Entity implements IEntity {
-    protected _id : string;
-    protected _type : EntityType;
+    protected _id: string;
+    protected _type: EntityType;
     protected _name: string | undefined;
     protected _parentID: string | undefined;
     protected _visible: boolean | undefined;
@@ -48,7 +48,7 @@ export abstract class Entity implements IEntity {
     protected _userData: string | undefined;
     // collision Properties
     protected _collisionless: boolean | undefined;
-    protected _collisionMask : number | undefined;
+    protected _collisionMask: number | undefined;
     protected _collisionSoundURL: string | undefined;
     protected _dynamic: boolean | undefined;
     // physics Properties
@@ -61,19 +61,19 @@ export abstract class Entity implements IEntity {
     protected _density: number | undefined;
     protected _gravity: IVector3Property | undefined;
 
-    protected _propertyChangeObservables : Array<EntityPropertyChangeObservable<IEntity>>;
+    protected _propertyChangeObservables: Array<EntityPropertyChangeObservable<IEntity>>;
 
-    protected _onCommonPropertiesChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onRenderModeChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onParentChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onPositionAndRotationChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onDimensionChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onScriptChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onUserDataChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onCollisionPropertiesChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onPhysicsPropertiesChanged : EntityPropertyChangeObservable<IEntity>;
+    protected _onCommonPropertiesChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onRenderModeChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onParentChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onPositionAndRotationChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onDimensionChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onScriptChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onUserDataChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onCollisionPropertiesChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onPhysicsPropertiesChanged: EntityPropertyChangeObservable<IEntity>;
 
-    constructor(id : string, type : EntityType) {
+    constructor(id: string, type: EntityType) {
         this._id = id;
         this._type = type;
 
@@ -96,15 +96,15 @@ export abstract class Entity implements IEntity {
         return observable;
     }
 
-    public get id() : string {
+    public get id(): string {
         return this._id;
     }
 
-    public get type() : EntityType {
+    public get type(): EntityType {
         return this._type;
     }
 
-    public get name() : string | undefined {
+    public get name(): string | undefined {
         return this._name;
     }
 
@@ -203,7 +203,7 @@ export abstract class Entity implements IEntity {
         }
     }
 
-    public get collisionless() : boolean | undefined {
+    public get collisionless(): boolean | undefined {
         return this._collisionless;
     }
 
@@ -214,7 +214,7 @@ export abstract class Entity implements IEntity {
         }
     }
 
-    public get collisionMask() : number | undefined {
+    public get collisionMask(): number | undefined {
         return this._collisionMask;
     }
 
@@ -225,7 +225,7 @@ export abstract class Entity implements IEntity {
         }
     }
 
-    public get collisionSoundURL() : string | undefined {
+    public get collisionSoundURL(): string | undefined {
         return this._collisionSoundURL;
     }
 
@@ -236,7 +236,7 @@ export abstract class Entity implements IEntity {
         }
     }
 
-    public get dynamic() : boolean | undefined {
+    public get dynamic(): boolean | undefined {
         return this._dynamic;
     }
 
@@ -371,13 +371,13 @@ export abstract class Entity implements IEntity {
         return this._onPhysicsPropertiesChanged.observable;
     }
 
-    public update() : void {
+    public update(): void {
         this._propertyChangeObservables.forEach((observable) => {
             observable.update();
         });
     }
 
-    public copyFormPacketData(props : EntityProperties) : void {
+    public copyFormPacketData(props: EntityProperties): void {
         this.name = props.name;
         this.position = props.position;
         this.rotation = props.rotation;

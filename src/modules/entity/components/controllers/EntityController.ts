@@ -22,10 +22,10 @@ import { Nullable, Observer } from "@babylonjs/core";
 
 export abstract class EntityController extends ScriptComponent {
     // domain properties
-    _entity : IEntity;
-    _parentObserver : Nullable<Observer<GameObject>> = null;
+    _entity: IEntity;
+    _parentObserver: Nullable<Observer<GameObject>> = null;
 
-    constructor(entity : IEntity, name: string) {
+    constructor(entity: IEntity, name: string) {
         super(name);
         this._entity = entity;
     }
@@ -131,7 +131,7 @@ export abstract class EntityController extends ScriptComponent {
         }
     }
 
-    protected _getSubItemName() : string {
+    protected _getSubItemName(): string {
         return this._entity.name ? this._entity.name + "_" + this._entity.id : this._entity.id;
     }
 }

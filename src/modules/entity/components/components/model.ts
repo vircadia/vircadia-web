@@ -177,7 +177,7 @@ export class ModelComponent extends MeshComponent {
         }
     }
 
-    protected _getMass(entity: IModelEntity) : number {
+    protected _getMass(entity: IModelEntity): number {
         if (entity.dynamic && entity.dimensions && entity.density) {
             return entity.density * entity.dimensions.x * entity.dimensions.y * entity.dimensions.z;
         }

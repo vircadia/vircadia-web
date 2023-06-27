@@ -10,6 +10,8 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
+/* eslint-disable new-cap */
+
 import { MeshComponent, DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { Scene, MeshBuilder, StandardMaterial,
     Texture, CubeTexture, EquiRectangularCubeTexture, BaseTexture } from "@babylonjs/core";
@@ -17,13 +19,11 @@ import { ISkyboxProperty, IVector3Property } from "../../EntityProperties";
 import { EntityMapper } from "../../package";
 import { AssetUrl } from "../../builders/asset";
 
-/* eslint-disable new-cap */
-
 export class SkyboxComponent extends MeshComponent {
     static readonly DefaultSkyBoxSize = 2000;
     static readonly DefaultCubeMapSize = 1024;
 
-    public get componentType():string {
+    public get componentType(): string {
         return SkyboxComponent.typeName;
     }
 
@@ -31,7 +31,7 @@ export class SkyboxComponent extends MeshComponent {
         return "Skybox";
     }
 
-    public load(props: ISkyboxProperty, dimensions: IVector3Property | undefined, id: string) : void {
+    public load(props: ISkyboxProperty, dimensions: IVector3Property | undefined, id: string): void {
         if (this._mesh) {
             this._mesh.dispose();
             this._mesh = null;
@@ -60,7 +60,7 @@ export class SkyboxComponent extends MeshComponent {
         this.update(props);
     }
 
-    public update(props: ISkyboxProperty) : void {
+    public update(props: ISkyboxProperty): void {
         if (this._mesh) {
             const scene = this._mesh.getScene();
             let material = this._mesh.material as StandardMaterial;
@@ -85,7 +85,7 @@ export class SkyboxComponent extends MeshComponent {
         }
     }
 
-    private createflectionTexture(url: string, scene:Scene) : BaseTexture {
+    private createflectionTexture(url: string, scene: Scene): BaseTexture {
         let reflectionTexture = null;
 
         const assetUrl = new AssetUrl(url);
@@ -102,5 +102,4 @@ export class SkyboxComponent extends MeshComponent {
 
         return reflectionTexture;
     }
-
 }

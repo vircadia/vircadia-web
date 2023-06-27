@@ -14,13 +14,12 @@ import { EntityController } from "./EntityController";
 import { ILightEntity } from "../../EntityInterfaces";
 import { LightEntityComponent } from "../components";
 
-
 export class LightEntityController extends EntityController {
     // domain properties
-    _lightEntity : ILightEntity;
-    _lightComponent : Nullable<LightEntityComponent>;
+    _lightEntity: ILightEntity;
+    _lightComponent: Nullable<LightEntityComponent>;
 
-    constructor(entity : ILightEntity) {
+    constructor(entity: ILightEntity) {
         super(entity, LightEntityController.typeName);
         this._lightEntity = entity;
     }
@@ -30,7 +29,7 @@ export class LightEntityController extends EntityController {
     * @returns "EntityController" string
     */
     // eslint-disable-next-line class-methods-use-this
-    public get componentType():string {
+    public get componentType(): string {
         return LightEntityController.typeName;
     }
 
@@ -64,7 +63,6 @@ export class LightEntityController extends EntityController {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
-    public onUpdate():void {
-
+    public onUpdate(): void {
     }
 }

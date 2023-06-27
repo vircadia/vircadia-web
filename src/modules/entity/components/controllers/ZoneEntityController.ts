@@ -67,16 +67,16 @@ type ZoneExtensions = {
 
 export class ZoneEntityController extends EntityController {
     // domain properties
-    _zoneEntity : IZoneEntity;
+    _zoneEntity: IZoneEntity;
 
-    _skybox : Nullable<SkyboxComponent> = null;
-    _ambientLight : Nullable<AmbientLightComponent> = null;
-    _keyLight : Nullable<KeyLightComponent> = null;
-    _haze : Nullable<HazeComponent> = null;
+    _skybox: Nullable<SkyboxComponent> = null;
+    _ambientLight: Nullable<AmbientLightComponent> = null;
+    _keyLight: Nullable<KeyLightComponent> = null;
+    _haze: Nullable<HazeComponent> = null;
 
-    _vls : Nullable<VolumetricLightScatteringPostProcess> = null;
+    _vls: Nullable<VolumetricLightScatteringPostProcess> = null;
 
-    constructor(entity : IZoneEntity) {
+    constructor(entity: IZoneEntity) {
         super(entity, ZoneEntityController.typeName);
         this._zoneEntity = entity;
     }
@@ -86,7 +86,7 @@ export class ZoneEntityController extends EntityController {
     * @returns "EntityController" string
     */
     // eslint-disable-next-line class-methods-use-this
-    public get componentType():string {
+    public get componentType(): string {
         return ZoneEntityController.typeName;
     }
 
@@ -118,11 +118,10 @@ export class ZoneEntityController extends EntityController {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
-    public onUpdate():void {
-
+    public onUpdate(): void {
     }
 
-    public dispose():void {
+    public dispose(): void {
         if (this._scene.activeCamera && this._vls) {
             this._vls.dispose(this._scene.activeCamera);
         }
@@ -136,7 +135,7 @@ export class ZoneEntityController extends EntityController {
         }
     }
 
-    protected _updateDimensions() : void {
+    protected _updateDimensions(): void {
         if (!this._zoneEntity.skybox) {
             return;
         }
@@ -149,7 +148,7 @@ export class ZoneEntityController extends EntityController {
         this._updateSkybox();
     }
 
-    protected _updateSkybox() : void {
+    protected _updateSkybox(): void {
         if (this._zoneEntity.skyboxMode === "enabled" && this._zoneEntity.skybox && this._gameObject) {
             if (!this._skybox) {
                 this._skybox = new SkyboxComponent();
@@ -163,7 +162,7 @@ export class ZoneEntityController extends EntityController {
         }
     }
 
-    protected updateAmbientLight() :void {
+    protected updateAmbientLight(): void {
         if (this._zoneEntity.ambientLightMode === "enabled" && this._zoneEntity.ambientLight && this._gameObject) {
             if (!this._ambientLight) {
                 this._ambientLight = new AmbientLightComponent();
@@ -183,7 +182,7 @@ export class ZoneEntityController extends EntityController {
         }
     }
 
-    protected updateKeyLight() : void {
+    protected updateKeyLight(): void {
         if (this._zoneEntity.keyLightMode === "enabled" && this._zoneEntity.keyLight && this._gameObject) {
             if (!this._keyLight) {
                 this._keyLight = new KeyLightComponent(this._zoneEntity.keyLight, this._gameObject.getScene());
@@ -196,7 +195,7 @@ export class ZoneEntityController extends EntityController {
         }
     }
 
-    protected updateHaze() : void {
+    protected updateHaze(): void {
         if (this._zoneEntity.hazeMode === "enabled" && this._zoneEntity.haze && this._gameObject) {
             if (!this._haze) {
                 this._haze = new HazeComponent(this._zoneEntity.haze, this._gameObject.getScene());
@@ -209,7 +208,7 @@ export class ZoneEntityController extends EntityController {
         }
     }
 
-    protected _updateUserData() : void {
+    protected _updateUserData(): void {
         const userData = this._zoneEntity.userData
             ? JSON.parse(this._zoneEntity.userData) as ZoneExtensions
             : undefined;
@@ -218,7 +217,7 @@ export class ZoneEntityController extends EntityController {
         this._updateVolumetricLight(userData);
     }
 
-    protected _updateEnvironment(userData : ZoneExtensions | undefined) : void {
+    protected _updateEnvironment(userData: ZoneExtensions | undefined): void {
         if (userData && userData.environment && userData.environment.environmentTexture) {
             if (this._scene.environmentTexture
                 && this._scene.environmentTexture.name !== userData.environment.environmentTexture) {
@@ -237,7 +236,7 @@ export class ZoneEntityController extends EntityController {
         }
     }
 
-    protected _updateDefaultRenderingPipeline(userData : ZoneExtensions | undefined) : void {
+    protected _updateDefaultRenderingPipeline(userData: ZoneExtensions | undefined): void {
         if (userData && userData.renderingPipeline) {
             let defaultPipeline = this._scene.postProcessRenderPipelineManager.supportedPipelines
                 .find((value) => value.name === "default") as DefaultRenderingPipeline;
@@ -266,7 +265,7 @@ export class ZoneEntityController extends EntityController {
         }
     }
 
-    protected _updateVolumetricLight(userData : ZoneExtensions | undefined) : void {
+    protected _updateVolumetricLight(userData: ZoneExtensions | undefined): void {
         const volumetricLightEnabled = userData?.postProcessing?.volumetricLightEnabled;
         const volumetricLightSettings = userData?.postProcessing?.volumetricLight;
         if (volumetricLightEnabled && volumetricLightSettings) {

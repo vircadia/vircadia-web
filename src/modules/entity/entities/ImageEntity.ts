@@ -23,10 +23,10 @@ export class ImageEntity extends Entity implements IImageEntity {
     protected _subImage: IRectProperty | undefined;
     protected _color: IColorProperty | undefined;
     protected _alpha: number | undefined;
-    protected _onImageURLChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onColorChanged : EntityPropertyChangeObservable<IEntity>;
+    protected _onImageURLChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onColorChanged: EntityPropertyChangeObservable<IEntity>;
 
-    constructor(id : string) {
+    constructor(id: string) {
         super(id, "Image");
         this._onImageURLChanged = this.createPropertyChangeObservable();
         this._onColorChanged = this.createPropertyChangeObservable();
@@ -100,15 +100,15 @@ export class ImageEntity extends Entity implements IImageEntity {
         }
     }
 
-    public get onColorChanged() : Observable<IEntity> {
+    public get onColorChanged(): Observable<IEntity> {
         return this._onColorChanged.observable;
     }
 
-    public get onImageURLChanged() : Observable<IEntity> {
+    public get onImageURLChanged(): Observable<IEntity> {
         return this._onImageURLChanged.observable;
     }
 
-    public copyFormPacketData(props : EntityProperties) : void {
+    public copyFormPacketData(props: EntityProperties): void {
         super.copyFormPacketData(props);
 
         const imageProps = props as ImageEntityProperties;

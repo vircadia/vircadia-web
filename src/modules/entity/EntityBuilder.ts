@@ -19,7 +19,7 @@ import { EntityMapper } from "./package";
 import Log from "@Modules/debugging/log";
 
 class EntityGameObjectBuilder {
-    _builders : Map<EntityType, AbstractEntityBuilder>;
+    _builders: Map<EntityType, AbstractEntityBuilder>;
 
     constructor() {
         this._builders = new Map<EntityType, AbstractEntityBuilder>();
@@ -35,7 +35,7 @@ class EntityGameObjectBuilder {
 
     }
 
-    public createEntity(entity: IEntity, scene: Nullable<Scene>) : Nullable<GameObject> {
+    public createEntity(entity: IEntity, scene: Nullable<Scene>): Nullable<GameObject> {
         const builder = this._builders.get(entity.type);
         if (builder) {
             const gameObject = new GameObject(EntityMapper.getEntityName(entity), scene);

@@ -16,10 +16,10 @@ import { MaterialComponent } from "../../components";
 
 export class MaterialEntityController extends EntityController {
     // domain properties
-    _materialEntity : IMaterialEntity;
-    _materialComponent : Nullable<MaterialComponent>;
+    _materialEntity: IMaterialEntity;
+    _materialComponent: Nullable<MaterialComponent>;
 
-    constructor(entity : IMaterialEntity) {
+    constructor(entity: IMaterialEntity) {
         super(entity, MaterialEntityController.typeName);
         this._materialEntity = entity;
     }
@@ -33,7 +33,7 @@ export class MaterialEntityController extends EntityController {
     * @returns "MaterialEntityController" string
     */
     // eslint-disable-next-line class-methods-use-this
-    public get componentType():string {
+    public get componentType(): string {
         return MaterialEntityController.typeName;
     }
 

@@ -37,7 +37,7 @@ export class NFTIconController extends EntityScriptComponent {
     * @returns "EntityController" string
     */
     // eslint-disable-next-line class-methods-use-this
-    public get componentType():string {
+    public get componentType(): string {
         return NFTIconController.typeName;
     }
 
@@ -45,7 +45,7 @@ export class NFTIconController extends EntityScriptComponent {
         return "NFTIconController";
     }
 
-    public onUpdate():void {
+    public onUpdate(): void {
         if (!this._gameObject) {
             return;
         }

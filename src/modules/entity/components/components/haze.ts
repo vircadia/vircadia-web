@@ -15,9 +15,9 @@ import { IHazeProperty } from "../../EntityProperties";
 import { EntityMapper } from "../../package";
 
 export class HazeComponent extends GenericNodeComponent<TransformNode> {
-    _scene : Scene;
+    _scene: Scene;
 
-    constructor(props: IHazeProperty, scene : Scene) {
+    constructor(props: IHazeProperty, scene: Scene) {
         super();
         this._node = new TransformNode(HazeComponent.typeName, scene);
         this._scene = scene;
@@ -26,7 +26,7 @@ export class HazeComponent extends GenericNodeComponent<TransformNode> {
     }
 
     // eslint-disable-next-line class-methods-use-this
-    public get componentType():string {
+    public get componentType(): string {
         return HazeComponent.typeName;
     }
 
@@ -34,20 +34,20 @@ export class HazeComponent extends GenericNodeComponent<TransformNode> {
         return "Haze";
     }
 
-    public get enable() : boolean {
+    public get enable(): boolean {
         return this._scene.fogEnabled;
     }
 
-    public set enable(value : boolean) {
+    public set enable(value: boolean) {
         this._scene.fogEnabled = value;
     }
 
-    public dispose():void {
+    public dispose(): void {
         super.dispose();
         this._scene.fogEnabled = false;
     }
 
-    public update(props: IHazeProperty) : void {
+    public update(props: IHazeProperty): void {
         this._scene.fogMode = Scene.FOGMODE_LINEAR;
 
         if (props.hazeColor) {

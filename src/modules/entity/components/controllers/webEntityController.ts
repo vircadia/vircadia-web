@@ -25,17 +25,17 @@ import { EntityEventType, EntityEvent } from "../../entityEvent";
 
 export class WebEntityController extends EntityController {
     // domain properties
-    _webEntity : IWebEntity;
+    _webEntity: IWebEntity;
     _webExtensions: Nullable<WebExtensions> = null;
-    _meshComponent : Nullable<MeshComponent> = null;
+    _meshComponent: Nullable<MeshComponent> = null;
 
-    _cssObject : Nullable<CSS3DObject> = null;
-    _iframe : Nullable<HTMLIFrameElement> = null;
+    _cssObject: Nullable<CSS3DObject> = null;
+    _iframe: Nullable<HTMLIFrameElement> = null;
     private _externalElement: Nullable<HTMLElement> = null;
 
     _isJitsi = false;
 
-    constructor(entity : IWebEntity) {
+    constructor(entity: IWebEntity) {
         super(entity, WebEntityController.typeName);
         this._webEntity = entity;
     }
@@ -45,7 +45,7 @@ export class WebEntityController extends EntityController {
     }
 
     // eslint-disable-next-line class-methods-use-this
-    public get componentType():string {
+    public get componentType(): string {
         return WebEntityController.typeName;
     }
 
@@ -87,7 +87,7 @@ export class WebEntityController extends EntityController {
         this._destroy();
     }
 
-    protected _createMesh() : void {
+    protected _createMesh(): void {
         if (!this._meshComponent) {
             this._meshComponent = new MeshComponent();
             const mesh = MeshBuilder.CreatePlane("Mask-Plane", { sideOrientation: Mesh.DOUBLESIDE });
@@ -102,17 +102,17 @@ export class WebEntityController extends EntityController {
         }
     }
 
-    protected _destroyMesh() : void {
+    protected _destroyMesh(): void {
         if (this._meshComponent) {
             this._gameObject?.removeComponent(this._meshComponent.componentType);
         }
     }
 
-    protected _destroyCSSObject() : void {
+    protected _destroyCSSObject(): void {
         this._cssObject?.element.remove();
     }
 
-    protected _destroy() : void {
+    protected _destroy(): void {
         this._destroyCSSObject();
         this._destroyMesh();
 
@@ -122,7 +122,7 @@ export class WebEntityController extends EntityController {
         }
     }
 
-    protected _updateDimensions() : void {
+    protected _updateDimensions(): void {
         if (this._webEntity.dimensions) {
             const scaling = EntityMapper.mapToVector3(this._webEntity.dimensions);
             if (this._meshComponent?.mesh) {
@@ -141,7 +141,7 @@ export class WebEntityController extends EntityController {
         }
     }
 
-    public _updateSourceURL() : void {
+    public _updateSourceURL(): void {
         if (!this._iframe) {
             return;
         }
@@ -173,11 +173,10 @@ export class WebEntityController extends EntityController {
     } */
 
     // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-empty-function
-    protected _updateWebProperties() : void {
-
+    protected _updateWebProperties(): void {
     }
 
-    protected _updateUserData() : void {
+    protected _updateUserData(): void {
         this._webExtensions = this._webEntity.userData
             ? JSON.parse(this._webEntity.userData) as WebExtensions
             : null;
@@ -192,7 +191,7 @@ export class WebEntityController extends EntityController {
         } */
     }
 
-    protected _createWebPage() : void {
+    protected _createWebPage(): void {
         this._createMesh();
 
         this._createCSSObject();
@@ -215,7 +214,7 @@ export class WebEntityController extends EntityController {
             }));
     }
 
-    protected _createCSSObject() : void {
+    protected _createCSSObject(): void {
         if (this._cssObject || !this._meshComponent?.mesh) {
             return;
         }
@@ -250,7 +249,7 @@ export class WebEntityController extends EntityController {
         this._cssObject.canGetFocus = !this._isJitsi; */
     }
 
-    protected _createMaskingMaterial() : StandardMaterial {
+    protected _createMaskingMaterial(): StandardMaterial {
         let material = this._scene.getMaterialByName("WebMaskMaterial") as StandardMaterial;
         if (!material) {
             material = new StandardMaterial("WebMaterial", this._scene);
@@ -261,5 +260,4 @@ export class WebEntityController extends EntityController {
 
         return material;
     }
-
 }

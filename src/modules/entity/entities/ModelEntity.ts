@@ -19,28 +19,28 @@ import { EntityProperties, ModelEntityProperties } from "@vircadia/web-sdk";
 class AnimationProperties implements IAnimationProperties {
     private _running = true;
     private _loop = true;
-    private _onPropertyChanged : EntityPropertyChangeObservable<IEntity>;
+    private _onPropertyChanged: EntityPropertyChangeObservable<IEntity>;
 
-    constructor(onPropertyChanged : EntityPropertyChangeObservable<IEntity>) {
+    constructor(onPropertyChanged: EntityPropertyChangeObservable<IEntity>) {
         this._onPropertyChanged = onPropertyChanged;
     }
 
-    public get running() : boolean | undefined {
+    public get running(): boolean | undefined {
         return this._running;
     }
 
-    public set running(value : boolean | undefined) {
+    public set running(value: boolean | undefined) {
         if (value !== undefined && value !== this._running) {
             this._running = value;
             this._onPropertyChanged.isDirty = true;
         }
     }
 
-    public get loop() {
+    public get loop(): boolean {
         return this._loop;
     }
 
-    public set loop(value : boolean | undefined) {
+    public set loop(value: boolean | undefined) {
         if (value !== undefined && value !== this._loop) {
             this._loop = value;
             this._onPropertyChanged.isDirty = true;
@@ -52,11 +52,11 @@ class AnimationProperties implements IAnimationProperties {
 export class ModelEntity extends Entity implements IModelEntity {
     protected _modelURL = "";
     protected _shapeType: string | undefined;
-    protected _animation : AnimationProperties;
-    protected _onModelURLChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onAnimationChanged : EntityPropertyChangeObservable<IEntity>;
+    protected _animation: AnimationProperties;
+    protected _onModelURLChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onAnimationChanged: EntityPropertyChangeObservable<IEntity>;
 
-    constructor(id : string) {
+    constructor(id: string) {
         super(id, "Model");
         this._onModelURLChanged = this.createPropertyChangeObservable();
         this._onAnimationChanged = this.createPropertyChangeObservable();
@@ -86,19 +86,19 @@ export class ModelEntity extends Entity implements IModelEntity {
         }
     }
 
-    public get onModelURLChanged() : Observable<IEntity> {
+    public get onModelURLChanged(): Observable<IEntity> {
         return this._onModelURLChanged.observable;
     }
 
-    public get onAnimationChanged() : Observable<IEntity> {
+    public get onAnimationChanged(): Observable<IEntity> {
         return this._onAnimationChanged.observable;
     }
 
-    public get animation() : IAnimationProperties {
+    public get animation(): IAnimationProperties {
         return this._animation;
     }
 
-    public copyFormPacketData(props : EntityProperties) : void {
+    public copyFormPacketData(props: EntityProperties): void {
         super.copyFormPacketData(props);
 
         const modelProps = props as ModelEntityProperties;

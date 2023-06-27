@@ -17,10 +17,10 @@ import { ImageComponent } from "../components";
 export class ImageEntityController extends EntityController {
     // domain properties
     _componentTypeName = "ImageEntityController";
-    _imageEntity : IImageEntity;
-    _imageComponent : Nullable<ImageComponent>;
+    _imageEntity: IImageEntity;
+    _imageComponent: Nullable<ImageComponent>;
 
-    constructor(entity : IImageEntity) {
+    constructor(entity: IImageEntity) {
         super(entity, "ImageEntityController");
         this._imageEntity = entity;
     }
@@ -29,7 +29,7 @@ export class ImageEntityController extends EntityController {
     * Gets a string identifying the type of this Component
     * @returns "ImageEntityController" string
     */
-    public get componentType():string {
+    public get componentType(): string {
         return this._componentTypeName;
     }
 
@@ -50,7 +50,7 @@ export class ImageEntityController extends EntityController {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
-    public onUpdate():void {
+    public onUpdate(): void {
     }
 
     private _handleImageURLChanged(): void {

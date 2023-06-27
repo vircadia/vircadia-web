@@ -23,10 +23,10 @@ export class LightEntity extends Entity implements ILightEntity {
     protected _cutoff: number | undefined;
     protected _falloffRadius: number | undefined;
     protected _intensity: number | undefined;
-    protected _onLightPropertiesChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onLightTypeChanged : EntityPropertyChangeObservable<IEntity>;
+    protected _onLightPropertiesChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onLightTypeChanged: EntityPropertyChangeObservable<IEntity>;
 
-    constructor(id : string) {
+    constructor(id: string) {
         super(id, "Light");
 
         this._onLightPropertiesChanged = this.createPropertyChangeObservable();
@@ -99,15 +99,15 @@ export class LightEntity extends Entity implements ILightEntity {
         }
     }
 
-    public get onLightPropertiesChanged() : Observable<IEntity> {
+    public get onLightPropertiesChanged(): Observable<IEntity> {
         return this._onLightPropertiesChanged.observable;
     }
 
-    public get onLightTypeChanged() : Observable<IEntity> {
+    public get onLightTypeChanged(): Observable<IEntity> {
         return this._onLightTypeChanged.observable;
     }
 
-    public copyFormPacketData(props : EntityProperties) : void {
+    public copyFormPacketData(props: EntityProperties): void {
         super.copyFormPacketData(props);
 
         const lightProps = props as LightEntityProperties;

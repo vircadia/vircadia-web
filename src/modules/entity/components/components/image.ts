@@ -20,7 +20,7 @@ import { AssetUrl } from "../../builders/asset";
 
 export class ImageComponent extends MeshComponent {
 
-    public get componentType():string {
+    public get componentType(): string {
         return ImageComponent.typeName;
     }
 
@@ -28,7 +28,7 @@ export class ImageComponent extends MeshComponent {
         return "Image";
     }
 
-    public load(entity: IImageEntity) : void {
+    public load(entity: IImageEntity): void {
         if (!this._mesh) {
             this.mesh = MeshBuilder.CreatePlane("plane", { sideOrientation: Mesh.DOUBLESIDE });
             this.renderGroupId = DEFAULT_MESH_RENDER_GROUP_ID;
@@ -39,7 +39,7 @@ export class ImageComponent extends MeshComponent {
         this.updateColor(entity);
     }
 
-    public updateDimensions(entity: IImageEntity) : void {
+    public updateDimensions(entity: IImageEntity): void {
         if (this._mesh && entity.dimensions) {
             // Check for keep aspect ratio functionality and rescale accordingly.
             const scale = EntityMapper.mapToVector3(entity.dimensions);
@@ -80,7 +80,7 @@ export class ImageComponent extends MeshComponent {
         }
     }
 
-    public updateColor(entity: IImageEntity) : void {
+    public updateColor(entity: IImageEntity): void {
         if (this._mesh && this._mesh.material) {
             const mat = this._mesh.material as StandardMaterial;
             if (entity.color) {
@@ -104,7 +104,7 @@ export class ImageComponent extends MeshComponent {
         }
     }
 
-    public updateImageURL(entity: IImageEntity) : void {
+    public updateImageURL(entity: IImageEntity): void {
         if (!this._mesh) {
             return;
         }

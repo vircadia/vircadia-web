@@ -9,7 +9,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-
 /* eslint-disable class-methods-use-this */
 /* eslint-disable new-cap */
 
@@ -18,9 +17,8 @@ import { PointLight, SpotLight, Light, Vector3, Scene } from "@babylonjs/core";
 import { ILightEntity } from "../../EntityInterfaces";
 import { EntityMapper } from "../../package";
 
-
 export class LightEntityComponent extends LightComponent {
-    public get componentType():string {
+    public get componentType(): string {
         return LightEntityComponent.typeName;
     }
 
@@ -28,7 +26,7 @@ export class LightEntityComponent extends LightComponent {
         return "LightEntity";
     }
 
-    public load(entity: ILightEntity) : void {
+    public load(entity: ILightEntity): void {
         if (!this._gameObject) {
             return;
         }
@@ -48,7 +46,7 @@ export class LightEntityComponent extends LightComponent {
         this.updateDimensions(entity);
     }
 
-    public _createSpotLight(entity: ILightEntity, scene: Scene) : Light {
+    public _createSpotLight(entity: ILightEntity, scene: Scene): Light {
         const light = new SpotLight(
             "SpotLight",
             Vector3.Zero(),
@@ -62,7 +60,7 @@ export class LightEntityComponent extends LightComponent {
         return light;
     }
 
-    public _createPointLight(entity: ILightEntity, scene: Scene) : Light {
+    public _createPointLight(entity: ILightEntity, scene: Scene): Light {
         const light = new PointLight(
             "PointLight",
             Vector3.Zero(),
@@ -70,7 +68,7 @@ export class LightEntityComponent extends LightComponent {
         return light;
     }
 
-    public updateProperties(entity: ILightEntity) : void {
+    public updateProperties(entity: ILightEntity): void {
         if (!this._light) {
             return;
         }
@@ -104,10 +102,9 @@ export class LightEntityComponent extends LightComponent {
         }
     }
 
-    public updateDimensions(entity: ILightEntity) : void {
+    public updateDimensions(entity: ILightEntity): void {
         if (entity.dimensions && this._light) {
             this._light.range = entity.dimensions.z;
         }
     }
-
 }

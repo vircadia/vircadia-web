@@ -18,7 +18,7 @@ import Log from "@Modules/debugging/log";
 type EntityScriptFactory = () => EntityScriptComponent;
 
 class EntityScriptManagerImpl {
-    _factories : Map<string, EntityScriptFactory>;
+    _factories: Map<string, EntityScriptFactory>;
 
     constructor() {
         this._factories = new Map<string, EntityScriptFactory>();
@@ -31,7 +31,7 @@ class EntityScriptManagerImpl {
         this._factories.set(script, factroy);
     }
 
-    public createScript(script: string, entity: IEntity) : Nullable<ScriptComponent> {
+    public createScript(script: string, entity: IEntity): Nullable<ScriptComponent> {
         const factory = this._factories.get(script);
 
         if (!factory) {
