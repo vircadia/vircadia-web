@@ -24,18 +24,18 @@ export interface APIResponse {
  * error message and, if an object with the property "message", presumes that is
  * the error message. Otherwise a JSON.stringified version of the object is returned.
  *
- * @param pErr error object caught by "catch"
+ * @param pError error object caught by "catch"
  * @returns the extracted error message string
  */
-export function findErrorMsg(pErr: unknown): string {
-    if (typeof pErr === "string") {
-        return pErr;
+export function findErrorMsg(pError: unknown): string {
+    if (typeof pError === "string") {
+        return pError;
     }
-    const errr = <Error>pErr;
-    if ("message" in errr) {
-        return errr.message;
+    const error = <Error>pError;
+    if ("message" in error) {
+        return error.message;
     }
-    return `Error: ${JSON.stringify(pErr)}`;
+    return `Error: ${JSON.stringify(pError)}`;
 }
 
 /**

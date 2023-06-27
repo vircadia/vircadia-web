@@ -39,9 +39,9 @@ export const Places = {
                         currentAttendance: place.current_attendance === undefined ? 0 : place.current_attendance
                     } as PlaceEntry);
                 });
-            } catch (err) {
-                const errr = findErrorMsg(err);
-                Log.error(Log.types.PLACES, `Exception while attempting to get places: ${errr}`);
+            } catch (error) {
+                const errorMessage = findErrorMsg(error);
+                Log.error(Log.types.PLACES, `Exception while attempting to get places: ${errorMessage}`);
             }
         } else {
             Log.error(Log.types.PLACES, "Attempt to get places when metaverse not connected");

@@ -118,9 +118,9 @@ export class Metaverse {
             Log.info(Log.types.METAVERSE, `Set new metaverse URL=${this.#_metaverseUrl}, name=${this.#_metaverseName}`);
 
             this._setMetaverseConnectionState(MetaverseState.CONNECTED);
-        } catch (err) {
-            const errr = findErrorMsg(err);
-            Log.error(Log.types.COMM, `setMetaverseUrl: Exception fetching metaverseInfo: ${errr}`);
+        } catch (error) {
+            const errorMessage = findErrorMsg(error);
+            Log.error(Log.types.COMM, `setMetaverseUrl: Exception fetching metaverseInfo: ${errorMessage}`);
             this._setMetaverseConnectionState(MetaverseState.ERROR);
         }
     }

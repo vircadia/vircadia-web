@@ -192,9 +192,8 @@ export class ResourceManager {
                 skeleton
             };
 
-        } catch (err) {
-            const error = err as Error;
-            Log.error(Log.types.AVATAR, `${error.message}`);
+        } catch (error) {
+            Log.error(Log.types.AVATAR, `${(error as Error).message}`);
             return {
                 mesh: this._createDummyMesh(),
                 skeleton: null

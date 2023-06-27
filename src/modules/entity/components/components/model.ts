@@ -131,10 +131,8 @@ export class ModelComponent extends MeshComponent {
                 this.updateCollisionProperties(entity);
                 this.updatePhysicsProperties(entity);
             })
-            .catch((err) => {
-                const error = err as Error;
-                Log.error(Log.types.ENTITIES, `${error.message}`);
-
+            .catch((error) => {
+                Log.error(Log.types.ENTITIES, `${(error as Error).message}`);
             });
     }
 

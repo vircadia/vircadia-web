@@ -415,9 +415,8 @@ export const AudioMgr = {
                 const firstInput = applicationStore.audio.inputsList[0];
                 await AudioMgr.setUserAudioInputStream(await AudioMgr.getStreamForDeviceInfo(firstInput), firstInput);
             }
-        } catch (e) {
-            const err = e as Error;
-            Log.error(Log.types.AUDIO, `Exception setting initial audio device: ${err.message}`);
+        } catch (error) {
+            Log.error(Log.types.AUDIO, `Exception setting initial audio device: ${(error as Error).message}`);
             await AudioMgr.setUserAudioInputStream(undefined, undefined);
         }
     },

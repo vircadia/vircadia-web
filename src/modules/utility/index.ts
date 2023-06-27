@@ -83,9 +83,8 @@ export const Utility = {
                     const metaverseUrl = await domain.getMetaverseUrl();
                     await Utility.metaverseConnectionSetup(metaverseUrl);
                 }
-            } catch (err) {
-                const errr = <Error>err;
-                Log.error(Log.types.COMM, `Exception connecting: ${errr.message}`);
+            } catch (error) {
+                Log.error(Log.types.COMM, `Exception connecting: ${(error as Error).message}`);
             }
         }
     },
@@ -105,9 +104,8 @@ export const Utility = {
                 const metaverse = await MetaverseMgr.metaverseFactory(pMetaverseUrl);
                 MetaverseMgr.ActiveMetaverse = metaverse;
             }
-        } catch (err) {
-            const errr = <Error>err;
-            Log.error(Log.types.COMM, `Exception connecting to metaverse: ${errr.message}`);
+        } catch (error) {
+            Log.error(Log.types.COMM, `Exception connecting to metaverse: ${(error as Error).message}`);
         }
     },
 

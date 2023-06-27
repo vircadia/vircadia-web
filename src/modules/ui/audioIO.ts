@@ -178,11 +178,11 @@ export class AudioIO {
                 AudioIO.setAwaitingCapturePermissions(false);
             }
             return stream;
-        } catch (err) {
-            const errr = <MediaError>err;
+        } catch (error) {
+            const errorMessage = <MediaError>error;
             AudioIO.setAwaitingCapturePermissions(false);
             await AudioMgr.setUserAudioInputStream(undefined, undefined);
-            Log.error(Log.types.AUDIO, `Error getting capture permissions: ${errr.message}`);
+            Log.error(Log.types.AUDIO, `Error getting capture permissions: ${errorMessage.message}`);
         }
         return null;
     }
