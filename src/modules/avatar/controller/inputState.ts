@@ -9,12 +9,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable @typescript-eslint/no-magic-numbers */
-/* eslint-disable new-cap */
-
-import {
-    Observable
-} from "@babylonjs/core";
+import { Observable } from "@babylonjs/core";
 
 export enum CameraMode {
     FirstPersion,
