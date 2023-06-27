@@ -3,8 +3,7 @@
 //
 // This file implements a centralized controller class that manages user preferences for
 // mouse sensitivity, acceleration, and inverted controls.
-// The controller is implemented as a singleton class to ensure that there is only one instance of the controller
-// in the entire application. This keeps the state consistent across different modules.
+// The controller is implemented as a static class to keep the state consistent across different modules.
 // Event callbacks can be registered with the controller so that other modules can listen to changes in the controller's state.
 // The application's Store will also be automatically updated when the state changes.
 // The reason for using this controller instead of inline functions is twofold:
@@ -51,26 +50,8 @@ type MouseSettingsControllerEventCallback<T> =
             : T extends typeof Invert ? (value: boolean) => void
                 : never;
 
-class MouseSettingsControllerSingleton {
-    // Static, singleton properties:
-
-    static #singletonInstance: MouseSettingsControllerSingleton;
-
-    /**
-     * Gets a reference to the global MouseSensitivityController singleton.
-     * @returns The MouseSensitivityController singleton instance.
-     */
-    static getInstance(): MouseSettingsControllerSingleton {
-        if (!MouseSettingsControllerSingleton.#singletonInstance) {
-            MouseSettingsControllerSingleton.#singletonInstance = new MouseSettingsControllerSingleton();
-        }
-        return MouseSettingsControllerSingleton.#singletonInstance;
-    }
-
-
-    // Dynamic properties:
-
-    #motionComponents = {
+export class MouseSettingsController {
+    static #motionComponents = {
         sensibility: {
             min: 200,
             max: 5000,
@@ -85,39 +66,33 @@ class MouseSettingsControllerSingleton {
         }
     };
 
-    #sensitivity = {
+    static #sensitivity = {
         min: 0,
         max: 100,
         value: 100
     };
 
-    #acceleration = true;
+    static #acceleration = true;
 
-    #invert = false;
+    static #invert = false;
 
-    #callbacks = {
+    static #callbacks = {
         [Sensitivity]: [] as MouseSettingsControllerEventCallback<typeof Sensitivity>[],
         [Acceleration]: [] as MouseSettingsControllerEventCallback<typeof Acceleration>[],
         [Invert]: [] as MouseSettingsControllerEventCallback<typeof Invert>[]
     } as { [T in MouseSettingsControllerEvents]: MouseSettingsControllerEventCallback<T>[] };
 
-    constructor() {
-        this.sensitivity = userStore.controls.mouse.sensitivity;
-        this.acceleration = userStore.controls.mouse.acceleration;
-        this.invert = userStore.controls.mouse.invert;
-    }
-
     /**
      * The mouse sensitivity value (from 0 - 100).
      */
-    get sensitivity(): number {
+    static get sensitivity(): number {
         return this.#sensitivity.value;
     }
 
     /**
      * The mouse sensitivity value (from 0 - 100).
      */
-    set sensitivity(value: number) {
+    static set sensitivity(value: number) {
         this.#sensitivity.value = value;
         this.#motionComponents.sensibility.value = logInterpolate(
             this.#motionComponents.sensibility.max,
@@ -136,7 +111,7 @@ class MouseSettingsControllerSingleton {
     /**
      * Mouse sensitivity components that can be used to set camera movement values in Babylon.
      */
-    get sensitivityComponents(): MouseSensitivityComponents {
+    static get sensitivityComponents(): MouseSensitivityComponents {
         const sensibility = this.#invert
             ? 0 - this.#motionComponents.sensibility.value
             : this.#motionComponents.sensibility.value;
@@ -151,14 +126,14 @@ class MouseSettingsControllerSingleton {
     /**
      * Boolean specifying whether mouse acceleration is enabled or not.
      */
-    get acceleration(): boolean {
+    static get acceleration(): boolean {
         return this.#acceleration;
     }
 
     /**
      * Boolean specifying whether mouse acceleration is enabled or not.
      */
-    set acceleration(value: boolean) {
+    static set acceleration(value: boolean) {
         this.#acceleration = value;
 
         this.#motionComponents.inertia.value = value ? this.#motionComponents.inertia.max : this.#motionComponents.inertia.min;
@@ -174,14 +149,14 @@ class MouseSettingsControllerSingleton {
     /**
      * Boolean specifying whether mouse inversion is enabled or not.
      */
-    get invert(): boolean {
+    static get invert(): boolean {
         return this.#invert;
     }
 
     /**
      * Boolean specifying whether mouse inversion is enabled or not.
      */
-    set invert(value: boolean) {
+    static set invert(value: boolean) {
         this.#invert = value;
 
         this.sensitivity = this.#sensitivity.value;
@@ -198,12 +173,13 @@ class MouseSettingsControllerSingleton {
      * @param event The event to listen for.
      * @param callback The callback function to attach to the event.
      */
-    on<T extends MouseSettingsControllerEvents>(event: T, callback: MouseSettingsControllerEventCallback<T>): void {
+    static on<T extends MouseSettingsControllerEvents>(event: T, callback: MouseSettingsControllerEventCallback<T>): void {
         this.#callbacks[event].push(callback);
     }
-}
 
-/**
- * The MouseSensitivityController singleton instance.
- */
-export const MouseSettingsController = MouseSettingsControllerSingleton.getInstance();
+    static {
+        this.sensitivity = userStore.controls.mouse.sensitivity;
+        this.acceleration = userStore.controls.mouse.acceleration;
+        this.invert = userStore.controls.mouse.invert;
+    }
+}
