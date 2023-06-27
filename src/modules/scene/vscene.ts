@@ -35,7 +35,6 @@ import { watch } from "vue";
 // General Modules
 import Log from "@Modules/debugging/log";
 // System Modules
-import { VVector3 } from ".";
 import { DomainMgr } from "../domain";
 
 // File containing all avatar animations.
@@ -87,7 +86,7 @@ export class VScene {
         return this._scene.cameras[pCameraId].position.clone();
     }
 
-    setCameraLocation(pLoc: VVector3, pCameraId = 0): void {
+    setCameraLocation(pLoc: Vector3, pCameraId = 0): void {
         this._scene.cameras[pCameraId].position.set(pLoc.x, pLoc.y, pLoc.z);
     }
 
