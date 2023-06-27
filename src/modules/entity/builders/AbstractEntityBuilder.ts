@@ -20,5 +20,5 @@ import { EntityMapper } from "../package/EntityMapper";
 import { IEntity } from "../EntityInterfaces";
 
 export abstract class AbstractEntityBuilder {
-    public abstract build(gameObject:GameObject, entity: IEntity) : void;
+    public abstract build(gameObject: GameObject, entity: IEntity): void;
 }
