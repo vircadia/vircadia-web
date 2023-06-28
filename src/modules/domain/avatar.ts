@@ -127,7 +127,7 @@ export class DomainAvatar extends Client {
      *
      * Push new avatar count and info.
      *
-     * @param pAvatarId The BitInt ID of the removed avatar.
+     * @param pAvatarId The BigInt ID of the removed avatar.
      */
     private _handleOnAvatarRemoved(pAvatarId: Uuid) {
         Log.debug(Log.types.AVATAR, `DomainAvatar: Avatar removed: ${pAvatarId.stringify()}`);

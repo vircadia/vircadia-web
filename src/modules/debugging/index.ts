@@ -22,7 +22,7 @@
 export function toJSON(value: unknown): string {
     return JSON.stringify(value, (k, v) => {
         if (v instanceof BigInt) {
-            return "BitInt";    // there is no serializer for BigInt
+            return "BigInt";    // there is no serializer for BigInt
         }
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return typeof v === "undefined" ? "undef" : v;
