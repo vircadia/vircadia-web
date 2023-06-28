@@ -66,6 +66,11 @@ export default class Log {
     private static logLevel = LogLevel.DEBUG;
 
     /**
+     * The history of all printed log messages.
+     */
+    private static logHistory: Array<string> = [];
+
+    /**
      * Available logging levels.
      */
     public static levels = LogLevel;
@@ -83,6 +88,8 @@ export default class Log {
      */
     public static print(type: LogType, level: LogLevel, message: string, ...optionalMessages: string[]): void {
         console.info(type, level, message, ...optionalMessages);
+        const time = new Date().toISOString();
+        this.logHistory.push([time, type, level, message, ...optionalMessages].join(" "));
     }
 
     /**
@@ -145,5 +152,12 @@ export default class Log {
             default: this.logLevel = LogLevel.DEBUG;
         }
         this.info(LogType.OTHER, `Logging level set to ${this.logLevel}`);
+    }
+
+    /**
+     * Dump the history of all printed log messages to a string.
+     */
+    public static dump(): string {
+        return this.logHistory.join("\n");
     }
 }

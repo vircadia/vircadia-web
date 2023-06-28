@@ -608,6 +608,16 @@ export default defineComponent({
                         userStore.reset();
                         window.location.reload();
                     }
+                },
+                {
+                    icon: "download_for_offline",
+                    label: "Download Debug Log",
+                    action: () => {
+                        const element = document.createElement("a");
+                        element.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(Log.dump()));
+                        element.setAttribute("download", "vircadia-log.txt");
+                        element.click();
+                    }
                 }
             ],
             helpMenuState: false,
