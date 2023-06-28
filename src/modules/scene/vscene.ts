@@ -193,11 +193,11 @@ export class VScene {
     public teleportMyAvatar(location: Location): void {
         // keep the avatar's orientation when orientation is empty
         const q = location.orientation.length > 0
-            ? AvatarMapper.mapDomainOrientation(DataMapper.mapStringToQuaternion(location.orientation))
+            ? AvatarMapper.mapToLocalOrientation(DataMapper.mapStringToQuaternion(location.orientation))
             : undefined;
 
         this._teleportMyAvatar(
-            AvatarMapper.mapDomainPosition(DataMapper.mapStringToVec3(location.position)), q);
+            AvatarMapper.mapToLocalPosition(DataMapper.mapStringToVec3(location.position)), q);
     }
 
     public teleportMyAvatarToOtherPeople(sessionId: string): void {

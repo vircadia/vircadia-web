@@ -74,9 +74,9 @@ export class ScriptAvatarController extends ScriptComponent {
     public onUpdate(): void {
         if (this._gameObject) {
             // sync postion
-            this._gameObject.position = AvatarMapper.mapDomainPosition(this._avatar.position);
+            this._gameObject.position = AvatarMapper.mapToLocalPosition(this._avatar.position);
             // sync orientation
-            this._gameObject.rotationQuaternion = AvatarMapper.mapDomainOrientation(this._avatar.orientation);
+            this._gameObject.rotationQuaternion = AvatarMapper.mapToLocalOrientation(this._avatar.orientation);
 
             this._syncPoseFromDomain();
         }
@@ -84,7 +84,7 @@ export class ScriptAvatarController extends ScriptComponent {
 
     private _handleScaleChanged(): void {
         if (this._gameObject && this._gameObject.scaling && this._avatar) {
-            this._gameObject.scaling = AvatarMapper.mapToNodeScaling(this._avatar.scale);
+            this._gameObject.scaling = AvatarMapper.mapToLocalScaling(this._avatar.scale);
         }
     }
 
@@ -104,11 +104,11 @@ export class ScriptAvatarController extends ScriptComponent {
         this._skeletonJointsCache.forEach((joint) => {
             const node = this._skeletonNodes.get(joint.jointName);
             if (node) {
-                node.position = AvatarMapper.mapJointTranslation(joint.defaultTranslation);
+                node.position = AvatarMapper.mapToLocalJointTranslation(joint.defaultTranslation);
 
-                let rotation = AvatarMapper.mapJointRotation(joint.defaultRotation);
+                let rotation = AvatarMapper.mapToLocalJointRotation(joint.defaultRotation);
                 if (this._isVaildParentIndex(joint.parentIndex)) {
-                    const parentQuat = AvatarMapper.mapJointRotation(
+                    const parentQuat = AvatarMapper.mapToLocalJointRotation(
                         this._skeletonJointsCache[joint.parentIndex].defaultRotation);
                     rotation = parentQuat.invert().multiply(rotation);
                 }
@@ -126,12 +126,12 @@ export class ScriptAvatarController extends ScriptComponent {
         this._skeletonJointsCache.forEach((joint) => {
             const node = this._skeletonNodes.get(joint.jointName);
             if (node) {
-                node.position = AvatarMapper.mapJointTranslation(this._getJointTranslation(joint.jointIndex));
+                node.position = AvatarMapper.mapToLocalJointTranslation(this._getJointTranslation(joint.jointIndex));
 
                 // covert absolute rotation to relative
-                let rotation = AvatarMapper.mapJointRotation(this._getJointRotation(joint.jointIndex));
+                let rotation = AvatarMapper.mapToLocalJointRotation(this._getJointRotation(joint.jointIndex));
                 if (this._isVaildParentIndex(joint.parentIndex)) {
-                    const parentRotation = AvatarMapper.mapJointRotation(this._getJointRotation(joint.parentIndex));
+                    const parentRotation = AvatarMapper.mapToLocalJointRotation(this._getJointRotation(joint.parentIndex));
                     rotation = parentRotation.invert().multiply(rotation);
                 }
 

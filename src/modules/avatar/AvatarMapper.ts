@@ -22,60 +22,116 @@ export enum BoneType {
 }
 
 export class AvatarMapper {
-
+    /**
+     * Convert a local `Vector3` position to a Domain-compatible position.
+     * @param position The local position.
+     * @returns A Domain-compatible position.
+     */
     public static mapToDomainPosition(position: Vector3): vec3 {
         return { x: position.x, y: position.y, z: position.z };
     }
 
-    public static mapToDomainOrientation(rotationQuaternion: Nullable<Quaternion>): quat {
+    /**
+     * Convert a local `Quaternion` orientation to a Domain-compatible orientation.
+     * @param orientation The local orientation.
+     * @returns A Domain-compatible orientation.
+     */
+    public static mapToDomainOrientation(orientation: Nullable<Quaternion>): quat {
         // prevent null and w === 0
-        const q = rotationQuaternion ? rotationQuaternion : Quaternion.Identity();
+        const q = orientation ? orientation : Quaternion.Identity();
         return { x: q.x, y: q.y, z: q.z, w: q.w === 0 ? 1 : q.w };
     }
 
-    public static mapToDomainScale(scaling: Vector3): number {
-        return scaling.x;
+    /**
+     * Convert a local `Vector3` scale to a Domain-compatible scale.
+     * @param scale The local scale.
+     * @returns A Domain-compatible scale.
+     */
+    public static mapToDomainScale(scale: Vector3): number {
+        return scale.x;
     }
 
-    public static mapDomainPosition(position: vec3 | null): Vector3 {
+    /**
+     * Convert a position from the Domain server to a local `Vector3` position.
+     * @param position The Domain position.
+     * @returns A local position.
+     */
+    public static mapToLocalPosition(position: vec3 | null): Vector3 {
         return position ? new Vector3(position.x, position.y, position.z) : Vector3.Zero();
     }
 
-    public static mapDomainOrientation(q: quat | null): Quaternion {
-        return q ? new Quaternion(q.x, q.y, q.z, q.w) : Quaternion.Identity();
+    /**
+     * Convert an orientation from the Domain server to a local `Quaternion` orientation.
+     * @param orientation The Domain orientation.
+     * @returns A local orientation.
+     */
+    public static mapToLocalOrientation(orientation: quat | null): Quaternion {
+        return orientation ? new Quaternion(orientation.x, orientation.y, orientation.z, orientation.w) : Quaternion.Identity();
     }
 
-    public static mapToNodeScaling(scale: number): Vector3 {
+    /**
+     * Convert a scale from the Domain server to a local `Vector3` scale.
+     * @param scale The Domain scale.
+     * @returns A local scale.
+     */
+    public static mapToLocalScaling(scale: number): Vector3 {
         return new Vector3(scale, scale, scale);
     }
 
-    public static mapToJoint(node: TransformNode, jointIndex: number, parentIndex: number): SkeletonJoint {
+    /**
+     * Convert a local `TransformNode` joint to a Domain-compatible skeleton joint.
+     * @param node The local joint node.
+     * @param jointIndex The local joint's index.
+     * @param parentIndex The local joints' parent's index.
+     * @returns A Domain-compatible skeleton joint.
+     */
+    public static mapToDomainJoint(node: TransformNode, jointIndex: number, parentIndex: number): SkeletonJoint {
         return {
             jointName: node.name,
             jointIndex,
             parentIndex,
             boneType: parentIndex === -1 ? BoneType.SkeletonRoot : BoneType.SkeletonChild,
-            defaultTranslation: AvatarMapper.mapToJointTranslation(node.position),
-            defaultRotation: AvatarMapper.mapToJointRotation(node.rotationQuaternion),
+            defaultTranslation: AvatarMapper.mapToDomainJointTranslation(node.position),
+            defaultRotation: AvatarMapper.mapToDomainJointRotation(node.rotationQuaternion),
             defaultScale: AvatarMapper.mapToDomainScale(node.scaling)
         };
     }
 
-    public static mapToJointTranslation(vec: Vector3): vec3 {
-        return { x: vec.x, y: vec.y, z: vec.z };
+    /**
+     * Convert a local `Vector3` joint translation to a Domain-compatible joint translation.
+     * @param translation The local joint translation.
+     * @returns A Domain-compatible joint translation.
+     */
+    public static mapToDomainJointTranslation(translation: Vector3): vec3 {
+        return { x: translation.x, y: translation.y, z: translation.z };
     }
 
-    public static mapToJointRotation(quaternion: Nullable<Quaternion>): quat {
-        // prevent null and w === 0
-        const q = quaternion ? quaternion : Quaternion.Identity();
+    /**
+     * Convert a local `Quaternion` joint rotation to a Domain-compatible joint rotation.
+     * @param rotation The local joint rotation.
+     * @returns A Domain-compatible joint rotation.
+     */
+    public static mapToDomainJointRotation(rotation: Nullable<Quaternion>): quat {
+        // Prevent `null` and `w === 0`.
+        const q = rotation ? rotation : Quaternion.Identity();
         return { x: q.x, y: q.y, z: q.z, w: q.w === 0 ? 1 : q.w };
     }
 
-    public static mapJointTranslation(translation: vec3): Vector3 {
+    /**
+     * Convert a joint translation from the Domain server to a local `Vector3` joint translation.
+     * @param translation The Domain joint translation.
+     * @returns A local joint translation.
+     */
+    public static mapToLocalJointTranslation(translation: vec3): Vector3 {
         return new Vector3(translation.x, translation.y, translation.z);
     }
 
-    public static mapJointRotation(q: quat): Quaternion {
-        return new Quaternion(q.x, q.y, q.z, q.w);
+    /**
+     * Convert a joint rotation from the Domain server to a local `Quaternion` joint rotation.
+     * @param rotation The Domain joint rotation.
+     * @returns A local joint rotation.
+     */
+    public static mapToLocalJointRotation(rotation: quat): Quaternion {
+        return new Quaternion(rotation.x, rotation.y, rotation.z, rotation.w);
     }
 }

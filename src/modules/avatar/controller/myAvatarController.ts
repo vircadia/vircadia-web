@@ -134,7 +134,7 @@ export class MyAvatarController extends ScriptComponent {
 
             let rotation = node.rotationQuaternion;
             if (parentIndex > 0 && parentIndex < skeleton.length && rotation) {
-                const parentRotation = AvatarMapper.mapJointRotation(skeleton[parentIndex].defaultRotation);
+                const parentRotation = AvatarMapper.mapToLocalJointRotation(skeleton[parentIndex].defaultRotation);
                 rotation = parentRotation.multiply(rotation);
             }
 
@@ -147,8 +147,8 @@ export class MyAvatarController extends ScriptComponent {
                 jointIndex,
                 parentIndex,
                 boneType,
-                defaultTranslation: AvatarMapper.mapToJointTranslation(node.position),
-                defaultRotation: AvatarMapper.mapToJointRotation(rotation),
+                defaultTranslation: AvatarMapper.mapToDomainJointTranslation(node.position),
+                defaultRotation: AvatarMapper.mapToDomainJointRotation(rotation),
                 defaultScale: AvatarMapper.mapToDomainScale(node.scaling)
             };
 
@@ -177,19 +177,19 @@ export class MyAvatarController extends ScriptComponent {
 
             if (node) {
                 this._myAvatar.jointTranslations[joint.jointIndex]
-                   = AvatarMapper.mapToJointTranslation(node.position);
+                   = AvatarMapper.mapToDomainJointTranslation(node.position);
 
                 let rotation = node.rotationQuaternion;
                 if (rotation) {
                     if (joint.parentIndex >= 0) {
                         const q = this._myAvatar.jointRotations[joint.parentIndex];
                         if (q) {
-                            const parentRotation = AvatarMapper.mapJointRotation(q);
+                            const parentRotation = AvatarMapper.mapToLocalJointRotation(q);
                             rotation = parentRotation.multiply(rotation);
                         }
                     }
 
-                    this._myAvatar.jointRotations[joint.jointIndex] = AvatarMapper.mapToJointRotation(rotation);
+                    this._myAvatar.jointRotations[joint.jointIndex] = AvatarMapper.mapToDomainJointRotation(rotation);
                 }
             }
         });
