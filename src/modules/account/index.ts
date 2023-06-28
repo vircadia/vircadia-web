@@ -7,13 +7,13 @@
 */
 
 import { MetaverseMgr } from "@Modules/metaverse";
-import { doAPIGet, doAPIPost, buildUrl, findErrorMsg } from "@Modules/metaverse/metaverseOps";
+import { doAPIGet, doAPIPost, buildUrl } from "@Modules/metaverse/metaverseOps";
 import { OAuthTokenAPI, OAuthTokenResponse, OAuthTokenError } from "@Modules/metaverse/APIToken";
 import { GetAccountByIdAPI, GetAccountByIdResponse,
     PostUsersAPI, PostUsersRequest, PostUsersResponse } from "@Modules/metaverse/APIAccount";
 import { AccountInfo } from "@Modules/metaverse/APIInfo";
 import { SignalEmitter } from "@vircadia/web-sdk";
-import Log from "@Modules/debugging/log";
+import Log, { findErrorMessage } from "@Modules/debugging/log";
 
 // ESLint thinks there are race conditions which don't exist (:fingers-crossed:)
 /* eslint-disable require-atomic-updates */
@@ -127,7 +127,7 @@ export const Account = {
             await Account.updateAccountInfo();
             return true;
         } catch (error) {
-            const errorMessage = findErrorMsg(error);
+            const errorMessage = findErrorMessage(error);
             Log.error(Log.types.ACCOUNT, `Exception while attempting to login user ${pUsername}: ${errorMessage}`);
             return false;
         }
@@ -171,7 +171,7 @@ export const Account = {
             // Tell the world about the changes.
             Account._emitAttributeChange();
         } catch (error) {
-            const errorMessage = findErrorMsg(error);
+            const errorMessage = findErrorMessage(error);
             Log.error(Log.types.ACCOUNT, `Exception fetching account info for: ${Account.accountName}: ${errorMessage}`);
         }
     },
@@ -197,7 +197,7 @@ export const Account = {
             Account.accountAwaitingVerification = response.accountAwaitingVerification;
             return response;
         } catch (error) {
-            const errorMessage = findErrorMsg(error);
+            const errorMessage = findErrorMessage(error);
             Log.error(Log.types.ACCOUNT, `Exception creating account: ${pUsername}: ${errorMessage}`);
             return false;
         }

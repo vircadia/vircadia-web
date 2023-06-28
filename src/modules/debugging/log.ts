@@ -9,6 +9,33 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
+type UnknownError = { error?: string; message?: string; };
+
+/**
+ * Extract the error string from a thrown error.
+ *
+ * A `catch` statement can receive anything that is thrown. This function will search through that thrown thing for a valid error message.
+ *
+ * @param error An error object caught by a `catch`.
+ * @returns The extracted error message.
+ */
+export function findErrorMessage(error: unknown): string {
+    if (!error) {
+        return "";
+    }
+    if (typeof error === "string") {
+        return error;
+    }
+    const narrowedError = error as UnknownError;
+    if ("message" in narrowedError && narrowedError.message) {
+        return narrowedError.message;
+    }
+    if ("error" in narrowedError && narrowedError.error) {
+        return narrowedError.error;
+    }
+    return `Error: ${JSON.stringify(error)}`;
+}
+
 const Log = (function() {
 
     enum types {

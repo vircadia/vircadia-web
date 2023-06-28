@@ -17,28 +17,6 @@ export interface APIResponse {
 }
 
 /**
- * Extract the error string from a thrown error.
- *
- * A "catch" can get anything that is thrown. We want the error message for display
- * so this routine looks at the error object and, if a string, presumes that is the
- * error message and, if an object with the property "message", presumes that is
- * the error message. Otherwise a JSON.stringified version of the object is returned.
- *
- * @param pError error object caught by "catch"
- * @returns the extracted error message string
- */
-export function findErrorMsg(pError: unknown): string {
-    if (typeof pError === "string") {
-        return pError;
-    }
-    const error = <Error>pError;
-    if ("message" in error) {
-        return error.message;
-    }
-    return `Error: ${JSON.stringify(pError)}`;
-}
-
-/**
  * Return cleaned up URL to the Metaverse server.
  *
  * Mostly makes sure there is no trailing slash so, when added to the REST access

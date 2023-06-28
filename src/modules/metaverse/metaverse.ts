@@ -7,11 +7,11 @@
 */
 
 import { SignalEmitter } from "@vircadia/web-sdk";
-import { buildUrl, cleanMetaverseUrl, findErrorMsg } from "@Modules/metaverse/metaverseOps";
+import { buildUrl, cleanMetaverseUrl } from "@Modules/metaverse/metaverseOps";
 import { MetaverseInfoResponse, MetaverseInfoAPI } from "@Modules/metaverse/APIAccount";
 import { applicationStore } from "@Stores/index";
 import { Config, DEFAULT_METAVERSE_URL } from "@Base/config";
-import Log from "@Modules/debugging/log";
+import Log, { findErrorMessage } from "@Modules/debugging/log";
 
 // Allow getters to be compact.
 /* eslint-disable @typescript-eslint/brace-style */
@@ -119,8 +119,8 @@ export class Metaverse {
 
             this._setMetaverseConnectionState(MetaverseState.CONNECTED);
         } catch (error) {
-            const errorMessage = findErrorMsg(error);
             Log.error(Log.types.COMM, `setMetaverseUrl: Exception fetching metaverseInfo: ${errorMessage}`);
+            const errorMessage = findErrorMessage(error);
             this._setMetaverseConnectionState(MetaverseState.ERROR);
         }
     }

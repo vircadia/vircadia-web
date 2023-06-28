@@ -7,9 +7,9 @@
 */
 
 import { MetaverseMgr } from "@Modules/metaverse";
-import { doAPIGet, findErrorMsg } from "@Modules/metaverse/metaverseOps";
+import { doAPIGet } from "@Modules/metaverse/metaverseOps";
 import { GetPlacesAPI, GetPlacesResponse } from "@Modules/metaverse/APIPlaces";
-import Log from "@Modules/debugging/log";
+import Log, { findErrorMessage } from "@Modules/debugging/log";
 
 export interface PlaceEntry {
     name: string;
@@ -40,7 +40,7 @@ export const Places = {
                     } as PlaceEntry);
                 });
             } catch (error) {
-                const errorMessage = findErrorMsg(error);
+                const errorMessage = findErrorMessage(error);
                 Log.error(Log.types.PLACES, `Exception while attempting to get places: ${errorMessage}`);
             }
         } else {
