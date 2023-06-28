@@ -13,7 +13,7 @@ import { defineStore } from "pinia";
 import { useStorage } from "@vueuse/core";
 import { Vec3 } from "@vircadia/web-sdk";
 import { onAttributeChangePayload } from "@Modules/account";
-import { defaultActiveAvatarModel, defaultAvatarModels } from "@Modules/avatar/DefaultModels";
+import { defaultActiveAvatarId, defaultAvatars } from "@Modules/avatar/DefaultModels";
 import type { Domain } from "@Base/modules/domain/domain";
 import type { DomainAvatar } from "@Base/modules/domain/avatar";
 import { DataMapper } from "@Modules/domain/dataMapper";
@@ -84,8 +84,8 @@ export const useUserStore = defineStore("user", {
                 showNametags: true,
                 position: Vec3.ZERO,
                 location: "0,0,0",
-                models: defaultAvatarModels(),
-                activeModel: defaultActiveAvatarModel()
+                models: defaultAvatars(),
+                activeModel: defaultActiveAvatarId()
             },
             persistentStorageMedium,
             { mergeDefaults: true }

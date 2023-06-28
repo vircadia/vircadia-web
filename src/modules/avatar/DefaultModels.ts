@@ -22,14 +22,23 @@ export interface AvatarEntryMap {
     [key: string]: AvatarEntry
 }
 
+/**
+ * The URL of the default avatar model.
+ */
 export function defaultActiveAvatarUrl(): string {
     return "https://staging.vircadia.com/O12OR634/UA92/sara.glb";
 }
 
-export function defaultActiveAvatarModel(): string {
+/**
+ * The ID of the default avatar model.
+ */
+export function defaultActiveAvatarId(): string {
     return "HTP45FSQ";
 }
 
+/**
+ * The fallback avatar model.
+ */
 export function fallbackAvatar(): AvatarEntry {
     return {
         name: "Maria",
@@ -40,15 +49,24 @@ export function fallbackAvatar(): AvatarEntry {
     };
 }
 
+/**
+ * The URL of the fallback avatar model.
+ */
 export function fallbackAvatarUrl(): string {
     return fallbackAvatar().file;
 }
 
-export function fallbackAvatarModel(): string {
-    return "DEFAULT1";
+/**
+ * The ID of the fallback avatar model.
+ */
+export function fallbackAvatarId(): string {
+    return "FALLBACK";
 }
 
-export function defaultAvatarModels(): AvatarEntryMap {
+/**
+ * The default collection of avatar models.
+ */
+export function defaultAvatars(): AvatarEntryMap {
     return {
         HTP45FSQ: {
             name: "Sara",
@@ -246,6 +264,6 @@ export function defaultAvatarModels(): AvatarEntryMap {
             scale: 1,
             starred: false
         } as AvatarEntry,
-        DEFAULT1: fallbackAvatar()
+        FALLBACK: fallbackAvatar()
     } as AvatarEntryMap;
 }

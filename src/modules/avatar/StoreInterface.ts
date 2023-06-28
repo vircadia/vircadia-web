@@ -9,7 +9,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { fallbackAvatar, fallbackAvatarModel, type AvatarEntry } from "./DefaultModels";
+import { fallbackAvatar, fallbackAvatarId, type AvatarEntry } from "./DefaultModels";
 import { userStore } from "@Stores/index";
 import { Renderer } from "@Modules/scene";
 
@@ -85,13 +85,13 @@ export const AvatarStoreInterface = {
 
     removeModel(modelId: string | number): void {
         // Prevent the fallback model from being deleted.
-        if (modelId === fallbackAvatarModel()) {
+        if (modelId === fallbackAvatarId()) {
             return;
         }
 
         // Switch to the fallback model if the removed model is currently equipped.
         if (modelId === userStore.avatar.activeModel) {
-            this.setActiveModel(fallbackAvatarModel());
+            this.setActiveModel(fallbackAvatarId());
         }
 
         // Remove the requested model from the Store.
