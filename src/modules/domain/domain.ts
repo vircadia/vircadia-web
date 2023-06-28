@@ -6,7 +6,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
-// Allow 'get' lines to be compact
+// Allow getters to be compact.
 /* eslint-disable @typescript-eslint/brace-style */
 
 import { DomainServer, SignalEmitter, Camera, EntityServer } from "@vircadia/web-sdk";

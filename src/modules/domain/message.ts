@@ -14,9 +14,6 @@ import { Client, AssignmentClientState } from "@Modules/domain/client";
 import { playSound } from "@Modules/scene/soundEffects";
 import Log from "@Modules/debugging/log";
 
-// Allow 'get' lines to be compact
-/* eslint-disable @typescript-eslint/brace-style */
-
 // Function signature called for state changing
 export type DomainMessageStateChangeCallback = (pD: Domain, pM: DomainMessage, pS: AssignmentClientState) => void;
 
@@ -52,7 +49,10 @@ export class DomainMessage extends Client {
     #_domain: Domain;
     #_msgMixer: Nullable<MessageMixer>;
     #_subscribedToDefaultChannels: boolean;
-    public get Mixer(): Nullable<MessageMixer> { return this.#_msgMixer; }
+
+    public get Mixer(): Nullable<MessageMixer> {
+        return this.#_msgMixer;
+    }
 
     constructor(pD: Domain) {
         super();
@@ -91,7 +91,9 @@ export class DomainMessage extends Client {
     }
 
     // Return the state of the underlying assignment client
-    public get clientState(): AssignmentClientState { return this.#_msgMixer?.state ?? AssignmentClientState.DISCONNECTED; }
+    public get clientState(): AssignmentClientState {
+        return this.#_msgMixer?.state ?? AssignmentClientState.DISCONNECTED;
+    }
 
     private _handleOnStateChanged(pNewState: AssignmentClientState): void {
         if (this.#_msgMixer) {
@@ -103,8 +105,7 @@ export class DomainMessage extends Client {
                     this.subscribeChannel(DomainMessage.DefaultSystemNotificationChannel);
                     this.#_subscribedToDefaultChannels = true;
                 }
-            }
-            else {
+            } else {
                 this.#_subscribedToDefaultChannels = false;
             }
         } else {
@@ -120,8 +121,7 @@ export class DomainMessage extends Client {
         if (pMsg && pMsg.length > 0 && pMsg[0] === "{") {
             try {
                 asJSON = <KeyedCollection>JSON.parse(pMsg);
-            }
-            catch (e) {
+            } catch (e) {
                 asJSON = undefined;
             }
         }

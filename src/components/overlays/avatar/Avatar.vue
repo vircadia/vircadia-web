@@ -460,7 +460,7 @@ import { defineComponent } from "vue";
 import { userStore } from "@Stores/index";
 import { Renderer } from "@Modules/scene";
 import { MyAvatarController } from "@Modules/avatar";
-import { type AvatarEntry, fallbackAvatarModel } from "@Modules/avatar/DefaultModels";
+import { type AvatarEntry, fallbackAvatarId } from "@Modules/avatar/DefaultModels";
 import { AvatarStoreInterface } from "@Modules/avatar/StoreInterface";
 import OverlayShell from "../OverlayShell.vue";
 import Log from "@Modules/debugging/log";
@@ -503,7 +503,7 @@ export default defineComponent({
                 url: ""
             },
             loadingAvatar: false,
-            fallbackModelId: fallbackAvatarModel()
+            fallbackModelId: fallbackAvatarId()
         };
     },
 
