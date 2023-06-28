@@ -7,7 +7,7 @@
 */
 
 import { MetaverseMgr } from "@Modules/metaverse";
-import { API } from "@Modules/metaverse/metaverseOps";
+import { API } from "@Modules/metaverse/API";
 import type { GetPlacesResponse } from "@Modules/metaverse/APIPlaces";
 import Log, { findErrorMessage } from "@Modules/debugging/log";
 

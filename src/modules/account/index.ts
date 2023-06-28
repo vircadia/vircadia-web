@@ -7,7 +7,7 @@
 */
 
 import { MetaverseMgr } from "@Modules/metaverse";
-import { API } from "@Modules/metaverse/metaverseOps";
+import { API } from "@Modules/metaverse/API";
 import type { OAuthTokenResponse, OAuthTokenError } from "@Modules/metaverse/APIToken";
 import type { GetAccountByIdResponse, PostUsersRequest, PostUsersResponse } from "@Modules/metaverse/APIAccount";
 import type { AccountInfo } from "@Modules/metaverse/APIInfo";

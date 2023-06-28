@@ -7,7 +7,7 @@
 */
 
 import { SignalEmitter } from "@vircadia/web-sdk";
-import { API } from "@Modules/metaverse/metaverseOps";
+import { API } from "@Modules/metaverse/API";
 import type { MetaverseInfoResponse } from "@Modules/metaverse/APIInfo";
 import { applicationStore } from "@Stores/index";
 import { Config, DEFAULT_METAVERSE_URL } from "@Base/config";

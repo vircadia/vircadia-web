@@ -1,5 +1,5 @@
 /*
-//  metaverseOps.ts
+//  API.ts
 //
 //  Refactored by Giga on June 28th, 2023.
 //  Copyright 2021 Vircadia contributors.
