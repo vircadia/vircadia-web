@@ -42,7 +42,7 @@ export const Utility = {
                 await Utility.connectionSetup(lastDomainServer);
             }
         } else {
-            Log.info(Log.types.COMM, `Not performing Reconnect on Startup. See "config"`);
+            Log.info(Log.types.NETWORK, `Not performing Reconnect on Startup. See "config"`);
         }
 
         // if we haven't connected to a metaverse already from a domain reconnect at startup
@@ -76,7 +76,7 @@ export const Utility = {
                     // First ensure we disconnect from any currently active domain.
                     await this.disconnectActiveDomain();
 
-                    Log.debug(Log.types.COMM, `connectionSetup: connecting to domain ${pDomainUrl}`);
+                    Log.debug(Log.types.NETWORK, `connectionSetup: connecting to domain ${pDomainUrl}`);
                     const domain = await DomainMgr.domainFactory(location.href);
                     await this.connectActiveDomain(domain);
 
@@ -84,7 +84,7 @@ export const Utility = {
                     await Utility.metaverseConnectionSetup(metaverseUrl);
                 }
             } catch (error) {
-                Log.error(Log.types.COMM, `Exception connecting: ${(error as Error).message}`);
+                Log.error(Log.types.NETWORK, `Exception connecting: ${(error as Error).message}`);
             }
         }
     },
@@ -100,12 +100,12 @@ export const Utility = {
     async metaverseConnectionSetup(pMetaverseUrl: string): Promise<void> {
         try {
             if (pMetaverseUrl) {
-                Log.debug(Log.types.COMM, `metaverseConnectionSetup: connecting to metaverse ${pMetaverseUrl}`);
+                Log.debug(Log.types.NETWORK, `metaverseConnectionSetup: connecting to metaverse ${pMetaverseUrl}`);
                 const metaverse = await MetaverseMgr.metaverseFactory(pMetaverseUrl);
                 MetaverseMgr.ActiveMetaverse = metaverse;
             }
         } catch (error) {
-            Log.error(Log.types.COMM, `Exception connecting to metaverse: ${(error as Error).message}`);
+            Log.error(Log.types.NETWORK, `Exception connecting to metaverse: ${(error as Error).message}`);
         }
     },
 

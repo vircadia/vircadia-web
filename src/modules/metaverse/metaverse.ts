@@ -119,8 +119,8 @@ export class Metaverse {
 
             this._setMetaverseConnectionState(MetaverseState.CONNECTED);
         } catch (error) {
-            Log.error(Log.types.COMM, `setMetaverseUrl: Exception fetching metaverseInfo: ${errorMessage}`);
             const errorMessage = findErrorMessage(error);
+            Log.error(Log.types.NETWORK, `setMetaverseUrl: Exception fetching metaverseInfo: ${errorMessage}`);
             this._setMetaverseConnectionState(MetaverseState.ERROR);
         }
     }

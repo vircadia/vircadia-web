@@ -109,7 +109,7 @@ export class Domain {
     // eslint-disable-next-line @typescript-eslint/require-await
     async connect(pUrl: string): Promise<Domain> {
         if (this.#_domain) {
-            Log.error(Log.types.COMM, `Attempt to connect to domain when already connected`);
+            Log.error(Log.types.NETWORK, `Attempt to connect to domain when already connected`);
             throw new Error(`Attempt to connect to domain when already connected`);
         }
         // create domain instance from SDK
@@ -122,7 +122,7 @@ export class Domain {
             this.#_location.port = applicationStore.defaultConnectionConfig.DEFAULT_DOMAIN_PORT;
         }
 
-        Log.debug(Log.types.COMM, `Creating a new DomainServer`);
+        Log.debug(Log.types.NETWORK, `Creating a new DomainServer`);
         this.#_domain = new DomainServer();
         this.#_domain.account.authRequired.connect(() => {
             console.debug("AUTH REQUIRED: Open login dialog");
@@ -144,8 +144,8 @@ export class Domain {
         this.#_entityClient = new EntityServer(this.ContextId);
 
         // Connect to the domain. The 'connected' event will say if the connection was made.
-        // Log.debug(Log.types.COMM, `Connecting to domain at ${this.#_domainUrl}`);
-        Log.debug(Log.types.COMM, `Connecting to domain at ${this.#_location.href}`);
+        // Log.debug(Log.types.NETWORK, `Connecting to domain at ${this.#_domainUrl}`);
+        Log.debug(Log.types.NETWORK, `Connecting to domain at ${this.#_location.href}`);
         this.#_domain.onStateChanged = this._handleOnDomainStateChange.bind(this);
 
         // this.#_domain.connect(this.#_domainUrl);
@@ -155,8 +155,8 @@ export class Domain {
 
     // eslint-disable-next-line @typescript-eslint/require-await
     async disconnect(): Promise<void> {
-        // Log.info(Log.types.COMM, `Domain: disconnect of domain ${this.DomainUrl}`);
-        Log.info(Log.types.COMM, `Domain: disconnect of domain ${this.#_location.href}`);
+        // Log.info(Log.types.NETWORK, `Domain: disconnect of domain ${this.DomainUrl}`);
+        Log.info(Log.types.NETWORK, `Domain: disconnect of domain ${this.#_location.href}`);
         if (this.#_domain) {
             this.#_domain.disconnect();
             this.#_domain = undefined;
@@ -168,7 +168,7 @@ export class Domain {
     }
 
     private _handleOnDomainStateChange(pState: ConnectionState, pInfo: string): void {
-        Log.debug(Log.types.COMM, `DomainStateChange: new state ${Domain.stateToString(pState)}, ${pInfo}`);
+        Log.debug(Log.types.NETWORK, `DomainStateChange: new state ${Domain.stateToString(pState)}, ${pInfo}`);
         this.onStateChange.emit(this, pState, pInfo);
         if (this.#_domain) {
             applicationStore.updateDomainState(this, this.#_domain.state, pInfo);

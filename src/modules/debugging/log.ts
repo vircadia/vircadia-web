@@ -2,6 +2,7 @@
 //  log.js
 //
 //  Created by Kalila L. on May 10th, 2021.
+//  Refactored by Giga on June 28th, 2023.
 //  Copyright 2021 Vircadia contributors.
 //  Copyright 2022 DigiSomni LLC.
 //
@@ -10,6 +11,27 @@
 */
 
 type UnknownError = { error?: string; message?: string; };
+
+enum LogType {
+    ACCOUNT = "[ACCOUNT]",
+    AUDIO = "[AUDIO]",
+    AVATAR = "[AVATAR]",
+    ENTITIES = "[ENTITIES]",
+    METAVERSE = "[METAVERSE]",
+    MESSAGES = "[MESSAGES]",
+    NETWORK = "[NETWORK]",
+    OTHER = "[OTHER]",
+    PEOPLE = "[PEOPLE]",
+    PLACES = "[PLACES]",
+    UI = "[UI]"
+}
+
+enum LogLevel {
+    ERROR = "[ERROR]",
+    DEBUG = "[DEBUG]",
+    WARN = "[WARN]",
+    INFO = "[INFO]"
+}
 
 /**
  * Extract the error string from a thrown error.
@@ -36,87 +58,92 @@ export function findErrorMessage(error: unknown): string {
     return `Error: ${JSON.stringify(error)}`;
 }
 
-const Log = (function() {
+export default class Log {
+    /**
+     * The threshold log level.
+     * Log requests that don't meet this threshold will be ignored.
+     */
+    private static logLevel = LogLevel.DEBUG;
 
-    enum types {
-        ACCOUNT = "[ACCOUNT]",
-        AUDIO = "[AUDIO]",
-        AVATAR = "[AVATAR]",
-        COMM = "[COMM]",
-        ENTITIES = "[ENTITIES]",
-        METAVERSE = "[METAVERSE]",
-        MESSAGES = "[MESSAGES]",
-        OTHER = "[OTHER]",
-        PEOPLE = "[PEOPLE]",
-        PLACES = "[PLACES]",
-        UI = "[UI]"
+    /**
+     * Available logging levels.
+     */
+    public static levels = LogLevel;
+
+    /**
+     * Available logging types.
+     */
+    public static types = LogType;
+
+    /**
+     * Print a message to the log.
+     * @param type
+     * @param level
+     * @param message
+     */
+    public static print(type: LogType, level: LogLevel, message: string, ...optionalMessages: string[]): void {
+        console.info(type, level, message, ...optionalMessages);
     }
 
-    enum levels {
-        ERROR = "[ERROR]",
-        DEBUG = "[DEBUG]",
-        WARN = "[WARN]",
-        INFO = "[INFO]"
-    }
-
-    let logLevel = levels.DEBUG;
-
-    function print(pType: types, pLevel: levels, pMsg: string): void {
-        console.info(pType, pLevel, pMsg);
-    }
-
-    // debug log message. Output if level is set to DEBUG
-    function debug(pType: types, pMsg: string): void {
-        if (logLevel === levels.DEBUG) {
-            print(pType, levels.DEBUG, pMsg);
+    /**
+     * Print a debug message to the log.
+     * (Ignored if the log level is not set to `DEBUG`).
+     * @param type
+     * @param message
+     */
+    public static debug(type: LogType, message: string, ...optionalMessages: string[]): void {
+        if (this.logLevel === LogLevel.DEBUG) {
+            this.print(type, LogLevel.DEBUG, message, ...optionalMessages);
         }
     }
 
-    // error log message. Always output
-    function error(pType: types, pMsg: string): void {
-        print(pType, levels.ERROR, pMsg);
+    /**
+     * Print an error message to the log.
+     * @param type
+     * @param message
+     */
+    public static error(type: LogType, message: string, ...optionalMessages: string[]): void {
+        this.print(type, LogLevel.ERROR, message, ...optionalMessages);
     }
 
-    // warn log message. output if level is warn or above
-    function warn(pType: types, pMsg: string): void {
-        if (logLevel in [levels.WARN, levels.DEBUG, levels.ERROR]) {
-            print(pType, levels.WARN, pMsg);
+    /**
+     * Print a warning message to the log.
+     * (Ignored if the log level is not set to `WARN`, `DEBUG`, or `ERROR`).
+     * @param type
+     * @param message
+     */
+    public static warn(type: LogType, message: string, ...optionalMessages: string[]): void {
+        if (this.logLevel in [LogLevel.WARN, LogLevel.DEBUG, LogLevel.ERROR]) {
+            this.print(type, LogLevel.WARN, message, ...optionalMessages);
         }
     }
 
-    // Info log messages -- always output
-    function info(pType: types, pMsg: string): void {
-        print(pType, levels.INFO, pMsg);
+    /**
+     * Print a message to the log.
+     * @param type
+     * @param message
+     */
+    public static info(type: LogType, message: string, ...optionalMessages: string[]): void {
+        this.print(type, LogLevel.INFO, message, ...optionalMessages);
     }
 
-    // Set the log level to the passed string
-    function setLogLevel(pLevel: string): void {
-        switch (pLevel) {
-            case "none": logLevel = levels.INFO; break;
-            case "info": logLevel = levels.INFO; break;
-            case "[INFO]": logLevel = levels.INFO; break;
-            case "warn": logLevel = levels.WARN; break;
-            case "[WARN]": logLevel = levels.WARN; break;
-            case "debug": logLevel = levels.DEBUG; break;
-            case "[DEBUG]": logLevel = levels.DEBUG; break;
-            default: logLevel = levels.DEBUG;
+    /**
+     * Set the log level.
+     * @param level
+     */
+    public static setLogLevel(level: LogLevel | string): void {
+        switch (level.toLowerCase()) {
+            case "none": this.logLevel = LogLevel.INFO; break;
+            case "info": this.logLevel = LogLevel.INFO; break;
+            case "[info]": this.logLevel = LogLevel.INFO; break;
+            case "warn": this.logLevel = LogLevel.WARN; break;
+            case "[warn]": this.logLevel = LogLevel.WARN; break;
+            case "debug": this.logLevel = LogLevel.DEBUG; break;
+            case "[debug]": this.logLevel = LogLevel.DEBUG; break;
+            case "error": this.logLevel = LogLevel.DEBUG; break;
+            case "[error]": this.logLevel = LogLevel.DEBUG; break;
+            default: this.logLevel = LogLevel.DEBUG;
         }
-        info(types.OTHER, `Logging level set to ${logLevel}`);
+        this.info(LogType.OTHER, `Logging level set to ${this.logLevel}`);
     }
-
-    return {
-        // Tables
-        types,
-        levels,
-        logLevel,
-        // Functions
-        print,
-        setLogLevel,
-        debug,
-        error,
-        warn,
-        info
-    };
-}());
-
-export default Log;
+}

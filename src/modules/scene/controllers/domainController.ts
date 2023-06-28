@@ -106,7 +106,7 @@ export class DomainController extends ScriptComponent {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     public _handleActiveDomainStateChange(pDomain: Domain, pState: ConnectionState, pInfo: string): void {
 
-        Log.debug(Log.types.COMM, `handleActiveDomainStateChange: ${Domain.stateToString(pState)}`);
+        Log.debug(Log.types.NETWORK, `handleActiveDomainStateChange: ${Domain.stateToString(pState)}`);
 
         if (pState === ConnectionState.CONNECTED) {
             void this._handleDomainConnected(pDomain);

@@ -64,7 +64,7 @@ export const DomainMgr = {
      * @throws if there are connection errors
      */
     async domainFactory(pUrl: string): Promise<Domain> {
-        Log.debug(Log.types.COMM, `DomainMgr.domainFactory: creating domain ${pUrl}`);
+        Log.debug(Log.types.NETWORK, `DomainMgr.domainFactory: creating domain ${pUrl}`);
         const aDomain = new Domain();
         try {
             await aDomain.connect(pUrl);
@@ -74,7 +74,7 @@ export const DomainMgr = {
             // Config.setItem(LAST_DOMAIN_SERVER, aDomain.DomainUrl);
             Config.setItem(LAST_DOMAIN_SERVER, aDomain.Location.href);
         } catch (err) {
-            Log.error(Log.types.COMM, `Exception connecting to domain ${pUrl}`);
+            Log.error(Log.types.NETWORK, `Exception connecting to domain ${pUrl}`);
             throw err;
         }
         return aDomain;
@@ -88,7 +88,7 @@ export const DomainMgr = {
 
     // eslint-disable-next-line @typescript-eslint/require-await
     async shutdown(): Promise<void> {
-        Log.info(Log.types.COMM, `DomainMgr: shutdown`);
+        Log.info(Log.types.NETWORK, `DomainMgr: shutdown`);
     },
 
     update(): void {
