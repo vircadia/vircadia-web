@@ -1,4 +1,7 @@
 /*
+//  metaverseOps.ts
+//
+//  Refactored by Giga on June 28th, 2023.
 //  Copyright 2021 Vircadia contributors.
 //  Copyright 2022 DigiSomni LLC.
 //
@@ -8,90 +11,114 @@
 
 import { MetaverseMgr } from "@Modules/metaverse";
 import { Account } from "../account";
+import { GetAccountAPI, PostUsersAPI } from "@Modules/metaverse/APIAccount";
+import { MetaverseInfoAPI } from "@Modules/metaverse/APIInfo";
+import { GetPlacesAPI } from "@Modules/metaverse/APIPlaces";
+import { OAuthTokenAPI } from "@Modules/metaverse/APIToken";
 
-// Standard response from metavers-server API requests
+/**
+ * Standard response from Metaverse server API requests.
+ */
 export interface APIResponse {
     status: "success" | "fail";
     data?: unknown;
     error?: string;
 }
 
-/**
- * Return cleaned up URL to the Metaverse server.
- *
- * Mostly makes sure there is no trailing slash so, when added to the REST access
- * point, there are not two slashes.
- *
- * @param pNewUrl Url as passed by the caller
- * @returns cleaned up Url
- */
-export function cleanMetaverseUrl(pNewUrl: string): string {
-    let url = pNewUrl;
-    while (url.endsWith("/")) {
-        url = url.slice(0, -1);
+export class API {
+    public static readonly endpoints = {
+        account: GetAccountAPI,
+        info: MetaverseInfoAPI,
+        places: GetPlacesAPI,
+        token: OAuthTokenAPI,
+        users: PostUsersAPI
+    } as const;
+
+    /**
+     * Construct a complete URL from a Metaverse server API path.
+     *
+     * @param path The API path (for example, `"/api/v1/users"`).
+     * @param metaverseUrl `(Optional)` URL to use for accessing the Metaverse server. Otherwise, the currently connected Metaverse server is used.
+     * @returns The constructed URL.
+     */
+    public static buildUrl(path: string, metaverseUrl?: string): string {
+        return (metaverseUrl ?? MetaverseMgr.ActiveMetaverse.MetaverseUrl) + path;
     }
-    return url;
-}
 
-/**
- * Construct a complete URL from a metaverse-server REST access portion.
- *
- * @param pAPIUrl API URL portion (e.g., "/api/v1/users")
- * @param pMetaverseUrl optional URL to the metaverse. Current metaverse if not passed
- * @returns constructed URL to access the metaverse-server REST function
- */
-export function buildUrl(pAPIUrl: string, pMetaverseUrl?: string): string {
-    return (pMetaverseUrl ?? MetaverseMgr.ActiveMetaverse.MetaverseUrl) + pAPIUrl;
-}
-
-/**
- * Build configuration parameters for sending with REST requests to the metaverse-server.
- * @param method The REST method of the request.
- * @returns A configuration object for a GET or POST request.
- */
-function buildRequestConfig(method = "GET"): KeyedCollection {
-    const config: KeyedCollection = {
-        method
-    };
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-    if (Account.accessToken && Account.accessToken.length > 10) {
-        config.headers = {
-            "Authorization": (Account.accessTokenType ?? "Bearer") + " " + Account.accessToken
+    /**
+     * Build configuration parameters for sending REST requests to the Metaverse server.
+     *
+     * @param method `(Optional)` The REST method of the request. Defaults to GET.
+     * @returns A configuration object for a GET or POST request.
+     */
+    public static buildRequestConfig(method = "GET"): KeyedCollection {
+        const config: KeyedCollection = {
+            method
         };
+        const minAccessTokenLength = 10;
+        if (Account.accessToken && Account.accessToken.length > minAccessTokenLength) {
+            config.headers = {
+                "Authorization": (Account.accessTokenType ?? "Bearer") + " " + Account.accessToken
+            };
+        }
+        return config;
     }
-    return config;
-}
 
-/**
- * Do REST GET Vircadia API request at the passed API address.
- *
- * The API address is added to the metaverse address and the request is made.
- * This expects the usual API response "{"status": "success", "data": Object }"
- * and the object returned in the "data" property is what is returned.
- *
- * @param pAPIUrl Complete URL to do fetch from
- * @param PMetaverseUrl optional URL to use for accessing the metaverse-server
- * @returns the "data" section of the returned response as an "unknown"
- * @throws {Error} if there are any problems
- */
-export async function doAPIGet(pAPIUrl: string, pMetaverseUrl?: string): Promise<unknown> {
-    const accessUrl = buildUrl(pAPIUrl, pMetaverseUrl);
-    const response = await fetch(accessUrl, buildRequestConfig());
-    const data = await response.json() as APIResponse;
-    if (response && data && data.status === "success") {
-        return data.data;
+    /**
+     * Normalize a Metaverse server URL.
+     *
+     * @param url
+     * @returns The normalized URL.
+     */
+    public static normalizeMetaverseUrl(url: string): string {
+        let normalizedUrl = url;
+        // Remove any trailing slashes so that paths are easier to append to the URL.
+        while (normalizedUrl.endsWith("/")) {
+            normalizedUrl = normalizedUrl.slice(0, -1);
+        }
+        return normalizedUrl;
     }
-    throw new Error(`Vircadia API GET request to ${pAPIUrl} failed: ${response.statusText}`);
-}
 
-export async function doAPIPost(pAPIUrl: string, pBody: KeyedCollection, pMetaverseUrl?: string): Promise<unknown> {
-    const accessUrl = buildUrl(pAPIUrl, pMetaverseUrl);
-    const requestConfig = buildRequestConfig("POST");
-    requestConfig.body = pBody;
-    const response = await fetch(accessUrl, requestConfig);
-    const data = await response.json() as APIResponse;
-    if (response && data && data.status === "success") {
-        return data.data;
+    /**
+     * Make a GET request to the Vircadia API.
+     *
+     * @param path The API path to make the request to.
+     * @param metaverseUrl `(Optional)` URL to use for accessing the Metaverse server. Otherwise, the currently connected Metaverse server is used.
+     * @returns The `data` section of the returned response as an `unknown` type.
+     */
+    public static async get(path: string, metaverseUrl?: string): Promise<unknown> {
+        const response = await fetch(this.buildUrl(path, metaverseUrl), this.buildRequestConfig());
+        const data = await response.json() as APIResponse;
+        // The info and token endpoints do not return data in the usual format.
+        if (data && (path === this.endpoints.info || path === this.endpoints.token)) {
+            return data;
+        }
+        if (data && data.status === "success") {
+            return data.data;
+        }
+        throw new Error(`Vircadia API GET request to ${path} failed: ${response.status}: ${response.statusText}`);
     }
-    throw new Error(`Vircadia API POST request to ${pAPIUrl} failed: ${response.statusText}`);
+
+    /**
+     * Make a POST request to the Vircadia API.
+     *
+     * @param path The API path to make the request to.
+     * @param body The content to send to the API.
+     * @param metaverseUrl `(Optional)` URL to use for accessing the Metaverse server. Otherwise, the currently connected Metaverse server is used.
+     * @returns The `data` section of the returned response as an `unknown` type.
+     */
+    public static async post(path: string, body: FormData | KeyedCollection, metaverseUrl?: string): Promise<unknown> {
+        const requestConfig = this.buildRequestConfig("POST");
+        requestConfig.body = body;
+        const response = await fetch(this.buildUrl(path, metaverseUrl), requestConfig);
+        const data = await response.json() as APIResponse;
+        // The info and token endpoints do not return data in the usual format.
+        if (data && (path === this.endpoints.info || path === this.endpoints.token)) {
+            return data;
+        }
+        if (data && data.status === "success") {
+            return data.data;
+        }
+        throw new Error(`Vircadia API POST request to ${path} failed: ${response.status}: ${response.statusText}`);
+    }
 }

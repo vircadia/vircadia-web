@@ -7,11 +7,10 @@
 */
 
 import { MetaverseMgr } from "@Modules/metaverse";
-import { doAPIGet, doAPIPost, buildUrl } from "@Modules/metaverse/metaverseOps";
-import { OAuthTokenAPI, OAuthTokenResponse, OAuthTokenError } from "@Modules/metaverse/APIToken";
-import { GetAccountByIdAPI, GetAccountByIdResponse,
-    PostUsersAPI, PostUsersRequest, PostUsersResponse } from "@Modules/metaverse/APIAccount";
-import { AccountInfo } from "@Modules/metaverse/APIInfo";
+import { API } from "@Modules/metaverse/metaverseOps";
+import type { OAuthTokenResponse, OAuthTokenError } from "@Modules/metaverse/APIToken";
+import type { GetAccountByIdResponse, PostUsersRequest, PostUsersResponse } from "@Modules/metaverse/APIAccount";
+import type { AccountInfo } from "@Modules/metaverse/APIInfo";
 import { SignalEmitter } from "@vircadia/web-sdk";
 import Log, { findErrorMessage } from "@Modules/debugging/log";
 
@@ -100,26 +99,23 @@ export const Account = {
             params.append("username", pUsername);
             params.append("password", pPassword);
 
-            const loginUrl = buildUrl(OAuthTokenAPI);
+            const response = await API.post(API.endpoints.token, params) as OAuthTokenResponse | OAuthTokenError;
 
-            const response = await fetch(loginUrl, { method: "POST", body: params });
-            const responseData = await response.json() as OAuthTokenResponse | OAuthTokenError;
-
-            if ("error" in responseData) {
-                Log.error(Log.types.ACCOUNT, `Login failure for user: ${pUsername}. Error: ${responseData.error}`);
+            if ("error" in response) {
+                Log.error(Log.types.ACCOUNT, `Login failure for user: ${pUsername}. Error: ${response.error}`);
                 return false;
             }
 
             Log.debug(Log.types.ACCOUNT, `Login success for user: ${pUsername}`);
-            Account.accountName = responseData.account_name;
-            Account.id = responseData.account_id;
-            Account.accessToken = responseData.access_token;
-            Account.accessTokenType = responseData.token_type;
-            Account.accessTokenExpiration = new Date(Date.now() + responseData.expires_in * oneSecond);
-            Account.refreshToken = responseData.refresh_token;
-            Account.scope = responseData.scope;
-            Account.roles = responseData.account_roles ?? [];
-            Account.createdAt = new Date(Date.now() + responseData.created_at * oneSecond);
+            Account.accountName = response.account_name;
+            Account.id = response.account_id;
+            Account.accessToken = response.access_token;
+            Account.accessTokenType = response.token_type;
+            Account.accessTokenExpiration = new Date(Date.now() + response.expires_in * oneSecond);
+            Account.refreshToken = response.refresh_token;
+            Account.scope = response.scope;
+            Account.roles = response.account_roles ?? [];
+            Account.createdAt = new Date(Date.now() + response.created_at * oneSecond);
 
             Account.isLoggedIn = true;
 
@@ -161,7 +157,7 @@ export const Account = {
         }
         // Fetch account profile information.
         try {
-            const response = await doAPIGet(GetAccountByIdAPI + Account.id) as GetAccountByIdResponse;
+            const response = await API.get(API.endpoints.account + "/" + Account.id) as GetAccountByIdResponse;
             Account.accountInfo = response.account;
 
             // Update the Account local vars in case anything changed.
@@ -191,7 +187,7 @@ export const Account = {
             email: pEmail
         } as PostUsersRequest;
         try {
-            const response = await doAPIPost(PostUsersAPI, request) as PostUsersResponse;
+            const response = await API.post(API.endpoints.users, request) as PostUsersResponse;
             Account.accountName = response.username;
             Account.id = response.accountId;
             Account.accountAwaitingVerification = response.accountAwaitingVerification;

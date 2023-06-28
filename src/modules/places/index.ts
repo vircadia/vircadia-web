@@ -7,8 +7,8 @@
 */
 
 import { MetaverseMgr } from "@Modules/metaverse";
-import { doAPIGet } from "@Modules/metaverse/metaverseOps";
-import { GetPlacesAPI, GetPlacesResponse } from "@Modules/metaverse/APIPlaces";
+import { API } from "@Modules/metaverse/metaverseOps";
+import type { GetPlacesResponse } from "@Modules/metaverse/APIPlaces";
 import Log, { findErrorMessage } from "@Modules/debugging/log";
 
 export interface PlaceEntry {
@@ -26,8 +26,7 @@ export const Places = {
         const places: PlaceEntry[] = [];
         if (MetaverseMgr.ActiveMetaverse?.isConnected) {
             try {
-                const apiRequestUrl = GetPlacesAPI + "?status=online";
-                const placesResponse = await doAPIGet(apiRequestUrl) as GetPlacesResponse;
+                const placesResponse = await API.get(API.endpoints.places + "?status=online") as GetPlacesResponse;
 
                 placesResponse.places.forEach((place) => {
                     places.push({

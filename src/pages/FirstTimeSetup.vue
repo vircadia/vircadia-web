@@ -621,14 +621,12 @@ export default defineComponent({
         }
     },
     created() {
-        const boot = async () => {
+        const loadPlaces = async () => {
             // Connect to the metaverse server so that we can get the list of available places.
-            await Utility.metaverseConnectionSetup(
-                applicationStore.defaultConnectionConfig.DEFAULT_METAVERSE_URL ?? ""
-            );
+            await Utility.metaverseConnectionSetup(applicationStore.defaultConnectionConfig.DEFAULT_METAVERSE_URL ?? "");
             this.placesList = await Places.getActiveList();
         };
-        void boot();
+        void loadPlaces();
     },
     beforeMount(): void {
         // Ensure that Quasar's global color variables are in sync with the Store's theme colors.

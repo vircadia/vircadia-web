@@ -7,8 +7,8 @@
 */
 
 import { SignalEmitter } from "@vircadia/web-sdk";
-import { buildUrl, cleanMetaverseUrl } from "@Modules/metaverse/metaverseOps";
-import { MetaverseInfoResponse, MetaverseInfoAPI } from "@Modules/metaverse/APIAccount";
+import { API } from "@Modules/metaverse/metaverseOps";
+import type { MetaverseInfoResponse } from "@Modules/metaverse/APIInfo";
 import { applicationStore } from "@Stores/index";
 import { Config, DEFAULT_METAVERSE_URL } from "@Base/config";
 import Log, { findErrorMessage } from "@Modules/debugging/log";
@@ -99,14 +99,12 @@ export class Metaverse {
         this._setMetaverseConnectionState(MetaverseState.CONNECTING);
 
         // Remove any trailing slash as the API requests always have them
-        const newUrl = cleanMetaverseUrl(pNewUrl);
+        const newUrl = API.normalizeMetaverseUrl(pNewUrl);
 
-        // Access the metaverse-server and get its configuration info
-        const accessUrl = buildUrl(MetaverseInfoAPI, newUrl);
+        // Access the Metaverse server and get its configuration info.
         try {
-            const response = await fetch(accessUrl, { method: "GET" });
-            const data = await response.json() as MetaverseInfoResponse;
-            this.#_metaverseUrl = cleanMetaverseUrl(data.metaverse_url);
+            const data = await API.get(API.endpoints.info, newUrl) as MetaverseInfoResponse;
+            this.#_metaverseUrl = API.normalizeMetaverseUrl(data.metaverse_url);
             this.#_metaverseName = data.metaverse_name;
             this.#_metaverseNickname = data.metaverse_nick_name ?? data.metaverse_name;
             this.#_iceServer = data.ice_server_url;

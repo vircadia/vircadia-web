@@ -1,4 +1,6 @@
 /*
+//  Domain and Metaverse server interfaces and operations.
+//
 //  Copyright 2021 Vircadia contributors.
 //  Copyright 2022 DigiSomni LLC.
 //
@@ -108,6 +110,22 @@ export interface DomainInfo {
     "time_of_last_heartbeat": string,
     "time_of_last_heartbeat_s": number,
 }
+
+// GET /api/metaverse_info
+export const MetaverseInfoAPI = "/api/metaverse_info";
+export interface MetaverseInfoResponse {
+    "metaverse_name": string,
+    "metaverse_nick_name": string,
+    "metaverse_url": string,
+    "jitsi_server_domain": string,
+    "ice_server_url": string,
+    "metaverse_server_version": {
+        "npm-package-version": string,
+        "git-commit": string,
+        "version-tag": string
+    }
+}
+
 export interface PlaceInfo {
     "placeId": string,
     "id": string,

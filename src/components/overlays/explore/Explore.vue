@@ -598,8 +598,7 @@ export default defineComponent({
     methods: {
         async loadPlacesList(): Promise<void> {
             this.loading = true;
-            const placesResult = await Places.getActiveList();
-            this.placesList = placesResult;
+            this.placesList = await Places.getActiveList();
             this.loading = false;
         },
 
