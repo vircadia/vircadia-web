@@ -13,13 +13,13 @@
 // OAuth interface for login.
 // Does not return a standard APIResponse
 export const OAuthTokenAPI = "/oauth/token";
-export interface OAuthTokenReq {
+export interface OAuthTokenRequest {
     "grant_type": "password",
     "username": string,
     "password": string
 }
 
-export interface OAuthTokenResp {
+export interface OAuthTokenResponse {
     "access_token": string,
     "token_type": "Bearer",
     "expires_in": number,

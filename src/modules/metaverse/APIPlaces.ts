@@ -15,7 +15,7 @@ import { PlaceInfo } from "@Modules/metaverse/APIInfo";
 // GET /api/v1/account/{accountId}
 // (Note slash at end to make construction easier: "GetAccountByIdAPI + ID")
 export const GetPlacesAPI = "/api/v1/places"; // add "/accountId"
-export interface GetPlacesResp {
+export interface GetPlacesResponse {
     "places": PlaceInfo[],
     "maturity-categories": string[]
 }

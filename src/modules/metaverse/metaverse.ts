@@ -8,7 +8,7 @@
 
 import { SignalEmitter } from "@vircadia/web-sdk";
 import { buildUrl, cleanMetaverseUrl, findErrorMsg } from "@Modules/metaverse/metaverseOps";
-import { MetaverseInfoResp, MetaverseInfoAPI } from "@Modules/metaverse/APIAccount";
+import { MetaverseInfoResponse, MetaverseInfoAPI } from "@Modules/metaverse/APIAccount";
 import { applicationStore } from "@Stores/index";
 import { Config, DEFAULT_METAVERSE_URL } from "@Base/config";
 import Log from "@Modules/debugging/log";
@@ -105,7 +105,7 @@ export class Metaverse {
         const accessUrl = buildUrl(MetaverseInfoAPI, newUrl);
         try {
             const response = await fetch(accessUrl, { method: "GET" });
-            const data = await response.json() as MetaverseInfoResp;
+            const data = await response.json() as MetaverseInfoResponse;
             this.#_metaverseUrl = cleanMetaverseUrl(data.metaverse_url);
             this.#_metaverseName = data.metaverse_name;
             this.#_metaverseNickname = data.metaverse_nick_name ?? data.metaverse_name;

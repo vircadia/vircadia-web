@@ -7,12 +7,12 @@
 */
 
 /**
- * Metaverse-server operations that operation on Accounts
+ * Metaverse-server account operations.
  */
 
 // GET /api/metaverse_info
 export const MetaverseInfoAPI = "/api/metaverse_info";
-export interface MetaverseInfoResp {
+export interface MetaverseInfoResponse {
     "metaverse_name": string,
     "metaverse_nick_name": string,
     "metaverse_url": string,
@@ -29,26 +29,26 @@ export interface MetaverseInfoResp {
 import { AccountInfo } from "@Modules/metaverse/APIInfo";
 
 export const GetAccountAPI = "/api/v1/account";
-export interface GetAccountResp {
+export interface GetAccountResponse {
     "accounts": AccountInfo[]
 }
 
 // GET /api/v1/account/{accountId}
 // (Note slash at end to make construction easier: "GetAccountByIdAPI + ID")
 export const GetAccountByIdAPI = "/api/v1/account/"; // add "/accountId"
-export interface GetAccountByIdResp {
+export interface GetAccountByIdResponse {
     "account": AccountInfo
 }
 
 // POST /api/v1/users
 // Create account
 export const PostUsersAPI = "/api/v1/users";
-export interface PostUsersReq extends KeyedCollection {
+export interface PostUsersRequest extends KeyedCollection {
     "username": string,
     "password": string,
     "email": string
 }
-export interface PostUsersResp {
+export interface PostUsersResponse {
     "accountId": string,
     "username": string,
     "accountIsActive": boolean,

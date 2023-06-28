@@ -8,9 +8,9 @@
 
 import { MetaverseMgr } from "@Modules/metaverse";
 import { doAPIGet, doAPIPost, buildUrl, findErrorMsg } from "@Modules/metaverse/metaverseOps";
-import { OAuthTokenAPI, OAuthTokenResp, OAuthTokenError } from "@Modules/metaverse/APIToken";
-import { GetAccountByIdAPI, GetAccountByIdResp,
-    PostUsersAPI, PostUsersReq, PostUsersResp } from "@Modules/metaverse/APIAccount";
+import { OAuthTokenAPI, OAuthTokenResponse, OAuthTokenError } from "@Modules/metaverse/APIToken";
+import { GetAccountByIdAPI, GetAccountByIdResponse,
+    PostUsersAPI, PostUsersRequest, PostUsersResponse } from "@Modules/metaverse/APIAccount";
 import { AccountInfo } from "@Modules/metaverse/APIInfo";
 import { SignalEmitter } from "@vircadia/web-sdk";
 import Log from "@Modules/debugging/log";
@@ -103,7 +103,7 @@ export const Account = {
             const loginUrl = buildUrl(OAuthTokenAPI);
 
             const response = await fetch(loginUrl, { method: "POST", body: params });
-            const responseData = await response.json() as OAuthTokenResp | OAuthTokenError;
+            const responseData = await response.json() as OAuthTokenResponse | OAuthTokenError;
 
             if ("error" in responseData) {
                 Log.error(Log.types.ACCOUNT, `Login failure for user: ${pUsername}. Error: ${responseData.error}`);
@@ -161,7 +161,7 @@ export const Account = {
         }
         // Fetch account profile information.
         try {
-            const response = await doAPIGet(GetAccountByIdAPI + Account.id) as GetAccountByIdResp;
+            const response = await doAPIGet(GetAccountByIdAPI + Account.id) as GetAccountByIdResponse;
             Account.accountInfo = response.account;
 
             // Update the Account local vars in case anything changed.
@@ -184,14 +184,14 @@ export const Account = {
      * @returns `true` once the new account is awaiting verification,
      * `false` if verification is not required or account creation failed.
      */
-    async createAccount(pUsername: string, pPassword: string, pEmail: string): Promise<PostUsersResp | false> {
+    async createAccount(pUsername: string, pPassword: string, pEmail: string): Promise<PostUsersResponse | false> {
         const request = {
             username: pUsername,
             password: pPassword,
             email: pEmail
-        } as PostUsersReq;
+        } as PostUsersRequest;
         try {
-            const response = await doAPIPost(PostUsersAPI, request) as PostUsersResp;
+            const response = await doAPIPost(PostUsersAPI, request) as PostUsersResponse;
             Account.accountName = response.username;
             Account.id = response.accountId;
             Account.accountAwaitingVerification = response.accountAwaitingVerification;
