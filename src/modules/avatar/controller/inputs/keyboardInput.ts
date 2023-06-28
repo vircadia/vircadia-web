@@ -32,6 +32,7 @@ import { AvatarState, Action, State, JumpSubState, AnimationMap } from "../avata
 import { InputState, CameraMode, InputMode } from "../inputState";
 import { applicationStore, userStore } from "@Stores/index";
 import { AudioMgr } from "@Modules/scene/audio";
+import { Renderer } from "@Base/modules/scene";
 import type { GameObject } from "@Modules/object";
 import type { SceneController } from "@Modules/scene/controllers";
 
@@ -140,11 +141,18 @@ export class KeyboardInput implements IInputHandler {
                 : InputMode.Interactive;
         }
 
+        // Babylon Inspector.
+        if (process.env.NODE_ENV === "development" && sourceEvent.code === "Slash" && this._shiftKey) {
+            void this._scene.debugLayer.show({ overlay: true });
+        }
+
+        // Reset position.
+        if (sourceEvent.code === userStore.controls.keyboard.other.resetPosition?.keycode) {
+            Renderer.getScene()?.resetMyAvatarPositionAndOrientation();
+        }
+
         // Push-to-talk.
-        if (
-            sourceEvent.code === userStore.controls.keyboard.audio.pushToTalk?.keycode
-            && applicationStore.audio.user.muted === true
-        ) {
+        if (sourceEvent.code === userStore.controls.keyboard.audio.pushToTalk?.keycode && applicationStore.audio.user.muted === true) {
             this._previousMuteInput = applicationStore.audio.user.muted;
             AudioMgr.muteAudio(false);
         }

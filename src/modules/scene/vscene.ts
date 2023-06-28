@@ -10,8 +10,7 @@
 /* eslint-disable new-cap */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
-import { AnimationGroup, Engine, Scene, Color3,
-    ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, Camera,
+import { AnimationGroup, Engine, Scene, Color3, ArcRotateCamera, Camera,
     Observable, Nullable, AmmoJSPlugin, Quaternion, Vector3, Color4, DefaultRenderingPipeline } from "@babylonjs/core";
 import Ammo from "ammojs-typed";
 
@@ -196,8 +195,7 @@ export class VScene {
             ? AvatarMapper.mapToLocalOrientation(DataMapper.mapStringToQuaternion(location.orientation))
             : undefined;
 
-        this._teleportMyAvatar(
-            AvatarMapper.mapToLocalPosition(DataMapper.mapStringToVec3(location.position)), q);
+        this._teleportMyAvatar(AvatarMapper.mapToLocalPosition(DataMapper.mapStringToVec3(location.position)), q);
     }
 
     public teleportMyAvatarToOtherPeople(sessionId: string): void {
@@ -502,10 +500,6 @@ export class VScene {
         // use right handed system to match vircadia coordinate system
         this._scene.useRightHandedSystem = true;
         this._resourceManager = new ResourceManager(this._scene);
-        this._scene.actionManager = new ActionManager(this._scene);
-        this._scene.actionManager.registerAction(
-            new ExecuteCodeAction(ActionManager.OnKeyUpTrigger, this._onKeyUp.bind(this))
-        );
 
         if (!this._sceneManager) {
             this._sceneManager = new GameObject("SceneManager", this._scene);
@@ -560,39 +554,6 @@ export class VScene {
         }
     }
 
-    private _onKeyUp(evt: ActionEvent): void {
-        void this._handleKeyUp(evt);
-    }
-
-    private async _handleKeyUp(evt: ActionEvent): Promise<void> {
-        /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-        switch (evt.sourceEvent.code) {
-            case "Slash":
-                if (process.env.NODE_ENV === "development"
-                && evt.sourceEvent.shiftKey) {
-                    if (this._scene.debugLayer.isVisible()) {
-                        this._scene.debugLayer.hide();
-                    } else {
-                        await this._scene.debugLayer.show({ overlay: true });
-                    }
-                }
-                break;
-            case userStore.controls.keyboard.other.resetPosition?.keycode:
-                this.resetMyAvatarPositionAndOrientation();
-                break;
-            case "KeyP":
-                if (process.env.NODE_ENV === "development") {
-                    this._scene.meshes.forEach((mesh, index) => {
-                        console.log(`${mesh.name}:${index} `);
-                    });
-                }
-                break;
-            default:
-                break;
-        }
-        /* eslint-enable @typescript-eslint/no-unsafe-member-access */
-    }
-
     private _onSceneReady(): void {
         requireScripts(this._scene, this._scene.transformNodes);
 
@@ -611,12 +572,6 @@ export class VScene {
 
         // Update the rendering pipeline when graphics settings are changed.
         this._updateRenderPipelineSettings();
-        watch(
-            () => userStore.graphics,
-            () => {
-                this._updateRenderPipelineSettings();
-            },
-            { deep: true }
-        );
+        watch(() => userStore.graphics, this._updateRenderPipelineSettings.bind(this), { deep: true });
     }
 }
