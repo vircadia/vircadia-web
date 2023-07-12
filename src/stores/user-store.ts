@@ -15,7 +15,7 @@ import { Vec3 } from "@vircadia/web-sdk";
 import { onAttributeChangePayload } from "@Modules/account";
 import { defaultActiveAvatarId, defaultAvatars } from "@Modules/avatar/DefaultModels";
 import type { Domain } from "@Base/modules/domain/domain";
-import type { DomainAvatar } from "@Base/modules/domain/avatar";
+import type { DomainAvatarClient } from "@Base/modules/domain/avatar";
 import { DataMapper } from "@Modules/domain/dataMapper";
 import type { vec3 } from "@vircadia/web-sdk";
 
@@ -163,7 +163,7 @@ export const useUserStore = defineStore("user", {
          * @param domainAvatar `(Optional)` A reference to the local avatar instance.
          * @param position `(Optional)` The new position of the local avatar in the world.
          */
-        updateLocalAvatarInfo(domain: Domain, domainAvatar?: DomainAvatar, position?: vec3): void {
+        updateLocalAvatarInfo(domain: Domain, domainAvatar?: DomainAvatarClient, position?: vec3): void {
             const domainLocation = domain.DomainClient
                 ? domain.Location.protocol + "//" + domain.Location.host
                 : "Disconnected";
@@ -171,13 +171,13 @@ export const useUserStore = defineStore("user", {
                 const myAvaInfo = domainAvatar.MyAvatar;
                 this.avatar.displayName = myAvaInfo?.displayName ?? myAvaInfo?.sessionDisplayName ?? "anonymous";
                 this.avatar.location
-                    = `${domainLocation}/${DataMapper.mapVec3ToString(myAvaInfo?.position)}/${DataMapper.mapQuaternionToString(myAvaInfo?.orientation)}`;
+                    = `${domainLocation}/${DataMapper.vec3ToString(myAvaInfo?.position)}/${DataMapper.quaternionToString(myAvaInfo?.orientation)}`;
                 this.avatar.position = myAvaInfo?.position ?? Vec3.ZERO;
             }
             // An optional update to just the avatar's position.
             if (position) {
                 this.avatar.position = position;
-                this.avatar.location = `${domainLocation}/${DataMapper.mapVec3ToString(position)}/${DataMapper.mapQuaternionToString(null)}`;
+                this.avatar.location = `${domainLocation}/${DataMapper.vec3ToString(position)}/${DataMapper.quaternionToString(null)}`;
             }
         }
     }

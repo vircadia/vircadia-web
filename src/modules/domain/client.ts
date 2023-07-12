@@ -1,47 +1,52 @@
-/*
+//
+//  client.ts
+//
 //  Copyright 2021 Vircadia contributors.
 //  Copyright 2022 DigiSomni LLC.
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
-*/
+//
 
-// Duplicated here because of problems with importing the type from the SDK
+// The web SDK doesn't export its AssignmentClientState member, so it is redefined here.
+/**
+ * The connection state of an Assignment Client.
+ */
 export enum AssignmentClientState {
-    UNAVAILABLE = 0,
+    UNAVAILABLE,
     DISCONNECTED,
     CONNECTED
 }
-/** Parant class for all AssignmentClients  */
-export abstract class Client {
 
-    /** Return string name of AssignmentClientState.
-     * This is needed since the SDK does not export AssignmentClient
+/**
+ * Parant class for all AssignmentClients.
+ */
+export abstract class Client {
+    /**
+     * Get the string name of an AssignmentClientState.
+     * This is needed since the SDK does not export AssignmentClient. // TODO: Review this claim.
      */
-    static stateToString(pState: AssignmentClientState): string {
-        let ret = "UNKNOWN";
-        switch (pState) {
+    static stateToString(state: AssignmentClientState): string {
+        switch (state) {
             case AssignmentClientState.DISCONNECTED:
-                ret = "DISCONNECTED";
-                break;
+                return "DISCONNECTED";
             case AssignmentClientState.CONNECTED:
-                ret = "CONNECTED";
-                break;
+                return "CONNECTED";
             case AssignmentClientState.UNAVAILABLE:
-                ret = "UNAVAILABLE";
-                break;
+                return "UNAVAILABLE";
             default:
-                ret = "DISCONNECTED";
-                break;
+                return "DISCONNECTED";
         }
-        return ret;
     }
 
-    // Returns the state of the underlying client
-    // Must be implemented by each decendent of this parent class.
+    /**
+     * The state of the underlying client.
+     * Must be implemented by each decendent of this class.
+     */
     public abstract clientState: AssignmentClientState;
 
-    /** Return a Promise that is resolved in a certain number of milliseconds
+    /**
+     * Return a Promise that is resolved in a given number of milliseconds.
      */
     public static async waitABit(ms: number): Promise<void> {
         return new Promise((resolve) => {
@@ -56,16 +61,16 @@ export abstract class Client {
      * A better implmentation would be to save the (resolve,reject) in a list and
      * call them when the onStateChanged event happens.
      *
-     * @param pTimeoutMS optional number of MS to wait. Default is to 5 minutes.
-     * @returns the Client being waited on
-     * @throws exception if waited more than the timeout interval
+     * @param timeoutMS `(Optional)` The number of milliseconds to wait. Default is `300,000` (5 minutes).
+     * @returns A reference to the Client being waited on.
+     * @throws An exception if the timeout interval has passed and the client is still not CONNECTED.
      */
-    public async waitUntilConnected(pTimeoutMS?: number): Promise<Client> {
+    public async waitUntilConnected(timeoutMS?: number): Promise<Client> {
         const waitTimeMS = 100;
         return new Promise<Client>((resolve, reject) => {
             (async () => {
                 // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-                let maxTime = pTimeoutMS ?? 5 * 60 * 1000; // 5 minutes
+                let maxTime = timeoutMS ?? 5 * 60 * 1000; // 5 minutes.
                 while (this.clientState !== AssignmentClientState.CONNECTED) {
                     // eslint-disable-next-line no-await-in-loop
                     await Client.waitABit(waitTimeMS);

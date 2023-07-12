@@ -607,7 +607,7 @@ export default defineComponent({
             // Check if just the position/rotation values differ from the current location.
             const prev = new Location(this.$route.path.replace("/", ""));
             const next = new Location(path);
-            await Utility.connectionSetup(prev._hostname === next._hostname ? next.pathname : path);
+            await Utility.connectionSetup(prev.hostname === next.hostname ? next.pathname : path);
         },
 
         openDetails(place: PlaceEntry): void {
@@ -642,10 +642,10 @@ export default defineComponent({
             await Utility.connectionSetup(locationAddress);
         },
 
-        disconnect: async function() {
+        disconnect: function() {
             Log.info(Log.types.UI, `Disconnecting from... ${this.userStore.avatar.location}`);
             this.lastConnectedDomain = this.userStore.avatar.location;
-            await Utility.disconnectActiveDomain();
+            Utility.disconnectActiveDomain();
         },
 
         parseLocation<T extends LocationSegmentName>(location: string, segment: T): LocationSegment<T> {

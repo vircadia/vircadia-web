@@ -9,7 +9,7 @@
 /* eslint-disable require-atomic-updates */
 
 import { MetaverseMgr } from "@Modules/metaverse";
-import { DomainMgr } from "@Modules/domain";
+import { DomainManager } from "@Modules/domain";
 import { Domain } from "@Modules/domain/domain";
 import { Location } from "@Modules/domain/location";
 import { applicationStore } from "@Stores/index";
@@ -74,13 +74,13 @@ export const Utility = {
                     Renderer.getScene().stopMyAvatar();
 
                     // First ensure we disconnect from any currently active domain.
-                    await this.disconnectActiveDomain();
+                    this.disconnectActiveDomain();
 
                     Log.debug(Log.types.NETWORK, `connectionSetup: connecting to domain ${pDomainUrl}`);
-                    const domain = await DomainMgr.domainFactory(location.href);
+                    const domain = DomainManager.domainFactory(location.href);
                     await this.connectActiveDomain(domain);
 
-                    const metaverseUrl = await domain.getMetaverseUrl();
+                    const metaverseUrl = domain.getMetaverseUrl();
                     await Utility.metaverseConnectionSetup(metaverseUrl);
                 }
             } catch (error) {
@@ -116,7 +116,7 @@ export const Utility = {
      */
     // eslint-disable-next-line @typescript-eslint/require-await
     async connectActiveDomain(pDomain: Domain): Promise<void> {
-        DomainMgr.ActiveDomain = pDomain;
+        DomainManager.ActiveDomain = pDomain;
     },
 
     /**
@@ -124,10 +124,10 @@ export const Utility = {
      *
      * If there is currently an active domain setup, this fires the disconnect method on that domain.
      */
-    async disconnectActiveDomain(): Promise<void> {
-        if (DomainMgr.ActiveDomain) {
-            await DomainMgr.ActiveDomain.disconnect();
-            DomainMgr.ActiveDomain = undefined;
+    disconnectActiveDomain(): void {
+        if (DomainManager.ActiveDomain) {
+            DomainManager.ActiveDomain.disconnect();
+            DomainManager.ActiveDomain = undefined;
         }
     }
 };

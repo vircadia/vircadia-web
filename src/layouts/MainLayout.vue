@@ -718,10 +718,10 @@ export default defineComponent({
             await Utility.connectionSetup(locationAddress);
         },
 
-        disconnect: async function() {
+        disconnect: function() {
             Log.info(Log.types.UI, `Disconnecting from... ${this.userStore.avatar.location}`);
             this.lastConnectedDomain = this.userStore.avatar.location;
-            await Utility.disconnectActiveDomain();
+            Utility.disconnectActiveDomain();
         },
 
         // Metaverse

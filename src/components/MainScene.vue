@@ -59,7 +59,7 @@ import { Utility } from "@Modules/utility";
 import { Location } from "@Modules/domain/location";
 import { AvatarStoreInterface } from "@Modules/avatar/StoreInterface";
 import { URL_UPDATE_FREQUENCY } from "@Base/config";
-import { DomainMgr } from "@Modules/domain";
+import { DomainManager } from "@Modules/domain";
 
 import LoadingScreen from "@Components/LoadingScreen.vue";
 import JitsiContainer from "@Components/JitsiContainer.vue";
@@ -135,7 +135,7 @@ export default defineComponent({
             }
         },
         onBeforeunload() {
-            void Utility.disconnectActiveDomain();
+            Utility.disconnectActiveDomain();
             Renderer.dispose();
         },
         // Update the world location that's shown in the browser's URL bar.
@@ -230,7 +230,7 @@ export default defineComponent({
                 document.exitPointerLock();
             });
 
-            DomainMgr.startGameLoop();
+            DomainManager.startGameLoop();
 
             // Initialize the audio for the scene.
             await AudioMgr.initialize(this.setOutputStream.bind(this));

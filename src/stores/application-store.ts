@@ -13,12 +13,12 @@ import { defineStore } from "pinia";
 import packageInfo from "@Base/../package.json";
 import versionInfo from "@Base/../VERSION.json";
 import { type ScriptAvatar, type vec3, Vircadia, type Uuid } from "@vircadia/web-sdk";
-import { DomainMgr } from "@Modules/domain";
-import { DomainAudio } from "@Modules/domain/audio";
-import { DomainAvatar } from "@Modules/domain/avatar";
+import { DomainManager } from "@Modules/domain";
+import { DomainAudioClient } from "@Modules/domain/audio";
+import { DomainAvatarClient } from "@Modules/domain/avatar";
 import { AssignmentClientState } from "@Modules/domain/client";
-import { Domain, ConnectionState } from "@Modules/domain/domain";
-import type { AMessage } from "@Modules/domain/message";
+import { ConnectionState, Domain } from "@Modules/domain/domain";
+import type { ChatMessage } from "@Modules/domain/message";
 import type { WebEntity } from "@Modules/entity/entities";
 import type { IWebEntity } from "@Modules/entity/EntityInterfaces";
 import type { Metaverse, MetaverseState } from "@Modules/metaverse/metaverse";
@@ -74,12 +74,12 @@ export const useApplicationStore = defineStore("application", {
             url: ""
         },
         avatars: {
-            connectionState: DomainAvatar.stateToString(AssignmentClientState.DISCONNECTED),
+            connectionState: DomainAvatarClient.stateToString(AssignmentClientState.DISCONNECTED),
             count: 0,
             avatarsInfo: new Map<Uuid, AvatarInfo>()
         },
         messages: {
-            messages: [] as Array<AMessage>,
+            messages: [] as Array<ChatMessage>,
             nextMessageId: 22,
             maxMessages: 150
         },
@@ -185,13 +185,13 @@ export const useApplicationStore = defineStore("application", {
          * @param domainAvatar A reference to the local avatar instance.
          * @param data A map of all other avatars in the server.
          */
-        updateAllAvatars(domainAvatar: DomainAvatar, data: Map<Uuid, ScriptAvatar>): void {
+        updateAllAvatars(domainAvatar: DomainAvatarClient, data: Map<Uuid, ScriptAvatar>): void {
             const existingAvatars = this.avatars.avatarsInfo;
             const newAvatars = new Map<Uuid, AvatarInfo>();
             data.forEach((avatar, id) => {
                 const existingEntry = existingAvatars.get(id);
                 // Fetch the avatar's audio gain from the Domain server.
-                const gain = DomainMgr.ActiveDomain?.DomainClient?.users?.getAvatarGain(id);
+                const gain = DomainManager.ActiveDomain?.DomainClient?.users?.getAvatarGain(id);
                 // If it can't be fetched, assume a default value of 0dB.
                 const defaultGain = 0;
                 if (existingEntry) {
@@ -203,7 +203,7 @@ export const useApplicationStore = defineStore("application", {
                     // Add a new entry to the map.
                     newAvatars.set(id, {
                         sessionId: id,
-                        volume: DomainAudio.getPercentageFromGain(gain ?? defaultGain),
+                        volume: DomainAudioClient.getPercentageFromGain(gain ?? defaultGain),
                         muted: false,
                         isAdmin: false,
                         isValid: avatar.isValid,
@@ -214,7 +214,7 @@ export const useApplicationStore = defineStore("application", {
             });
             this.avatars.avatarsInfo = newAvatars;
             this.avatars.count = newAvatars.size;
-            this.avatars.connectionState = DomainAvatar.stateToString(domainAvatar?.Mixer?.state ?? AssignmentClientState.DISCONNECTED);
+            this.avatars.connectionState = DomainAvatarClient.stateToString(domainAvatar?.Mixer?.state ?? AssignmentClientState.DISCONNECTED);
         },
         /**
          * Join a new conference room.
@@ -252,7 +252,7 @@ export const useApplicationStore = defineStore("application", {
          * Add a new chat message to the Store.
          * @param message
          */
-        addChatMessage(message: AMessage): void {
+        addChatMessage(message: ChatMessage): void {
             // If the message doesn't have some unique identification, add it.
             if (typeof message.id !== "number") {
                 message.id = this.messages.nextMessageId;

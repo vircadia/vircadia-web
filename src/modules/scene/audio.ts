@@ -1,15 +1,17 @@
-/*
+//
+//  audio.ts
+//
 //  Copyright 2021 Vircadia contributors.
 //  Copyright 2022 DigiSomni LLC.
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
-*/
+//
 
-import { DomainMgr } from "@Modules/domain";
-import { Domain, ConnectionState } from "@Modules/domain/domain";
-import { DomainAudio } from "@Modules/domain/audio";
+import { DomainManager } from "@Modules/domain";
 import { AssignmentClientState } from "@Modules/domain/client";
+import { ConnectionState, Domain } from "@Modules/domain/domain";
+import { DomainAudioClient } from "@Modules/domain/audio";
 import { applicationStore } from "@Stores/index";
 import { Config, USER_AUDIO_INPUT, USER_AUDIO_OUTPUT } from "@Base/config";
 import { Notify } from "quasar";
@@ -54,7 +56,7 @@ export const AudioMgr = {
         AudioMgr._setAudioOutputFunction = pAudioOuter;
 
         // Listen for the domain to connect and disconnect
-        DomainMgr.onActiveDomainStateChange.connect(AudioMgr._handleActiveDomainStateChange.bind(this));
+        DomainManager.onActiveDomainStateChange.connect(AudioMgr._handleActiveDomainStateChange.bind(this));
 
         // See if device selection was saved otherwise setup some default audio devices
         const firstStream = await AudioMgr.getAudioInputAccess();
@@ -116,9 +118,9 @@ export const AudioMgr = {
     },
 
     // The audio mixer state changed. If connected, try to connect inputs and outputs.
-    _handleDomainAudioStateChange(pDomain: Domain, pAudio: DomainAudio, pState: AssignmentClientState): void {
+    _handleDomainAudioStateChange(pDomain: Domain, pAudio: DomainAudioClient, pState: AssignmentClientState): void {
         (async () => {
-            Log.debug(Log.types.AUDIO, `AudioMgr._handleAudioStateChange: ${DomainAudio.stateToString(pState)}`);
+            Log.debug(Log.types.AUDIO, `AudioMgr._handleAudioStateChange: ${DomainAudioClient.stateToString(pState)}`);
             // If the audio state is now connected, let the user hear things
             if (pState === AssignmentClientState.CONNECTED) {
                 await AudioMgr._setupDomainAudio(pDomain);
@@ -175,7 +177,7 @@ export const AudioMgr = {
             if (AudioMgr._setAudioOutputFunction) {
                 const aClient = pDomain.AudioClient;
                 if (aClient) {
-                    const domainStream = aClient.getDomainAudioStream();
+                    const domainStream = aClient.domainAudioStream;
                     AudioMgr._setAudioOutputFunction(domainStream);
                 } else {
                     Log.debug(Log.types.AUDIO, `AudioMgr._connectInputAndOutputStreams. Could not set domain audio because no mixer`);
@@ -233,9 +235,9 @@ export const AudioMgr = {
      * @param pStream stream from user that should go to the domain
      */
     async setAudioToDomain(pStream: Nullable<MediaStream>): Promise<void> {
-        if (DomainMgr.ActiveDomain && DomainMgr.ActiveDomain.AudioClient) {
-            if (DomainMgr.ActiveDomain.AudioClient.clientState === AssignmentClientState.CONNECTED) {
-                const mixer = DomainMgr.ActiveDomain?.AudioClient?.Mixer;
+        if (DomainManager.ActiveDomain && DomainManager.ActiveDomain.AudioClient) {
+            if (DomainManager.ActiveDomain.AudioClient.clientState === AssignmentClientState.CONNECTED) {
+                const mixer = DomainManager.ActiveDomain?.AudioClient?.Mixer;
                 if (mixer) {
                     mixer.audioInput = pStream as MediaStream | null;
                     AudioMgr.setDomainAudioMuted(mixer.inputMuted);
@@ -247,9 +249,9 @@ export const AudioMgr = {
 
     // Set Play/Pause on domain audio.
     async setDomainAudioPlayPause(pPlay: boolean): Promise<boolean> {
-        if (DomainMgr.ActiveDomain && DomainMgr.ActiveDomain.AudioClient) {
-            if (DomainMgr.ActiveDomain.AudioClient.clientState === AssignmentClientState.CONNECTED) {
-                const mixer = DomainMgr.ActiveDomain.AudioClient.Mixer;
+        if (DomainManager.ActiveDomain && DomainManager.ActiveDomain.AudioClient) {
+            if (DomainManager.ActiveDomain.AudioClient.clientState === AssignmentClientState.CONNECTED) {
+                const mixer = DomainManager.ActiveDomain.AudioClient.Mixer;
                 if (mixer) {
                     if (pPlay) {
                         await mixer.play();
@@ -270,9 +272,9 @@ export const AudioMgr = {
      */
     setDomainAudioMuted(pMute?: boolean): boolean {
         const newMute = pMute ?? !applicationStore.audio.user.muted;
-        if (DomainMgr.ActiveDomain && DomainMgr.ActiveDomain.AudioClient) {
-            if (DomainMgr.ActiveDomain.AudioClient.clientState === AssignmentClientState.CONNECTED) {
-                const mixer = DomainMgr.ActiveDomain.AudioClient.Mixer;
+        if (DomainManager.ActiveDomain && DomainManager.ActiveDomain.AudioClient) {
+            if (DomainManager.ActiveDomain.AudioClient.clientState === AssignmentClientState.CONNECTED) {
+                const mixer = DomainManager.ActiveDomain.AudioClient.Mixer;
                 if (mixer) {
                     mixer.inputMuted = newMute;
                 }
@@ -309,10 +311,10 @@ export const AudioMgr = {
         }
 
         // the output device has changed so set the domain stream to the output device
-        const audioClient = DomainMgr.ActiveDomain?.AudioClient;
+        const audioClient = DomainManager.ActiveDomain?.AudioClient;
         if (audioClient) {
             if (audioClient.clientState === AssignmentClientState.CONNECTED) {
-                const domainStream = audioClient.getDomainAudioStream();
+                const domainStream = audioClient.domainAudioStream;
                 Log.debug(Log.types.AUDIO, `AudioMgr.setAudioOutputStream: setting output. ${typeof domainStream}`);
                 if (AudioMgr._setAudioOutputFunction) {
                     AudioMgr._setAudioOutputFunction(domainStream);

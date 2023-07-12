@@ -13,7 +13,6 @@
 import { AnimationGroup, Engine, Scene, Color3, ArcRotateCamera, Camera,
     Observable, Nullable, AmmoJSPlugin, Quaternion, Vector3, Color4, DefaultRenderingPipeline } from "@babylonjs/core";
 import Ammo from "ammojs-typed";
-
 import "@babylonjs/loaders/glTF";
 import { ResourceManager } from "./resource";
 import { DomainController, SceneController } from "./controllers";
@@ -30,11 +29,8 @@ import { AvatarStoreInterface } from "@Modules/avatar/StoreInterface";
 import { applicationStore, userStore } from "@Stores/index";
 import { CSS3DRenderer } from "./css3DRenderer";
 import { watch } from "vue";
-
-// General Modules
 import Log from "@Modules/debugging/log";
-// System Modules
-import { DomainMgr } from "../domain";
+import { DomainManager } from "../domain";
 
 // File containing all avatar animations.
 const AvatarAnimationUrl = "assets/AnimationsBasic.glb";
@@ -182,8 +178,8 @@ export class VScene {
 
     public resetMyAvatarPositionAndOrientation(): void {
         if (this._myAvatar) {
-            const location = DomainMgr.ActiveDomain
-                ? DomainMgr.ActiveDomain?.Location
+            const location = DomainManager.ActiveDomain
+                ? DomainManager.ActiveDomain?.Location
                 : new Location("/0,1.05,0/0,0,0,1");
             this.teleportMyAvatar(location);
         }
@@ -192,10 +188,10 @@ export class VScene {
     public teleportMyAvatar(location: Location): void {
         // keep the avatar's orientation when orientation is empty
         const q = location.orientation.length > 0
-            ? AvatarMapper.mapToLocalOrientation(DataMapper.mapStringToQuaternion(location.orientation))
+            ? AvatarMapper.mapToLocalOrientation(DataMapper.stringToQuaternion(location.orientation))
             : undefined;
 
-        this._teleportMyAvatar(AvatarMapper.mapToLocalPosition(DataMapper.mapStringToVec3(location.position)), q);
+        this._teleportMyAvatar(AvatarMapper.mapToLocalPosition(DataMapper.stringToVec3(location.position)), q);
     }
 
     public teleportMyAvatarToOtherPeople(sessionId: string): void {
@@ -370,8 +366,8 @@ export class VScene {
 
             const myAvatarController = new MyAvatarController();
             this._myAvatar.addComponent(myAvatarController);
-            if (DomainMgr.ActiveDomain && DomainMgr.ActiveDomain.AvatarClient?.MyAvatar) {
-                myAvatarController.myAvatar = DomainMgr.ActiveDomain.AvatarClient?.MyAvatar;
+            if (DomainManager.ActiveDomain && DomainManager.ActiveDomain.AvatarClient?.MyAvatar) {
+                myAvatarController.myAvatar = DomainManager.ActiveDomain.AvatarClient?.MyAvatar;
             }
             myAvatarController.skeletonModelURL = lastQueuedModelURL;
 

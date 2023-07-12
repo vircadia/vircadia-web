@@ -11,22 +11,17 @@
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
-import { ScriptComponent, inspectorAccessor, inspector } from "@Modules/script";
-
-// General Modules
-import Log from "@Modules/debugging/log";
-import { GameObject } from "@Modules/object";
-import { MyAvatarController } from "@Modules/avatar";
-
-// Domain Modules
-import { DomainMgr } from "@Modules/domain";
-import { Client, AssignmentClientState } from "@Modules/domain/client";
-import { Domain, ConnectionState } from "@Modules/domain/domain";
-import { AvatarMixer, Uuid, ScriptAvatar, DomainServer,
-    EntityServer, Camera as DomainCamera } from "@vircadia/web-sdk";
-import { EntityManager, IEntity, EntityMapper } from "@Modules/entity";
-import { VScene } from "../vscene";
+import { AvatarMixer, Uuid, ScriptAvatar, DomainServer, EntityServer, Camera as DomainCamera } from "@vircadia/web-sdk";
 import { Camera } from "@babylonjs/core";
+import { MyAvatarController } from "@Modules/avatar";
+import { DomainManager } from "@Modules/domain";
+import { AssignmentClientState, Client } from "@Modules/domain/client";
+import { ConnectionState, Domain } from "@Modules/domain/domain";
+import { EntityManager, IEntity, EntityMapper } from "@Modules/entity";
+import { GameObject } from "@Modules/object";
+import { VScene } from "@Modules/scene/vscene";
+import { ScriptComponent, inspectorAccessor, inspector } from "@Modules/script";
+import Log from "@Modules/debugging/log";
 
 export class DomainController extends ScriptComponent {
     _avatarMixer: Nullable<AvatarMixer> = null;
@@ -83,7 +78,7 @@ export class DomainController extends ScriptComponent {
             `DomainController onInitialize`);
 
         // Listen for the domain to connect and disconnect
-        DomainMgr.onActiveDomainStateChange.connect(this._handleActiveDomainStateChange.bind(this));
+        DomainManager.onActiveDomainStateChange.connect(this._handleActiveDomainStateChange.bind(this));
 
         GameObject.dontDestroyOnLoad(this._gameObject as GameObject);
     }
@@ -100,7 +95,7 @@ export class DomainController extends ScriptComponent {
     public onStop(): void {
         Log.debug(Log.types.OTHER,
             `DomainController onStop`);
-        DomainMgr.onActiveDomainStateChange.disconnect(this._handleActiveDomainStateChange.bind(this));
+        DomainManager.onActiveDomainStateChange.disconnect(this._handleActiveDomainStateChange.bind(this));
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
