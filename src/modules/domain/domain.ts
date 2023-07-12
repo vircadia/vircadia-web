@@ -55,7 +55,7 @@ export const DomainPersist = {
  *
  * @example ```
  *   const aDomain = new Domain();
- *   aDomain.onStateChange.connect((pDomain: Domain, pNewState: string, pInfo: string) => {
+ *   aDomain.onStateChange.connect((domain: Domain, newState: string, info: string) => {
  *       // Do stuff whenever the Domain connection's state changes.
  *   });
  *   aDomain.connect(theUrl);
@@ -100,7 +100,7 @@ export class Domain {
     public static get ERROR(): string { return DomainServer.stateToString(DomainServer.ERROR); }
 
     /**
-     * `true` if the metaverse connection is active, `false` if inactive.
+     * `true` if the Domain connection is active, `false` if inactive.
      */
     public get isConnected(): boolean {
         return this.domain?.state === DomainServer.CONNECTED;

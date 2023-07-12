@@ -8,7 +8,7 @@
 
 /* eslint-disable require-atomic-updates */
 
-import { MetaverseMgr } from "@Modules/metaverse";
+import { MetaverseManager } from "@Modules/metaverse";
 import { DomainManager } from "@Modules/domain";
 import { Domain } from "@Modules/domain/domain";
 import { Location } from "@Modules/domain/location";
@@ -46,7 +46,7 @@ export const Utility = {
         }
 
         // if we haven't connected to a metaverse already from a domain reconnect at startup
-        if (!MetaverseMgr.ActiveMetaverse) {
+        if (!MetaverseManager.activeMetaverse) {
             const metaverseUrl = applicationStore.defaultConnectionConfig.DEFAULT_METAVERSE_URL;
             await Utility.metaverseConnectionSetup(metaverseUrl);
         }
@@ -101,8 +101,8 @@ export const Utility = {
         try {
             if (pMetaverseUrl) {
                 Log.debug(Log.types.NETWORK, `metaverseConnectionSetup: connecting to metaverse ${pMetaverseUrl}`);
-                const metaverse = await MetaverseMgr.metaverseFactory(pMetaverseUrl);
-                MetaverseMgr.ActiveMetaverse = metaverse;
+                const metaverse = await MetaverseManager.metaverseFactory(pMetaverseUrl);
+                MetaverseManager.activeMetaverse = metaverse;
             }
         } catch (error) {
             Log.error(Log.types.NETWORK, `Exception connecting to metaverse: ${(error as Error).message}`);

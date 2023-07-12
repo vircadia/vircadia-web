@@ -1,4 +1,6 @@
-/*
+//
+//  APIInfo.ts
+//
 //  Domain and Metaverse server interfaces and operations.
 //
 //  Copyright 2021 Vircadia contributors.
@@ -6,9 +8,11 @@
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
-*/
+//
 
-// AccountInfo returned by various account requests
+/**
+ * Account information returned by various account requests.
+ */
 export interface AccountInfo {
     "accountId": string,
     "username": string,
@@ -40,14 +44,16 @@ export interface AccountInfo {
     "time_of_last_heartbeat_s": number
 }
 
-// DomainInfo returned by verious domain requests
+/**
+ * Domain information returned by verious domain requests.
+ */
 export interface DomainInfoV1 {
-    "id": string,           // legacy. Deprecated
+    "id": string,           // Legacy. Deprecated.
     "domainid": string,
     "name": string,
     "visibility": string,
-    "world_name": string,   // legacy. Deprecated
-    "label": string,        // legacy. Deprecated
+    "world_name": string,   // Legacy. Deprecated.
+    "label": string,        // Legacy. Deprecated.
     "public_key": string,
     "owner_places": PlaceInfo[],
     "sponsor_account_id": string,
@@ -77,7 +83,6 @@ export interface DomainInfoV1 {
         "tags": string[],
         "thumbnail": string,
         "world_name": string
-
     },
     "users": {
         "num_anon_users": number,
@@ -92,6 +97,9 @@ export interface DomainInfoV1 {
     "when_domain_entry_created_s": number
 }
 
+/**
+ * Domain information returned by verious domain requests.
+ */
 export interface DomainInfo {
     "id": string,
     "domainId": string,
@@ -99,7 +107,7 @@ export interface DomainInfo {
     "visibility": string,
     "capacity": number,
     "sponsorAccountId": string,
-    "label": string,        // legacy. Deprecated
+    "label": string,        // Legacy. Deprecated.
     "network_address": string,
     "network_port": string,
     "ice_server_address": string
@@ -113,6 +121,9 @@ export interface DomainInfo {
 
 // GET /api/metaverse_info
 export const MetaverseInfoAPI = "/api/metaverse_info";
+/**
+ * Metaverse information.
+ */
 export interface MetaverseInfoResponse {
     "metaverse_name": string,
     "metaverse_nick_name": string,
@@ -126,6 +137,9 @@ export interface MetaverseInfoResponse {
     }
 }
 
+/**
+ * Information about a Place in the Metaverse.
+ */
 export interface PlaceInfo {
     "placeId": string,
     "id": string,

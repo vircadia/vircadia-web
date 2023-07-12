@@ -6,7 +6,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
-import { MetaverseMgr } from "@Modules/metaverse";
+import { MetaverseManager } from "@Modules/metaverse";
 import { API } from "@Modules/metaverse/API";
 import type { OAuthTokenResponse, OAuthTokenError } from "@Modules/metaverse/APIToken";
 import type { GetAccountByIdResponse, PostUsersRequest, PostUsersResponse } from "@Modules/metaverse/APIAccount";
@@ -75,7 +75,7 @@ export const Account = {
      */
     async login(pUsername: string, pPassword: string): Promise<boolean> {
         // Prevent login attempts if the metaverse server is not connected.
-        if (!MetaverseMgr.ActiveMetaverse?.isConnected) {
+        if (!MetaverseManager.activeMetaverse?.isConnected) {
             Log.error(
                 Log.types.ACCOUNT,
                 `Exception: Attempted to login to account "${pUsername}" when metaverse is not connected.`

@@ -1,4 +1,4 @@
-/*
+//
 //  API.ts
 //
 //  Refactored by Giga on June 28th, 2023.
@@ -7,9 +7,9 @@
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
-*/
+//
 
-import { MetaverseMgr } from "@Modules/metaverse";
+import { MetaverseManager } from "@Modules/metaverse";
 import { Account } from "../account";
 import { GetAccountAPI, PostUsersAPI } from "@Modules/metaverse/APIAccount";
 import { MetaverseInfoAPI } from "@Modules/metaverse/APIInfo";
@@ -25,6 +25,9 @@ export interface APIResponse {
     error?: string;
 }
 
+/**
+ * Static methods for fetching data from a Metaverse server.
+ */
 export class API {
     public static readonly endpoints = {
         account: GetAccountAPI,
@@ -42,7 +45,7 @@ export class API {
      * @returns The constructed URL.
      */
     public static buildUrl(path: string, metaverseUrl?: string): string {
-        return (metaverseUrl ?? MetaverseMgr.ActiveMetaverse.MetaverseUrl) + path;
+        return (metaverseUrl ?? MetaverseManager.activeMetaverse?.MetaverseUrl ?? "") + path;
     }
 
     /**

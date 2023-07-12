@@ -1,29 +1,29 @@
-/*
+//
 //  Copyright 2021 Vircadia contributors.
 //  Copyright 2022 DigiSomni LLC.
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
-*/
+//
 
 import { Metaverse } from "@Modules/metaverse/metaverse";
 
-export const MetaverseMgr = {
-    // The current metaverse-server being communicated with
-    _activeMetaverse: undefined as unknown as Metaverse,
+export class MetaverseManager {
+    /**
+     * The currently connected Metaverse server.
+     */
+    public static activeMetaverse: Nullable<Metaverse>;
 
-    get ActiveMetaverse(): Metaverse {
-        return MetaverseMgr._activeMetaverse;
-    },
-    set ActiveMetaverse(pMV: Metaverse) {
-        MetaverseMgr._activeMetaverse = pMV;
-    },
-
-    async metaverseFactory(pUrl?: string): Promise<Metaverse> {
-        const aMetaverse = new Metaverse();
-        if (typeof pUrl === "string" && pUrl.length > 0) {
-            await aMetaverse.setMetaverseUrl(pUrl);
+    /**
+     * Create a new Metaverse connection.
+     * @param url `(Optional)` The URL of the Metaverse server.
+     * @returns A new Metaverse connection instance.
+     */
+    public static async metaverseFactory(url?: string): Promise<Metaverse> {
+        const metaverse = new Metaverse();
+        if (typeof url === "string" && url.length > 0) {
+            await metaverse.setMetaverseUrl(url);
         }
-        return aMetaverse;
+        return metaverse;
     }
-};
+}

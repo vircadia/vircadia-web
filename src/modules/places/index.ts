@@ -6,7 +6,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
-import { MetaverseMgr } from "@Modules/metaverse";
+import { MetaverseManager } from "@Modules/metaverse";
 import { API } from "@Modules/metaverse/API";
 import type { GetPlacesResponse } from "@Modules/metaverse/APIPlaces";
 import Log, { findErrorMessage } from "@Modules/debugging/log";
@@ -24,7 +24,7 @@ export const Places = {
 
     async getActiveList(): Promise<PlaceEntry[]> {
         const places: PlaceEntry[] = [];
-        if (MetaverseMgr.ActiveMetaverse?.isConnected) {
+        if (MetaverseManager.activeMetaverse?.isConnected) {
             try {
                 const placesResponse = await API.get(API.endpoints.places + "?status=online") as GetPlacesResponse;
 
