@@ -15,14 +15,18 @@ export class MetaverseManager {
     public static activeMetaverse: Nullable<Metaverse>;
 
     /**
-     * Create a new Metaverse connection.
+     * Create a new Metaverse server connection.
      * @param url `(Optional)` The URL of the Metaverse server.
+     * @param setToActive `(Optional)` Set the new Metaverse connection to be the active connection for the application.
      * @returns A new Metaverse connection instance.
      */
-    public static async metaverseFactory(url?: string): Promise<Metaverse> {
+    public static async metaverseFactory(url?: string, setToActive = false): Promise<Metaverse> {
         const metaverse = new Metaverse();
         if (typeof url === "string" && url.length > 0) {
             await metaverse.setMetaverseUrl(url);
+        }
+        if (setToActive) {
+            this.activeMetaverse = metaverse;
         }
         return metaverse;
     }

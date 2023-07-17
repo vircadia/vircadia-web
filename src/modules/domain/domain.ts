@@ -20,7 +20,7 @@ import Log from "@Modules/debugging/log";
 import { applicationStore } from "@Stores/index";
 import { Client } from "./client";
 import { Location } from "./location";
-import assert from "../utility/assert";
+import assert from "@Modules/utility/assert";
 
 // Routines connected to the onStateChange Signal, receive calls of this format:
 export type OnDomainStateChangeCallback = (d: Domain, newState: string, info: string) => void;

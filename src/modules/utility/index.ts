@@ -1,133 +1,128 @@
-/*
+//
 //  Copyright 2021 Vircadia contributors.
 //  Copyright 2022 DigiSomni LLC.
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
-*/
-
-/* eslint-disable require-atomic-updates */
+//
 
 import { MetaverseManager } from "@Modules/metaverse";
+import type { Metaverse, MetaverseState } from "@Modules/metaverse/metaverse";
 import { DomainManager } from "@Modules/domain";
-import { Domain } from "@Modules/domain/domain";
+import type { Domain } from "@Modules/domain/domain";
 import { Location } from "@Modules/domain/location";
 import { applicationStore } from "@Stores/index";
 import { Config, TrueValue, FalseValue, RECONNECT_ON_STARTUP, LAST_DOMAIN_SERVER, LOG_LEVEL } from "@Base/config";
 import { Renderer } from "@Modules/scene";
 import Log from "@Modules/debugging/log";
 
-export const Utility = {
+export class Utility {
     /**
-     * Configuration information is persisted so restore what information
-     * we can.
+     * Initialize the configuration system and restore the config from persistent storage.
      */
-    initializeConfig(): void {
+    public static initializeConfig(): void {
         Config.initialize();
-        // Copy the configured log level into the logging subroutines
         Log.setLogLevel(Config.getItem(LOG_LEVEL, "debug"));
-    },
+    }
 
     /**
-     * Connect to the domain on startup.
-     *
-     * If we are supposed to connect at startup, do all the connection
-     * setup stuff so the user is online.
+     * Connect to the Domain on startup.
      */
-    async initialConnectionSetup(): Promise<void> {
-        if (Config.getItem(RECONNECT_ON_STARTUP, FalseValue) === TrueValue) {
-            Log.info(Log.types.METAVERSE, `Doing Reconnect on Startup`);
-            const lastDomainServer = Config.getItem(LAST_DOMAIN_SERVER, undefined);
-            if (lastDomainServer) {
-                await Utility.connectionSetup(lastDomainServer);
-            }
-        } else {
-            Log.info(Log.types.NETWORK, `Not performing Reconnect on Startup. See "config"`);
+    public static async initialConnectionSetup(): Promise<void> {
+        // Check if RECONNECT_ON_STARTUP is configured.
+        const reconnectOnStartup = Config.getItem(RECONNECT_ON_STARTUP, FalseValue);
+        if (reconnectOnStartup !== TrueValue) {
+            // If not, connect to the dafault URL.
+            Log.info(Log.types.METAVERSE, `Not performing reconnect-on-startup.`);
+            await this.metaverseConnectionSetup(applicationStore.defaultConnectionConfig.DEFAULT_METAVERSE_URL);
+            return;
         }
 
-        // if we haven't connected to a metaverse already from a domain reconnect at startup
-        if (!MetaverseManager.activeMetaverse) {
-            const metaverseUrl = applicationStore.defaultConnectionConfig.DEFAULT_METAVERSE_URL;
-            await Utility.metaverseConnectionSetup(metaverseUrl);
+        // Check if a previous Domain server URL exists in persistent storage.
+        const lastDomainServer = Config.getItem(LAST_DOMAIN_SERVER, undefined);
+        if (!lastDomainServer) {
+            // If not, connect to the dafault URL.
+            Log.info(Log.types.METAVERSE, "Not performing reconnect-on-startup. URL for previous Domain server wasn't found.");
+            await this.metaverseConnectionSetup(applicationStore.defaultConnectionConfig.DEFAULT_METAVERSE_URL);
+            return;
         }
-    },
+
+        // Perform reconnect-on-startup.
+        Log.info(Log.types.METAVERSE, `Performing reconnect-on-startup...`);
+        await this.connectionSetup(lastDomainServer);
+    }
 
     /**
-     * Start a connection to a domain-server.
+     * Start a connection to a Domain server.
      *
-     * The connection to the domain is started and, if successful, a connection to the back-end
-     * metaverse-server is setup and initialized.
+     * If the Domain connection is successful, a connection to the corresponding Metaverse server is also made.
      *
-     * The state change routines are usually used to start interaction operations.
-     *
-     * @param pDomainUrl either just the hostname (default protocol and ports are added) or a fully qualified URL
-     * @param {OnDomainStateChangeCallback} pDomainOps routine to be called when domain connection state changes
-     * @param {OnMetaverseStateChangeCallback} pMetaverseOps routine to be called when metaverse connection state changes
+     * @param domainUrl The URL for the Domain server. Either just the hostname (default protocol and ports are added) or a fully qualified URL.
+     * @param domainStateChangeCallback `(Optional)` A routine to be called whenever Domain connection state changes.
+     * @param metaverseStateChangeCallback `(Optional)` A routine to be called whenever Metaverse connection state changes.
      */
-    async connectionSetup(pDomainUrl: string): Promise<void> {
-        if (pDomainUrl) {
-            try {
-                const location = new Location(pDomainUrl);
-                if (location.host.length === 0) {
-                    Renderer.getScene().teleportMyAvatar(location);
-                } else {
-                    Renderer.getScene().stopMyAvatar();
-
-                    // First ensure we disconnect from any currently active domain.
-                    this.disconnectActiveDomain();
-
-                    Log.debug(Log.types.NETWORK, `connectionSetup: connecting to domain ${pDomainUrl}`);
-                    const domain = DomainManager.domainFactory(location.href);
-                    await this.connectActiveDomain(domain);
-
-                    const metaverseUrl = domain.getMetaverseUrl();
-                    await Utility.metaverseConnectionSetup(metaverseUrl);
-                }
-            } catch (error) {
-                Log.error(Log.types.NETWORK, `Exception connecting: ${(error as Error).message}`);
-            }
+    public static async connectionSetup(
+        domainUrl: string,
+        domainStateChangeCallback?: (domain: Domain, state: string, info: string) => void,
+        metaverseStateChangeCallback?: (metaverse: Metaverse, state: MetaverseState) => void
+    ): Promise<void> {
+        if (!domainUrl) {
+            return;
         }
-    },
-
-    /**
-     * Start a connection to a metaverse-server.
-     *
-     * The state change routines are usually used to start interaction operations.
-     *
-     * @param pMetaverseUrl either just the hostname (default protocol and ports are added) or a fully qualified URL
-     * @param {OnMetaverseStateChangeCallback} pMetaverseOps routine to be called when metaverse connection state changes
-     */
-    async metaverseConnectionSetup(pMetaverseUrl: string): Promise<void> {
         try {
-            if (pMetaverseUrl) {
-                Log.debug(Log.types.NETWORK, `metaverseConnectionSetup: connecting to metaverse ${pMetaverseUrl}`);
-                const metaverse = await MetaverseManager.metaverseFactory(pMetaverseUrl);
-                MetaverseManager.activeMetaverse = metaverse;
+            const location = new Location(domainUrl);
+            if (location.host.length === 0) {
+                Renderer.getScene().teleportMyAvatar(location);
+            } else {
+                Renderer.getScene().stopMyAvatar();
+
+                // First ensure we disconnect from any currently active Domain.
+                this.disconnectActiveDomain();
+
+                // Connect to the new Domain server.
+                Log.debug(Log.types.NETWORK, `connectionSetup: connecting to domain ${domainUrl}`);
+                const domain = DomainManager.domainFactory(location.href, true);
+                if (domainStateChangeCallback) {
+                    domain.onStateChange.connect(domainStateChangeCallback);
+                }
+
+                // Connect to the Metaverse server.
+                const metaverseUrl = domain.getMetaverseUrl();
+                await Utility.metaverseConnectionSetup(metaverseUrl, metaverseStateChangeCallback);
+            }
+        } catch (error) {
+            Log.error(Log.types.NETWORK, `Exception connecting: ${(error as Error).message}`);
+        }
+    }
+
+    /**
+     * Start a connection to a Metaverse server.
+     * @param metaverseUrl The URL for the Metaverse server. Either just the hostname (default protocol and ports are added) or a fully qualified URL.
+     * @param stateChangeCallback `(Optional)` A routine to be called whenever Metaverse connection state changes.
+     */
+    public static async metaverseConnectionSetup(
+        metaverseUrl: string,
+        stateChangeCallback?: (metaverse: Metaverse, state: MetaverseState) => void
+    ): Promise<void> {
+        if (!metaverseUrl) {
+            return;
+        }
+        try {
+            Log.debug(Log.types.NETWORK, `metaverseConnectionSetup: connecting to metaverse ${metaverseUrl}`);
+            const metaverse = await MetaverseManager.metaverseFactory(metaverseUrl, true);
+            if (stateChangeCallback) {
+                metaverse.onStateChange.connect(stateChangeCallback);
             }
         } catch (error) {
             Log.error(Log.types.NETWORK, `Exception connecting to metaverse: ${(error as Error).message}`);
         }
-    },
-
-    /**
-     * Set the specified domain as the active domain.
-     *
-     * This creates all the Signal subscriptions that will cause state to be updated.
-     */
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async connectActiveDomain(pDomain: Domain): Promise<void> {
-        DomainManager.ActiveDomain = pDomain;
-    },
-
-    /**
-     * End a connection to a domain-server.
-     *
-     * If there is currently an active domain setup, this fires the disconnect method on that domain.
-     */
-    disconnectActiveDomain(): void {
-        if (DomainManager.ActiveDomain) {
-            DomainManager.ActiveDomain.disconnect();
-            DomainManager.ActiveDomain = undefined;
-        }
     }
-};
+
+    /**
+     * End the connection to the active Domain server.
+     */
+    public static disconnectActiveDomain(): void {
+        DomainManager.ActiveDomain?.disconnect();
+        DomainManager.ActiveDomain = undefined;
+    }
+}

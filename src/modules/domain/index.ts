@@ -80,27 +80,31 @@ export class DomainManager {
     }
 
     /**
-     * Create connection to a domain-server and return a Domain object with the connection.
+     * Create a new Domain server connection.
      *
-     * @param url network address of domain
-     * @returns Domain object with the connection initialized
-     * @throws if there are connection errors
+     * @param url The URL of the Domain server.
+     * @param setToActive `(Optional)` Set the new Metaverse connection to be the active connection for the application.
+     * @returns A new Domain connection instance.
+     * @throws If there are any connection errors.
      */
-    public static domainFactory(url: string): Domain {
+    public static domainFactory(url: string, setToActive = false): Domain {
         Log.debug(Log.types.NETWORK, `DomainManager.domainFactory: Creating Domain ${url}`);
-        const aDomain = new Domain();
+        const domain = new Domain();
         try {
-            aDomain.connect(url);
+            domain.connect(url);
             // this._domains.set(aDomain.DomainUrl, aDomain);
-            this.domains.set(aDomain.Location.href, aDomain);
+            this.domains.set(domain.Location.href, domain);
             // Remember the last connected domain for potential restarts
             // Config.setItem(LAST_DOMAIN_SERVER, aDomain.DomainUrl);
-            Config.setItem(LAST_DOMAIN_SERVER, aDomain.Location.href);
+            Config.setItem(LAST_DOMAIN_SERVER, domain.Location.href);
         } catch (error) {
             Log.error(Log.types.NETWORK, `Exception connecting to Domain at ${url}`);
             throw error;
         }
-        return aDomain;
+        if (setToActive) {
+            this.activeDomain = domain;
+        }
+        return domain;
     }
 
     /**
