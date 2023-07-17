@@ -68,7 +68,6 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { Renderer } from "@Modules/scene";
-import type { AvatarEntry } from "@Base/modules/avatar/DefaultModels";
 import { AvatarStoreInterface } from "@Base/modules/avatar/StoreInterface";
 import OverlayShell from "../OverlayShell.vue";
 
@@ -183,14 +182,13 @@ export default defineComponent({
             // eslint-disable-next-line @typescript-eslint/no-magic-numbers
             }, 15000);
 
-            const newModel = {
+            const ID = AvatarStoreInterface.createNewModel({
                 name: "New Avatar",
                 image: "",
                 file: url,
                 scale: 1,
                 starred: true
-            } as AvatarEntry;
-            const ID = AvatarStoreInterface.createNewModel(newModel);
+            });
             this.renderAvatarImage(ID);
 
             scene.loadMyAvatar(url)
