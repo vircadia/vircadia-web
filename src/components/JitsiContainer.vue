@@ -16,7 +16,9 @@
 </style>
 
 <template>
-    <q-card id="jitsi-container" class="column no-wrap items-stretch full-height"
+    <q-card
+        id="jitsi-container"
+        class="column no-wrap items-stretch full-height"
         style="background: transparent;box-shadow: none; display: none;"
     >
         <div v-for="room in applicationStore.conference.activeRooms" :key="room.name">
@@ -29,8 +31,7 @@
                     styleIframe(parentNode);
                     setupWebEntity((room as JitsiRoomInfo), parentNode);
                 }"
-            >
-            </Jitsi>
+            />
         </div>
     </q-card>
 </template>
@@ -41,7 +42,6 @@ import { applicationStore, userStore } from "@Stores/index";
 import { type JitsiRoomInfo } from "@Stores/application-store";
 import { GameObject } from "@Modules/object";
 import { WebEntityController } from "@Modules/entity";
-import Jitsi from "@Components/overlays/jitsi/Jitsi.vue";
 
 export default defineComponent({
     name: "JitsiContainer",
@@ -49,10 +49,6 @@ export default defineComponent({
     props: {
         // Primary
         propsToPass: { type: Object, default: () => ({}) }
-    },
-
-    components: {
-        Jitsi
     },
 
     setup() {
@@ -72,8 +68,7 @@ export default defineComponent({
                 iframe.style.height = "100%";
             }
         },
-
-        setupWebEntity(room: JitsiRoomInfo, element : HTMLElement): void {
+        setupWebEntity(room: JitsiRoomInfo, element: HTMLElement): void {
             const gameObject = GameObject.getGameObjectByID(room.entity.id);
             const controller = gameObject?.getComponent(WebEntityController.typeName) as WebEntityController;
             if (controller) {
@@ -82,6 +77,5 @@ export default defineComponent({
             }
         }
     }
-
 });
 </script>

@@ -59,20 +59,24 @@ export default defineComponent({
         propsToPass: { type: Object, default: () => ({}) }
     },
 
-    data: () => ({
-        room: <JitsiRoomInfo><unknown>undefined,
-        jitisElement: <HTMLElement><unknown>undefined
-    }),
-
     components: {
         OverlayShell
     },
+
+    data() {
+        return {
+            room: <JitsiRoomInfo><unknown>undefined,
+            jitisElement: <HTMLElement><unknown>undefined
+        };
+    },
+
     methods: {
         getWebEntityController() : WebEntityController {
             const gameObject = GameObject.getGameObjectByID(this.room.entity.id);
             return gameObject?.getComponent(WebEntityController.typeName) as WebEntityController;
         }
     },
+
     mounted() {
         this.room = applicationStore.conference.currentRoom;
         const controller = this.getWebEntityController();
@@ -84,6 +88,7 @@ export default defineComponent({
             container.appendChild(this.jitisElement);
         }
     },
+
     beforeUnmount() {
         if (this.room && this.jitisElement) {
             const controller = this.getWebEntityController();

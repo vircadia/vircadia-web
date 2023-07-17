@@ -30,22 +30,6 @@
             :style="{background: headerStyle}"
         >
             <div class="row no-wrap">
-<!--
-                <q-toolbar
-                    class="col-8"
-                >
-                    <q-input rounded outlined v-model="locationInput" class="q-mr-md" label="Connect to" />
-                    <q-btn-group push>
-                        <q-btn push label="Connect" icon="login" @click="connect" />
-                        <q-btn push label="Disconnect" icon="close" @click="disconnect" />
-                    </q-btn-group>
-                    <q-space />
-
-                    <div>
-                        <div>{{ applicationStore.globalConsts.APP_NAME }}</div>
-                        <div>{{ applicationStore.globalConsts.APP_VERSION_TAG }}</div>
-                    </div>
-                </q-toolbar> -->
                 <q-toolbar :style="{ padding: isMobile ? '0px 0px 0px 8px' : '0px 12px' }">
                     <q-btn
                         flat
@@ -154,10 +138,10 @@
                                 style="display: flex;flex-direction: row;justify-content: flex-start;align-items: center;"
                                 :style="{ fontSize: isMobile ? '0.8em' : 'inherit' }"
                             >
-                                {{ getDomainServerState }}
+                                {{ domainServerState }}
                                 <Transition>
                                     <div
-                                        v-show="getDomainServerState === 'CONNECTING' || applicationStore.renderer.contentIsLoading"
+                                        v-show="domainServerState === 'CONNECTING' || applicationStore.renderer.contentIsLoading"
                                         class="q-ml-md"
                                         style="display: flex;
                                             flex-direction: row;justify-content: flex-start;align-items: center;"
@@ -195,13 +179,7 @@
                             <q-item-section side>
                                 <q-avatar size="48px">
                                     <q-img
-                                        v-if="getProfilePicture"
-                                        :src="getProfilePicture"
-                                    />
-                                    <q-icon
-                                        v-else
-                                        name="account_circle"
-                                        size="xl"
+                                        :src="profilePicture"
                                     />
                                 </q-avatar>
                             </q-item-section>
@@ -296,7 +274,7 @@
                                 >
                                     <q-item-section side>
                                         <q-avatar size="48px">
-                                            <q-icon :name="getProfilePicture" size="xl"/>
+                                            <q-icon :name="profilePicture" size="xl"/>
                                         </q-avatar>
                                     </q-item-section>
                                     <q-item-section>
@@ -368,15 +346,15 @@
                             <q-item class="non-selectable">
                                 <q-item-section>
                                     <q-item-label>Domain</q-item-label>
-                                    <q-item-label caption>{{ getDomainServerState }}</q-item-label>
+                                    <q-item-label caption>{{ domainServerState }}</q-item-label>
                                     <q-item-label
                                         caption
                                         class="row"
                                         style="align-items: center;"
-                                        :title="getLocation"
+                                        :title="location"
                                     >
                                         <p class="q-ma-none text-no-wrap ellipsis" style="max-width: 300px;">
-                                            {{ getLocation }}
+                                            {{ location }}
                                         </p>
                                         <q-btn
                                             flat
@@ -394,15 +372,15 @@
                             <q-item class="non-selectable">
                                 <q-item-section>
                                     <q-item-label>{{ applicationStore.theme.globalServiceTerm }}</q-item-label>
-                                    <q-item-label caption>{{ getMetaverseServerState.toUpperCase() }}</q-item-label>
+                                    <q-item-label caption>{{ metaverseServerState.toUpperCase() }}</q-item-label>
                                     <q-item-label
                                         caption
                                         class="row"
                                         style="align-items: center;"
-                                        :title="getMetaverseServerLocation"
+                                        :title="metaverseServerLocation"
                                     >
                                         <p class="q-ma-none text-no-wrap ellipsis" style="max-width: 300px;">
-                                            {{ getMetaverseServerLocation }}
+                                            {{ metaverseServerLocation }}
                                         </p>
                                         <q-btn
                                             flat
@@ -441,7 +419,7 @@
             <MainScene
                 :interactive="!aMenuIsOpen"
                 @click.prevent="hideSettingsAndHelpMenus()"
-                @joint-conference-room="joinConferenceRoom($event)"
+                @join-conference-room="joinConferenceRoom($event)"
             >
                 <template v-slot:manager>
                     <OverlayManager ref="OverlayManager" />
@@ -449,12 +427,12 @@
             </MainScene>
         </q-page-container>
 
-        <q-dialog v-model="getDialogState">
+        <q-dialog v-model="applicationStore.dialog.show">
             <q-card
                 class="column no-wrap items-stretch"
                 style="width: 310px;"
             >
-                <component @closeDialog='closeDialog' :is="applicationStore.dialog.which + 'Dialog'"></component>
+                <component @close='closeDialog' :is="applicationStore.dialog.which + 'Dialog'"></component>
             </q-card>
         </q-dialog>
 
@@ -471,7 +449,6 @@ import { Account, type onAttributeChangePayload } from "@Modules/account";
 import { AudioMgr } from "@Modules/scene/audio";
 import { AudioIO } from "@Modules/ui/audioIO";
 import Log from "@Modules/debugging/log";
-// Components
 import MainScene from "@Components/MainScene.vue";
 import OverlayManager from "@Components/overlays/OverlayManager.vue";
 
@@ -591,35 +568,31 @@ export default defineComponent({
     },
 
     computed: {
-        getDialogState: {
-            get(): boolean {
-                return this.applicationStore.dialog.show;
-            },
-            set(newValue: boolean) {
-                this.setDialogState(newValue);
-            }
-        },
-
-        getLocation: function(): string {
+        location(): string {
             return this.userStore.avatar.location ?? "Not currently connected to a domain.";
         },
-
-        // Displays the state of the domain server on the user interface
-        getDomainServerState: function(): string {
+        /**
+         * The state of the connection to the Domain server.
+         */
+        domainServerState(): string {
             return this.applicationStore.domain.connectionState ?? "DISCONNECTED";
         },
-        getMetaverseServerState: function(): string {
+        /**
+         * The state of the connection to the Metaverse server.
+         */
+        metaverseServerState(): string {
             return this.applicationStore.metaverse.connectionState;
         },
-        getMetaverseServerLocation: function(): string {
+        metaverseServerLocation(): string {
             return this.applicationStore.metaverse.server ?? "Not currently connected to a metaverse server.";
         },
-        getProfilePicture: function(): string | undefined {
+        profilePicture(): string | undefined {
             return this.userStore.account.images?.thumbnail;
         },
-
-        headerStyle: function(): string {
-            // Style the header bar based on the Theme config.
+        /**
+         * Style the header bar based on the Theme config.
+         */
+        headerStyle(): string {
             if (this.applicationStore.theme.globalStyle === "none") {
                 return "unset";
             }
@@ -641,8 +614,7 @@ export default defineComponent({
             const opacity = opacities[this.applicationStore.theme.globalStyle];
             return `radial-gradient(${gradient}, ${secondary}${opacity} 15%, ${primary}${opacity} 40%, ${end}${opacity} 95%)`;
         },
-
-        microphoneColor: function(): string {
+        microphoneColor(): string {
             if (!this.applicationStore.audio.user.hasInputAccess) {
                 return "grey-6";
             }
@@ -652,16 +624,14 @@ export default defineComponent({
             return "primary";
         }
     },
+
     methods: {
-        setDialogState: function(newValue: boolean) {
-            this.applicationStore.dialog.show = newValue;
-        },
         // Drawers
-        toggleUserMenu: function(): void {
+        toggleUserMenu(): void {
             (this.$refs as ComponentTemplateRefs).OverlayManager?.toggleOverlay("Menu");
         },
         // Settings & Help menus clickaway
-        hideSettingsAndHelpMenus: function(): void {
+        hideSettingsAndHelpMenus(): void {
             if (this.aMenuIsOpen) {
                 this.aMenuIsOpen = false;
                 this.settingsMenuState = false;
@@ -672,15 +642,15 @@ export default defineComponent({
         // Pressed "connect"
         // Connect to the specified domain-server and the associated metaverse-server
         // Also add state update links to keep the Vuex state variables up to date.
-        connect: async function() {
+        async connect() {
             await this.connectToAddress(this.locationInput);
         },
-        connectToAddress: async function(locationAddress: string) {
+        async connectToAddress(locationAddress: string) {
             Log.info(Log.types.UI, `Connecting to... ${locationAddress}`);
             await Utility.connectionSetup(locationAddress);
         },
 
-        disconnect: function() {
+        disconnect() {
             Log.info(Log.types.UI, `Disconnecting from... ${this.userStore.avatar.location}`);
             this.lastConnectedDomain = this.userStore.avatar.location;
             Utility.disconnectActiveDomain();
@@ -688,7 +658,7 @@ export default defineComponent({
 
         // Metaverse
 
-        logout: function() {
+        logout() {
             Account.logout();
             this.$q.notify({
                 type: "positive",
@@ -699,33 +669,33 @@ export default defineComponent({
         },
 
         // Dialog Handling
-        openDialog: function(pWhich: string, shouldShow: boolean) {
+        openDialog(pWhich: string, shouldShow: boolean) {
             this.applicationStore.dialog.show = shouldShow;
             this.applicationStore.dialog.which = pWhich;
         },
-        closeDialog: function() {
+        closeDialog() {
             this.applicationStore.dialog.show = false;
             this.applicationStore.dialog.which = "";
         },
 
-        onClickOpenOverlay: function(pOverlay: string) {
+        onClickOpenOverlay(pOverlay: string) {
             (this.$refs as ComponentTemplateRefs).OverlayManager?.openOverlay(pOverlay);
         },
-        joinConferenceRoom: function(room: JitsiRoomInfo) {
+        joinConferenceRoom(room: JitsiRoomInfo) {
             this.applicationStore.joinConferenceRoom(room);
             (this.$refs as ComponentTemplateRefs).OverlayManager?.toggleOverlay("Jitsi");
         },
-        openUrl: function(pUrl: string) {
+        openUrl(pUrl: string) {
             openURL(pUrl);
         },
-        toggleMicrophoneMute: function() {
+        toggleMicrophoneMute() {
             if (this.applicationStore.audio.user.hasInputAccess) {
                 AudioMgr.muteAudio();
             }
         },
         async copyDomainLocationToClipboard(): Promise<void> {
             this.domainLocationCopied = true;
-            await navigator.clipboard.writeText(this.getLocation);
+            await navigator.clipboard.writeText(this.location);
             const transitionTime = 1700;
             window.setTimeout(() => {
                 this.domainLocationCopied = false;
@@ -733,13 +703,13 @@ export default defineComponent({
         },
         async copyMetaverseLocationToClipboard(): Promise<void> {
             this.metaverseLocationCopied = true;
-            await navigator.clipboard.writeText(this.getMetaverseServerLocation);
+            await navigator.clipboard.writeText(this.metaverseServerLocation);
             const transitionTime = 1700;
             window.setTimeout(() => {
                 this.metaverseLocationCopied = false;
             }, transitionTime);
         },
-        formatMenuItemCaption: function(caption: string) {
+        formatMenuItemCaption(caption: string) {
             switch (caption) {
                 case "nametag_setting":
                     return this.userStore.avatar.showNametags ? "On" : "Off";
@@ -748,13 +718,13 @@ export default defineComponent({
             }
         }
     },
-    beforeMount: function() {
+    beforeMount() {
         // Ensure that Quasar's global color variables are in sync with the Store's theme colors.
         document.documentElement.style.setProperty("--q-primary", this.applicationStore.theme.colors.primary ?? null);
         document.documentElement.style.setProperty("--q-secondary", this.applicationStore.theme.colors.secondary ?? null);
         document.documentElement.style.setProperty("--q-accent", this.applicationStore.theme.colors.accent ?? null);
     },
-    mounted: function() {
+    mounted() {
         // Set the isDesktop and isMobile flags according to the window's width.
         this.isMobile = window.innerWidth < this.mobileBreakpoint;
         this.isDesktop = !this.isMobile;

@@ -142,7 +142,8 @@ export class AudioIO {
      *
      * There is some protection from being called twice while already waiting for a device.
      *
-     * @param requestedDeviceId The ID of the media device to request access to.
+     * @param requestedDeviceId `(Optional)` The ID of the media device to request access to.
+     * If none is provided, the first available audio device is requested.
      * @returns A reference to the connected media stream, or `null` if access is refused.
      */
     public static async requestInputAccess(requestedDeviceId?: string): Promise<Nullable<MediaStream>> {
@@ -157,23 +158,19 @@ export class AudioIO {
             : { audio: true, video: false };
 
         if (applicationStore.audio.user.awaitingCapturePermissions === true) {
-            Log.error(
-                Log.types.AUDIO,
-                `Failed to request specific input device ID ${requestedDeviceId ?? "audio"}`
-                + ` due to an already awaiting request for input capture.`
-            );
+            Log.debug(Log.types.AUDIO, "AudioIO: An input device request is already pending.");
             return null;
         }
 
         this.setAwaitingCapturePermissions(true);
         try {
-            Log.debug(Log.types.AUDIO, `AudioIO: requestInputAccess waiting. Constraint=${toJSON(constraint)}`);
+            Log.debug(Log.types.AUDIO, `AudioIO: Waiting for access to input device with constraint: ${toJSON(constraint)}`);
             const stream = await navigator.mediaDevices.getUserMedia(constraint);
             if (stream) {
-                Log.debug(Log.types.AUDIO, `AudioIO: have stream id=${stream.id}`);
+                Log.debug(Log.types.AUDIO, `AudioIO: Access granted for stream: ${stream.id}.`);
 
                 // Audio inputs do not have labels if the permission has not been received.
-                // Therefore, we update the list after success.
+                // Therefore, we need to update the list after success.
                 await AudioMgr.getAvailableInputOutputDevices();
 
                 // Find the MediaDeviceInfo for the input device.

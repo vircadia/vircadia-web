@@ -26,7 +26,7 @@
 
 <template>
     <q-page class="full-height">
-        <q-resize-observer @resize="onResize" />
+        <q-resize-observer @resize="resize" />
         <audio ref="mainSceneAudioElement"></audio>
         <canvas
             :height="canvasHeight"
@@ -51,7 +51,6 @@
 
 <script lang="ts">
 import { defineComponent, watch } from "vue";
-
 import { applicationStore, userStore } from "@Stores/index";
 import { AudioMgr } from "@Modules/scene/audio";
 import { Renderer } from "@Modules/scene/renderer";
@@ -60,12 +59,9 @@ import { Location } from "@Modules/domain/location";
 import { AvatarStoreInterface } from "@Modules/avatar/StoreInterface";
 import { URL_UPDATE_FREQUENCY } from "@Base/config";
 import { DomainManager } from "@Modules/domain";
-
 import LoadingScreen from "@Components/LoadingScreen.vue";
 import JitsiContainer from "@Components/JitsiContainer.vue";
 import { EntityEventType } from "@Base/modules/entity";
-
-type Nullable<T> = T | null | undefined;
 
 type ComponentTemplateRefs = {
     mainSceneAudioElement: HTMLAudioElement,
@@ -94,6 +90,8 @@ export default defineComponent({
         JitsiContainer
     },
 
+    emits: ["join-conference-room"],
+
     setup() {
         return {
             applicationStore,
@@ -118,25 +116,22 @@ export default defineComponent({
     },
 
     methods: {
-        onResize(newSize: ResizeShape) {
+        /**
+         * Update the size of the scene canvas.
+         * @param newSize
+         */
+        resize(newSize: ResizeShape): void {
             this.canvasHeight = newSize.height;
             this.canvasWidth = newSize.width;
-
             Renderer.resize(newSize.height, newSize.width);
         },
-        setOutputStream(pStream: Nullable<MediaStream>) {
-            const element = (this.$refs as ComponentTemplateRefs).mainSceneAudioElement;
-            if (pStream) {
-                element.srcObject = pStream;
-                void element.play();
-            } else {
-                element.pause();
-                element.srcObject = null;
-            }
-        },
-        onBeforeunload() {
+        /**
+         * Unload the scene, dispose of the renderer, and disconnect from the Domain server.
+         */
+        unload(): void {
             Utility.disconnectActiveDomain();
             Renderer.dispose();
+            this.locationUnwatch();
         },
         // Update the world location that's shown in the browser's URL bar.
         updateURL(): void {
@@ -164,7 +159,10 @@ export default defineComponent({
                 }, URL_UPDATE_FREQUENCY);
             }
         },
-        async connect() {
+        /**
+         * Connect to the Domain server.
+         */
+        async connect(): Promise<void> {
             let location: string | undefined = Array.isArray(this.$route.params.location)
                 ? this.$route.params.location.join("/")
                 : this.$route.params.location;
@@ -196,21 +194,16 @@ export default defineComponent({
         }
     },
 
-    created: function(): boolean {
+    created(): boolean {
         return this.sceneCreated;
     },
 
-    beforeMount: function() {
-        window.addEventListener("beforeunload", () => this.onBeforeunload());
-    },
-
-    beforeUnmount: function() {
-        window.removeEventListener("beforeunload", () => this.onBeforeunload());
-        this.locationUnwatch();
+    beforeMount() {
+        window.addEventListener("beforeunload", () => this.unload());
     },
 
     // Called after MainScene is loaded onto the page.
-    mounted: function() {
+    mounted() {
         const boot = async () => {
             // Initialize the graphics display.
             const canvas = (this.$refs as ComponentTemplateRefs).renderCanvas;
@@ -219,36 +212,39 @@ export default defineComponent({
             await Renderer.initialize(canvas, loadingScreenElement);
             this.applicationStore.renderer.focusSceneId = 0;
 
-            canvas.addEventListener("pointerdown", () => {
-                // FIXME: Pointer-lock hinders the interactivity of web-entities.
-                // canvas.requestPointerLock();
-            });
-            canvas.addEventListener("pointerup", () => {
-                document.exitPointerLock();
-            });
-            document.addEventListener("pointerup", () => {
-                document.exitPointerLock();
-            });
-
             DomainManager.startGameLoop();
 
             // Initialize the audio for the scene.
-            await AudioMgr.initialize(this.setOutputStream.bind(this));
-
-            const scene = Renderer.createScene();
-            scene.onEntityEventObservable.add((entityEvent) => {
-                // handle web entity event
-                if (entityEvent.type === EntityEventType.JOIN_CONFERENCE_ROOM) {
-                    this.$emit("joint-conference-room", entityEvent.data);
+            await AudioMgr.initialize((stream) => {
+                const element = (this.$refs as ComponentTemplateRefs).mainSceneAudioElement;
+                if (stream) {
+                    element.srcObject = stream;
+                    void element.play();
+                } else {
+                    element.pause();
+                    element.srcObject = null;
                 }
             });
-            // NOTE: The scene must be loaded to register domain events before connecting to the domain.
+
+            const scene = Renderer.createScene();
+            // Handle web entity events.
+            scene.onEntityEventObservable.add((entityEvent) => {
+                if (entityEvent.type === EntityEventType.JOIN_CONFERENCE_ROOM) {
+                    this.$emit("join-conference-room", entityEvent.data);
+                }
+            });
+            // NOTE: The scene must be loaded to register domain events before connecting to the Domain server.
             await scene.load(undefined, AvatarStoreInterface.getActiveModelData("file"));
             await this.connect();
 
             Renderer.startRenderLoop([scene]);
         };
         void boot();
+    },
+
+    beforeUnmount() {
+        window.removeEventListener("beforeunload", () => this.unload());
+        this.unload();
     }
 });
 </script>
