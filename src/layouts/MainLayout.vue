@@ -8,39 +8,6 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 -->
-<!--
-    Display of the main page.
-    The page is a usual Vue page with a hidden menu bar on the left controlled by
-    an "account_circle" in the top menu bar.
-    The page top bar contains connected information.
-    Overlay dialogs are controlled by ApplicationStore.dialog settings.
--->
-
-<style scoped lang="scss">
-.verticalAudioLevel {
-    position: relative;
-    display: block;
-    width: 0.7ch;
-    min-height: 40px;
-    color: $primary;
-    font-size: 1rem;
-    background-color: #8884;
-    border-radius: 0.7ch;
-    overflow: hidden;
-
-    > span {
-        position: absolute;
-        bottom: 0px;
-        display: block;
-        width: 100%;
-        height: 0%;
-        color: inherit;
-        background-color: currentColor;
-        border-radius: inherit;
-        transition: 0.05s ease height;
-    }
-}
-</style>
 
 <style lang="scss">
 .v-enter-active,
@@ -105,15 +72,11 @@
                         class="q-mr-sm q-ml-sm"
                     />
 
-                    <div
-                        class="verticalAudioLevel q-my-auto"
-                        :class="{ 'q-ml-sm': isMobile }"
-                    >
-                        <span
-                            :class="`text-${microphoneColor}`"
-                            :style="{ height: `${AudioIOInstance.inputLevel}%` }"
-                        ></span>
-                    </div>
+                    <AudioLevel
+                        :color="microphoneColor"
+                        :compact="isMobile"
+                        :level="AudioIO.inputLevel"
+                    />
 
                     <div>
                         <q-btn-dropdown
@@ -142,8 +105,8 @@
                             <q-list style="max-width: 300px;" @click.stop="">
                                 <q-item v-for="input in applicationStore.audio.inputsList" :key="input.deviceId">
                                     <q-radio
-                                        @click="AudioIOInstance.requestInputAccess(input.deviceId);micMenuState = false;"
-                                        v-model="AudioIOInstance.selectedInput"
+                                        @click="AudioIO.requestInputAccess(input.deviceId);micMenuState = false;"
+                                        v-model="AudioIO.selectedInput"
                                         :val="input.label"
                                         :label="input.label"
                                         :title="input.label"
@@ -527,6 +490,7 @@ export default defineComponent({
     setup() {
         return {
             applicationStore,
+            AudioIO,
             userStore
         };
     },
@@ -536,9 +500,7 @@ export default defineComponent({
             mobileBreakpoint: 800,
             isDesktop: true,
             isMobile: false,
-            // Toolbar
             micMenuState: false,
-            AudioIOInstance: new AudioIO(),
             locationInput: "",
             settingsMenu: [
                 {

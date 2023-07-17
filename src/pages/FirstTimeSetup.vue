@@ -343,8 +343,8 @@
                                         :label="input.label"
                                         :val="input.label"
                                         color="primary"
-                                        v-model="AudioIOInstance.selectedInput"
-                                        @click="AudioIOInstance.requestInputAccess(input.deviceId)"
+                                        v-model="AudioIO.selectedInput"
+                                        @click="AudioIO.requestInputAccess(input.deviceId)"
                                     />
                                 </div>
                             </q-list>
@@ -364,8 +364,8 @@
                                         :label="output.label"
                                         :val="output.label"
                                         color="primary"
-                                        v-model="AudioIOInstance.selectedOutput"
-                                        @click="AudioIOInstance.requestOutputAccess(output.deviceId)"
+                                        v-model="AudioIO.selectedOutput"
+                                        @click="AudioIO.requestOutputAccess(output.deviceId)"
                                     />
                                 </div>
                             </q-list>
@@ -485,6 +485,7 @@
 
 <script lang="ts" setup>
 import { applicationStore, userStore } from "@Stores/index";
+import { AudioIO } from "@Modules/ui/audioIO";
 import type { QStepper } from "quasar";
 
 type ComponentTemplateRefs = {
@@ -496,7 +497,6 @@ type ComponentTemplateRefs = {
 import { defineComponent } from "vue";
 import { uniqueNamesGenerator, adjectives, colors, animals } from "unique-names-generator";
 import { AvatarStoreInterface } from "@Modules/avatar/StoreInterface";
-import { AudioIO } from "@Modules/ui/audioIO";
 import { Utility } from "@Modules/utility";
 import { Places, PlaceEntry } from "@Modules/places";
 
@@ -509,7 +509,6 @@ export default defineComponent({
             transition: false,
             step: 1,
             AvatarStoreInterface,
-            AudioIOInstance: new AudioIO(),
             placesList: [] as PlaceEntry[],
             selectedPlace: {} as PlaceEntry
         };
@@ -609,7 +608,7 @@ export default defineComponent({
             }
         },
         async requestInputAccess(): Promise<void> {
-            await this.AudioIOInstance.requestInputAccess();
+            await AudioIO.requestInputAccess();
         },
         async completeSetup(): Promise<void> {
             window.localStorage.setItem("hasCompletedSetup", "true");

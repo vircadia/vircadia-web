@@ -51,10 +51,10 @@
 
                             <div class=".col-8 row items-center">
                                 <span
-                                    v-if="AudioIOInstance.selectedInput !== 'None selected'"
+                                    v-if="AudioIO.selectedInput !== 'None selected'"
                                     class="text-subtitle1 items-center"
                                 >
-                                    Using {{ AudioIOInstance.selectedInput }}
+                                    Using {{ AudioIO.selectedInput }}
                                 </span>
 
                                 <span
@@ -110,8 +110,8 @@
                         <q-list v-else>
                             <div v-for="input in applicationStore.audio.inputsList" :key="input.deviceId">
                                 <q-radio
-                                    @click="AudioIOInstance.requestInputAccess(input.deviceId)"
-                                    v-model="AudioIOInstance.selectedInput"
+                                    @click="AudioIO.requestInputAccess(input.deviceId)"
+                                    v-model="AudioIO.selectedInput"
                                     :val="input.label"
                                     :label="input.label"
                                     color="primary"
@@ -123,10 +123,10 @@
                     <q-tab-panel name="output">
                         <div class=".col-8 row items-center">
                             <span
-                                v-if="AudioIOInstance.selectedOutput"
+                                v-if="AudioIO.selectedOutput"
                                 class="text-subtitle1 items-center"
                             >
-                                Using {{ AudioIOInstance.selectedOutput }}
+                                Using {{ AudioIO.selectedOutput }}
                             </span>
 
                             <span
@@ -142,8 +142,8 @@
                         <q-list>
                             <div v-for="output in applicationStore.audio.outputsList" :key="output.deviceId">
                                 <q-radio
-                                    @click="AudioIOInstance.requestOutputAccess(output.deviceId)"
-                                    v-model="AudioIOInstance.selectedOutput"
+                                    @click="AudioIO.requestOutputAccess(output.deviceId)"
+                                    v-model="AudioIO.selectedOutput"
                                     :val="output.label"
                                     :label="output.label"
                                     color="primary"
@@ -181,13 +181,13 @@ export default defineComponent({
 
     setup() {
         return {
-            applicationStore
+            applicationStore,
+            AudioIO
         };
     },
 
     data() {
         return {
-            AudioIOInstance: new AudioIO(),
             tab: "input",
             isListeningToFeedback: false
         };
