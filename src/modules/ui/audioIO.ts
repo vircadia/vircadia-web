@@ -11,7 +11,7 @@
 
 import { ref } from "vue";
 import { applicationStore } from "@Stores/index";
-import { AudioMgr } from "@Modules/scene/audio";
+import { AudioManager } from "@Modules/scene/audio";
 import Log, { findErrorMessage } from "@Modules/debugging/log";
 import { toJSON } from "@Modules/debugging";
 
@@ -171,10 +171,10 @@ export class AudioIO {
 
                 // Audio inputs do not have labels if the permission has not been received.
                 // Therefore, we need to update the list after success.
-                await AudioMgr.getAvailableInputOutputDevices();
+                await AudioManager.getAvailableInputOutputDevices();
 
                 // Find the MediaDeviceInfo for the input device.
-                await AudioMgr.setUserAudioInputStream(stream, this.selectedInputDevice);
+                await AudioManager.setUserAudioInputStream(stream, this.selectedInputDevice);
 
                 this.createInputLevelContext();
 
@@ -183,7 +183,7 @@ export class AudioIO {
             return stream;
         } catch (error) {
             this.setAwaitingCapturePermissions(false);
-            await AudioMgr.setUserAudioInputStream(undefined, undefined);
+            await AudioManager.setUserAudioInputStream(undefined, undefined);
             Log.error(Log.types.AUDIO, `Error getting capture permissions: ${findErrorMessage(error)}`);
         }
         return null;
@@ -196,7 +196,7 @@ export class AudioIO {
      */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     public static requestOutputAccess(requestedDeviceId: string): void {
-        AudioMgr.setAudioOutputStream(this.selectedOutputDevice);
+        AudioManager.setAudioOutputStream(this.selectedOutputDevice);
     }
 
     static {

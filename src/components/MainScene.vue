@@ -52,7 +52,7 @@
 <script lang="ts">
 import { defineComponent, watch } from "vue";
 import { applicationStore, userStore } from "@Stores/index";
-import { AudioMgr } from "@Modules/scene/audio";
+import { AudioManager } from "@Modules/scene/audio";
 import { Renderer } from "@Modules/scene/renderer";
 import { Utility } from "@Modules/utility";
 import { Location } from "@Modules/domain/location";
@@ -123,7 +123,7 @@ export default defineComponent({
         resize(newSize: ResizeShape): void {
             this.canvasHeight = newSize.height;
             this.canvasWidth = newSize.width;
-            Renderer.resize(newSize.height, newSize.width);
+            Renderer.resize();
         },
         /**
          * Unload the scene, dispose of the renderer, and disconnect from the Domain server.
@@ -215,7 +215,7 @@ export default defineComponent({
             DomainManager.startGameLoop();
 
             // Initialize the audio for the scene.
-            await AudioMgr.initialize((stream) => {
+            await AudioManager.initialize((stream) => {
                 const element = (this.$refs as ComponentTemplateRefs).mainSceneAudioElement;
                 if (stream) {
                     element.srcObject = stream;

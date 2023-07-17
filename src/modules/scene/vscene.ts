@@ -1,36 +1,37 @@
-/*
+//
+//  vscene.ts
+//
 //  Copyright 2021 Vircadia contributors.
 //  Copyright 2022 DigiSomni LLC.
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
-*/
+//
 
 // This is disabled because TS complains about BABYLON's use of capitalized function names.
 /* eslint-disable new-cap */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
+import { ScriptAvatar, Uuid } from "@vircadia/web-sdk";
 import { AnimationGroup, Engine, Scene, Color3, ArcRotateCamera, Camera,
     Observable, Nullable, AmmoJSPlugin, Quaternion, Vector3, Color4, DefaultRenderingPipeline } from "@babylonjs/core";
 import Ammo from "ammojs-typed";
 import "@babylonjs/loaders/glTF";
-import { ResourceManager } from "./resource";
+import { watch } from "vue";
 import { DomainController, SceneController } from "./controllers";
-import { GameObject, MeshComponent, CapsuleColliderComponent,
-    DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
+import { CSS3DRenderer } from "./css3DRenderer";
+import { ResourceManager } from "./resource";
+import { GameObject, MeshComponent, CapsuleColliderComponent, DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { ScriptComponent, requireScript, requireScripts } from "@Modules/script";
 import { InputController, MyAvatarController, ScriptAvatarController, AvatarMapper } from "@Modules/avatar";
 import { IEntity, IEntityDescription, EntityBuilder, EntityEvent } from "@Modules/entity";
 import { NametagEntity } from "@Modules/entity/entities";
-import { ScriptAvatar, Uuid } from "@vircadia/web-sdk";
+import { DomainManager } from "@Modules/domain";
 import { Location } from "@Modules/domain/location";
 import { DataMapper } from "@Modules/domain/dataMapper";
 import { AvatarStoreInterface } from "@Modules/avatar/StoreInterface";
 import { applicationStore, userStore } from "@Stores/index";
-import { CSS3DRenderer } from "./css3DRenderer";
-import { watch } from "vue";
 import Log from "@Modules/debugging/log";
-import { DomainManager } from "../domain";
 
 // File containing all avatar animations.
 const AvatarAnimationUrl = "assets/AnimationsBasic.glb";
@@ -69,8 +70,7 @@ export class VScene {
         this._scene = new Scene(this._engine);
         this._sceneId = pSceneId;
         this._avatarList = new Map<string, GameObject>();
-        this._css3DRenderer = new CSS3DRenderer(this._engine.getRenderingCanvas() as HTMLCanvasElement);
-        this._css3DRenderer.scene = this._scene;
+        this._css3DRenderer = new CSS3DRenderer(this._engine.getRenderingCanvas() as HTMLCanvasElement, this._scene);
     }
 
     getSceneId(): number {
@@ -135,22 +135,17 @@ export class VScene {
 
         this._currentSceneURL = sceneUrl ?? "";
 
-        this._engine.displayLoadingUI();
+        this.showLoadingUI();
         await this._createScene();
-        this._scene.detachControl();
 
-        if (beforeLoading) {
-            beforeLoading();
-        }
+        beforeLoading?.();
 
         // create camera
-        const camera = new ArcRotateCamera("MainCamera", -Math.PI / 2, Math.PI / 2, 6, new Vector3(0, 1, 0), this._scene);
+        this._camera = new ArcRotateCamera("MainCamera", -Math.PI / 2, Math.PI / 2, 6, new Vector3(0, 1, 0), this._scene);
+        this._scene.activeCamera = this._camera;
 
-        this._scene.activeCamera = camera;
-        this._camera = camera;
-
-        await this.loadMyAvatar(avatarModelURL);
         // setup avatar
+        await this.loadMyAvatar(avatarModelURL);
         if (this._myAvatar) {
             this._myAvatar.position = avatarPos ?? new Vector3(0, 1, 0);
             this._myAvatar.rotationQuaternion = avatarQuat ?? Quaternion.Identity();
@@ -164,9 +159,7 @@ export class VScene {
 
         await this._scene.whenReadyAsync();
 
-        if (afterLoading) {
-            afterLoading();
-        }
+        afterLoading?.();
 
         this.hideLoadingUI();
     }
@@ -411,29 +404,30 @@ export class VScene {
     }
 
     public async loadAvatar(id: Uuid, domain: ScriptAvatar): Promise<Nullable<GameObject>> {
-        const stringId = id.stringify();
-        let avatar = this._avatarList.get(stringId);
-        if (avatar) {
-            avatar.dispose();
-        }
-
         if (!this._resourceManager || domain.skeletonModelURL === "") {
             return null;
         }
 
+        const stringId = id.stringify();
+        let avatar = this._avatarList.get(stringId);
+        avatar?.dispose();
         avatar = new GameObject("ScriptAvatar_" + stringId, this._scene);
-        const result = await this._resourceManager.loadAvatar(domain.skeletonModelURL);
-        let boundingVectors = {
-            max: Vector3.Zero(),
-            min: Vector3.Zero()
-        };
-        let avatarHeight = 1.8;
-        if (result.mesh) {
+        avatar.id = stringId;
+
+        const { mesh, skeleton } = await this._resourceManager.loadAvatar(domain.skeletonModelURL);
+
+        if (mesh) {
             // Initialize the avatar mesh.
-            avatar.id = stringId;
             const meshComponent = new MeshComponent();
-            meshComponent.mesh = result.mesh;
-            meshComponent.skeleton = result.skeleton;
+            meshComponent.mesh = mesh;
+            meshComponent.skeleton = skeleton;
+
+            let boundingVectors = {
+                max: Vector3.Zero(),
+                min: Vector3.Zero()
+            };
+            let avatarHeight = 1.8;
+
             if (meshComponent.mesh && "refreshBoundingInfo" in meshComponent.mesh) {
                 // Get the bounding vectors of the avatar mesh.
                 const boundingMesh = meshComponent.mesh.refreshBoundingInfo(Boolean(meshComponent.skeleton));
@@ -524,7 +518,7 @@ export class VScene {
         // Prevent to clear the buffer of mask mesh render groud
         this._scene.setRenderingAutoClearDepthStencil(DEFAULT_MESH_RENDER_GROUP_ID, false);
         // Needs to be transparent for web entity to be seen
-        this._scene.clearColor = new Color4(0, 0.0, 0.0, 0);
+        this._scene.clearColor = new Color4(0, 0, 0, 0);
 
         if (this._css3DRenderer) {
             this._css3DRenderer.removeAllCSS3DObjects();
@@ -535,8 +529,7 @@ export class VScene {
 
     private _updateRenderPipelineSettings(): void {
         // Get the dafault rendering pipeline.
-        let defaultPipeline
-            = this._scene.postProcessRenderPipelineManager.supportedPipelines.find((pipeline) => pipeline.name === "default");
+        let defaultPipeline = this._scene.postProcessRenderPipelineManager.supportedPipelines.find((pipeline) => pipeline.name === "default");
         // If the default pipeline doesn't exist, create it.
         if (!defaultPipeline) {
             defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);

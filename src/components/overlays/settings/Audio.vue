@@ -164,7 +164,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { applicationStore } from "@Stores/index";
-import { AudioMgr } from "@Modules/scene/audio";
+import { AudioManager } from "@Modules/scene/audio";
 import { AudioIO } from "@Modules/ui/audioIO";
 import OverlayShell from "@Components/overlays/OverlayShell.vue";
 
@@ -197,7 +197,7 @@ export default defineComponent({
         // Complement the state of the user's audio input device
         toggleMicrophoneMute(): void {
             if (this.applicationStore.audio.user.hasInputAccess) {
-                AudioMgr.muteAudio();
+                AudioManager.muteAudio();
             }
         },
         toggleInputFeedback(): void {

@@ -59,7 +59,6 @@
                     <AudioLevel
                         :color="microphoneColor"
                         :compact="isMobile"
-                        :level="AudioIO.inputLevel"
                     />
 
                     <div>
@@ -446,7 +445,7 @@ import { applicationStore, userStore } from "@Stores/index";
 import { type JitsiRoomInfo } from "@Stores/application-store";
 import { Utility } from "@Modules/utility";
 import { Account, type onAttributeChangePayload } from "@Modules/account";
-import { AudioMgr } from "@Modules/scene/audio";
+import { AudioManager } from "@Modules/scene/audio";
 import { AudioIO } from "@Modules/ui/audioIO";
 import Log from "@Modules/debugging/log";
 import MainScene from "@Components/MainScene.vue";
@@ -690,7 +689,7 @@ export default defineComponent({
         },
         toggleMicrophoneMute() {
             if (this.applicationStore.audio.user.hasInputAccess) {
-                AudioMgr.muteAudio();
+                AudioManager.muteAudio();
             }
         },
         async copyDomainLocationToClipboard(): Promise<void> {
