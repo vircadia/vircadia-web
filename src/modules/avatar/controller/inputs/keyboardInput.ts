@@ -31,8 +31,8 @@ import {
 import { AvatarState, Action, State, JumpSubState, AnimationMap } from "../avatarState";
 import { InputState, CameraMode, InputMode } from "../inputState";
 import { applicationStore, userStore } from "@Stores/index";
-import { AudioMgr } from "@Modules/scene/audio";
-import { Renderer } from "@Base/modules/scene";
+import { AudioManager as AudioMgr } from "@Modules/scene/audio";
+import { Renderer } from "@Modules/scene";
 import type { GameObject } from "@Modules/object";
 import type { SceneController } from "@Modules/scene/controllers";
 

@@ -22,7 +22,7 @@
         style="background: transparent;box-shadow: none; display: none;"
     >
         <div v-for="room in applicationStore.conference.activeRooms" :key="room.name">
-            <Jitsi
+            <JitsiOverlay
                 :domain="applicationStore.metaverse.jitsiServer"
                 :room-name="room.id"
                 :user-info="{'displayName': userStore.avatar.displayName}"

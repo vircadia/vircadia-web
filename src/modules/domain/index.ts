@@ -102,7 +102,7 @@ export class DomainManager {
             throw error;
         }
         if (setToActive) {
-            this.activeDomain = domain;
+            this.ActiveDomain = domain;
         }
         return domain;
     }
