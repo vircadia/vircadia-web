@@ -13,11 +13,9 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 
-import { ScriptComponent } from "@Modules/script";
-
-// Domain Modules
-import { VScene } from "../vscene";
 import { Vector3, Ray } from "@babylonjs/core";
+import { ScriptComponent } from "@Modules/script";
+import type { VScene } from "@Modules/scene/vscene";
 import { InputController } from "@Modules/avatar";
 import Log from "@Modules/debugging/log";
 
@@ -25,8 +23,8 @@ const DEFAULT_GRAVITY = 9.81;
 const GROUND_DETECTION_LENGTH = 5; // FIXME: This is not a good system for detecting the ground.
 
 export class SceneController extends ScriptComponent {
-    _vscene: VScene;
-    isGravityApplied = false;
+    private _vscene: VScene;
+    public isGravityApplied = false;
 
     constructor(vscene: VScene) {
         super(SceneController.typeName);
@@ -43,12 +41,9 @@ export class SceneController extends ScriptComponent {
             Log.info(Log.types.OTHER, `Apply gravity: ${DEFAULT_GRAVITY}`);
             physicsEngine.setGravity(new Vector3(0, -DEFAULT_GRAVITY, 0));
             const avatar = this._vscene.getMyAvatar();
-            if (avatar) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                avatar.physicsImpostor?.physicsBody?.setDamping(0, 0);
-                // TODO: Update to the V2 (Havok) physics engine, which provides improved methods for updating physics properties.
-            }
-
+            // TODO: Update to the V2 (Havok) physics engine, which provides improved methods for updating physics properties.
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-magic-numbers
+            avatar?.physicsImpostor?.physicsBody?.setDamping(0.3, 0.3);
             this.isGravityApplied = true;
         }
     }
@@ -59,23 +54,23 @@ export class SceneController extends ScriptComponent {
             Log.info(Log.types.OTHER, "Remove gravity");
             physicsEngine.setGravity(new Vector3(0, 0, 0));
             const avatar = this._vscene.getMyAvatar();
-            if (avatar) {
-                // TODO: Update to the V2 (Havok) physics engine, which provides improved methods for updating physics properties.
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                avatar.physicsImpostor?.physicsBody?.setDamping(1, 1);
-            }
-
+            // TODO: Update to the V2 (Havok) physics engine, which provides improved methods for updating physics properties.
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            avatar?.physicsImpostor?.physicsBody?.setDamping(1, 1);
             this.isGravityApplied = true;
         }
     }
 
-    static get typeName(): string {
+    /**
+     * A string identifying the type of this component.
+     * @returns `"SceneController"`
+     */
+    public static get typeName(): string {
         return "SceneController";
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     public onInitialize(): void {
-
     }
 
     public onUpdate(): void {
@@ -94,27 +89,22 @@ export class SceneController extends ScriptComponent {
     public onSceneReady(): void {
         this.isGravityApplied = false;
         const avatar = this._vscene.getMyAvatar();
-        if (avatar) {
-            // prevent avatar bounce or float
-            // TODO: Update to the V2 (Havok) physics engine, which provides inproved methods for updating physics properties.
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            avatar.physicsImpostor?.physicsBody?.setDamping(1, 1);
-        }
+        // Stop the avatar bouncing or floating.
+        // TODO: Update to the V2 (Havok) physics engine, which provides inproved methods for updating physics properties.
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        avatar?.physicsImpostor?.physicsBody?.setDamping(1, 1);
     }
 
     private _detectGround(): boolean {
         const avatar = this._vscene.getMyAvatar();
         if (avatar) {
-            // position the raycast from bottom center of mesh
+            // Position the raycast from the bottom center of the mesh.
             const raycastPosition = avatar.position.clone();
-
             const ray = new Ray(raycastPosition, Vector3.Down(), GROUND_DETECTION_LENGTH);
+            const pick = this._scene.pickWithRay(ray, (mesh) => mesh.isPickable);
 
-            const pick = this._scene.pickWithRay(ray,
-                (mesh) => mesh.isPickable);
-
-            if (pick && pick.hit && pick.pickedPoint && pick.pickedMesh) { // grounded
-                Log.info(Log.types.OTHER, `Ground detected. Ground: ${pick.pickedMesh.name}`);
+            if (pick && pick.hit && pick.pickedPoint && pick.pickedMesh) { // Grounded.
+                Log.info(Log.types.OTHER, `Ground detected. Ground: ${pick.pickedMesh.name}.`);
                 return true;
             }
         }

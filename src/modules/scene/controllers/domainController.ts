@@ -11,29 +11,30 @@
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
-import { AvatarMixer, Uuid, ScriptAvatar, DomainServer, EntityServer, Camera as DomainCamera } from "@vircadia/web-sdk";
-import { Camera } from "@babylonjs/core";
+import { AvatarMixer, Uuid, DomainServer } from "@vircadia/web-sdk";
+import type { ScriptAvatar, EntityServer, Camera as DomainCamera } from "@vircadia/web-sdk";
+import type { Camera } from "@babylonjs/core";
 import { MyAvatarController } from "@Modules/avatar";
 import { DomainManager } from "@Modules/domain";
 import { AssignmentClientState, Client } from "@Modules/domain/client";
 import { ConnectionState, Domain } from "@Modules/domain/domain";
-import { EntityManager, IEntity, EntityMapper } from "@Modules/entity";
+import { EntityManager, type IEntity, EntityMapper } from "@Modules/entity";
 import { GameObject } from "@Modules/object";
-import { VScene } from "@Modules/scene/vscene";
+import type { VScene } from "@Modules/scene/vscene";
 import { ScriptComponent, inspectorAccessor, inspector } from "@Modules/script";
 import Log from "@Modules/debugging/log";
 
 export class DomainController extends ScriptComponent {
-    _avatarMixer: Nullable<AvatarMixer> = null;
-    _entityServer: Nullable<EntityServer> = null;
-    _domainConnectionState: ConnectionState = ConnectionState.DISCONNECTED;
-    _entityManager: Nullable<EntityManager> = null;
-    _domainCamera: Nullable<DomainCamera> = null;
-    _vscene: Nullable<VScene>;
-    _camera: Nullable<Camera> = null;
+    private _avatarMixer: Nullable<AvatarMixer> = null;
+    private _entityServer: Nullable<EntityServer> = null;
+    private _domainConnectionState: ConnectionState = ConnectionState.DISCONNECTED;
+    private _entityManager: Nullable<EntityManager> = null;
+    private _domainCamera: Nullable<DomainCamera> = null;
+    private _vscene: Nullable<VScene>;
+    private _camera: Nullable<Camera> = null;
 
     @inspector()
-        _sessionID = "";
+    public sessionID = "";
 
     constructor() {
         super("DomainController");
@@ -93,20 +94,18 @@ export class DomainController extends ScriptComponent {
     }
 
     public onStop(): void {
-        Log.debug(Log.types.OTHER,
-            `DomainController onStop`);
+        Log.debug(Log.types.OTHER, `DomainController onStop`);
         DomainManager.onActiveDomainStateChange.disconnect(this._handleActiveDomainStateChange.bind(this));
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    public _handleActiveDomainStateChange(pDomain: Domain, pState: ConnectionState, pInfo: string): void {
+    public _handleActiveDomainStateChange(domain: Domain, state: ConnectionState, info: string): void {
+        Log.debug(Log.types.NETWORK, `Active Domain state change: ${Domain.stateToString(state)}`);
 
-        Log.debug(Log.types.NETWORK, `handleActiveDomainStateChange: ${Domain.stateToString(pState)}`);
+        if (state === ConnectionState.CONNECTED) {
+            void this._handleDomainConnected(domain);
 
-        if (pState === ConnectionState.CONNECTED) {
-            void this._handleDomainConnected(pDomain);
-
-        } else if (pState === ConnectionState.DISCONNECTED) {
+        } else if (state === ConnectionState.DISCONNECTED) {
             this._vscene?.unloadAllAvatars();
 
             if (this._vscene && this._vscene._myAvatar) {
@@ -130,29 +129,29 @@ export class DomainController extends ScriptComponent {
             this._camera = null;
         }
 
-        this._domainConnectionState = pState;
+        this._domainConnectionState = state;
     }
 
-    private async _handleDomainConnected(pDomain: Domain): Promise<void> {
+    private async _handleDomainConnected(domain: Domain): Promise<void> {
         if (!this._vscene) {
             return;
         }
 
-        this._entityServer = pDomain.EntityClient;
+        this._entityServer = domain.EntityClient;
         if (this._entityServer) {
             this._entityServer.onStateChanged = this._handleOnEntityServerStateChanged.bind(this);
         }
 
         await this._vscene.load();
-        this._vscene.teleportMyAvatar(pDomain.Location);
+        this._vscene.teleportMyAvatar(domain.Location);
 
-        if (pDomain.DomainClient) {
-            this._sessionID = pDomain.DomainClient.sessionUUID.stringify();
+        if (domain.DomainClient) {
+            this.sessionID = domain.DomainClient.sessionUUID.stringify();
         }
-        Log.debug(Log.types.AVATAR, `Session ID: ${this._sessionID}`);
+        Log.debug(Log.types.AVATAR, `Session ID: ${this.sessionID}`);
 
-        this._avatarMixer = pDomain.AvatarClient?.Mixer;
-        const myAvatarInterface = pDomain.AvatarClient?.MyAvatar;
+        this._avatarMixer = domain.AvatarClient?.Mixer;
+        const myAvatarInterface = domain.AvatarClient?.MyAvatar;
         if (myAvatarInterface) {
             if (myAvatarInterface.skeletonModelURL === "") {
                 myAvatarInterface.skeletonModelURL = this._vscene.myAvatarModelURL;
@@ -182,7 +181,7 @@ export class DomainController extends ScriptComponent {
         }
 
         this._camera = this._vscene.camera;
-        this._domainCamera = pDomain.Camera;
+        this._domainCamera = domain.Camera;
         // this._syncCamera();
     }
 
@@ -211,7 +210,7 @@ export class DomainController extends ScriptComponent {
 
     };
 
-    private _handleAvatarSkeletonModelURLChanged(sessionID:Uuid, domain:ScriptAvatar): void {
+    private _handleAvatarSkeletonModelURLChanged(sessionID: Uuid, domain:ScriptAvatar): void {
         Log.debug(Log.types.AVATAR,
             `handleAvatarSkeletonModelURLChanged. Session ID: ${sessionID.stringify()}, ${domain.skeletonModelURL}`);
 
