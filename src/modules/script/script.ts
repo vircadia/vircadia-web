@@ -46,7 +46,7 @@ export abstract class ScriptComponent extends TransformNode implements IComponen
         }
     }
 
-    public detatch():void {
+    public detach():void {
         this.parent = null;
         this._gameObject = null;
     }

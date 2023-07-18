@@ -12,13 +12,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 
-import { GenericNodeComponent } from "../../component";
-import { GameObject } from "../../GameObject";
-
-import {
-    AbstractMesh, Nullable, PhysicsImpostor, Scene, Material, StandardMaterial, Vector3
-} from "@babylonjs/core";
-
+import { PhysicsImpostor, StandardMaterial, Vector3 } from "@babylonjs/core";
+import type { AbstractMesh, Material, Nullable, Scene } from "@babylonjs/core";
+import { GenericNodeComponent } from "@Modules/object/component";
+import type { GameObject } from "@Modules/object/GameObject";
 
 const DEFAULT_MASS = 1;
 const DEFAULT_FRICTION = 0.5;
@@ -27,7 +24,7 @@ const DEFAULT_RESTITUTION = 0;
 const COLLIDER_MATERIAL_NAME = "ColliderMaterial";
 
 /**
- * Base class of collier component.
+ * Base class of collider component.
  */
 export abstract class ColliderComponent extends GenericNodeComponent<AbstractMesh> {
     protected _collider: Nullable<AbstractMesh> = null;
@@ -53,9 +50,8 @@ export abstract class ColliderComponent extends GenericNodeComponent<AbstractMes
     public set collider(value: Nullable<AbstractMesh>) {
         this._collider = value;
 
-        // Compound Body create an appropriately shaped standard mesh
-        // to fix a irregular mesh.
-        // Need to atthach this collider mesh to GameObject
+        // Compound Body creates an appropriately shaped standard mesh to fix an irregular mesh.
+        // TODO: Need to attach this collider mesh to the game object.
         if (this._compoundBody) {
             this.node = this._collider;
         }
@@ -71,8 +67,8 @@ export abstract class ColliderComponent extends GenericNodeComponent<AbstractMes
         const impostor = this._getImpostor();
         if (impostor) {
             // NOTE:
-            // change mass cause strang issue
-            // re-create importers to prevent this.
+            // Changing the mass causes a strange issue.
+            // Re-create the importers to prevent this.
             this._disposeImposters();
             this._createImposters();
         }
@@ -94,15 +90,15 @@ export abstract class ColliderComponent extends GenericNodeComponent<AbstractMes
         this._createImposters();
     }
 
-    public detatch(): void {
+    public detach(): void {
         this._disposeImposters();
-        super.detatch();
+        super.detach();
     }
 
     protected _createImposters(): void {
         this._createColliderImposter();
 
-        // create NoImposter to GameObject
+        // Create NoImposter and attach it to the game object.
         if (this._gameObject && !this._gameObject.physicsImpostor) {
             this._gameObject.physicsImpostor = new PhysicsImpostor(
                 this._gameObject, PhysicsImpostor.NoImpostor,

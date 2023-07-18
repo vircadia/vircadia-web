@@ -12,47 +12,42 @@
 /* eslint-disable new-cap */
 /* eslint-disable class-methods-use-this */
 
+import { MeshBuilder, PhysicsImpostor } from "@babylonjs/core";
+import type { Scene, Vector3 } from "@babylonjs/core";
 import { ColliderComponent } from "./collider";
-import { Scene, Vector3, MeshBuilder, PhysicsImpostor } from "@babylonjs/core";
 
 export class BoxColliderComponent extends ColliderComponent {
     /**
-    * Gets a string identifying the type of this Component
-    * @returns "Mesh" string
-    */
+     * A string identifying the type of this component.
+     * @returns `"BoxCollider"`
+     */
     public get componentType(): string {
         return BoxColliderComponent.typeName;
     }
 
+    /**
+     * A string identifying the type of this component.
+     * @returns `"BoxCollider"`
+     */
     static get typeName(): string {
         return "BoxCollider";
     }
 
     public create(scene: Nullable<Scene>, dimensions?: Vector3, position?: Vector3): void {
-        /*
-        const defaultColor = Color3.Blue();
-        const color = new Color4(defaultColor.r, defaultColor.g, defaultColor.b, 1);
-        const faceColors = [color, color, color, color, color, color]; */
-
         const options = {
             width: dimensions?.x,
             height: dimensions?.y,
             depth: dimensions?.z
         };
 
-        const boxCollider = MeshBuilder.CreateBox("BoxCollider", options, scene);
-        boxCollider.physicsImpostor = new PhysicsImpostor(boxCollider, PhysicsImpostor.BoxImpostor,
-            { mass: 0 }, scene ?? undefined);
+        this.collider = MeshBuilder.CreateBox(BoxColliderComponent.typeName, options, scene);
+        this.collider.physicsImpostor = new PhysicsImpostor(this.collider, PhysicsImpostor.BoxImpostor, { mass: 0 }, scene ?? undefined);
 
         if (position) {
-            boxCollider.position = position;
+            this.collider.position = position;
         }
 
-        boxCollider.isVisible = false;
-        // boxCollider.isPickable = false;
-        // boxCollider.checkCollisions = false;
-
-        this.collider = boxCollider;
+        this.collider.isVisible = false;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function

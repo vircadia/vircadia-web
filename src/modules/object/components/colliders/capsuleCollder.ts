@@ -12,46 +12,45 @@
 /* eslint-disable new-cap */
 /* eslint-disable class-methods-use-this */
 
+import { MeshBuilder, PhysicsImpostor } from "@babylonjs/core";
+import type { Vector3 } from "@babylonjs/core";
 import { ColliderComponent } from "./collider";
-import { Vector3, MeshBuilder, PhysicsImpostor } from "@babylonjs/core";
 
 export class CapsuleColliderComponent extends ColliderComponent {
     /**
-    * Gets a string identifying the type of this Component
-    * @returns "Mesh" string
-    */
+     * A string identifying the type of this component.
+     * @returns `"CapsuleCollider"`
+     */
     public get componentType(): string {
         return CapsuleColliderComponent.typeName;
     }
 
+    /**
+     * A string identifying the type of this component.
+     * @returns `"CapsuleCollider"`
+     */
     static get typeName(): string {
         return "CapsuleCollider";
     }
 
     public createCollider(radius?: number, height?: number, position?: Vector3): void {
-        const capsule = MeshBuilder.CreateCapsule("CapsuleCollider",
-            { radius, height }, this._scene);
+        this.collider = MeshBuilder.CreateCapsule(CapsuleColliderComponent.typeName, { radius, height }, this._scene);
 
         if (position) {
-            capsule.position = position;
+            this.collider.position = position;
         }
 
-        capsule.material = this._getMaterial();
-
-        capsule.isVisible = false;
-        // capsule.isPickable = false;
-        capsule.checkCollisions = false;
+        this.collider.material = this._getMaterial();
+        this.collider.isVisible = false;
+        this.collider.checkCollisions = false;
 
         this._compoundBody = true;
-        this.collider = capsule;
     }
 
     protected _createColliderImposter(): void {
         if (this.collider) {
-            // create CapsuleImpostor with zero mass
-            this.collider.physicsImpostor = new PhysicsImpostor(this.collider,
-                PhysicsImpostor.CapsuleImpostor,
-                { mass: 0 }, this._scene);
+            // Create CapsuleImpostor with zero mass.
+            this.collider.physicsImpostor = new PhysicsImpostor(this.collider, PhysicsImpostor.CapsuleImpostor, { mass: 0 }, this._scene);
         }
     }
 }

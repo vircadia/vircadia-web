@@ -137,8 +137,8 @@ export class ModelComponent extends MeshComponent {
     }
 
     public updateAnimationProperties(entity: IModelEntity): void {
-        if (this._animationGroups && this._animationGroups.length > 0) {
-            const anim = this._animationGroups[0];
+        if (this.animationGroups && this.animationGroups.length > 0) {
+            const anim = this.animationGroups[0];
             // stop all defaul animations
             anim.stop();
 
