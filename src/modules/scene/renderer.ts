@@ -19,10 +19,10 @@ import { CustomLoadingScreen } from "@Modules/scene/LoadingScreen";
  * Static methods controlling the rendering of the scene(s).
  */
 export class Renderer {
-    private static engine = <Engine><unknown>undefined;
-    private static renderingScenes = <VScene[]><unknown>undefined;
-    private static webgpuSupported = false;
-    private static intervalId = <Nullable<NodeJS.Timeout>> null;
+    private static _engine = <Engine><unknown>undefined;
+    private static _renderingScenes = <VScene[]><unknown>undefined;
+    private static _webgpuSupported = false;
+    private static _intervalId = <Nullable<NodeJS.Timeout>> null;
 
     /**
      * Initialize the rendering engine.
@@ -30,11 +30,11 @@ export class Renderer {
      * @param loadingScreen The element to show when the scene is loading.
      */
     public static async initialize(canvas: HTMLCanvasElement, loadingScreen: HTMLElement): Promise<void> {
-        this.webgpuSupported = await WebGPUEngine.IsSupportedAsync;
+        this._webgpuSupported = await WebGPUEngine.IsSupportedAsync;
         // FIXME: Temporarily disable WebGPU on MacOS until update to a Babylon version that supports it.
-        this.webgpuSupported = false;
-        if (this.webgpuSupported) {
-            this.engine = new WebGPUEngine(canvas, {
+        this._webgpuSupported = false;
+        if (this._webgpuSupported) {
+            this._engine = new WebGPUEngine(canvas, {
                 deviceDescriptor: {
                     requiredFeatures: [
                         "depth-clip-control",
@@ -47,25 +47,25 @@ export class Renderer {
                     ]
                 }
             });
-            this.engine.loadingScreen = new CustomLoadingScreen(loadingScreen);
-            await (this.engine as WebGPUEngine).initAsync();
-            this.engine.displayLoadingUI();
+            this._engine.loadingScreen = new CustomLoadingScreen(loadingScreen);
+            await (this._engine as WebGPUEngine).initAsync();
+            this._engine.displayLoadingUI();
         } else {
-            this.engine = new Engine(canvas, true);
-            this.engine.renderEvenInBackground = true;
-            this.engine.loadingScreen = new CustomLoadingScreen(loadingScreen);
-            this.engine.displayLoadingUI();
+            this._engine = new Engine(canvas, true);
+            this._engine.renderEvenInBackground = true;
+            this._engine.loadingScreen = new CustomLoadingScreen(loadingScreen);
+            this._engine.displayLoadingUI();
         }
 
-        this.renderingScenes = new Array<VScene>();
+        this._renderingScenes = new Array<VScene>();
 
         // Update renderer statistics for the UI.
         setInterval(() => {
-            if (this.engine) {
-                if (this.renderingScenes.length > 0 && this.renderingScenes[0]) {
-                    applicationStore.renderer.fps = this.engine.getFps();
-                    applicationStore.renderer.cameraLocation = this.renderingScenes[0]._scene.activeCamera?.globalPosition.clone();
-                    applicationStore.renderer.cameraRotation = this.renderingScenes[0]._scene.activeCamera?.absoluteRotation.clone();
+            if (this._engine) {
+                if (this._renderingScenes.length > 0 && this._renderingScenes[0]) {
+                    applicationStore.renderer.fps = this._engine.getFps();
+                    applicationStore.renderer.cameraLocation = this._renderingScenes[0]._scene.activeCamera?.globalPosition.clone();
+                    applicationStore.renderer.cameraRotation = this._renderingScenes[0]._scene.activeCamera?.absoluteRotation.clone();
                 }
             }
         }, Number(Config.getItem("Renderer.StatUpdateSeconds", "1000")));
@@ -76,9 +76,9 @@ export class Renderer {
      * @param index `(Optional)` The index of the render queue to place the scene into.
      * @returns A reference to the new scene.
      */
-    public static createScene(index = this.renderingScenes.length): VScene {
-        const scene = new VScene(this.engine, index);
-        this.renderingScenes[index] = scene;
+    public static createScene(index = this._renderingScenes.length): VScene {
+        const scene = new VScene(this._engine, index);
+        this._renderingScenes[index] = scene;
         return scene;
     }
 
@@ -88,15 +88,15 @@ export class Renderer {
      * @returns A reference to the requested scene.
      */
     public static getScene(index = 0): VScene {
-        return this.renderingScenes[index];
+        return this._renderingScenes[index];
     }
 
     /**
      * Resize the rendered view to match the size of the canvas.
      */
     public static resize(): void {
-        if (!this.webgpuSupported) {
-            this.engine?.resize();
+        if (!this._webgpuSupported) {
+            this._engine?.resize();
         }
     }
 
@@ -106,10 +106,10 @@ export class Renderer {
      */
     public static startRenderLoop(scenes?: VScene[]): void {
         if (scenes) {
-            this.renderingScenes = scenes;
+            this._renderingScenes = scenes;
         }
-        this.runRenderLoop();
-        document.addEventListener("visibilitychange", this.runRenderLoop.bind(this), false);
+        this._runRenderLoop();
+        document.addEventListener("visibilitychange", this._runRenderLoop.bind(this), false);
     }
 
     /**
@@ -120,27 +120,27 @@ export class Renderer {
      * Most browsers stop running animation-frame callbacks in background tabs in order to improve performance and battery life.
      * To make scene still render in the background, use `setInterval()` to run the render loop when the web page is hidden.
      */
-    private static runRenderLoop(): void {
+    private static _runRenderLoop(): void {
         if (document.hidden) {
-            this.engine.stopRenderLoop();
-            if (!this.intervalId) {
+            this._engine.stopRenderLoop();
+            if (!this._intervalId) {
                 const backgroundFrameTime = 16;
-                this.intervalId = setInterval(this.render.bind(this), backgroundFrameTime);
+                this._intervalId = setInterval(this._render.bind(this), backgroundFrameTime);
             }
         } else {
-            if (this.intervalId) {
-                clearInterval(this.intervalId);
-                this.intervalId = null;
+            if (this._intervalId) {
+                clearInterval(this._intervalId);
+                this._intervalId = null;
             }
-            this.engine.runRenderLoop(this.render.bind(this));
+            this._engine.runRenderLoop(this._render.bind(this));
         }
     }
 
     /**
      * Render one frame from all scenes in the render queue.
      */
-    private static render(): void {
-        this.renderingScenes.forEach((vscene) => {
+    private static _render(): void {
+        this._renderingScenes.forEach((vscene) => {
             vscene.render();
         });
     }
@@ -149,10 +149,10 @@ export class Renderer {
      * Dispose of all scenes in the render queue and stop the render loop.
      */
     public static dispose(): void {
-        this.renderingScenes.forEach((vscene) => {
+        this._renderingScenes.forEach((vscene) => {
             vscene.dispose();
         });
-        this.renderingScenes = [];
-        this.engine.stopRenderLoop();
+        this._renderingScenes = [];
+        this._engine.stopRenderLoop();
     }
 }

@@ -88,7 +88,7 @@ function createSector(name: string, vector1: Vector3, vector2: Vector3, radius =
 }
 
 export class NametagEntity {
-    private static textFont = {
+    private static _textFont = {
         name: "monospace",
         size: 70,
         characterWidth: 38.5,
@@ -96,7 +96,7 @@ export class NametagEntity {
         contentRatio: 0.1
     };
 
-    private static iconFont = {
+    private static _iconFont = {
         name: "Material Icons",
         size: 100,
         characterWidth: 100,
@@ -127,7 +127,7 @@ export class NametagEntity {
         popOverride?: ((distance: number) => boolean)
     ): Mesh | undefined {
         const scene = object.getScene();
-        const font = icon ? this.iconFont : this.textFont;
+        const font = icon ? this._iconFont : this._textFont;
         const tagTextureWidth = icon ? font.characterWidth * 1.2 : (name.length + 1) * font.characterWidth;
         const tagTextureHeight = font.size * font.characterRatio;
         const tagWidth = font.contentRatio * tagTextureWidth / tagTextureHeight;

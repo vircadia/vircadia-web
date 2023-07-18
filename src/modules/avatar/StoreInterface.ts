@@ -21,7 +21,7 @@ export class AvatarStoreInterface {
      * Generate a random, alpha-numeric, 8 character long ID string that is unique within the avatar Store.
      * @returns An ID string.
      */
-    private static generateID(): string {
+    private static _generateID(): string {
         const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         const idLength = 8;
         function generate(): string {
@@ -112,7 +112,7 @@ export class AvatarStoreInterface {
      * @returns The ID of the new model.
      */
     public static createNewModel(modelData: AvatarModel, setToActive = true): string {
-        const ID = this.generateID();
+        const ID = this._generateID();
         userStore.avatar.models[ID] = modelData;
         if (setToActive) {
             this.setActiveModel(ID);

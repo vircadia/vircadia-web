@@ -23,12 +23,12 @@ export class Location {
         this._href = url.toLocaleLowerCase();
 
         if (this._href.startsWith("/")) {
-            this.parsePath(0, url.length);
+            this._parsePath(0, url.length);
         } else {
-            this.parseLocation();
+            this._parseLocation();
         }
 
-        this.updateHref();
+        this._updateHref();
     }
 
     public get href(): string {
@@ -49,7 +49,7 @@ export class Location {
 
     public set protocol(value: string) {
         this._protocol = value;
-        this.updateHref();
+        this._updateHref();
     }
 
     public get host(): string {
@@ -62,8 +62,8 @@ export class Location {
 
     public set port(value: string) {
         this._port = value;
-        this.updateHost();
-        this.updateHref();
+        this._updateHost();
+        this._updateHref();
     }
 
     public get position(): string {
@@ -74,7 +74,7 @@ export class Location {
         return this._orientation;
     }
 
-    private parseLocation(): void {
+    private _parseLocation(): void {
         let start = 0;
         // Parse the protocol.
         const separator = "://";
@@ -87,14 +87,14 @@ export class Location {
         // Parse the host and path.
         end = this._href.indexOf("/", start);
         if (end >= 0) {
-            this.parseHost(start, end);
-            this.parsePath(end, this._href.length);
+            this._parseHost(start, end);
+            this._parsePath(end, this._href.length);
         } else {
-            this.parseHost(start, this._href.length);
+            this._parseHost(start, this._href.length);
         }
     }
 
-    private parseHost(start: number, end: number): void {
+    private _parseHost(start: number, end: number): void {
         this._host = this._href.substring(start, end);
 
         // Parse the port.
@@ -108,7 +108,7 @@ export class Location {
 
     }
 
-    private parsePath(start: number, end: number): void {
+    private _parsePath(start: number, end: number): void {
         this._pathname = this._href.substring(start, end);
         const orientationStart = this.pathname.indexOf("/", 1);
         if (orientationStart > 0) {
@@ -128,13 +128,13 @@ export class Location {
         }
     }
 
-    private updateHref(): void {
+    private _updateHref(): void {
         this._href = this._protocol.length > 0
             ? this._protocol + "//" + this.host + this.pathname
             : this.host + this.pathname;
     }
 
-    private updateHost(): void {
+    private _updateHost(): void {
         this._host = this.port.length > 0
             ? this._hostname + ":" + this._port
             : this._hostname;

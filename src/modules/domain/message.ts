@@ -43,9 +43,9 @@ export interface DomainChatMessage extends KeyedCollection {
 }
 
 export class DomainMessageClient extends Client {
-    private domain: Domain;
-    private messageMixer: Nullable<MessageMixer>;
-    private subscribedToDefaultChannels: boolean;
+    private _domain: Domain;
+    private _messageMixer: Nullable<MessageMixer>;
+    private _subscribedToDefaultChannels: boolean;
 
     public static DefaultChatChannel = "Chat";
     public static DefaultSystemNotificationChannel = "System-Notifications";
@@ -53,26 +53,26 @@ export class DomainMessageClient extends Client {
 
     constructor(domain: Domain) {
         super();
-        this.domain = domain;
+        this._domain = domain;
         this.onStateChange = new SignalEmitter();
-        this.messageMixer = new MessageMixer(domain.ContextId);
-        this.messageMixer.onStateChanged = this.handleOnStateChanged.bind(this);
-        this.messageMixer.messageReceived.connect(this.handleOnMessageReceived.bind(this));
-        this.subscribedToDefaultChannels = false;
+        this._messageMixer = new MessageMixer(domain.ContextId);
+        this._messageMixer.onStateChanged = this._handleOnStateChanged.bind(this);
+        this._messageMixer.messageReceived.connect(this._handleOnMessageReceived.bind(this));
+        this._subscribedToDefaultChannels = false;
     }
 
     /**
      * The state of the underlying assignment client.
      */
     public get clientState(): AssignmentClientState {
-        return this.messageMixer?.state ?? AssignmentClientState.DISCONNECTED;
+        return this._messageMixer?.state ?? AssignmentClientState.DISCONNECTED;
     }
 
     /**
      * A reference to the Message Mixer instance.
      */
     public get Mixer(): Nullable<MessageMixer> {
-        return this.messageMixer;
+        return this._messageMixer;
     }
 
     /**
@@ -81,8 +81,8 @@ export class DomainMessageClient extends Client {
      * @returns `true` if the subscription was successful, `false` if unsuccessful.
      */
     public subscribeToChannel(channel: string): boolean {
-        if (this.messageMixer && this.messageMixer.state === AssignmentClientState.CONNECTED) {
-            this.messageMixer.subscribe(channel);
+        if (this._messageMixer && this._messageMixer.state === AssignmentClientState.CONNECTED) {
+            this._messageMixer.subscribe(channel);
             return true;
         }
         return false;
@@ -93,8 +93,8 @@ export class DomainMessageClient extends Client {
      * @param channel The name of the channel to unsubscribe from.
      */
     public unsubscribeFromChannel(channel: string): void {
-        if (this.messageMixer) {
-            this.messageMixer.unsubscribe(channel);
+        if (this._messageMixer) {
+            this._messageMixer.unsubscribe(channel);
         }
     }
 
@@ -105,33 +105,33 @@ export class DomainMessageClient extends Client {
      * @param localOnly `(Optional)` Set `true` to only send the message locally.
      */
     public sendMessage(channel: string, message: string, localOnly = false): void {
-        if (this.messageMixer) {
+        if (this._messageMixer) {
             Log.debug(Log.types.MESSAGES, `Sending DomainMessage on ${channel} channel. Content: "${message}"`);
-            this.messageMixer.sendMessage(channel, message, localOnly);
+            this._messageMixer.sendMessage(channel, message, localOnly);
         }
     }
 
-    private handleOnStateChanged(newState: AssignmentClientState): void {
-        if (this.messageMixer) {
-            Log.debug(Log.types.NETWORK, `DomainMessage: MessageMixer state=${MessageMixer.stateToString(this.messageMixer.state)}`);
+    private _handleOnStateChanged(newState: AssignmentClientState): void {
+        if (this._messageMixer) {
+            Log.debug(Log.types.NETWORK, `DomainMessage: MessageMixer state=${MessageMixer.stateToString(this._messageMixer.state)}`);
             // If connected, see that we're subscribed to the default message/chat channels
-            if (this.messageMixer.state === AssignmentClientState.CONNECTED) {
-                if (!this.subscribedToDefaultChannels) {
+            if (this._messageMixer.state === AssignmentClientState.CONNECTED) {
+                if (!this._subscribedToDefaultChannels) {
                     this.subscribeToChannel(DomainMessageClient.DefaultChatChannel);
                     this.subscribeToChannel(DomainMessageClient.DefaultSystemNotificationChannel);
-                    this.subscribedToDefaultChannels = true;
+                    this._subscribedToDefaultChannels = true;
                 }
             } else {
-                this.subscribedToDefaultChannels = false;
+                this._subscribedToDefaultChannels = false;
             }
         } else {
             Log.error(Log.types.NETWORK, `DomainMessage: no MessageMixer`);
         }
-        this.onStateChange.emit(this.domain, this, newState); // Signature: Domain, DomainMessage, AssignmentClientState.
+        this.onStateChange.emit(this._domain, this, newState); // Signature: Domain, DomainMessage, AssignmentClientState.
     }
 
     // eslint-disable-next-line class-methods-use-this
-    private handleOnMessageReceived(channel: string, message: string, senderID: Uuid, localOnly: boolean): void {
+    private _handleOnMessageReceived(channel: string, message: string, senderID: Uuid, localOnly: boolean): void {
         // The message is usually a JSON string. Parse it if possible.
         let asJSON: Nullable<KeyedCollection> = undefined;
         if (message && message.length > 0 && message.charAt(0) === "{") {

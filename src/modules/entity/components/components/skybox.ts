@@ -80,12 +80,12 @@ export class SkyboxComponent extends MeshComponent {
                     material.reflectionTexture.dispose();
                 }
 
-                material.reflectionTexture = this.createflectionTexture(props.url, scene);
+                material.reflectionTexture = this._createflectionTexture(props.url, scene);
             }
         }
     }
 
-    private createflectionTexture(url: string, scene: Scene): BaseTexture {
+    private _createflectionTexture(url: string, scene: Scene): BaseTexture {
         let reflectionTexture = null;
 
         const assetUrl = new AssetUrl(url);

@@ -16,100 +16,103 @@ import { applicationStore, userStore } from "@Stores/index";
 import Log from "@Modules/debugging/log";
 
 export class DomainAvatarClient extends Client {
-    private domain: Domain;
-    private avatarMixer: Nullable<AvatarMixer>;
-    private avatarsInfo: Map<Uuid, ScriptAvatar>;
-    private myAvatarLastPosition: vec3;
+    private _domain: Domain;
+    private _avatarMixer: Nullable<AvatarMixer>;
+    private _avatarsInfo: Map<Uuid, ScriptAvatar>;
+    private _myAvatarLastPosition: vec3;
     public onStateChange: SignalEmitter;
 
     constructor(domain: Domain) {
         super();
-        this.domain = domain;
-        this.avatarMixer = new AvatarMixer(domain.ContextId);
-        this.avatarMixer.myAvatar.displayName = userStore.avatar.displayName;
+        this._domain = domain;
+        this._avatarMixer = new AvatarMixer(domain.ContextId);
+        this._avatarMixer.myAvatar.displayName = userStore.avatar.displayName;
         this.onStateChange = new SignalEmitter();
-        this.avatarMixer.onStateChanged = this.handleOnStateChanged.bind(this);
+        this._avatarMixer.onStateChanged = this._handleOnStateChanged.bind(this);
 
         // Info for tracking the local avatar.
-        this.myAvatarLastPosition = Vec3.ZERO;
-        this.avatarMixer.myAvatar.displayNameChanged.connect(() => userStore.updateLocalAvatarInfo(this.domain, this));
-        this.avatarMixer.myAvatar.sessionDisplayNameChanged.connect(() => userStore.updateLocalAvatarInfo(this.domain, this));
+        this._myAvatarLastPosition = Vec3.ZERO;
+        this._avatarMixer.myAvatar.displayNameChanged.connect(() => userStore.updateLocalAvatarInfo(this._domain, this));
+        this._avatarMixer.myAvatar.sessionDisplayNameChanged.connect(() => userStore.updateLocalAvatarInfo(this._domain, this));
 
         // Connections for tracking other avatars.
-        this.avatarsInfo = new Map<Uuid, ScriptAvatar>();
-        this.avatarMixer.avatarList.avatarAdded.connect(this.handleOnAvatarAdded.bind(this));
-        this.avatarMixer.avatarList.avatarRemoved.connect(this.handleOnAvatarRemoved.bind(this));
+        this._avatarsInfo = new Map<Uuid, ScriptAvatar>();
+        this._avatarMixer.avatarList.avatarAdded.connect(this._handleOnAvatarAdded.bind(this));
+        this._avatarMixer.avatarList.avatarRemoved.connect(this._handleOnAvatarRemoved.bind(this));
 
         // Copy this information into the Store for the UI.
-        this.updateOtherAvatarInfo();
+        this._updateOtherAvatarInfo();
     }
 
     /**
      * A reference to the Avatar Mixer.
      */
     public get Mixer(): Nullable<AvatarMixer> {
-        return this.avatarMixer;
+        return this._avatarMixer;
     }
 
     /**
      * A reference to the local avatar interface.
      */
     public get MyAvatar(): Nullable<MyAvatarInterface> {
-        return this.avatarMixer?.myAvatar;
+        return this._avatarMixer?.myAvatar;
     }
 
     /**
      * The state of the underlying assignment client.
      */
     public get clientState(): AssignmentClientState {
-        return this.avatarMixer?.state ?? AssignmentClientState.DISCONNECTED;
+        return this._avatarMixer?.state ?? AssignmentClientState.DISCONNECTED;
     }
 
     /**
      * Update the stored information about all avatars.
      */
     public update(): void {
-        if (!this.avatarMixer) {
+        if (!this._avatarMixer) {
             return;
         }
 
-        this.avatarMixer.update();
-        if (this.avatarMixer.myAvatar) {
+        this._avatarMixer.update();
+        if (this._avatarMixer.myAvatar) {
             // Clone the avatar's current position.
-            const pos = { ...this.avatarMixer.myAvatar.position };
+            const position = { ...this._avatarMixer.myAvatar.position };
             // If the position has changed significantly, update the value in the Store.
             const positionTolerance = 0.01;
-            if (!DataMapper.compareVec3(pos, this.myAvatarLastPosition, positionTolerance)) {
-                this.myAvatarLastPosition = pos;
-                userStore.updateLocalAvatarInfo(this.domain, this, pos);
+            if (!DataMapper.compareVec3(position, this._myAvatarLastPosition, positionTolerance)) {
+                this._myAvatarLastPosition = position;
+                userStore.updateLocalAvatarInfo(this._domain, this, position);
             }
         }
-        this.updateOtherAvatarInfo();
+        this._updateOtherAvatarInfo();
     }
 
     /**
      * Handle the changing state of the AvatarMixer.
      * @param newState the new state of the AvatarMixer
      */
-    private handleOnStateChanged(newState: AssignmentClientState): void {
-        Log.debug(Log.types.AVATAR,
-            `Domain Avatar Client: Avatar Mixer state changed to ${AvatarMixer.stateToString(this.avatarMixer?.state ?? AssignmentClientState.DISCONNECTED)}.`);
-        this.onStateChange.emit(this.domain, this, newState); // Signature: Domain, DomainAvatar, AssignmentClientState.
+    private _handleOnStateChanged(newState: AssignmentClientState): void {
+        Log.debug(
+            Log.types.AVATAR,
+            "Domain Avatar Client: Avatar Mixer state changed to ",
+            AvatarMixer.stateToString(this._avatarMixer?.state ?? AssignmentClientState.DISCONNECTED)
+        );
+        this.onStateChange.emit(this._domain, this, newState); // Signature: Domain, DomainAvatar, AssignmentClientState.
     }
 
     /**
      * Called when an avatar is added to the scene.
      * @param avatarId the BigInt ID of the added avatar.
      */
-    private handleOnAvatarAdded(avatarId: Uuid) {
+    private _handleOnAvatarAdded(avatarId: Uuid) {
         Log.debug(Log.types.AVATAR, `Domain Avatar Client: Avatar added: ${avatarId.stringify()}.`);
-        if (this.avatarMixer) {
-            const info = this.avatarMixer.avatarList.getAvatar(avatarId);
+        if (this._avatarMixer) {
+            const info = this._avatarMixer.avatarList.getAvatar(avatarId);
             if (info) {
-                if (!this.avatarsInfo.has(avatarId)) {
+                if (!this._avatarsInfo.has(avatarId)) {
                     // When avatar attributes change, update the global data
-                    info.sessionDisplayNameChanged.connect(this.updateOtherAvatarInfo.bind(this));
-                    this.avatarsInfo.set(avatarId, info);
+                    info.sessionDisplayNameChanged.connect(this._updateOtherAvatarInfo.bind(this));
+                    this._avatarsInfo.set(avatarId, info);
                 } else {
                     Log.error(Log.types.AVATAR, `Domain Avatar Client: Attempt to add avatar that is already in list: ${avatarId.stringify()}.`);
                 }
@@ -117,29 +120,29 @@ export class DomainAvatarClient extends Client {
                 Log.error(Log.types.AVATAR, `Domain Avatar Client: Avatar added without info: ${avatarId.stringify()}.`);
             }
         }
-        this.updateOtherAvatarInfo();
+        this._updateOtherAvatarInfo();
     }
 
     /**
      * Update the stored information when an avatar is removed from the domain.
      * @param avatarId The BigInt ID of the removed avatar.
      */
-    private handleOnAvatarRemoved(avatarId: Uuid) {
+    private _handleOnAvatarRemoved(avatarId: Uuid) {
         Log.debug(Log.types.AVATAR, `Domain Avatar Client: Avatar removed: ${avatarId.stringify()}.`);
-        const info = this.avatarsInfo.get(avatarId);
+        const info = this._avatarsInfo.get(avatarId);
         if (info) {
             // undo the .connect that happened when added. (Does this method signature work?)
-            info.sessionDisplayNameChanged.disconnect(this.updateOtherAvatarInfo.bind(this));
-            this.avatarsInfo.delete(avatarId);
+            info.sessionDisplayNameChanged.disconnect(this._updateOtherAvatarInfo.bind(this));
+            this._avatarsInfo.delete(avatarId);
         }
-        this.updateOtherAvatarInfo();
+        this._updateOtherAvatarInfo();
     }
 
     /**
      * Update the stored information for the other avatars in the scene.
      */
-    private updateOtherAvatarInfo() {
-        userStore.updateLocalAvatarInfo(this.domain, this);
-        applicationStore.updateAllAvatars(this, this.avatarsInfo);
+    private _updateOtherAvatarInfo() {
+        userStore.updateLocalAvatarInfo(this._domain, this);
+        applicationStore.updateAllAvatars(this, this._avatarsInfo);
     }
 }

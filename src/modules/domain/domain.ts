@@ -62,34 +62,33 @@ export const DomainPersist = {
  * ```
  */
 export class Domain {
-    private domain: Nullable<DomainServer>;
-    private audioClient: Nullable<DomainAudioClient>;
-    private messageClient: Nullable<DomainMessageClient>;
-    private avatarClient: Nullable<DomainAvatarClient>;
-    private entityClient: Nullable<EntityServer>;
-    private camera:Nullable<Camera>;
-
-    private location = new Location("");
+    private _domain: Nullable<DomainServer>;
+    private _audioClient: Nullable<DomainAudioClient>;
+    private _messageClient: Nullable<DomainMessageClient>;
+    private _avatarClient: Nullable<DomainAvatarClient>;
+    private _entityClient: Nullable<EntityServer>;
+    private _camera:Nullable<Camera>;
+    private _location = new Location("");
 
     public onStateChange: SignalEmitter;
 
     constructor() {
         this.onStateChange = new SignalEmitter();
-        Account.onAttributeChange.connect(this.updateDomainLogin.bind(this));
+        Account.onAttributeChange.connect(this._updateDomainLogin.bind(this));
     }
 
-    public get DomainClient(): Nullable<DomainServer> { return this.domain; }
-    public get AudioClient(): Nullable<DomainAudioClient> { return this.audioClient; }
-    public get MessageClient(): Nullable<DomainMessageClient> { return this.messageClient; }
-    public get AvatarClient(): Nullable<DomainAvatarClient> { return this.avatarClient; }
-    public get EntityClient(): Nullable<EntityServer> { return this.entityClient; }
-    public get Camera(): Nullable<Camera> { return this.camera; }
+    public get DomainClient(): Nullable<DomainServer> { return this._domain; }
+    public get AudioClient(): Nullable<DomainAudioClient> { return this._audioClient; }
+    public get MessageClient(): Nullable<DomainMessageClient> { return this._messageClient; }
+    public get AvatarClient(): Nullable<DomainAvatarClient> { return this._avatarClient; }
+    public get EntityClient(): Nullable<EntityServer> { return this._entityClient; }
+    public get Camera(): Nullable<Camera> { return this._camera; }
 
-    public get Location(): Location { return this.location; }
+    public get Location(): Location { return this._location; }
 
-    public get ContextId(): number { return this.domain?.contextID ?? 0; }
+    public get ContextId(): number { return this._domain?.contextID ?? 0; }
 
-    public get DomainState(): ConnectionState { return this.domain?.state ?? DomainServer.DISCONNECTED; }
+    public get DomainState(): ConnectionState { return this._domain?.state ?? DomainServer.DISCONNECTED; }
 
     public get DomainStateAsString(): string { return DomainServer.stateToString(this.DomainState); }
 
@@ -103,7 +102,7 @@ export class Domain {
      * `true` if the Domain connection is active, `false` if inactive.
      */
     public get isConnected(): boolean {
-        return this.domain?.state === DomainServer.CONNECTED;
+        return this._domain?.state === DomainServer.CONNECTED;
     }
 
     /**
@@ -121,49 +120,49 @@ export class Domain {
      * @returns A reference to this Domain instance for easy chaining.
      */
     public connect(url: string): Domain {
-        if (this.domain) {
+        if (this._domain) {
             const errorMessage = "Attempted to connect to a Domain when already connected.";
             Log.error(Log.types.NETWORK, errorMessage);
             throw new Error(errorMessage);
         }
 
-        this.location = new Location(url);
-        if (this.location.protocol === "") {
-            this.location.protocol = applicationStore.defaultConnectionConfig.DEFAULT_DOMAIN_PROTOCOL;
+        this._location = new Location(url);
+        if (this._location.protocol === "") {
+            this._location.protocol = applicationStore.defaultConnectionConfig.DEFAULT_DOMAIN_PROTOCOL;
         }
-        if (this.location.port === "") {
-            this.location.port = applicationStore.defaultConnectionConfig.DEFAULT_DOMAIN_PORT;
+        if (this._location.port === "") {
+            this._location.port = applicationStore.defaultConnectionConfig.DEFAULT_DOMAIN_PORT;
         }
 
         Log.debug(Log.types.NETWORK, `Creating a new DomainServer.`);
-        this.domain = new DomainServer();
-        this.domain.account.authRequired.connect(() => {
+        this._domain = new DomainServer();
+        this._domain.account.authRequired.connect(() => {
             console.debug("AUTH REQUIRED: Open login dialog");
             applicationStore.dialog.show = true;
             applicationStore.dialog.which = "Login";
         });
-        this.updateDomainLogin();
+        this._updateDomainLogin();
 
-        this.camera = new Camera(this.domain.contextID);
-        this.camera.centerRadius = 1000;
+        this._camera = new Camera(this._domain.contextID);
+        this._camera.centerRadius = 1000;
 
         // Create new instances for all the clients.
-        this.avatarClient = new DomainAvatarClient(this);
-        this.messageClient = new DomainMessageClient(this);
-        this.audioClient = new DomainAudioClient(this);
-        this.entityClient = new EntityServer(this.ContextId);
+        this._avatarClient = new DomainAvatarClient(this);
+        this._messageClient = new DomainMessageClient(this);
+        this._audioClient = new DomainAudioClient(this);
+        this._entityClient = new EntityServer(this.ContextId);
 
         // Connect to the domain. The 'connected' event will say if the connection was made.
-        Log.debug(Log.types.NETWORK, `Connecting to domain at ${this.location.href}`);
-        this.domain.onStateChanged = (pState: ConnectionState, pInfo: string): void => {
+        Log.debug(Log.types.NETWORK, `Connecting to domain at ${this._location.href}`);
+        this._domain.onStateChanged = (pState: ConnectionState, pInfo: string): void => {
             Log.debug(Log.types.NETWORK, `New Domain state: ${Domain.stateToString(pState)}, ${pInfo}`);
             this.onStateChange.emit(this, pState, pInfo);
-            if (this.domain) {
-                applicationStore.updateDomainState(this, this.domain.state, pInfo);
+            if (this._domain) {
+                applicationStore.updateDomainState(this, this._domain.state, pInfo);
             }
         };
 
-        this.domain.connect(this.location.href);
+        this._domain.connect(this._location.href);
         return this;
     }
 
@@ -171,10 +170,10 @@ export class Domain {
      * Disconnect from the Domain server.
      */
     public disconnect(): void {
-        Log.info(Log.types.NETWORK, `Disconnected from Domain: ${this.location.href}`);
-        this.domain?.disconnect();
-        this.domain = undefined;
-        this.entityClient = undefined;
+        Log.info(Log.types.NETWORK, `Disconnected from Domain: ${this._location.href}`);
+        this._domain?.disconnect();
+        this._domain = undefined;
+        this._entityClient = undefined;
     }
 
     /**
@@ -183,11 +182,11 @@ export class Domain {
      */
     public async waitForConnected(): Promise<Domain> {
         const waitForConnectedMS = 200;
-        while (typeof this.domain === "undefined") {
+        while (typeof this._domain === "undefined") {
             // eslint-disable-next-line no-await-in-loop
             await Client.waitABit(waitForConnectedMS);
         }
-        while (this.domain?.state !== ConnectionState.CONNECTED) {
+        while (this._domain?.state !== ConnectionState.CONNECTED) {
             // eslint-disable-next-line no-await-in-loop
             await Client.waitABit(waitForConnectedMS);
         }
@@ -236,12 +235,12 @@ export class Domain {
     }
 
     public update(): void {
-        this.avatarClient?.update();
-        this.entityClient?.update();
+        this._avatarClient?.update();
+        this._entityClient?.update();
     }
 
-    private updateDomainLogin(): void {
-        if (!this.domain) {
+    private _updateDomainLogin(): void {
+        if (!this._domain) {
             return;
         }
 
@@ -249,15 +248,15 @@ export class Domain {
             const MS_PER_SECOND = 1000;
             /* eslint-disable camelcase */
             assert(Account.accessToken !== null && Account.accessTokenType !== null && Account.refreshToken !== null);
-            this.domain.account.login(Account.accountName, {
+            this._domain.account.login(Account.accountName, {
                 access_token: Account.accessToken,
                 token_type: Account.accessTokenType,
                 expires_in: Math.round((Account.accessTokenExpiration.getTime() - Date.now()) / MS_PER_SECOND),
                 refresh_token: Account.refreshToken
             });
             /* eslint-enable camelcase */
-        } else if (this.domain.account.isLoggedIn()) {
-            this.domain.account.logout();
+        } else if (this._domain.account.isLoggedIn()) {
+            this._domain.account.logout();
         }
     }
 }

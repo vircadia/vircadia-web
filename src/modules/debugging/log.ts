@@ -63,12 +63,12 @@ export default class Log {
      * The threshold log level.
      * Log requests that don't meet this threshold will be ignored.
      */
-    private static logLevel = LogLevel.DEBUG;
+    private static _logLevel = LogLevel.DEBUG;
 
     /**
      * The history of all printed log messages.
      */
-    private static logHistory: Array<string> = [];
+    private static _logHistory: Array<string> = [];
 
     /**
      * Available logging levels.
@@ -89,7 +89,7 @@ export default class Log {
     public static print(type: LogType, level: LogLevel, message: string, ...optionalMessages: string[]): void {
         console.info(type, level, message, ...optionalMessages);
         const time = new Date().toISOString();
-        this.logHistory.push([time, type, level, message, ...optionalMessages].join(" "));
+        this._logHistory.push([time, type, level, message, ...optionalMessages].join(" "));
     }
 
     /**
@@ -99,7 +99,7 @@ export default class Log {
      * @param message
      */
     public static debug(type: LogType, message: string, ...optionalMessages: string[]): void {
-        if (this.logLevel === LogLevel.DEBUG) {
+        if (this._logLevel === LogLevel.DEBUG) {
             this.print(type, LogLevel.DEBUG, message, ...optionalMessages);
         }
     }
@@ -120,7 +120,7 @@ export default class Log {
      * @param message
      */
     public static warn(type: LogType, message: string, ...optionalMessages: string[]): void {
-        if (this.logLevel in [LogLevel.WARN, LogLevel.DEBUG, LogLevel.ERROR]) {
+        if (this._logLevel in [LogLevel.WARN, LogLevel.DEBUG, LogLevel.ERROR]) {
             this.print(type, LogLevel.WARN, message, ...optionalMessages);
         }
     }
@@ -140,24 +140,24 @@ export default class Log {
      */
     public static setLogLevel(level: LogLevel | string): void {
         switch (level.toLowerCase()) {
-            case "none": this.logLevel = LogLevel.INFO; break;
-            case "info": this.logLevel = LogLevel.INFO; break;
-            case "[info]": this.logLevel = LogLevel.INFO; break;
-            case "warn": this.logLevel = LogLevel.WARN; break;
-            case "[warn]": this.logLevel = LogLevel.WARN; break;
-            case "debug": this.logLevel = LogLevel.DEBUG; break;
-            case "[debug]": this.logLevel = LogLevel.DEBUG; break;
-            case "error": this.logLevel = LogLevel.DEBUG; break;
-            case "[error]": this.logLevel = LogLevel.DEBUG; break;
-            default: this.logLevel = LogLevel.DEBUG;
+            case "none": this._logLevel = LogLevel.INFO; break;
+            case "info": this._logLevel = LogLevel.INFO; break;
+            case "[info]": this._logLevel = LogLevel.INFO; break;
+            case "warn": this._logLevel = LogLevel.WARN; break;
+            case "[warn]": this._logLevel = LogLevel.WARN; break;
+            case "debug": this._logLevel = LogLevel.DEBUG; break;
+            case "[debug]": this._logLevel = LogLevel.DEBUG; break;
+            case "error": this._logLevel = LogLevel.DEBUG; break;
+            case "[error]": this._logLevel = LogLevel.DEBUG; break;
+            default: this._logLevel = LogLevel.DEBUG;
         }
-        this.info(LogType.OTHER, `Logging level set to ${this.logLevel}`);
+        this.info(LogType.OTHER, `Logging level set to ${this._logLevel}`);
     }
 
     /**
      * Dump the history of all printed log messages to a string.
      */
     public static dump(): string {
-        return this.logHistory.join("\n");
+        return this._logHistory.join("\n");
     }
 }

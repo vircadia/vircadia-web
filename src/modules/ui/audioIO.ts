@@ -16,9 +16,9 @@ import Log, { findErrorMessage } from "@Modules/debugging/log";
 import { toJSON } from "@Modules/debugging";
 
 export class AudioIO {
-    private static selectedInputDevice = applicationStore.audio.user.currentInputDevice as MediaDeviceInfo | undefined;
-    private static selectedOutputDevice = applicationStore.audio.user.currentOutputDevice as MediaDeviceInfo | undefined;
-    private static inputLevelContext = {
+    private static _selectedInputDevice = applicationStore.audio.user.currentInputDevice as MediaDeviceInfo | undefined;
+    private static _selectedOutputDevice = applicationStore.audio.user.currentOutputDevice as MediaDeviceInfo | undefined;
+    private static _inputLevelContext = {
         context: new AudioContext(),
         analyser: {} as AnalyserNode,
         microphone: {} as MediaStreamAudioSourceNode,
@@ -34,7 +34,7 @@ export class AudioIO {
      * The selected audio input device.
      */
     static get selectedInput(): string {
-        return applicationStore.audio.user.currentInputDevice?.label ?? this.selectedInputDevice?.label ?? "None selected";
+        return applicationStore.audio.user.currentInputDevice?.label ?? this._selectedInputDevice?.label ?? "None selected";
     }
 
     /**
@@ -47,16 +47,16 @@ export class AudioIO {
             return;
         }
         Log.debug(Log.types.AUDIO, `AudioIO: Set the selected input device to: ${toJSON(inputInfo[0])}.`);
-        this.selectedInputDevice = inputInfo[0];
-        applicationStore.audio.user.currentInputDevice = this.selectedInputDevice;
-        this.createInputLevelContext();
+        this._selectedInputDevice = inputInfo[0];
+        applicationStore.audio.user.currentInputDevice = this._selectedInputDevice;
+        this._createInputLevelContext();
     }
 
     /**
      * The selected audio output device.
      */
     static get selectedOutput(): string {
-        return applicationStore.audio.user.currentOutputDevice?.label ?? this.selectedOutputDevice?.label ?? "None selected";
+        return applicationStore.audio.user.currentOutputDevice?.label ?? this._selectedOutputDevice?.label ?? "None selected";
     }
 
     /**
@@ -69,32 +69,32 @@ export class AudioIO {
             return;
         }
         Log.debug(Log.types.AUDIO, `AudioIO: Set the selected output device to: ${toJSON(outputInfo[0])}.`);
-        this.selectedOutputDevice = outputInfo[0];
-        applicationStore.audio.user.currentOutputDevice = this.selectedOutputDevice;
+        this._selectedOutputDevice = outputInfo[0];
+        applicationStore.audio.user.currentOutputDevice = this._selectedOutputDevice;
     }
 
     /**
      * Create the audio context and connections necessary for reading the level from the selected input device.
      */
-    private static createInputLevelContext(): void {
+    private static _createInputLevelContext(): void {
         if (!applicationStore.audio.user.userInputStream || !(applicationStore.audio.user.userInputStream instanceof MediaStream)) {
             return;
         }
-        this.inputLevelContext.context = new AudioContext();
-        this.inputLevelContext.analyser = this.inputLevelContext.context.createAnalyser();
-        this.inputLevelContext.analyser.smoothingTimeConstant = 0.5;
-        this.inputLevelContext.analyser.fftSize = 1024;
-        this.inputLevelContext.microphone = this.inputLevelContext.context.createMediaStreamSource(applicationStore.audio.user.userInputStream);
+        this._inputLevelContext.context = new AudioContext();
+        this._inputLevelContext.analyser = this._inputLevelContext.context.createAnalyser();
+        this._inputLevelContext.analyser.smoothingTimeConstant = 0.5;
+        this._inputLevelContext.analyser.fftSize = 1024;
+        this._inputLevelContext.microphone = this._inputLevelContext.context.createMediaStreamSource(applicationStore.audio.user.userInputStream);
         const bufferSize = 2048;
-        this.inputLevelContext.scriptProcessor = this.inputLevelContext.context.createScriptProcessor(bufferSize, 1, 1);
+        this._inputLevelContext.scriptProcessor = this._inputLevelContext.context.createScriptProcessor(bufferSize, 1, 1);
 
-        this.inputLevelContext.microphone.connect(this.inputLevelContext.analyser);
-        this.inputLevelContext.analyser.connect(this.inputLevelContext.scriptProcessor);
-        this.inputLevelContext.scriptProcessor.connect(this.inputLevelContext.context.destination);
+        this._inputLevelContext.microphone.connect(this._inputLevelContext.analyser);
+        this._inputLevelContext.analyser.connect(this._inputLevelContext.scriptProcessor);
+        this._inputLevelContext.scriptProcessor.connect(this._inputLevelContext.context.destination);
         // TODO: Refactor this module to use an AudioWorkletProcessor instead of the ScriptProcessorNode.
-        this.inputLevelContext.scriptProcessor.onaudioprocess = () => {
-            const array = new Uint8Array(this.inputLevelContext.analyser.frequencyBinCount);
-            this.inputLevelContext.analyser.getByteFrequencyData(array);
+        this._inputLevelContext.scriptProcessor.onaudioprocess = () => {
+            const array = new Uint8Array(this._inputLevelContext.analyser.frequencyBinCount);
+            this._inputLevelContext.analyser.getByteFrequencyData(array);
             const arraySum = array.reduce((a, value) => a + value, 0);
             const average = arraySum / (array.length / 2);
             this.inputLevel.value = Math.round(average);
@@ -174,9 +174,9 @@ export class AudioIO {
                 await AudioManager.getAvailableInputOutputDevices();
 
                 // Find the MediaDeviceInfo for the input device.
-                await AudioManager.setUserAudioInputStream(stream, this.selectedInputDevice);
+                await AudioManager.setUserAudioInputStream(stream, this._selectedInputDevice);
 
-                this.createInputLevelContext();
+                this._createInputLevelContext();
 
                 this.setAwaitingCapturePermissions(false);
             }
@@ -196,10 +196,10 @@ export class AudioIO {
      */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     public static requestOutputAccess(requestedDeviceId: string): void {
-        AudioManager.setAudioOutputStream(this.selectedOutputDevice);
+        AudioManager.setAudioOutputStream(this._selectedOutputDevice);
     }
 
     static {
-        this.createInputLevelContext();
+        this._createInputLevelContext();
     }
 }

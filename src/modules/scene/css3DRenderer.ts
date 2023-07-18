@@ -80,16 +80,16 @@ export class CSS3DObject {
  * The renderer for the CSS 3D scene. This scene primarily contains web-entities.
  */
 export class CSS3DRenderer {
-    private canvas: HTMLCanvasElement;
-    private isAttachControl = false;
-    private css3DObjects: Map<string, CSS3DObject> = new Map<string, CSS3DObject>();
-    private domElement: HTMLElement;
-    private cameraElement: HTMLElement;
-    private width = 0;
-    private height = 0;
-    private widthHalf = 0;
-    private heightHalf = 0;
-    private cache = {
+    private _canvas: HTMLCanvasElement;
+    private _isAttachControl = false;
+    private _css3DObjects: Map<string, CSS3DObject> = new Map<string, CSS3DObject>();
+    private _domElement: HTMLElement;
+    private _cameraElement: HTMLElement;
+    private _width = 0;
+    private _height = 0;
+    private _widthHalf = 0;
+    private _heightHalf = 0;
+    private _cache = {
         camera: { fov: 0, style: "" },
         objects: new WeakMap()
     };
@@ -97,7 +97,7 @@ export class CSS3DRenderer {
     public scene: Nullable<Scene> = null;
 
     constructor(canvas: HTMLCanvasElement, scene: Scene) {
-        this.canvas = canvas;
+        this._canvas = canvas;
         this.scene = scene;
         const existingRenderer = document.getElementById("web-entity-container");
         if (existingRenderer) {
@@ -114,16 +114,16 @@ export class CSS3DRenderer {
         const canvasZone = canvas.parentElement as HTMLElement;
         canvasZone.insertBefore(container, canvasZone.firstChild);
 
-        this.domElement = document.createElement("div");
-        this.domElement.style.overflow = "hidden";
+        this._domElement = document.createElement("div");
+        this._domElement.style.overflow = "hidden";
 
-        this.cameraElement = document.createElement("div");
-        this.cameraElement.style.transformStyle = "preserve-3d";
-        this.cameraElement.style.pointerEvents = "none";
+        this._cameraElement = document.createElement("div");
+        this._cameraElement.style.transformStyle = "preserve-3d";
+        this._cameraElement.style.pointerEvents = "none";
 
-        this.domElement.appendChild(this.cameraElement);
+        this._domElement.appendChild(this._cameraElement);
 
-        container.appendChild(this.domElement);
+        container.appendChild(this._domElement);
 
         this.setSize(canvasZone.offsetWidth, canvasZone.offsetHeight);
 
@@ -131,7 +131,7 @@ export class CSS3DRenderer {
             this.setSize(canvasZone.offsetWidth, canvasZone.offsetHeight);
         });
 
-        window.addEventListener("pointerdown", this.handlePointerDown.bind(this));
+        window.addEventListener("pointerdown", this._handlePointerDown.bind(this));
     }
 
     /**
@@ -139,8 +139,8 @@ export class CSS3DRenderer {
      */
     getSize(): Size {
         return {
-            width: this.width,
-            height: this.height
+            width: this._width,
+            height: this._height
         };
     }
 
@@ -148,24 +148,24 @@ export class CSS3DRenderer {
      * Set the view size of the CSS 3D renderer.
      */
     setSize(width: number, height: number): void {
-        this.width = width;
-        this.height = height;
-        this.widthHalf = this.width / 2;
-        this.heightHalf = this.height / 2;
+        this._width = width;
+        this._height = height;
+        this._widthHalf = this._width / 2;
+        this._heightHalf = this._height / 2;
 
         // Double the size of the DOM Element so that it can contain WEs with double the pixel-density.
         // TODO: Make this a setting that can be adjusted when the web entity is created/modified in the world editor.
-        this.domElement.style.width = `${width * 2}px`;
-        this.domElement.style.height = `${height * 2}px`;
-        this.domElement.style.transform = `translate(-25%, -25%)`;
-        this.domElement.style.transformOrigin = `0% 0%`;
+        this._domElement.style.width = `${width * 2}px`;
+        this._domElement.style.height = `${height * 2}px`;
+        this._domElement.style.transform = `translate(-25%, -25%)`;
+        this._domElement.style.transformOrigin = `0% 0%`;
 
-        this.cameraElement.style.width = `${width}px`;
-        this.cameraElement.style.height = `${height}px`;
+        this._cameraElement.style.width = `${width}px`;
+        this._cameraElement.style.height = `${height}px`;
     }
 
     // eslint-disable-next-line class-methods-use-this
-    private epsilon(value: number): number {
+    private _epsilon(value: number): number {
         return Math.abs(value) < 1e-10 ? 0 : value;
     }
 
@@ -177,22 +177,22 @@ export class CSS3DRenderer {
     getCameraCSSMatrix(matrix: Matrix): string {
         const elements = matrix.m;
         return "matrix3d("
-            + this.epsilon(elements[0]).toString() + ","
-            + this.epsilon(-elements[1]).toString() + ","
-            + this.epsilon(elements[2]).toString() + ","
-            + this.epsilon(elements[3]).toString() + ","
-            + this.epsilon(elements[4]).toString() + ","
-            + this.epsilon(-elements[5]).toString() + ","
-            + this.epsilon(elements[6]).toString() + ","
-            + this.epsilon(elements[7]).toString() + ","
-            + this.epsilon(elements[8]).toString() + ","
-            + this.epsilon(-elements[9]).toString() + ","
-            + this.epsilon(elements[10]).toString() + ","
-            + this.epsilon(elements[11]).toString() + ","
-            + this.epsilon(elements[12]).toString() + ","
-            + this.epsilon(-elements[13]).toString() + ","
-            + this.epsilon(elements[14]).toString() + ","
-            + this.epsilon(elements[15]).toString()
+            + this._epsilon(elements[0]).toString() + ","
+            + this._epsilon(-elements[1]).toString() + ","
+            + this._epsilon(elements[2]).toString() + ","
+            + this._epsilon(elements[3]).toString() + ","
+            + this._epsilon(elements[4]).toString() + ","
+            + this._epsilon(-elements[5]).toString() + ","
+            + this._epsilon(elements[6]).toString() + ","
+            + this._epsilon(elements[7]).toString() + ","
+            + this._epsilon(elements[8]).toString() + ","
+            + this._epsilon(-elements[9]).toString() + ","
+            + this._epsilon(elements[10]).toString() + ","
+            + this._epsilon(elements[11]).toString() + ","
+            + this._epsilon(elements[12]).toString() + ","
+            + this._epsilon(-elements[13]).toString() + ","
+            + this._epsilon(elements[14]).toString() + ","
+            + this._epsilon(elements[15]).toString()
             + ")";
     }
 
@@ -204,22 +204,22 @@ export class CSS3DRenderer {
     getObjectCSSMatrix(matrix: Matrix): string {
         const elements = matrix.m;
         return "translate(-50%,-50%) matrix3d("
-            + this.epsilon(elements[0]).toString() + ","
-            + this.epsilon(elements[1]).toString() + ","
-            + this.epsilon(elements[2]).toString() + ","
-            + this.epsilon(elements[3]).toString() + ","
-            + this.epsilon(-elements[4]).toString() + ","
-            + this.epsilon(-elements[5]).toString() + ","
-            + this.epsilon(-elements[6]).toString() + ","
-            + this.epsilon(-elements[7]).toString() + ","
-            + this.epsilon(elements[8]).toString() + ","
-            + this.epsilon(elements[9]).toString() + ","
-            + this.epsilon(elements[10]).toString() + ","
-            + this.epsilon(elements[11]).toString() + ","
-            + this.epsilon(elements[12]).toString() + ","
-            + this.epsilon(elements[13]).toString() + ","
-            + this.epsilon(elements[14]).toString() + ","
-            + this.epsilon(elements[15]).toString()
+            + this._epsilon(elements[0]).toString() + ","
+            + this._epsilon(elements[1]).toString() + ","
+            + this._epsilon(elements[2]).toString() + ","
+            + this._epsilon(elements[3]).toString() + ","
+            + this._epsilon(-elements[4]).toString() + ","
+            + this._epsilon(-elements[5]).toString() + ","
+            + this._epsilon(-elements[6]).toString() + ","
+            + this._epsilon(-elements[7]).toString() + ","
+            + this._epsilon(elements[8]).toString() + ","
+            + this._epsilon(elements[9]).toString() + ","
+            + this._epsilon(elements[10]).toString() + ","
+            + this._epsilon(elements[11]).toString() + ","
+            + this._epsilon(elements[12]).toString() + ","
+            + this._epsilon(elements[13]).toString() + ","
+            + this._epsilon(elements[14]).toString() + ","
+            + this._epsilon(elements[15]).toString()
             + ")";
     }
 
@@ -275,15 +275,15 @@ export class CSS3DRenderer {
      */
     render(camera: Camera): void {
         const projectionMatrix = camera.getProjectionMatrix();
-        const fov = projectionMatrix.m[5] * this.heightHalf;
+        const fov = projectionMatrix.m[5] * this._heightHalf;
 
-        if (this.cache.camera.fov !== fov) {
+        if (this._cache.camera.fov !== fov) {
             if (camera.mode === Camera.PERSPECTIVE_CAMERA) {
-                this.domElement.style.perspective = fov.toString() + "px";
+                this._domElement.style.perspective = fov.toString() + "px";
             } else {
-                this.domElement.style.perspective = "";
+                this._domElement.style.perspective = "";
             }
-            this.cache.camera.fov = fov;
+            this._cache.camera.fov = fov;
         }
 
         if (camera.parent === null) {
@@ -310,14 +310,14 @@ export class CSS3DRenderer {
         matrixWorld.toggleProjectionMatrixHandInPlace();
 
         const cameraCSSMatrix = "translateZ(" + fov.toString() + "px)" + this.getCameraCSSMatrix(matrixWorld);
-        const style = cameraCSSMatrix + "translate(" + this.widthHalf.toString() + "px," + this.heightHalf.toString() + "px)";
+        const style = cameraCSSMatrix + "translate(" + this._widthHalf.toString() + "px," + this._heightHalf.toString() + "px)";
 
-        if (this.cache.camera.style !== style) {
-            this.cameraElement.style.transform = style;
-            this.cache.camera.style = style;
+        if (this._cache.camera.style !== style) {
+            this._cameraElement.style.transform = style;
+            this._cache.camera.style = style;
         }
 
-        this.css3DObjects.forEach((css3DObject) => {
+        this._css3DObjects.forEach((css3DObject) => {
             this.renderObject(css3DObject, camera);
         });
     }
@@ -327,11 +327,11 @@ export class CSS3DRenderer {
      * @param object The object to add to the scene.
      */
     public addCSS3DObject(object: CSS3DObject): void {
-        if (object.element.parentNode !== this.cameraElement) {
-            this.cameraElement.appendChild(object.element);
+        if (object.element.parentNode !== this._cameraElement) {
+            this._cameraElement.appendChild(object.element);
         }
 
-        this.css3DObjects.set(object.mesh.id, object);
+        this._css3DObjects.set(object.mesh.id, object);
     }
 
     /**
@@ -339,14 +339,14 @@ export class CSS3DRenderer {
      * @param object The object to remove from the scene.
      */
     public removeCSS3DObject(object: CSS3DObject): void {
-        this.css3DObjects.delete(object.mesh.id);
+        this._css3DObjects.delete(object.mesh.id);
     }
 
     /**
      * Remove all objects from the CSS 3D scene.
      */
     public removeAllCSS3DObjects(): void {
-        this.css3DObjects.clear();
+        this._css3DObjects.clear();
     }
 
     /**
@@ -354,11 +354,11 @@ export class CSS3DRenderer {
      * @param event The pointer event.
      * @returns The object that was picked (if one was picked).
      */
-    private pickObject(event: PointerEvent): CSS3DObject | undefined {
+    private _pickObject(event: PointerEvent): CSS3DObject | undefined {
         if (this.scene) {
             const pick = this.scene.pick(Math.round(event.offsetX), Math.round(event.offsetY));
             if (pick && pick.hit && pick.pickedMesh) {
-                return this.css3DObjects.get(pick.pickedMesh.id);
+                return this._css3DObjects.get(pick.pickedMesh.id);
             }
         }
         return undefined;
@@ -368,8 +368,8 @@ export class CSS3DRenderer {
      * Handle a `pointerdown` event on any CSS 3D object.
      * @param event The pointer event.
      */
-    private handlePointerDown(event: PointerEvent): void {
-        const object = this.pickObject(event);
+    private _handlePointerDown(event: PointerEvent): void {
+        const object = this._pickObject(event);
         if (object) {
             object.setPicked();
             if (object.canGetFocus) {
@@ -384,10 +384,10 @@ export class CSS3DRenderer {
      * Allow the CSS 3D scene to receive input events.
      */
     public attachControl(): void {
-        if (!this.isAttachControl) {
+        if (!this._isAttachControl) {
             document.body.style.pointerEvents = "none";
-            this.canvas.style.pointerEvents = "none";
-            this.isAttachControl = true;
+            this._canvas.style.pointerEvents = "none";
+            this._isAttachControl = true;
         }
     }
 
@@ -395,11 +395,11 @@ export class CSS3DRenderer {
      * Prevent the CSS 3D scene from receiving input events.
      */
     public detachControl(): void {
-        if (this.isAttachControl) {
+        if (this._isAttachControl) {
             // make babylon.js canvas and document body receive events
             document.body.style.pointerEvents = "auto";
-            this.canvas.style.pointerEvents = "all";
-            this.isAttachControl = false;
+            this._canvas.style.pointerEvents = "all";
+            this._isAttachControl = false;
         }
     }
 }

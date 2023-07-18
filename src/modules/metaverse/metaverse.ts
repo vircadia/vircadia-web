@@ -55,35 +55,35 @@ export const MetaversePersist = {
  * ```
  */
 export class Metaverse {
-    private metaverseUrl = applicationStore.defaultConnectionConfig.DEFAULT_METAVERSE_URL;
-    private connectionState: MetaverseState = MetaverseState.UNITIALIZED;
-    private metaverseName = "UNKNOWN";
-    private metaverseNickname = "UNKN";
-    private iceServer: Nullable<string> = undefined;
-    private jitsiServer: Nullable<string> = undefined;
-    private serverVersion = "V0.0.0";
+    private _metaverseUrl = applicationStore.defaultConnectionConfig.DEFAULT_METAVERSE_URL;
+    private _connectionState: MetaverseState = MetaverseState.UNITIALIZED;
+    private _metaverseName = "UNKNOWN";
+    private _metaverseNickname = "UNKN";
+    private _iceServer: Nullable<string> = undefined;
+    private _jitsiServer: Nullable<string> = undefined;
+    private _serverVersion = "V0.0.0";
 
     public onStateChange: SignalEmitter;
 
     constructor() {
-        this.connectionState = MetaverseState.UNITIALIZED;
+        this._connectionState = MetaverseState.UNITIALIZED;
         this.onStateChange = new SignalEmitter();
-        this.restorePersistentVariables();
+        this._restorePersistentVariables();
     }
 
-    public get MetaverseUrl(): string { return this.metaverseUrl; }
-    public get ConnectionState(): MetaverseState { return this.connectionState; }
-    public get MetaverseName(): string { return this.metaverseName; }
-    public get MetaverseNickname(): string { return this.metaverseNickname; }
-    public get IceServer(): Nullable<string> { return this.iceServer; }
-    public get JitsiServer(): Nullable<string> { return this.jitsiServer; }
-    public get ServerVersion(): string { return this.serverVersion; }
+    public get MetaverseUrl(): string { return this._metaverseUrl; }
+    public get ConnectionState(): MetaverseState { return this._connectionState; }
+    public get MetaverseName(): string { return this._metaverseName; }
+    public get MetaverseNickname(): string { return this._metaverseNickname; }
+    public get IceServer(): Nullable<string> { return this._iceServer; }
+    public get JitsiServer(): Nullable<string> { return this._jitsiServer; }
+    public get ServerVersion(): string { return this._serverVersion; }
 
     /**
      * `true` if the Metaverse connection is active, `false` if inactive.
      */
     get isConnected(): boolean {
-        return this.connectionState === MetaverseState.CONNECTED;
+        return this._connectionState === MetaverseState.CONNECTED;
     }
 
     /**
@@ -95,7 +95,7 @@ export class Metaverse {
      * @throws If the Metaverse is inaccessible or returns an error.
      */
     async setMetaverseUrl(url: string): Promise<void> {
-        this.setMetaverseConnectionState(MetaverseState.CONNECTING);
+        this._setMetaverseConnectionState(MetaverseState.CONNECTING);
 
         // Remove any trailing slashes from the URL.
         const newUrl = API.normalizeMetaverseUrl(url);
@@ -103,32 +103,32 @@ export class Metaverse {
         // Access the Metaverse server and get its configuration info.
         try {
             const data = await API.get(API.endpoints.info, newUrl) as MetaverseInfoResponse;
-            this.metaverseUrl = API.normalizeMetaverseUrl(data.metaverse_url);
-            this.metaverseName = data.metaverse_name;
-            this.metaverseNickname = data.metaverse_nick_name ?? data.metaverse_name;
-            this.iceServer = data.ice_server_url;
-            this.jitsiServer = data.jitsi_server_domain;
-            this.serverVersion = data.metaverse_server_version["version-tag"];
+            this._metaverseUrl = API.normalizeMetaverseUrl(data.metaverse_url);
+            this._metaverseName = data.metaverse_name;
+            this._metaverseNickname = data.metaverse_nick_name ?? data.metaverse_name;
+            this._iceServer = data.ice_server_url;
+            this._jitsiServer = data.jitsi_server_domain;
+            this._serverVersion = data.metaverse_server_version["version-tag"];
 
-            this.connectionState = MetaverseState.CONNECTED;
+            this._connectionState = MetaverseState.CONNECTED;
 
-            Log.info(Log.types.METAVERSE, `Set new Metaverse URL to: ${this.metaverseUrl}`);
-            Log.info(Log.types.METAVERSE, `Set new Metaverse name to: ${this.metaverseName}`);
+            Log.info(Log.types.METAVERSE, `Set new Metaverse URL to: ${this._metaverseUrl}`);
+            Log.info(Log.types.METAVERSE, `Set new Metaverse name to: ${this._metaverseName}`);
 
-            this.setMetaverseConnectionState(MetaverseState.CONNECTED);
-            this.storePersistentVariables();
+            this._setMetaverseConnectionState(MetaverseState.CONNECTED);
+            this._storePersistentVariables();
         } catch (error) {
             Log.error(Log.types.NETWORK, `Failed to fetch Metaverse info for URL: ${newUrl}`);
             Log.error(Log.types.NETWORK, findErrorMessage(error));
-            this.setMetaverseConnectionState(MetaverseState.ERROR);
+            this._setMetaverseConnectionState(MetaverseState.ERROR);
         }
     }
 
     /**
      * Set the stored Metaverse state.
      */
-    private setMetaverseConnectionState(newState: MetaverseState): void {
-        this.connectionState = newState;
+    private _setMetaverseConnectionState(newState: MetaverseState): void {
+        this._connectionState = newState;
         this.onStateChange.emit(this, newState); // Signature: Metaverse, MetaverseState.
         applicationStore.updateMetaverseState(this, newState);
     }
@@ -139,10 +139,10 @@ export class Metaverse {
      * Some values persist across sessions, so the next time the user opens the app, the
      * previous known values are restored and the connection is automatically made.
      */
-    private storePersistentVariables(): void {
-        Config.setItem(MetaversePersist.METAVERSE_URL, this.metaverseUrl);
-        Config.setItem(MetaversePersist.METAVERSE_NAME, this.metaverseName);
-        Config.setItem(MetaversePersist.METAVERSE_NICK_NAME, this.metaverseNickname);
+    private _storePersistentVariables(): void {
+        Config.setItem(MetaversePersist.METAVERSE_URL, this._metaverseUrl);
+        Config.setItem(MetaversePersist.METAVERSE_NAME, this._metaverseName);
+        Config.setItem(MetaversePersist.METAVERSE_NICK_NAME, this._metaverseNickname);
     }
 
     /**
@@ -150,12 +150,12 @@ export class Metaverse {
      *
      * Note: This is not reactive, so it is best used when initializing.
      */
-    private restorePersistentVariables(): void {
-        this.metaverseUrl = Config.getItem(
+    private _restorePersistentVariables(): void {
+        this._metaverseUrl = Config.getItem(
             MetaversePersist.METAVERSE_URL,
             Config.getItem(DEFAULT_METAVERSE_URL, applicationStore.defaultConnectionConfig.DEFAULT_METAVERSE_URL)
         );
-        this.metaverseName = Config.getItem(MetaversePersist.METAVERSE_NAME, "UNKNOWN");
-        this.metaverseNickname = Config.getItem(MetaversePersist.METAVERSE_NICK_NAME, "UNKN");
+        this._metaverseName = Config.getItem(MetaversePersist.METAVERSE_NAME, "UNKNOWN");
+        this._metaverseNickname = Config.getItem(MetaversePersist.METAVERSE_NICK_NAME, "UNKN");
     }
 }

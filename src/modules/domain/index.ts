@@ -19,12 +19,12 @@ export class DomainManager {
     /**
      * The ID of the game loop interval.
      */
-    private static intervalID: Nullable<NodeJS.Timeout>;
+    private static _intervalID: Nullable<NodeJS.Timeout>;
 
     /**
      * Collection of Domain server connections.
      */
-    private static domains = new Map<string, Domain>();
+    private static _domains = new Map<string, Domain>();
 
     /**
      * Event fired when the active domain state changes.
@@ -36,13 +36,13 @@ export class DomainManager {
     /**
      * The active Domain.
      */
-    private static activeDomain: Nullable<Domain>;
+    private static _activeDomain: Nullable<Domain>;
 
     /**
      * The active Domain.
      */
     public static get ActiveDomain(): Nullable<Domain> {
-        return this.activeDomain;
+        return this._activeDomain;
     }
 
     /**
@@ -50,18 +50,18 @@ export class DomainManager {
      */
     public static set ActiveDomain(domain: Nullable<Domain>) {
         Log.debug(Log.types.OTHER, `Domain Manager: Setting active Domain.`);
-        if (this.activeDomain) {
+        if (this._activeDomain) {
             Log.debug(Log.types.OTHER, `Domain Manager: Disconnecting from old Domain.`);
             // If already have an active domain, disconnect from the state change event
-            this.activeDomain.onStateChange.disconnect(this.handleActiveDomainStateChange.bind(this));
+            this._activeDomain.onStateChange.disconnect(this._handleActiveDomainStateChange.bind(this));
         }
-        this.activeDomain = domain;
+        this._activeDomain = domain;
         if (domain) {
             Log.debug(Log.types.OTHER, `Domain Manager: Connecting to new Domain.`);
-            domain.onStateChange.connect(this.handleActiveDomainStateChange.bind(this));
+            domain.onStateChange.connect(this._handleActiveDomainStateChange.bind(this));
             if (domain.DomainClient?.state === ConnectionState.CONNECTED) {
                 Log.debug(Log.types.OTHER, `Domain Manager: New Domain connected.`);
-                this.handleActiveDomainStateChange(domain, domain.DomainClient.state, "init");
+                this._handleActiveDomainStateChange(domain, domain.DomainClient.state, "init");
             }
         }
     }
@@ -71,12 +71,12 @@ export class DomainManager {
      * @returns A Promise that resolves with a reference to the Domain server once the connection has been established.
      */
     public static async waitForActiveDomainConnected(): Promise<Domain> {
-        while (!this.activeDomain) {
+        while (!this._activeDomain) {
             // eslint-disable-next-line no-await-in-loop, @typescript-eslint/no-magic-numbers
             await Client.waitABit(200);
         }
-        await this.activeDomain.waitForConnected();
-        return this.activeDomain;
+        await this._activeDomain.waitForConnected();
+        return this._activeDomain;
     }
 
     /**
@@ -93,7 +93,7 @@ export class DomainManager {
         try {
             domain.connect(url);
             // this._domains.set(aDomain.DomainUrl, aDomain);
-            this.domains.set(domain.Location.href, domain);
+            this._domains.set(domain.Location.href, domain);
             // Remember the last connected domain for potential restarts
             // Config.setItem(LAST_DOMAIN_SERVER, aDomain.DomainUrl);
             Config.setItem(LAST_DOMAIN_SERVER, domain.Location.href);
@@ -111,8 +111,8 @@ export class DomainManager {
      * Update the state of the active Domain.
      */
     public static update(): void {
-        if (this.activeDomain) {
-            this.activeDomain.update();
+        if (this._activeDomain) {
+            this._activeDomain.update();
         }
     }
 
@@ -120,9 +120,9 @@ export class DomainManager {
      * Start the active Domain's update loop.
      */
     public static startGameLoop(): void {
-        if (!this.intervalID) {
+        if (!this._intervalID) {
             const TICK_TIME = 33;
-            this.intervalID = setInterval(this.update.bind(this), TICK_TIME);
+            this._intervalID = setInterval(this.update.bind(this), TICK_TIME);
         }
     }
 
@@ -130,13 +130,13 @@ export class DomainManager {
      * Stop the active Domain's update loop.
      */
     public static stopGameLoop(): void {
-        if (this.intervalID) {
-            clearInterval(this.intervalID);
-            this.intervalID = null;
+        if (this._intervalID) {
+            clearInterval(this._intervalID);
+            this._intervalID = null;
         }
     }
 
-    private static handleActiveDomainStateChange(domain: Domain, state: ConnectionState, info: string): void {
+    private static _handleActiveDomainStateChange(domain: Domain, state: ConnectionState, info: string): void {
         Log.debug(Log.types.OTHER, `Domain Manager: Active Domain state changed to ${Domain.stateToString(state)}.`);
         this.onActiveDomainStateChange.emit(domain, state, info); // Signature: Domain, ConnectionState, string.
     }

@@ -12,10 +12,10 @@ import { Domain } from "@Modules/domain/domain";
 import Log from "@Modules/debugging/log";
 
 export class DomainAudioClient extends Client {
-    private domain: Domain;
-    private audioMixer: Nullable<AudioMixer>;
+    private _domain: Domain;
+    private _audioMixer: Nullable<AudioMixer>;
     public onStateChange: SignalEmitter;
-    private static gainParameters = {
+    private static _gainParameters = {
         min: -60,
         max: 20,
         range: 80
@@ -25,27 +25,27 @@ export class DomainAudioClient extends Client {
      * A reference to the Domain audio mixer.
      */
     public get Mixer(): Nullable<AudioMixer> {
-        return this.audioMixer;
+        return this._audioMixer;
     }
 
     constructor(domain: Domain) {
         super();
-        this.domain = domain;
+        this._domain = domain;
         this.onStateChange = new SignalEmitter();
-        this.audioMixer = new AudioMixer(domain.ContextId);
+        this._audioMixer = new AudioMixer(domain.ContextId);
         // In 'quasar.conf.js' the worklet files from the SDK are copied into the 'js' directory
-        this.audioMixer.audioWorkletRelativePath = "./js/";
-        this.audioMixer.onStateChanged = (newState: AssignmentClientState): void => {
+        this._audioMixer.audioWorkletRelativePath = "./js/";
+        this._audioMixer.onStateChanged = (newState: AssignmentClientState): void => {
             Log.debug(Log.types.AUDIO, `Domain Audio Client: State changed to ${DomainAudioClient.stateToString(newState)}.`);
-            this.onStateChange.emit(this.domain, this, newState); // Signature: Domain, DomainAudio, AssignmentClientState.
+            this.onStateChange.emit(this._domain, this, newState); // Signature: Domain, DomainAudio, AssignmentClientState.
         };
 
         // eslint-disable-next-line arrow-body-style
-        this.audioMixer.positionGetter = (): vec3 => {
+        this._audioMixer.positionGetter = (): vec3 => {
             return domain.AvatarClient && domain.AvatarClient.MyAvatar ? domain.AvatarClient.MyAvatar.position : Vec3.ZERO;
         };
         // eslint-disable-next-line arrow-body-style
-        this.audioMixer.orientationGetter = (): quat => {
+        this._audioMixer.orientationGetter = (): quat => {
             return domain.AvatarClient && domain.AvatarClient.MyAvatar ? domain.AvatarClient.MyAvatar.orientation : Quat.IDENTITY;
         };
     }
@@ -54,14 +54,14 @@ export class DomainAudioClient extends Client {
      * The state of the underlying assignment client.
      */
     public get clientState(): AssignmentClientState {
-        return this.audioMixer?.state ?? AssignmentClientState.DISCONNECTED;
+        return this._audioMixer?.state ?? AssignmentClientState.DISCONNECTED;
     }
 
     /**
      * A reference to the audio stream coming from the Domain server.
      */
     public get domainAudioStream(): Nullable<MediaStream> {
-        return this.audioMixer?.audioOutput;
+        return this._audioMixer?.audioOutput;
     }
 
     /**
@@ -69,21 +69,21 @@ export class DomainAudioClient extends Client {
      * @returns `true` if the input stream is muted, `false` if unmuted.
      */
     public get mute(): boolean {
-        return this.audioMixer?.inputMuted ?? true;
+        return this._audioMixer?.inputMuted ?? true;
     }
 
     /**
      * Play the audio stream coming from the Domain server.
      */
     public play(): void {
-        void this.audioMixer?.play();
+        void this._audioMixer?.play();
     }
 
     /**
      * Pause the audio stream coming from the Domain server.
      */
     public pause(): void {
-        void this.audioMixer?.pause();
+        void this._audioMixer?.pause();
     }
 
     /**
@@ -93,7 +93,7 @@ export class DomainAudioClient extends Client {
      */
     public static getGainFromPercentage(percentage: number): number {
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        return this.gainParameters.range / 100 * percentage + this.gainParameters.min;
+        return this._gainParameters.range / 100 * percentage + this._gainParameters.min;
     }
 
     /**
@@ -103,6 +103,6 @@ export class DomainAudioClient extends Client {
      */
     public static getPercentageFromGain(gain: number): number {
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        return 100 * (gain - this.gainParameters.min) / this.gainParameters.range;
+        return 100 * (gain - this._gainParameters.min) / this._gainParameters.range;
     }
 }
