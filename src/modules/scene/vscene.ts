@@ -14,7 +14,7 @@
 
 import { ScriptAvatar, Uuid } from "@vircadia/web-sdk";
 import { AnimationGroup, Engine, Scene, Color3, ArcRotateCamera, Camera,
-    Observable, Nullable, AmmoJSPlugin, Quaternion, Vector3, Color4, DefaultRenderingPipeline } from "@babylonjs/core";
+    Observable, Nullable, AmmoJSPlugin, Quaternion, Vector3, Color4 } from "@babylonjs/core";
 import Ammo from "ammojs-typed";
 import "@babylonjs/loaders/glTF";
 import { watch } from "vue";
@@ -527,22 +527,6 @@ export class VScene {
         this._scene.collisionsEnabled = true;
     }
 
-    private _updateRenderPipelineSettings(): void {
-        // Get the dafault rendering pipeline.
-        let defaultPipeline = this._scene.postProcessRenderPipelineManager.supportedPipelines.find((pipeline) => pipeline.name === "default");
-        // If the default pipeline doesn't exist, create it.
-        if (!defaultPipeline) {
-            defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);
-        }
-        // Update the rendering pipeline from the Store.
-        if (defaultPipeline instanceof DefaultRenderingPipeline) {
-            defaultPipeline.bloomEnabled = Boolean(userStore.graphics.bloom);
-            defaultPipeline.fxaaEnabled = Boolean(userStore.graphics.fxaaEnabled);
-            defaultPipeline.samples = Number(userStore.graphics.msaa);
-            defaultPipeline.sharpenEnabled = Boolean(userStore.graphics.sharpen);
-        }
-    }
-
     private _onSceneReady(): void {
         requireScripts(this._scene, this._scene.transformNodes);
 
@@ -558,9 +542,5 @@ export class VScene {
         if (!this._scene.activeCamera) {
             this._scene.createDefaultCamera(true, true, true);
         }
-
-        // Update the rendering pipeline when graphics settings are changed.
-        this._updateRenderPipelineSettings();
-        watch(() => userStore.graphics, this._updateRenderPipelineSettings.bind(this), { deep: true });
     }
 }

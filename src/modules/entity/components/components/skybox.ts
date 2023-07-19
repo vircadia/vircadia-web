@@ -1,6 +1,5 @@
-/* eslint-disable class-methods-use-this */
 //
-//  KeyLigth.ts
+//  skybox.ts
 //
 //  Created by Nolan Huang on 27 Jul 2022.
 //  Copyright 2022 Vircadia contributors.
@@ -10,11 +9,11 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
+/* eslint-disable class-methods-use-this */
 /* eslint-disable new-cap */
 
 import { MeshComponent, DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
-import { Scene, MeshBuilder, StandardMaterial,
-    Texture, CubeTexture, EquiRectangularCubeTexture, BaseTexture } from "@babylonjs/core";
+import { Scene, MeshBuilder, StandardMaterial, Texture, CubeTexture, EquiRectangularCubeTexture, BaseTexture } from "@babylonjs/core";
 import { ISkyboxProperty, IVector3Property } from "../../EntityProperties";
 import { EntityMapper } from "../../package";
 import { AssetUrl } from "../../builders/asset";
@@ -23,10 +22,18 @@ export class SkyboxComponent extends MeshComponent {
     static readonly DefaultSkyBoxSize = 2000;
     static readonly DefaultCubeMapSize = 1024;
 
+    /**
+     * A string identifying the type of this component.
+     * @returns `"Skybox"`
+     */
     public get componentType(): string {
         return SkyboxComponent.typeName;
     }
 
+    /**
+     * A string identifying the type of this component.
+     * @returns `"Skybox"`
+     */
     static get typeName(): string {
         return "Skybox";
     }

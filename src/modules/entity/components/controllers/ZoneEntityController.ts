@@ -12,6 +12,7 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable new-cap */
 
+import { watch } from "vue";
 import { EntityController } from "./EntityController";
 import { IZoneEntity } from "../../EntityInterfaces";
 import { SkyboxComponent, KeyLightComponent, HazeComponent } from "../components";
@@ -24,6 +25,7 @@ import {
 } from "@babylonjs/core";
 import { IVector3Property } from "../../EntityProperties";
 import { EntityMapper } from "../../package";
+import { userStore } from "@Stores/index";
 
 type EnvironmentSettings = {
     environmentTexture?: string | undefined,
@@ -66,15 +68,13 @@ type ZoneExtensions = {
 };
 
 export class ZoneEntityController extends EntityController {
-    // domain properties
-    _zoneEntity: IZoneEntity;
-
-    _skybox: Nullable<SkyboxComponent> = null;
-    _ambientLight: Nullable<AmbientLightComponent> = null;
-    _keyLight: Nullable<KeyLightComponent> = null;
-    _haze: Nullable<HazeComponent> = null;
-
-    _vls: Nullable<VolumetricLightScatteringPostProcess> = null;
+    private _zoneEntity: IZoneEntity;
+    private _skybox: Nullable<SkyboxComponent> = null;
+    private _ambientLight: Nullable<AmbientLightComponent> = null;
+    private _keyLight: Nullable<KeyLightComponent> = null;
+    private _haze: Nullable<HazeComponent> = null;
+    private _vls: Nullable<VolumetricLightScatteringPostProcess> = null;
+    private _watchingGraphicsSettings = false;
 
     constructor(entity: IZoneEntity) {
         super(entity, ZoneEntityController.typeName);
@@ -237,32 +237,45 @@ export class ZoneEntityController extends EntityController {
     }
 
     protected _updateDefaultRenderingPipeline(userData: ZoneExtensions | undefined): void {
-        if (userData && userData.renderingPipeline) {
-            let defaultPipeline = this._scene.postProcessRenderPipelineManager.supportedPipelines
-                .find((value) => value.name === "default") as DefaultRenderingPipeline;
-            if (!defaultPipeline) {
-                defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);
+        if (!userData || !userData.renderingPipeline) {
+            return;
+        }
+        let defaultPipeline = this._scene.postProcessRenderPipelineManager.supportedPipelines
+            .find((value) => value.name === "default") as DefaultRenderingPipeline;
+        if (!defaultPipeline) {
+            defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);
+        }
+
+        const glowLayer = userData.renderingPipeline.glowLayer;
+        if (glowLayer && defaultPipeline.glowLayer) {
+            if (glowLayer.blurKernelSize) {
+                defaultPipeline.glowLayer.blurKernelSize = glowLayer.blurKernelSize;
             }
-
-            if (userData.renderingPipeline.fxaaEnabled !== undefined) {
-                defaultPipeline.fxaaEnabled = userData.renderingPipeline.fxaaEnabled;
-            }
-
-            if (userData.renderingPipeline.glowLayerEnabled !== undefined) {
-                defaultPipeline.glowLayerEnabled = userData.renderingPipeline.glowLayerEnabled;
-            }
-
-            const glowLayer = userData.renderingPipeline.glowLayer;
-            if (glowLayer && defaultPipeline.glowLayer) {
-                if (glowLayer.blurKernelSize) {
-                    defaultPipeline.glowLayer.blurKernelSize = glowLayer.blurKernelSize;
-                }
-
-                if (glowLayer.intensity) {
-                    defaultPipeline.glowLayer.intensity = glowLayer.intensity;
-                }
+            if (glowLayer.intensity) {
+                defaultPipeline.glowLayer.intensity = glowLayer.intensity;
             }
         }
+
+        const updatePipelineSettings = (): void => {
+            const enableBloomAndGlow = userStore.graphics.bloom && (userData?.renderingPipeline?.glowLayerEnabled ?? true);
+            defaultPipeline.bloomEnabled = enableBloomAndGlow;
+            defaultPipeline.fxaaEnabled = userStore.graphics.fxaaEnabled && (userData?.renderingPipeline?.fxaaEnabled ?? true);
+            defaultPipeline.glowLayerEnabled = enableBloomAndGlow;
+            defaultPipeline.samples = Number(userStore.graphics.msaa);
+            defaultPipeline.sharpenEnabled = Boolean(userStore.graphics.sharpen);
+        };
+
+        // Update the rendering pipeline when the user changes their graphics settings.
+        const watchGraphicsSettings = (): void => {
+            // Ensure only one watcher is created.
+            if (!this._watchingGraphicsSettings) {
+                watch(() => userStore.graphics, updatePipelineSettings.bind(this), { deep: true });
+                this._watchingGraphicsSettings = true;
+            }
+        };
+
+        updatePipelineSettings();
+        watchGraphicsSettings();
     }
 
     protected _updateVolumetricLight(userData: ZoneExtensions | undefined): void {
