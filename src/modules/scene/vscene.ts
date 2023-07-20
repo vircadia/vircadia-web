@@ -141,8 +141,10 @@ export class VScene {
         beforeLoading?.();
 
         // create camera
-        this._camera = new ArcRotateCamera("MainCamera", -Math.PI / 2, Math.PI / 2, 6, new Vector3(0, 1, 0), this._scene);
-        this._scene.activeCamera = this._camera;
+        if (!this._camera) {
+            this._camera = new ArcRotateCamera("MainCamera", -Math.PI / 2, Math.PI / 2, 6, new Vector3(0, 1, 0), this._scene);
+            this._scene.activeCamera = this._camera;
+        }
 
         // setup avatar
         await this.loadMyAvatar(avatarModelURL);
