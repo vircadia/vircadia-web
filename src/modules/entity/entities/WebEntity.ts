@@ -75,7 +75,7 @@ export class WebEntity extends Entity implements IWebEntity {
     }
 
     public set alpha(value: number | undefined) {
-        if (undefined !== value && this._alpha !== value) {
+        if (typeof value === "number" && this._alpha !== value) {
             this._alpha = value;
             this._onColorChanged.isDirty = true;
         }
@@ -86,7 +86,7 @@ export class WebEntity extends Entity implements IWebEntity {
     }
 
     public set dpi(value: number | undefined) {
-        if (undefined !== value && this._dpi !== value) {
+        if (typeof value === "number" && this._dpi !== value) {
             this._dpi = value;
             this._onWebPropertiesChanged.isDirty = true;
         }
@@ -108,7 +108,7 @@ export class WebEntity extends Entity implements IWebEntity {
     }
 
     public set maxFPS(value: number | undefined) {
-        if (undefined !== value && this._dpi !== value) {
+        if (typeof value === "number" && this._maxFps !== value) {
             this._maxFps = value;
             this._onWebPropertiesChanged.isDirty = true;
         }
@@ -119,7 +119,7 @@ export class WebEntity extends Entity implements IWebEntity {
     }
 
     public set inputMode(value: WebInputMode | undefined) {
-        if (undefined !== value && this._inputMode !== value) {
+        if (value !== undefined && this._inputMode !== value) {
             this._inputMode = value;
             this._onWebPropertiesChanged.isDirty = true;
         }

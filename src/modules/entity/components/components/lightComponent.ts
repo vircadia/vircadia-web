@@ -77,7 +77,7 @@ export class LightEntityComponent extends LightComponent {
         this._light.diffuse = color;
         this._light.specular = color;
 
-        if (entity.intensity) {
+        if (typeof entity.intensity === "number") {
             this._light.intensity = entity.intensity;
         }
         /*
@@ -85,18 +85,18 @@ export class LightEntityComponent extends LightComponent {
             this._light.range = entity.dimensions.z;
         } */
 
-        if (entity.falloffRadius) {
+        if (typeof entity.falloffRadius === "number") {
             this._light.radius = entity.falloffRadius;
         }
 
         if (entity.isSpotlight) {
             const spotlight = this._light as SpotLight;
 
-            if (entity.exponent) {
+            if (typeof entity.exponent === "number") {
                 spotlight.exponent = entity.exponent;
             }
 
-            if (entity.cutoff) {
+            if (typeof entity.cutoff === "number") {
                 spotlight.angle = EntityMapper.toRadians(entity.cutoff);
             }
         }

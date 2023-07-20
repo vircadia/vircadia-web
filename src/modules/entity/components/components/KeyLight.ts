@@ -38,7 +38,7 @@ export class KeyLightComponent extends GenericNodeComponent<DirectionalLight> {
     public update(props: IKeyLightProperty): void {
         if (this._node) {
             const light = this._node;
-            if (props.intensity) {
+            if (typeof props.intensity === "number") {
                 light.intensity = props.intensity;
             }
             if (props.color) {
@@ -53,11 +53,11 @@ export class KeyLightComponent extends GenericNodeComponent<DirectionalLight> {
                 light.shadowEnabled = props.castShadows;
             }
 
-            if (props.shadowBias) {
+            if (typeof props.shadowBias === "number") {
                 light.shadowMinZ = props.shadowBias;
             }
 
-            if (props.shadowMaxDistance) {
+            if (typeof props.shadowMaxDistance === "number") {
                 light.shadowMaxZ = props.shadowMaxDistance;
             }
         }

@@ -61,7 +61,7 @@ export class ShapeEntity extends Entity implements IShapeEntity {
     }
 
     public set alpha(value: number | undefined) {
-        if (value) {
+        if (typeof value === "number") {
             this._alpha = value;
             this._onColorChanged.isDirty = true;
         }

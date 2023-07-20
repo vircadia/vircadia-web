@@ -219,7 +219,7 @@ export abstract class Entity implements IEntity {
     }
 
     public set collisionMask(value: number | undefined) {
-        if (value && value !== this._collisionMask) {
+        if (typeof value === "number" && value !== this._collisionMask) {
             this._collisionMask = value;
             this._onCollisionPropertiesChanged.isDirty = true;
         }
@@ -263,7 +263,7 @@ export abstract class Entity implements IEntity {
     }
 
     public set damping(value: number | undefined) {
-        if (value && this._damping !== value) {
+        if (typeof value === "number" && this._damping !== value) {
             this._damping = value;
             this._onPhysicsPropertiesChanged.isDirty = true;
         }
@@ -285,7 +285,7 @@ export abstract class Entity implements IEntity {
     }
 
     public set angularDampling(value: number | undefined) {
-        if (value && this._angularDampling !== value) {
+        if (typeof value === "number" && this._angularDampling !== value) {
             this._angularDampling = value;
             this._onPhysicsPropertiesChanged.isDirty = true;
         }
@@ -296,7 +296,7 @@ export abstract class Entity implements IEntity {
     }
 
     public set restitution(value: number | undefined) {
-        if (value && this._restitution !== value) {
+        if (typeof value === "number" && this._restitution !== value) {
             this._restitution = value;
             this._onPhysicsPropertiesChanged.isDirty = true;
         }
@@ -307,7 +307,7 @@ export abstract class Entity implements IEntity {
     }
 
     public set friction(value: number | undefined) {
-        if (value && this._friction !== value) {
+        if (typeof value === "number" && this._friction !== value) {
             this._friction = value;
             this._onPhysicsPropertiesChanged.isDirty = true;
         }
@@ -318,7 +318,7 @@ export abstract class Entity implements IEntity {
     }
 
     public set density(value: number | undefined) {
-        if (value && this._density !== value) {
+        if (typeof value === "number" && this._density !== value) {
             this._density = value;
             this._onPhysicsPropertiesChanged.isDirty = true;
         }

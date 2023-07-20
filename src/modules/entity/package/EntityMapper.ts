@@ -107,7 +107,7 @@ export class EntityMapper {
     }
 
     public static mapToComponentMode(mode: number | undefined): ComponentMode | undefined {
-        if (mode) {
+        if (typeof mode === "number") {
             switch (mode) {
                 case PackageComponentMode.INHERIT:
                     return "inherit";

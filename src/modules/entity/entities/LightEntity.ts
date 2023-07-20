@@ -60,7 +60,7 @@ export class LightEntity extends Entity implements ILightEntity {
     }
 
     public set exponent(value: number | undefined) {
-        if (value && value !== this._exponent) {
+        if (typeof value === "number" && value !== this._exponent) {
             this._exponent = value;
             this._onLightPropertiesChanged.isDirty = true;
         }
@@ -71,7 +71,7 @@ export class LightEntity extends Entity implements ILightEntity {
     }
 
     public set cutoff(value: number | undefined) {
-        if (value && value !== this._cutoff) {
+        if (typeof value === "number" && value !== this._cutoff) {
             this._cutoff = value;
             this._onLightPropertiesChanged.isDirty = true;
         }
@@ -82,7 +82,7 @@ export class LightEntity extends Entity implements ILightEntity {
     }
 
     public set falloffRadius(value: number | undefined) {
-        if (value && value !== this._falloffRadius) {
+        if (typeof value === "number" && value !== this._falloffRadius) {
             this._falloffRadius = value;
             this._onLightPropertiesChanged.isDirty = true;
         }
@@ -93,7 +93,7 @@ export class LightEntity extends Entity implements ILightEntity {
     }
 
     public set intensity(value: number | undefined) {
-        if (value && value !== this._intensity) {
+        if (typeof value === "number" && value !== this._intensity) {
             this._intensity = value;
             this._onLightPropertiesChanged.isDirty = true;
         }

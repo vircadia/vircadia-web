@@ -83,7 +83,7 @@ export class ImageEntity extends Entity implements IImageEntity {
     }
 
     public set alpha(value: number | undefined) {
-        if (value) {
+        if (typeof value === "number") {
             this._alpha = value;
             this._onColorChanged.isDirty = true;
         }

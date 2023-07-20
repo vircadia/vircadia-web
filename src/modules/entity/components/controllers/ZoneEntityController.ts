@@ -248,10 +248,10 @@ export class ZoneEntityController extends EntityController {
 
         const glowLayer = userData.renderingPipeline.glowLayer;
         if (glowLayer && defaultPipeline.glowLayer) {
-            if (glowLayer.blurKernelSize) {
+            if (typeof glowLayer.blurKernelSize === "number") {
                 defaultPipeline.glowLayer.blurKernelSize = glowLayer.blurKernelSize;
             }
-            if (glowLayer.intensity) {
+            if (typeof glowLayer.intensity === "number") {
                 defaultPipeline.glowLayer.intensity = glowLayer.intensity;
             }
         }

@@ -68,8 +68,7 @@ export class MaterialEntity extends Entity implements IMaterialEntity {
     }
 
     public set priority(value: number | undefined) {
-        this._priority = value;
-        if (value && value !== this._priority) {
+        if (typeof value === "number" && value !== this._priority) {
             this._priority = value;
             this._onMaterialPriorityChanged.isDirty = true;
         }
@@ -124,7 +123,7 @@ export class MaterialEntity extends Entity implements IMaterialEntity {
     }
 
     public set materialMappingRot(value: number | undefined) {
-        if (value && value !== this._materialMappingRot) {
+        if (typeof value === "number" && value !== this._materialMappingRot) {
             this._materialMappingRot = value;
             this._onMaterialMappingModeChanged.isDirty = true;
         }
