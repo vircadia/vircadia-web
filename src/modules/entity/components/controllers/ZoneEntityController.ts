@@ -172,7 +172,7 @@ export class ZoneEntityController extends EntityController {
 
             if (this._ambientLight.light) {
                 this._ambientLight.light.setEnabled(true);
-                if (this._zoneEntity.ambientLight.ambientIntensity) {
+                if (typeof this._zoneEntity.ambientLight.ambientIntensity === "number") {
                     this._ambientLight.light.intensity = this._zoneEntity.ambientLight.ambientIntensity;
                 }
             }
