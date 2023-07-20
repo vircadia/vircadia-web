@@ -40,7 +40,7 @@ export class SkyboxComponent extends MeshComponent {
 
     public load(props: ISkyboxProperty, dimensions: IVector3Property | undefined, id: string): void {
         if (this._mesh) {
-            this._mesh.dispose();
+            this._mesh.dispose(false, true);
             this._mesh = null;
         }
 
@@ -83,10 +83,7 @@ export class SkyboxComponent extends MeshComponent {
             material.specularColor = EntityMapper.mapToColor3(props.color);
 
             if (props.url && props.url !== material.reflectionTexture?.name) {
-                if (material.reflectionTexture) {
-                    material.reflectionTexture.dispose();
-                }
-
+                material.reflectionTexture?.dispose();
                 material.reflectionTexture = this._createflectionTexture(props.url, scene);
             }
         }
