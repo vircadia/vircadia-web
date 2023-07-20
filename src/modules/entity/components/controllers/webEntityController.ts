@@ -13,27 +13,25 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
 import { EntityController } from "./EntityController";
-import { IWebEntity, WebExtensions } from "../../EntityInterfaces";
+import { type IWebEntity, WebExtensions } from "../../EntityInterfaces";
 import { MeshComponent, MASK_MESH_RENDER_GROUP_ID } from "@Base/modules/object";
 import { EntityMapper } from "../../package";
-import { MeshBuilder, Mesh, StandardMaterial, Nullable } from "@babylonjs/core";
+import { MeshBuilder, Mesh, StandardMaterial, type Nullable } from "@babylonjs/core";
 import { applicationStore } from "@Stores/index";
 import { CSS3DObject } from "@Modules/scene/css3DRenderer";
 import { Renderer } from "@Modules/scene";
 import { EntityEventType, EntityEvent } from "../../entityEvent";
 
-
 export class WebEntityController extends EntityController {
     // domain properties
-    _webEntity: IWebEntity;
-    _webExtensions: Nullable<WebExtensions> = null;
-    _meshComponent: Nullable<MeshComponent> = null;
+    private _webEntity: IWebEntity;
+    private _webExtensions: Nullable<WebExtensions> = null;
+    private _meshComponent: Nullable<MeshComponent> = null;
 
-    _cssObject: Nullable<CSS3DObject> = null;
-    _iframe: Nullable<HTMLIFrameElement> = null;
+    private _cssObject: Nullable<CSS3DObject> = null;
+    private _iframe: Nullable<HTMLIFrameElement> = null;
     private _externalElement: Nullable<HTMLElement> = null;
-
-    _isJitsi = false;
+    private _isJitsi = false;
 
     constructor(entity: IWebEntity) {
         super(entity, WebEntityController.typeName);
@@ -250,7 +248,7 @@ export class WebEntityController extends EntityController {
     }
 
     protected _createMaskingMaterial(): StandardMaterial {
-        let material = this._scene.getMaterialByName("WebMaskMaterial") as StandardMaterial;
+        let material = this._scene.getMaterialByName("WebMaterial") as StandardMaterial;
         if (!material) {
             material = new StandardMaterial("WebMaterial", this._scene);
             material.backFaceCulling = false;

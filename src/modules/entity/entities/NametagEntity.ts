@@ -173,7 +173,11 @@ export class NametagEntity {
             // If a matching texture doesn't already exist, create a new one.
             if (!backgroundTexture) {
                 // Create the texture.
-                const newBackgroundTexture = new DynamicTexture("NametagBackgroundTexture", { width: tagTextureWidth, height: tagTextureHeight }, scene);
+                const newBackgroundTexture = new DynamicTexture(
+                    `NametagBackgroundTexture-${tagBackgroundColorString}`,
+                    { width: tagTextureWidth, height: tagTextureHeight },
+                    scene
+                );
                 newBackgroundTexture.drawText("", 0, 0, `${font.size}px ${font.name}`, "white", tagBackgroundColorString, true, true);
                 newBackgroundTexture.getAlphaFromRGB = true;
                 // Memoize the texture.
@@ -200,7 +204,7 @@ export class NametagEntity {
             // If a matching material doesn't already exist, create a new one.
             if (!backgroundMaterial) {
                 // Create the material.
-                const newBackgroundMaterial = new StandardMaterial("NametagBackgroundMaterial", scene);
+                const newBackgroundMaterial = new StandardMaterial(`NametagBackgroundMaterial-${tagBackgroundColorString}`, scene);
                 newBackgroundMaterial.diffuseTexture = backgroundTexture;
                 newBackgroundMaterial.specularTexture = backgroundTexture;
                 newBackgroundMaterial.emissiveTexture = backgroundTexture;
