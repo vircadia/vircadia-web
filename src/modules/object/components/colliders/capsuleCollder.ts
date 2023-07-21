@@ -34,6 +34,9 @@ export class CapsuleColliderComponent extends ColliderComponent {
     }
 
     public createCollider(radius?: number, height?: number, position?: Vector3): void {
+        // This needs to be set before assigning the collider, as it determines how the assignment is handled.
+        this._compoundBody = true;
+
         this.collider = MeshBuilder.CreateCapsule(CapsuleColliderComponent.typeName, { radius, height }, this._scene);
 
         if (position) {
@@ -43,8 +46,6 @@ export class CapsuleColliderComponent extends ColliderComponent {
         this.collider.material = this._getMaterial();
         this.collider.isVisible = false;
         this.collider.checkCollisions = false;
-
-        this._compoundBody = true;
     }
 
     protected _createColliderImposter(): void {
