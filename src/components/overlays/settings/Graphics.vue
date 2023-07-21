@@ -28,6 +28,22 @@
                 <q-list class="q-pb-md">
                     <q-item>
                         <q-item-section
+                            title="FPS Counter"
+                        >
+                            FPS Counter
+                        </q-item-section>
+                        <q-item-section class="q-pl-sm">
+                            <q-toggle
+                                name="fpsCounter"
+                                v-model="userStore.graphics.fpsCounter"
+                            />
+                        </q-item-section>
+                        <q-item-section side style="min-width: 5ch;">
+                            <output for="fpsCounter">{{ userStore.graphics.fpsCounter ? `On` : `Off` }}</output>
+                        </q-item-section>
+                    </q-item>
+                    <q-item>
+                        <q-item-section
                             title="Field of View"
                         >
                             Field of View

@@ -10,10 +10,10 @@
 -->
 
 <style lang="scss" scoped>
+.fpsCounter,
 .versionWatermark {
     position: absolute;
     z-index: 101;
-    bottom: 5px;
     right: 14px;
     display: block;
     font-size: 1rem;
@@ -21,6 +21,12 @@
     opacity: 0.7;
     user-select: none;
     pointer-events: none;
+}
+.fpsCounter {
+    bottom: calc(10px + 1rem);
+}
+.versionWatermark {
+    bottom: 5px;
 }
 </style>
 
@@ -45,6 +51,7 @@
         <slot name="manager"></slot>
         <LoadingScreen ref="LoadingScreen" />
         <JitsiContainer ref="JitsiContainer" />
+        <div v-if="userStore.graphics.fpsCounter" class="fpsCounter">{{ applicationStore.renderer.fps.toFixed(0) }} FPS</div>
         <div class="versionWatermark">{{ applicationStore.theme.versionWatermark }}</div>
     </q-page>
 </template>
