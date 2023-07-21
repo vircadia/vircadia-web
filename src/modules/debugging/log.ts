@@ -94,7 +94,7 @@ export default class Log {
 
     /**
      * Print a debug message to the log.
-     * (Ignored if the log level is not set to `DEBUG`).
+     * (Ignored if the log level is not set to `DEBUG`.)
      * @param type
      * @param message
      */
