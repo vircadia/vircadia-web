@@ -449,14 +449,16 @@ export class InputController extends ScriptComponent {
     }
 
     private _attachControl(): void {
-        // TODO: Make this configurable later as a selected input type rather, influenced by mobile by default.
-        if (this._isMobile) {
+        // TODO: Make this configurable as a selected input type, influenced by mobile by default.
+        if (this._isMobile && !(this._input instanceof VirtualJoystickInput)) {
+            this._input?.detachControl();
             this._input = new VirtualJoystickInput(this._avatarState, this._scene);
-        } else {
+            this._input.attachControl();
+        } else if (!(this._input instanceof KeyboardInput)) {
+            this._input?.detachControl();
             this._input = new KeyboardInput(this._avatarState, this._inputState, this._scene);
+            this._input.attachControl();
         }
-
-        this._input.attachControl();
     }
 
     private _detachControl(): void {

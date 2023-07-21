@@ -47,6 +47,7 @@ export class KeyboardInput implements IInputHandler {
     private _keyDownAction: Nullable<IAction> = null;
     private _keyUpAction: Nullable<IAction> = null;
     private _previousMuteInput = applicationStore.audio.user.muted;
+    private _controlsAreAttached = false;
 
     constructor(state: AvatarState, inputState: InputState, scene: Scene) {
         this._state = state;
@@ -60,13 +61,15 @@ export class KeyboardInput implements IInputHandler {
             this._scene.actionManager = new ActionManager(this._scene);
         }
 
-        this._keyDownAction = new ExecuteCodeAction(ActionManager.OnKeyDownTrigger,
-            this._onKeyDown.bind(this));
-        this._scene.actionManager.registerAction(this._keyDownAction);
+        if (!this._controlsAreAttached) {
+            this._keyDownAction = new ExecuteCodeAction(ActionManager.OnKeyDownTrigger, this._onKeyDown.bind(this));
+            this._scene.actionManager.registerAction(this._keyDownAction);
 
-        this._keyUpAction = new ExecuteCodeAction(ActionManager.OnKeyUpTrigger,
-            this._onKeyUp.bind(this));
-        this._scene.actionManager.registerAction(this._keyUpAction);
+            this._keyUpAction = new ExecuteCodeAction(ActionManager.OnKeyUpTrigger, this._onKeyUp.bind(this));
+            this._scene.actionManager.registerAction(this._keyUpAction);
+
+            this._controlsAreAttached = true;
+        }
     }
 
     public detachControl(): void {
