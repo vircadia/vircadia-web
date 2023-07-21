@@ -66,7 +66,7 @@ export default defineComponent({
     data() {
         return {
             room: <JitsiRoomInfo><unknown>undefined,
-            jitisElement: <HTMLElement><unknown>undefined
+            jitsiElement: <HTMLElement><unknown>undefined
         };
     },
 
@@ -81,22 +81,22 @@ export default defineComponent({
         this.room = applicationStore.conference.currentRoom;
         const controller = this.getWebEntityController();
         if (controller && controller.externalElement) {
-            this.jitisElement = controller.externalElement;
+            this.jitsiElement = controller.externalElement;
             controller.externalElement = null;
 
             const container = this.$refs.JitsiContainer as HTMLElement;
-            container.appendChild(this.jitisElement);
+            container.appendChild(this.jitsiElement);
         }
     },
 
     beforeUnmount() {
-        if (this.room && this.jitisElement) {
+        if (this.room && this.jitsiElement) {
             const controller = this.getWebEntityController();
             if (controller) {
-                controller.externalElement = this.jitisElement;
+                controller.externalElement = this.jitsiElement;
             } else {
-                this.jitisElement.remove();
-                this.jitisElement = <HTMLElement><unknown>undefined;
+                this.jitsiElement.remove();
+                this.jitsiElement = <HTMLElement><unknown>undefined;
             }
         }
     }

@@ -19,7 +19,7 @@ export enum AssignmentClientState {
 }
 
 /**
- * Parant class for all AssignmentClients.
+ * Parent class for all AssignmentClients.
  */
 export abstract class Client {
     /**
@@ -41,7 +41,7 @@ export abstract class Client {
 
     /**
      * The state of the underlying client.
-     * Must be implemented by each decendent of this class.
+     * Must be implemented by each descendant of this class.
      */
     public abstract clientState: AssignmentClientState;
 
@@ -58,7 +58,7 @@ export abstract class Client {
      * Return a Promise that is resolved when the underlying client is CONNECTED.
      *
      * This is a kludge that does polling while waiting for the connected state.
-     * A better implmentation would be to save the (resolve,reject) in a list and
+     * A better implementation would be to save the (resolve,reject) in a list and
      * call them when the onStateChanged event happens.
      *
      * @param timeoutMS `(Optional)` The number of milliseconds to wait. Default is `300,000` (5 minutes).
