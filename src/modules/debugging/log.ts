@@ -115,7 +115,7 @@ export default class Log {
 
     /**
      * Print a warning message to the log.
-     * (Ignored if the log level is not set to `WARN`, `DEBUG`, or `ERROR`).
+     * (Ignored if the log level is not set to `WARN`, `DEBUG`, or `ERROR`.)
      * @param type
      * @param message
      */
