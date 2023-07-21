@@ -157,7 +157,7 @@ export class AudioIO {
             ? { audio: { deviceId: { exact: requestedDeviceId } }, video: false }
             : { audio: true, video: false };
 
-        if (applicationStore.audio.user.awaitingCapturePermissions === true) {
+        if (applicationStore.audio.user.awaitingCapturePermissions) {
             Log.debug(Log.types.AUDIO, "AudioIO: An input device request is already pending.");
             return null;
         }

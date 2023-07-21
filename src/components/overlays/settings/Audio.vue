@@ -203,7 +203,7 @@ export default defineComponent({
         toggleInputFeedback(): void {
             this.isListeningToFeedback = !this.isListeningToFeedback;
 
-            if (this.isListeningToFeedback === true) {
+            if (this.isListeningToFeedback) {
                 (this.$refs.audioInputFeedbackPlayer as HTMLAudioElement).muted = false;
                 void (this.$refs.audioInputFeedbackPlayer as HTMLAudioElement).play();
             } else {

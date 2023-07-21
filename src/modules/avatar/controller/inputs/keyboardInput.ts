@@ -136,7 +136,7 @@ export class KeyboardInput implements IInputHandler {
         }
 
         this._inputMap[sourceEvent.code] = sourceEvent.type === "keydown";
-        this._shiftKey = sourceEvent.shiftKey === true;
+        this._shiftKey = sourceEvent.shiftKey;
 
         if (sourceEvent.code === "Tab") {
             this._inputState.inputMode = this._inputState.inputMode === InputMode.Interactive
@@ -155,7 +155,7 @@ export class KeyboardInput implements IInputHandler {
         }
 
         // Push-to-talk.
-        if (sourceEvent.code === userStore.controls.keyboard.audio.pushToTalk?.keycode && applicationStore.audio.user.muted === true) {
+        if (sourceEvent.code === userStore.controls.keyboard.audio.pushToTalk?.keycode && applicationStore.audio.user.muted) {
             this._previousMuteInput = applicationStore.audio.user.muted;
             AudioMgr.muteAudio(false);
         }
@@ -273,7 +273,7 @@ export class KeyboardInput implements IInputHandler {
             return;
         }
         this._inputMap[sourceEvent.code] = sourceEvent.type === "keydown";
-        this._shiftKey = sourceEvent.shiftKey === true;
+        this._shiftKey = sourceEvent.shiftKey;
 
         if (sourceEvent.code === userStore.controls.keyboard.camera.firstPerson?.keycode) {
             this._inputState.cameraMode = CameraMode.FirstPersion;

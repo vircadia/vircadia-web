@@ -125,7 +125,7 @@ export default defineComponent({
                 return;
             }
 
-            if (registerSuccessful.accountAwaitingVerification === true) {
+            if (registerSuccessful.accountAwaitingVerification) {
                 this.$q.notify({
                     type: "info",
                     textColor: "white",
