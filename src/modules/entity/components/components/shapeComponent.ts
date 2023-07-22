@@ -9,18 +9,17 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
+/* eslint-disable class-methods-use-this */
+/* eslint-disable new-cap */
 
 import { MeshComponent, DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { StandardMaterial, Mesh, MeshBuilder, PhysicsImpostor } from "@babylonjs/core";
 import { IShapeEntity } from "../../EntityInterfaces";
 import { EntityMapper } from "../../package";
 
-/* eslint-disable class-methods-use-this */
-/* eslint-disable new-cap */
-
 export class ShapeComponent extends MeshComponent {
 
-    public get componentType():string {
+    public get componentType(): string {
         return ShapeComponent.typeName;
     }
 
@@ -28,7 +27,7 @@ export class ShapeComponent extends MeshComponent {
         return "Shape";
     }
 
-    public load(entity: IShapeEntity) : void {
+    public load(entity: IShapeEntity): void {
         this.updateShape(entity);
     }
 
@@ -76,13 +75,13 @@ export class ShapeComponent extends MeshComponent {
         material.alpha = entity.alpha ?? material.alpha;
     }
 
-    public updateDimensions(entity: IShapeEntity) : void {
+    public updateDimensions(entity: IShapeEntity): void {
         if (entity.dimensions && this._mesh) {
             this._mesh.scaling = EntityMapper.mapToVector3(entity.dimensions);
         }
     }
 
-    public updateCollisionProperties(entity: IShapeEntity):void {
+    public updateCollisionProperties(entity: IShapeEntity): void {
         if (this._gameObject && this._mesh) {
             if (entity.collisionless) {
                 this._disposeCollider();
@@ -96,7 +95,7 @@ export class ShapeComponent extends MeshComponent {
         }
     }
 
-    protected _createCollider(props: IShapeEntity) : void {
+    protected _createCollider(props: IShapeEntity): void {
         if (!this._gameObject || !this._mesh) {
             return;
         }
@@ -116,7 +115,7 @@ export class ShapeComponent extends MeshComponent {
         }
     }
 
-    protected _disposeCollider() : void {
+    protected _disposeCollider(): void {
         if (this._mesh && this._mesh.physicsImpostor) {
             this._mesh.physicsImpostor.dispose();
             this._mesh.physicsImpostor = null;
@@ -128,7 +127,7 @@ export class ShapeComponent extends MeshComponent {
         }
     }
 
-    private _createShape(props: IShapeEntity) : Mesh | undefined {
+    private _createShape(props: IShapeEntity): Mesh | undefined {
         const scene = this._gameObject?.getScene();
         switch (props.shape) {
             case "Cube":

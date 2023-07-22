@@ -19,14 +19,14 @@ import Log from "@Modules/debugging/log";
 type EntityFactory = (id:string) => Entity;
 
 export class EntityManager {
-    _entityServer : EntityServer;
-    _entities : Map<string, Entity>;
-    _onEntityAdded : Observable<IEntity>;
-    _onEntityRemoved : Observable<IEntity>;
+    _entityServer: EntityServer;
+    _entities: Map<string, Entity>;
+    _onEntityAdded: Observable<IEntity>;
+    _onEntityRemoved: Observable<IEntity>;
     _entityPropertiesArray = new Array<EntityProperties>();
     _entityFactories = new Map<PackageEntityType, EntityFactory>();
 
-    constructor(entityServer : EntityServer) {
+    constructor(entityServer: EntityServer) {
         this._entityServer = entityServer;
         this._entityServer.entityData.connect(this._handleOnEntityData.bind(this));
 
@@ -47,23 +47,23 @@ export class EntityManager {
         this._entityFactories.set(PackageEntityType.Web, (id) => new WebEntity(id));
     }
 
-    public get onEntityAdded() : Observable<IEntity> {
+    public get onEntityAdded(): Observable<IEntity> {
         return this._onEntityAdded;
     }
 
-    public get onEntityRemoved() : Observable<IEntity> {
+    public get onEntityRemoved(): Observable<IEntity> {
         return this._onEntityRemoved;
     }
 
-    public hasEntity(id : string) : boolean {
+    public hasEntity(id: string): boolean {
         return this._entities.has(id);
     }
 
-    public getEntity(id : string) : IEntity | undefined {
+    public getEntity(id: string): IEntity | undefined {
         return this._entities.get(id);
     }
 
-    public removeEntity(id : string) : boolean {
+    public removeEntity(id: string): boolean {
         const entity = this._entities.get(id);
         if (entity) {
             this._entities.delete(id);
@@ -73,14 +73,14 @@ export class EntityManager {
         return false;
     }
 
-    public clear() : void {
+    public clear(): void {
         this.clear();
     }
 
-    public createEntity(props : EntityProperties) : IEntity | undefined {
+    public createEntity(props: EntityProperties): IEntity | undefined {
         const factory = this._entityFactories.get(props.entityType);
         if (!factory) {
-            Log.warn(Log.types.ENTITIES, `unknow entity type ${props.entityType}`);
+            Log.warn(Log.types.ENTITIES, `Unknown entity type: ${props.entityType}`);
             return undefined;
         }
         const entity = factory(props.entityItemID.stringify());
@@ -93,14 +93,14 @@ export class EntityManager {
         return entity;
     }
 
-    public updateEntity(props : EntityProperties) : void {
+    public updateEntity(props: EntityProperties): void {
         const entity = this._entities.get(props.entityItemID.stringify());
         if (entity) {
             entity.copyFormPacketData(props);
         }
     }
 
-    public update() : void {
+    public update(): void {
         // NOTE:
         // update exist entities to prevent the add and change event notified in the same frame
         this._entities.forEach((entity) => {
@@ -120,7 +120,7 @@ export class EntityManager {
         }
     }
 
-    private _handleOnEntityData(data : EntityProperties[]): void {
+    private _handleOnEntityData(data: EntityProperties[]): void {
         if (data.length > 0) {
             console.log(Log.types.ENTITIES,
                 `Receive entity data:`, data);
@@ -129,7 +129,7 @@ export class EntityManager {
         }
     }
 
-    private _addEntity(entity : Entity) : void {
+    private _addEntity(entity: Entity): void {
         if (this._entities.get(entity.id)) {
             throw new Error(`Entity ${entity.id} already exists.`);
         }
@@ -137,5 +137,4 @@ export class EntityManager {
         this._entities.set(entity.id, entity);
         this._onEntityAdded.notifyObservers(entity);
     }
-
 }

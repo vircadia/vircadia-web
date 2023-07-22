@@ -108,14 +108,14 @@
 import { defineComponent, watch } from "vue";
 import DOMPurify from "dompurify";
 import { applicationStore, userStore } from "@Stores/index";
-import { AMessage, DomainMessage, DefaultChatMessage } from "@Modules/domain/message";
-import { DomainMgr } from "@Modules/domain";
+import { ChatMessage, DomainMessageClient, DomainChatMessage } from "@Modules/domain/message";
+import { DomainManager } from "@Modules/domain";
 import { Uuid } from "@vircadia/web-sdk";
 import OverlayShell from "../OverlayShell.vue";
 
 // Interface for Quasar-compatible messages that have had their text fields combined.
 interface ACombinedMessage {
-    root: AMessage,
+    root: ChatMessage,
     text: string[],
     time: Date
 }
@@ -192,18 +192,18 @@ export default defineComponent({
         /*
         // When the message input changes, send the message
         messageInput: function(val: string): void {
-            if (DomainMgr.ActiveDomain) {
-                const msger = DomainMgr.ActiveDomain.MessageClient;
+            if (DomainManager.ActiveDomain) {
+                const msger = DomainManager.ActiveDomain.MessageClient;
                 if (msger) {
-                    const msg: DefaultChatMessage = {
+                    const msg: DomainChatMessage = {
                         type: "TransmitChatMessage",
-                        channel: DomainMessage.DefaultChatChannel,
+                        channel: DomainMessageClient.DefaultChatChannel,
                         message: val,
                         colour: { red: 255, blue: 255, green: 255 },
                         displayName: this.userStore.avatar.displayName,
                         position: this.userStore.avatar.position
                     };
-                    msger.sendMessage(DomainMessage.DefaultChatChannel, JSON.stringify(msg));
+                    msger.sendMessage(DomainMessageClient.DefaultChatChannel, JSON.stringify(msg));
                 }
             }
         }
@@ -211,7 +211,7 @@ export default defineComponent({
     },
 
     methods: {
-        sortMessages(messages: AMessage[]): ACombinedMessage[] {
+        sortMessages(messages: ChatMessage[]): ACombinedMessage[] {
             const liveMessages = messages;
             // Skip sorting if there are no messages.
             if (liveMessages.length <= 0) {
@@ -271,17 +271,17 @@ export default defineComponent({
             return undefined;
         },
         // Return the sender Id included in the message. Returns the ID string if no displayname
-        msgSender(pMsg: AMessage): string {
+        msgSender(pMsg: ChatMessage): string {
             if (pMsg.messageJSON) {
-                const fMsg = <DefaultChatMessage>pMsg.messageJSON;
+                const fMsg = <DomainChatMessage>pMsg.messageJSON;
                 return fMsg.displayName;
             }
             return pMsg.senderId.stringify();
         },
         // Return the text of a messsage. If DefaultMessage, use the text in the JSON packet.
-        msgText(message: AMessage): string {
+        msgText(message: ChatMessage): string {
             if (message.messageJSON) {
-                const dMsg = message.messageJSON as DefaultChatMessage;
+                const dMsg = message.messageJSON as DomainChatMessage;
                 if ("message" in dMsg) {
                     return dMsg.message;
                 }
@@ -314,12 +314,12 @@ export default defineComponent({
         },
         // Return 'true' if the chat message was sent by this session
         // Relies of the message queuer to add the "self: true" to the added message
-        msgSentBySelf(pMsg: AMessage): boolean {
+        msgSentBySelf(pMsg: ChatMessage): boolean {
             return pMsg.self ?? false;
         },
         msgIsFromThisClient(senderId: Uuid | string): boolean {
-            if (DomainMgr.ActiveDomain) {
-                const ID = DomainMgr.ActiveDomain.DomainClient?.sessionUUID;
+            if (DomainManager.ActiveDomain) {
+                const ID = DomainManager.ActiveDomain.DomainClient?.sessionUUID;
                 if (
                     senderId instanceof Uuid && ID?.value() === senderId?.value()
                     || typeof senderId === "string" && ID?.value().toString() === senderId
@@ -333,10 +333,10 @@ export default defineComponent({
             return this.messageInput.length > 0;
         },
         submitMessage(): void {
-            if (DomainMgr.ActiveDomain) {
-                const msger = DomainMgr.ActiveDomain.MessageClient;
+            if (DomainManager.ActiveDomain) {
+                const msger = DomainManager.ActiveDomain.MessageClient;
                 if (msger && this.validateMessage()) {
-                    const msg: DefaultChatMessage = {
+                    const msg: DomainChatMessage = {
                         type: "TransmitChatMessage",
                         channel: "Local",
                         message: this.sanitizeMessageText(this.messageInput),
@@ -344,7 +344,7 @@ export default defineComponent({
                         displayName: this.userStore.avatar.displayName,
                         position: this.userStore.avatar.position
                     };
-                    msger.sendMessage(DomainMessage.DefaultChatChannel, JSON.stringify(msg));
+                    msger.sendMessage(DomainMessageClient.DefaultChatChannel, JSON.stringify(msg));
                     // Clear the input field.
                     this.messageInput = "";
                     // Scroll to the bottom of the chat.
@@ -385,7 +385,7 @@ export default defineComponent({
             });
             this.scrollIsAtBottom = true;
         },
-        relatedToPrimaryMessageEntry(pMsg: AMessage, index: number): boolean {
+        relatedToPrimaryMessageEntry(pMsg: ChatMessage, index: number): boolean {
             const lastPrimaryMessage = this.applicationStore.messages.messages[this.lastPrimaryMessageIndex];
 
             if (!lastPrimaryMessage) {

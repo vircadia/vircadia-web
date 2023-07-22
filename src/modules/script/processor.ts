@@ -16,7 +16,7 @@ import { requireDecoratorInspectorPropertyDescs } from "./decorators";
 import Log from "@Modules/debugging/log";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function getInspectableTypeOf(obj: any, propertyName:string) : InspectableType {
+function getInspectableTypeOf(obj: any, propertyName: string): InspectableType {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const property = obj[propertyName];
     const type = typeof property;
@@ -40,7 +40,7 @@ function getInspectableTypeOf(obj: any, propertyName:string) : InspectableType {
 }
 
 
-function preprocress(script : ScriptComponent):void {
+function preprocress(script: ScriptComponent): void {
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     let prototype = Object.getPrototypeOf(script);
     // recursively add custom properties to node.inspectableCustomProperties
@@ -71,9 +71,9 @@ function preprocress(script : ScriptComponent):void {
 }
 
 /**
- * Requires the nedded script and attach to scene.
+ * Requires the needed script and attach to scene.
  */
-export function requireScript(scene: Scene, script : ScriptComponent):void {
+export function requireScript(scene: Scene, script: ScriptComponent): void {
     const gameObjName = script.gameObject ? script.gameObject.name : "";
     Log.debug(Log.types.OTHER, `attach script ${script.name} to ${gameObjName} `);
 
@@ -104,7 +104,7 @@ export function requireScript(scene: Scene, script : ScriptComponent):void {
 }
 
 /**
- * Requires the nedded scripts for the given nodes array and attach them.
+ * Requires the needed scripts for the given nodes array and attach them.
  * @param scene defines the reference to the scene that contains the given nodes.
  * @param nodes the array of nodes to attach script (if exists).
  */
@@ -119,7 +119,7 @@ export function requireScripts(scene: Scene, nodes: Node[]): void {
 /**
  * Attach the imported script to a new scene.
  */
-export function reattachScript(scene: Scene, script : ScriptComponent):void {
+export function reattachScript(scene: Scene, script: ScriptComponent): void {
     // update
     const updateObserver = scene.onBeforeRenderObservable.add(() => {
         if (script.isEnabled()) {

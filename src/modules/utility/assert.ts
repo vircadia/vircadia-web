@@ -9,19 +9,19 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/*@devdoc
- *  Reports and throws an error if an assertion is <code>false</code>. Information on the error is reported to the console along
- *  with a call stack.
- *  @function assert
- *  @param {boolean} assertion - The assertion value.
- *  @param {...any} info - Information to report to the console if the assertion is <code>false</code>.
+import Log from "@Modules/debugging/log";
+
+/**
+ * Reports and throws an error if an assertion is falsey.
+ * Information on the error is reported to the console along with a call stack.
+ * @param assertion The assertion value.
+ * @param info Information to report to the console if the assertion is falsey.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function assert(assertion: boolean, ...info: any[]): asserts assertion {
-    // console.assert(assertion, ...info);
+export default function assert(assertion: boolean, ...info: any[]): asserts assertion {
     if (!assertion) {
-        throw new Error(["Assertion failed!", ...info as [string]].join(" "));
+        const message = ["Assertion failed!", ...info as [string]].join(" ");
+        Log.error(Log.types.OTHER, message);
+        throw new Error(message);
     }
 }
-
-export default assert;

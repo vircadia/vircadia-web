@@ -17,11 +17,11 @@ export enum EntityEventType {
 }
 
 export class EntityEvent {
-    type : EntityEventType;
-    entity : IEntity;
-    data : unknown;
+    type: EntityEventType;
+    entity: IEntity;
+    data: unknown;
 
-    constructor(type : EntityEventType, entity : IEntity, data : unknown = undefined) {
+    constructor(type: EntityEventType, entity: IEntity, data: unknown = undefined) {
         this.type = type;
         this.entity = entity;
         this.data = data;

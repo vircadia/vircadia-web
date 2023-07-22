@@ -31,44 +31,44 @@ import { HazeProperties, BloomProperties, AmbientLightProperties } from "@vircad
 
 export class EntityMapper {
 
-    public static mapToVector3(vec? : IVector3Property) : Vector3 {
+    public static mapToVector3(vec?: IVector3Property): Vector3 {
         return vec ? new Vector3(vec.x, vec.y, vec.z) : Vector3.Zero();
     }
 
-    public static mapToScale(vec? : IVector3Property) : Vector3 {
+    public static mapToScale(vec?: IVector3Property): Vector3 {
         return vec ? new Vector3(vec.x, vec.y, vec.z) : Vector3.One();
     }
 
-    public static mapToQuaternion(q? : IQuaternionProperty) : Quaternion {
+    public static mapToQuaternion(q?: IQuaternionProperty): Quaternion {
         return q ? new Quaternion(q.x, q.y, q.z, q.w) : Quaternion.Identity();
     }
 
-    public static mapToColor3(c?: IColorProperty) : Color3 {
+    public static mapToColor3(c?: IColorProperty): Color3 {
         return c ? new Color3(c.red / 255, c.green / 255, c.blue / 255) : Color3.White();
     }
 
-    public static getEntityName(props: IEntity) : string {
+    public static getEntityName(props: IEntity): string {
         return props.name ?? props.type + "_" + props.id;
     }
 
-    public static toRadians(degree:number) : number {
+    public static toRadians(degree: number): number {
         return degree * Math.PI / 180;
     }
 
-    public static toDegree(radians:number) : number {
+    public static toDegree(radians: number): number {
         return radians * 180 / Math.PI;
     }
 
-    public static mapToVector3Property(vec : IVector3Property) : IVector3Property {
+    public static mapToVector3Property(vec: IVector3Property): IVector3Property {
         return { x: vec.x, y: vec.y, z: vec.z };
     }
 
-    public static mapToQuaternionProperty(quaternion ?: Quaternion) : IQuaternionProperty {
+    public static mapToQuaternionProperty(quaternion?: Quaternion): IQuaternionProperty {
         const q = quaternion ?? Quaternion.Identity();
         return { x: q.x, y: q.y, z: q.z, w: q.w };
     }
 
-    public static mapToHazeProperty(props: HazeProperties | undefined) : IHazeProperty | undefined {
+    public static mapToHazeProperty(props: HazeProperties | undefined): IHazeProperty | undefined {
         return props
             ? {
                 hazeRange: props.range,
@@ -87,7 +87,7 @@ export class EntityMapper {
             : undefined;
     }
 
-    public static mapToBloomProperty(props: BloomProperties | undefined) : IBloomProperty | undefined {
+    public static mapToBloomProperty(props: BloomProperties | undefined): IBloomProperty | undefined {
         return props
             ? {
                 bloomIntensity: props.intensity,
@@ -97,7 +97,7 @@ export class EntityMapper {
             : undefined;
     }
 
-    public static mapToAmbientLightProperty(props: AmbientLightProperties | undefined) : IAmbientLightProperty | undefined {
+    public static mapToAmbientLightProperty(props: AmbientLightProperties | undefined): IAmbientLightProperty | undefined {
         return props
             ? {
                 ambientIntensity: props.intensity,
@@ -106,8 +106,8 @@ export class EntityMapper {
             : undefined;
     }
 
-    public static mapToComponentMode(mode : number | undefined) : ComponentMode | undefined {
-        if (mode) {
+    public static mapToComponentMode(mode: number | undefined): ComponentMode | undefined {
+        if (typeof mode === "number") {
             switch (mode) {
                 case PackageComponentMode.INHERIT:
                     return "inherit";
@@ -121,7 +121,7 @@ export class EntityMapper {
     }
 
 
-    public static mapToShapeType(shape: number | undefined) : ShapeType {
+    public static mapToShapeType(shape: number | undefined): ShapeType {
         switch (shape) {
             case PackageShapeType.BOX:
                 return "box";
@@ -162,11 +162,11 @@ export class EntityMapper {
         }
     }
 
-    public static mapToMaterialMappingMode(mode: number | undefined) : MaterialMappingMode {
+    public static mapToMaterialMappingMode(mode: number | undefined): MaterialMappingMode {
         return mode === PackageMaterialMappingMode.PROJECTED ? "projected" : "uv";
     }
 
-    public static mapToEntityBillboardMode(mode: number | undefined) : BillboardMode {
+    public static mapToEntityBillboardMode(mode: number | undefined): BillboardMode {
         switch (mode) {
             case 0:
                 return "none";
@@ -179,7 +179,7 @@ export class EntityMapper {
         }
     }
 
-    public static mapToMeshBillboardMode(mode: string) : number {
+    public static mapToMeshBillboardMode(mode: string): number {
         switch (mode) {
             case "none":
                 return 0;
@@ -191,5 +191,4 @@ export class EntityMapper {
                 return 0;
         }
     }
-
 }

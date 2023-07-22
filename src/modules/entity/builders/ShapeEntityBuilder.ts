@@ -17,7 +17,7 @@ import { ShapeEntityController } from "../components";
 
 export class ShapeEntityBuilder extends AbstractEntityBuilder {
     // eslint-disable-next-line class-methods-use-this
-    public build(gameObject:GameObject, entity: IEntity) : void {
+    public build(gameObject: GameObject, entity: IEntity): void {
         gameObject.addComponent(new ShapeEntityController(entity as IShapeEntity));
     }
 }

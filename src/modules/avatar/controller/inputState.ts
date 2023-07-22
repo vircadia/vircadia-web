@@ -9,16 +9,11 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable @typescript-eslint/no-magic-numbers */
-/* eslint-disable new-cap */
-
-import {
-    Observable
-} from "@babylonjs/core";
+import { Observable } from "@babylonjs/core";
 
 export enum CameraMode {
-    FirstPersion,
-    ThirdPersion
+    FirstPerson,
+    ThirdPerson
 }
 
 export enum InputMode {
@@ -27,7 +22,7 @@ export enum InputMode {
 }
 
 export interface IInputStateProperty {
-    update() : void;
+    update(): void;
 }
 
 export class InputStateProperty<T> implements IInputStateProperty {
@@ -36,7 +31,7 @@ export class InputStateProperty<T> implements IInputStateProperty {
 
     private _observable: Observable<T> = new Observable<T>();
 
-    constructor(value : T) {
+    constructor(value: T) {
         this._value = value;
     }
 
@@ -55,7 +50,7 @@ export class InputStateProperty<T> implements IInputStateProperty {
         return this._observable;
     }
 
-    public update() : void {
+    public update(): void {
         if (this._isDirty) {
             this._observable.notifyObservers(this._value);
             this._isDirty = false;
@@ -66,7 +61,7 @@ export class InputStateProperty<T> implements IInputStateProperty {
 
 export class InputState {
     private _cameraCheckCollisions = new InputStateProperty(true);
-    private _cameraMode = new InputStateProperty(CameraMode.ThirdPersion);
+    private _cameraMode = new InputStateProperty(CameraMode.ThirdPerson);
     private _cameraElastic = new InputStateProperty(true);
     private _inputMode = new InputStateProperty(InputMode.Interactive);
     private _properties = new Array<IInputStateProperty>();
@@ -86,7 +81,7 @@ export class InputState {
         this._cameraCheckCollisions.value = value;
     }
 
-    public get onCameraCheckCollisionChangedObservable() : Observable<boolean> {
+    public get onCameraCheckCollisionChangedObservable(): Observable<boolean> {
         return this._cameraCheckCollisions.observable;
     }
 
@@ -98,7 +93,7 @@ export class InputState {
         this._cameraMode.value = value;
     }
 
-    public get onCameraModeChangedObservable() : Observable<CameraMode> {
+    public get onCameraModeChangedObservable(): Observable<CameraMode> {
         return this._cameraMode.observable;
     }
 
@@ -110,7 +105,7 @@ export class InputState {
         this._cameraElastic.value = value;
     }
 
-    public get onCameraElasticChangedObservable() : Observable<boolean> {
+    public get onCameraElasticChangedObservable(): Observable<boolean> {
         return this._cameraElastic.observable;
     }
 
@@ -122,11 +117,11 @@ export class InputState {
         this._inputMode.value = value;
     }
 
-    public get onInputModeChangedObservable() : Observable<InputMode> {
+    public get onInputModeChangedObservable(): Observable<InputMode> {
         return this._inputMode.observable;
     }
 
-    public update() : void {
+    public update(): void {
         this._properties.forEach((prop) => {
             prop.update();
         });

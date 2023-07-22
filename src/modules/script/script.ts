@@ -25,7 +25,6 @@ import {
 import Log from "@Modules/debugging/log";
 
 /* eslint-disable class-methods-use-this */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-empty-function */
 
 /**
@@ -34,11 +33,11 @@ import Log from "@Modules/debugging/log";
 export abstract class ScriptComponent extends TransformNode implements IComponent {
     protected _gameObject: Nullable<GameObject> = null;
     protected _triggerTarget: Nullable<AbstractMesh> = null;
-    protected _triggerOnEnterAction : Nullable<IAction> = null;
-    protected _triggerOnExitAction : Nullable<IAction> = null;
-    protected _onComponentAddedObsever : Nullable<Observer<IComponent>> = null;
+    protected _triggerOnEnterAction: Nullable<IAction> = null;
+    protected _triggerOnExitAction: Nullable<IAction> = null;
+    protected _onComponentAddedObserver: Nullable<Observer<IComponent>> = null;
 
-    public attach(gameObject:GameObject):void {
+    public attach(gameObject: GameObject): void {
         this._gameObject = gameObject;
         this.parent = gameObject;
 
@@ -47,7 +46,7 @@ export abstract class ScriptComponent extends TransformNode implements IComponen
         }
     }
 
-    public detatch():void {
+    public detach():void {
         this.parent = null;
         this._gameObject = null;
     }
@@ -66,7 +65,7 @@ export abstract class ScriptComponent extends TransformNode implements IComponen
         }
     }
 
-    public get triggerTarget() : Nullable<AbstractMesh> {
+    public get triggerTarget(): Nullable<AbstractMesh> {
         return this._triggerTarget;
     }
 
@@ -76,7 +75,7 @@ export abstract class ScriptComponent extends TransformNode implements IComponen
     * @returns "Script" string
     */
     @inspectorAccessor()
-    public get componentType():string {
+    public get componentType(): string {
         return "Script";
     }
 
@@ -110,17 +109,17 @@ export abstract class ScriptComponent extends TransformNode implements IComponen
     }
 
     /**
-     * When the GameObject collides with targe GameObject.
+     * When the GameObject collides with a target GameObject.
      */
-    public onTriggerEnter() : void {
+    public onTriggerEnter(): void {
 
     }
 
-    public onTriggerExit() : void {
+    public onTriggerExit(): void {
 
     }
 
-    protected _registerTriggerEvents() : void {
+    protected _registerTriggerEvents(): void {
         if (!this._gameObject || !this._triggerTarget) {
             return;
         }
@@ -132,9 +131,9 @@ export abstract class ScriptComponent extends TransformNode implements IComponen
             }
         }
 
-        // handle the condition of mesh componet rebuilt
-        if (!this._onComponentAddedObsever) {
-            this._onComponentAddedObsever = this._gameObject.onComponentAddedObservable.add((component) => {
+        // handle the condition of mesh component rebuilt
+        if (!this._onComponentAddedObserver) {
+            this._onComponentAddedObserver = this._gameObject.onComponentAddedObservable.add((component) => {
                 if (component instanceof MeshComponent) {
                     this._doRegisterTriggerEvents(component);
                 }
@@ -142,7 +141,7 @@ export abstract class ScriptComponent extends TransformNode implements IComponen
         }
     }
 
-    private _doRegisterTriggerEvents(component : MeshComponent) : void {
+    private _doRegisterTriggerEvents(component: MeshComponent): void {
         if (component.mesh) {
             this._doRegisterTriggerEventsWithMesh(component.mesh);
         }
@@ -154,7 +153,7 @@ export abstract class ScriptComponent extends TransformNode implements IComponen
         });
     }
 
-    private _doRegisterTriggerEventsWithMesh(mesh : AbstractMesh) : void {
+    private _doRegisterTriggerEventsWithMesh(mesh: AbstractMesh): void {
         if (!this._gameObject || !this._triggerTarget) {
             return;
         }

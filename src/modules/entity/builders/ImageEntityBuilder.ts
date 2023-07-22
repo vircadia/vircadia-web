@@ -16,7 +16,7 @@ import { ImageEntityController } from "../components";
 
 export class ImageEntityBuilder extends AbstractEntityBuilder {
     // eslint-disable-next-line class-methods-use-this
-    public build(gameObject: GameObject, entity: IEntity) : void {
+    public build(gameObject: GameObject, entity: IEntity): void {
         gameObject.addComponent(new ImageEntityController(entity as IImageEntity));
     }
 }

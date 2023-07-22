@@ -107,8 +107,8 @@ export class AvatarState {
     public action: Action = Action.Idle;
 
     public jumpSubstate = JumpSubState.None;
-    public jumpImpluse = 5;
-    public canImpluse = true;
+    public jumpImpulse = 5;
+    public canImpulse = true;
     public landingDuration = 0;
     public jumpInPlace = false;
     public previousPosY = 0;

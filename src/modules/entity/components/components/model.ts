@@ -131,17 +131,15 @@ export class ModelComponent extends MeshComponent {
                 this.updateCollisionProperties(entity);
                 this.updatePhysicsProperties(entity);
             })
-            .catch((err) => {
-                const error = err as Error;
-                Log.error(Log.types.ENTITIES, `${error.message}`);
-
+            .catch((error) => {
+                Log.error(Log.types.ENTITIES, `${(error as Error).message}`);
             });
     }
 
     public updateAnimationProperties(entity: IModelEntity): void {
-        if (this._animationGroups && this._animationGroups.length > 0) {
-            const anim = this._animationGroups[0];
-            // stop all defaul animations
+        if (this.animationGroups && this.animationGroups.length > 0) {
+            const anim = this.animationGroups[0];
+            // Stop all default animations.
             anim.stop();
 
             if (entity.animation && entity.animation.running) {
@@ -177,7 +175,7 @@ export class ModelComponent extends MeshComponent {
         }
     }
 
-    protected _getMass(entity: IModelEntity) : number {
+    protected _getMass(entity: IModelEntity): number {
         if (entity.dynamic && entity.dimensions && entity.density) {
             return entity.density * entity.dimensions.x * entity.dimensions.y * entity.dimensions.z;
         }

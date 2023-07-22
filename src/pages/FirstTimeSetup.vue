@@ -343,8 +343,8 @@
                                         :label="input.label"
                                         :val="input.label"
                                         color="primary"
-                                        v-model="AudioIOInstance.selectedInput"
-                                        @click="AudioIOInstance.requestInputAccess(input.deviceId)"
+                                        v-model="AudioIO.selectedInput"
+                                        @click="AudioIO.requestInputAccess(input.deviceId)"
                                     />
                                 </div>
                             </q-list>
@@ -364,8 +364,8 @@
                                         :label="output.label"
                                         :val="output.label"
                                         color="primary"
-                                        v-model="AudioIOInstance.selectedOutput"
-                                        @click="AudioIOInstance.requestOutputAccess(output.deviceId)"
+                                        v-model="AudioIO.selectedOutput"
+                                        @click="AudioIO.requestOutputAccess(output.deviceId)"
                                     />
                                 </div>
                             </q-list>
@@ -398,7 +398,7 @@
                         <q-scroll-area style="height: 12rem;">
                             <q-list v-if="placesList.length > 0">
                                 <q-item
-                                    v-for="place in filteredAndSortedPlaces"
+                                    v-for="place in sortedPlaces"
                                     :key="place.placeId"
                                     clickable
                                     v-ripple
@@ -485,6 +485,7 @@
 
 <script lang="ts" setup>
 import { applicationStore, userStore } from "@Stores/index";
+import { AudioIO } from "@Modules/ui/audioIO";
 import type { QStepper } from "quasar";
 
 type ComponentTemplateRefs = {
@@ -496,7 +497,6 @@ type ComponentTemplateRefs = {
 import { defineComponent } from "vue";
 import { uniqueNamesGenerator, adjectives, colors, animals } from "unique-names-generator";
 import { AvatarStoreInterface } from "@Modules/avatar/StoreInterface";
-import { AudioIO } from "@Modules/ui/audioIO";
 import { Utility } from "@Modules/utility";
 import { Places, PlaceEntry } from "@Modules/places";
 
@@ -509,15 +509,16 @@ export default defineComponent({
             transition: false,
             step: 1,
             AvatarStoreInterface,
-            AudioIOInstance: new AudioIO(),
             placesList: [] as PlaceEntry[],
             selectedPlace: {} as PlaceEntry
         };
     },
 
     computed: {
+        /**
+         * Style the background of the page based on the Theme config.
+         */
         backgroundStyle(): string {
-            // Style the background based on the Theme config.
             if (applicationStore.theme.globalStyle === "none" || this.showInitialWelcome) {
                 return this.$q.dark.isActive ? "#121212" : "#ffffff";
             }
@@ -541,10 +542,11 @@ export default defineComponent({
             const opacity = opacities[applicationStore.theme.globalStyle];
             return `radial-gradient(${gradient}, ${secondary}${opacity} 15%, ${primary}${opacity} 40%, ${end}${opacity} 95%)`;
         },
-        filteredAndSortedPlaces(): PlaceEntry[] {
-            let returnData = this.placesList;
-
-            returnData = returnData.sort((a, b) => {
+        /**
+         * Sort the list of places alphabetically and by attendance.
+         */
+        sortedPlaces(): PlaceEntry[] {
+            return this.placesList.sort((a, b) => {
                 if (a.currentAttendance > b.currentAttendance) {
                     return -1;
                 }
@@ -559,11 +561,12 @@ export default defineComponent({
                 }
                 return 0;
             });
-
-            return returnData;
         },
+        /**
+         * `true` if the wizard should redirec to a specific loaction once complete. `false` if no location was specified beforehand.
+         */
         hasLocationPending(): boolean {
-            return applicationStore.firstTimeWizard.pendingLocation !== "";
+            return Boolean(applicationStore.firstTimeWizard.pendingLocation);
         }
     },
     watch: {
@@ -571,11 +574,14 @@ export default defineComponent({
             // Wait until the first step is complete before asking for mic permission.
             // This is less spooky than requesting mic access as soon at the webpage is loaded.
             if (newValue === 2) {
-                void this.requestInputAccess();
+                void AudioIO.requestInputAccess();
             }
         }
     },
     methods: {
+        /**
+         * Play the animation transitioning from the landing to the setup wizard.
+         */
         transitionToSteps(): void {
             const second = 1000;
             const transitionTime = parseFloat(
@@ -590,11 +596,17 @@ export default defineComponent({
                 this.showInitialWelcome = false;
             }, transitionTime);
         },
+        /**
+         * Play the animation transitioning from the setup wizard back to the landing.
+         */
         transitionToStart(): void {
             this.transition = false;
             this.showInitialWelcome = true;
             this.step = 1;
         },
+        /**
+         * Generate a random display name for the player if they do not want to use their own.
+         */
         generateRandomName(): void {
             userStore.avatar.displayName = uniqueNamesGenerator({
                 dictionaries: [adjectives, colors, animals],
@@ -603,32 +615,36 @@ export default defineComponent({
                 style: "capital"
             });
         },
+        /**
+         * Select an avatar model to equip.
+         * @param modelId The ID of the model to equip.
+         */
         selectAvatar(modelId: string): void {
             if (modelId in userStore.avatar.models) {
                 AvatarStoreInterface.setActiveModel(modelId);
             }
         },
-        async requestInputAccess(): Promise<void> {
-            await this.AudioIOInstance.requestInputAccess();
+        /**
+         * Connect to the Metaverse server and fetch the list of available places.
+         */
+        async loadPlaces(): Promise<void> {
+            await Utility.metaverseConnectionSetup(applicationStore.defaultConnectionConfig.DEFAULT_METAVERSE_URL ?? "");
+            this.placesList = await Places.getActiveList();
         },
-        async completeSetup(): Promise<void> {
+        /**
+         * Register the first-time-setup process as complete, and redirect to any pending location.
+         */
+        completeSetup(): void {
             window.localStorage.setItem("hasCompletedSetup", "true");
             if (this.hasLocationPending) {
-                await this.$router.push({ path: applicationStore.firstTimeWizard.pendingLocation });
+                void this.$router.push({ path: applicationStore.firstTimeWizard.pendingLocation });
             } else {
-                await this.$router.push({ name: "Primary" });
+                void this.$router.push({ name: "Primary" });
             }
         }
     },
     created() {
-        const boot = async () => {
-            // Connect to the metaverse server so that we can get the list of available places.
-            await Utility.metaverseConnectionSetup(
-                applicationStore.defaultConnectionConfig.DEFAULT_METAVERSE_URL ?? ""
-            );
-            this.placesList = await Places.getActiveList();
-        };
-        void boot();
+        void this.loadPlaces();
     },
     beforeMount(): void {
         // Ensure that Quasar's global color variables are in sync with the Store's theme colors.

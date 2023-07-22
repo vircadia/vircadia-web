@@ -11,8 +11,8 @@
 
 <template>
     <q-form
-        @submit="onSubmit"
-        class="q-gutter-md"
+        @submit="submit"
+        class="column q-gutter-y-md"
     >
         <q-input
             v-model="username"
@@ -22,7 +22,7 @@
             hint="Enter your username."
             :disable="loading"
             :error="loginError"
-            @focus="loginError = undefined"
+            @focus="loginError = false"
         />
 
         <q-input
@@ -34,7 +34,7 @@
             hint="Enter your password."
             :disable="loading"
             :error="loginError"
-            @focus="loginError = undefined"
+            @focus="loginError = false"
         >
             <template v-slot:append>
                 <q-icon
@@ -45,9 +45,14 @@
             </template>
         </q-input>
 
-        <div align="right">
-            <q-btn label="Login" type="submit" color="primary" :disable="usernameEmpty || passwordEmpty" :loading="loading" />
-        </div>
+        <q-btn
+            label="Login"
+            type="submit"
+            color="primary"
+            class="q-ml-auto"
+            :disable="username.length <= 0 || password.length <= 0"
+            :loading="loading"
+        />
     </q-form>
 </template>
 
@@ -58,61 +63,41 @@ import { Account } from "@Modules/account";
 export default defineComponent({
     name: "MetaverseLogin",
 
-    emits: ["closeDialog"],
+    emits: ["success"],
 
-    data: () => ({
-        username: "",
-        password: "",
-        showPassword: false,
-        loading: false,
-        loginError: undefined as true | undefined
-    }),
-
-    computed: {
-        usernameEmpty: function() {
-            return this.username.length <= 0;
-        },
-        passwordEmpty: function() {
-            return this.password.length <= 0;
-        }
+    data() {
+        return {
+            username: "",
+            password: "",
+            showPassword: false,
+            loading: false,
+            loginError: false
+        };
     },
 
     methods: {
-        async onSubmit() {
+        async submit(): Promise<void> {
             this.loading = true;
-            try {
-                const loginResponse = await Account.login(this.username, this.password);
-
-                if (loginResponse) {
-                    this.$q.notify({
-                        type: "positive",
-                        textColor: "white",
-                        icon: "cloud_done",
-                        message: "Welcome " + this.username + "."
-                    });
-                    this.loading = false;
-                    this.loginError = undefined;
-                    this.$emit("closeDialog");
-                } else {
-                    this.$q.notify({
-                        type: "negative",
-                        textColor: "white",
-                        icon: "warning",
-                        message: "Please check your username/password."
-                    });
-                    this.loading = false;
-                    this.loginError = true;
-                }
-            } catch (result) {
-                // TODO: what is the type of "result"? Define the fields
+            const loginSuccessful = await Account.login(this.username, this.password);
+            if (loginSuccessful) {
+                this.$q.notify({
+                    type: "positive",
+                    textColor: "white",
+                    icon: "cloud_done",
+                    message: "Welcome " + this.username + "."
+                });
+                this.loginError = false;
+                this.$emit("success");
+            } else {
                 this.$q.notify({
                     type: "negative",
                     textColor: "white",
                     icon: "warning",
-                    message: "Login attempt failed: " + (result as string)
+                    message: "Please check your username/password."
                 });
-                this.loading = false;
+                this.loginError = true;
             }
+            this.loading = false;
         }
     }
 });

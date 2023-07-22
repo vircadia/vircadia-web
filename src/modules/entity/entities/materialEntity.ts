@@ -28,12 +28,12 @@ export class MaterialEntity extends Entity implements IMaterialEntity {
     protected _materialMappingRot: number | undefined = 0;
     protected _materialRepeat: boolean | undefined = true;
 
-    protected _onMaterialDataChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onMaterialMappingModeChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onMaterialPriorityChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onParentMaterialNameChanged : EntityPropertyChangeObservable<IEntity>;
+    protected _onMaterialDataChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onMaterialMappingModeChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onMaterialPriorityChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onParentMaterialNameChanged: EntityPropertyChangeObservable<IEntity>;
 
-    constructor(id : string) {
+    constructor(id: string) {
         super(id, "Material");
         this._onMaterialDataChanged = this.createPropertyChangeObservable();
         this._onMaterialMappingModeChanged = this.createPropertyChangeObservable();
@@ -68,8 +68,7 @@ export class MaterialEntity extends Entity implements IMaterialEntity {
     }
 
     public set priority(value: number | undefined) {
-        this._priority = value;
-        if (value && value !== this._priority) {
+        if (typeof value === "number" && value !== this._priority) {
             this._priority = value;
             this._onMaterialPriorityChanged.isDirty = true;
         }
@@ -124,7 +123,7 @@ export class MaterialEntity extends Entity implements IMaterialEntity {
     }
 
     public set materialMappingRot(value: number | undefined) {
-        if (value && value !== this._materialMappingRot) {
+        if (typeof value === "number" && value !== this._materialMappingRot) {
             this._materialMappingRot = value;
             this._onMaterialMappingModeChanged.isDirty = true;
         }
@@ -141,24 +140,24 @@ export class MaterialEntity extends Entity implements IMaterialEntity {
         }
     }
 
-    public get onMaterialDataChanged() : Observable<IEntity> {
+    public get onMaterialDataChanged(): Observable<IEntity> {
         return this._onMaterialDataChanged.observable;
     }
 
-    public get onMaterialMappingModeChanged() : Observable<IEntity> {
+    public get onMaterialMappingModeChanged(): Observable<IEntity> {
         return this._onMaterialMappingModeChanged.observable;
     }
 
-    public get onMaterialPriorityChanged() : Observable<IEntity> {
+    public get onMaterialPriorityChanged(): Observable<IEntity> {
         return this._onMaterialPriorityChanged.observable;
     }
 
-    public get onParentMaterialNameChanged() : Observable<IEntity> {
+    public get onParentMaterialNameChanged(): Observable<IEntity> {
         return this._onParentMaterialNameChanged.observable;
     }
 
 
-    public copyFormPacketData(props : EntityProperties) : void {
+    public copyFormPacketData(props: EntityProperties): void {
         super.copyFormPacketData(props);
 
         const materialProps = props as MaterialEntityProperties;

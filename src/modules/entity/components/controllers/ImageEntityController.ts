@@ -17,10 +17,10 @@ import { ImageComponent } from "../components";
 export class ImageEntityController extends EntityController {
     // domain properties
     _componentTypeName = "ImageEntityController";
-    _imageEntity : IImageEntity;
-    _imageComponent : Nullable<ImageComponent>;
+    _imageEntity: IImageEntity;
+    _imageComponent: Nullable<ImageComponent>;
 
-    constructor(entity : IImageEntity) {
+    constructor(entity: IImageEntity) {
         super(entity, "ImageEntityController");
         this._imageEntity = entity;
     }
@@ -29,7 +29,7 @@ export class ImageEntityController extends EntityController {
     * Gets a string identifying the type of this Component
     * @returns "ImageEntityController" string
     */
-    public get componentType():string {
+    public get componentType(): string {
         return this._componentTypeName;
     }
 
@@ -40,8 +40,8 @@ export class ImageEntityController extends EntityController {
         this._gameObject?.addComponent(this._imageComponent);
 
         this._imageEntity.onImageURLChanged?.add(this._handleImageURLChanged.bind(this));
-        this._imageEntity.onColorChanged?.add(this._handleonColorChanged.bind(this));
-        this._imageEntity.onDimensionChanged?.add(this._handleonDimensionChanged.bind(this));
+        this._imageEntity.onColorChanged?.add(this._handleOnColorChanged.bind(this));
+        this._imageEntity.onDimensionChanged?.add(this._handleOnDimensionChanged.bind(this));
     }
 
     public onStart(): void {
@@ -50,18 +50,18 @@ export class ImageEntityController extends EntityController {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
-    public onUpdate():void {
+    public onUpdate(): void {
     }
 
     private _handleImageURLChanged(): void {
         this._imageComponent?.load(this._imageEntity);
     }
 
-    private _handleonDimensionChanged(): void {
+    private _handleOnDimensionChanged(): void {
         this._imageComponent?.updateDimensions(this._imageEntity);
     }
 
-    private _handleonColorChanged(): void {
+    private _handleOnColorChanged(): void {
         this._imageComponent?.updateColor(this._imageEntity);
     }
 }

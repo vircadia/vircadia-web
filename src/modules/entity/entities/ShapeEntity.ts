@@ -22,11 +22,11 @@ export class ShapeEntity extends Entity implements IShapeEntity {
 
     protected _alpha: number | undefined;
 
-    protected _onShapeChanged : EntityPropertyChangeObservable<IEntity>;
+    protected _onShapeChanged: EntityPropertyChangeObservable<IEntity>;
 
-    protected _onColorChanged : EntityPropertyChangeObservable<IEntity>;
+    protected _onColorChanged: EntityPropertyChangeObservable<IEntity>;
 
-    constructor(id : string, type : EntityType) {
+    constructor(id: string, type: EntityType) {
         super(id, type);
 
         this._onShapeChanged = this.createPropertyChangeObservable();
@@ -61,21 +61,21 @@ export class ShapeEntity extends Entity implements IShapeEntity {
     }
 
     public set alpha(value: number | undefined) {
-        if (value) {
+        if (typeof value === "number") {
             this._alpha = value;
             this._onColorChanged.isDirty = true;
         }
     }
 
-    public get onShapeChanged() : Observable<IEntity> {
+    public get onShapeChanged(): Observable<IEntity> {
         return this._onShapeChanged.observable;
     }
 
-    public get onColorChanged() : Observable<IEntity> {
+    public get onColorChanged(): Observable<IEntity> {
         return this._onColorChanged.observable;
     }
 
-    public copyFormPacketData(props : EntityProperties) : void {
+    public copyFormPacketData(props: EntityProperties): void {
         super.copyFormPacketData(props);
 
         const shapeProps = props as ShapeEntityProperties;

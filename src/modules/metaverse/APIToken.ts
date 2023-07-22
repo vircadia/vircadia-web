@@ -1,25 +1,25 @@
-/*
+//
+//  APIToken.ts
+//
+//  Metaverse server token operations.
+//
 //  Copyright 2021 Vircadia contributors.
 //  Copyright 2022 DigiSomni LLC.
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
-*/
-
-/**
- * Metaverse-server operations that operate on Tokens
- */
+//
 
 // OAuth interface for login.
 // Does not return a standard APIResponse
 export const OAuthTokenAPI = "/oauth/token";
-export interface OAuthTokenReq {
+export interface OAuthTokenRequest {
     "grant_type": "password",
     "username": string,
     "password": string
 }
 
-export interface OAuthTokenResp {
+export interface OAuthTokenResponse {
     "access_token": string,
     "token_type": "Bearer",
     "expires_in": number,

@@ -460,15 +460,15 @@ import { defineComponent } from "vue";
 import { userStore } from "@Stores/index";
 import { Renderer } from "@Modules/scene";
 import { MyAvatarController } from "@Modules/avatar";
-import { type AvatarEntry, fallbackAvatarModel } from "@Modules/avatar/DefaultModels";
+import { type AvatarModel, fallbackAvatarId } from "@Modules/avatar/DefaultModels";
 import { AvatarStoreInterface } from "@Modules/avatar/StoreInterface";
 import OverlayShell from "../OverlayShell.vue";
 import Log from "@Modules/debugging/log";
 
 // This interface allows us to add UI-only properties to each avatar entry.
-interface AvatarEntryListItemMap {
+interface AvatarModelListItemMap {
     [key: string]: {
-        avatar: AvatarEntry,
+        avatar: AvatarModel,
         showMoreOptions: boolean
     }
 }
@@ -494,7 +494,7 @@ export default defineComponent({
     data() {
         return {
             AvatarStoreInterface,
-            avatarList: {} as AvatarEntryListItemMap,
+            avatarList: {} as AvatarModelListItemMap,
             listFilterValue: "",
             modelCreateDialog: false,
             customModel: {
@@ -503,7 +503,7 @@ export default defineComponent({
                 url: ""
             },
             loadingAvatar: false,
-            fallbackModelId: fallbackAvatarModel()
+            fallbackModelId: fallbackAvatarId()
         };
     },
 
@@ -542,7 +542,7 @@ export default defineComponent({
 
     methods: {
         loadAvatarList(): void {
-            this.avatarList = {} as AvatarEntryListItemMap;
+            this.avatarList = {} as AvatarModelListItemMap;
             const storeModelsList = this.sortAvatarList(this.listFilterValue);
             for (let i = 0; i < storeModelsList.length; i++) {
                 const key = storeModelsList[i][0];
@@ -595,7 +595,7 @@ export default defineComponent({
             if (!filterValue || filterValue === "") {
                 return this.userStore.avatar.models;
             }
-            const filteredList = {} as { [key: string]: AvatarEntry };
+            const filteredList = {} as { [key: string]: AvatarModel };
             Object.entries(this.userStore.avatar.models).forEach((avatar) => {
                 if (avatar[1].name.toLowerCase().includes(filterValue.toLowerCase())) {
                     filteredList[avatar[0]] = avatar[1];

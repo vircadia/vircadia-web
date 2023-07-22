@@ -1,8 +1,11 @@
 .eslintrc.js
+postcss.config.js
+quasar.config.js
 /.quasar
 /build_scripts
 /dist
 /node_modules
+/src/*.d.ts
 /src-bex/www
 /src-capacitor
 /src-cordova

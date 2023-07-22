@@ -234,10 +234,10 @@ import { defineComponent } from "vue";
 import OverlayShell from "../OverlayShell.vue";
 import { applicationStore } from "@Stores/index";
 import { type AvatarInfo } from "@Stores/application-store";
-import { DomainMgr } from "@Modules/domain";
+import { DomainManager } from "@Modules/domain";
 import { Renderer } from "@Modules/scene";
 import { ModerationFlags, Uuid } from "@vircadia/web-sdk";
-import { DomainAudio } from "@Modules/domain/audio";
+import { DomainAudioClient } from "@Modules/domain/audio";
 
 export interface PeopleEntry {
     displayName: string;
@@ -301,11 +301,11 @@ export default defineComponent({
         setVolume(sessionId: Uuid, value: number | null): void {
             if (typeof value === "number") {
                 // Request the desired gain from the Domain server.
-                const domainServer = DomainMgr.ActiveDomain?.DomainClient;
+                const domainServer = DomainManager.ActiveDomain?.DomainClient;
                 if (domainServer) {
                     domainServer.users.setAvatarGain(
                         sessionId,
-                        DomainAudio.getGainFromPercentage(value)
+                        DomainAudioClient.getGainFromPercentage(value)
                     );
                 }
 
@@ -322,7 +322,7 @@ export default defineComponent({
             const newMute = !pAvaInfo.muted;
 
             // Request the desired mute state from the Domain server.
-            const domainServer = DomainMgr.ActiveDomain?.DomainClient;
+            const domainServer = DomainManager.ActiveDomain?.DomainClient;
             if (domainServer) {
                 domainServer.users.setPersonalMute(
                     pAvaInfo.sessionId,
@@ -348,14 +348,14 @@ export default defineComponent({
         },
 
         adminServerMute(sessionId: Uuid): void {
-            const domainServer = DomainMgr.ActiveDomain?.DomainClient;
+            const domainServer = DomainManager.ActiveDomain?.DomainClient;
             if (domainServer) {
                 domainServer.users.mute(sessionId);
             }
         },
 
         adminKick(sessionId: Uuid, banFlags?: number): void {
-            const domainServer = DomainMgr.ActiveDomain?.DomainClient;
+            const domainServer = DomainManager.ActiveDomain?.DomainClient;
             if (domainServer) {
                 domainServer.users.kick(sessionId, banFlags);
             }
@@ -364,7 +364,7 @@ export default defineComponent({
 
     mounted() {
         // Subscribe to the `canKickChanged` signal from the Domain Server.
-        const domainServer = DomainMgr.ActiveDomain?.DomainClient;
+        const domainServer = DomainManager.ActiveDomain?.DomainClient;
         // Set the initial `canKick` state.
         this.canKick = Boolean(domainServer?.users.canKick);
         domainServer?.users.canKickChanged.connect(() => {

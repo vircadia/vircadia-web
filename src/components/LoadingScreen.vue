@@ -9,35 +9,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 -->
 
-<script lang="ts">
-import { defineComponent } from "vue";
-import { applicationStore } from "@Stores/index";
-
-export default defineComponent({
-    name: "LoadingScreen",
-
-    setup() {
-        return {
-            applicationStore
-        };
-    }
-});
-</script>
-
-<template>
-    <div
-        id="loadingScreen"
-        @click.stop=""
-    >
-        <div class="inner">
-            <img :src="applicationStore.theme.logo" draggable="false" alt="" width="200" height="200">
-            <q-spinner-tail
-                size="xl"
-            />
-        </div>
-    </div>
-</template>
-
 <style lang="scss" scoped>
 #loadingScreen {
     position: absolute;
@@ -74,3 +45,32 @@ export default defineComponent({
     }
 }
 </style>
+
+<template>
+    <div
+        id="loadingScreen"
+        @click.stop=""
+    >
+        <div class="inner">
+            <img :src="applicationStore.theme.logo" draggable="false" alt="" width="200" height="200">
+            <q-spinner-tail
+                size="xl"
+            />
+        </div>
+    </div>
+</template>
+
+<script lang="ts">
+import { defineComponent } from "vue";
+import { applicationStore } from "@Stores/index";
+
+export default defineComponent({
+    name: "LoadingScreen",
+
+    setup() {
+        return {
+            applicationStore
+        };
+    }
+});
+</script>

@@ -12,6 +12,7 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable new-cap */
 
+import { watch } from "vue";
 import { EntityController } from "./EntityController";
 import { IZoneEntity } from "../../EntityInterfaces";
 import { SkyboxComponent, KeyLightComponent, HazeComponent } from "../components";
@@ -24,6 +25,7 @@ import {
 } from "@babylonjs/core";
 import { IVector3Property } from "../../EntityProperties";
 import { EntityMapper } from "../../package";
+import { userStore } from "@Stores/index";
 
 type EnvironmentSettings = {
     environmentTexture?: string | undefined,
@@ -66,17 +68,15 @@ type ZoneExtensions = {
 };
 
 export class ZoneEntityController extends EntityController {
-    // domain properties
-    _zoneEntity : IZoneEntity;
+    private _zoneEntity: IZoneEntity;
+    private _skybox: Nullable<SkyboxComponent> = null;
+    private _ambientLight: Nullable<AmbientLightComponent> = null;
+    private _keyLight: Nullable<KeyLightComponent> = null;
+    private _haze: Nullable<HazeComponent> = null;
+    private _vls: Nullable<VolumetricLightScatteringPostProcess> = null;
+    private _watchingGraphicsSettings = false;
 
-    _skybox : Nullable<SkyboxComponent> = null;
-    _ambientLight : Nullable<AmbientLightComponent> = null;
-    _keyLight : Nullable<KeyLightComponent> = null;
-    _haze : Nullable<HazeComponent> = null;
-
-    _vls : Nullable<VolumetricLightScatteringPostProcess> = null;
-
-    constructor(entity : IZoneEntity) {
+    constructor(entity: IZoneEntity) {
         super(entity, ZoneEntityController.typeName);
         this._zoneEntity = entity;
     }
@@ -86,7 +86,7 @@ export class ZoneEntityController extends EntityController {
     * @returns "EntityController" string
     */
     // eslint-disable-next-line class-methods-use-this
-    public get componentType():string {
+    public get componentType(): string {
         return ZoneEntityController.typeName;
     }
 
@@ -118,11 +118,10 @@ export class ZoneEntityController extends EntityController {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
-    public onUpdate():void {
-
+    public onUpdate(): void {
     }
 
-    public dispose():void {
+    public dispose(): void {
         if (this._scene.activeCamera && this._vls) {
             this._vls.dispose(this._scene.activeCamera);
         }
@@ -136,7 +135,7 @@ export class ZoneEntityController extends EntityController {
         }
     }
 
-    protected _updateDimensions() : void {
+    protected _updateDimensions(): void {
         if (!this._zoneEntity.skybox) {
             return;
         }
@@ -149,7 +148,7 @@ export class ZoneEntityController extends EntityController {
         this._updateSkybox();
     }
 
-    protected _updateSkybox() : void {
+    protected _updateSkybox(): void {
         if (this._zoneEntity.skyboxMode === "enabled" && this._zoneEntity.skybox && this._gameObject) {
             if (!this._skybox) {
                 this._skybox = new SkyboxComponent();
@@ -163,7 +162,7 @@ export class ZoneEntityController extends EntityController {
         }
     }
 
-    protected updateAmbientLight() :void {
+    protected updateAmbientLight(): void {
         if (this._zoneEntity.ambientLightMode === "enabled" && this._zoneEntity.ambientLight && this._gameObject) {
             if (!this._ambientLight) {
                 this._ambientLight = new AmbientLightComponent();
@@ -173,8 +172,9 @@ export class ZoneEntityController extends EntityController {
 
             if (this._ambientLight.light) {
                 this._ambientLight.light.setEnabled(true);
-                if (this._zoneEntity.ambientLight.ambientIntensity) {
+                if (typeof this._zoneEntity.ambientLight.ambientIntensity === "number") {
                     this._ambientLight.light.intensity = this._zoneEntity.ambientLight.ambientIntensity;
+                    this._scene.environmentIntensity = this._zoneEntity.ambientLight.ambientIntensity;
                 }
             }
 
@@ -183,7 +183,7 @@ export class ZoneEntityController extends EntityController {
         }
     }
 
-    protected updateKeyLight() : void {
+    protected updateKeyLight(): void {
         if (this._zoneEntity.keyLightMode === "enabled" && this._zoneEntity.keyLight && this._gameObject) {
             if (!this._keyLight) {
                 this._keyLight = new KeyLightComponent(this._zoneEntity.keyLight, this._gameObject.getScene());
@@ -196,7 +196,7 @@ export class ZoneEntityController extends EntityController {
         }
     }
 
-    protected updateHaze() : void {
+    protected updateHaze(): void {
         if (this._zoneEntity.hazeMode === "enabled" && this._zoneEntity.haze && this._gameObject) {
             if (!this._haze) {
                 this._haze = new HazeComponent(this._zoneEntity.haze, this._gameObject.getScene());
@@ -209,7 +209,7 @@ export class ZoneEntityController extends EntityController {
         }
     }
 
-    protected _updateUserData() : void {
+    protected _updateUserData(): void {
         const userData = this._zoneEntity.userData
             ? JSON.parse(this._zoneEntity.userData) as ZoneExtensions
             : undefined;
@@ -218,7 +218,7 @@ export class ZoneEntityController extends EntityController {
         this._updateVolumetricLight(userData);
     }
 
-    protected _updateEnvironment(userData : ZoneExtensions | undefined) : void {
+    protected _updateEnvironment(userData: ZoneExtensions | undefined): void {
         if (userData && userData.environment && userData.environment.environmentTexture) {
             if (this._scene.environmentTexture
                 && this._scene.environmentTexture.name !== userData.environment.environmentTexture) {
@@ -237,36 +237,49 @@ export class ZoneEntityController extends EntityController {
         }
     }
 
-    protected _updateDefaultRenderingPipeline(userData : ZoneExtensions | undefined) : void {
-        if (userData && userData.renderingPipeline) {
-            let defaultPipeline = this._scene.postProcessRenderPipelineManager.supportedPipelines
-                .find((value) => value.name === "default") as DefaultRenderingPipeline;
-            if (!defaultPipeline) {
-                defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);
+    protected _updateDefaultRenderingPipeline(userData: ZoneExtensions | undefined): void {
+        if (!userData || !userData.renderingPipeline) {
+            return;
+        }
+        let defaultPipeline = this._scene.postProcessRenderPipelineManager.supportedPipelines
+            .find((value) => value.name === "default") as DefaultRenderingPipeline;
+        if (!defaultPipeline) {
+            defaultPipeline = new DefaultRenderingPipeline("default", true, this._scene, this._scene.cameras);
+        }
+
+        const glowLayer = userData.renderingPipeline.glowLayer;
+        if (glowLayer && defaultPipeline.glowLayer) {
+            if (typeof glowLayer.blurKernelSize === "number") {
+                defaultPipeline.glowLayer.blurKernelSize = glowLayer.blurKernelSize;
             }
-
-            if (userData.renderingPipeline.fxaaEnabled !== undefined) {
-                defaultPipeline.fxaaEnabled = userData.renderingPipeline.fxaaEnabled;
-            }
-
-            if (userData.renderingPipeline.glowLayerEnabled !== undefined) {
-                defaultPipeline.glowLayerEnabled = userData.renderingPipeline.glowLayerEnabled;
-            }
-
-            const glowLayer = userData.renderingPipeline.glowLayer;
-            if (glowLayer && defaultPipeline.glowLayer) {
-                if (glowLayer.blurKernelSize) {
-                    defaultPipeline.glowLayer.blurKernelSize = glowLayer.blurKernelSize;
-                }
-
-                if (glowLayer.intensity) {
-                    defaultPipeline.glowLayer.intensity = glowLayer.intensity;
-                }
+            if (typeof glowLayer.intensity === "number") {
+                defaultPipeline.glowLayer.intensity = glowLayer.intensity;
             }
         }
+
+        const updatePipelineSettings = (): void => {
+            const enableBloomAndGlow = userStore.graphics.bloom && (userData?.renderingPipeline?.glowLayerEnabled ?? true);
+            defaultPipeline.bloomEnabled = enableBloomAndGlow;
+            defaultPipeline.fxaaEnabled = userStore.graphics.fxaaEnabled && (userData?.renderingPipeline?.fxaaEnabled ?? true);
+            defaultPipeline.glowLayerEnabled = enableBloomAndGlow;
+            defaultPipeline.samples = Number(userStore.graphics.msaa);
+            defaultPipeline.sharpenEnabled = Boolean(userStore.graphics.sharpen);
+        };
+
+        // Update the rendering pipeline when the user changes their graphics settings.
+        const watchGraphicsSettings = (): void => {
+            // Ensure only one watcher is created.
+            if (!this._watchingGraphicsSettings) {
+                watch(() => userStore.graphics, updatePipelineSettings.bind(this), { deep: true });
+                this._watchingGraphicsSettings = true;
+            }
+        };
+
+        updatePipelineSettings();
+        watchGraphicsSettings();
     }
 
-    protected _updateVolumetricLight(userData : ZoneExtensions | undefined) : void {
+    protected _updateVolumetricLight(userData: ZoneExtensions | undefined): void {
         const volumetricLightEnabled = userData?.postProcessing?.volumetricLightEnabled;
         const volumetricLightSettings = userData?.postProcessing?.volumetricLight;
         if (volumetricLightEnabled && volumetricLightSettings) {

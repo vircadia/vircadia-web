@@ -43,7 +43,7 @@ export class TeleportController extends EntityScriptComponent {
     * @returns "EntityController" string
     */
     // eslint-disable-next-line class-methods-use-this
-    public get componentType():string {
+    public get componentType(): string {
         return TeleportController.typeName;
     }
 
@@ -69,7 +69,7 @@ export class TeleportController extends EntityScriptComponent {
         });
     }
 
-    public onTriggerEnter() : void {
+    public onTriggerEnter(): void {
         Log.debug(Log.types.OTHER, "onTriggerEnter");
 
         const avatar = this.triggerTarget as GameObject;
@@ -83,5 +83,4 @@ export class TeleportController extends EntityScriptComponent {
             void Utility.connectionSetup(this._destination);
         }
     }
-
 }

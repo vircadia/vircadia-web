@@ -9,21 +9,18 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { GenericNodeComponent } from "../component";
-
-import {
-    AbstractMesh, AnimationGroup, Nullable, Skeleton
-} from "@babylonjs/core";
-
 /* eslint-disable class-methods-use-this */
+
+import type { AbstractMesh, AnimationGroup, Nullable, Skeleton } from "@babylonjs/core";
+import { GenericNodeComponent } from "../component";
 
 /**
  * A mesh component.
  */
 export class MeshComponent extends GenericNodeComponent<AbstractMesh> {
     protected _mesh: Nullable<AbstractMesh> = null;
-    protected _animationGroups: Nullable<AnimationGroup[]> = null;
-    protected _skeleton: Nullable<Skeleton> = null;
+    public animationGroups: Nullable<AnimationGroup[]> = null;
+    public skeleton: Nullable<Skeleton> = null;
 
     public get mesh(): Nullable<AbstractMesh> {
         return this._mesh;
@@ -31,22 +28,6 @@ export class MeshComponent extends GenericNodeComponent<AbstractMesh> {
 
     public set mesh(value: Nullable<AbstractMesh>) {
         this.node = value;
-    }
-
-    public get animationGroups(): Nullable<AnimationGroup[]> {
-        return this._animationGroups;
-    }
-
-    public set animationGroups(value: Nullable<AnimationGroup[]>) {
-        this._animationGroups = value;
-    }
-
-    public get skeleton(): Nullable<Skeleton> {
-        return this._skeleton;
-    }
-
-    public set skeleton(skeleton: Nullable<Skeleton>) {
-        this._skeleton = skeleton;
     }
 
     public set node(value: Nullable<AbstractMesh>) {
@@ -95,13 +76,17 @@ export class MeshComponent extends GenericNodeComponent<AbstractMesh> {
     }
 
     /**
-    * Gets a string identifying the type of this Component
-    * @returns "Mesh" string
-    */
-    public get componentType():string {
+     * A string identifying the type of this component.
+     * @returns `"Mesh"`
+     */
+    public get componentType(): string {
         return MeshComponent.typeName;
     }
 
+    /**
+     * A string identifying the type of this component.
+     * @returns `"Mesh"`
+     */
     static get typeName(): string {
         return "Mesh";
     }
