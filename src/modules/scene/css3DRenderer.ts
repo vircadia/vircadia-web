@@ -172,7 +172,7 @@ export class CSS3DRenderer {
     /**
      * Calculate the CSS matrix transformation of the camera.
      * @param matrix The camera's transform matrix.
-     * @returns An equavalent CSS matrix.
+     * @returns An equivalent CSS matrix.
      */
     getCameraCSSMatrix(matrix: Matrix): string {
         const elements = matrix.m;
@@ -199,7 +199,7 @@ export class CSS3DRenderer {
     /**
      * Calculate the CSS matrix transformation of an object from the scene.
      * @param matrix The object's transform matrix.
-     * @returns An equavalent CSS matrix.
+     * @returns An equivalent CSS matrix.
      */
     getObjectCSSMatrix(matrix: Matrix): string {
         const elements = matrix.m;

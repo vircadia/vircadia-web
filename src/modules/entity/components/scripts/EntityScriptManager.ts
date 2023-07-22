@@ -27,15 +27,15 @@ class EntityScriptManagerImpl {
         this.register(TeleportController.typeName, () => new TeleportController());
     }
 
-    public register(script: string, factroy: EntityScriptFactory) {
-        this._factories.set(script, factroy);
+    public register(script: string, factory: EntityScriptFactory) {
+        this._factories.set(script, factory);
     }
 
     public createScript(script: string, entity: IEntity): Nullable<ScriptComponent> {
         const factory = this._factories.get(script);
 
         if (!factory) {
-            Log.error(Log.types.ENTITIES, `Fail to create entity script. Unknow Script: ${script}`);
+            Log.error(Log.types.ENTITIES, `Fail to create entity script. Unknown Script: ${script}`);
             return undefined;
         }
 

@@ -32,7 +32,7 @@ export class Utility {
         // Check if RECONNECT_ON_STARTUP is configured.
         const reconnectOnStartup = Config.getItem(RECONNECT_ON_STARTUP, FalseValue);
         if (reconnectOnStartup !== TrueValue) {
-            // If not, connect to the dafault URL.
+            // If not, connect to the default URL.
             Log.info(Log.types.METAVERSE, `Not performing reconnect-on-startup.`);
             await this.metaverseConnectionSetup(applicationStore.defaultConnectionConfig.DEFAULT_METAVERSE_URL);
             return;
@@ -41,7 +41,7 @@ export class Utility {
         // Check if a previous Domain server URL exists in persistent storage.
         const lastDomainServer = Config.getItem(LAST_DOMAIN_SERVER, undefined);
         if (!lastDomainServer) {
-            // If not, connect to the dafault URL.
+            // If not, connect to the default URL.
             Log.info(Log.types.METAVERSE, "Not performing reconnect-on-startup. URL for previous Domain server wasn't found.");
             await this.metaverseConnectionSetup(applicationStore.defaultConnectionConfig.DEFAULT_METAVERSE_URL);
             return;

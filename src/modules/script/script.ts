@@ -35,7 +35,7 @@ export abstract class ScriptComponent extends TransformNode implements IComponen
     protected _triggerTarget: Nullable<AbstractMesh> = null;
     protected _triggerOnEnterAction: Nullable<IAction> = null;
     protected _triggerOnExitAction: Nullable<IAction> = null;
-    protected _onComponentAddedObsever: Nullable<Observer<IComponent>> = null;
+    protected _onComponentAddedObserver: Nullable<Observer<IComponent>> = null;
 
     public attach(gameObject: GameObject): void {
         this._gameObject = gameObject;
@@ -109,7 +109,7 @@ export abstract class ScriptComponent extends TransformNode implements IComponen
     }
 
     /**
-     * When the GameObject collides with targe GameObject.
+     * When the GameObject collides with a target GameObject.
      */
     public onTriggerEnter(): void {
 
@@ -131,9 +131,9 @@ export abstract class ScriptComponent extends TransformNode implements IComponen
             }
         }
 
-        // handle the condition of mesh componet rebuilt
-        if (!this._onComponentAddedObsever) {
-            this._onComponentAddedObsever = this._gameObject.onComponentAddedObservable.add((component) => {
+        // handle the condition of mesh component rebuilt
+        if (!this._onComponentAddedObserver) {
+            this._onComponentAddedObserver = this._gameObject.onComponentAddedObservable.add((component) => {
                 if (component instanceof MeshComponent) {
                     this._doRegisterTriggerEvents(component);
                 }

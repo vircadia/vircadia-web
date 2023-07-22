@@ -276,9 +276,9 @@ export class KeyboardInput implements IInputHandler {
         this._shiftKey = sourceEvent.shiftKey;
 
         if (sourceEvent.code === userStore.controls.keyboard.camera.firstPerson?.keycode) {
-            this._inputState.cameraMode = CameraMode.FirstPersion;
+            this._inputState.cameraMode = CameraMode.FirstPerson;
         } else if (sourceEvent.code === userStore.controls.keyboard.camera.thirdPerson?.keycode) {
-            this._inputState.cameraMode = CameraMode.ThirdPersion;
+            this._inputState.cameraMode = CameraMode.ThirdPerson;
         } else if (sourceEvent.code === userStore.controls.keyboard.camera.collisions?.keycode) {
             this._inputState.cameraCheckCollisions = !this._inputState.cameraCheckCollisions;
             this._inputState.cameraElastic = !this._inputState.cameraElastic;

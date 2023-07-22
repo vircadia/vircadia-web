@@ -47,7 +47,7 @@ export const Config = {
     /**
      * Initialize the configuration system.
      *
-     * While there is not much to be done today, someday the configuration infomation
+     * While there is not much to be done today, someday the configuration information
      * might be stored in the cloud so some setup will be needed.
      */
     initialize(): void {
@@ -67,7 +67,7 @@ export const Config = {
             if (pDefault) {
                 return pDefault;
             }
-            throw new Error("Config.getItem: fetch of non-existant parameter: " + pParamName);
+            throw new Error("Config.getItem: fetch of non-existent parameter: " + pParamName);
         }
         return val;
     },
@@ -84,7 +84,7 @@ export const Config = {
 
     /**
      * Set a qualifier to be added to each configuration name entry. This is often
-     * the account name so multiple accounts can be on the same compter.
+     * the account name so multiple accounts can be on the same computer.
      *
      * Note that a separator "." is added to the qualifier string to make
      * the construction of the qualified configuration name easier.

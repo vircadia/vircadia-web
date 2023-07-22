@@ -84,12 +84,12 @@ export class SkyboxComponent extends MeshComponent {
 
             if (props.url && props.url !== material.reflectionTexture?.name) {
                 material.reflectionTexture?.dispose();
-                material.reflectionTexture = this._createflectionTexture(props.url, scene);
+                material.reflectionTexture = this._createReflectionTexture(props.url, scene);
             }
         }
     }
 
-    private _createflectionTexture(url: string, scene: Scene): BaseTexture {
+    private _createReflectionTexture(url: string, scene: Scene): BaseTexture {
         let reflectionTexture = null;
 
         const assetUrl = new AssetUrl(url);

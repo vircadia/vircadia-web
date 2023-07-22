@@ -57,7 +57,7 @@ export function getAndCreateDecoratorInspectorPropertyDescs(name: string): IInsp
  */
 export function inspector(options?: IInspectorPropertyOptions | undefined) {
     return (target: any, propertyKey: string): void => {
-        // remove prefix and capatilze the propertyKey
+        // remove prefix and capitalize the propertyKey
         const index = propertyKey[0] === "_" ? 1 : 0;
         const label = options && options.label
             ? options.label
@@ -83,7 +83,7 @@ export function inspector(options?: IInspectorPropertyOptions | undefined) {
 export function inspectorAccessor(options?: IInspectorPropertyOptions | undefined) {
     return function(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
         const index = 0;
-        // capatilze the propertyKey
+        // capitalize the propertyKey
         const label = options && options.label
             ? options.label
             : propertyKey[index].toUpperCase() + propertyKey.slice(index + 1);

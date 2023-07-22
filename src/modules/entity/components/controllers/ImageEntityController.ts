@@ -40,8 +40,8 @@ export class ImageEntityController extends EntityController {
         this._gameObject?.addComponent(this._imageComponent);
 
         this._imageEntity.onImageURLChanged?.add(this._handleImageURLChanged.bind(this));
-        this._imageEntity.onColorChanged?.add(this._handleonColorChanged.bind(this));
-        this._imageEntity.onDimensionChanged?.add(this._handleonDimensionChanged.bind(this));
+        this._imageEntity.onColorChanged?.add(this._handleOnColorChanged.bind(this));
+        this._imageEntity.onDimensionChanged?.add(this._handleOnDimensionChanged.bind(this));
     }
 
     public onStart(): void {
@@ -57,11 +57,11 @@ export class ImageEntityController extends EntityController {
         this._imageComponent?.load(this._imageEntity);
     }
 
-    private _handleonDimensionChanged(): void {
+    private _handleOnDimensionChanged(): void {
         this._imageComponent?.updateDimensions(this._imageEntity);
     }
 
-    private _handleonColorChanged(): void {
+    private _handleOnColorChanged(): void {
         this._imageComponent?.updateColor(this._imageEntity);
     }
 }

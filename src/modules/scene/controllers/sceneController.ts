@@ -90,7 +90,7 @@ export class SceneController extends ScriptComponent {
         this.isGravityApplied = false;
         const avatar = this._vscene.getMyAvatar();
         // Stop the avatar bouncing or floating.
-        // TODO: Update to the V2 (Havok) physics engine, which provides inproved methods for updating physics properties.
+        // TODO: Update to the V2 (Havok) physics engine, which provides improved methods for updating physics properties.
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         avatar?.physicsImpostor?.physicsBody?.setDamping(1, 1);
     }

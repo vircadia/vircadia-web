@@ -158,9 +158,9 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
 }
 
 
-// Input controler.
+// Input controller.
 
-class CameraObtacleDetectInfo {
+class CameraObstacleDetectInfo {
     direction = Vector3.Zero();
     length = 0;
     isCameraSnapping = false;
@@ -189,7 +189,7 @@ export class InputController extends ScriptComponent {
     private _defaultCameraRadius = 6;
     private _defaultwheelDeltaPercentage = 0.005;
 
-    private _cameraObtacleDetectInfo = new CameraObtacleDetectInfo();
+    private _cameraObstacleDetectInfo = new CameraObstacleDetectInfo();
 
     constructor() {
         super(InputController.typeName);
@@ -377,7 +377,7 @@ export class InputController extends ScriptComponent {
 
         this._inputState.onCameraModeChangedObservable.add(() => {
             if (this._camera && this._camera.lowerRadiusLimit) {
-                if (this._inputState.cameraMode === CameraMode.FirstPersion) {
+                if (this._inputState.cameraMode === CameraMode.FirstPerson) {
                     this._camera.radius = this._camera.lowerRadiusLimit;
                     this._cameraViewTransitionThreshold = this._camera.lowerRadiusLimit;
                 } else {
@@ -525,7 +525,7 @@ export class InputController extends ScriptComponent {
         }
 
         // Rotate the avatar to follow the yaw direction of the camera.
-        if (this._camera && this._gameObject && this._inputState.cameraMode === CameraMode.FirstPersion) {
+        if (this._camera && this._gameObject && this._inputState.cameraMode === CameraMode.FirstPerson) {
             const angle = Vector3.GetAngleBetweenVectors(
                 this._avatarState.moveDir.normalize(),
                 Vector3.Forward(true),
@@ -562,7 +562,7 @@ export class InputController extends ScriptComponent {
                 // Reset all jump-related variables.
                 this._avatarState.isRunning = false;
                 this._avatarState.duration = 0;
-                this._avatarState.canImpluse = true;
+                this._avatarState.canImpulse = true;
                 this._avatarState.landingDuration = 0;
                 this._avatarState.jumpInPlace = false;
                 // Reset the avatar's state back to Idle, ready for other actions.
@@ -578,12 +578,12 @@ export class InputController extends ScriptComponent {
                 break;
             case JumpSubState.Jumping:
                 // Boost the avatar into the air.
-                if (this._avatarState.canImpluse) {
-                    this._gameObject.physicsImpostor.applyImpulse(Vector3.Up().scale(this._avatarState.jumpImpluse),
+                if (this._avatarState.canImpulse) {
+                    this._gameObject.physicsImpostor.applyImpulse(Vector3.Up().scale(this._avatarState.jumpImpulse),
                         this._gameObject.getAbsolutePosition());
                 }
                 // Prevent the impulse from firing more than once.
-                this._avatarState.canImpluse = false;
+                this._avatarState.canImpulse = false;
                 // Change to the next jump substate.
                 this._avatarState.jumpSubstate = JumpSubState.Rising;
                 break;
@@ -738,9 +738,9 @@ export class InputController extends ScriptComponent {
             }
 
             const cameraMode = this._camera.radius <= this._cameraViewTransitionThreshold
-                ? CameraMode.FirstPersion
-                : CameraMode.ThirdPersion;
-            if (cameraMode === CameraMode.FirstPersion) {
+                ? CameraMode.FirstPerson
+                : CameraMode.ThirdPerson;
+            if (cameraMode === CameraMode.FirstPerson) {
                 this._cameraViewTransitionThreshold = this._camera.lowerRadiusLimit;
                 this._camera.wheelDeltaPercentage = MouseSettingsController.sensitivityComponents.wheelDeltaMultiplier;
             } else {
@@ -760,11 +760,11 @@ export class InputController extends ScriptComponent {
             return;
         }
 
-        this._cameraObtacleDetectInfo.elapse += delta;
-        if (this._cameraObtacleDetectInfo.elapse < this._cameraObtacleDetectInfo.detectDuration) {
+        this._cameraObstacleDetectInfo.elapse += delta;
+        if (this._cameraObstacleDetectInfo.elapse < this._cameraObstacleDetectInfo.detectDuration) {
             return;
         }
-        this._cameraObtacleDetectInfo.elapse -= this._cameraObtacleDetectInfo.detectDuration;
+        this._cameraObstacleDetectInfo.elapse -= this._cameraObstacleDetectInfo.detectDuration;
 
         let isCameraObstructed = false;
         if (this._camera.radius > this._camera.lowerRadiusLimit) {
@@ -776,12 +776,12 @@ export class InputController extends ScriptComponent {
 
             const pickInfo = this._scene.pickWithRay(ray);
             if (pickInfo && pickInfo.hit && pickInfo.pickedPoint) {
-                if (!this._cameraObtacleDetectInfo.isCameraSnapping) {
+                if (!this._cameraObstacleDetectInfo.isCameraSnapping) {
                     // store camera state before camera is snapped
                     this._camera.storeState();
-                    this._cameraObtacleDetectInfo.length = length;
-                    this._cameraObtacleDetectInfo.direction = dir;
-                    this._cameraObtacleDetectInfo.isCameraSnapping = true;
+                    this._cameraObstacleDetectInfo.length = length;
+                    this._cameraObstacleDetectInfo.direction = dir;
+                    this._cameraObstacleDetectInfo.isCameraSnapping = true;
                 }
 
                 if (this._camera.checkCollisions) {
@@ -796,18 +796,18 @@ export class InputController extends ScriptComponent {
             }
         }
 
-        if (!isCameraObstructed && this._cameraObtacleDetectInfo.isCameraSnapping) {
+        if (!isCameraObstructed && this._cameraObstacleDetectInfo.isCameraSnapping) {
             // detect whether camera original position still obstructed or not
             const pickInfo = this._scene.pickWithRay(new Ray(this._camera.target,
-                this._cameraObtacleDetectInfo.direction,
-                this._cameraObtacleDetectInfo.length + this._cameraSkin));
+                this._cameraObstacleDetectInfo.direction,
+                this._cameraObstacleDetectInfo.length + this._cameraSkin));
 
             if (!pickInfo || !pickInfo.hit) {
                 if (this._camera.checkCollisions) {
                     // TODO: Determine if the line below is necessary.
                     // const cameraToAvatar = this._camera.target.subtract(this._camera.position).normalize();
                     this._camera.target.addToRef(
-                        this._cameraObtacleDetectInfo.direction.scale(this._cameraObtacleDetectInfo.length),
+                        this._cameraObstacleDetectInfo.direction.scale(this._cameraObstacleDetectInfo.length),
                         this._camera.position);
                 } else {
                     const target = this._camera.target.clone();
@@ -816,8 +816,8 @@ export class InputController extends ScriptComponent {
                 }
 
                 // TODO: Determine if the line below is necessary.
-                // const vec = this._cameraObtacleDetectInfo.direction.scale(this._cameraObtacleDetectInfo.length);
-                this._cameraObtacleDetectInfo.isCameraSnapping = false;
+                // const vec = this._cameraObstacleDetectInfo.direction.scale(this._cameraObstacleDetectInfo.length);
+                this._cameraObstacleDetectInfo.isCameraSnapping = false;
             }
         }
     }
@@ -855,7 +855,7 @@ export class InputController extends ScriptComponent {
             return;
         }
 
-        if (mode === CameraMode.FirstPersion) {
+        if (mode === CameraMode.FirstPerson) {
             this._setAvatarVisible(false);
             this._camera.checkCollisions = false;
         } else {

@@ -42,7 +42,7 @@ export type SetAudioOutputCallback = (pStream: Nullable<MediaStream>) => void;
  */
 export class AudioManager {
 
-    // Function that sets the MediaStream from the domain to whereever it goes
+    // Function that sets the MediaStream from the domain to wherever it goes
     private static _setAudioOutputFunction = undefined as unknown as SetAudioOutputCallback;
 
     /**
@@ -394,7 +394,7 @@ export class AudioManager {
                 // If we get access, say we're connected
                 applicationStore.audio.user.hasInputAccess = true;
             } catch (e) {
-                Log.error(Log.types.AUDIO, `EXCEPTION getting audio device access`);
+                Log.error(Log.types.AUDIO, `Exception getting audio device access.`);
             }
         }
         return inputStream;
@@ -409,7 +409,7 @@ export class AudioManager {
     public static async setInitialInputAudioDevice(pInitial?: MediaStream): Promise<void> {
         Log.debug(Log.types.AUDIO, `AudioManager.setInitialInputAudioDevice`);
         try {
-            Log.debug(Log.types.AUDIO, `AudioManager: set inital Input audio device`);
+            Log.debug(Log.types.AUDIO, `AudioManager: Set initial Input audio device.`);
             if (pInitial) {
                 await AudioManager.setUserAudioInputStream(pInitial, await AudioManager.getDeviceInfoForStream(pInitial));
             } else if (applicationStore.audio.inputsList.length > 0) {
@@ -428,7 +428,7 @@ export class AudioManager {
         const lastSessionOutput = Config.getItem(USER_AUDIO_OUTPUT, "none");
         try {
             if (lastSessionOutput === "none") {
-                Log.debug(Log.types.AUDIO, `AudioManager: set inital output audio device`);
+                Log.debug(Log.types.AUDIO, `AudioManager: Set initial output audio device.`);
                 if (applicationStore.audio.outputsList.length > 0) {
                     const firstOutput = applicationStore.audio.outputsList[0];
                     AudioManager.setAudioOutputStream(firstOutput);
@@ -440,13 +440,13 @@ export class AudioManager {
                 // The user is specifying a device. Reselect that one.
                 const userDev = applicationStore.audio.outputsList.filter((ii) => ii.deviceId === lastSessionOutput);
                 if (userDev.length > 0) {
-                    Log.debug(Log.types.AUDIO, `AudioManager: Found output audio device from last session`);
+                    Log.debug(Log.types.AUDIO, `AudioManager: Found output audio device from last session.`);
                     // Found the output device from last session.
                     const devInfo = userDev[0];
                     AudioManager.setAudioOutputStream(devInfo);
                 } else {
                     // The device is not found from last session. Default to first one
-                    Log.debug(Log.types.AUDIO, `AudioManager: Did not found output audio device from last session`);
+                    Log.debug(Log.types.AUDIO, `AudioManager: Could not find output audio device from last session.`);
                     const firstOutput = applicationStore.audio.outputsList[0];
                     AudioManager.setAudioOutputStream(firstOutput);
                 }

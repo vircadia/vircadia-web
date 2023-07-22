@@ -9,10 +9,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import {
-    Node,
-    TransformNode
-} from "@babylonjs/core";
+import type { Node, TransformNode } from "@babylonjs/core";
 // General Modules
 import Log from "@Modules/debugging/log";
 import { AvatarMapper } from "../AvatarMapper";
@@ -73,7 +70,7 @@ export class ScriptAvatarController extends ScriptComponent {
 
     public onUpdate(): void {
         if (this._gameObject) {
-            // sync postion
+            // sync position
             this._gameObject.position = AvatarMapper.mapToLocalPosition(this._avatar.position);
             // sync orientation
             this._gameObject.rotationQuaternion = AvatarMapper.mapToLocalOrientation(this._avatar.orientation);
@@ -107,7 +104,7 @@ export class ScriptAvatarController extends ScriptComponent {
                 node.position = AvatarMapper.mapToLocalJointTranslation(joint.defaultTranslation);
 
                 let rotation = AvatarMapper.mapToLocalJointRotation(joint.defaultRotation);
-                if (this._isVaildParentIndex(joint.parentIndex)) {
+                if (this._isValidParentIndex(joint.parentIndex)) {
                     const parentQuat = AvatarMapper.mapToLocalJointRotation(
                         this._skeletonJointsCache[joint.parentIndex].defaultRotation);
                     rotation = parentQuat.invert().multiply(rotation);
@@ -130,7 +127,7 @@ export class ScriptAvatarController extends ScriptComponent {
 
                 // covert absolute rotation to relative
                 let rotation = AvatarMapper.mapToLocalJointRotation(this._getJointRotation(joint.jointIndex));
-                if (this._isVaildParentIndex(joint.parentIndex)) {
+                if (this._isValidParentIndex(joint.parentIndex)) {
                     const parentRotation = AvatarMapper.mapToLocalJointRotation(this._getJointRotation(joint.parentIndex));
                     rotation = parentRotation.invert().multiply(rotation);
                 }
@@ -150,13 +147,13 @@ export class ScriptAvatarController extends ScriptComponent {
         return q ? q : this._skeletonJointsCache[index].defaultRotation;
     }
 
-    private _isVaildParentIndex(index: number): boolean {
+    private _isValidParentIndex(index: number): boolean {
         return index >= 0 && index < this._skeletonJointsCache.length;
     }
 
     // NOTE:
-    // call this._avatar.skeleton hits performance.
-    // chace default joints value here.
+    // Calls to this._avatar.skeleton hit performance.
+    // Cache default joint values here.
     private _cacheJoints(): void {
         this._skeletonJointsCache = [];
         this._avatar.skeleton.forEach((joint) => {

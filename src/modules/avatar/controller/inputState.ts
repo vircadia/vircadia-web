@@ -12,8 +12,8 @@
 import { Observable } from "@babylonjs/core";
 
 export enum CameraMode {
-    FirstPersion,
-    ThirdPersion
+    FirstPerson,
+    ThirdPerson
 }
 
 export enum InputMode {
@@ -61,7 +61,7 @@ export class InputStateProperty<T> implements IInputStateProperty {
 
 export class InputState {
     private _cameraCheckCollisions = new InputStateProperty(true);
-    private _cameraMode = new InputStateProperty(CameraMode.ThirdPersion);
+    private _cameraMode = new InputStateProperty(CameraMode.ThirdPerson);
     private _cameraElastic = new InputStateProperty(true);
     private _inputMode = new InputStateProperty(InputMode.Interactive);
     private _properties = new Array<IInputStateProperty>();

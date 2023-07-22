@@ -24,7 +24,7 @@ import type { IWebEntity } from "@Modules/entity/EntityInterfaces";
 import type { Metaverse, MetaverseState } from "@Modules/metaverse/metaverse";
 import type { Vector3, Quaternion } from "@babylonjs/core";
 
-// Infomation kept about avatars also include information about our control of that representation
+// Information kept about avatars also include information about our control of that representation
 export interface AvatarInfo {
     sessionId: Uuid,        // session Id
     volume: number,         // audio volume setting (0..100)

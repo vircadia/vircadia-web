@@ -38,8 +38,8 @@ export class ResourceManager {
     _scene: Scene;
     _assetsManager: AssetsManager;
 
-    constructor(secne: Scene) {
-        this._scene = secne;
+    constructor(scene: Scene) {
+        this._scene = scene;
         this._assetsManager = new AssetsManager(this._scene);
     }
 

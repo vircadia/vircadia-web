@@ -38,7 +38,7 @@ export enum ConnectionState {
 }
 
 /**
- * Names of configuration variables used for persistant storage in Config.
+ * Names of configuration variables used for persistent storage in Config.
  */
 export const DomainPersist = {
     "DOMAIN_URL": "Domain.Url"

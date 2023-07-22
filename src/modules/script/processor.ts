@@ -71,7 +71,7 @@ function preprocress(script: ScriptComponent): void {
 }
 
 /**
- * Requires the nedded script and attach to scene.
+ * Requires the needed script and attach to scene.
  */
 export function requireScript(scene: Scene, script: ScriptComponent): void {
     const gameObjName = script.gameObject ? script.gameObject.name : "";
@@ -104,7 +104,7 @@ export function requireScript(scene: Scene, script: ScriptComponent): void {
 }
 
 /**
- * Requires the nedded scripts for the given nodes array and attach them.
+ * Requires the needed scripts for the given nodes array and attach them.
  * @param scene defines the reference to the scene that contains the given nodes.
  * @param nodes the array of nodes to attach script (if exists).
  */

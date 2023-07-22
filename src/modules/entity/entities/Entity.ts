@@ -55,7 +55,7 @@ export abstract class Entity implements IEntity {
     protected _velocity: IVector3Property | undefined;
     protected _damping: number | undefined;
     protected _angularVelocity: IVector3Property | undefined;
-    protected _angularDampling: number | undefined;
+    protected _angularDamping: number | undefined;
     protected _restitution: number | undefined;
     protected _friction: number | undefined;
     protected _density: number | undefined;
@@ -280,13 +280,13 @@ export abstract class Entity implements IEntity {
         }
     }
 
-    public get angularDampling(): number | undefined {
-        return this._angularDampling;
+    public get angularDamping(): number | undefined {
+        return this._angularDamping;
     }
 
-    public set angularDampling(value: number | undefined) {
-        if (typeof value === "number" && this._angularDampling !== value) {
-            this._angularDampling = value;
+    public set angularDamping(value: number | undefined) {
+        if (typeof value === "number" && this._angularDamping !== value) {
+            this._angularDamping = value;
             this._onPhysicsPropertiesChanged.isDirty = true;
         }
     }
@@ -398,7 +398,7 @@ export abstract class Entity implements IEntity {
         this.velocity = props.velocity;
         this.damping = props.damping;
         this.angularVelocity = props.angularVelocity;
-        this.angularDampling = props.angularDampling;
+        this.angularDamping = props.angularDampling;
         this.restitution = props.restitution;
         this.friction = props.friction;
         this.density = props.density;

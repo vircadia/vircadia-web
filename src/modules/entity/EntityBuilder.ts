@@ -45,7 +45,7 @@ class EntityGameObjectBuilder {
             return gameObject;
         }
 
-        Log.error(Log.types.ENTITIES, `Fail to create entity. Unknow entity type: ${entity.type}`);
+        Log.error(Log.types.ENTITIES, `Fail to create entity. Unknown entity type: ${entity.type}`);
         return undefined;
     }
 }

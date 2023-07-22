@@ -67,7 +67,7 @@ export const Account = {
      *
      * If the metaverse is connected and the user is not logged in already,
      * fetch an access token for the account.
-     * This also fetches the account information and updates the Vuex store.
+     * This also fetches the account information and updates the Store.
      *
      * @param {string} pUsername Username to login
      * @param {string} pPassword Password of user to login

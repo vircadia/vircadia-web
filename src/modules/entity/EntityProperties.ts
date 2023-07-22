@@ -155,7 +155,7 @@ export interface IPhysicsProperties {
     velocity: IVector3Property | undefined;
     damping: number | undefined;
     angularVelocity: IVector3Property | undefined;
-    angularDampling: number | undefined;
+    angularDamping: number | undefined;
     restitution: number | undefined;
     friction: number | undefined;
     density: number | undefined;

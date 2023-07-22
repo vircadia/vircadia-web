@@ -45,7 +45,7 @@ export interface AccountInfo {
 }
 
 /**
- * Domain information returned by verious domain requests.
+ * Domain information returned by various domain requests.
  */
 export interface DomainInfoV1 {
     "id": string,           // Legacy. Deprecated.
@@ -98,7 +98,7 @@ export interface DomainInfoV1 {
 }
 
 /**
- * Domain information returned by verious domain requests.
+ * Domain information returned by various domain requests.
  */
 export interface DomainInfo {
     "id": string,

@@ -239,7 +239,7 @@ export class WebEntityController extends EntityController {
 
         this._cssObject = new CSS3DObject(div, this._meshComponent.mesh);
         /*
-        this._cssObject.onPickedObservale.add(() => {
+        this._cssObject.onPickedObservable.add(() => {
             if (this._isJitsi) {
                 this._jointConferenceRoom();
             }

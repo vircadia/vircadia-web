@@ -211,8 +211,8 @@ export class VScene {
     }
 
     // Note:
-    // The position and orientation coordinate of babylon.js and doamin are different.
-    // Replace this functin with teleportMyAvatar with location to prevent mess.
+    // The position and orientation coordinate of babylon.js and domain are different.
+    // Replace this function with teleportMyAvatar with location to prevent mess.
     private _teleportMyAvatar(position: Vector3 | undefined, rotation?: Quaternion | undefined): void {
         if (this._myAvatar) {
             if (position) {
@@ -517,9 +517,9 @@ export class VScene {
         this._scene.enablePhysics(Vector3.Zero(), new AmmoJSPlugin(true, ammoReference));
         /* const hk = await HavokPhysics();
         this._scene.enablePhysics(Vector3.Zero(), new HavokPlugin(true, hk)); */
-        // Prevent to clear the buffer of mask mesh render groud
+        // Don't clear the buffer for the default mesh render group.
         this._scene.setRenderingAutoClearDepthStencil(DEFAULT_MESH_RENDER_GROUP_ID, false);
-        // Needs to be transparent for web entity to be seen
+        // Needs to be transparent for web entity to be seen.
         this._scene.clearColor = new Color4(0, 0, 0, 0);
 
         if (this._css3DRenderer) {

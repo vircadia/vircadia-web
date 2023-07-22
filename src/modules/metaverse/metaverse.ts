@@ -29,7 +29,7 @@ export enum MetaverseState {
 }
 
 /**
- * Names of configuration variables used for persistant storage in Config.
+ * Names of configuration variables used for persistent storage in Config.
  */
 export const MetaversePersist = {
     "METAVERSE_URL": "Metaverse.Url",
@@ -146,7 +146,7 @@ export class Metaverse {
     }
 
     /**
-     * Fetch persistantly stored variables.
+     * Fetch persistently stored variables.
      *
      * Note: This is not reactive, so it is best used when initializing.
      */

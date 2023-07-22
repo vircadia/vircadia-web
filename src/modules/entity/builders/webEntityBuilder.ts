@@ -1,5 +1,5 @@
 //
-//  whapeEntityBuilder.ts
+//  webEntityBuilder.ts
 //
 //  Created by Nolan Huang on 7 Oct 2022.
 //  Copyright 2022 Vircadia contributors.

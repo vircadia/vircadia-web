@@ -80,7 +80,7 @@ export class EntityManager {
     public createEntity(props: EntityProperties): IEntity | undefined {
         const factory = this._entityFactories.get(props.entityType);
         if (!factory) {
-            Log.warn(Log.types.ENTITIES, `unknow entity type ${props.entityType}`);
+            Log.warn(Log.types.ENTITIES, `Unknown entity type: ${props.entityType}`);
             return undefined;
         }
         const entity = factory(props.entityItemID.stringify());
