@@ -142,7 +142,11 @@ export class VScene {
 
         // create camera
         if (!this._camera) {
-            this._camera = new ArcRotateCamera("MainCamera", -Math.PI / 2, Math.PI / 2, 6, new Vector3(0, 1, 0), this._scene);
+            const defaultAlpha = -Math.PI / 2;
+            const defaultBeta = Math.PI / 2;
+            const defaultRadius = 6;
+            const defaultTarget = new Vector3(0, 1, 0);
+            this._camera = new ArcRotateCamera("MainCamera", defaultAlpha, defaultBeta, defaultRadius, defaultTarget, this._scene);
             this._scene.activeCamera = this._camera;
         }
 

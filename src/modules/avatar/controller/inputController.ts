@@ -36,7 +36,6 @@ import { applicationStore, userStore } from "@Stores/index";
 import type { SceneController } from "@Modules/scene/controllers";
 import { MouseSettingsController } from "@Base/modules/avatar/controller/inputs/mouseSettings";
 
-
 // Custom camera controls.
 class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
     className = "ArcRotateCameraCustomInput";
@@ -235,6 +234,12 @@ export class InputController extends ScriptComponent {
             // Bind the custom controls to the camera.
             this._camera.inputs.add(new ArcRotateCameraCustomInput(this._camera));
             this._camera.attachControl(this._scene.getEngine().getRenderingCanvas());
+
+            // FIXME: Toss this into an app module.
+            if (globalThis.useIgloo) {
+                /* eslint-disable-next-line */
+                globalThis.IglooCameraInstance = new globalThis.IglooCamera(null, this._scene);
+            }
         }
     }
 
@@ -758,6 +763,11 @@ export class InputController extends ScriptComponent {
     private _snapCamera(delta: number): void {
         if (!this._camera || !this._camera.lowerRadiusLimit) {
             return;
+        }
+
+        if (globalThis.useIgloo) {
+            /* eslint-disable-next-line */
+            globalThis.IglooCameraInstance.setPosition(this._camera.position);
         }
 
         this._cameraObstacleDetectInfo.elapse += delta;

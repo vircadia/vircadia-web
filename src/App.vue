@@ -16,6 +16,14 @@ import { applicationStore } from "@Stores/index";
 import { Utility } from "@Modules/utility";
 import Log from "@Modules/debugging/log";
 
+// FIXME: Apps - This should be handled properly.
+/* eslint-disable-next-line */
+globalThis.useIgloo = window.location.pathname.includes("igloo");
+/* eslint-disable-next-line */
+import { IglooCamera } from "./modules/apps/igloo/Igloo.js";
+/* eslint-disable-next-line */
+globalThis.IglooCamera = IglooCamera;
+
 export default defineComponent({
     name: "App",
     setup() {
