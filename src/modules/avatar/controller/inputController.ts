@@ -33,7 +33,7 @@ import { IInputHandler } from "./inputs/inputHandler";
 import { KeyboardInput } from "./inputs/keyboardInput";
 import { VirtualJoystickInput } from "./inputs/virtualJoystickInput";
 import { applicationStore, userStore } from "@Stores/index";
-import type { SceneController } from "@Modules/scene/controllers";
+import { Renderer } from "@Base/modules/scene";
 import { MouseSettingsController } from "@Base/modules/avatar/controller/inputs/mouseSettings";
 
 // Custom camera controls.
@@ -496,9 +496,7 @@ export class InputController extends ScriptComponent {
                 return;
             }
             this._avatarState.state = State.Idle;
-            const sceneManager = this._scene.rootNodes.find((node) => node.id === "SceneManager") as GameObject;
-            const sceneController = sceneManager.components.get("SceneController") as SceneController | undefined;
-            sceneController?.applyGravity();
+            Renderer.getScene().sceneController?.applyGravity();
         }
     }
 
@@ -550,15 +548,13 @@ export class InputController extends ScriptComponent {
             return;
         }
 
-        // Reset the avatar's rotation (so that it is standing up).
+        // Reset the avatar's rotation (so that it is standing upright).
         if (this._gameObject && this._gameObject.rotationQuaternion) {
             this._gameObject.rotationQuaternion.x = 0;
             this._gameObject.rotationQuaternion.z = 0;
         }
 
-        const sceneManager = this._scene.rootNodes.find((node) => node.id === "SceneManager") as GameObject;
-        const sceneController = sceneManager.components.get("SceneController") as SceneController | undefined;
-        sceneController?.applyGravity();
+        Renderer.getScene().sceneController?.applyGravity();
 
         this._avatarState.duration += delta;
 

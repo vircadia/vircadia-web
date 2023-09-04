@@ -109,6 +109,10 @@ export class VScene {
         return this._css3DRenderer;
     }
 
+    public get sceneController(): Nullable<SceneController> {
+        return this._sceneController;
+    }
+
     public render(): void {
         this._scene.render();
 
