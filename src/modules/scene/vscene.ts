@@ -323,7 +323,8 @@ export class VScene {
             }
             const avatarHeight = boundingVectors.max.y - boundingVectors.min.y;
 
-            const hipPosition = result.skeleton?.bones.find((bone) => bone.name === "Hips")?.position;
+            const hipBone = result.skeleton?.bones.find((bone) => bone.name === "Hips");
+            const hipPosition = hipBone?.position;
 
             // Reload the avatar animations file in case the new avatar is a different size than the previous one.
             // The browser cache will prevent this from being fetched over the network if the avatar is switched frequently.
@@ -380,7 +381,7 @@ export class VScene {
             let nametagColor = userStore.account.isAdmin ? Color3.FromHexString(applicationStore.theme.colors.primary) : undefined;
             NametagEntity.create(
                 this._myAvatar,
-                avatarHeight,
+                () => (hipBone?.position.y ?? avatarHeight / 2) + avatarHeight / 2,
                 userStore.avatar.displayName,
                 false,
                 nametagColor

@@ -12,7 +12,7 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable new-cap */
 
-import { AbstractMesh,
+import { type AbstractMesh,
     Color3,
     DynamicTexture,
     Matrix,
@@ -25,6 +25,7 @@ import { AbstractMesh,
 import { DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { Renderer } from "@Modules/scene";
 import { userStore } from "@Stores/index";
+import { Hysteresis } from "@Modules/utility/hysteresis";
 
 /**
  * Contains all of the memoized nametag meshes within the scene.
@@ -119,7 +120,7 @@ export class NametagEntity {
      */
     public static create(
         object: Mesh | AbstractMesh | TransformNode,
-        height: number,
+        height: number | (() => number),
         name: string,
         icon = false,
         color?: Color3,
@@ -310,7 +311,15 @@ export class NametagEntity {
 
         // Position the nametag above the center of the object.
         const positionOffset = new Vector3(0, 0.15, 0);
-        mesh.position = new Vector3(positionOffset.x, height + positionOffset.y, positionOffset.z);
+        let h = 0;
+        let heightHysteresis: Nullable<Hysteresis> = null;
+        if (typeof height === "number") {
+            h = height + positionOffset.y;
+        } else {
+            h = height() + positionOffset.y;
+            heightHysteresis = new Hysteresis(() => height() + positionOffset.y, 100, positionOffset.y);
+        }
+        mesh.position = new Vector3(positionOffset.x, h, positionOffset.z);
 
         const scaleAdjustmentFactorX = object.scaling.x > 0 ? 1 / object.scaling.x : 1;
         const scaleAdjustmentFactorY = object.scaling.y > 0 ? 1 / object.scaling.y : 1;
@@ -331,6 +340,11 @@ export class NametagEntity {
             if (!mesh) {
                 return;
             }
+            // Update the nametag's position.
+            if (heightHysteresis) {
+                mesh.position.y = heightHysteresis.get();
+            }
+            // Update the nametag's opacity.
             const avatar = Renderer.getScene()?.getMyAvatar();
             if (avatar) {
                 const avatarPosition = avatar.getAbsolutePosition().clone();
