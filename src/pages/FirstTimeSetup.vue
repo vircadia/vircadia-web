@@ -498,7 +498,8 @@ import { defineComponent } from "vue";
 import { uniqueNamesGenerator, adjectives, colors, animals } from "unique-names-generator";
 import { AvatarStoreInterface } from "@Modules/avatar/StoreInterface";
 import { Utility } from "@Modules/utility";
-import { Places, PlaceEntry } from "@Modules/places";
+import { API } from "@Modules/metaverse/API";
+import type { PlaceEntry } from "@Modules/metaverse/APIPlaces";
 
 export default defineComponent({
     name: "FirstTimeSetup",
@@ -509,7 +510,7 @@ export default defineComponent({
             transition: false,
             step: 1,
             AvatarStoreInterface,
-            placesList: [] as PlaceEntry[],
+            placesList: new Array<PlaceEntry>(),
             selectedPlace: {} as PlaceEntry
         };
     },
@@ -629,7 +630,7 @@ export default defineComponent({
          */
         async loadPlaces(): Promise<void> {
             await Utility.metaverseConnectionSetup(applicationStore.defaultConnectionConfig.DEFAULT_METAVERSE_URL ?? "");
-            this.placesList = await Places.getActiveList();
+            this.placesList = await API.getActivePlaceList();
         },
         /**
          * Register the first-time-setup process as complete, and redirect to any pending location.
