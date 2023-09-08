@@ -11,7 +11,7 @@
 
 import { IEntity, IMaterialEntity } from "../EntityInterfaces";
 import { AbstractEntityBuilder } from "./AbstractEntityBuilder";
-import { GameObject } from "@Base/modules/object";
+import { GameObject } from "@Modules/entity";
 import { MaterialEntityController } from "../components";
 
 export class MaterialEntityBuilder extends AbstractEntityBuilder {

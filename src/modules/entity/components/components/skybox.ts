@@ -12,8 +12,9 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable new-cap */
 
-import { MeshComponent, DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { Scene, MeshBuilder, StandardMaterial, Texture, CubeTexture, EquiRectangularCubeTexture, BaseTexture } from "@babylonjs/core";
+import { DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/entity";
+import { MeshComponent } from "./mesh";
 import { ISkyboxProperty, IVector3Property } from "../../EntityProperties";
 import { EntityMapper } from "../../package";
 import { AssetUrl } from "../../builders/asset";

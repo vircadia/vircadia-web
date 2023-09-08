@@ -9,8 +9,8 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { GenericNodeComponent } from "@Modules/object";
 import { Scene, TransformNode } from "@babylonjs/core";
+import { GenericNodeComponent } from "@Modules/entity/components";
 import { IHazeProperty } from "../../EntityProperties";
 import { EntityMapper } from "../../package";
 

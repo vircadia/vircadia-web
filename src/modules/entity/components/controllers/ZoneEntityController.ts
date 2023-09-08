@@ -15,8 +15,7 @@
 import { watch } from "vue";
 import { EntityController } from "./EntityController";
 import { IZoneEntity } from "../../EntityInterfaces";
-import { SkyboxComponent, KeyLightComponent, HazeComponent } from "../components";
-import { AmbientLightComponent } from "@Modules/object";
+import { AmbientLightComponent, SkyboxComponent, KeyLightComponent, HazeComponent } from "../components";
 import { AssetUrl } from "../../builders";
 import {
     HemisphericLight, Vector3, DefaultRenderingPipeline, CubeTexture, HDRCubeTexture,

@@ -12,8 +12,8 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable new-cap */
 
-import { LightComponent } from "@Modules/object";
 import { PointLight, SpotLight, Light, Vector3, Scene } from "@babylonjs/core";
+import { LightComponent } from "@Modules/entity/components";
 import { ILightEntity } from "../../EntityInterfaces";
 import { EntityMapper } from "../../package";
 

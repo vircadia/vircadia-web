@@ -12,8 +12,8 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable new-cap */
 
-import { GenericNodeComponent, GameObject, MeshComponent, IComponent } from "@Modules/object";
 import { Node, Material, StandardMaterial, AbstractMesh, Nullable, Observer } from "@babylonjs/core";
+import { GenericNodeComponent, GameObject, MeshComponent, IComponent } from "@Modules/entity/components";
 import { IMaterialEntity } from "../../EntityInterfaces";
 
 export class MaterialComponent extends GenericNodeComponent<Node> {

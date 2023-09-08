@@ -11,7 +11,7 @@
 
 import { IEntity, ILightEntity } from "../EntityInterfaces";
 import { AbstractEntityBuilder } from "./AbstractEntityBuilder";
-import { GameObject } from "@Base/modules/object";
+import { GameObject } from "@Modules/entity";
 import { LightEntityController } from "../components";
 
 export class LightEntityBuilder extends AbstractEntityBuilder {

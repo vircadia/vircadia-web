@@ -10,15 +10,15 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
+import { Nullable, Observer } from "@babylonjs/core";
 // General Modules
 import Log from "@Modules/debugging/log";
 // Domain Modules
 import { ScriptComponent } from "@Modules/script";
 import { IEntity } from "../../EntityInterfaces";
 import { EntityMapper } from "../../package";
-import { GameObject, MeshComponent } from "@Modules/object";
+import { GameObject, MeshComponent } from "@Modules/entity/components";
 import { EntityScriptManager } from "../scripts";
-import { Nullable, Observer } from "@babylonjs/core";
 
 export abstract class EntityController extends ScriptComponent {
     // domain properties

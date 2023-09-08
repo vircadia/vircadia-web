@@ -25,7 +25,7 @@ import {
     Tools
 } from "@babylonjs/core";
 import { Animator } from "../animator";
-import { GameObject, MeshComponent } from "@Modules/object";
+import { GameObject, MeshComponent } from "@Modules/entity/components";
 import { ScriptComponent, inspector, inspectorAccessor } from "@Modules/script";
 import { AvatarState, Action, JumpSubState, State, AnimationMap } from "./avatarState";
 import { InputState, CameraMode } from "./inputState";

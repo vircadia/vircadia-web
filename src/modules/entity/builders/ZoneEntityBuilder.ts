@@ -10,7 +10,7 @@
 //
 
 import { IEntity, IZoneEntity } from "../EntityInterfaces";
-import { GameObject } from "@Base/modules/object";
+import { GameObject } from "@Modules/entity";
 import { ZoneEntityController } from "../components";
 
 export class ZoneEntityBuilder {

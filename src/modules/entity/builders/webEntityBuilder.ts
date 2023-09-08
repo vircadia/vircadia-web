@@ -11,7 +11,7 @@
 
 import { IEntity, IWebEntity } from "../EntityInterfaces";
 import { AbstractEntityBuilder } from "./AbstractEntityBuilder";
-import { GameObject } from "@Base/modules/object";
+import { GameObject } from "@Modules/entity";
 import { WebEntityController } from "../components";
 
 export class WebEntityBuilder extends AbstractEntityBuilder {

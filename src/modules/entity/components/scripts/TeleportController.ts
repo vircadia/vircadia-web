@@ -17,7 +17,7 @@ import { inspector } from "@Modules/script";
 import { Renderer, VScene } from "@Modules/scene";
 import { EntityScriptComponent } from "./EntityScript";
 import { Utility } from "@Modules/utility";
-import { GameObject } from "@Modules/object";
+import { GameObject } from "@Modules/entity";
 import { InputController } from "@Modules/avatar";
 
 
