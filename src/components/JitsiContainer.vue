@@ -40,7 +40,8 @@
 import { defineComponent } from "vue";
 import { applicationStore, userStore } from "@Stores/index";
 import { type JitsiRoomInfo } from "@Stores/application-store";
-import { GameObject, WebEntityController } from "@Modules/entity";
+import { GameObject } from "@Modules/object";
+import { WebEntityController } from "@Modules/entity";
 
 export default defineComponent({
     name: "JitsiContainer",

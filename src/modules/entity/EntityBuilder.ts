@@ -10,7 +10,7 @@
 //
 
 import { Scene } from "@babylonjs/core";
-import { GameObject } from "@Modules/entity";
+import { GameObject } from "@Modules/object";
 import { IEntity } from "./EntityInterfaces";
 import { EntityType } from "./EntityProperties";
 import { AbstractEntityBuilder, ShapeEntityBuilder, LightEntityBuilder, ZoneEntityBuilder, ModelEntityBuilder,

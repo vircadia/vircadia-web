@@ -11,7 +11,7 @@
 
 import { IEntity, IImageEntity } from "../EntityInterfaces";
 import { AbstractEntityBuilder } from "./AbstractEntityBuilder";
-import { GameObject } from "@Modules/entity";
+import { GameObject } from "@Base/modules/object";
 import { ImageEntityController } from "../components";
 
 export class ImageEntityBuilder extends AbstractEntityBuilder {

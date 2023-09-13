@@ -20,7 +20,4 @@ export { EntityBuilder } from "./EntityBuilder";
 export { EntityManager } from "./EntityManager";
 export { EntityMapper } from "./package";
 export { EntityEvent, EntityEventType } from "./entityEvent";
-export { GameObject, WebEntityController } from "./components";
-
-export const MASK_MESH_RENDER_GROUP_ID = 0;
-export const DEFAULT_MESH_RENDER_GROUP_ID = 1;
+export { WebEntityController } from "./components/controllers";

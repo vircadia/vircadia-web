@@ -22,7 +22,7 @@ import { type AbstractMesh,
     StandardMaterial,
     TransformNode,
     Vector3 } from "@babylonjs/core";
-import { DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/entity";
+import { DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { Renderer } from "@Modules/scene";
 import { userStore } from "@Stores/index";
 import { Hysteresis } from "@Modules/utility/hysteresis";

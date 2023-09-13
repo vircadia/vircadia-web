@@ -12,12 +12,11 @@
 /* eslint-disable new-cap */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
-import { MeshBuilder, Mesh, StandardMaterial, type Nullable } from "@babylonjs/core";
 import { EntityController } from "./EntityController";
 import { type IWebEntity, WebExtensions } from "../../EntityInterfaces";
-import { MASK_MESH_RENDER_GROUP_ID } from "@Modules/entity";
-import { MeshComponent } from "@Modules/entity/components";
+import { MeshComponent, MASK_MESH_RENDER_GROUP_ID } from "@Base/modules/object";
 import { EntityMapper } from "../../package";
+import { MeshBuilder, Mesh, StandardMaterial, type Nullable } from "@babylonjs/core";
 import { applicationStore } from "@Stores/index";
 import { CSS3DObject } from "@Modules/scene/css3DRenderer";
 import { Renderer } from "@Modules/scene";

@@ -12,9 +12,8 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable new-cap */
 
+import { MeshComponent, DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { SceneLoader, PhysicsImpostor, AbstractMesh, TransformNode, Node } from "@babylonjs/core";
-import { DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/entity";
-import { MeshComponent } from "./mesh";
 import { IModelEntity } from "../../EntityInterfaces";
 import { NametagEntity } from "@Modules/entity/entities";
 import { updateContentLoadingProgress } from "@Modules/scene/LoadingScreen";

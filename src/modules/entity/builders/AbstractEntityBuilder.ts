@@ -9,7 +9,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { GameObject } from "@Modules/entity";
+import { GameObject } from "@Modules/object";
 import { IEntity } from "../EntityInterfaces";
 
 export abstract class AbstractEntityBuilder {

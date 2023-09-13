@@ -14,7 +14,7 @@
 
 import { AnimationGroup, Scene, SceneLoader, AssetsManager,
     AbstractMesh, Vector3, Quaternion, MeshBuilder, StandardMaterial, Color3, Skeleton } from "@babylonjs/core";
-import { DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/entity";
+import { DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { updateContentLoadingProgress } from "@Modules/scene/LoadingScreen";
 import { Uuid } from "@vircadia/web-sdk";
 import Log from "@Modules/debugging/log";

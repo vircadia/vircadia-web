@@ -15,7 +15,7 @@ import { ScriptComponent, inspectorAccessor } from "@Modules/script";
 
 // Domain Modules
 import { MyAvatarInterface, SkeletonJoint } from "@vircadia/web-sdk";
-import { MeshComponent } from "@Modules/entity/components";
+import { MeshComponent } from "../../object";
 
 export class MyAvatarController extends ScriptComponent {
     private _myAvatar: Nullable<MyAvatarInterface> = null;

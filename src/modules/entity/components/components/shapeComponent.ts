@@ -12,9 +12,8 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable new-cap */
 
+import { MeshComponent, DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { StandardMaterial, Mesh, MeshBuilder, PhysicsImpostor } from "@babylonjs/core";
-import { DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/entity";
-import { MeshComponent } from "./mesh";
 import { IShapeEntity } from "../../EntityInterfaces";
 import { EntityMapper } from "../../package";
 

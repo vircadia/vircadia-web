@@ -12,7 +12,7 @@
 
 import { IEntity, IShapeEntity } from "../EntityInterfaces";
 import { AbstractEntityBuilder } from "./AbstractEntityBuilder";
-import { GameObject } from "@Modules/entity";
+import { GameObject } from "@Base/modules/object";
 import { ShapeEntityController } from "../components";
 
 export class ShapeEntityBuilder extends AbstractEntityBuilder {

@@ -14,8 +14,8 @@
 
 import { PhysicsImpostor, StandardMaterial, Vector3 } from "@babylonjs/core";
 import type { AbstractMesh, Material, Nullable, Scene } from "@babylonjs/core";
-import { GenericNodeComponent } from "@Modules/entity/components";
-import type { GameObject } from "@Modules/entity/components";
+import { GenericNodeComponent } from "@Modules/object/component";
+import type { GameObject } from "@Modules/object/GameObject";
 
 const DEFAULT_MASS = 1;
 const DEFAULT_FRICTION = 0.5;

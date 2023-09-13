@@ -47,7 +47,8 @@
 import { defineComponent } from "vue";
 import { applicationStore } from "@Stores/index";
 import { type JitsiRoomInfo } from "@Stores/application-store";
-import { GameObject, WebEntityController } from "@Modules/entity";
+import { GameObject } from "@Modules/object";
+import { WebEntityController } from "@Modules/entity";
 import OverlayShell from "../OverlayShell.vue";
 
 export default defineComponent({
