@@ -447,20 +447,24 @@ export class VScene {
             avatar.addComponent(meshComponent);
             avatar.addComponent(new ScriptAvatarController(domain));
 
+            const hipBone = meshComponent.skeleton?.bones.find((bone) => bone.name === "Hips");
+            const hipPosition = hipBone?.position;
+            const nametagHeight = () => (hipPosition?.y ?? avatarHeight / 2) + avatarHeight / 2;
+
             this._avatarList.set(stringId, avatar);
 
             // Add a nametag to the avatar.
             let nametagColor = applicationStore.avatars.avatarsInfo.get(id)?.isAdmin
                 ? Color3.FromHexString(applicationStore.theme.colors.primary)
                 : undefined;
-            NametagEntity.create(avatar, avatarHeight, domain.displayName, false, nametagColor);
+            NametagEntity.create(avatar, nametagHeight, domain.displayName, false, nametagColor);
             // Update the nametag color when the player's admin state is changed.
             watch(() => Boolean(applicationStore.avatars.avatarsInfo.get(id)?.isAdmin), (value: boolean) => {
                 nametagColor = value ? Color3.FromHexString(applicationStore.theme.colors.primary) : undefined;
                 const nametagAvatar = this._avatarList.get(stringId);
                 NametagEntity.removeAll(nametagAvatar);
                 if (nametagAvatar) {
-                    NametagEntity.create(nametagAvatar, avatarHeight, domain.displayName, false, nametagColor);
+                    NametagEntity.create(nametagAvatar, nametagHeight, domain.displayName, false, nametagColor);
                 }
             });
             // Update the nametag when the displayName is changed.
@@ -468,7 +472,7 @@ export class VScene {
                 const nametagAvatar = this._avatarList.get(stringId);
                 NametagEntity.removeAll(nametagAvatar);
                 if (nametagAvatar) {
-                    NametagEntity.create(nametagAvatar, avatarHeight, domain.displayName, false, nametagColor);
+                    NametagEntity.create(nametagAvatar, nametagHeight, domain.displayName, false, nametagColor);
                 }
             });
         }
