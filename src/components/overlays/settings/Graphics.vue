@@ -65,6 +65,22 @@
                     </q-item>
                     <q-item>
                         <q-item-section
+                            title="Camera Bobbing"
+                        >
+                            Camera Bobbing
+                        </q-item-section>
+                        <q-item-section class="q-pl-sm">
+                            <q-toggle
+                                name="bloom"
+                                v-model="userStore.graphics.cameraBobbing"
+                            />
+                        </q-item-section>
+                        <q-item-section side style="min-width: 5ch;">
+                            <output for="bloom">{{ userStore.graphics.cameraBobbing ? `On` : `Off` }}</output>
+                        </q-item-section>
+                    </q-item>
+                    <q-item>
+                        <q-item-section
                             title="Bloom"
                         >
                             Bloom
