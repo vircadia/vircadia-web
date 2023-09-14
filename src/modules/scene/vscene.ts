@@ -360,13 +360,14 @@ export class VScene {
             }
             this._myAvatar.addComponent(capsuleCollider);
 
+            const myAvatarController = new MyAvatarController();
             const avatarController = new InputController();
             avatarController.animGroups = this._avatarAnimationGroups;
             avatarController.avatarHeight = avatarHeight;
+            avatarController.avatarRoot = myAvatarController.skeletonRootPosition;
             avatarController.camera = this._camera as ArcRotateCamera;
+            const nametagHeightGetter = () => myAvatarController.skeletonRootPosition.y + avatarHeight / 2;
             this._myAvatar.addComponent(avatarController);
-
-            const myAvatarController = new MyAvatarController();
             this._myAvatar.addComponent(myAvatarController);
             if (DomainManager.ActiveDomain && DomainManager.ActiveDomain.AvatarClient?.MyAvatar) {
                 myAvatarController.myAvatar = DomainManager.ActiveDomain.AvatarClient?.MyAvatar;
@@ -377,26 +378,20 @@ export class VScene {
 
             // Add a nametag to the avatar.
             let nametagColor = userStore.account.isAdmin ? Color3.FromHexString(applicationStore.theme.colors.primary) : undefined;
-            NametagEntity.create(
-                this._myAvatar,
-                () => (hipBone?.position.y ?? avatarHeight / 2) + avatarHeight / 2,
-                userStore.avatar.displayName,
-                false,
-                nametagColor
-            );
+            NametagEntity.create(this._myAvatar, nametagHeightGetter, userStore.avatar.displayName, false, nametagColor);
             // Update the nametag color when the player's admin state is changed in the Store.
             watch(() => userStore.account.isAdmin, (value: boolean) => {
                 nametagColor = value ? Color3.FromHexString(applicationStore.theme.colors.primary) : undefined;
                 NametagEntity.removeAll(this._myAvatar);
                 if (this._myAvatar) {
-                    NametagEntity.create(this._myAvatar, avatarHeight, userStore.avatar.displayName, false, nametagColor);
+                    NametagEntity.create(this._myAvatar, nametagHeightGetter, userStore.avatar.displayName, false, nametagColor);
                 }
             });
             // Update the nametag when the displayName is changed in the Store.
             watch(() => userStore.avatar.displayName, (value: string) => {
                 NametagEntity.removeAll(this._myAvatar);
                 if (this._myAvatar) {
-                    NametagEntity.create(this._myAvatar, avatarHeight, value, false, nametagColor);
+                    NametagEntity.create(this._myAvatar, nametagHeightGetter, value, false, nametagColor);
                 }
             });
 

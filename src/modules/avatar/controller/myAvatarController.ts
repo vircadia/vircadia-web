@@ -9,7 +9,9 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { TransformNode } from "@babylonjs/core";
+/* eslint-disable new-cap */
+
+import { TransformNode, Vector3 } from "@babylonjs/core";
 import { AvatarMapper, BoneType } from "../AvatarMapper";
 import { ScriptComponent, inspectorAccessor } from "@Modules/script";
 
@@ -21,6 +23,7 @@ export class MyAvatarController extends ScriptComponent {
     private _myAvatar: Nullable<MyAvatarInterface> = null;
     private _skeletonNodes: Map<string, TransformNode> = new Map<string, TransformNode>();
     private _modelURL: string | undefined;
+    public skeletonRootPosition = Vector3.Zero();
 
     constructor() {
         super(MyAvatarController.typeName);
@@ -170,27 +173,28 @@ export class MyAvatarController extends ScriptComponent {
         }
 
         this._myAvatar.skeleton.forEach((joint) => {
-            if (!this._myAvatar) {
+            const node = this._skeletonNodes.get(joint.jointName);
+            if (!this._myAvatar || !node) {
                 return;
             }
-            const node = this._skeletonNodes.get(joint.jointName);
 
-            if (node) {
-                this._myAvatar.jointTranslations[joint.jointIndex]
-                   = AvatarMapper.mapToDomainJointTranslation(node.position);
+            this._myAvatar.jointTranslations[joint.jointIndex] = AvatarMapper.mapToDomainJointTranslation(node.position);
 
-                let rotation = node.rotationQuaternion;
-                if (rotation) {
-                    if (joint.parentIndex >= 0) {
-                        const q = this._myAvatar.jointRotations[joint.parentIndex];
-                        if (q) {
-                            const parentRotation = AvatarMapper.mapToLocalJointRotation(q);
-                            rotation = parentRotation.multiply(rotation);
-                        }
+            if (joint.jointName === "Hips") {
+                this.skeletonRootPosition.copyFrom(node.position);
+            }
+
+            let rotation = node.rotationQuaternion;
+            if (rotation) {
+                if (joint.parentIndex >= 0) {
+                    const q = this._myAvatar.jointRotations[joint.parentIndex];
+                    if (q) {
+                        const parentRotation = AvatarMapper.mapToLocalJointRotation(q);
+                        rotation = parentRotation.multiply(rotation);
                     }
-
-                    this._myAvatar.jointRotations[joint.jointIndex] = AvatarMapper.mapToDomainJointRotation(rotation);
                 }
+
+                this._myAvatar.jointRotations[joint.jointIndex] = AvatarMapper.mapToDomainJointRotation(rotation);
             }
         });
     }

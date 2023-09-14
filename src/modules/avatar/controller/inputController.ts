@@ -33,8 +33,9 @@ import { IInputHandler } from "./inputs/inputHandler";
 import { KeyboardInput } from "./inputs/keyboardInput";
 import { VirtualJoystickInput } from "./inputs/virtualJoystickInput";
 import { applicationStore, userStore } from "@Stores/index";
-import { Renderer } from "@Base/modules/scene";
-import { MouseSettingsController } from "@Base/modules/avatar/controller/inputs/mouseSettings";
+import { Renderer } from "@Modules/scene";
+import { MouseSettingsController } from "@Modules/avatar/controller/inputs/mouseSettings";
+import { Hysteresis } from "@Modules/utility/hysteresis";
 
 // Custom camera controls.
 class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
@@ -174,11 +175,13 @@ export class InputController extends ScriptComponent {
     private _cameraSkin = 0.1;
     private _cameraElastic = true;
     private _cameraViewTransitionThreshold = 1.5;
+    private _cameraHeightHysteresis: Nullable<Hysteresis> = null;
     private _animGroups = new Array<AnimationGroup>();
     private _animator: Nullable<Animator> = null;
-    private _avatarState: AvatarState = new AvatarState();
+    private _avatarState = new AvatarState();
     private _avatarHeight = 0;
-    private _inputState: InputState = new InputState();
+    private _avatarRoot: Nullable<Vector3> = null;
+    private _inputState = new InputState();
     private _input: Nullable<IInputHandler> = null;
     private _isMobile = false;
 
@@ -200,8 +203,18 @@ export class InputController extends ScriptComponent {
         this._animGroups = value;
     }
 
+    /**
+     * The height of the avatar model.
+     */
     public set avatarHeight(value: number) {
         this._avatarHeight = value;
+    }
+
+    /**
+     * The root vector of the avatar model.
+     */
+    public set avatarRoot(value: Vector3) {
+        this._avatarRoot = value;
     }
 
     public set camera(value: Nullable<ArcRotateCamera>) {
@@ -229,6 +242,12 @@ export class InputController extends ScriptComponent {
                     this._camera.inertia = eventValue.inertia;
                 }
             });
+
+            this._cameraHeightHysteresis = new Hysteresis(
+                () => (this._avatarRoot?.y ?? this._avatarHeight / 2) + this._avatarHeight / 2,
+                100,
+                0.1
+            );
 
             // Remove the default camera controls.
             this._camera.inputs.removeByType("ArcRotateCameraKeyboardMoveInput");
@@ -726,8 +745,15 @@ export class InputController extends ScriptComponent {
             return;
         }
 
+        const cameraMode = this._camera.radius <= this._cameraViewTransitionThreshold
+            ? CameraMode.FirstPerson
+            : CameraMode.ThirdPerson;
+
         // Make the camera follow the avatar.
-        this._defaultCameraTarget.y = this._avatarHeight;
+        const smoothHeight = cameraMode === CameraMode.FirstPerson && userStore.graphics.cameraBobbing
+            ? this._cameraHeightHysteresis?.getInstant()
+            : this._cameraHeightHysteresis?.get();
+        this._defaultCameraTarget.y = smoothHeight ?? this._avatarHeight;
         this._gameObject.position.addToRef(this._defaultCameraTarget, this._camera.target);
 
         // Update the FOV.
@@ -738,9 +764,6 @@ export class InputController extends ScriptComponent {
                 this._snapCamera(delta);
             }
 
-            const cameraMode = this._camera.radius <= this._cameraViewTransitionThreshold
-                ? CameraMode.FirstPerson
-                : CameraMode.ThirdPerson;
             if (cameraMode === CameraMode.FirstPerson) {
                 this._cameraViewTransitionThreshold = this._camera.lowerRadiusLimit;
                 this._camera.wheelDeltaPercentage = MouseSettingsController.sensitivityComponents.wheelDeltaMultiplier;
