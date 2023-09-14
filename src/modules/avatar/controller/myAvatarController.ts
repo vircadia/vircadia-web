@@ -105,21 +105,21 @@ export class MyAvatarController extends ScriptComponent {
         const skeleton = new Array<SkeletonJoint>();
 
         this._skeletonNodes.clear();
-        const comp = this._gameObject.getComponent(MeshComponent.typeName) as MeshComponent;
+        const component = this._gameObject.getComponent(MeshComponent.typeName);
 
-        if (!comp || !comp.mesh) {
+        if (!(component instanceof MeshComponent) || !component.mesh) {
             return;
         }
 
         // Collect the names of the bones in the skeleton.
         const bones: string[] = [];
-        if (comp.skeleton) {
-            for (const bone of comp.skeleton.bones) {
+        if (component.skeleton) {
+            for (const bone of component.skeleton.bones) {
                 bones.push(bone.name);
             }
         }
 
-        const nodes = comp.mesh.getChildren((node) => node.getClassName() === "TransformNode", false);
+        const nodes = component.mesh.getChildren((node) => node.getClassName() === "TransformNode", false);
         nodes?.forEach((node) => {
             this._skeletonNodes.set(node.name, node as TransformNode);
         });

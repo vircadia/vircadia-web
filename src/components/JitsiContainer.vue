@@ -70,10 +70,9 @@ export default defineComponent({
         },
         setupWebEntity(room: JitsiRoomInfo, element: HTMLElement): void {
             const gameObject = GameObject.getGameObjectByID(room.entity.id);
-            const controller = gameObject?.getComponent(WebEntityController.typeName) as WebEntityController;
-            if (controller) {
+            const controller = gameObject?.getComponent(WebEntityController.typeName);
+            if (controller instanceof WebEntityController) {
                 controller.externalElement = element;
-
             }
         }
     }

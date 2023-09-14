@@ -61,7 +61,7 @@ function createSector(name: string, vector1: Vector3, vector2: Vector3, radius =
     const segmentAngle = sectorAngle / segments;
 
     // Create points to connect each segment.
-    const points = [] as Vector3[];
+    const points = new Array<Vector3>();
     for (let i = 0; i < segments; i++) {
         const matrix = Matrix.RotationAxis(Vector3.Cross(vector1, vector2), segmentAngle * i);
         const rotated = Vector3.TransformCoordinates(firstPoint, matrix);
@@ -70,7 +70,7 @@ function createSector(name: string, vector1: Vector3, vector2: Vector3, radius =
     points.push(lastPoint.add(origin));
 
     // Connect each segment point back to the origin.
-    const originPoints = [] as Vector3[];
+    const originPoints = new Array<Vector3>();
     points.forEach(() => {
         originPoints.push(origin);
     });
@@ -225,7 +225,7 @@ export class NametagEntity {
             plane.material = foregroundMaterial;
 
             // Rounded corners.
-            const corners = [] as Mesh[];
+            const corners = new Array<Mesh>();
             const cornerPositions = [
                 new Vector3(-tagWidth / 2, tagHeight / 2 - tagCornerRadius, 0),
                 new Vector3(tagWidth / 2, tagHeight / 2 - tagCornerRadius, 0),
@@ -252,7 +252,7 @@ export class NametagEntity {
             }
 
             // Left and right edges.
-            const edges = [] as Mesh[];
+            const edges = new Array<Mesh>();
             const edgeOptions = {
                 width: tagCornerRadius,
                 height: tagHeight - tagCornerRadius * 2,

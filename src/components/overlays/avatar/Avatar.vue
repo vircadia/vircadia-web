@@ -515,8 +515,8 @@ export default defineComponent({
             set: function(pVal: string): void {
                 Log.debug(Log.types.AVATAR, `Avatar.vue: set displayNameStore. inputInfo=${pVal}`);
                 const scene = Renderer.getScene();
-                const avatarController = scene._myAvatar?.getComponent(MyAvatarController.typeName) as MyAvatarController;
-                if (avatarController) {
+                const avatarController = scene._myAvatar?.getComponent(MyAvatarController.typeName);
+                if (avatarController instanceof MyAvatarController) {
                     avatarController.displayName = pVal;
                 }
                 this.userStore.avatar.displayName = pVal;

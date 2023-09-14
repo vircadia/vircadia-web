@@ -210,11 +210,9 @@ export class VScene {
     }
 
     public stopMyAvatar(): void {
-        if (this._myAvatar) {
-            const controller = this._myAvatar.getComponent(InputController.typeName) as InputController;
-            if (controller) {
-                controller.isStopped = true;
-            }
+        const controller = this._myAvatar?.getComponent(InputController.typeName);
+        if (controller instanceof InputController) {
+            controller.isStopped = true;
         }
     }
 
@@ -231,8 +229,8 @@ export class VScene {
                 this._myAvatar.rotationQuaternion = rotation;
             }
 
-            const controller = this._myAvatar.getComponent(InputController.typeName) as InputController;
-            if (controller) {
+            const controller = this._myAvatar.getComponent(InputController.typeName);
+            if (controller instanceof InputController) {
                 controller.isTeleported = true;
             }
         }

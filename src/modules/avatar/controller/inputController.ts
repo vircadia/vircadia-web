@@ -41,7 +41,7 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
     className = "ArcRotateCameraCustomInput";
     simpleName = "customKeyboardRotate";
     camera: ArcRotateCamera;
-    _keysPressed = [] as string[];
+    _keysPressed = new Array<string>();
     sensibility = 0.01;
     _preventDefault = false;
 
@@ -68,9 +68,11 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
     attachControl(preventDefault: boolean): void {
         this._preventDefault = preventDefault;
         const engine = this.camera.getEngine();
-        const element = engine.getInputElement() as HTMLElement;
+        const element = engine.getInputElement();
         if (!this._onKeyDown || !this._onKeyUp) {
-            element.tabIndex = 1;
+            if (element) {
+                element.tabIndex = 1;
+            }
             // Define the keydown event handler.
             this._onKeyDown = (event: KeyboardEvent) => {
                 if (this._preventDefault) {
@@ -82,7 +84,7 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
                     this._keysPressed.push(event.code);
                 }
             };
-            element.addEventListener("keydown", (event) => {
+            element?.addEventListener("keydown", (event) => {
                 if (this._onKeyDown) {
                     this._onKeyDown(event);
                 }
@@ -98,7 +100,7 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
                     this._keysPressed.splice(index, 1);
                 }
             };
-            element.addEventListener("keyup", (event) => {
+            element?.addEventListener("keyup", (event) => {
                 if (this._onKeyUp) {
                     this._onKeyUp(event);
                 }
@@ -114,16 +116,16 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
 
     detachControl(): void {
         const engine = this.camera.getEngine();
-        const element = engine.getInputElement() as HTMLElement;
+        const element = engine.getInputElement();
         if (this._onKeyDown || this._onKeyUp) {
             // Remove all event listeners.
-            element.removeEventListener("keydown", (event) => {
+            element?.removeEventListener("keydown", (event) => {
                 if (this._onKeyDown) {
                     this._onKeyDown(event);
                 }
             });
             this._onKeyDown = undefined;
-            element.removeEventListener("keyup", (event) => {
+            element?.removeEventListener("keyup", (event) => {
                 if (this._onKeyUp) {
                     this._onKeyUp(event);
                 }
@@ -172,7 +174,7 @@ export class InputController extends ScriptComponent {
     private _cameraSkin = 0.1;
     private _cameraElastic = true;
     private _cameraViewTransitionThreshold = 1.5;
-    private _animGroups: Nullable<Array<AnimationGroup>> = null;
+    private _animGroups = new Array<AnimationGroup>();
     private _animator: Nullable<Animator> = null;
     private _avatarState: AvatarState = new AvatarState();
     private _avatarHeight = 0;
@@ -342,9 +344,7 @@ export class InputController extends ScriptComponent {
 
 
     public onInitialize(): void {
-        this._animator = new Animator(
-            this._gameObject as GameObject,
-            this._animGroups as AnimationGroup[]);
+        this._animator = new Animator(this._gameObject as GameObject, this._animGroups);
 
         // Jump animation-end handler.
         const jumpAnim = this._animator.getAnimationGroup("jump_standing_land_settle_all");
@@ -885,9 +885,9 @@ export class InputController extends ScriptComponent {
         }
 
         // Set the visibility of the avatar's mesh.
-        const meshComp = this._gameObject.getComponent(MeshComponent.typeName) as MeshComponent;
-        if (meshComp) {
-            meshComp.visible = visible;
+        const meshComponent = this._gameObject.getComponent("Mesh");
+        if (meshComponent instanceof MeshComponent) {
+            meshComponent.visible = visible;
         }
     }
 }
