@@ -35,6 +35,7 @@ import { VirtualJoystickInput } from "./inputs/virtualJoystickInput";
 import { applicationStore, userStore } from "@Stores/index";
 import type { SceneController } from "@Modules/scene/controllers";
 import { MouseSettingsController } from "@Base/modules/avatar/controller/inputs/mouseSettings";
+import { IglooCamera } from "@Modules/apps/igloo/Igloo.js";
 
 // Custom camera controls.
 class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
@@ -236,9 +237,8 @@ export class InputController extends ScriptComponent {
             this._camera.attachControl(this._scene.getEngine().getRenderingCanvas());
 
             // FIXME: Toss this into an app module.
-            if (globalThis.useIgloo) {
-                /* eslint-disable-next-line */
-                globalThis.IglooCameraInstance = new globalThis.IglooCamera(null, this._scene);
+            if (window.useIgloo) {
+                window.IglooCameraInstance = new IglooCamera(null, this._scene);
             }
         }
     }
@@ -765,9 +765,8 @@ export class InputController extends ScriptComponent {
             return;
         }
 
-        if (globalThis.useIgloo) {
-            /* eslint-disable-next-line */
-            globalThis.IglooCameraInstance.setPosition(this._camera.position);
+        if (window.useIgloo) {
+            window.IglooCameraInstance.setPosition(this._camera.position);
         }
 
         this._cameraObstacleDetectInfo.elapse += delta;

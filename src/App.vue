@@ -17,12 +17,7 @@ import { Utility } from "@Modules/utility";
 import Log from "@Modules/debugging/log";
 
 // FIXME: Apps - This should be handled properly.
-/* eslint-disable-next-line */
-globalThis.useIgloo = window.location.toString().includes("?igloo=1");
-/* eslint-disable-next-line */
-import { IglooCamera } from "./modules/apps/igloo/Igloo.js";
-/* eslint-disable-next-line */
-globalThis.IglooCamera = IglooCamera;
+window.useIgloo = window.location.toString().includes("?igloo=1");
 
 export default defineComponent({
     name: "App",
