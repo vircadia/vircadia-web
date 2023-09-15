@@ -17,7 +17,7 @@ const defaultLength = 10;
 /**
  * A rolling average hysteresis.
  * @param getter A function to retrieve new values.
- * @param length `(Optional)` The number of points to sample the rolling average from.
+ * @param length `(Optional)` The number of points to sample the rolling average from. (Increasing this number makes the output smoother.)
  * @param threshold `(Optional)` The snapping threshold. New values with a delta greater than this threshold will cause the output to snap to said new value.
  */
 export class Hysteresis {
