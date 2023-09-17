@@ -33,8 +33,9 @@ import { IInputHandler } from "./inputs/inputHandler";
 import { KeyboardInput } from "./inputs/keyboardInput";
 import { VirtualJoystickInput } from "./inputs/virtualJoystickInput";
 import { applicationStore, userStore } from "@Stores/index";
-import type { SceneController } from "@Modules/scene/controllers";
-import { MouseSettingsController } from "@Base/modules/avatar/controller/inputs/mouseSettings";
+import { Renderer } from "@Modules/scene";
+import { MouseSettingsController } from "@Modules/avatar/controller/inputs/mouseSettings";
+import { Hysteresis } from "@Modules/utility/hysteresis";
 import { IglooCamera } from "@Modules/apps/igloo/Igloo.js";
 
 // Custom camera controls.
@@ -42,7 +43,7 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
     className = "ArcRotateCameraCustomInput";
     simpleName = "customKeyboardRotate";
     camera: ArcRotateCamera;
-    _keysPressed = [] as string[];
+    _keysPressed = new Array<string>();
     sensibility = 0.01;
     _preventDefault = false;
 
@@ -69,9 +70,11 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
     attachControl(preventDefault: boolean): void {
         this._preventDefault = preventDefault;
         const engine = this.camera.getEngine();
-        const element = engine.getInputElement() as HTMLElement;
+        const element = engine.getInputElement();
         if (!this._onKeyDown || !this._onKeyUp) {
-            element.tabIndex = 1;
+            if (element) {
+                element.tabIndex = 1;
+            }
             // Define the keydown event handler.
             this._onKeyDown = (event: KeyboardEvent) => {
                 if (this._preventDefault) {
@@ -83,7 +86,7 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
                     this._keysPressed.push(event.code);
                 }
             };
-            element.addEventListener("keydown", (event) => {
+            element?.addEventListener("keydown", (event) => {
                 if (this._onKeyDown) {
                     this._onKeyDown(event);
                 }
@@ -99,7 +102,7 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
                     this._keysPressed.splice(index, 1);
                 }
             };
-            element.addEventListener("keyup", (event) => {
+            element?.addEventListener("keyup", (event) => {
                 if (this._onKeyUp) {
                     this._onKeyUp(event);
                 }
@@ -115,16 +118,16 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
 
     detachControl(): void {
         const engine = this.camera.getEngine();
-        const element = engine.getInputElement() as HTMLElement;
+        const element = engine.getInputElement();
         if (this._onKeyDown || this._onKeyUp) {
             // Remove all event listeners.
-            element.removeEventListener("keydown", (event) => {
+            element?.removeEventListener("keydown", (event) => {
                 if (this._onKeyDown) {
                     this._onKeyDown(event);
                 }
             });
             this._onKeyDown = undefined;
-            element.removeEventListener("keyup", (event) => {
+            element?.removeEventListener("keyup", (event) => {
                 if (this._onKeyUp) {
                     this._onKeyUp(event);
                 }
@@ -173,11 +176,13 @@ export class InputController extends ScriptComponent {
     private _cameraSkin = 0.1;
     private _cameraElastic = true;
     private _cameraViewTransitionThreshold = 1.5;
-    private _animGroups: Nullable<Array<AnimationGroup>> = null;
+    private _cameraHeightHysteresis: Nullable<Hysteresis> = null;
+    private _animGroups = new Array<AnimationGroup>();
     private _animator: Nullable<Animator> = null;
-    private _avatarState: AvatarState = new AvatarState();
+    private _avatarState = new AvatarState();
     private _avatarHeight = 0;
-    private _inputState: InputState = new InputState();
+    private _avatarRoot: Nullable<Vector3> = null;
+    private _inputState = new InputState();
     private _input: Nullable<IInputHandler> = null;
     private _isMobile = false;
 
@@ -199,8 +204,18 @@ export class InputController extends ScriptComponent {
         this._animGroups = value;
     }
 
+    /**
+     * The height of the avatar model.
+     */
     public set avatarHeight(value: number) {
         this._avatarHeight = value;
+    }
+
+    /**
+     * The root vector of the avatar model.
+     */
+    public set avatarRoot(value: Vector3) {
+        this._avatarRoot = value;
     }
 
     public set camera(value: Nullable<ArcRotateCamera>) {
@@ -228,6 +243,12 @@ export class InputController extends ScriptComponent {
                     this._camera.inertia = eventValue.inertia;
                 }
             });
+
+            this._cameraHeightHysteresis = new Hysteresis(
+                () => (this._avatarRoot?.y ?? this._avatarHeight / 2) + this._avatarHeight / 2,
+                100,
+                0.1
+            );
 
             // Remove the default camera controls.
             this._camera.inputs.removeByType("ArcRotateCameraKeyboardMoveInput");
@@ -342,9 +363,7 @@ export class InputController extends ScriptComponent {
 
 
     public onInitialize(): void {
-        this._animator = new Animator(
-            this._gameObject as GameObject,
-            this._animGroups as AnimationGroup[]);
+        this._animator = new Animator(this._gameObject as GameObject, this._animGroups);
 
         // Jump animation-end handler.
         const jumpAnim = this._animator.getAnimationGroup("jump_standing_land_settle_all");
@@ -496,9 +515,7 @@ export class InputController extends ScriptComponent {
                 return;
             }
             this._avatarState.state = State.Idle;
-            const sceneManager = this._scene.rootNodes.find((node) => node.id === "SceneManager") as GameObject;
-            const sceneController = sceneManager.components.get("SceneController") as SceneController | undefined;
-            sceneController?.applyGravity();
+            Renderer.getScene().sceneController?.applyGravity();
         }
     }
 
@@ -550,15 +567,13 @@ export class InputController extends ScriptComponent {
             return;
         }
 
-        // Reset the avatar's rotation (so that it is standing up).
+        // Reset the avatar's rotation (so that it is standing upright).
         if (this._gameObject && this._gameObject.rotationQuaternion) {
             this._gameObject.rotationQuaternion.x = 0;
             this._gameObject.rotationQuaternion.z = 0;
         }
 
-        const sceneManager = this._scene.rootNodes.find((node) => node.id === "SceneManager") as GameObject;
-        const sceneController = sceneManager.components.get("SceneController") as SceneController | undefined;
-        sceneController?.applyGravity();
+        Renderer.getScene().sceneController?.applyGravity();
 
         this._avatarState.duration += delta;
 
@@ -730,8 +745,15 @@ export class InputController extends ScriptComponent {
             return;
         }
 
+        const cameraMode = this._camera.radius <= this._cameraViewTransitionThreshold
+            ? CameraMode.FirstPerson
+            : CameraMode.ThirdPerson;
+
         // Make the camera follow the avatar.
-        this._defaultCameraTarget.y = this._avatarHeight;
+        const smoothHeight = cameraMode === CameraMode.FirstPerson && userStore.graphics.cameraBobbing
+            ? this._cameraHeightHysteresis?.getInstant()
+            : this._cameraHeightHysteresis?.get();
+        this._defaultCameraTarget.y = smoothHeight ?? this._avatarHeight;
         this._gameObject.position.addToRef(this._defaultCameraTarget, this._camera.target);
 
         // Update the FOV.
@@ -742,9 +764,6 @@ export class InputController extends ScriptComponent {
                 this._snapCamera(delta);
             }
 
-            const cameraMode = this._camera.radius <= this._cameraViewTransitionThreshold
-                ? CameraMode.FirstPerson
-                : CameraMode.ThirdPerson;
             if (cameraMode === CameraMode.FirstPerson) {
                 this._cameraViewTransitionThreshold = this._camera.lowerRadiusLimit;
                 this._camera.wheelDeltaPercentage = MouseSettingsController.sensitivityComponents.wheelDeltaMultiplier;
@@ -888,9 +907,9 @@ export class InputController extends ScriptComponent {
         }
 
         // Set the visibility of the avatar's mesh.
-        const meshComp = this._gameObject.getComponent(MeshComponent.typeName) as MeshComponent;
-        if (meshComp) {
-            meshComp.visible = visible;
+        const meshComponent = this._gameObject.getComponent("Mesh");
+        if (meshComponent instanceof MeshComponent) {
+            meshComponent.visible = visible;
         }
     }
 }

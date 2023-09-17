@@ -77,9 +77,9 @@ export class TeleportController extends EntityScriptComponent {
             return;
         }
 
-        const controller = avatar.getComponent(InputController.typeName) as InputController;
+        const controller = avatar.getComponent(InputController.typeName);
 
-        if (controller && !controller.isTeleported) {
+        if (controller instanceof InputController && !controller.isTeleported) {
             void Utility.connectionSetup(this._destination);
         }
     }

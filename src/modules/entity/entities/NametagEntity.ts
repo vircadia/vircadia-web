@@ -12,7 +12,7 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable new-cap */
 
-import { AbstractMesh,
+import { type AbstractMesh,
     Color3,
     DynamicTexture,
     Matrix,
@@ -25,6 +25,7 @@ import { AbstractMesh,
 import { DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { Renderer } from "@Modules/scene";
 import { userStore } from "@Stores/index";
+import { Hysteresis } from "@Modules/utility/hysteresis";
 
 /**
  * Contains all of the memoized nametag meshes within the scene.
@@ -60,7 +61,7 @@ function createSector(name: string, vector1: Vector3, vector2: Vector3, radius =
     const segmentAngle = sectorAngle / segments;
 
     // Create points to connect each segment.
-    const points = [] as Vector3[];
+    const points = new Array<Vector3>();
     for (let i = 0; i < segments; i++) {
         const matrix = Matrix.RotationAxis(Vector3.Cross(vector1, vector2), segmentAngle * i);
         const rotated = Vector3.TransformCoordinates(firstPoint, matrix);
@@ -69,7 +70,7 @@ function createSector(name: string, vector1: Vector3, vector2: Vector3, radius =
     points.push(lastPoint.add(origin));
 
     // Connect each segment point back to the origin.
-    const originPoints = [] as Vector3[];
+    const originPoints = new Array<Vector3>();
     points.forEach(() => {
         originPoints.push(origin);
     });
@@ -119,7 +120,7 @@ export class NametagEntity {
      */
     public static create(
         object: Mesh | AbstractMesh | TransformNode,
-        height: number,
+        height: number | (() => number),
         name: string,
         icon = false,
         color?: Color3,
@@ -224,7 +225,7 @@ export class NametagEntity {
             plane.material = foregroundMaterial;
 
             // Rounded corners.
-            const corners = [] as Mesh[];
+            const corners = new Array<Mesh>();
             const cornerPositions = [
                 new Vector3(-tagWidth / 2, tagHeight / 2 - tagCornerRadius, 0),
                 new Vector3(tagWidth / 2, tagHeight / 2 - tagCornerRadius, 0),
@@ -251,7 +252,7 @@ export class NametagEntity {
             }
 
             // Left and right edges.
-            const edges = [] as Mesh[];
+            const edges = new Array<Mesh>();
             const edgeOptions = {
                 width: tagCornerRadius,
                 height: tagHeight - tagCornerRadius * 2,
@@ -310,7 +311,15 @@ export class NametagEntity {
 
         // Position the nametag above the center of the object.
         const positionOffset = new Vector3(0, 0.15, 0);
-        mesh.position = new Vector3(positionOffset.x, height + positionOffset.y, positionOffset.z);
+        let h = 0;
+        let heightHysteresis: Nullable<Hysteresis> = null;
+        if (typeof height === "number") {
+            h = height + positionOffset.y;
+        } else {
+            h = height() + positionOffset.y;
+            heightHysteresis = new Hysteresis(() => height() + positionOffset.y, 100, positionOffset.y);
+        }
+        mesh.position = new Vector3(positionOffset.x, h, positionOffset.z);
 
         const scaleAdjustmentFactorX = object.scaling.x > 0 ? 1 / object.scaling.x : 1;
         const scaleAdjustmentFactorY = object.scaling.y > 0 ? 1 / object.scaling.y : 1;
@@ -331,6 +340,11 @@ export class NametagEntity {
             if (!mesh) {
                 return;
             }
+            // Update the nametag's position.
+            if (heightHysteresis) {
+                mesh.position.y = heightHysteresis.get();
+            }
+            // Update the nametag's opacity.
             const avatar = Renderer.getScene()?.getMyAvatar();
             if (avatar) {
                 const avatarPosition = avatar.getAbsolutePosition().clone();

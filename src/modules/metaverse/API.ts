@@ -13,8 +13,9 @@ import { MetaverseManager } from "@Modules/metaverse";
 import { Account } from "../account";
 import { GetAccountAPI, PostUsersAPI } from "@Modules/metaverse/APIAccount";
 import { MetaverseInfoAPI } from "@Modules/metaverse/APIInfo";
-import { GetPlacesAPI } from "@Modules/metaverse/APIPlaces";
+import { GetPlacesAPI, type GetPlacesResponse, type PlaceEntry } from "@Modules/metaverse/APIPlaces";
 import { OAuthTokenAPI } from "@Modules/metaverse/APIToken";
+import Log, { findErrorMessage } from "@Modules/debugging/log";
 
 /**
  * Standard response from Metaverse server API requests.
@@ -123,5 +124,35 @@ export class API {
             return data.data;
         }
         throw new Error(`Vircadia API POST request to ${path} failed: ${response.status}: ${response.statusText}`);
+    }
+
+    /**
+     * @returns A list of the places (worlds) available in the connected Metaverse.
+     */
+    public static async getActivePlaceList(): Promise<PlaceEntry[]> {
+        const places: PlaceEntry[] = [];
+
+        if (!MetaverseManager.activeMetaverse?.isConnected) {
+            Log.error(Log.types.PLACES, "Attempted to get places when not connected to a Metaverse server.");
+        }
+
+        try {
+            const placesResponse = await this.get(this.endpoints.places + "?status=online") as GetPlacesResponse;
+
+            for (const place of placesResponse.places) {
+                places.push({
+                    name: place.name,
+                    placeId: place.placeId,
+                    address: place.address,
+                    description: place.description,
+                    thumbnail: place.thumbnail ?? "",
+                    currentAttendance: place.current_attendance ?? 0
+                });
+            }
+        } catch (error) {
+            Log.error(Log.types.PLACES, `Exception while attempting to get places: ${findErrorMessage(error)}`);
+        }
+
+        return places;
     }
 }

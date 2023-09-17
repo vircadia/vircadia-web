@@ -71,9 +71,10 @@ export default defineComponent({
     },
 
     methods: {
-        getWebEntityController() : WebEntityController {
+        getWebEntityController(): WebEntityController | undefined {
             const gameObject = GameObject.getGameObjectByID(this.room.entity.id);
-            return gameObject?.getComponent(WebEntityController.typeName) as WebEntityController;
+            const component = gameObject?.getComponent(WebEntityController.typeName);
+            return component instanceof WebEntityController ? component : undefined;
         }
     },
 

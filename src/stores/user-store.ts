@@ -99,7 +99,8 @@ export const useUserStore = defineStore("user", {
                 fxaaEnabled: true,
                 msaa: 2,
                 sharpen: false,
-                fpsCounter: false
+                fpsCounter: false,
+                cameraBobbing: true
             },
             persistentStorageMedium,
             { mergeDefaults: true }

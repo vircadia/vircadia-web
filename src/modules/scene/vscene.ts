@@ -109,6 +109,10 @@ export class VScene {
         return this._css3DRenderer;
     }
 
+    public get sceneController(): Nullable<SceneController> {
+        return this._sceneController;
+    }
+
     public render(): void {
         this._scene.render();
 
@@ -206,11 +210,9 @@ export class VScene {
     }
 
     public stopMyAvatar(): void {
-        if (this._myAvatar) {
-            const controller = this._myAvatar.getComponent(InputController.typeName) as InputController;
-            if (controller) {
-                controller.isStopped = true;
-            }
+        const controller = this._myAvatar?.getComponent(InputController.typeName);
+        if (controller instanceof InputController) {
+            controller.isStopped = true;
         }
     }
 
@@ -227,8 +229,8 @@ export class VScene {
                 this._myAvatar.rotationQuaternion = rotation;
             }
 
-            const controller = this._myAvatar.getComponent(InputController.typeName) as InputController;
-            if (controller) {
+            const controller = this._myAvatar.getComponent(InputController.typeName);
+            if (controller instanceof InputController) {
                 controller.isTeleported = true;
             }
         }
@@ -319,7 +321,8 @@ export class VScene {
             }
             const avatarHeight = boundingVectors.max.y - boundingVectors.min.y;
 
-            const hipPosition = result.skeleton?.bones.find((bone) => bone.name === "Hips")?.position;
+            const hipBone = result.skeleton?.bones.find((bone) => bone.name === "Hips");
+            const hipPosition = hipBone?.position;
 
             // Reload the avatar animations file in case the new avatar is a different size than the previous one.
             // The browser cache will prevent this from being fetched over the network if the avatar is switched frequently.
@@ -357,13 +360,14 @@ export class VScene {
             }
             this._myAvatar.addComponent(capsuleCollider);
 
+            const myAvatarController = new MyAvatarController();
             const avatarController = new InputController();
             avatarController.animGroups = this._avatarAnimationGroups;
             avatarController.avatarHeight = avatarHeight;
+            avatarController.avatarRoot = myAvatarController.skeletonRootPosition;
             avatarController.camera = this._camera as ArcRotateCamera;
+            const nametagHeightGetter = () => myAvatarController.skeletonRootPosition.y + avatarHeight / 2;
             this._myAvatar.addComponent(avatarController);
-
-            const myAvatarController = new MyAvatarController();
             this._myAvatar.addComponent(myAvatarController);
             if (DomainManager.ActiveDomain && DomainManager.ActiveDomain.AvatarClient?.MyAvatar) {
                 myAvatarController.myAvatar = DomainManager.ActiveDomain.AvatarClient?.MyAvatar;
@@ -374,26 +378,20 @@ export class VScene {
 
             // Add a nametag to the avatar.
             let nametagColor = userStore.account.isAdmin ? Color3.FromHexString(applicationStore.theme.colors.primary) : undefined;
-            NametagEntity.create(
-                this._myAvatar,
-                avatarHeight,
-                userStore.avatar.displayName,
-                false,
-                nametagColor
-            );
+            NametagEntity.create(this._myAvatar, nametagHeightGetter, userStore.avatar.displayName, false, nametagColor);
             // Update the nametag color when the player's admin state is changed in the Store.
             watch(() => userStore.account.isAdmin, (value: boolean) => {
                 nametagColor = value ? Color3.FromHexString(applicationStore.theme.colors.primary) : undefined;
                 NametagEntity.removeAll(this._myAvatar);
                 if (this._myAvatar) {
-                    NametagEntity.create(this._myAvatar, avatarHeight, userStore.avatar.displayName, false, nametagColor);
+                    NametagEntity.create(this._myAvatar, nametagHeightGetter, userStore.avatar.displayName, false, nametagColor);
                 }
             });
             // Update the nametag when the displayName is changed in the Store.
             watch(() => userStore.avatar.displayName, (value: string) => {
                 NametagEntity.removeAll(this._myAvatar);
                 if (this._myAvatar) {
-                    NametagEntity.create(this._myAvatar, avatarHeight, value, false, nametagColor);
+                    NametagEntity.create(this._myAvatar, nametagHeightGetter, value, false, nametagColor);
                 }
             });
 
@@ -444,20 +442,24 @@ export class VScene {
             avatar.addComponent(meshComponent);
             avatar.addComponent(new ScriptAvatarController(domain));
 
+            const hipBone = meshComponent.skeleton?.bones.find((bone) => bone.name === "Hips");
+            const hipPosition = hipBone?.position;
+            const nametagHeight = () => (hipPosition?.y ?? avatarHeight / 2) + avatarHeight / 2;
+
             this._avatarList.set(stringId, avatar);
 
             // Add a nametag to the avatar.
             let nametagColor = applicationStore.avatars.avatarsInfo.get(id)?.isAdmin
                 ? Color3.FromHexString(applicationStore.theme.colors.primary)
                 : undefined;
-            NametagEntity.create(avatar, avatarHeight, domain.displayName, false, nametagColor);
+            NametagEntity.create(avatar, nametagHeight, domain.displayName, false, nametagColor);
             // Update the nametag color when the player's admin state is changed.
             watch(() => Boolean(applicationStore.avatars.avatarsInfo.get(id)?.isAdmin), (value: boolean) => {
                 nametagColor = value ? Color3.FromHexString(applicationStore.theme.colors.primary) : undefined;
                 const nametagAvatar = this._avatarList.get(stringId);
                 NametagEntity.removeAll(nametagAvatar);
                 if (nametagAvatar) {
-                    NametagEntity.create(nametagAvatar, avatarHeight, domain.displayName, false, nametagColor);
+                    NametagEntity.create(nametagAvatar, nametagHeight, domain.displayName, false, nametagColor);
                 }
             });
             // Update the nametag when the displayName is changed.
@@ -465,7 +467,7 @@ export class VScene {
                 const nametagAvatar = this._avatarList.get(stringId);
                 NametagEntity.removeAll(nametagAvatar);
                 if (nametagAvatar) {
-                    NametagEntity.create(nametagAvatar, avatarHeight, domain.displayName, false, nametagColor);
+                    NametagEntity.create(nametagAvatar, nametagHeight, domain.displayName, false, nametagColor);
                 }
             });
         }

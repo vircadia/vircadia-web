@@ -18,3 +18,11 @@ export interface GetPlacesResponse {
     "places": PlaceInfo[],
     "maturity-categories": string[]
 }
+export interface PlaceEntry {
+    name: string;
+    placeId: string;
+    address: string;
+    description: string;
+    thumbnail: string;
+    currentAttendance: number;
+}

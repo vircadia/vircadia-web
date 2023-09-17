@@ -479,7 +479,8 @@ import { Vector3, Vector4 } from "@babylonjs/core";
 import { applicationStore, userStore } from "@Stores/index";
 import { Utility } from "@Modules/utility";
 import { Location } from "@Modules/domain/location";
-import { Places, PlaceEntry } from "@Modules/places";
+import { API } from "@Modules/metaverse/API";
+import type { PlaceEntry } from "@Modules/metaverse/APIPlaces";
 import { Renderer } from "@Modules/scene";
 import Log from "@Modules/debugging/log";
 import OverlayShell from "../OverlayShell.vue";
@@ -515,7 +516,7 @@ export default defineComponent({
 
     data() {
         return {
-            placesList: [] as PlaceEntry[],
+            placesList: new Array<PlaceEntry>(),
             loading: false,
             filterText: "",
             locationInput: "",
@@ -598,7 +599,7 @@ export default defineComponent({
     methods: {
         async loadPlacesList(): Promise<void> {
             this.loading = true;
-            this.placesList = await Places.getActiveList();
+            this.placesList = await API.getActivePlaceList();
             this.loading = false;
         },
 

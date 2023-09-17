@@ -33,8 +33,6 @@ import { InputState, CameraMode, InputMode } from "../inputState";
 import { applicationStore, userStore } from "@Stores/index";
 import { AudioManager as AudioMgr } from "@Modules/scene/audio";
 import { Renderer } from "@Modules/scene";
-import type { GameObject } from "@Modules/object";
-import type { SceneController } from "@Modules/scene/controllers";
 
 
 export class KeyboardInput implements IInputHandler {
@@ -162,8 +160,7 @@ export class KeyboardInput implements IInputHandler {
 
         // Fly.
         if (sourceEvent.code === userStore.controls.keyboard.movement.fly?.keycode) {
-            const sceneManager = this._scene.rootNodes.find((node) => node.id === "SceneManager") as GameObject;
-            const sceneController = sceneManager.components.get("SceneController") as SceneController | undefined;
+            const sceneController = Renderer.getScene().sceneController;
 
             if (this._state.state === State.Fly) {
                 this._state.action = Action.Jump;
@@ -233,9 +230,7 @@ export class KeyboardInput implements IInputHandler {
                     this._state.action = animation;
 
                     // Remove gravity.
-                    const sceneManager = this._scene.rootNodes.find((node) => node.id === "SceneManager") as GameObject;
-                    const sceneController = sceneManager.components.get("SceneController") as SceneController | undefined;
-                    sceneController?.removeGravity();
+                    Renderer.getScene().sceneController?.removeGravity();
 
                     // Snap to the sittable object.
                     avatarMesh.setAbsolutePosition(selectedSitObject[0].getAbsolutePosition());

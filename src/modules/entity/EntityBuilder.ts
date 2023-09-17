@@ -32,7 +32,6 @@ class EntityGameObjectBuilder {
         this._builders.set("Image", new ImageEntityBuilder());
         this._builders.set("Material", new MaterialEntityBuilder());
         this._builders.set("Web", new WebEntityBuilder());
-
     }
 
     public createEntity(entity: IEntity, scene: Nullable<Scene>): Nullable<GameObject> {

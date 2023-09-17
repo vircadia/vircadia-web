@@ -16,7 +16,6 @@
 import { Vector3, Ray } from "@babylonjs/core";
 import { ScriptComponent } from "@Modules/script";
 import type { VScene } from "@Modules/scene/vscene";
-import { InputController } from "@Modules/avatar";
 import Log from "@Modules/debugging/log";
 
 const DEFAULT_GRAVITY = 9.81;
@@ -74,15 +73,8 @@ export class SceneController extends ScriptComponent {
     }
 
     public onUpdate(): void {
-        if (this._scene.isReady()) {
-            const avatar = this._vscene.getMyAvatar();
-            const avatarController = avatar?.getComponent(InputController.typeName) as InputController | null;
-            if (!avatarController) {
-                return;
-            }
-            if (!this.isGravityApplied && this._detectGround()) {
-                this.applyGravity();
-            }
+        if (this._scene.isReady() && !this.isGravityApplied && this._detectGround()) {
+            this.applyGravity();
         }
     }
 

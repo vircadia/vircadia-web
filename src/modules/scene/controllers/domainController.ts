@@ -108,12 +108,9 @@ export class DomainController extends ScriptComponent {
         } else if (state === ConnectionState.DISCONNECTED) {
             this._vscene?.unloadAllAvatars();
 
-            if (this._vscene && this._vscene._myAvatar) {
-                const myAvatarController = this._vscene._myAvatar.getComponent(
-                    MyAvatarController.typeName) as MyAvatarController;
-                if (myAvatarController) {
-                    myAvatarController.myAvatar = null;
-                }
+            const myAvatarController = this._vscene?._myAvatar?.getComponent(MyAvatarController.typeName);
+            if (myAvatarController instanceof MyAvatarController) {
+                myAvatarController.myAvatar = null;
             }
 
             const avatarList = this._avatarMixer?.avatarList;
@@ -157,9 +154,8 @@ export class DomainController extends ScriptComponent {
                 myAvatarInterface.skeletonModelURL = this._vscene.myAvatarModelURL;
             }
 
-            const gameObject = this._vscene._myAvatar;
-            if (gameObject) {
-                const myAvatarController = gameObject.getComponent(MyAvatarController.typeName) as MyAvatarController;
+            const myAvatarController = this._vscene._myAvatar?.getComponent(MyAvatarController.typeName);
+            if (myAvatarController instanceof MyAvatarController) {
                 myAvatarController.myAvatar = myAvatarInterface;
             }
         }

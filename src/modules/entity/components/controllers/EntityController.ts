@@ -30,7 +30,6 @@ export abstract class EntityController extends ScriptComponent {
         this._entity = entity;
     }
 
-
     public onInitialize(): void {
         this._entity.onCommonPropertiesChanged?.add(this._updateCommonProperties.bind(this));
         this._entity.onRenderModeChanged?.add(this._updateRenderModeProperties.bind(this));
