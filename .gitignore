@@ -6,6 +6,9 @@ node_modules
 .quasar
 /dist
 
+# Web workers copied from dependencies.
+/public/js
+
 # Cordova related directories and files
 /src-cordova/node_modules
 /src-cordova/platforms
