@@ -44,6 +44,11 @@ or
 yarn
 ```
 
+If you want to use a local copy of the Vircadia Web SDK, from a directory beside the web app's:
+```sh
+npm run install-local-web-sdk
+```
+
 ## Run, Compile, and Test
 
 ### Customization Options
