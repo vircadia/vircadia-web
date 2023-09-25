@@ -9,16 +9,9 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable new-cap */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import {
-    Scene
-} from "@babylonjs/core";
-
-import { GameObject, MeshComponent } from "@Modules/object";
-import { EntityMapper } from "../package/EntityMapper";
+import { GameObject } from "@Modules/object";
 import { IEntity } from "../EntityInterfaces";
 
 export abstract class AbstractEntityBuilder {
-    public abstract build(gameObject:GameObject, entity: IEntity) : void;
+    public abstract build(gameObject: GameObject, entity: IEntity): void;
 }

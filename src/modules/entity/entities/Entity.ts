@@ -16,15 +16,15 @@ import { EntityProperties } from "@vircadia/web-sdk";
 import { EntityMapper } from "../package";
 
 export class EntityPropertyChangeObservable<T extends IEntity> {
-    _entity : T;
-    public observable : Observable<T> = new Observable<T>();
+    _entity: T;
+    public observable: Observable<T> = new Observable<T>();
     public isDirty = false;
 
-    constructor(entity : T) {
+    constructor(entity: T) {
         this._entity = entity;
     }
 
-    public update() : void {
+    public update(): void {
         if (this.isDirty) {
             this.observable.notifyObservers(this._entity);
             this.isDirty = false;
@@ -33,8 +33,8 @@ export class EntityPropertyChangeObservable<T extends IEntity> {
 }
 
 export abstract class Entity implements IEntity {
-    protected _id : string;
-    protected _type : EntityType;
+    protected _id: string;
+    protected _type: EntityType;
     protected _name: string | undefined;
     protected _parentID: string | undefined;
     protected _visible: boolean | undefined;
@@ -48,32 +48,32 @@ export abstract class Entity implements IEntity {
     protected _userData: string | undefined;
     // collision Properties
     protected _collisionless: boolean | undefined;
-    protected _collisionMask : number | undefined;
+    protected _collisionMask: number | undefined;
     protected _collisionSoundURL: string | undefined;
     protected _dynamic: boolean | undefined;
     // physics Properties
     protected _velocity: IVector3Property | undefined;
     protected _damping: number | undefined;
     protected _angularVelocity: IVector3Property | undefined;
-    protected _angularDampling: number | undefined;
+    protected _angularDamping: number | undefined;
     protected _restitution: number | undefined;
     protected _friction: number | undefined;
     protected _density: number | undefined;
     protected _gravity: IVector3Property | undefined;
 
-    protected _propertyChangeObservables : Array<EntityPropertyChangeObservable<IEntity>>;
+    protected _propertyChangeObservables: Array<EntityPropertyChangeObservable<IEntity>>;
 
-    protected _onCommonPropertiesChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onRenderModeChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onParentChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onPositionAndRotationChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onDimensionChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onScriptChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onUserDataChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onCollisionPropertiesChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onPhysicsPropertiesChanged : EntityPropertyChangeObservable<IEntity>;
+    protected _onCommonPropertiesChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onRenderModeChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onParentChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onPositionAndRotationChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onDimensionChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onScriptChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onUserDataChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onCollisionPropertiesChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onPhysicsPropertiesChanged: EntityPropertyChangeObservable<IEntity>;
 
-    constructor(id : string, type : EntityType) {
+    constructor(id: string, type: EntityType) {
         this._id = id;
         this._type = type;
 
@@ -96,15 +96,15 @@ export abstract class Entity implements IEntity {
         return observable;
     }
 
-    public get id() : string {
+    public get id(): string {
         return this._id;
     }
 
-    public get type() : EntityType {
+    public get type(): EntityType {
         return this._type;
     }
 
-    public get name() : string | undefined {
+    public get name(): string | undefined {
         return this._name;
     }
 
@@ -203,7 +203,7 @@ export abstract class Entity implements IEntity {
         }
     }
 
-    public get collisionless() : boolean | undefined {
+    public get collisionless(): boolean | undefined {
         return this._collisionless;
     }
 
@@ -214,18 +214,18 @@ export abstract class Entity implements IEntity {
         }
     }
 
-    public get collisionMask() : number | undefined {
+    public get collisionMask(): number | undefined {
         return this._collisionMask;
     }
 
     public set collisionMask(value: number | undefined) {
-        if (value && value !== this._collisionMask) {
+        if (typeof value === "number" && value !== this._collisionMask) {
             this._collisionMask = value;
             this._onCollisionPropertiesChanged.isDirty = true;
         }
     }
 
-    public get collisionSoundURL() : string | undefined {
+    public get collisionSoundURL(): string | undefined {
         return this._collisionSoundURL;
     }
 
@@ -236,7 +236,7 @@ export abstract class Entity implements IEntity {
         }
     }
 
-    public get dynamic() : boolean | undefined {
+    public get dynamic(): boolean | undefined {
         return this._dynamic;
     }
 
@@ -263,7 +263,7 @@ export abstract class Entity implements IEntity {
     }
 
     public set damping(value: number | undefined) {
-        if (value && this._damping !== value) {
+        if (typeof value === "number" && this._damping !== value) {
             this._damping = value;
             this._onPhysicsPropertiesChanged.isDirty = true;
         }
@@ -280,13 +280,13 @@ export abstract class Entity implements IEntity {
         }
     }
 
-    public get angularDampling(): number | undefined {
-        return this._angularDampling;
+    public get angularDamping(): number | undefined {
+        return this._angularDamping;
     }
 
-    public set angularDampling(value: number | undefined) {
-        if (value && this._angularDampling !== value) {
-            this._angularDampling = value;
+    public set angularDamping(value: number | undefined) {
+        if (typeof value === "number" && this._angularDamping !== value) {
+            this._angularDamping = value;
             this._onPhysicsPropertiesChanged.isDirty = true;
         }
     }
@@ -296,7 +296,7 @@ export abstract class Entity implements IEntity {
     }
 
     public set restitution(value: number | undefined) {
-        if (value && this._restitution !== value) {
+        if (typeof value === "number" && this._restitution !== value) {
             this._restitution = value;
             this._onPhysicsPropertiesChanged.isDirty = true;
         }
@@ -307,7 +307,7 @@ export abstract class Entity implements IEntity {
     }
 
     public set friction(value: number | undefined) {
-        if (value && this._friction !== value) {
+        if (typeof value === "number" && this._friction !== value) {
             this._friction = value;
             this._onPhysicsPropertiesChanged.isDirty = true;
         }
@@ -318,7 +318,7 @@ export abstract class Entity implements IEntity {
     }
 
     public set density(value: number | undefined) {
-        if (value && this._density !== value) {
+        if (typeof value === "number" && this._density !== value) {
             this._density = value;
             this._onPhysicsPropertiesChanged.isDirty = true;
         }
@@ -371,13 +371,13 @@ export abstract class Entity implements IEntity {
         return this._onPhysicsPropertiesChanged.observable;
     }
 
-    public update() : void {
+    public update(): void {
         this._propertyChangeObservables.forEach((observable) => {
             observable.update();
         });
     }
 
-    public copyFormPacketData(props : EntityProperties) : void {
+    public copyFormPacketData(props: EntityProperties): void {
         this.name = props.name;
         this.position = props.position;
         this.rotation = props.rotation;
@@ -398,7 +398,7 @@ export abstract class Entity implements IEntity {
         this.velocity = props.velocity;
         this.damping = props.damping;
         this.angularVelocity = props.angularVelocity;
-        this.angularDampling = props.angularDampling;
+        this.angularDamping = props.angularDampling;
         this.restitution = props.restitution;
         this.friction = props.friction;
         this.density = props.density;

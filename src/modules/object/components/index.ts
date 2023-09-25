@@ -12,4 +12,4 @@ export { MeshComponent } from "./mesh";
 export { LightComponent, AmbientLightComponent } from "./light";
 export { BoxColliderComponent } from "./colliders/boxCollider";
 export { MeshColliderComponent } from "./colliders/meshCollider";
-export { CapsuleColliderComponent } from "./colliders/capsuleCollder";
+export { CapsuleColliderComponent } from "./colliders/capsuleCollider";

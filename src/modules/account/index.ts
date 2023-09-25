@@ -6,14 +6,13 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
-import { MetaverseMgr } from "@Modules/metaverse";
-import { doAPIGet, doAPIPost, buildUrl, findErrorMsg } from "@Modules/metaverse/metaverseOps";
-import { OAuthTokenAPI, OAuthTokenResp, OAuthTokenError } from "@Modules/metaverse/APIToken";
-import { GetAccountByIdAPI, GetAccountByIdResp,
-    PostUsersAPI, PostUsersReq, PostUsersResp } from "@Modules/metaverse/APIAccount";
-import { AccountInfo } from "@Modules/metaverse/APIInfo";
+import { MetaverseManager } from "@Modules/metaverse";
+import { API } from "@Modules/metaverse/API";
+import type { OAuthTokenResponse, OAuthTokenError } from "@Modules/metaverse/APIToken";
+import type { GetAccountByIdResponse, PostUsersRequest, PostUsersResponse } from "@Modules/metaverse/APIAccount";
+import type { AccountInfo } from "@Modules/metaverse/APIInfo";
 import { SignalEmitter } from "@vircadia/web-sdk";
-import Log from "@Modules/debugging/log";
+import Log, { findErrorMessage } from "@Modules/debugging/log";
 
 // ESLint thinks there are race conditions which don't exist (:fingers-crossed:)
 /* eslint-disable require-atomic-updates */
@@ -68,7 +67,7 @@ export const Account = {
      *
      * If the metaverse is connected and the user is not logged in already,
      * fetch an access token for the account.
-     * This also fetches the account information and updates the Vuex store.
+     * This also fetches the account information and updates the Store.
      *
      * @param {string} pUsername Username to login
      * @param {string} pPassword Password of user to login
@@ -76,7 +75,7 @@ export const Account = {
      */
     async login(pUsername: string, pPassword: string): Promise<boolean> {
         // Prevent login attempts if the metaverse server is not connected.
-        if (!MetaverseMgr.ActiveMetaverse?.isConnected) {
+        if (!MetaverseManager.activeMetaverse?.isConnected) {
             Log.error(
                 Log.types.ACCOUNT,
                 `Exception: Attempted to login to account "${pUsername}" when metaverse is not connected.`
@@ -100,26 +99,23 @@ export const Account = {
             params.append("username", pUsername);
             params.append("password", pPassword);
 
-            const loginUrl = buildUrl(OAuthTokenAPI);
+            const response = await API.post(API.endpoints.token, params) as OAuthTokenResponse | OAuthTokenError;
 
-            const response = await fetch(loginUrl, { method: "POST", body: params });
-            const responseData = await response.json() as OAuthTokenResp | OAuthTokenError;
-
-            if ("error" in responseData) {
-                Log.error(Log.types.ACCOUNT, `Login failure for user: ${pUsername}. Error: ${responseData.error}`);
+            if ("error" in response) {
+                Log.error(Log.types.ACCOUNT, `Login failure for user: ${pUsername}. Error: ${response.error}`);
                 return false;
             }
 
             Log.debug(Log.types.ACCOUNT, `Login success for user: ${pUsername}`);
-            Account.accountName = responseData.account_name;
-            Account.id = responseData.account_id;
-            Account.accessToken = responseData.access_token;
-            Account.accessTokenType = responseData.token_type;
-            Account.accessTokenExpiration = new Date(Date.now() + responseData.expires_in * oneSecond);
-            Account.refreshToken = responseData.refresh_token;
-            Account.scope = responseData.scope;
-            Account.roles = responseData.account_roles ?? [];
-            Account.createdAt = new Date(Date.now() + responseData.created_at * oneSecond);
+            Account.accountName = response.account_name;
+            Account.id = response.account_id;
+            Account.accessToken = response.access_token;
+            Account.accessTokenType = response.token_type;
+            Account.accessTokenExpiration = new Date(Date.now() + response.expires_in * oneSecond);
+            Account.refreshToken = response.refresh_token;
+            Account.scope = response.scope;
+            Account.roles = response.account_roles ?? [];
+            Account.createdAt = new Date(Date.now() + response.created_at * oneSecond);
 
             Account.isLoggedIn = true;
 
@@ -127,7 +123,7 @@ export const Account = {
             await Account.updateAccountInfo();
             return true;
         } catch (error) {
-            const errorMessage = findErrorMsg(error);
+            const errorMessage = findErrorMessage(error);
             Log.error(Log.types.ACCOUNT, `Exception while attempting to login user ${pUsername}: ${errorMessage}`);
             return false;
         }
@@ -161,7 +157,7 @@ export const Account = {
         }
         // Fetch account profile information.
         try {
-            const response = await doAPIGet(GetAccountByIdAPI + Account.id) as GetAccountByIdResp;
+            const response = await API.get(API.endpoints.account + "/" + Account.id) as GetAccountByIdResponse;
             Account.accountInfo = response.account;
 
             // Update the Account local vars in case anything changed.
@@ -171,7 +167,7 @@ export const Account = {
             // Tell the world about the changes.
             Account._emitAttributeChange();
         } catch (error) {
-            const errorMessage = findErrorMsg(error);
+            const errorMessage = findErrorMessage(error);
             Log.error(Log.types.ACCOUNT, `Exception fetching account info for: ${Account.accountName}: ${errorMessage}`);
         }
     },
@@ -184,20 +180,20 @@ export const Account = {
      * @returns `true` once the new account is awaiting verification,
      * `false` if verification is not required or account creation failed.
      */
-    async createAccount(pUsername: string, pPassword: string, pEmail: string): Promise<PostUsersResp | false> {
+    async createAccount(pUsername: string, pPassword: string, pEmail: string): Promise<PostUsersResponse | false> {
         const request = {
             username: pUsername,
             password: pPassword,
             email: pEmail
-        } as PostUsersReq;
+        } as PostUsersRequest;
         try {
-            const response = await doAPIPost(PostUsersAPI, request) as PostUsersResp;
+            const response = await API.post(API.endpoints.users, request) as PostUsersResponse;
             Account.accountName = response.username;
             Account.id = response.accountId;
             Account.accountAwaitingVerification = response.accountAwaitingVerification;
             return response;
         } catch (error) {
-            const errorMessage = findErrorMsg(error);
+            const errorMessage = findErrorMessage(error);
             Log.error(Log.types.ACCOUNT, `Exception creating account: ${pUsername}: ${errorMessage}`);
             return false;
         }

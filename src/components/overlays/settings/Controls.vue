@@ -52,6 +52,9 @@ kbd {
                 <q-tab name="keyboard" icon="keyboard" label="">
                     <q-tooltip class="bg-black">Keyboard</q-tooltip>
                 </q-tab>
+                <q-tab name="camera" icon="camera" label="">
+                    <q-tooltip class="bg-black">Camera</q-tooltip>
+                </q-tab>
             </q-tabs>
             <q-tab-panels
                 v-model="tab"
@@ -155,6 +158,29 @@ kbd {
                                     </q-item>
                                 </template>
                             </template>
+                        </q-list>
+                    </q-scroll-area>
+                </q-tab-panel>
+
+                <q-tab-panel name="camera" class="q-px-none q-pb-none column no-wrap items-stretch">
+                    <q-scroll-area class="full-height">
+                        <q-list class="q-pb-md">
+                            <q-item>
+                                <q-item-section
+                                    title="Camera Bobbing"
+                                >
+                                    Camera Bobbing
+                                </q-item-section>
+                                <q-item-section class="q-pl-sm">
+                                    <q-toggle
+                                        name="bloom"
+                                        v-model="userStore.graphics.cameraBobbing"
+                                    />
+                                </q-item-section>
+                                <q-item-section side style="min-width: 5ch;">
+                                    <output for="bloom">{{ userStore.graphics.cameraBobbing ? `On` : `Off` }}</output>
+                                </q-item-section>
+                            </q-item>
                         </q-list>
                     </q-scroll-area>
                 </q-tab-panel>

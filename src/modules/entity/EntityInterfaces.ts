@@ -18,23 +18,23 @@ export interface IEntity extends
     ISpatialProperties,
     IBehaviorProperties {
 
-    onCommonPropertiesChanged ?: Observable<IEntity>;
-    onParentChanged ?: Observable<IEntity>;
-    onPositionAndRotationChanged ?: Observable<IEntity>;
-    onDimensionChanged ?: Observable<IEntity>;
-    onRenderModeChanged ?: Observable<IEntity>;
-    onScriptChanged ?: Observable<IEntity>;
-    onUserDataChanged ?: Observable<IEntity>;
-    onCollisionPropertiesChanged ?: Observable<IEntity>;
-    onPhysicsPropertiesChanged ?: Observable<IEntity>;
+    onCommonPropertiesChanged?: Observable<IEntity>;
+    onParentChanged?: Observable<IEntity>;
+    onPositionAndRotationChanged?: Observable<IEntity>;
+    onDimensionChanged?: Observable<IEntity>;
+    onRenderModeChanged?: Observable<IEntity>;
+    onScriptChanged?: Observable<IEntity>;
+    onUserDataChanged?: Observable<IEntity>;
+    onCollisionPropertiesChanged?: Observable<IEntity>;
+    onPhysicsPropertiesChanged?: Observable<IEntity>;
 }
 
 export interface IModelEntity extends
     IEntity,
     IModelEProperties {
 
-    onModelURLChanged ?: Observable<IEntity>;
-    onAnimationChanged ?: Observable<IEntity>
+    onModelURLChanged?: Observable<IEntity>;
+    onAnimationChanged?: Observable<IEntity>
 }
 
 export type JitsiSettings = {
@@ -50,53 +50,53 @@ export interface IWebEntity extends
     IEntity,
     IWebProperties {
 
-    onColorChanged : Observable<IEntity>;
-    onSourceURLChanged : Observable<IEntity>;
-    onWebPropertiesChanged : Observable<IEntity>;
+    onColorChanged: Observable<IEntity>;
+    onSourceURLChanged: Observable<IEntity>;
+    onWebPropertiesChanged: Observable<IEntity>;
 }
 
 export interface IShapeEntity extends
     IEntity,
     IShapeProperties {
 
-    onShapeChanged ?: Observable<IEntity>;
-    onColorChanged ?: Observable<IEntity>;
+    onShapeChanged?: Observable<IEntity>;
+    onColorChanged?: Observable<IEntity>;
 }
 
 export interface ILightEntity extends
     IEntity,
     ILightProperties {
 
-    onLightPropertiesChanged ?: Observable<IEntity>;
-    onLightTypeChanged ?: Observable<IEntity>;
+    onLightPropertiesChanged?: Observable<IEntity>;
+    onLightTypeChanged?: Observable<IEntity>;
 }
 
 export interface IZoneEntity extends
     IEntity,
     IZoneProperties {
 
-    onShapeTypeChanged : Observable<IEntity>;
-    onAmbientLightPropertiesChanged : Observable<IEntity>;
-    onKeyLightPropertiesChanged : Observable<IEntity>;
-    onSkyboxPropertiesChanged : Observable<IEntity>;
-    onHazePropertiesChanged : Observable<IEntity>;
-    onBloomPropertiesChanged : Observable<IEntity>;
+    onShapeTypeChanged: Observable<IEntity>;
+    onAmbientLightPropertiesChanged: Observable<IEntity>;
+    onKeyLightPropertiesChanged: Observable<IEntity>;
+    onSkyboxPropertiesChanged: Observable<IEntity>;
+    onHazePropertiesChanged: Observable<IEntity>;
+    onBloomPropertiesChanged: Observable<IEntity>;
 }
 
 export interface IImageEntity extends
     IEntity,
     IImageProperties {
 
-    onColorChanged : Observable<IEntity>;
-    onImageURLChanged : Observable<IEntity>
+    onColorChanged: Observable<IEntity>;
+    onImageURLChanged: Observable<IEntity>
 }
 
 export interface IMaterialEntity extends
     IEntity,
     IMaterialProperties {
 
-    onMaterialDataChanged ?: Observable<IEntity>;
-    onMaterialMappingModeChanged ?: Observable<IEntity>;
-    onMaterialPriorityChanged ?: Observable<IEntity>;
-    onParentMaterialNameChanged ?: Observable<IEntity>;
+    onMaterialDataChanged?: Observable<IEntity>;
+    onMaterialMappingModeChanged?: Observable<IEntity>;
+    onMaterialPriorityChanged?: Observable<IEntity>;
+    onParentMaterialNameChanged?: Observable<IEntity>;
 }

@@ -9,10 +9,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import {
-    Node,
-    TransformNode
-} from "@babylonjs/core";
+import type { Node, TransformNode } from "@babylonjs/core";
 // General Modules
 import Log from "@Modules/debugging/log";
 import { AvatarMapper } from "../AvatarMapper";
@@ -23,27 +20,27 @@ import { ScriptComponent, inspectorAccessor } from "@Modules/script";
 export class ScriptAvatarController extends ScriptComponent {
     // domain properties
     private _componentTypeName = "ScriptAvatarController";
-    private _avatar : ScriptAvatar;
+    private _avatar: ScriptAvatar;
     private _skeletonNodes: Map<string, TransformNode> = new Map<string, TransformNode>();
     private _skeletonJointsCache = new Array<SkeletonJoint>();
 
-    constructor(avatar:ScriptAvatar) {
+    constructor(avatar: ScriptAvatar) {
         super("ScriptAvatarController");
         this._avatar = avatar;
     }
 
     @inspectorAccessor()
-    public get skeletonModelURL() : string {
+    public get skeletonModelURL(): string {
         return this._avatar.skeletonModelURL;
     }
 
     @inspectorAccessor()
-    public get displayName() : string {
+    public get displayName(): string {
         return this._avatar.displayName;
     }
 
     @inspectorAccessor()
-    public get sessionDisplayName() : string {
+    public get sessionDisplayName(): string {
         return this._avatar.sessionDisplayName;
     }
 
@@ -51,7 +48,7 @@ export class ScriptAvatarController extends ScriptComponent {
     * Gets a string identifying the type of this Component
     * @returns "ScriptAvatarController" string
     */
-    public get componentType():string {
+    public get componentType(): string {
         return this._componentTypeName;
     }
 
@@ -71,12 +68,12 @@ export class ScriptAvatarController extends ScriptComponent {
         });
     }
 
-    public onUpdate():void {
+    public onUpdate(): void {
         if (this._gameObject) {
-            // sync postion
-            this._gameObject.position = AvatarMapper.mapDomainPosition(this._avatar.position);
+            // sync position
+            this._gameObject.position = AvatarMapper.mapToLocalPosition(this._avatar.position);
             // sync orientation
-            this._gameObject.rotationQuaternion = AvatarMapper.mapDomainOrientation(this._avatar.orientation);
+            this._gameObject.rotationQuaternion = AvatarMapper.mapToLocalOrientation(this._avatar.orientation);
 
             this._syncPoseFromDomain();
         }
@@ -84,11 +81,11 @@ export class ScriptAvatarController extends ScriptComponent {
 
     private _handleScaleChanged(): void {
         if (this._gameObject && this._gameObject.scaling && this._avatar) {
-            this._gameObject.scaling = AvatarMapper.mapToNodeScaling(this._avatar.scale);
+            this._gameObject.scaling = AvatarMapper.mapToLocalScaling(this._avatar.scale);
         }
     }
 
-    private _collectSkeletonNode(node:Node) : void {
+    private _collectSkeletonNode(node: Node): void {
         if (node.getClassName() === "TransformNode") {
             const transNode = node as TransformNode;
             this._skeletonNodes.set(node.name, transNode);
@@ -100,15 +97,15 @@ export class ScriptAvatarController extends ScriptComponent {
         });
     }
 
-    private _syncDefaultPoseFromDomain() {
+    private _syncDefaultPoseFromDomain(): void {
         this._skeletonJointsCache.forEach((joint) => {
             const node = this._skeletonNodes.get(joint.jointName);
             if (node) {
-                node.position = AvatarMapper.mapJointTranslation(joint.defaultTranslation);
+                node.position = AvatarMapper.mapToLocalJointTranslation(joint.defaultTranslation);
 
-                let rotation = AvatarMapper.mapJointRotation(joint.defaultRotation);
-                if (this._isVaildParentIndex(joint.parentIndex)) {
-                    const parentQuat = AvatarMapper.mapJointRotation(
+                let rotation = AvatarMapper.mapToLocalJointRotation(joint.defaultRotation);
+                if (this._isValidParentIndex(joint.parentIndex)) {
+                    const parentQuat = AvatarMapper.mapToLocalJointRotation(
                         this._skeletonJointsCache[joint.parentIndex].defaultRotation);
                     rotation = parentQuat.invert().multiply(rotation);
                 }
@@ -122,16 +119,16 @@ export class ScriptAvatarController extends ScriptComponent {
         });
     }
 
-    private _syncPoseFromDomain() {
+    private _syncPoseFromDomain(): void {
         this._skeletonJointsCache.forEach((joint) => {
             const node = this._skeletonNodes.get(joint.jointName);
             if (node) {
-                node.position = AvatarMapper.mapJointTranslation(this._getJointTranslation(joint.jointIndex));
+                node.position = AvatarMapper.mapToLocalJointTranslation(this._getJointTranslation(joint.jointIndex));
 
                 // covert absolute rotation to relative
-                let rotation = AvatarMapper.mapJointRotation(this._getJointRotation(joint.jointIndex));
-                if (this._isVaildParentIndex(joint.parentIndex)) {
-                    const parentRotation = AvatarMapper.mapJointRotation(this._getJointRotation(joint.parentIndex));
+                let rotation = AvatarMapper.mapToLocalJointRotation(this._getJointRotation(joint.jointIndex));
+                if (this._isValidParentIndex(joint.parentIndex)) {
+                    const parentRotation = AvatarMapper.mapToLocalJointRotation(this._getJointRotation(joint.parentIndex));
                     rotation = parentRotation.invert().multiply(rotation);
                 }
 
@@ -140,24 +137,24 @@ export class ScriptAvatarController extends ScriptComponent {
         });
     }
 
-    private _getJointTranslation(index: number) : vec3 {
+    private _getJointTranslation(index: number): vec3 {
         const trans = this._avatar.jointTranslations[index];
         return trans ? trans : this._skeletonJointsCache[index].defaultTranslation;
     }
 
-    private _getJointRotation(index: number) : quat {
+    private _getJointRotation(index: number): quat {
         const q = this._avatar.jointRotations[index];
         return q ? q : this._skeletonJointsCache[index].defaultRotation;
     }
 
-    private _isVaildParentIndex(index: number) : boolean {
+    private _isValidParentIndex(index: number): boolean {
         return index >= 0 && index < this._skeletonJointsCache.length;
     }
 
     // NOTE:
-    // call this._avatar.skeleton hits performance.
-    // chace default joints value here.
-    private _cacheJoints() : void {
+    // Calls to this._avatar.skeleton hit performance.
+    // Cache default joint values here.
+    private _cacheJoints(): void {
         this._skeletonJointsCache = [];
         this._avatar.skeleton.forEach((joint) => {
             this._skeletonJointsCache.push(joint);
@@ -168,7 +165,7 @@ export class ScriptAvatarController extends ScriptComponent {
         }
     }
 
-    private _getGameObjectName() : string {
+    private _getGameObjectName(): string {
         return this._gameObject ? this._gameObject.name : "";
     }
 }

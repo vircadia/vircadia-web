@@ -1,5 +1,5 @@
 //
-//  loader.ts
+//  resource.ts
 //
 //  Created by Nolan Huang on 7 July 2022.
 //  Copyright 2022 Vircadia contributors.
@@ -9,12 +9,14 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
+// This is disabled because TS complains about BABYLON's use of capitalized function names.
+/* eslint-disable new-cap */
+
 import { AnimationGroup, Scene, SceneLoader, AssetsManager,
     AbstractMesh, Vector3, Quaternion, MeshBuilder, StandardMaterial, Color3, Skeleton } from "@babylonjs/core";
 import { DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { updateContentLoadingProgress } from "@Modules/scene/LoadingScreen";
 import { Uuid } from "@vircadia/web-sdk";
-// General Modules
 import Log from "@Modules/debugging/log";
 
 interface IAvatarResult {
@@ -23,24 +25,21 @@ interface IAvatarResult {
 }
 
 interface IAvatarAnimationResult {
-    mesh : AbstractMesh;
-    animGroups : AnimationGroup[]
+    mesh: AbstractMesh;
+    animGroups: AnimationGroup[]
 }
 
 interface IResourceUrl {
-    rootUrl : string;
-    filename : string;
+    rootUrl: string;
+    filename: string;
 }
-
-// This is disabled because TS complains about BABYLON's use of capitalized function names.
-/* eslint-disable new-cap */
 
 export class ResourceManager {
     _scene: Scene;
-    _assetsManager : AssetsManager;
+    _assetsManager: AssetsManager;
 
-    constructor(secne: Scene) {
-        this._scene = secne;
+    constructor(scene: Scene) {
+        this._scene = scene;
         this._assetsManager = new AssetsManager(this._scene);
     }
 
@@ -140,22 +139,6 @@ export class ResourceManager {
 
         return { mesh, animGroups: animationGroups };
     }
-    /*
-    public addSceneObjectTasks(taskName:string, rootUrl:string, meshList:string[]): void {
-        meshList.forEach((filename) => {
-            const task = this._assetsManager.addMeshTask(taskName, "", rootUrl, filename);
-            task.onSuccess = (meshAssetTask) => {
-                meshAssetTask.loadedMeshes.forEach(this._processSceneMesh.bind(this));
-
-                Log.info(Log.types.ENTITIES,
-                    `load scene object: ${rootUrl}${filename}`);
-            };
-
-            task.onError = () => {
-                Log.error(Log.types.ENTITIES, `fail to load scene object: ${rootUrl}${filename}`);
-            };
-        });
-    } */
 
     public loadAsync(): Promise<void> {
         return this._assetsManager.loadAsync();
@@ -192,9 +175,8 @@ export class ResourceManager {
                 skeleton
             };
 
-        } catch (err) {
-            const error = err as Error;
-            Log.error(Log.types.AVATAR, `${error.message}`);
+        } catch (error) {
+            Log.error(Log.types.AVATAR, `${(error as Error).message}`);
             return {
                 mesh: this._createDummyMesh(),
                 skeleton: null
@@ -202,7 +184,7 @@ export class ResourceManager {
         }
     }
 
-    private _createDummyMesh() : AbstractMesh {
+    private _createDummyMesh(): AbstractMesh {
         const mesh = MeshBuilder.CreateSphere("DummyMesh");
         mesh.isPickable = false;
 
@@ -218,24 +200,4 @@ export class ResourceManager {
         mesh.material = material;
         return mesh;
     }
-
-/*
-    private _processSceneMesh(mesh : AbstractMesh) : void {
-        mesh.id = new Uuid().stringify();
-        ResourceManager._applySceneMeshRule(mesh);
-    }
-
-    private static _applySceneMeshRule(mesh : AbstractMesh) : void {
-        mesh.isPickable = false;
-        mesh.checkCollisions = false;
-
-        if (mesh.name.includes("Collision")) {
-            if (mesh.name.includes("Floor")) {
-                mesh.isPickable = true;
-            } else {
-                mesh.checkCollisions = true;
-            }
-            mesh.isVisible = false;
-        }
-    } */
 }

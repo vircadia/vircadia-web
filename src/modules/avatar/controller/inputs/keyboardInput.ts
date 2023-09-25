@@ -12,7 +12,6 @@
 // This is disabled because TS complains about BABYLON's use of capitalized function names.
 /* eslint-disable new-cap */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 
 import { IInputHandler } from "./inputHandler";
 import {
@@ -32,24 +31,23 @@ import {
 import { AvatarState, Action, State, JumpSubState, AnimationMap } from "../avatarState";
 import { InputState, CameraMode, InputMode } from "../inputState";
 import { applicationStore, userStore } from "@Stores/index";
-import { AudioMgr } from "@Modules/scene/audio";
-import type { GameObject } from "@Modules/object";
-import type { SceneController } from "@Modules/scene/controllers";
+import { AudioManager as AudioMgr } from "@Modules/scene/audio";
+import { Renderer } from "@Modules/scene";
 
 
 export class KeyboardInput implements IInputHandler {
-    private _scene : Scene;
-    private _state : AvatarState;
-    private _inputState : InputState;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private _inputMap : any = {};
+    private _scene: Scene;
+    private _state: AvatarState;
+    private _inputState: InputState;
+    private _inputMap: { [key: string]: boolean } = {};
     private _shiftKey = false;
     private _runKey = false;
-    private _keyDownAction:Nullable<IAction> = null;
-    private _keyUpAction:Nullable<IAction> = null;
+    private _keyDownAction: Nullable<IAction> = null;
+    private _keyUpAction: Nullable<IAction> = null;
     private _previousMuteInput = applicationStore.audio.user.muted;
+    private _controlsAreAttached = false;
 
-    constructor(state : AvatarState, inputState : InputState, scene: Scene) {
+    constructor(state: AvatarState, inputState: InputState, scene: Scene) {
         this._state = state;
         this._inputState = inputState;
         this._scene = scene;
@@ -61,13 +59,15 @@ export class KeyboardInput implements IInputHandler {
             this._scene.actionManager = new ActionManager(this._scene);
         }
 
-        this._keyDownAction = new ExecuteCodeAction(ActionManager.OnKeyDownTrigger,
-            this._onKeyDown.bind(this));
-        this._scene.actionManager.registerAction(this._keyDownAction);
+        if (!this._controlsAreAttached) {
+            this._keyDownAction = new ExecuteCodeAction(ActionManager.OnKeyDownTrigger, this._onKeyDown.bind(this));
+            this._scene.actionManager.registerAction(this._keyDownAction);
 
-        this._keyUpAction = new ExecuteCodeAction(ActionManager.OnKeyUpTrigger,
-            this._onKeyUp.bind(this));
-        this._scene.actionManager.registerAction(this._keyUpAction);
+            this._keyUpAction = new ExecuteCodeAction(ActionManager.OnKeyUpTrigger, this._onKeyUp.bind(this));
+            this._scene.actionManager.registerAction(this._keyUpAction);
+
+            this._controlsAreAttached = true;
+        }
     }
 
     public detachControl(): void {
@@ -83,7 +83,7 @@ export class KeyboardInput implements IInputHandler {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    public handleInputs(delta: number) : void {
+    public handleInputs(delta: number): void {
         if (this._inputMap[userStore.controls.keyboard.movement.jump?.keycode] && this._state.state !== State.Fly) {
             if (this._state.state !== State.Jump) {
                 this._state.state = State.Jump;
@@ -127,33 +127,40 @@ export class KeyboardInput implements IInputHandler {
         }
     }
 
-    private _onKeyDown(evt: ActionEvent):void {
-        if (!evt.sourceEvent?.code) {
+    private _onKeyDown(event: ActionEvent): void {
+        const sourceEvent = event.sourceEvent as Event;
+        if (!sourceEvent || !(sourceEvent instanceof KeyboardEvent) || !sourceEvent.code) {
             return;
         }
 
-        this._inputMap[evt.sourceEvent.code] = evt.sourceEvent.type === "keydown";
-        this._shiftKey = evt.sourceEvent.shiftKey === true;
+        this._inputMap[sourceEvent.code] = sourceEvent.type === "keydown";
+        this._shiftKey = sourceEvent.shiftKey;
 
-        if (evt.sourceEvent.code === "Tab") {
+        if (sourceEvent.code === "Tab") {
             this._inputState.inputMode = this._inputState.inputMode === InputMode.Interactive
                 ? InputMode.Detached
                 : InputMode.Interactive;
         }
 
+        // Babylon Inspector.
+        if (process.env.NODE_ENV === "development" && sourceEvent.code === "Slash" && this._shiftKey) {
+            void this._scene.debugLayer.show({ overlay: true });
+        }
+
+        // Reset position.
+        if (sourceEvent.code === userStore.controls.keyboard.other.resetPosition?.keycode) {
+            Renderer.getScene()?.resetMyAvatarPositionAndOrientation();
+        }
+
         // Push-to-talk.
-        if (
-            evt.sourceEvent.code === userStore.controls.keyboard.audio.pushToTalk?.keycode
-            && applicationStore.audio.user.muted === true
-        ) {
+        if (sourceEvent.code === userStore.controls.keyboard.audio.pushToTalk?.keycode && applicationStore.audio.user.muted) {
             this._previousMuteInput = applicationStore.audio.user.muted;
             AudioMgr.muteAudio(false);
         }
 
         // Fly.
-        if (evt.sourceEvent.code === userStore.controls.keyboard.movement.fly?.keycode) {
-            const sceneManager = this._scene.rootNodes.find((node) => node.id === "SceneManager") as GameObject;
-            const sceneController = sceneManager.components.get("SceneController") as SceneController | undefined;
+        if (sourceEvent.code === userStore.controls.keyboard.movement.fly?.keycode) {
+            const sceneController = Renderer.getScene().sceneController;
 
             if (this._state.state === State.Fly) {
                 this._state.action = Action.Jump;
@@ -171,11 +178,11 @@ export class KeyboardInput implements IInputHandler {
         if (userStore.controls.keyboard.movement.run?.keycode.includes("Shift")) {
             this._runKey = this._shiftKey;
         } else {
-            this._runKey = evt.sourceEvent.code === userStore.controls.keyboard.movement.run?.keycode ? true : this._runKey;
+            this._runKey = sourceEvent.code === userStore.controls.keyboard.movement.run?.keycode ? true : this._runKey;
         }
 
         // Sit.
-        if (evt.sourceEvent.code === userStore.controls.keyboard.movement.sit?.keycode) {
+        if (sourceEvent.code === userStore.controls.keyboard.movement.sit?.keycode) {
             // Get the player's avatar mesh.
             const avatarMesh = this._scene.meshes.find((mesh) => mesh.name === "MyAvatar");
 
@@ -223,9 +230,7 @@ export class KeyboardInput implements IInputHandler {
                     this._state.action = animation;
 
                     // Remove gravity.
-                    const sceneManager = this._scene.rootNodes.find((node) => node.id === "SceneManager") as GameObject;
-                    const sceneController = sceneManager.components.get("SceneController") as SceneController | undefined;
-                    sceneController?.removeGravity();
+                    Renderer.getScene().sceneController?.removeGravity();
 
                     // Snap to the sittable object.
                     avatarMesh.setAbsolutePosition(selectedSitObject[0].getAbsolutePosition());
@@ -242,44 +247,45 @@ export class KeyboardInput implements IInputHandler {
         }
 
         // Clap.
-        if (evt.sourceEvent.code === userStore.controls.keyboard.movement.clap?.keycode) {
+        if (sourceEvent.code === userStore.controls.keyboard.movement.clap?.keycode) {
             this._state.state = State.Pose;
             this._state.action = Action.Clap;
         }
 
         // Salute.
-        if (evt.sourceEvent.code === userStore.controls.keyboard.movement.salute?.keycode) {
+        if (sourceEvent.code === userStore.controls.keyboard.movement.salute?.keycode) {
             this._state.state = State.Pose;
             this._state.action = Action.Salute;
         }
     }
 
-    private _onKeyUp(evt: ActionEvent):void {
-        if (!evt.sourceEvent?.code) {
+    private _onKeyUp(event: ActionEvent): void {
+        const sourceEvent = event.sourceEvent as Event;
+        if (!sourceEvent || !(sourceEvent instanceof KeyboardEvent) || !sourceEvent.code) {
             // Work around "continue walking forever" browser / Babylon.js bug in which the code value can be undefined if the
             // key-up event is due to clicking on an app window while a key is pressed.
             this._inputMap = {};
             return;
         }
-        this._inputMap[evt.sourceEvent.code] = evt.sourceEvent.type === "keydown";
-        this._shiftKey = evt.sourceEvent.shiftKey === true;
+        this._inputMap[sourceEvent.code] = sourceEvent.type === "keydown";
+        this._shiftKey = sourceEvent.shiftKey;
 
-        if (evt.sourceEvent.code === userStore.controls.keyboard.camera.firstPerson?.keycode) {
-            this._inputState.cameraMode = CameraMode.FirstPersion;
-        } else if (evt.sourceEvent.code === userStore.controls.keyboard.camera.thirdPerson?.keycode) {
-            this._inputState.cameraMode = CameraMode.ThirdPersion;
-        } else if (evt.sourceEvent.code === userStore.controls.keyboard.camera.collisions?.keycode) {
+        if (sourceEvent.code === userStore.controls.keyboard.camera.firstPerson?.keycode) {
+            this._inputState.cameraMode = CameraMode.FirstPerson;
+        } else if (sourceEvent.code === userStore.controls.keyboard.camera.thirdPerson?.keycode) {
+            this._inputState.cameraMode = CameraMode.ThirdPerson;
+        } else if (sourceEvent.code === userStore.controls.keyboard.camera.collisions?.keycode) {
             this._inputState.cameraCheckCollisions = !this._inputState.cameraCheckCollisions;
             this._inputState.cameraElastic = !this._inputState.cameraElastic;
         }
 
         // Mute toggle.
-        if (evt.sourceEvent.code === userStore.controls.keyboard.audio.mute?.keycode) {
+        if (sourceEvent.code === userStore.controls.keyboard.audio.mute?.keycode) {
             this._previousMuteInput = AudioMgr.muteAudio();
         }
 
         // Push-to-talk.
-        if (evt.sourceEvent.code === userStore.controls.keyboard.audio.pushToTalk?.keycode) {
+        if (sourceEvent.code === userStore.controls.keyboard.audio.pushToTalk?.keycode) {
             AudioMgr.muteAudio(this._previousMuteInput);
         }
 
@@ -287,12 +293,12 @@ export class KeyboardInput implements IInputHandler {
         if (userStore.controls.keyboard.movement.run?.keycode.includes("Shift")) {
             this._runKey = this._shiftKey;
         } else {
-            this._runKey = evt.sourceEvent.code === userStore.controls.keyboard.movement.run?.keycode ? false : this._runKey;
+            this._runKey = sourceEvent.code === userStore.controls.keyboard.movement.run?.keycode ? false : this._runKey;
         }
 
         // Clap.
         if (
-            evt.sourceEvent.code === userStore.controls.keyboard.movement.clap?.keycode
+            sourceEvent.code === userStore.controls.keyboard.movement.clap?.keycode
             && this._state.state === State.Pose
             && this._state.action === Action.Clap
         ) {
@@ -302,7 +308,7 @@ export class KeyboardInput implements IInputHandler {
 
         // Salute.
         if (
-            evt.sourceEvent.code === userStore.controls.keyboard.movement.salute?.keycode
+            sourceEvent.code === userStore.controls.keyboard.movement.salute?.keycode
             && this._state.state === State.Pose
             && this._state.action === Action.Salute
         ) {

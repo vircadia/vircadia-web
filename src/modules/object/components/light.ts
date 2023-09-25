@@ -1,6 +1,5 @@
-/* eslint-disable class-methods-use-this */
 //
-//  ligth.ts
+//  light.ts
 //
 //  Created by Nolan Huang on 27 Jul 2022.
 //  Copyright 2022 Vircadia contributors.
@@ -10,16 +9,15 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
+/* eslint-disable class-methods-use-this */
+
+import type { DirectionalLight, Light, Nullable } from "@babylonjs/core";
 import { GenericNodeComponent } from "../component";
-import {
-    DirectionalLight, Light, Nullable
-} from "@babylonjs/core";
 
 /**
  * A light component.
  */
 export class LightComponent extends GenericNodeComponent<Light> {
-    // private _light: Light;
     protected _light: Nullable<Light> = null;
 
     public get light(): Nullable<Light> {
@@ -36,33 +34,53 @@ export class LightComponent extends GenericNodeComponent<Light> {
     }
 
     /**
-    * Gets a string identifying the type of this Component
-    * @returns "Light" string
-    */
-    public get componentType():string {
+     * A string identifying the type of this component.
+     * @returns `"Light"`
+     */
+    public get componentType(): string {
         return LightComponent.typeName;
     }
 
+    /**
+     * A string identifying the type of this component.
+     * @returns `"Light"`
+     */
     static get typeName(): string {
         return "Light";
     }
 }
 
 export class AmbientLightComponent extends LightComponent {
-    public get componentType():string {
+    /**
+     * A string identifying the type of this component.
+     * @returns `"AmbientLight"`
+     */
+    public get componentType(): string {
         return AmbientLightComponent.typeName;
     }
 
+    /**
+     * A string identifying the type of this component.
+     * @returns `"AmbientLight"`
+     */
     static get typeName(): string {
         return "AmbientLight";
     }
 }
 
 export class DirectionalLightComponent extends GenericNodeComponent<DirectionalLight> {
-    public get componentType():string {
+    /**
+     * A string identifying the type of this component.
+     * @returns `"DirectionalLight"`
+     */
+    public get componentType(): string {
         return DirectionalLightComponent.typeName;
     }
 
+    /**
+     * A string identifying the type of this component.
+     * @returns `"DirectionalLight"`
+     */
     static get typeName(): string {
         return "DirectionalLight";
     }

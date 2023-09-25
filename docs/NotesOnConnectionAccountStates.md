@@ -52,7 +52,7 @@ The metaverse-server states will be:
 
 The other metaverse-server related information is the account access token.
 If the user had previously logged in, the account name and account access token
-is saved in persistant storage and is re-used in the new session.
+is saved in persistent storage and is re-used in the new session.
 
 # Session Persistance
 
@@ -75,7 +75,7 @@ that would allow session portability (like Discord, for instance).
 
 Since access to [Window.localStorage] is unique to the document's origin, if
 a user has multiple [Vircadia Web] sessions open in different browser tabs,
-there will be some confusion as to the session state to recover. 
+there will be some confusion as to the session state to recover.
 **TODO**: how to solve this? Is there a way to ask the browser how many
 sessions are open to the same URL?
 
@@ -88,16 +88,16 @@ see if state persistance information is available. The following steps are perfo
 * what the user sees is a display of the domain URL (or domain-server name info
   if "Explore" information is available) and the domain state going to "connecting"
 * if the domain-server connection is successful and there are stored services
-  listed in the persistant storage, those services are connected
+  listed in the persistent storage, those services are connected
 * what the user sees is the domain-server state going to "connected"
 * once the domain-server is connected, [Vircadia Web] will request the metaverse-server
   URL
 * the metaverse-server info will be fetched and the connection verified
 * the user will see the metaverse-server name and URL displayed
-* if there is a login access token and account name saved in persistant-storage, 
+* if there is a login access token and account name saved in persistent-storage,
   the user will be considered "logged in"
 * the user will see the account name and "logged in" displayed
-* if other view parameters are in persistant storage, the view will be setup
+* if other view parameters are in persistent storage, the view will be setup
   with those parameters (dialog locations, color scheme, etc)
 * **TODO**: complete session startup restoration
 

@@ -19,16 +19,20 @@ export type Size = {
     height: number
 };
 
+/**
+ * An object within the CSS 3D scene.
+ */
 export class CSS3DObject {
     private _renderer: CSS3DRenderer;
     private _mesh: AbstractMesh;
     private _element: HTMLElement;
-    private _canGetFocus = true;
     private _isFocused = false;
     private _onPickedObservale: Observable<CSS3DObject> = new Observable<CSS3DObject>();
     private _onFocusChangedObservale: Observable<boolean> = new Observable<boolean>();
 
-    constructor(element : HTMLElement, mesh : AbstractMesh) {
+    public canGetFocus = true;
+
+    constructor(element: HTMLElement, mesh: AbstractMesh) {
         this._element = element;
         this._element.style.position = "absolute";
         this._element.style.pointerEvents = "auto";
@@ -41,9 +45,7 @@ export class CSS3DObject {
         this._renderer = Renderer.getScene().css3DRenderer as CSS3DRenderer;
         this._renderer.addCSS3DObject(this);
 
-        this._element.addEventListener("mouseout", () => {
-            this._renderer.detachControl();
-        });
+        this._element.addEventListener("mouseout", this._renderer.detachControl.bind(this));
     }
 
     public get mesh(): AbstractMesh {
@@ -62,50 +64,41 @@ export class CSS3DObject {
         return this._onPickedObservale;
     }
 
-    public setFocus(focus : boolean) : void {
+    public setFocus(focus: boolean): void {
         if (this._isFocused !== focus) {
             this._isFocused = focus;
             this._onFocusChangedObservale.notifyObservers(focus);
         }
     }
 
-    public setPicked() : void {
+    public setPicked(): void {
         this._onPickedObservale.notifyObservers(this);
-    }
-
-    public get canGetFocus() : boolean {
-        return this._canGetFocus;
-    }
-
-    public set canGetFocus(value: boolean) {
-        this._canGetFocus = value;
     }
 }
 
+/**
+ * The renderer for the CSS 3D scene. This scene primarily contains web-entities.
+ */
 export class CSS3DRenderer {
-    private _canvas : HTMLCanvasElement;
-    private _scene: Nullable<Scene> = null;
+    private _canvas: HTMLCanvasElement;
     private _isAttachControl = false;
-
-    _css3DObjects : Map<string, CSS3DObject> = new Map<string, CSS3DObject>();
-    _pickedOjbect : Nullable<CSS3DObject> = null;
-
-    _cache = {
+    private _css3DObjects: Map<string, CSS3DObject> = new Map<string, CSS3DObject>();
+    private _domElement: HTMLElement;
+    private _cameraElement: HTMLElement;
+    private _width = 0;
+    private _height = 0;
+    private _widthHalf = 0;
+    private _heightHalf = 0;
+    private _cache = {
         camera: { fov: 0, style: "" },
         objects: new WeakMap()
     };
 
-    _domElement: HTMLElement;
-    _cameraElement: HTMLElement;
+    public scene: Nullable<Scene> = null;
 
-    _width = 0;
-    _height = 0;
-    _widthHalf = 0;
-    _heightHalf = 0;
-    _isIE = false;
-
-    constructor(canvas: HTMLCanvasElement) {
+    constructor(canvas: HTMLCanvasElement, scene: Scene) {
         this._canvas = canvas;
+        this.scene = scene;
         const existingRenderer = document.getElementById("web-entity-container");
         if (existingRenderer) {
             existingRenderer.remove();
@@ -121,17 +114,16 @@ export class CSS3DRenderer {
         const canvasZone = canvas.parentElement as HTMLElement;
         canvasZone.insertBefore(container, canvasZone.firstChild);
 
-        const domElement = document.createElement("div");
-        domElement.style.overflow = "hidden";
+        this._domElement = document.createElement("div");
+        this._domElement.style.overflow = "hidden";
 
-        this._domElement = domElement;
         this._cameraElement = document.createElement("div");
         this._cameraElement.style.transformStyle = "preserve-3d";
         this._cameraElement.style.pointerEvents = "none";
 
-        domElement.appendChild(this._cameraElement);
+        this._domElement.appendChild(this._cameraElement);
 
-        container.appendChild(domElement);
+        container.appendChild(this._domElement);
 
         this.setSize(canvasZone.offsetWidth, canvasZone.offsetHeight);
 
@@ -139,17 +131,12 @@ export class CSS3DRenderer {
             this.setSize(canvasZone.offsetWidth, canvasZone.offsetHeight);
         });
 
-        window.addEventListener("pointerdown", this._handlePointDown.bind(this));
+        window.addEventListener("pointerdown", this._handlePointerDown.bind(this));
     }
 
-    public get scene(): Nullable<Scene> {
-        return this._scene;
-    }
-
-    public set scene(value: Nullable<Scene>) {
-        this._scene = value;
-    }
-
+    /**
+     * @returns The view size of the CSS 3D renderer.
+     */
     getSize(): Size {
         return {
             width: this._width,
@@ -157,13 +144,16 @@ export class CSS3DRenderer {
         };
     }
 
-    setSize(width:number, height:number) : void {
+    /**
+     * Set the view size of the CSS 3D renderer.
+     */
+    setSize(width: number, height: number): void {
         this._width = width;
         this._height = height;
         this._widthHalf = this._width / 2;
         this._heightHalf = this._height / 2;
 
-        // Double the size of the _domElement so that it can contain WEs with double pixel-density.
+        // Double the size of the DOM Element so that it can contain WEs with double the pixel-density.
         // TODO: Make this a setting that can be adjusted when the web entity is created/modified in the world editor.
         this._domElement.style.width = `${width * 2}px`;
         this._domElement.style.height = `${height * 2}px`;
@@ -175,63 +165,70 @@ export class CSS3DRenderer {
     }
 
     // eslint-disable-next-line class-methods-use-this
-    epsilon(value: number) : number {
+    private _epsilon(value: number): number {
         return Math.abs(value) < 1e-10 ? 0 : value;
     }
 
-    getCameraCSSMatrix(matrix: Matrix) : string {
+    /**
+     * Calculate the CSS matrix transformation of the camera.
+     * @param matrix The camera's transform matrix.
+     * @returns An equivalent CSS matrix.
+     */
+    getCameraCSSMatrix(matrix: Matrix): string {
         const elements = matrix.m;
-
         return "matrix3d("
-            + this.epsilon(elements[0]).toString() + ","
-            + this.epsilon(-elements[1]).toString() + ","
-            + this.epsilon(elements[2]).toString() + ","
-            + this.epsilon(elements[3]).toString() + ","
-            + this.epsilon(elements[4]).toString() + ","
-            + this.epsilon(-elements[5]).toString() + ","
-            + this.epsilon(elements[6]).toString() + ","
-            + this.epsilon(elements[7]).toString() + ","
-            + this.epsilon(elements[8]).toString() + ","
-            + this.epsilon(-elements[9]).toString() + ","
-            + this.epsilon(elements[10]).toString() + ","
-            + this.epsilon(elements[11]).toString() + ","
-            + this.epsilon(elements[12]).toString() + ","
-            + this.epsilon(-elements[13]).toString() + ","
-            + this.epsilon(elements[14]).toString() + ","
-            + this.epsilon(elements[15]).toString()
+            + this._epsilon(elements[0]).toString() + ","
+            + this._epsilon(-elements[1]).toString() + ","
+            + this._epsilon(elements[2]).toString() + ","
+            + this._epsilon(elements[3]).toString() + ","
+            + this._epsilon(elements[4]).toString() + ","
+            + this._epsilon(-elements[5]).toString() + ","
+            + this._epsilon(elements[6]).toString() + ","
+            + this._epsilon(elements[7]).toString() + ","
+            + this._epsilon(elements[8]).toString() + ","
+            + this._epsilon(-elements[9]).toString() + ","
+            + this._epsilon(elements[10]).toString() + ","
+            + this._epsilon(elements[11]).toString() + ","
+            + this._epsilon(elements[12]).toString() + ","
+            + this._epsilon(-elements[13]).toString() + ","
+            + this._epsilon(elements[14]).toString() + ","
+            + this._epsilon(elements[15]).toString()
             + ")";
     }
 
-    getObjectCSSMatrix(matrix: Matrix, cameraCSSMatrix: string) : string {
+    /**
+     * Calculate the CSS matrix transformation of an object from the scene.
+     * @param matrix The object's transform matrix.
+     * @returns An equivalent CSS matrix.
+     */
+    getObjectCSSMatrix(matrix: Matrix): string {
         const elements = matrix.m;
-        const matrix3d = "matrix3d("
-            + this.epsilon(elements[0]).toString() + ","
-            + this.epsilon(elements[1]).toString() + ","
-            + this.epsilon(elements[2]).toString() + ","
-            + this.epsilon(elements[3]).toString() + ","
-            + this.epsilon(-elements[4]).toString() + ","
-            + this.epsilon(-elements[5]).toString() + ","
-            + this.epsilon(-elements[6]).toString() + ","
-            + this.epsilon(-elements[7]).toString() + ","
-            + this.epsilon(elements[8]).toString() + ","
-            + this.epsilon(elements[9]).toString() + ","
-            + this.epsilon(elements[10]).toString() + ","
-            + this.epsilon(elements[11]).toString() + ","
-            + this.epsilon(elements[12]).toString() + ","
-            + this.epsilon(elements[13]).toString() + ","
-            + this.epsilon(elements[14]).toString() + ","
-            + this.epsilon(elements[15]).toString()
+        return "translate(-50%,-50%) matrix3d("
+            + this._epsilon(elements[0]).toString() + ","
+            + this._epsilon(elements[1]).toString() + ","
+            + this._epsilon(elements[2]).toString() + ","
+            + this._epsilon(elements[3]).toString() + ","
+            + this._epsilon(-elements[4]).toString() + ","
+            + this._epsilon(-elements[5]).toString() + ","
+            + this._epsilon(-elements[6]).toString() + ","
+            + this._epsilon(-elements[7]).toString() + ","
+            + this._epsilon(elements[8]).toString() + ","
+            + this._epsilon(elements[9]).toString() + ","
+            + this._epsilon(elements[10]).toString() + ","
+            + this._epsilon(elements[11]).toString() + ","
+            + this._epsilon(elements[12]).toString() + ","
+            + this._epsilon(elements[13]).toString() + ","
+            + this._epsilon(elements[14]).toString() + ","
+            + this._epsilon(elements[15]).toString()
             + ")";
-        if (this._isIE) {
-            return "translate(-50%,-50%)"
-                + "translate(" + this._widthHalf.toString() + "px," + this._heightHalf.toString() + "px)"
-                + cameraCSSMatrix
-                + matrix3d;
-        }
-        return "translate(-50%,-50%)" + matrix3d;
     }
 
-    renderObject(object: CSS3DObject, camera: Camera, cameraCSSMatrix: string) : void {
+    /**
+     * Render a CSS 3D object from the view given camera.
+     * @param object The CSS 3D object to render.
+     * @param camera The camera to view the object from.
+     */
+    renderObject(object: CSS3DObject, camera: Camera): void {
         const position = new Vector3();
         const rotation = new Quaternion();
         const scale = new Vector3();
@@ -244,7 +241,7 @@ export class CSS3DRenderer {
         const innerMatrix = new Array<number>(16);
         objectWorldMatrix.copyToArray(innerMatrix);
 
-        const camMatrix = camera.getWorldMatrix();
+        const cameraMatrix = camera.getWorldMatrix();
 
         // Set scaling.
         const width = Math.abs(object.mesh.scaling.x) * 2;
@@ -258,21 +255,25 @@ export class CSS3DRenderer {
         innerMatrix[4] *= 0.01 / height;
 
         // Set position from camera.
-        innerMatrix[12] = -camMatrix.m[12] + position.x;
-        innerMatrix[13] = -camMatrix.m[13] + position.y;
-        innerMatrix[14] = camMatrix.m[14] - position.z;
-        innerMatrix[15] = camMatrix.m[15] * 0.00001;
+        innerMatrix[12] = -cameraMatrix.m[12] + position.x;
+        innerMatrix[13] = -cameraMatrix.m[13] + position.y;
+        innerMatrix[14] = cameraMatrix.m[14] - position.z;
+        innerMatrix[15] = cameraMatrix.m[15] * 0.00001;
 
         objectWorldMatrix = Matrix.FromArray(innerMatrix);
         objectWorldMatrix = objectWorldMatrix.scale(100);
-        const style = this.getObjectCSSMatrix(objectWorldMatrix, cameraCSSMatrix);
+        const style = this.getObjectCSSMatrix(objectWorldMatrix);
         const element = object.element;
         if (element.style.transform !== style) {
             element.style.transform = style;
         }
     }
 
-    render(camera: Camera) : void {
+    /**
+     * Render the CSS 3D scene from the view given camera.
+     * @param camera The camera to view the scene from.
+     */
+    render(camera: Camera): void {
         const projectionMatrix = camera.getProjectionMatrix();
         const fov = projectionMatrix.m[5] * this._heightHalf;
 
@@ -309,20 +310,23 @@ export class CSS3DRenderer {
         matrixWorld.toggleProjectionMatrixHandInPlace();
 
         const cameraCSSMatrix = "translateZ(" + fov.toString() + "px)" + this.getCameraCSSMatrix(matrixWorld);
-
         const style = cameraCSSMatrix + "translate(" + this._widthHalf.toString() + "px," + this._heightHalf.toString() + "px)";
 
-        if (this._cache.camera.style !== style && !this._isIE) {
+        if (this._cache.camera.style !== style) {
             this._cameraElement.style.transform = style;
             this._cache.camera.style = style;
         }
 
         this._css3DObjects.forEach((css3DObject) => {
-            this.renderObject(css3DObject, camera, cameraCSSMatrix);
+            this.renderObject(css3DObject, camera);
         });
     }
 
-    public addCSS3DObject(object : CSS3DObject) : void {
+    /**
+     * Add a new object to the CSS 3D scene.
+     * @param object The object to add to the scene.
+     */
+    public addCSS3DObject(object: CSS3DObject): void {
         if (object.element.parentNode !== this._cameraElement) {
             this._cameraElement.appendChild(object.element);
         }
@@ -330,17 +334,29 @@ export class CSS3DRenderer {
         this._css3DObjects.set(object.mesh.id, object);
     }
 
-    public removeCSS3DObject(object : CSS3DObject) : void {
+    /**
+     * Remove an object from the CSS 3D scene.
+     * @param object The object to remove from the scene.
+     */
+    public removeCSS3DObject(object: CSS3DObject): void {
         this._css3DObjects.delete(object.mesh.id);
     }
 
-    public removeAllCSS3DObjects() : void {
+    /**
+     * Remove all objects from the CSS 3D scene.
+     */
+    public removeAllCSS3DObjects(): void {
         this._css3DObjects.clear();
     }
 
-    private _pickObject(evt : PointerEvent) : CSS3DObject | undefined {
-        if (this._scene) {
-            const pick = this._scene.pick(Math.round(evt.offsetX), Math.round(evt.offsetY));
+    /**
+     * Get the CSS 3D object picked by a pointer event.
+     * @param event The pointer event.
+     * @returns The object that was picked (if one was picked).
+     */
+    private _pickObject(event: PointerEvent): CSS3DObject | undefined {
+        if (this.scene) {
+            const pick = this.scene.pick(Math.round(event.offsetX), Math.round(event.offsetY));
             if (pick && pick.hit && pick.pickedMesh) {
                 return this._css3DObjects.get(pick.pickedMesh.id);
             }
@@ -348,21 +364,26 @@ export class CSS3DRenderer {
         return undefined;
     }
 
-    private _handlePointDown(evt : PointerEvent) : void {
-        const object = this._pickObject(evt);
+    /**
+     * Handle a `pointerdown` event on any CSS 3D object.
+     * @param event The pointer event.
+     */
+    private _handlePointerDown(event: PointerEvent): void {
+        const object = this._pickObject(event);
         if (object) {
             object.setPicked();
             if (object.canGetFocus) {
                 this.attachControl();
             }
-            this._pickedOjbect = object;
         } else {
             this.detachControl();
         }
     }
 
-    public attachControl() : void {
-        // make CSS3DObject receive events
+    /**
+     * Allow the CSS 3D scene to receive input events.
+     */
+    public attachControl(): void {
         if (!this._isAttachControl) {
             document.body.style.pointerEvents = "none";
             this._canvas.style.pointerEvents = "none";
@@ -370,7 +391,10 @@ export class CSS3DRenderer {
         }
     }
 
-    public detachControl() : void {
+    /**
+     * Prevent the CSS 3D scene from receiving input events.
+     */
+    public detachControl(): void {
         if (this._isAttachControl) {
             // make babylon.js canvas and document body receive events
             document.body.style.pointerEvents = "auto";

@@ -11,9 +11,9 @@
 
 <template>
     <q-form
-        class="q-gutter-md"
+        class="column q-gutter-y-md"
         ref="registrationForm"
-        @submit="onSubmit"
+        @submit="submit"
     >
         <q-input
             v-model="username"
@@ -22,7 +22,7 @@
             label="Username"
             hint="Enter your username."
             lazy-rules
-            :rules="[ val => val && val.length > 0 || 'Please enter a username.']"
+            :rules="[val => val && val.length > 0 || 'Please enter a username.']"
             :disable="loading"
         />
 
@@ -33,7 +33,7 @@
             label="Email"
             hint="Enter your email."
             lazy-rules
-            :rules="[ val => val && val.length > 0 || 'Please enter an email.']"
+            :rules="[val => val && val.length > 0 || 'Please enter an email.']"
             :disable="loading"
         />
 
@@ -45,7 +45,7 @@
             :type="showPassword ? 'text' : 'password'"
             hint="Enter your password."
             lazy-rules
-            :rules="[ val => val && val.length > 0 || 'Please enter a password.']"
+            :rules="[val => val && val.length > 0 || 'Please enter a password.']"
             :disable="loading"
         >
             <template v-slot:append>
@@ -65,7 +65,7 @@
             :type="showConfirmPassword ? 'text' : 'password'"
             hint="Enter your password again."
             lazy-rules
-            :rules="[ val => val && val.length > 0 && val === password || 'Please ensure your passwords match.']"
+            :rules="[val => val && val.length > 0 && val === password || 'Please ensure your passwords match.']"
             :disable="loading"
         >
             <template v-slot:append>
@@ -77,81 +77,73 @@
             </template>
         </q-input>
 
-        <div align="right">
-            <q-btn label="Register" type="submit" color="primary" :loading="loading" />
-        </div>
+        <q-btn
+            label="Register"
+            type="submit"
+            color="primary"
+            class="q-ml-auto"
+            :loading="loading"
+        />
     </q-form>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-
 import { Account } from "@Modules/account";
 
 export default defineComponent({
     name: "MetaverseRegister",
 
-    data: () => ({
-        username: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-        showPassword: false,
-        showConfirmPassword: false,
-        loading: false
-    }),
+    emits: ["success", "failure"],
 
-    emits: ["register-success", "register-failure"],
+    data() {
+        return {
+            username: "",
+            email: "",
+            password: "",
+            confirmPassword: "",
+            showPassword: false,
+            showConfirmPassword: false,
+            loading: false
+        };
+    },
 
     methods: {
-        async onSubmit() {
+        async submit() {
             this.loading = true;
-            try {
-                const result = await Account.createAccount(this.username, this.password, this.email);
-                this.loading = false;
+            const registerSuccessful = await Account.createAccount(this.username, this.password, this.email);
+            this.loading = false;
 
-                if (!result) {
-                    this.$q.notify({
-                        type: "negative",
-                        textColor: "white",
-                        icon: "warning",
-                        message: "Something went wrong..."
-                    });
-                    console.log("Registration failed:", result);
-                    this.$emit("register-failure");
-                    return;
-                }
-
-                if (result.accountAwaitingVerification === true) {
-                    this.$q.notify({
-                        type: "info",
-                        textColor: "white",
-                        icon: "email",
-                        timeout: 0,
-                        message: `Check your email "${this.email}" to complete registration.`,
-                        actions: [{ label: "Dismiss", color: "white", handler: () => { /* ... */ } }]
-                    });
-                } else {
-                    this.$q.notify({
-                        type: "positive",
-                        textColor: "white",
-                        icon: "cloud_done",
-                        message: "Successfully registered."
-                    });
-                }
-                (this.$refs.registrationForm as HTMLFormElement).reset();
-                this.$emit("register-success");
-            } catch (error) {
+            if (!registerSuccessful) {
                 this.$q.notify({
                     type: "negative",
                     textColor: "white",
                     icon: "warning",
                     message: "Something went wrong..."
                 });
-                console.log("Registration failed:", error);
-                this.$emit("register-failure");
-                this.loading = false;
+                this.$emit("failure");
+                return;
             }
+
+            if (registerSuccessful.accountAwaitingVerification) {
+                this.$q.notify({
+                    type: "info",
+                    textColor: "white",
+                    icon: "email",
+                    timeout: 0,
+                    message: `Check your email to complete registration.`,
+                    actions: [{ label: "Dismiss", color: "white" }]
+                });
+            } else {
+                this.$q.notify({
+                    type: "positive",
+                    textColor: "white",
+                    icon: "cloud_done",
+                    message: "Registration successful."
+                });
+            }
+            (this.$refs.registrationForm as HTMLFormElement).reset();
+            this.$emit("success");
         }
     }
 });

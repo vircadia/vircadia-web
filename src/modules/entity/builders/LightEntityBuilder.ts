@@ -16,7 +16,7 @@ import { LightEntityController } from "../components";
 
 export class LightEntityBuilder extends AbstractEntityBuilder {
     // eslint-disable-next-line class-methods-use-this
-    public build(gameObject: GameObject, entity: IEntity) : void {
+    public build(gameObject: GameObject, entity: IEntity): void {
         gameObject.addComponent(new LightEntityController(entity as ILightEntity));
     }
 }

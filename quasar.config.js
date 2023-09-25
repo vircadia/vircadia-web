@@ -1,8 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-/* eslint-disable @typescript-eslint/no-magic-numbers */
-/* eslint-disable camelcase */
-/* eslint-env node */
-
 /*
 * This file runs in a Node context (it's NOT transpiled by Babel), so use only
 * the ES6 features that are supported by your Node version. https://node.green/
@@ -127,7 +122,6 @@ module.exports = configure(function(ctx) {
         // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#devServer
         devServer: {
             https: false,
-            port: 8080,
             open: true // opens browser window automatically
         },
 

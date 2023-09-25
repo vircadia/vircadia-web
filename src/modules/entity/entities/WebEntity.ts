@@ -36,11 +36,11 @@ export class WebEntity extends Entity implements IWebEntity {
 
     protected _userAgent: string | undefined;
 
-    protected _onColorChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onSourceURLChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onWebPropertiesChanged : EntityPropertyChangeObservable<IEntity>;
+    protected _onColorChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onSourceURLChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onWebPropertiesChanged: EntityPropertyChangeObservable<IEntity>;
 
-    constructor(id : string) {
+    constructor(id: string) {
         super(id, "Web");
 
         this._onColorChanged = this.createPropertyChangeObservable();
@@ -75,7 +75,7 @@ export class WebEntity extends Entity implements IWebEntity {
     }
 
     public set alpha(value: number | undefined) {
-        if (undefined !== value && this._alpha !== value) {
+        if (typeof value === "number" && this._alpha !== value) {
             this._alpha = value;
             this._onColorChanged.isDirty = true;
         }
@@ -86,7 +86,7 @@ export class WebEntity extends Entity implements IWebEntity {
     }
 
     public set dpi(value: number | undefined) {
-        if (undefined !== value && this._dpi !== value) {
+        if (typeof value === "number" && this._dpi !== value) {
             this._dpi = value;
             this._onWebPropertiesChanged.isDirty = true;
         }
@@ -108,7 +108,7 @@ export class WebEntity extends Entity implements IWebEntity {
     }
 
     public set maxFPS(value: number | undefined) {
-        if (undefined !== value && this._dpi !== value) {
+        if (typeof value === "number" && this._maxFps !== value) {
             this._maxFps = value;
             this._onWebPropertiesChanged.isDirty = true;
         }
@@ -119,7 +119,7 @@ export class WebEntity extends Entity implements IWebEntity {
     }
 
     public set inputMode(value: WebInputMode | undefined) {
-        if (undefined !== value && this._inputMode !== value) {
+        if (value !== undefined && this._inputMode !== value) {
             this._inputMode = value;
             this._onWebPropertiesChanged.isDirty = true;
         }
@@ -158,19 +158,19 @@ export class WebEntity extends Entity implements IWebEntity {
         }
     }
 
-    public get onColorChanged() : Observable<IEntity> {
+    public get onColorChanged(): Observable<IEntity> {
         return this._onColorChanged.observable;
     }
 
-    public get onSourceURLChanged() : Observable<IEntity> {
+    public get onSourceURLChanged(): Observable<IEntity> {
         return this._onSourceURLChanged.observable;
     }
 
-    public get onWebPropertiesChanged() : Observable<IEntity> {
+    public get onWebPropertiesChanged(): Observable<IEntity> {
         return this._onWebPropertiesChanged.observable;
     }
 
-    public copyFormPacketData(props : EntityProperties) : void {
+    public copyFormPacketData(props: EntityProperties): void {
         super.copyFormPacketData(props);
 
         const webProps = props as WebEntityProperties;

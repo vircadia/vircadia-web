@@ -16,7 +16,7 @@ import { MaterialEntityController } from "../components";
 
 export class MaterialEntityBuilder extends AbstractEntityBuilder {
     // eslint-disable-next-line class-methods-use-this
-    public build(gameObject: GameObject, entity: IEntity) : void {
+    public build(gameObject: GameObject, entity: IEntity): void {
         gameObject.addComponent(new MaterialEntityController(entity as IMaterialEntity));
     }
 }

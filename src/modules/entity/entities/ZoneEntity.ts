@@ -37,14 +37,14 @@ export class ZoneEntity extends Entity implements IZoneEntity {
     _filterURL: string | undefined;
     _avatarPriority: AvatarPriorityMode | undefined;
     _screenshare: ComponentMode | undefined;
-    protected _onShapeTypeChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onAmbientLightPropertiesChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onKeyLightPropertiesChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onSkyboxPropertiesChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onHazePropertiesChanged : EntityPropertyChangeObservable<IEntity>;
-    protected _onBloomPropertiesChanged : EntityPropertyChangeObservable<IEntity>;
+    protected _onShapeTypeChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onAmbientLightPropertiesChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onKeyLightPropertiesChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onSkyboxPropertiesChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onHazePropertiesChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onBloomPropertiesChanged: EntityPropertyChangeObservable<IEntity>;
 
-    constructor(id : string) {
+    constructor(id: string) {
         super(id, "Zone");
 
         this._onShapeTypeChanged = this.createPropertyChangeObservable();
@@ -88,27 +88,27 @@ export class ZoneEntity extends Entity implements IZoneEntity {
         }
     }
 
-    public get onShapeTypeChanged() : Observable<IEntity> {
+    public get onShapeTypeChanged(): Observable<IEntity> {
         return this._onShapeTypeChanged.observable;
     }
 
-    public get onAmbientLightPropertiesChanged() : Observable<IEntity> {
+    public get onAmbientLightPropertiesChanged(): Observable<IEntity> {
         return this._onAmbientLightPropertiesChanged.observable;
     }
 
-    public get onKeyLightPropertiesChanged() : Observable<IEntity> {
+    public get onKeyLightPropertiesChanged(): Observable<IEntity> {
         return this._onKeyLightPropertiesChanged.observable;
     }
 
-    public get onHazePropertiesChanged() : Observable<IEntity> {
+    public get onHazePropertiesChanged(): Observable<IEntity> {
         return this._onHazePropertiesChanged.observable;
     }
 
-    public get onSkyboxPropertiesChanged() : Observable<IEntity> {
+    public get onSkyboxPropertiesChanged(): Observable<IEntity> {
         return this._onSkyboxPropertiesChanged.observable;
     }
 
-    public get onBloomPropertiesChanged() : Observable<IEntity> {
+    public get onBloomPropertiesChanged(): Observable<IEntity> {
         return this._onBloomPropertiesChanged.observable;
     }
 
@@ -202,7 +202,7 @@ export class ZoneEntity extends Entity implements IZoneEntity {
         }
     }
 
-    public copyFormPacketData(props : EntityProperties) : void {
+    public copyFormPacketData(props: EntityProperties): void {
         super.copyFormPacketData(props);
 
         const zoneProps = props as ZoneEntityProperties;

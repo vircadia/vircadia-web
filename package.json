@@ -6,14 +6,15 @@
   "author": "DigiSomni LLC | Vircadia Contributors",
   "license": "Apache-2.0",
   "scripts": {
-    "build": "npm run create-version && npm run build-quasar",
-    "dev": "npm run create-version && npm run build-quasar-dev",
+    "build": "npm run create-version && npm run copy-workers && npm run build-quasar",
+    "dev": "npm run create-version && npm run copy-workers && npm run build-quasar-dev",
     "build-quasar": "quasar build",
     "build-quasar-dev": "quasar dev",
     "lint": "eslint --ext .js,.ts,.vue ./",
     "create-version": "node build_scripts/createVersion.js",
     "update-contributors": "git-authors-cli",
     "install-local-web-sdk": "npm install file:../vircadia-web-sdk --no-save"
+    "copy-workers": "node build_scripts/copyWorkers.mjs"
   },
   "dependencies": {
     "@babylonjs/core": "^6.4.1",

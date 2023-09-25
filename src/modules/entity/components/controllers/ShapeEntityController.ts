@@ -14,10 +14,10 @@ import { IShapeEntity } from "../../EntityInterfaces";
 import { ShapeComponent } from "../components";
 
 export class ShapeEntityController extends EntityController {
-    _shapeEntity : IShapeEntity;
-    _shapeComponent : Nullable<ShapeComponent> = null;
+    _shapeEntity: IShapeEntity;
+    _shapeComponent: Nullable<ShapeComponent> = null;
 
-    constructor(entity : IShapeEntity) {
+    constructor(entity: IShapeEntity) {
         super(entity, ShapeEntityController.typeName);
         this._shapeEntity = entity;
     }
@@ -31,7 +31,7 @@ export class ShapeEntityController extends EntityController {
     * @returns "ShapeEntityController" string
     */
     // eslint-disable-next-line class-methods-use-this
-    public get componentType():string {
+    public get componentType(): string {
         return ShapeEntityController.typeName;
     }
 

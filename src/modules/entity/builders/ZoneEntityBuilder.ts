@@ -15,7 +15,7 @@ import { ZoneEntityController } from "../components";
 
 export class ZoneEntityBuilder {
     // eslint-disable-next-line class-methods-use-this
-    public build(gameObject: GameObject, entity: IEntity) : void {
+    public build(gameObject: GameObject, entity: IEntity): void {
         gameObject.addComponent(new ZoneEntityController(entity as IZoneEntity));
     }
 }

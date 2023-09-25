@@ -169,7 +169,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { applicationStore, userStore } from "@Stores/index";
-import { AMessage, DefaultChatMessage } from "@Modules/domain/message";
+import { ChatMessage, DomainChatMessage } from "@Modules/domain/message";
 import OverlayShell from "../OverlayShell.vue";
 
 export default defineComponent({
@@ -224,16 +224,16 @@ export default defineComponent({
             return null;
         },
         // Return the sender Id included in the message. Returns the ID string if no displayname
-        msgSender(pMsg: AMessage): string {
+        msgSender(pMsg: ChatMessage): string {
             if (pMsg.messageJSON) {
-                const fMsg = <DefaultChatMessage>pMsg.messageJSON;
+                const fMsg = <DomainChatMessage>pMsg.messageJSON;
                 return fMsg.displayName;
             }
             return pMsg.senderId.stringify();
         },
-        msgText(pMsg: AMessage): string {
+        msgText(pMsg: ChatMessage): string {
             if (pMsg.messageJSON) {
-                const fMsg = <DefaultChatMessage>pMsg.messageJSON;
+                const fMsg = <DomainChatMessage>pMsg.messageJSON;
                 return fMsg.message;
             }
             return pMsg.message;

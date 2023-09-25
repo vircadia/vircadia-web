@@ -13,17 +13,21 @@
 /* eslint-disable class-methods-use-this */
 
 import { ColliderComponent } from "./collider";
-import { AbstractMesh, PhysicsImpostor, Nullable } from "@babylonjs/core";
+import { AbstractMesh, PhysicsImpostor, type Nullable } from "@babylonjs/core";
 
 export class MeshColliderComponent extends ColliderComponent {
     /**
-    * Gets a string identifying the type of this Component
-    * @returns "Mesh" string
-    */
-    public get componentType():string {
+     * A string identifying the type of this component.
+     * @returns `"MeshCollider"`
+     */
+    public get componentType(): string {
         return MeshColliderComponent.typeName;
     }
 
+    /**
+     * A string identifying the type of this component.
+     * @returns `"MeshCollider"`
+     */
     static get typeName(): string {
         return "MeshCollider";
     }
@@ -57,11 +61,10 @@ export class MeshColliderComponent extends ColliderComponent {
     }
 
     // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-empty-function
-    protected _createColliderImposterForCompoundBody() : void {
+    protected _createColliderImposterForCompoundBody(): void {
     }
 
     // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-empty-function
-    protected _createColliderImposter() : void {
-
+    protected _createColliderImposter(): void {
     }
 }

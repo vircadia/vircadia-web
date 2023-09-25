@@ -59,39 +59,45 @@ export default defineComponent({
         propsToPass: { type: Object, default: () => ({}) }
     },
 
-    data: () => ({
-        room: <JitsiRoomInfo><unknown>undefined,
-        jitisElement: <HTMLElement><unknown>undefined
-    }),
-
     components: {
         OverlayShell
     },
+
+    data() {
+        return {
+            room: <JitsiRoomInfo><unknown>undefined,
+            jitsiElement: <HTMLElement><unknown>undefined
+        };
+    },
+
     methods: {
-        getWebEntityController() : WebEntityController {
+        getWebEntityController(): WebEntityController | undefined {
             const gameObject = GameObject.getGameObjectByID(this.room.entity.id);
-            return gameObject?.getComponent(WebEntityController.typeName) as WebEntityController;
+            const component = gameObject?.getComponent(WebEntityController.typeName);
+            return component instanceof WebEntityController ? component : undefined;
         }
     },
+
     mounted() {
         this.room = applicationStore.conference.currentRoom;
         const controller = this.getWebEntityController();
         if (controller && controller.externalElement) {
-            this.jitisElement = controller.externalElement;
+            this.jitsiElement = controller.externalElement;
             controller.externalElement = null;
 
             const container = this.$refs.JitsiContainer as HTMLElement;
-            container.appendChild(this.jitisElement);
+            container.appendChild(this.jitsiElement);
         }
     },
+
     beforeUnmount() {
-        if (this.room && this.jitisElement) {
+        if (this.room && this.jitsiElement) {
             const controller = this.getWebEntityController();
             if (controller) {
-                controller.externalElement = this.jitisElement;
+                controller.externalElement = this.jitsiElement;
             } else {
-                this.jitisElement.remove();
-                this.jitisElement = <HTMLElement><unknown>undefined;
+                this.jitsiElement.remove();
+                this.jitsiElement = <HTMLElement><unknown>undefined;
             }
         }
     }

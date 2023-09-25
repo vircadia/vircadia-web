@@ -11,9 +11,9 @@
 
 <template>
     <q-bar class="bar">
-        <div class="title" >{{ applicationStore.theme.globalServiceTerm }} Login</div>
+        <div class="title">{{ applicationStore.theme.globalServiceTerm }} Login</div>
         <q-space />
-        <q-btn dense flat icon="close" @click="$emit('closeDialog', 'close')" />
+        <q-btn dense flat icon="close" @click="$emit('close')" />
     </q-bar>
 
     <q-card-section class="q-pt-none">
@@ -32,53 +32,30 @@
 
         <q-tab-panels v-model="tab" animated>
             <q-tab-panel name="metaverseLogin">
-                <MetaverseLogin @closeDialog="$emit('closeDialog', 'close')"></MetaverseLogin>
+                <MetaverseLogin @success="$emit('close')" />
             </q-tab-panel>
 
             <q-tab-panel name="metaverseRegister">
-                <MetaverseRegister
-                    @register-success="onMetaverseRegister(true)"
-                    @register-failure="onMetaverseRegister(false)"
-                ></MetaverseRegister>
+                <MetaverseRegister @success="tab = 'metaverseLogin'" />
             </q-tab-panel>
         </q-tab-panels>
     </q-card-section>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 import { applicationStore } from "@Stores/index";
-import MetaverseLogin from "@Components/components/login/MetaverseLogin.vue";
-import MetaverseRegister from "@Components/components/login/MetaverseRegister.vue";
 
 export default defineComponent({
     name: "LoginDialog",
 
-    emits: ["closeDialog"],
-
-    components: {
-        MetaverseLogin,
-        MetaverseRegister
-    },
+    emits: ["close"],
 
     setup() {
         return {
-            applicationStore
+            applicationStore,
+            tab: ref("metaverseLogin")
         };
-    },
-
-    data() {
-        return {
-            tab: "metaverseLogin"
-        };
-    },
-
-    methods: {
-        onMetaverseRegister(success: boolean) {
-            if (success) {
-                this.tab = "metaverseLogin";
-            }
-        }
     }
 });
 </script>

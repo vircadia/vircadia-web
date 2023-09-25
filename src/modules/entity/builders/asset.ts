@@ -14,7 +14,7 @@ export class AssetUrl {
     _rootUrl: string;
     _filename: string;
 
-    constructor(url:string) {
+    constructor(url: string) {
         this._url = url;
         const index = url.lastIndexOf("/") + 1;
         if (index > 0) {
@@ -26,20 +26,20 @@ export class AssetUrl {
         }
     }
 
-    public get rootUrl() : string {
+    public get rootUrl(): string {
         return this._rootUrl;
     }
 
-    public get filename() : string {
+    public get filename(): string {
         return this._filename;
     }
 
-    public get fileExtension() : string {
+    public get fileExtension(): string {
         const index = this._filename.lastIndexOf(".");
         return index > 0 ? this._filename.substring(index + 1) : "";
     }
 
-    public isFile() : boolean {
+    public isFile(): boolean {
         return this._filename.length > 0;
     }
 }

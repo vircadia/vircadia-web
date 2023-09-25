@@ -15,7 +15,7 @@ import { IEntity } from "../../EntityInterfaces";
 export abstract class EntityScriptComponent extends ScriptComponent {
     protected _entity: Nullable<IEntity> = null;
 
-    public get entity() : Nullable<IEntity> {
+    public get entity(): Nullable<IEntity> {
         return this._entity;
     }
 
@@ -28,7 +28,7 @@ export abstract class EntityScriptComponent extends ScriptComponent {
     * @returns "EntityController" string
     */
     // eslint-disable-next-line class-methods-use-this
-    public get componentType():string {
+    public get componentType(): string {
         return EntityScriptComponent.typeName;
     }
 

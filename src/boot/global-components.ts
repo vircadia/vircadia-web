@@ -1,3 +1,4 @@
+//
 //  global-components.js
 //
 //  Created by Kalila L. & Heather Anderson on May 13th, 2021.
@@ -12,7 +13,7 @@
 
 import { boot } from "quasar/wrappers";
 
-// Components -> Overlays
+// Overlays:
 import Audio from "@Components/overlays/settings/Audio.vue";
 import Controls from "@Components/overlays/settings/Controls.vue";
 import Graphics from "@Components/overlays/settings/Graphics.vue";
@@ -27,14 +28,17 @@ import Conference from "@Components/overlays/conference/Conference.vue";
 import Jitsi from "@Components/overlays/jitsi/Jitsi.vue";
 import JitsiContainer from "@Components/JitsiContainer.vue";
 import jitsiSDK from "@jitsi/vue-sdk";
-// Components -> Dialogs
+
+// Dialogs:
 import Login from "@Components/dialogs/Login.vue";
-// Components -> Components
+
+// Other:
+import AudioLevel from "@Components/AudioLevel.vue";
 import MetaverseLogin from "@Components/components/login/MetaverseLogin.vue";
 import MetaverseRegister from "@Components/components/login/MetaverseRegister.vue";
 
 export default boot(({ app }) => {
-    // Components -> Overlays
+    // Overlays:
     app.component("AudioOverlay", Audio);
     app.component("ControlsOverlay", Controls);
     app.component("GraphicsOverlay", Graphics);
@@ -49,9 +53,12 @@ export default boot(({ app }) => {
     app.component("JitsiOverlay", Jitsi);
     app.component("JitsiContainer", JitsiContainer);
     jitsiSDK(app);
-    // Components -> Dialogs
+
+    // Dialogs:
     app.component("LoginDialog", Login);
-    // Components -> Components
+
+    // Other:
+    app.component("AudioLevel", AudioLevel);
     app.component("MetaverseLogin", MetaverseLogin);
     app.component("MetaverseRegister", MetaverseRegister);
 });

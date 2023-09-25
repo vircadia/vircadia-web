@@ -1,36 +1,36 @@
-/*
+//
+//  domain.ts
+//
 //  Copyright 2021 Vircadia contributors.
 //  Copyright 2022 DigiSomni LLC.
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
-*/
+//
 
-// Allow 'get' lines to be compact
+// Allow getters to be compact.
 /* eslint-disable @typescript-eslint/brace-style */
 
 import { DomainServer, SignalEmitter, Camera, EntityServer } from "@vircadia/web-sdk";
 import { Account } from "@Modules/account";
-import { DomainAudio } from "@Modules/domain/audio";
-import { DomainMessage } from "@Modules/domain/message";
-import { DomainAvatar } from "@Modules/domain/avatar";
+import { DomainAudioClient } from "@Modules/domain/audio";
+import { DomainMessageClient } from "@Modules/domain/message";
+import { DomainAvatarClient } from "@Modules/domain/avatar";
 import Log from "@Modules/debugging/log";
 import { applicationStore } from "@Stores/index";
 import { Client } from "./client";
 import { Location } from "./location";
-import assert from "../utility/assert";
+import assert from "@Modules/utility/assert";
 
 // Routines connected to the onStateChange Signal, receive calls of this format:
 export type OnDomainStateChangeCallback = (d: Domain, newState: string, info: string) => void;
 
-/** Names of configuration variables used for persistant storage in Config */
-export const DomainPersist = {
-    "DOMAIN_URL": "Domain.Url"
-};
-
-// Duplicated here because of problems importing into SDK from Quasar environment
+// The web SDK doesn't export its ConnectionState member, so it is redefined here.
+/**
+ * The connection state of a Domain server.
+ */
 export enum ConnectionState {
-    DISCONNECTED = 0,
+    DISCONNECTED,
     CONNECTING,
     CONNECTED,
     REFUSED,
@@ -38,63 +38,59 @@ export enum ConnectionState {
 }
 
 /**
- * Class instance for a connection to the domain-server.
+ * Names of configuration variables used for persistent storage in Config.
+ */
+export const DomainPersist = {
+    "DOMAIN_URL": "Domain.Url"
+};
+
+/**
+ * Class instance for a connection to the Domain server.
  *
- * The creation of this class is two step in that an instance is created,
- * watchers are added to the Signal places, and then the URL is set.
- * This latter operation causes communication with the domain-server
- * and will generate state changes.
+ * The creation of this class is a three step process:
+ * - An instance is created,
+ * - Watchers are added to the Signal places,
+ * - Then the URL is set.
+ * The final step opens communication with the Domain server and will generate state changes.
  *
- * ```
- *      aDomain = new Domain();
- *      aDomain.onStateChange.connect((pDomain: Domain, pNewState: string, pInfo: string) => {
- *          // do stuff
- *      });
- *      await aDomain.connect(theUrl);
+ * @example ```
+ *   const aDomain = new Domain();
+ *   aDomain.onStateChange.connect((domain: Domain, newState: string, info: string) => {
+ *       // Do stuff whenever the Domain connection's state changes.
+ *   });
+ *   aDomain.connect(theUrl);
  * ```
  */
 export class Domain {
-
-    // #_domainUrl = "UNKNOWN";
-    // public get DomainUrl(): string { return this.#_domainUrl; }
-
-    #_location = new Location("");
-    public get Location() : Location {
-        return this.#_location;
-    }
-
-    #_domain: Nullable<DomainServer>;
-    #_audioClient: Nullable<DomainAudio>;
-    #_messageClient: Nullable<DomainMessage>;
-    #_avatarClient: Nullable<DomainAvatar>;
-    #_camera:Nullable<Camera>;
-    #_entityClient : Nullable<EntityServer>;
-
-    public get DomainClient(): Nullable<DomainServer> { return this.#_domain; }
-    public get AudioClient(): Nullable<DomainAudio> { return this.#_audioClient; }
-    public get MessageClient(): Nullable<DomainMessage> { return this.#_messageClient; }
-    public get AvatarClient(): Nullable<DomainAvatar> { return this.#_avatarClient; }
-    public get EntityClient(): Nullable<EntityServer> { return this.#_entityClient; }
-    public get Camera(): Nullable<Camera> { return this.#_camera; }
-
-    // Return domain's contextID or zero
-    public get ContextId(): number { return this.#_domain?.contextID ?? 0; }
+    private _domain: Nullable<DomainServer>;
+    private _audioClient: Nullable<DomainAudioClient>;
+    private _messageClient: Nullable<DomainMessageClient>;
+    private _avatarClient: Nullable<DomainAvatarClient>;
+    private _entityClient: Nullable<EntityServer>;
+    private _camera:Nullable<Camera>;
+    private _location = new Location("");
 
     public onStateChange: SignalEmitter;
 
-    public get DomainState(): ConnectionState { return this.#_domain?.state ?? DomainServer.DISCONNECTED; }
-    public get DomainStateAsString(): string {
-        if (this.#_domain) {
-            return DomainServer.stateToString(this.#_domain.state);
-        }
-        return DomainServer.stateToString(DomainServer.DISCONNECTED);
-    }
-
     constructor() {
         this.onStateChange = new SignalEmitter();
-        // this.restorePersistentVariables();
-        Account.onAttributeChange.connect(this.#updateDomainLogin);
+        Account.onAttributeChange.connect(this._updateDomainLogin.bind(this));
     }
+
+    public get DomainClient(): Nullable<DomainServer> { return this._domain; }
+    public get AudioClient(): Nullable<DomainAudioClient> { return this._audioClient; }
+    public get MessageClient(): Nullable<DomainMessageClient> { return this._messageClient; }
+    public get AvatarClient(): Nullable<DomainAvatarClient> { return this._avatarClient; }
+    public get EntityClient(): Nullable<EntityServer> { return this._entityClient; }
+    public get Camera(): Nullable<Camera> { return this._camera; }
+
+    public get Location(): Location { return this._location; }
+
+    public get ContextId(): number { return this._domain?.contextID ?? 0; }
+
+    public get DomainState(): ConnectionState { return this._domain?.state ?? DomainServer.DISCONNECTED; }
+
+    public get DomainStateAsString(): string { return DomainServer.stateToString(this.DomainState); }
 
     public static get DISCONNECTED(): string { return DomainServer.stateToString(DomainServer.DISCONNECTED); }
     public static get CONNECTING(): string { return DomainServer.stateToString(DomainServer.CONNECTING); }
@@ -102,101 +98,104 @@ export class Domain {
     public static get REFUSED(): string { return DomainServer.stateToString(DomainServer.REFUSED); }
     public static get ERROR(): string { return DomainServer.stateToString(DomainServer.ERROR); }
 
-    public static stateToString(pState: ConnectionState): string {
-        return DomainServer.stateToString(pState);
+    /**
+     * `true` if the Domain connection is active, `false` if inactive.
+     */
+    public get isConnected(): boolean {
+        return this._domain?.state === DomainServer.CONNECTED;
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async connect(pUrl: string): Promise<Domain> {
-        if (this.#_domain) {
-            Log.error(Log.types.COMM, `Attempt to connect to domain when already connected`);
-            throw new Error(`Attempt to connect to domain when already connected`);
-        }
-        // create domain instance from SDK
-        // this.#_domainUrl = Domain.cleanDomainUrl(pUrl);
-        this.#_location = new Location(pUrl);
-        if (this.#_location.protocol === "") {
-            this.#_location.protocol = applicationStore.defaultConnectionConfig.DEFAULT_DOMAIN_PROTOCOL;
-        }
-        if (this.#_location.port === "") {
-            this.#_location.port = applicationStore.defaultConnectionConfig.DEFAULT_DOMAIN_PORT;
+    /**
+     * Convert the connection state of a Domain server to a string.
+     * @param state The state to convert.
+     * @returns The state as a string.
+     */
+    public static stateToString(state: ConnectionState): string {
+        return DomainServer.stateToString(state);
+    }
+
+    /**
+     * Connect to a Domain server at the given URL.
+     * @param url The URL of the Domain server.
+     * @returns A reference to this Domain instance for easy chaining.
+     */
+    public connect(url: string): Domain {
+        if (this._domain) {
+            const errorMessage = "Attempted to connect to a Domain when already connected.";
+            Log.error(Log.types.NETWORK, errorMessage);
+            throw new Error(errorMessage);
         }
 
-        Log.debug(Log.types.COMM, `Creating a new DomainServer`);
-        this.#_domain = new DomainServer();
-        this.#_domain.account.authRequired.connect(() => {
+        this._location = new Location(url);
+        if (this._location.protocol === "") {
+            this._location.protocol = applicationStore.defaultConnectionConfig.DEFAULT_DOMAIN_PROTOCOL;
+        }
+        if (this._location.port === "") {
+            this._location.port = applicationStore.defaultConnectionConfig.DEFAULT_DOMAIN_PORT;
+        }
+
+        Log.debug(Log.types.NETWORK, `Creating a new DomainServer.`);
+        this._domain = new DomainServer();
+        this._domain.account.authRequired.connect(() => {
             console.debug("AUTH REQUIRED: Open login dialog");
             applicationStore.dialog.show = true;
             applicationStore.dialog.which = "Login";
         });
-        this.#updateDomainLogin();
+        this._updateDomainLogin();
 
-        this.#_camera = new Camera(this.#_domain.contextID);
-        this.#_camera.centerRadius = 1000;
+        this._camera = new Camera(this._domain.contextID);
+        this._camera.centerRadius = 1000;
 
-        // Get instances of all the possible clients
-        this.#_avatarClient = new DomainAvatar(this);
-
-        this.#_messageClient = new DomainMessage(this);
-
-        this.#_audioClient = new DomainAudio(this);
-
-        this.#_entityClient = new EntityServer(this.ContextId);
+        // Create new instances for all the clients.
+        this._avatarClient = new DomainAvatarClient(this);
+        this._messageClient = new DomainMessageClient(this);
+        this._audioClient = new DomainAudioClient(this);
+        this._entityClient = new EntityServer(this.ContextId);
 
         // Connect to the domain. The 'connected' event will say if the connection was made.
-        // Log.debug(Log.types.COMM, `Connecting to domain at ${this.#_domainUrl}`);
-        Log.debug(Log.types.COMM, `Connecting to domain at ${this.#_location.href}`);
-        this.#_domain.onStateChanged = this._handleOnDomainStateChange.bind(this);
+        Log.debug(Log.types.NETWORK, `Connecting to domain at ${this._location.href}`);
+        this._domain.onStateChanged = (pState: ConnectionState, pInfo: string): void => {
+            Log.debug(Log.types.NETWORK, `New Domain state: ${Domain.stateToString(pState)}, ${pInfo}`);
+            this.onStateChange.emit(this, pState, pInfo);
+            if (this._domain) {
+                applicationStore.updateDomainState(this, this._domain.state, pInfo);
+            }
+        };
 
-        // this.#_domain.connect(this.#_domainUrl);
-        this.#_domain.connect(this.#_location.href);
+        this._domain.connect(this._location.href);
         return this;
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async disconnect(): Promise<void> {
-        // Log.info(Log.types.COMM, `Domain: disconnect of domain ${this.DomainUrl}`);
-        Log.info(Log.types.COMM, `Domain: disconnect of domain ${this.#_location.href}`);
-        if (this.#_domain) {
-            this.#_domain.disconnect();
-            this.#_domain = undefined;
-        }
-
-        if (this.#_entityClient) {
-            this.#_entityClient = undefined;
-        }
+    /**
+     * Disconnect from the Domain server.
+     */
+    public disconnect(): void {
+        Log.info(Log.types.NETWORK, `Disconnected from Domain: ${this._location.href}`);
+        this._domain?.disconnect();
+        this._domain = undefined;
+        this._entityClient = undefined;
     }
 
-    private _handleOnDomainStateChange(pState: ConnectionState, pInfo: string): void {
-        Log.debug(Log.types.COMM, `DomainStateChange: new state ${Domain.stateToString(pState)}, ${pInfo}`);
-        this.onStateChange.emit(this, pState, pInfo);
-        if (this.#_domain) {
-            applicationStore.updateDomainState(this, this.#_domain.state, pInfo);
-        }
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-    private waitForConnectedMS = 200;
+    /**
+     * Wait for the Domain server to connect.
+     * @returns A Promise that resolves with a reference to the Domain server once the connection has been established.
+     */
     public async waitForConnected(): Promise<Domain> {
-        while (typeof this.#_domain === "undefined") {
+        const waitForConnectedMS = 200;
+        while (typeof this._domain === "undefined") {
             // eslint-disable-next-line no-await-in-loop
-            await Client.waitABit(this.waitForConnectedMS);
+            await Client.waitABit(waitForConnectedMS);
         }
-        while (this.#_domain?.state !== ConnectionState.CONNECTED) {
+        while (this._domain?.state !== ConnectionState.CONNECTED) {
             // eslint-disable-next-line no-await-in-loop
-            await Client.waitABit(this.waitForConnectedMS);
+            await Client.waitABit(waitForConnectedMS);
         }
         return this;
     }
 
-    /** Return 'true' if the communication with the metaverse is active */
-    get isConnected(): boolean {
-        return this.#_domain?.state === DomainServer.CONNECTED;
-    }
-
-    // eslint-disable-next-line class-methods-use-this,@typescript-eslint/require-await
-    async getMetaverseUrl(): Promise<string> {
-        // Eventually need to talk to the domain-server to get the URL
+    // eslint-disable-next-line class-methods-use-this
+    public getMetaverseUrl(): string {
+        // TODO: Eventually need to talk to the Domain server to get the URL.
         return applicationStore.defaultConnectionConfig.DEFAULT_METAVERSE_URL;
     }
 
@@ -204,75 +203,44 @@ export class Domain {
      * Checkout the passed URL and make sure it has the "ws:" at the beginning
      * and the port number at the end.
      *
-     * @param pUrl the url passed by the user
+     * @param url the url passed by the user
      */
-    static cleanDomainUrl(pUrl: string): string {
-        let url = pUrl.toLowerCase();
+    public static cleanDomainUrl(url: string): string {
+        let filteredUrl = url.toLowerCase();
         // Strip off any http headers
-        if (url.startsWith("http://")) {
+        if (filteredUrl.startsWith("http://")) {
             // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-            url = url.substring(7);
+            filteredUrl = filteredUrl.substring(7);
         }
-        if (url.startsWith("https://")) {
+        if (filteredUrl.startsWith("https://")) {
             // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-            url = url.substring(8);
+            filteredUrl = filteredUrl.substring(8);
         }
-        if (!(url.startsWith("ws://") || url.startsWith("wss://"))) {
-            url = applicationStore.defaultConnectionConfig.DEFAULT_DOMAIN_PROTOCOL + "//" + url;
+        if (!(filteredUrl.startsWith("ws://") || filteredUrl.startsWith("wss://"))) {
+            filteredUrl = applicationStore.defaultConnectionConfig.DEFAULT_DOMAIN_PROTOCOL + "//" + filteredUrl;
         }
 
-        const fullUrl = new URL(url);
+        const fullUrl = new URL(filteredUrl);
         if (fullUrl.port === "") {
             fullUrl.port = applicationStore.defaultConnectionConfig.DEFAULT_DOMAIN_PORT;
         }
 
-        url = fullUrl.href;
-        // trim the last "/"
-        if (url[url.length - 1] === "/") {
-            url = url.slice(0, url.length - 1);
+        filteredUrl = fullUrl.href;
+        // Trim the last "/".
+        if (filteredUrl[filteredUrl.length - 1] === "/") {
+            filteredUrl = filteredUrl.slice(0, filteredUrl.length - 1);
         }
 
-        return url;
+        return filteredUrl;
     }
 
-    /**
-     * Store values that are remembered across sessions.
-     *
-     * Some values persist across sessions so, the next time the user opens the app, the
-     * previous known values are restored and connection is automatically made.
-     */
-    // storePersistentVariables(): void {
-    //     // Config.setItem(DomainPersist.DOMAIN_URL, this.#_domainUrl);
-    //     Config.setItem(DomainPersist.DOMAIN_URL, this.#_location.href);
-    // }
-
-    /**
-     * Fetch and set persistantly stored variables.
-     *
-     * Note that this does not do any reactive pushing so this is best used to initialize.
-     */
-    // restorePersistentVariables(): void {
-    //     // this.#_domainUrl = Config.getItem(DomainPersist.DOMAIN_URL, "UNKNOWN");
-    //     this.#_location = new Location(Config.getItem(DomainPersist.DOMAIN_URL, "UNKNOWN"));
-    // }
-
-    public update() : void {
-        if (this.#_avatarClient) {
-            this.#_avatarClient.update();
-        }
-
-        if (this.#_entityClient) {
-            this.#_entityClient.update();
-        }
-        /*
-        if (this.#_camera) {
-            this.#_camera.update();
-        } */
+    public update(): void {
+        this._avatarClient?.update();
+        this._entityClient?.update();
     }
 
-
-    #updateDomainLogin = (): void => {
-        if (!this.#_domain) {
+    private _updateDomainLogin(): void {
+        if (!this._domain) {
             return;
         }
 
@@ -280,16 +248,15 @@ export class Domain {
             const MS_PER_SECOND = 1000;
             /* eslint-disable camelcase */
             assert(Account.accessToken !== null && Account.accessTokenType !== null && Account.refreshToken !== null);
-            this.#_domain.account.login(Account.accountName, {
+            this._domain.account.login(Account.accountName, {
                 access_token: Account.accessToken,
                 token_type: Account.accessTokenType,
                 expires_in: Math.round((Account.accessTokenExpiration.getTime() - Date.now()) / MS_PER_SECOND),
                 refresh_token: Account.refreshToken
             });
             /* eslint-enable camelcase */
-        } else if (this.#_domain.account.isLoggedIn()) {
-            this.#_domain.account.logout();
+        } else if (this._domain.account.isLoggedIn()) {
+            this._domain.account.logout();
         }
-    };
-
+    }
 }

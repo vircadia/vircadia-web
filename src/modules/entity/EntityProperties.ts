@@ -62,7 +62,7 @@ export interface IQuaternionProperty {
     x: number;
     y: number;
     z: number;
-    w: number
+    w: number;
 }
 
 export interface IColorProperty {
@@ -79,8 +79,8 @@ export interface IAmbientLightProperty {
 
 export interface IKeyLightProperty {
     color?: IColorProperty | undefined;
-    intensity? : number | undefined;
-    direction? : IVector3Property | undefined;
+    intensity?: number | undefined;
+    direction?: IVector3Property | undefined;
     castShadows?: boolean | undefined;
     shadowBias?: number | undefined;
     shadowMaxDistance?: number | undefined;
@@ -155,7 +155,7 @@ export interface IPhysicsProperties {
     velocity: IVector3Property | undefined;
     damping: number | undefined;
     angularVelocity: IVector3Property | undefined;
-    angularDampling: number | undefined;
+    angularDamping: number | undefined;
     restitution: number | undefined;
     friction: number | undefined;
     density: number | undefined;

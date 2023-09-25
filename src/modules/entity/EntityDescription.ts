@@ -11,7 +11,7 @@
 import { IEntity } from "./EntityInterfaces";
 
 export interface IEntityDescription {
-    DataVersion : string;
+    DataVersion: string;
     Id: string;
     Version: string;
     Entities: IEntity[];

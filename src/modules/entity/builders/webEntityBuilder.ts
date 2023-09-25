@@ -1,5 +1,5 @@
 //
-//  whapeEntityBuilder.ts
+//  webEntityBuilder.ts
 //
 //  Created by Nolan Huang on 7 Oct 2022.
 //  Copyright 2022 Vircadia contributors.
@@ -16,7 +16,7 @@ import { WebEntityController } from "../components";
 
 export class WebEntityBuilder extends AbstractEntityBuilder {
     // eslint-disable-next-line class-methods-use-this
-    public build(gameObject:GameObject, entity: IEntity) : void {
+    public build(gameObject: GameObject, entity: IEntity): void {
         gameObject.addComponent(new WebEntityController(entity as IWebEntity));
     }
 }

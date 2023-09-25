@@ -17,11 +17,11 @@ import { Node, Material, StandardMaterial, AbstractMesh, Nullable, Observer } fr
 import { IMaterialEntity } from "../../EntityInterfaces";
 
 export class MaterialComponent extends GenericNodeComponent<Node> {
-    _material : Nullable<Material> = null;
-    _target : Nullable<AbstractMesh> = null;
-    _parentObserver : Nullable<Observer<IComponent>> = null;
+    _material: Nullable<Material> = null;
+    _target: Nullable<AbstractMesh> = null;
+    _parentObserver: Nullable<Observer<IComponent>> = null;
 
-    public get componentType():string {
+    public get componentType(): string {
         return MaterialComponent.typeName;
     }
 
@@ -29,11 +29,11 @@ export class MaterialComponent extends GenericNodeComponent<Node> {
         return "Material";
     }
 
-    public get material() : Nullable<Material> {
+    public get material(): Nullable<Material> {
         return this._material;
     }
 
-    public dispose():void {
+    public dispose(): void {
         this._unbind();
         if (this._material) {
             this._material.dispose();
@@ -43,7 +43,7 @@ export class MaterialComponent extends GenericNodeComponent<Node> {
         super.dispose();
     }
 
-    public load(entity: IMaterialEntity) : void {
+    public load(entity: IMaterialEntity): void {
         this.updateMaterialData(entity);
 
         this.updateDimensions(entity);
@@ -52,11 +52,11 @@ export class MaterialComponent extends GenericNodeComponent<Node> {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
-    public updateDimensions(entity: IMaterialEntity) : void {
+    public updateDimensions(entity: IMaterialEntity): void {
 
     }
 
-    public updateMaterialData(entity: IMaterialEntity) : void {
+    public updateMaterialData(entity: IMaterialEntity): void {
         let materialData = null;
         if (!entity.materialURL || entity.materialURL === "" || entity.materialURL === "materialData") {
             materialData = entity.materialData;
@@ -75,7 +75,7 @@ export class MaterialComponent extends GenericNodeComponent<Node> {
         }
     }
 
-    public updateParent(entity: IMaterialEntity) : void {
+    public updateParent(entity: IMaterialEntity): void {
         // remove entity form previous parent
         if (this._getParentID() !== entity.parentID) {
             this._unbind();
@@ -99,11 +99,11 @@ export class MaterialComponent extends GenericNodeComponent<Node> {
         }
     }
 
-    private _getParentID() : string | undefined {
+    private _getParentID(): string | undefined {
         return this._gameObject && this._gameObject.getParent() ? this._gameObject.getParent().id : undefined;
     }
 
-    private _bindMaterial(comp: IComponent) : boolean {
+    private _bindMaterial(comp: IComponent): boolean {
         if (comp instanceof MeshComponent && comp.mesh) {
             this._unbindMaterial();
             comp.mesh.material = this._material;
@@ -114,7 +114,7 @@ export class MaterialComponent extends GenericNodeComponent<Node> {
         return false;
     }
 
-    private _unbindMaterial() : void {
+    private _unbindMaterial(): void {
         if (this._target) {
             this._target.material = null;
             this._target = null;

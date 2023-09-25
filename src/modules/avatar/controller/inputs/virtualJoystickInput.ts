@@ -10,11 +10,7 @@
 //
 
 import { IInputHandler } from "./inputHandler";
-import { Scene,
-    Nullable,
-    VirtualJoystick,
-    ArcRotateCamera } from "@babylonjs/core";
-
+import { Scene, Nullable, VirtualJoystick, ArcRotateCamera } from "@babylonjs/core";
 import { AvatarState, Action, State } from "../avatarState";
 
 // This is disabled because TS complains about BABYLON's use of cap'ed function names
@@ -23,9 +19,9 @@ import { AvatarState, Action, State } from "../avatarState";
 
 export class VirtualJoystickInput implements IInputHandler {
 
-    private _state : AvatarState;
+    private _state: AvatarState;
 
-    private _scene : Scene;
+    private _scene: Scene;
     private _camera: Nullable<ArcRotateCamera> = null;
 
     private _leftJoystick: Nullable<VirtualJoystick> = null;
@@ -35,7 +31,7 @@ export class VirtualJoystickInput implements IInputHandler {
 
     static readonly ZINDEX = "5";
 
-    constructor(state : AvatarState, scene: Scene) {
+    constructor(state: AvatarState, scene: Scene) {
         this._state = state;
         this._scene = scene;
         this._camera = this._scene._activeCamera as ArcRotateCamera;
@@ -67,7 +63,7 @@ export class VirtualJoystickInput implements IInputHandler {
         }
     }
 
-    public handleInputs(delta: number) : void {
+    public handleInputs(delta: number): void {
         if (!this._leftJoystick || !this._rightJoystick) {
             return;
         }

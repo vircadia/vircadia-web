@@ -16,10 +16,10 @@ import { ModelComponent } from "../../components";
 
 export class ModelEntityController extends EntityController {
     // domain properties
-    _modelEntity : IModelEntity;
-    _modelComponent : Nullable<ModelComponent> = null;
+    _modelEntity: IModelEntity;
+    _modelComponent: Nullable<ModelComponent> = null;
 
-    constructor(entity : IModelEntity) {
+    constructor(entity: IModelEntity) {
         super(entity, ModelEntityController.typeName);
         this._modelEntity = entity;
     }
@@ -34,7 +34,7 @@ export class ModelEntityController extends EntityController {
     * @returns "EntityController" string
     */
     // eslint-disable-next-line class-methods-use-this
-    public get componentType():string {
+    public get componentType(): string {
         return ModelEntityController.typeName;
     }
 
