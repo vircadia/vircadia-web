@@ -13,7 +13,7 @@
     "lint": "eslint --ext .js,.ts,.vue ./",
     "create-version": "node build_scripts/createVersion.js",
     "update-contributors": "git-authors-cli",
-    "install-local-web-sdk": "npm install file:../vircadia-web-sdk --no-save"
+    "install-local-web-sdk": "npm install file:../vircadia-web-sdk --no-save",
     "copy-workers": "node build_scripts/copyWorkers.mjs"
   },
   "dependencies": {
