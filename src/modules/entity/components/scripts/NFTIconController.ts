@@ -9,7 +9,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable new-cap */
+
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
 import { Vector3, Scalar } from "@babylonjs/core";
@@ -19,14 +19,14 @@ import { EntityScriptComponent } from "./EntityScript";
 export class NFTIconController extends EntityScriptComponent {
     _currentIndex = 0;
     @inspector({ min: 0.1, max: 2 * Math.PI })
-        _rotationSpeed = 0.5 * Math.PI;
+    _rotationSpeed = 0.5 * Math.PI;
 
     _currentRotationSpeed = 0;
 
     _rotationDuration = 0;
 
     @inspector({ min: 0.1, max: 50 })
-        _switchDuration = 10;
+    _switchDuration = 10;
 
     constructor() {
         super(NFTIconController.typeName);

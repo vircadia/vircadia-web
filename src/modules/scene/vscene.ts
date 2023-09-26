@@ -9,12 +9,14 @@
 //
 
 // This is disabled because TS complains about BABYLON's use of capitalized function names.
-/* eslint-disable new-cap */
+
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
 import { ScriptAvatar, Uuid } from "@vircadia/web-sdk";
-import { AnimationGroup, Engine, Scene, Color3, ArcRotateCamera, Camera,
-    Observable, Nullable, AmmoJSPlugin, Quaternion, Vector3, Color4 } from "@babylonjs/core";
+import {
+    AnimationGroup, Engine, Scene, Color3, ArcRotateCamera, Camera,
+    Observable, Nullable, AmmoJSPlugin, Quaternion, Vector3, Color4
+} from "@babylonjs/core";
 import Ammo from "ammojs-typed";
 import "@babylonjs/loaders/glTF";
 import { watch } from "vue";
@@ -51,7 +53,7 @@ export class VScene {
     _avatarIsLoading = false;
     _avatarLoadQueue: (string | undefined)[] = [];
     _camera: Nullable<Camera> = null;
-    _avatarAnimationGroups : AnimationGroup[] = [];
+    _avatarAnimationGroups: AnimationGroup[] = [];
     _resourceManager: Nullable<ResourceManager> = null;
     _domainController: Nullable<DomainController> = null;
     _sceneController: Nullable<SceneController> = null;

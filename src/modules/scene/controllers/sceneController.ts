@@ -9,8 +9,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable new-cap */
-/* eslint-disable class-methods-use-this */
+
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 
 import { Vector3, Ray } from "@babylonjs/core";

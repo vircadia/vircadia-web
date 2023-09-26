@@ -218,7 +218,7 @@ module.exports = {
         // "accessor-pairs": "error",
         "array-callback-return": "error",
         "block-scoped-var": "error",
-        "class-methods-use-this": "error",
+        "class-methods-use-this": "off",
         "consistent-return": "error",
         "curly": "error",
         "default-case": "error",
@@ -309,7 +309,7 @@ module.exports = {
         // "keyword-spacing": "error",  // TypeScript extension overrides.
         "max-len": ["error", { "code": 160, "tabWidth": 4 }],
         "multiline-ternary": ["error", "always-multiline"],
-        "new-cap": "error",
+        "new-cap": "off",
         "new-parens": "error",
         "newline-per-chained-call": ["error", { "ignoreChainWithDepth": 2 }],
         // "no-array-constructor": "error",  // TypeScript extension overrides.

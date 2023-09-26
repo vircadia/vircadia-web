@@ -9,7 +9,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable new-cap */
+
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
 import { EntityController } from "./EntityController";
@@ -206,10 +206,10 @@ export class WebEntityController extends EntityController {
         Renderer.getScene().onEntityEventObservable.notifyObservers(new EntityEvent(
             EntityEventType.JOIN_CONFERENCE_ROOM,
             this._webEntity, {
-                name: conferenceName,
-                id: roomName,
-                entity: this._webEntity
-            }));
+            name: conferenceName,
+            id: roomName,
+            entity: this._webEntity
+        }));
     }
 
     protected _createCSSObject(): void {

@@ -9,7 +9,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable new-cap */
+
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
 import Log from "@Modules/debugging/log";
@@ -28,7 +28,7 @@ type ScriptParameters = {
 
 export class TeleportController extends EntityScriptComponent {
     @inspector()
-        _destination = "";
+    _destination = "";
 
     private _vscene: VScene;
 

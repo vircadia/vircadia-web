@@ -10,7 +10,7 @@
 //
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-/* eslint-disable new-cap */
+
 
 import { Vector3 } from "@babylonjs/core";
 
@@ -64,25 +64,25 @@ interface AnimationLoopData {
 
 /* eslint-disable no-multi-spaces */
 export const AnimationMap = new Map([
-    [Action.Idle,           { name: "idle02", loop: true }],
-    [Action.WalkForward,    { name: "walk_fwd", loop: true }],
-    [Action.RunForward,     { name: "run_fast_fwd", loop: true }],
-    [Action.WalkBackward,   { name: "walk_bwd", loop: true }],
-    [Action.WalkLeft,       { name: "walk_left", loop: true }],
-    [Action.WalkRight,      { name: "walk_right", loop: true }],
-    [Action.TurnLeft,       { name: "turn_left", loop: true }],
-    [Action.TurnRight,      { name: "turn_right", loop: true }],
-    [Action.Jump,           { name: "jump_standing_apex_all", loop: false }],
-    [Action.Land,           { name: "jump_standing_land_settle_all", loop: false }],
-    [Action.Fly,            { name: "fly", loop: true }],
-    [Action.FlyFast,        { name: "fly", loop: true }],
-    [Action.Sit,            { name: "sitting_idle", loop: false }],
-    [Action.SitBeanbag,     { name: "sitting_beanbag", loop: false }],
-    [Action.SitChair,       { name: "sitting_chair", loop: false }],
-    [Action.SitAuditorium,  { name: "sitting_auditorium", loop: false }],
-    [Action.SitCouch,       { name: "sitting_couch", loop: false }],
-    [Action.Clap,           { name: "emote_clap01_all", loop: true, loopStart: 17, loopEnd: 111 }],
-    [Action.Salute,         { name: "salute", loop: true, loopStart: 10, loopEnd: 30 }]
+    [Action.Idle, { name: "idle02", loop: true }],
+    [Action.WalkForward, { name: "walk_fwd", loop: true }],
+    [Action.RunForward, { name: "run_fast_fwd", loop: true }],
+    [Action.WalkBackward, { name: "walk_bwd", loop: true }],
+    [Action.WalkLeft, { name: "walk_left", loop: true }],
+    [Action.WalkRight, { name: "walk_right", loop: true }],
+    [Action.TurnLeft, { name: "turn_left", loop: true }],
+    [Action.TurnRight, { name: "turn_right", loop: true }],
+    [Action.Jump, { name: "jump_standing_apex_all", loop: false }],
+    [Action.Land, { name: "jump_standing_land_settle_all", loop: false }],
+    [Action.Fly, { name: "fly", loop: true }],
+    [Action.FlyFast, { name: "fly", loop: true }],
+    [Action.Sit, { name: "sitting_idle", loop: false }],
+    [Action.SitBeanbag, { name: "sitting_beanbag", loop: false }],
+    [Action.SitChair, { name: "sitting_chair", loop: false }],
+    [Action.SitAuditorium, { name: "sitting_auditorium", loop: false }],
+    [Action.SitCouch, { name: "sitting_couch", loop: false }],
+    [Action.Clap, { name: "emote_clap01_all", loop: true, loopStart: 17, loopEnd: 111 }],
+    [Action.Salute, { name: "salute", loop: true, loopStart: 10, loopEnd: 30 }]
 ]) as Map<Action, AnimationLoopData>;
 /* eslint-enable no-multi-spaces */
 

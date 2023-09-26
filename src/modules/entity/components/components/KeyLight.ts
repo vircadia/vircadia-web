@@ -1,4 +1,3 @@
-/* eslint-disable class-methods-use-this */
 //
 //  KeyLight.ts
 //
@@ -10,7 +9,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable new-cap */
+
 
 import { GenericNodeComponent } from "@Modules/object";
 import { DirectionalLight, Scene, Vector3 } from "@babylonjs/core";

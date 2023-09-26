@@ -9,9 +9,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable class-methods-use-this */
-/* eslint-disable new-cap */
-
 import { MeshComponent, DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { SceneLoader, PhysicsImpostor, AbstractMesh, TransformNode, Node } from "@babylonjs/core";
 import { IModelEntity } from "../../EntityInterfaces";
@@ -39,7 +36,7 @@ export class ModelComponent extends MeshComponent {
 
     public load(entity: IModelEntity): void {
         if (!entity.modelURL || entity.modelURL === "" || this._modelURL === entity.modelURL
-        || !this._gameObject) {
+            || !this._gameObject) {
             return;
         }
 
@@ -191,9 +188,11 @@ export class ModelComponent extends MeshComponent {
         if (entity.shapeType === "static-mesh") {
             this._gameObject.physicsImpostor = new PhysicsImpostor(
                 this._gameObject, PhysicsImpostor.MeshImpostor,
-                { mass: this._getMass(entity),
+                {
+                    mass: this._getMass(entity),
                     restitution: entity.restitution,
-                    friction: entity.friction },
+                    friction: entity.friction
+                },
                 this._gameObject.getScene());
         }
     }

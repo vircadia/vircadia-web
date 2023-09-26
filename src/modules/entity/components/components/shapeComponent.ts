@@ -9,8 +9,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable class-methods-use-this */
-/* eslint-disable new-cap */
+
 
 import { MeshComponent, DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { StandardMaterial, Mesh, MeshBuilder, PhysicsImpostor } from "@babylonjs/core";
@@ -103,14 +102,18 @@ export class ShapeComponent extends MeshComponent {
         if (props.shape === "Cube") {
             this._disposeCollider();
             this._mesh.physicsImpostor = new PhysicsImpostor(this._mesh, PhysicsImpostor.BoxImpostor,
-                { mass: 0,
-                    restitution: 0 },
+                {
+                    mass: 0,
+                    restitution: 0
+                },
                 this._mesh.getScene());
 
             this._gameObject.physicsImpostor = new PhysicsImpostor(
                 this._gameObject, PhysicsImpostor.NoImpostor,
-                { mass: 0,
-                    restitution: 0 },
+                {
+                    mass: 0,
+                    restitution: 0
+                },
                 this._gameObject.getScene());
         }
     }

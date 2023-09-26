@@ -9,8 +9,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable class-methods-use-this */
-/* eslint-disable new-cap */
+
 
 import { GenericNodeComponent, GameObject, MeshComponent, IComponent } from "@Modules/object";
 import { Node, Material, StandardMaterial, AbstractMesh, Nullable, Observer } from "@babylonjs/core";

@@ -10,9 +10,10 @@
 //
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-/* eslint-disable new-cap */
 
-import { type AbstractMesh,
+
+import {
+    type AbstractMesh,
     Color3,
     DynamicTexture,
     Matrix,
@@ -21,7 +22,8 @@ import { type AbstractMesh,
     Scene,
     StandardMaterial,
     TransformNode,
-    Vector3 } from "@babylonjs/core";
+    Vector3
+} from "@babylonjs/core";
 import { DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { Renderer } from "@Modules/scene";
 import { userStore } from "@Stores/index";
