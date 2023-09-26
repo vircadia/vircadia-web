@@ -10,20 +10,26 @@
 //
 
 import { MeshComponent, DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
-import { SceneLoader, PhysicsImpostor, AbstractMesh, TransformNode, Node } from "@babylonjs/core";
+import {
+    SceneLoader,
+    PhysicsImpostor,
+    AbstractMesh,
+    TransformNode,
+    Node,
+} from "@babylonjs/core";
 import { IModelEntity } from "../../EntityInterfaces";
 import { NametagEntity } from "@Modules/entity/entities";
 import { updateContentLoadingProgress } from "@Modules/scene/LoadingScreen";
 import { applicationStore } from "@Stores/index";
 import Log from "@Modules/debugging/log";
+import { LODManager } from "@Modules/scene/LODManager";
 
 const InteractiveModelTypes = [
     { name: "chair", condition: /^(?:animate_sitting|animate_seat)/iu },
-    { name: "emoji_people", condition: /^animate_/iu }
+    { name: "emoji_people", condition: /^animate_/iu },
 ];
 
 export class ModelComponent extends MeshComponent {
-
     private _modelURL = "";
 
     public get componentType(): string {
@@ -35,8 +41,12 @@ export class ModelComponent extends MeshComponent {
     }
 
     public load(entity: IModelEntity): void {
-        if (!entity.modelURL || entity.modelURL === "" || this._modelURL === entity.modelURL
-            || !this._gameObject) {
+        if (
+            !entity.modelURL ||
+            entity.modelURL === "" ||
+            this._modelURL === entity.modelURL ||
+            !this._gameObject
+        ) {
             return;
         }
 
@@ -61,21 +71,31 @@ export class ModelComponent extends MeshComponent {
                 this.mesh = meshes[0];
                 this.renderGroupId = DEFAULT_MESH_RENDER_GROUP_ID;
 
+                // LOD Handling
+                this.mesh = LODManager.setLODLevels(this.mesh, meshes);
+
                 // Add a nametag to any of the model's children if they match any of the InteractiveModelTypes.
                 const defaultNametagHeight = 0.6;
                 const nametagOffset = 0.25;
-                const nametagPopDistance = applicationStore.interactions.interactionDistance;
+                const nametagPopDistance =
+                    applicationStore.interactions.interactionDistance;
                 const childNodes = this.mesh.getChildren(
                     (node) => "getBoundingInfo" in node,
                     false
                 ) as (AbstractMesh | TransformNode | Node)[];
                 childNodes.forEach((childNode) => {
-                    const genericModelType = InteractiveModelTypes.find((type) => type.condition.test(childNode.name));
-                    if (!genericModelType || !("getBoundingInfo" in childNode)) {
+                    const genericModelType = InteractiveModelTypes.find(
+                        (type) => type.condition.test(childNode.name)
+                    );
+                    if (
+                        !genericModelType ||
+                        !("getBoundingInfo" in childNode)
+                    ) {
                         return;
                     }
                     const boundingInfo = childNode.getBoundingInfo();
-                    const height = boundingInfo.maximum.y - boundingInfo.minimum.y;
+                    const height =
+                        boundingInfo.maximum.y - boundingInfo.minimum.y;
                     NametagEntity.create(
                         childNode,
                         height + nametagOffset,
@@ -87,7 +107,9 @@ export class ModelComponent extends MeshComponent {
                     );
                 });
                 result.transformNodes.forEach((childNode) => {
-                    const genericModelType = InteractiveModelTypes.find((type) => type.condition.test(childNode.name));
+                    const genericModelType = InteractiveModelTypes.find(
+                        (type) => type.condition.test(childNode.name)
+                    );
                     if (!genericModelType) {
                         return;
                     }
@@ -103,7 +125,9 @@ export class ModelComponent extends MeshComponent {
                 });
 
                 // Add a nametag to the model itself if it matches any of the InteractiveModelTypes.
-                const genericModelType = InteractiveModelTypes.find((type) => type.condition.test(this.mesh?.name ?? ""));
+                const genericModelType = InteractiveModelTypes.find((type) =>
+                    type.condition.test(this.mesh?.name ?? "")
+                );
                 if (genericModelType) {
                     NametagEntity.create(
                         this.mesh,
@@ -140,7 +164,11 @@ export class ModelComponent extends MeshComponent {
             anim.stop();
 
             if (entity.animation && entity.animation.running) {
-                anim.start(entity.animation.loop, 1, entity.animation.currentFrame);
+                anim.start(
+                    entity.animation.loop,
+                    1,
+                    entity.animation.currentFrame
+                );
             }
         }
     }
@@ -167,14 +195,20 @@ export class ModelComponent extends MeshComponent {
                 this._gameObject.physicsImpostor.friction = entity.friction;
             }
             if (entity.restitution) {
-                this._gameObject.physicsImpostor.restitution = entity.restitution;
+                this._gameObject.physicsImpostor.restitution =
+                    entity.restitution;
             }
         }
     }
 
     protected _getMass(entity: IModelEntity): number {
         if (entity.dynamic && entity.dimensions && entity.density) {
-            return entity.density * entity.dimensions.x * entity.dimensions.y * entity.dimensions.z;
+            return (
+                entity.density *
+                entity.dimensions.x *
+                entity.dimensions.y *
+                entity.dimensions.z
+            );
         }
         return 0;
     }
@@ -187,13 +221,15 @@ export class ModelComponent extends MeshComponent {
 
         if (entity.shapeType === "static-mesh") {
             this._gameObject.physicsImpostor = new PhysicsImpostor(
-                this._gameObject, PhysicsImpostor.MeshImpostor,
+                this._gameObject,
+                PhysicsImpostor.MeshImpostor,
                 {
                     mass: this._getMass(entity),
                     restitution: entity.restitution,
-                    friction: entity.friction
+                    friction: entity.friction,
                 },
-                this._gameObject.getScene());
+                this._gameObject.getScene()
+            );
         }
     }
 

@@ -9,14 +9,18 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
 import { EntityController } from "./EntityController";
 import { type IWebEntity, WebExtensions } from "../../EntityInterfaces";
 import { MeshComponent, MASK_MESH_RENDER_GROUP_ID } from "@Base/modules/object";
 import { EntityMapper } from "../../package";
-import { MeshBuilder, Mesh, StandardMaterial, type Nullable } from "@babylonjs/core";
+import {
+    MeshBuilder,
+    Mesh,
+    StandardMaterial,
+    type Nullable,
+} from "@babylonjs/core";
 import { applicationStore } from "@Stores/index";
 import { CSS3DObject } from "@Modules/scene/css3DRenderer";
 import { Renderer } from "@Modules/scene";
@@ -67,9 +71,15 @@ export class WebEntityController extends EntityController {
 
         this._webEntity.onUserDataChanged?.add(this._updateUserData.bind(this));
         // this._webEntity.onColorChanged?.add(this._updateColor.bind(this));
-        this._webEntity.onDimensionChanged?.add(this._updateDimensions.bind(this));
-        this._webEntity.onSourceURLChanged?.add(this._updateSourceURL.bind(this));
-        this._webEntity.onWebPropertiesChanged?.add(this._updateWebProperties.bind(this));
+        this._webEntity.onDimensionChanged?.add(
+            this._updateDimensions.bind(this)
+        );
+        this._webEntity.onSourceURLChanged?.add(
+            this._updateSourceURL.bind(this)
+        );
+        this._webEntity.onWebPropertiesChanged?.add(
+            this._updateWebProperties.bind(this)
+        );
     }
 
     public onStart(): void {
@@ -88,7 +98,9 @@ export class WebEntityController extends EntityController {
     protected _createMesh(): void {
         if (!this._meshComponent) {
             this._meshComponent = new MeshComponent();
-            const mesh = MeshBuilder.CreatePlane("Mask-Plane", { sideOrientation: Mesh.DOUBLESIDE });
+            const mesh = MeshBuilder.CreatePlane("Mask-Plane", {
+                sideOrientation: Mesh.DOUBLESIDE,
+            });
             mesh.id = this._webEntity.id;
             mesh.isPickable = true;
             mesh.material = this._createMaskingMaterial();
@@ -102,7 +114,9 @@ export class WebEntityController extends EntityController {
 
     protected _destroyMesh(): void {
         if (this._meshComponent) {
-            this._gameObject?.removeComponent(this._meshComponent.componentType);
+            this._gameObject?.removeComponent(
+                this._meshComponent.componentType
+            );
         }
     }
 
@@ -122,13 +136,19 @@ export class WebEntityController extends EntityController {
 
     protected _updateDimensions(): void {
         if (this._webEntity.dimensions) {
-            const scaling = EntityMapper.mapToVector3(this._webEntity.dimensions);
+            const scaling = EntityMapper.mapToVector3(
+                this._webEntity.dimensions
+            );
             if (this._meshComponent?.mesh) {
                 this._meshComponent.mesh.scaling = scaling;
             }
 
-            const width = this._webEntity.dimensions ? this._webEntity.dimensions.x * 100 : 480;
-            const height = this._webEntity.dimensions ? this._webEntity.dimensions.y * 100 : 320;
+            const width = this._webEntity.dimensions
+                ? this._webEntity.dimensions.x * 100
+                : 480;
+            const height = this._webEntity.dimensions
+                ? this._webEntity.dimensions.y * 100
+                : 320;
 
             if (this._cssObject) {
                 // Double the pixel density of the iframe so that its content is more appropriately sized.
@@ -146,8 +166,10 @@ export class WebEntityController extends EntityController {
 
         if (this._isJitsi) {
             //
-        } else if (this._webEntity.sourceUrl
-            && this._iframe.src !== this._webEntity.sourceUrl) {
+        } else if (
+            this._webEntity.sourceUrl &&
+            this._iframe.src !== this._webEntity.sourceUrl
+        ) {
             this._iframe.src = this._webEntity.sourceUrl;
         }
     }
@@ -171,12 +193,11 @@ export class WebEntityController extends EntityController {
     } */
 
     // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-empty-function
-    protected _updateWebProperties(): void {
-    }
+    protected _updateWebProperties(): void {}
 
     protected _updateUserData(): void {
         this._webExtensions = this._webEntity.userData
-            ? JSON.parse(this._webEntity.userData) as WebExtensions
+            ? (JSON.parse(this._webEntity.userData) as WebExtensions)
             : null;
 
         this._isJitsi = this._webExtensions?.jitsi !== undefined;
@@ -203,13 +224,17 @@ export class WebEntityController extends EntityController {
         const conferenceName = this._webEntity.name || "";
         const roomName = conferenceName + "-" + this._webEntity.id;
 
-        Renderer.getScene().onEntityEventObservable.notifyObservers(new EntityEvent(
-            EntityEventType.JOIN_CONFERENCE_ROOM,
-            this._webEntity, {
-            name: conferenceName,
-            id: roomName,
-            entity: this._webEntity
-        }));
+        Renderer.getScene().onEntityEventObservable.notifyObservers(
+            new EntityEvent(
+                EntityEventType.JOIN_CONFERENCE_ROOM,
+                this._webEntity,
+                {
+                    name: conferenceName,
+                    id: roomName,
+                    entity: this._webEntity,
+                }
+            )
+        );
     }
 
     protected _createCSSObject(): void {
@@ -231,7 +256,8 @@ export class WebEntityController extends EntityController {
             iframe.style.width = "100%";
             iframe.style.height = "100%";
             iframe.style.border = "0px";
-            iframe.allow = "camera; microphone; display-capture; autoplay; clipboard-write;";
+            iframe.allow =
+                "camera; microphone; display-capture; autoplay; clipboard-write;";
             div.appendChild(iframe);
 
             this._iframe = iframe;
@@ -248,7 +274,9 @@ export class WebEntityController extends EntityController {
     }
 
     protected _createMaskingMaterial(): StandardMaterial {
-        let material = this._scene.getMaterialByName("WebMaterial") as StandardMaterial;
+        let material = this._scene.getMaterialByName(
+            "WebMaterial"
+        ) as StandardMaterial;
         if (!material) {
             material = new StandardMaterial("WebMaterial", this._scene);
             material.backFaceCulling = false;

@@ -9,7 +9,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
 import { Vector3, Scalar } from "@babylonjs/core";
@@ -33,9 +32,9 @@ export class NFTIconController extends EntityScriptComponent {
     }
 
     /**
-    * Gets a string identifying the type of this Component
-    * @returns "EntityController" string
-    */
+     * Gets a string identifying the type of this Component
+     * @returns "EntityController" string
+     */
     // eslint-disable-next-line class-methods-use-this
     public get componentType(): string {
         return NFTIconController.typeName;
@@ -55,13 +54,19 @@ export class NFTIconController extends EntityScriptComponent {
             const nft = nftIcons[this._currentIndex];
 
             const dt = this._scene.getEngine().getDeltaTime() / 1000;
-            this._currentRotationSpeed = Scalar.Lerp(this._currentRotationSpeed, this._rotationSpeed, 0.1);
+            this._currentRotationSpeed = Scalar.Lerp(
+                this._currentRotationSpeed,
+                this._rotationSpeed,
+                0.1
+            );
             nft.rotate(Vector3.Up(), this._currentRotationSpeed * dt);
 
             this._rotationDuration += dt;
             if (this._rotationDuration > this._switchDuration) {
                 this._rotationDuration -= this._switchDuration;
-                this._currentIndex = Math.floor(Math.random() * nftIcons.length);
+                this._currentIndex = Math.floor(
+                    Math.random() * nftIcons.length
+                );
             }
         }
     }
