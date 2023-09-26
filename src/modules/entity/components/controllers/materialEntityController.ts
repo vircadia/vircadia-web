@@ -12,7 +12,7 @@
 // Domain Modules
 import { EntityController } from "./EntityController";
 import { IMaterialEntity } from "../../EntityInterfaces";
-import { MaterialComponent } from "../../components";
+import { MaterialComponent } from "..";
 
 export class MaterialEntityController extends EntityController {
     // domain properties
