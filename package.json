@@ -45,6 +45,7 @@
     "eslint-plugin-n": "^15.0.0",
     "eslint-plugin-promise": "^6.0.0",
     "eslint-plugin-vue": "^9.0.0",
+    "git-authors-cli": "^1.0.46",
     "micro-test-runner": "^1.5.1",
     "typescript": "^4.5.4"
   },
@@ -54,12 +55,17 @@
     "yarn": ">= 1.21.1"
   },
   "contributors": [
-    "nolan <nolancloudms@gmail.com>",
     "Giga <gigabyte5671@gmail.com>",
-    "Kalila L <somnilibertas@gmail.com>",
+    "nolan <nolancloudms@gmail.com>",
     "Kalila <69767640+digisomni@users.noreply.github.com>",
+    "Kalila L <somnilibertas@gmail.com>",
+    "Robert Adams <misterblue@misterblue.com>",
+    "Martin Allerton <martin@dwf360.com>",
     "David Rowe <david@ctrlaltstudio.com>",
     "Nolan <51627120+younianhuang@users.noreply.github.com>",
-    "younianhuang <younianhuang@gmail.com>"
+    "Robert <github@misterblue.com>",
+    "Pankaj Pramanik <pkp2.me2k9@gmail.com>",
+    "Dale Glass <51060919+daleglass@users.noreply.github.com>",
+    "Julien Merzoug <julien.merzoug@protonmail.com>"
   ]
 }
