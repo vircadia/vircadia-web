@@ -67,12 +67,12 @@ export class ModelComponent extends MeshComponent {
             }
         )
             .then((result) => {
-                const meshes = result.meshes;
+                let meshes = result.meshes;
+                // LOD Handling
+                meshes = LODManager.setLODLevels(meshes);
+
                 this.mesh = meshes[0];
                 this.renderGroupId = DEFAULT_MESH_RENDER_GROUP_ID;
-
-                // LOD Handling
-                this.mesh = LODManager.setLODLevels(this.mesh, meshes);
 
                 // Add a nametag to any of the model's children if they match any of the InteractiveModelTypes.
                 const defaultNametagHeight = 0.6;
