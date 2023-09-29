@@ -29,30 +29,29 @@ export enum LODLevels {
     LODHIDE = "LODHIDE",
 }
 
-export enum DistanceTargets {
-    LOD0 = 0,
-    LOD1 = 15,
-    LOD2 = 30,
-    LOD3 = 60,
-    LOD4 = 120,
-    LODHIDE = 100,
-}
+export const DistanceTargets: { [key in LODLevels]: number } = {
+    LOD0: 0,
+    LOD1: 15,
+    LOD2: 30,
+    LOD3: 60,
+    LOD4: 120,
+    LODHIDE: 100,
+};
 
-export enum SizeTargets {
-    LOD0 = 1.0,
-    LOD1 = 0.25,
-    LOD2 = 0.1,
-    LOD3 = 0.08,
-    LOD4 = 0.05,
-    LODHIDE = 0.01,
-}
+export const SizeTargets: { [key in LODLevels]: number } = {
+    LOD0: 1.0,
+    LOD1: 0.25,
+    LOD2: 0.1,
+    LOD3: 0.08,
+    LOD4: 0.05,
+    LODHIDE: 0.01,
+};
 
 export interface AutoTarget {
     quality: number;
     distance: number;
     optimizeMesh: boolean;
 }
-
 export const AutoTargets: { [key in LODLevels]?: AutoTarget } = {
     LOD0: {
         quality: 0.9,
@@ -174,7 +173,7 @@ export class LODManager {
                     }
 
                     if (metadata.lod_mode) {
-                        mode = metadata.lod_mode;
+                        mode = metadata.lod_mode as Modes;
                     }
 
                     if (metadata.lod_auto) {
