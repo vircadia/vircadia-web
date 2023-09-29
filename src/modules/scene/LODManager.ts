@@ -10,16 +10,14 @@
 //
 
 import { AbstractMesh, ISimplificationSettings, Mesh } from "@babylonjs/core";
+import _ from "lodash";
 
-interface Metadata {
-    gltf: {
-        extras: {
-            vircadia_lod_mode: string;
-            vircadia_lod_auto: boolean;
-            vircadia_lod_distance: number;
-            vircadia_lod_size: number;
-        };
-    };
+// TODO: Move these types and consts to a central types file for Vircadia
+interface MeshMetadata {
+    lod_mode?: string;
+    lod_auto?: boolean;
+    lod_distance?: number;
+    lod_size?: number;
 }
 
 export class LODManager {
@@ -47,7 +45,7 @@ export class LODManager {
     };
 
     static readonly SizeTargets = {
-        LOD0: 0.5,
+        LOD0: 1.0,
         LOD1: 0.25,
         LOD2: 0.1,
         LOD3: 0.08,
@@ -87,6 +85,7 @@ export class LODManager {
     public static parseMeshName(name: string): {
         prefix?: string;
         lodLevel?: string;
+        name?: string;
         suffix?: string;
     } {
         const lodPattern =
@@ -96,133 +95,140 @@ export class LODManager {
         return {
             prefix: match?.groups?.prefix,
             lodLevel: match?.groups?.lodLevel,
+            name,
             suffix: match?.groups?.suffix,
         };
     }
 
     public static setLODLevels(meshes: AbstractMesh[]): AbstractMesh[] {
-        const simplificationSettings: ISimplificationSettings[] = [];
         const roots: {
             prefix: string | undefined;
-            mesh: Mesh | undefined;
+            mesh: Mesh;
+            name: string | undefined;
+            lodLevel: string | undefined;
             suffix: string | undefined;
+            simplificationSettings: ISimplificationSettings[];
         }[] = [];
 
+        // Get all root LOD0 meshes.
         for (let i = 0; i < meshes.length; i++) {
             const mesh = meshes[i];
             const name = mesh.name;
             const parse = LODManager.parseMeshName(name);
-            if (parse?.lodLevel === LODManager.LODLevels.LOD0) {
+            if (parse?.lodLevel === LODManager.LODLevels.LOD0 && mesh) {
                 roots.push({
                     prefix: parse?.prefix,
                     mesh: mesh as Mesh,
+                    name: parse?.name,
+                    lodLevel: parse?.lodLevel,
                     suffix: parse?.suffix,
+                    simplificationSettings: [],
                 });
             }
         }
-        if (roots.length === 0) {
-            return meshes;
+
+        for (let root = 0; root < roots.length; root++) {
+            _.forEach(meshes, (mesh, index) => {
+                // FIXME: Without using optional chaining, this bugs out the whole function but NO ERRORS ARE THROWN.
+                // Find out why and fix that, could affect us elsewhere.
+                const metadata: MeshMetadata = {
+                    lod_mode:
+                        mesh.metadata?.gltf?.extras?.vircadia_lod_mode ??
+                        undefined,
+                    lod_auto:
+                        mesh.metadata?.gltf?.extras?.vircadia_lod_auto ??
+                        undefined,
+                    lod_distance:
+                        mesh.metadata?.gltf?.extras?.vircadia_lod_distance ??
+                        undefined,
+                    lod_size:
+                        mesh.metadata?.gltf?.extras?.vircadia_lod_size ??
+                        undefined,
+                };
+
+                const parse = LODManager.parseMeshName(mesh.name);
+                // if (parse.name?.includes("LOD")) {
+                //     window.alert("found 1: " + JSON.stringify(parse));
+                // }
+                if (
+                    parse.suffix === roots[root].suffix &&
+                    parse.prefix === roots[root].prefix
+                ) {
+                    const level = parse.lodLevel;
+                    let mode = LODManager.Modes.DISTANCE;
+
+                    if (
+                        !level ||
+                        (!(level in LODManager.DistanceTargets) &&
+                            !(level in LODManager.SizeTargets) &&
+                            !(level in LODManager.AutoTargets)) ||
+                        level === LODManager.LODLevels.LOD0
+                    ) {
+                        return;
+                    }
+
+                    if (metadata.lod_mode) {
+                        mode = metadata.lod_mode;
+                    }
+
+                    if (metadata.lod_auto) {
+                        const autoTarget =
+                            LODManager.AutoTargets[
+                                level as keyof typeof LODManager.AutoTargets
+                            ];
+                        if (autoTarget && autoTarget.optimizeMesh) {
+                            roots[root].simplificationSettings.push({
+                                quality: autoTarget.quality,
+                                distance:
+                                    metadata.lod_distance ??
+                                    autoTarget.distance,
+                                optimizeMesh: true,
+                            });
+                        }
+                    } else {
+                        switch (mode) {
+                            case LODManager.Modes.DISTANCE: {
+                                let distanceTarget =
+                                    LODManager.DistanceTargets[
+                                        level as keyof typeof LODManager.DistanceTargets
+                                    ];
+
+                                if (metadata.lod_distance) {
+                                    distanceTarget = metadata.lod_distance;
+                                }
+
+                                roots[root].mesh.addLODLevel(
+                                    distanceTarget,
+                                    meshes[index] as Mesh
+                                );
+
+                                break;
+                            }
+                            case LODManager.Modes.SIZE: {
+                                let sizeTarget =
+                                    LODManager.SizeTargets[
+                                        level as keyof typeof LODManager.SizeTargets
+                                    ];
+
+                                if (metadata.lod_size) {
+                                    sizeTarget = metadata.lod_size;
+                                }
+
+                                roots[root].mesh?.addLODLevel(
+                                    sizeTarget,
+                                    meshes[index] as Mesh
+                                );
+
+                                break;
+                            }
+                            default: {
+                                break;
+                            }
+                        }
+                    }
+                }
+            });
         }
-
-        roots.forEach((root) => {
-            for (let i = 0; i < meshes.length; i++) {
-                const mesh = meshes[i];
-                const name = mesh.name;
-                const parse = LODManager.parseMeshName(name);
-
-                if (
-                    parse.suffix !== root.suffix ||
-                    parse.prefix !== root.prefix
-                ) {
-                    console.info("###continue", name, parse, root);
-                    continue;
-                }
-
-                const metadata = mesh.metadata as Metadata;
-                const level = parse?.lodLevel;
-                let mode = LODManager.Modes.DISTANCE;
-
-                if (
-                    !level ||
-                    (!(level in LODManager.DistanceTargets) &&
-                        !(level in LODManager.SizeTargets) &&
-                        !(level in LODManager.AutoTargets))
-                ) {
-                    console.info("###THISSHOULDNOTHAPPEN", level, mesh.name);
-                    continue;
-                }
-
-                if (metadata.gltf.extras.vircadia_lod_mode) {
-                    mode = metadata.gltf.extras.vircadia_lod_mode;
-                }
-
-                console.info("###wannaadd", level, mesh.name);
-                if (metadata.gltf.extras.vircadia_lod_auto) {
-                    const autoTarget =
-                        LODManager.AutoTargets[
-                            level as keyof typeof LODManager.AutoTargets
-                        ];
-                    if (autoTarget && autoTarget.optimizeMesh) {
-                        simplificationSettings.push({
-                            quality: autoTarget.quality,
-                            distance:
-                                metadata.gltf.extras.vircadia_lod_distance ??
-                                autoTarget.distance,
-                            optimizeMesh: true,
-                        });
-                    }
-                } else {
-                    switch (mode) {
-                        case LODManager.Modes.DISTANCE: {
-                            let distanceTarget =
-                                LODManager.DistanceTargets[
-                                    level as keyof typeof LODManager.DistanceTargets
-                                ];
-
-                            if (metadata.gltf.extras.vircadia_lod_distance) {
-                                distanceTarget =
-                                    metadata.gltf.extras.vircadia_lod_distance;
-                            }
-
-                            console.info("###addLODLevel", level, mesh.name);
-                            root.mesh?.addLODLevel(
-                                distanceTarget,
-                                mesh as Mesh
-                            );
-
-                            break;
-                        }
-                        case LODManager.Modes.SIZE: {
-                            let sizeTarget =
-                                LODManager.SizeTargets[
-                                    level as keyof typeof LODManager.SizeTargets
-                                ];
-
-                            if (metadata.gltf.extras.vircadia_lod_size) {
-                                sizeTarget =
-                                    metadata.gltf.extras.vircadia_lod_size;
-                            }
-
-                            console.info("$$$addLODLevel", level, mesh.name);
-                            root.mesh?.addLODLevel(sizeTarget, mesh as Mesh);
-
-                            break;
-                        }
-                        default:
-                            break;
-                    }
-                }
-            }
-        });
-
-        // FIXME: Auto mode is disabled for now. It's not working properly. (should retest with latest version + diff settings)
-        // if (simplificationSettings.length > 0) {
-        //     console.info(
-        //         "LODManager.SimplificationSettings",
-        //         simplificationSettings
-        //     );
-        //     (root as Mesh).simplify(simplificationSettings, false);
-        // }
 
         return meshes;
     }

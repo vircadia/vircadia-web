@@ -171,7 +171,7 @@ module.exports = {
         "no-unused-expressions": "off",
         "@typescript-eslint/no-unused-expressions": ["error"],
         "no-unused-vars": "off",
-        "@typescript-eslint/no-unused-vars": ["error"],
+        "@typescript-eslint/no-unused-vars": ["warn"],
         "no-use-before-define": "off",
         "@typescript-eslint/no-use-before-define": ["error"],
         "no-useless-constructor": "off",
@@ -188,7 +188,7 @@ module.exports = {
         "@typescript-eslint/semi": ["error", "always"],
         "space-before-function-paren": "off",
         "@typescript-eslint/space-before-function-paren": [
-            "error",
+            "warn",
             {
                 "anonymous": "never",
                 "named": "never",
@@ -212,7 +212,8 @@ module.exports = {
         "no-unreachable-loop": "error",
         "no-unsafe-optional-chaining": "error",
         "no-unsafe-call": "off",
-        "no-unsafe-assignment": "off",
+        "@typescript-eslint/no-unsafe-assignment": ["warn"],
+        "@typescript-eslint/no-unsafe-member-access": ["warn"],
         "no-useless-backreference": "error",
         "require-atomic-updates": "error",
 
@@ -295,7 +296,7 @@ module.exports = {
         "array-element-newline": ["error", "consistent"],
         "block-spacing": "error",
         // "brace-style": "error",  // TypeScript extension overrides.
-        "camelcase": "error",
+        "camelcase": "off",
         // "comma-dangle": ["error", "never"],  // TypeScript extension overrides.
         // "comma-spacing": "error",  // TypeScript extension overrides.
         "comma-style": "error",
@@ -320,7 +321,7 @@ module.exports = {
         "no-multiple-empty-lines": ["off", { "max": 2, "maxBOF": 0, "maxEOF": 0 }],
         "no-nested-ternary": "error",
         "no-new-object": "error",
-        "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
+        "no-plusplus": ["off", { "allowForLoopAfterthoughts": true }],
         "no-tabs": "error",
         "no-trailing-spaces": "error",
         "no-unneeded-ternary": "error",
@@ -346,7 +347,7 @@ module.exports = {
         "space-in-parens": "error",
         // "space-infix-ops": "error",  // TypeScript extension overrides.
         "space-unary-ops": [
-            "error", {
+            "off", {
                 "words": true,
                 "nonwords": false
             }
