@@ -12,76 +12,82 @@
 import { AbstractMesh, ISimplificationSettings, Mesh } from "@babylonjs/core";
 import _ from "lodash";
 
-// TODO: Move these types and consts to a central types file for Vircadia
-interface MeshMetadata {
+// TODO: Move these types and consts to a central types file for Vircadia: vircadia/types (repo)
+export interface MeshMetadata {
     lod_mode?: string;
     lod_auto?: boolean;
     lod_distance?: number;
     lod_size?: number;
 }
 
+export enum LODLevels {
+    LOD0 = "LOD0",
+    LOD1 = "LOD1",
+    LOD2 = "LOD2",
+    LOD3 = "LOD3",
+    LOD4 = "LOD4",
+    LODHIDE = "LODHIDE",
+}
+
+export enum DistanceTargets {
+    LOD0 = 0,
+    LOD1 = 15,
+    LOD2 = 30,
+    LOD3 = 60,
+    LOD4 = 120,
+    LODHIDE = 100,
+}
+
+export enum SizeTargets {
+    LOD0 = 1.0,
+    LOD1 = 0.25,
+    LOD2 = 0.1,
+    LOD3 = 0.08,
+    LOD4 = 0.05,
+    LODHIDE = 0.01,
+}
+
+export interface AutoTarget {
+    quality: number;
+    distance: number;
+    optimizeMesh: boolean;
+}
+
+export const AutoTargets: { [key in LODLevels]?: AutoTarget } = {
+    LOD0: {
+        quality: 0.9,
+        distance: DistanceTargets.LOD0,
+        optimizeMesh: true,
+    },
+    LOD1: {
+        quality: 0.3,
+        distance: DistanceTargets.LOD1,
+        optimizeMesh: true,
+    },
+    LOD2: {
+        quality: 0.1,
+        distance: DistanceTargets.LOD2,
+        optimizeMesh: true,
+    },
+    LOD3: {
+        quality: 0.05,
+        distance: DistanceTargets.LOD3,
+        optimizeMesh: true,
+    },
+    LOD4: {
+        quality: 0.01,
+        distance: DistanceTargets.LOD4,
+        optimizeMesh: true,
+    },
+    LODHIDE: undefined,
+};
+
+export enum Modes {
+    DISTANCE = "DISTANCE",
+    SIZE = "SIZE",
+}
+
 export class LODManager {
-    static readonly Modes = {
-        DISTANCE: "DISTANCE",
-        SIZE: "SIZE",
-    };
-
-    static readonly LODLevels = {
-        LOD0: "LOD0",
-        LOD1: "LOD1",
-        LOD2: "LOD2",
-        LOD3: "LOD3",
-        LOD4: "LOD4",
-        LODHIDE: "LODHIDE",
-    };
-
-    static readonly DistanceTargets = {
-        LOD0: 0,
-        LOD1: 15,
-        LOD2: 30,
-        LOD3: 60,
-        LOD4: 120,
-        LODHIDE: 100,
-    };
-
-    static readonly SizeTargets = {
-        LOD0: 1.0,
-        LOD1: 0.25,
-        LOD2: 0.1,
-        LOD3: 0.08,
-        LOD4: 0.05,
-        LODHIDE: 0.01,
-    };
-
-    static readonly AutoTargets = {
-        LOD0: {
-            quality: 0.9,
-            distance: LODManager.DistanceTargets.LOD0,
-            optimizeMesh: true,
-        },
-        LOD1: {
-            quality: 0.3,
-            distance: LODManager.DistanceTargets.LOD1,
-            optimizeMesh: true,
-        },
-        LOD2: {
-            quality: 0.1,
-            distance: LODManager.DistanceTargets.LOD2,
-            optimizeMesh: true,
-        },
-        LOD3: {
-            quality: 0.05,
-            distance: LODManager.DistanceTargets.LOD3,
-            optimizeMesh: true,
-        },
-        LOD4: {
-            quality: 0.01,
-            distance: LODManager.DistanceTargets.LOD4,
-            optimizeMesh: true,
-        },
-        LODHIDE: undefined,
-    };
-
     public static parseMeshName(name: string): {
         prefix?: string;
         lodLevel?: string;
@@ -115,7 +121,7 @@ export class LODManager {
             const mesh = meshes[i];
             const name = mesh.name;
             const parse = LODManager.parseMeshName(name);
-            if (parse?.lodLevel === LODManager.LODLevels.LOD0 && mesh) {
+            if (parse?.lodLevel === LODLevels.LOD0 && mesh) {
                 roots.push({
                     prefix: parse?.prefix,
                     mesh: mesh as Mesh,
@@ -155,14 +161,14 @@ export class LODManager {
                     parse.prefix === roots[root].prefix
                 ) {
                     const level = parse.lodLevel;
-                    let mode = LODManager.Modes.DISTANCE;
+                    let mode = Modes.DISTANCE;
 
                     if (
                         !level ||
-                        (!(level in LODManager.DistanceTargets) &&
-                            !(level in LODManager.SizeTargets) &&
-                            !(level in LODManager.AutoTargets)) ||
-                        level === LODManager.LODLevels.LOD0
+                        (!(level in DistanceTargets) &&
+                            !(level in SizeTargets) &&
+                            !(level in AutoTargets)) ||
+                        level === LODLevels.LOD0
                     ) {
                         return;
                     }
@@ -173,9 +179,7 @@ export class LODManager {
 
                     if (metadata.lod_auto) {
                         const autoTarget =
-                            LODManager.AutoTargets[
-                                level as keyof typeof LODManager.AutoTargets
-                            ];
+                            AutoTargets[level as keyof typeof AutoTargets];
                         if (autoTarget && autoTarget.optimizeMesh) {
                             roots[root].simplificationSettings.push({
                                 quality: autoTarget.quality,
@@ -187,10 +191,10 @@ export class LODManager {
                         }
                     } else {
                         switch (mode) {
-                            case LODManager.Modes.DISTANCE: {
+                            case Modes.DISTANCE: {
                                 let distanceTarget =
-                                    LODManager.DistanceTargets[
-                                        level as keyof typeof LODManager.DistanceTargets
+                                    DistanceTargets[
+                                        level as keyof typeof DistanceTargets
                                     ];
 
                                 if (metadata.lod_distance) {
@@ -204,10 +208,10 @@ export class LODManager {
 
                                 break;
                             }
-                            case LODManager.Modes.SIZE: {
+                            case Modes.SIZE: {
                                 let sizeTarget =
-                                    LODManager.SizeTargets[
-                                        level as keyof typeof LODManager.SizeTargets
+                                    SizeTargets[
+                                        level as keyof typeof SizeTargets
                                     ];
 
                                 if (metadata.lod_size) {
