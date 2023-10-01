@@ -15,7 +15,7 @@ import {
     InstancedMesh,
     Mesh,
 } from "@babylonjs/core";
-import _, { size } from "lodash";
+import _ from "lodash";
 import Log from "../debugging/log";
 
 // TODO: Move these types and consts to a central types file for Vircadia: vircadia/types (repo)
