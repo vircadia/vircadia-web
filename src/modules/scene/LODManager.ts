@@ -15,7 +15,7 @@ import {
     InstancedMesh,
     Mesh,
 } from "@babylonjs/core";
-import _ from "lodash";
+import _, { size } from "lodash";
 import Log from "../debugging/log";
 
 // TODO: Move these types and consts to a central types file for Vircadia: vircadia/types (repo)
@@ -184,6 +184,14 @@ export class LODManager {
         }
     }
 
+    private static setLODLevel(root: Mesh, lodMesh: Mesh, value: number): void {
+        root.addLODLevel(value, lodMesh);
+        Log.debug(
+            Log.types.ENTITIES,
+            `Added LOD value ${value} with mesh ${lodMesh.name} to root ${root.name}.`
+        );
+    }
+
     public static setLODLevels(meshes: AbstractMesh[]): AbstractMesh[] {
         const roots: {
             prefix: string | undefined;
@@ -313,14 +321,10 @@ export class LODManager {
                                         metadata.vircadia_lod_distance;
                                 }
 
-                                roots[root].mesh?.addLODLevel(
-                                    distanceTarget,
-                                    typedMesh
-                                );
-
-                                Log.debug(
-                                    Log.types.ENTITIES,
-                                    `Added LOD level ${level} to ${roots[root].mesh.name} with for distance target ${distanceTarget}.`
+                                LODManager.setLODLevel(
+                                    roots[root].mesh,
+                                    typedMesh,
+                                    distanceTarget
                                 );
 
                                 break;
@@ -335,14 +339,10 @@ export class LODManager {
                                     sizeTarget = metadata.vircadia_lod_size;
                                 }
 
-                                roots[root].mesh?.addLODLevel(
-                                    sizeTarget,
-                                    typedMesh
-                                );
-
-                                Log.debug(
-                                    Log.types.ENTITIES,
-                                    `Added LOD level ${level} to ${roots[root].mesh.name} with for size target ${sizeTarget}.`
+                                LODManager.setLODLevel(
+                                    roots[root].mesh,
+                                    typedMesh,
+                                    sizeTarget
                                 );
 
                                 break;
