@@ -1,5 +1,7 @@
 # Vircadia Web
 
+![Alt](https://repobeats.axiom.co/api/embed/52cc737e78701f8a1302f7f9f3dd2fdaf8296f2d.svg "Repobeats analytics image")
+
 ## ⚠️ Early Developer Alpha ⚠️
 ### The Vircadia web client is in Early Developer Alpha! There will be unimplemented features and bugs.
 ***Please take a moment to check the list of issues and file an issue if one does not exist already.
