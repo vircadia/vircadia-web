@@ -9,8 +9,14 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { AbstractMesh, ISimplificationSettings, Mesh } from "@babylonjs/core";
+import {
+    AbstractMesh,
+    ISimplificationSettings,
+    InstancedMesh,
+    Mesh,
+} from "@babylonjs/core";
 import _ from "lodash";
+import Log from "../debugging/log";
 
 // TODO: Move these types and consts to a central types file for Vircadia: vircadia/types (repo)
 export interface MeshMetadata {
@@ -108,10 +114,10 @@ export class LODManager {
     public static setLODLevels(meshes: AbstractMesh[]): AbstractMesh[] {
         const roots: {
             prefix: string | undefined;
-            mesh: Mesh;
-            name: string | undefined;
-            lodLevel: string | undefined;
             suffix: string | undefined;
+            name: string | undefined;
+            mesh: Mesh;
+            lodLevel: string | undefined;
             simplificationSettings: ISimplificationSettings[];
         }[] = [];
 
@@ -120,15 +126,24 @@ export class LODManager {
             const mesh = meshes[i];
             const name = mesh.name;
             const parse = LODManager.parseMeshName(name);
-            if (parse?.lodLevel === LODLevels.LOD0 && mesh) {
+            if (
+                mesh.constructor.name === "Mesh" ||
+                mesh.constructor.name === "AbstractMesh"
+            ) {
                 roots.push({
                     prefix: parse?.prefix,
-                    mesh: mesh as Mesh,
-                    name: parse?.name,
-                    lodLevel: parse?.lodLevel,
                     suffix: parse?.suffix,
+                    name: parse?.name,
+                    mesh: mesh as Mesh,
+                    lodLevel: parse?.lodLevel,
                     simplificationSettings: [],
                 });
+            } else {
+                Log.error(
+                    Log.types.ENTITIES,
+                    `Root mesh ${mesh.name} is not a Mesh. Found instead ${mesh.constructor.name}.`
+                );
+                continue;
             }
         }
 
@@ -152,9 +167,6 @@ export class LODManager {
                 };
 
                 const parse = LODManager.parseMeshName(mesh.name);
-                // if (parse.name?.includes("LOD")) {
-                //     window.alert("found 1: " + JSON.stringify(parse));
-                // }
                 if (
                     parse.suffix === roots[root].suffix &&
                     parse.prefix === roots[root].prefix
@@ -200,9 +212,14 @@ export class LODManager {
                                     distanceTarget = metadata.lod_distance;
                                 }
 
-                                roots[root].mesh.addLODLevel(
+                                roots[root].mesh?.addLODLevel(
                                     distanceTarget,
                                     meshes[index] as Mesh
+                                );
+
+                                Log.debug(
+                                    Log.types.ENTITIES,
+                                    `Added LOD level ${level} to ${roots[root].mesh.name} with for distance target ${distanceTarget}.`
                                 );
 
                                 break;
@@ -220,6 +237,11 @@ export class LODManager {
                                 roots[root].mesh?.addLODLevel(
                                     sizeTarget,
                                     meshes[index] as Mesh
+                                );
+
+                                Log.debug(
+                                    Log.types.ENTITIES,
+                                    `Added LOD level ${level} to ${roots[root].mesh.name} with for size target ${sizeTarget}.`
                                 );
 
                                 break;
