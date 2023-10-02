@@ -193,6 +193,42 @@ export class LODManager {
     }
 
     public static setLODLevels(meshes: AbstractMesh[]): AbstractMesh[] {
+        // TODO: Move this out of here.
+        for (let i = 0; i < meshes.length; i++) {
+            const mesh = meshes[i];
+            const meta = LODManager.getMetadataFromMesh(mesh);
+            if (meta.vircadia_lod_auto === true) {
+                const simplificationSettings: ISimplificationSettings[] = [];
+
+                Object.entries(AutoTargets).forEach(([level, autoTarget]) => {
+                    if (autoTarget) {
+                        simplificationSettings.push({
+                            quality: autoTarget.quality,
+                            distance: autoTarget.distance,
+                            optimizeMesh: true,
+                        });
+                    }
+                });
+
+                Log.debug(
+                    Log.types.ENTITIES,
+                    `Using auto LOD for ${mesh.name}.`
+                );
+
+                (mesh as Mesh)?.simplify(
+                    simplificationSettings,
+                    false,
+                    undefined,
+                    () => {
+                        Log.debug(
+                            Log.types.ENTITIES,
+                            `Added auto LOD level to root ${mesh.name}.`
+                        );
+                    }
+                );
+            }
+        }
+
         const roots: {
             prefix: string | undefined;
             suffix: string | undefined;
@@ -286,60 +322,43 @@ export class LODManager {
                         mode = metadata.vircadia_lod_mode;
                     }
 
-                    if (metadata.vircadia_lod_auto) {
-                        const autoTarget =
-                            AutoTargets[level as keyof typeof AutoTargets];
-                        if (autoTarget && autoTarget.optimizeMesh) {
-                            roots[root].simplificationSettings.push({
-                                quality: autoTarget.quality,
-                                distance:
-                                    metadata.vircadia_lod_distance ??
-                                    autoTarget.distance,
-                                optimizeMesh: true,
-                            });
+                    switch (mode) {
+                        case LODModes.DISTANCE: {
+                            let distanceTarget =
+                                DistanceTargets[
+                                    level as keyof typeof DistanceTargets
+                                ];
+
+                            if (metadata.vircadia_lod_distance) {
+                                distanceTarget = metadata.vircadia_lod_distance;
+                            }
+
+                            LODManager.setLODLevel(
+                                roots[root].mesh,
+                                typedMesh,
+                                distanceTarget
+                            );
+
+                            break;
                         }
-                    } else {
-                        switch (mode) {
-                            case LODModes.DISTANCE: {
-                                let distanceTarget =
-                                    DistanceTargets[
-                                        level as keyof typeof DistanceTargets
-                                    ];
+                        case LODModes.SIZE: {
+                            let sizeTarget =
+                                SizeTargets[level as keyof typeof SizeTargets];
 
-                                if (metadata.vircadia_lod_distance) {
-                                    distanceTarget =
-                                        metadata.vircadia_lod_distance;
-                                }
-
-                                LODManager.setLODLevel(
-                                    roots[root].mesh,
-                                    typedMesh,
-                                    distanceTarget
-                                );
-
-                                break;
+                            if (metadata.vircadia_lod_size) {
+                                sizeTarget = metadata.vircadia_lod_size;
                             }
-                            case LODModes.SIZE: {
-                                let sizeTarget =
-                                    SizeTargets[
-                                        level as keyof typeof SizeTargets
-                                    ];
 
-                                if (metadata.vircadia_lod_size) {
-                                    sizeTarget = metadata.vircadia_lod_size;
-                                }
+                            LODManager.setLODLevel(
+                                roots[root].mesh,
+                                typedMesh,
+                                sizeTarget
+                            );
 
-                                LODManager.setLODLevel(
-                                    roots[root].mesh,
-                                    typedMesh,
-                                    sizeTarget
-                                );
-
-                                break;
-                            }
-                            default: {
-                                break;
-                            }
+                            break;
+                        }
+                        default: {
+                            break;
                         }
                     }
                 }
