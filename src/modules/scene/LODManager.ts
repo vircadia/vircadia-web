@@ -226,7 +226,9 @@ export class LODManager {
             } else {
                 Log.debug(
                     Log.types.ENTITIES,
-                    `Root mesh ${mesh.name} is not a Mesh. Found instead ${mesh.constructor.name}.`
+                    `Root mesh ${mesh.name} not added.\nMesh type ${
+                        mesh.constructor.name
+                    }.\nLOD level ${parse?.lodLevel ?? "Unknown"}.`
                 );
                 continue;
             }
@@ -249,17 +251,6 @@ export class LODManager {
 
             _.forEach(meshes, (mesh, index) => {
                 const typedMesh = mesh as Mesh;
-
-                if (
-                    mesh.constructor.name !== "Mesh" &&
-                    mesh.constructor.name !== "AbstractMesh"
-                ) {
-                    Log.error(
-                        Log.types.ENTITIES,
-                        `LOD mesh ${mesh.name} is not a Mesh. Found instead ${mesh.constructor.name}.`
-                    );
-                    return;
-                }
 
                 const parse = LODManager.parseMeshName(typedMesh.name);
                 if (
