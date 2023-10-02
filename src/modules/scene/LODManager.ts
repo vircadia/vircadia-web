@@ -265,8 +265,6 @@ export class LODManager {
                     parse.suffix === roots[root].suffix &&
                     parse.prefix === roots[root].prefix
                 ) {
-                    // FIXME: Without using optional chaining, this bugs out the whole function but NO ERRORS ARE THROWN.
-                    // Find out why and fix that, could affect us elsewhere.
                     const metadata: MeshMetadata =
                         LODManager.getMetadataFromMesh(typedMesh);
 
