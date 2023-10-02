@@ -114,7 +114,7 @@ export class LODManager {
         suffix?: string;
     } {
         const lodPattern =
-            /^(?<prefix>.*)_(?<lodLevel>LOD[0-4])(?<suffix>\.\d+)?$/u;
+            /^(?<prefix>.*)_(?<lodLevel>LOD[0-4])(?<suffix>.*)?$/u;
         const match = name.match(lodPattern);
 
         return {
