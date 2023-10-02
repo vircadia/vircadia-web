@@ -224,7 +224,7 @@ export class LODManager {
                     simplificationSettings: [],
                 });
             } else {
-                Log.error(
+                Log.debug(
                     Log.types.ENTITIES,
                     `Root mesh ${mesh.name} is not a Mesh. Found instead ${mesh.constructor.name}.`
                 );
