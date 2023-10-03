@@ -87,9 +87,7 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
                 }
             };
             element?.addEventListener("keydown", (event) => {
-                if (this._onKeyDown) {
-                    this._onKeyDown(event);
-                }
+                this._onKeyDown?.(event);
             }, false);
             // Define the keyup event handler.
             this._onKeyUp = (event: KeyboardEvent) => {
@@ -103,9 +101,7 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
                 }
             };
             element?.addEventListener("keyup", (event) => {
-                if (this._onKeyUp) {
-                    this._onKeyUp(event);
-                }
+                this._onKeyUp?.(event);
             }, false);
             // Prevent keys from getting stuck when the window loses focus.
             Tools.RegisterTopRootEvents(window, [
@@ -122,15 +118,11 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
         if (this._onKeyDown || this._onKeyUp) {
             // Remove all event listeners.
             element?.removeEventListener("keydown", (event) => {
-                if (this._onKeyDown) {
-                    this._onKeyDown(event);
-                }
+                this._onKeyDown?.(event);
             });
             this._onKeyDown = undefined;
             element?.removeEventListener("keyup", (event) => {
-                if (this._onKeyUp) {
-                    this._onKeyUp(event);
-                }
+                this._onKeyUp?.(event);
             });
             this._onKeyUp = undefined;
             Tools.UnregisterTopRootEvents(window, [
@@ -486,16 +478,12 @@ export class InputController extends ScriptComponent {
     }
 
     private _detachControl(): void {
-        if (this._input) {
-            this._input.detachControl();
-            this._input = null;
-        }
+        this._input?.detachControl();
+        this._input = null;
     }
 
     private _handleInput(delta: number): void {
-        if (this._input) {
-            this._input.handleInputs(delta);
-        }
+        this._input?.handleInputs(delta);
     }
 
     private _doStop(delta: number): void {
