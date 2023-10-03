@@ -12,8 +12,9 @@
     "build-quasar-dev": "quasar dev",
     "lint": "eslint --ext .js,.ts,.vue ./",
     "create-version": "node build_scripts/createVersion.js",
-    "copy-workers": "node build_scripts/copyWorkers.mjs",
-    "update-contributors": "git-authors-cli"
+    "update-contributors": "git-authors-cli",
+    "install-local-web-sdk": "npm install file:../vircadia-web-sdk --no-save",
+    "copy-workers": "node build_scripts/copyWorkers.mjs"
   },
   "dependencies": {
     "@babylonjs/core": "^6.4.1",

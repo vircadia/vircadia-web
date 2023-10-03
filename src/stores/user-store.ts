@@ -88,7 +88,7 @@ export const useUserStore = defineStore("user", {
                 activeModel: defaultActiveAvatarId()
             },
             persistentStorageMedium,
-            { mergeDefaults: true }
+            { mergeDefaults: true, listenToStorageChanges: false }
         ),
         // Graphics configuration.
         graphics: useStorage(
@@ -103,7 +103,7 @@ export const useUserStore = defineStore("user", {
                 cameraBobbing: true
             },
             persistentStorageMedium,
-            { mergeDefaults: true }
+            { mergeDefaults: true, listenToStorageChanges: false }
         ),
         // Information about the logged in account. Refer to Account module.
         account: useStorage(
@@ -124,7 +124,7 @@ export const useUserStore = defineStore("user", {
                 }
             },
             persistentStorageMedium,
-            { mergeDefaults: true }
+            { mergeDefaults: true, listenToStorageChanges: false }
         ),
         // Saved bookmarks.
         bookmarks: useStorage(
@@ -133,10 +133,14 @@ export const useUserStore = defineStore("user", {
                 locations: [] as Array<LocationBookmark>
             },
             persistentStorageMedium,
-            { mergeDefaults: true }
+            { mergeDefaults: true, listenToStorageChanges: true }
         ),
         // Controls.
-        controls: useStorage("userControlSettings", defaultControls, persistentStorageMedium, { mergeDefaults: true })
+        controls: useStorage("userControlSettings",
+            defaultControls,
+            persistentStorageMedium,
+            { mergeDefaults: true, listenToStorageChanges: true }
+        )
     }),
 
     actions: {

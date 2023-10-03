@@ -11,3 +11,4 @@ quasar.config.js
 /src-cordova
 /src-ssr
 /src/libs
+vircadia-web-sdk
