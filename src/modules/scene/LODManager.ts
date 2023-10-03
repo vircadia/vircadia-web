@@ -246,8 +246,8 @@ export class LODManager {
             const parse = LODManager.parseMeshName(name);
             const metadata: MeshMetadata = LODManager.getMetadataFromMesh(mesh);
             if (
-                (mesh.constructor.name === "Mesh" ||
-                    mesh.constructor.name === "AbstractMesh") &&
+                // (mesh.constructor.name === "Mesh" ||
+                //     mesh.constructor.name === "AbstractMesh") &&
                 parse?.lodLevel === LODLevels.LOD0
             ) {
                 roots.push({
@@ -297,7 +297,7 @@ export class LODManager {
                         LODManager.getMetadataFromMesh(typedMesh);
 
                     LODManager.setLODHide(
-                        typedMesh,
+                        roots[root].mesh,
                         metadata.vircadia_lod_hide
                     );
                     LODManager.setBillboardMode(
