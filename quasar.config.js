@@ -69,7 +69,9 @@ module.exports = configure(function(ctx) {
             // polyfillModulePreload: true,
             // distDir
 
-            // extendViteConf (viteConf) {},
+            extendViteConf (viteConf) {
+                if (process.env.VRCA_HOSTED_URL) viteConf.base = process.env.VRCA_HOSTED_URL
+            },
             // viteVuePluginOptions: {},
 
             // vitePlugins: [
