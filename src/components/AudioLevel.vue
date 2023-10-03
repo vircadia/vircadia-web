@@ -42,7 +42,7 @@
     >
         <span
             :class="`text-${color ?? 'primary'}`"
-            :style="{ height: `${level ?? AudioIO.inputLevel}%` }"
+            :style="{ height }"
         ></span>
     </div>
 </template>
@@ -60,10 +60,10 @@ export default defineComponent({
         level: { type: Number, required: false }
     },
 
-    setup() {
-        return {
-            AudioIO
-        };
+    computed: {
+        height(): string {
+            return `${this.level ?? AudioIO.inputLevel.value}%`;
+        }
     }
 });
 </script>
