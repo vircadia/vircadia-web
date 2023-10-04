@@ -296,10 +296,6 @@ export class LODManager {
                     const metadata: MeshMetadata =
                         LODManager.getMetadataFromMesh(typedMesh);
 
-                    LODManager.setLODHide(
-                        roots[root].mesh,
-                        metadata.vircadia_lod_hide
-                    );
                     LODManager.setBillboardMode(
                         typedMesh,
                         metadata.vircadia_billboard_mode
