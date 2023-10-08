@@ -43,8 +43,7 @@ export class VirtualJoystickInput implements IInputHandler {
     }
 
     public attachControl(): void {
-        this._leftJoystick = new VirtualJoystick(true, { alwaysVisible: true });
-        this._leftJoystick.alwaysVisible = true;
+        this._leftJoystick = new VirtualJoystick(true);
         this._leftJoystick.setJoystickColor(applicationStore.theme.colors.primary);
 
         this._rightJoystick = new VirtualJoystick(false);
