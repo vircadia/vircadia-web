@@ -9,12 +9,14 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { IInputHandler } from "./inputHandler";
+import { watch, type WatchStopHandle } from "vue";
 import { Scene, Nullable, ArcRotateCamera } from "@babylonjs/core";
 import { AvatarState, Action, State } from "../avatarState";
+import type { IInputHandler } from "./inputHandler";
 import { VirtualJoystick } from "./virtualJoystick";
+import { applicationStore } from "@Base/stores";
 
-// This is disabled because TS complains about BABYLON's use of cap'ed function names
+// This is disabled because TS complains about BABYLON's use of capitalized function names.
 /* eslint-disable new-cap */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
@@ -29,6 +31,7 @@ export class VirtualJoystickInput implements IInputHandler {
     private _rightJoystick: Nullable<VirtualJoystick> = null;
     private _cameraAngularSpeed = 0.1;
     private _cameraJoystickThreshold = 0.2;
+    private _themeWatcher: Nullable<WatchStopHandle> = null;
 
     static readonly ZINDEX = "5";
 
@@ -39,13 +42,21 @@ export class VirtualJoystickInput implements IInputHandler {
     }
 
     public attachControl(): void {
-        this._leftJoystick = new VirtualJoystick(true, {
-            alwaysVisible: true
-        });
+        this._leftJoystick = new VirtualJoystick(true, { alwaysVisible: true });
         this._leftJoystick.alwaysVisible = true;
+        this._leftJoystick.setJoystickColor(applicationStore.theme.colors.primary);
 
         this._rightJoystick = new VirtualJoystick(false);
-        this._rightJoystick.setJoystickColor("yellow");
+        this._rightJoystick.setJoystickColor(applicationStore.theme.colors.secondary);
+
+        this._themeWatcher = watch(
+            () => applicationStore.theme.colors,
+            () => {
+                this._leftJoystick?.setJoystickColor(applicationStore.theme.colors.primary);
+                this._rightJoystick?.setJoystickColor(applicationStore.theme.colors.secondary);
+            },
+            { deep: true }
+        );
 
         if (VirtualJoystick.Canvas) {
             VirtualJoystick.Canvas.style.zIndex = VirtualJoystickInput.ZINDEX;
@@ -53,15 +64,11 @@ export class VirtualJoystickInput implements IInputHandler {
     }
 
     public detachControl(): void {
-        if (this._leftJoystick) {
-            this._leftJoystick.releaseCanvas();
-            this._leftJoystick = null;
-        }
-
-        if (this._rightJoystick) {
-            this._rightJoystick.releaseCanvas();
-            this._rightJoystick = null;
-        }
+        this._leftJoystick?.releaseCanvas();
+        this._leftJoystick = null;
+        this._rightJoystick?.releaseCanvas();
+        this._rightJoystick = null;
+        this._themeWatcher?.();
     }
 
     public handleInputs(delta: number): void {
