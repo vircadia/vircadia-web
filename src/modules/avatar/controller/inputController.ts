@@ -481,7 +481,10 @@ export class InputController extends ScriptComponent {
     }
 
     private _handleInput(delta: number): void {
-        this._input?.handleInputs(delta);
+        const touchActive = this._touchInput?.handleInputs(delta); // Touch input should have control priority, so it must be handled first.
+        if (!touchActive) {
+            this._input?.handleInputs(delta);
+        }
     }
 
     private _doStop(delta: number): void {

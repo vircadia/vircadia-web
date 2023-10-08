@@ -74,7 +74,7 @@ export class VirtualJoystickInput implements IInputHandler {
 
     public handleInputs(delta: number): boolean {
         if (!this._leftJoystick || !this._rightJoystick) {
-            return;
+            return false;
         }
 
         if (this._leftJoystick.pressed) {
@@ -108,6 +108,8 @@ export class VirtualJoystickInput implements IInputHandler {
                 this._camera.inertialBetaOffset -= this._cameraAngularSpeed * delta;
             }
         }
+
+        return this._leftJoystick.pressed || this._rightJoystick.pressed;
     }
 
     private _setMoveAction(run: boolean) {
