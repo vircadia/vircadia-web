@@ -19,10 +19,19 @@ import { CustomLoadingScreen } from "@Modules/scene/LoadingScreen";
  * Static methods controlling the rendering of the scene(s).
  */
 export class Renderer {
+    private static _canvas: Nullable<HTMLCanvasElement>;
     private static _engine = <Engine><unknown>undefined;
     private static _renderingScenes = <VScene[]><unknown>undefined;
     private static _webgpuSupported = false;
     private static _intervalId = <Nullable<NodeJS.Timeout>> null;
+
+    public static get canvas(): Nullable<HTMLCanvasElement> {
+        return this._canvas;
+    }
+
+    public static get engine(): Nullable<Engine> {
+        return this._engine;
+    }
 
     /**
      * Initialize the rendering engine.
@@ -30,6 +39,7 @@ export class Renderer {
      * @param loadingScreen The element to show when the scene is loading.
      */
     public static async initialize(canvas: HTMLCanvasElement, loadingScreen: HTMLElement): Promise<void> {
+        this._canvas = canvas;
         this._webgpuSupported = await WebGPUEngine.IsSupportedAsync;
         // FIXME: Temporarily disable WebGPU on MacOS until update to a Babylon version that supports it.
         this._webgpuSupported = false;
