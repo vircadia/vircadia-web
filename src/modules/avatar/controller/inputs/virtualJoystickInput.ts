@@ -10,8 +10,9 @@
 //
 
 import { IInputHandler } from "./inputHandler";
-import { Scene, Nullable, VirtualJoystick, ArcRotateCamera } from "@babylonjs/core";
+import { Scene, Nullable, ArcRotateCamera } from "@babylonjs/core";
 import { AvatarState, Action, State } from "../avatarState";
+import { VirtualJoystick } from "./virtualJoystick";
 
 // This is disabled because TS complains about BABYLON's use of cap'ed function names
 /* eslint-disable new-cap */

@@ -176,7 +176,7 @@ export class InputController extends ScriptComponent {
     private _avatarRoot: Nullable<Vector3> = null;
     private _inputState = new InputState();
     private _input: Nullable<IInputHandler> = null;
-    private _isMobile = false;
+    private _touchInput: Nullable<IInputHandler | VirtualJoystickInput> = null;
 
     @inspector()
     private _defaultCameraTarget = new Vector3(0, 1.7, 0);
@@ -381,10 +381,6 @@ export class InputController extends ScriptComponent {
         this._avatarState.state = State.Idle;
         this._avatarState.action = Action.Idle;
 
-        // Test if browser is a mobile device.
-        const regexp = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/iu;
-        this._isMobile = regexp.test(navigator.userAgent);
-
         this._inputState.onCameraCheckCollisionChangedObservable.add(() => {
             if (this._camera) {
                 this._camera.checkCollisions = this._inputState.cameraCheckCollisions;
@@ -465,21 +461,23 @@ export class InputController extends ScriptComponent {
     }
 
     private _attachControl(): void {
-        // TODO: Make this configurable as a selected input type, influenced by mobile by default.
-        if (this._isMobile && !(this._input instanceof VirtualJoystickInput)) {
-            this._input?.detachControl();
-            this._input = new VirtualJoystickInput(this._avatarState, this._scene);
-            this._input.attachControl();
-        } else if (!(this._input instanceof KeyboardInput)) {
+        if (!(this._input instanceof KeyboardInput)) {
             this._input?.detachControl();
             this._input = new KeyboardInput(this._avatarState, this._inputState, this._scene);
             this._input.attachControl();
+        }
+        if (!(this._touchInput instanceof VirtualJoystickInput)) {
+            this._touchInput?.detachControl();
+            this._touchInput = new VirtualJoystickInput(this._avatarState, this._scene);
+            this._touchInput.attachControl();
         }
     }
 
     private _detachControl(): void {
         this._input?.detachControl();
         this._input = null;
+        this._touchInput?.detachControl();
+        this._touchInput = null;
     }
 
     private _handleInput(delta: number): void {
