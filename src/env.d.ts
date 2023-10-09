@@ -8,6 +8,7 @@ declare namespace NodeJS {
         VRCA_DEFAULT_DOMAIN_PORT: string;
         VRCA_DEFAULT_DOMAIN_URL: string;
         VRCA_GLOBAL_SERVICE_TERM: string;
+        VRCA_SHOW_LOADING_SCREEN_HINTS: "true" | "false";
         // Theme -> Styles
         VRCA_DEFAULT_MODE: "light" | "dark";
         VRCA_GLOBAL_STYLE: "none" | "aero" | "mica";

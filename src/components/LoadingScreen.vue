@@ -104,7 +104,11 @@
                 size="xl"
             />
         </div>
-        <div class="hint" :class="{ showNext }">
+        <div
+            v-if="applicationStore.theme.showLoadingScreenHints !== 'false'"
+            class="hint"
+            :class="{ showNext }"
+        >
             <div v-html="hint"></div>
             <div v-html="nextHint"></div>
         </div>
@@ -164,7 +168,10 @@ export default defineComponent({
                 index.value = wrap(index.value += 1);
             }, transition);
         }
-        window.setInterval(changeHint, delay);
+
+        if (applicationStore.theme.showLoadingScreenHints.toLowerCase() !== "false") {
+            window.setInterval(changeHint, delay);
+        }
 
         return {
             applicationStore,
