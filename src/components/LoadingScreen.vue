@@ -23,7 +23,7 @@
     background-color: #000;
     user-select: none;
 
-    & > .inner {
+    &>.inner {
         display: flex;
         flex-flow: column nowrap;
         justify-content: center;
@@ -59,33 +59,33 @@
         line-height: 1.7em;
         text-align: center;
 
-        & > div {
+        &>div {
             position: absolute;
             padding: 0 2rem;
         }
 
-        & > div::before {
+        &>div::before {
             content: 'Hint: ';
             opacity: 0.8;
         }
 
-        & > div:nth-child(1) {
+        &>div:nth-child(1) {
             transform: translateY(0);
             opacity: 1;
         }
 
-        & > div:nth-child(2) {
+        &>div:nth-child(2) {
             transform: translateY(100%);
             opacity: 0;
         }
 
-        &.showNext > div:nth-child(1) {
+        &.showNext>div:nth-child(1) {
             transform: translateY(-100%);
             opacity: 0;
             transition: var(--transition-duration) ease-out transform, var(--transition-duration) ease-out opacity;
         }
 
-        &.showNext > div:nth-child(2) {
+        &.showNext>div:nth-child(2) {
             transform: translateY(0);
             opacity: 1;
             transition: var(--transition-duration) ease-out transform, var(--transition-duration) ease-out opacity;
@@ -95,21 +95,12 @@
 </style>
 
 <template>
-    <div
-        id="loadingScreen"
-        @click.stop=""
-    >
+    <div id="loadingScreen" @click.stop="">
         <div class="inner">
             <img :src="applicationStore.theme.logo" draggable="false" alt="" width="200" height="200">
-            <q-spinner-tail
-                size="xl"
-            />
+            <q-spinner-tail size="xl" />
         </div>
-        <div
-            v-if="applicationStore.theme.showLoadingScreenHints !== 'false'"
-            class="hint"
-            :class="{ showNext }"
-        >
+        <div v-if="applicationStore.theme.showLoadingScreenHints !== 'false'" class="hint" :class="{ showNext }">
             <div v-html="hint"></div>
             <div v-html="nextHint"></div>
         </div>
@@ -127,7 +118,7 @@ export default defineComponent({
     setup() {
         /* eslint-disable max-len */
         /**
-         * The list of hint messages. Add/remove messages from this list.
+         * The list of hint messages. Add/remove messages from this list. TODO: Add ability to load list of strings from env variable and format them on load.
          */
         const hints = [
             `Press <kbd>${KeyboardSettings.formatKeyName(userStore.controls.keyboard.movement.fly.keycode)}</kbd> to fly.`,
