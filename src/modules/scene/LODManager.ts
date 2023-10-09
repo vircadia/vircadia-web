@@ -10,9 +10,9 @@
 //
 
 import {
-    AbstractMesh,
-    ISimplificationSettings,
-    InstancedMesh,
+    type AbstractMesh,
+    type ISimplificationSettings,
+    type InstancedMesh,
     Mesh
 } from "@babylonjs/core";
 import Log from "../debugging/log";
@@ -275,18 +275,20 @@ export class LODManager {
             );
 
             for (const mesh of meshes) {
-                const typedMesh = mesh as Mesh;
+                if (!(mesh instanceof Mesh)) {
+                    continue;
+                }
 
-                const parse = LODManager.parseMeshName(typedMesh.name);
+                const parse = LODManager.parseMeshName(mesh.name);
                 if (
                     parse.suffix === roots[root].suffix &&
                     parse.prefix === roots[root].prefix
                 ) {
                     const metadata: MeshMetadata =
-                        LODManager.getMetadataFromMesh(typedMesh);
+                        LODManager.getMetadataFromMesh(mesh);
 
                     LODManager.setBillboardMode(
-                        typedMesh,
+                        mesh,
                         metadata.vircadia_billboard_mode
                     );
 
@@ -320,7 +322,7 @@ export class LODManager {
 
                             LODManager.setLODLevel(
                                 roots[root].mesh,
-                                typedMesh,
+                                mesh,
                                 distanceTarget
                             );
 
@@ -336,7 +338,7 @@ export class LODManager {
 
                             LODManager.setLODLevel(
                                 roots[root].mesh,
-                                typedMesh,
+                                mesh,
                                 sizeTarget
                             );
 
