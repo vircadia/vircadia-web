@@ -113,8 +113,7 @@ export class LODManager {
         name?: string;
         suffix?: string;
     } {
-        const lodPattern =
-            /^(?<prefix>.*)_(?<lodLevel>LOD[0-4])(?<suffix>.*)?$/u;
+        const lodPattern = /^(?<prefix>.*)_(?<lodLevel>LOD[0-4])(?<suffix>.*)?$/u;
         const match = name.match(lodPattern);
 
         return {
@@ -125,25 +124,16 @@ export class LODManager {
         };
     }
 
-    private static getMetadataFromMesh(
-        mesh: AbstractMesh | Mesh | InstancedMesh
-    ) {
+    private static getMetadataFromMesh(mesh: AbstractMesh | Mesh | InstancedMesh) {
+        const metadata: Nullable<MeshMetadata> = mesh.metadata?.gltf?.extras;
         const meshMetadata: MeshMetadata = {
-            vircadia_lod_mode:
-                mesh.metadata?.gltf?.extras?.vircadia_lod_mode ?? undefined,
-            vircadia_lod_auto:
-                mesh.metadata?.gltf?.extras?.vircadia_lod_auto ?? undefined,
-            vircadia_lod_distance:
-                mesh.metadata?.gltf?.extras?.vircadia_lod_distance ?? undefined,
-            vircadia_lod_size:
-                mesh.metadata?.gltf?.extras?.vircadia_lod_size ?? undefined,
-            vircadia_lod_hide:
-                mesh.metadata?.gltf?.extras?.vircadia_lod_hide ?? undefined,
-            vircadia_billboard_mode:
-                mesh.metadata?.gltf?.extras?.vircadia_billboard_mode ??
-                undefined,
+            vircadia_lod_mode: metadata?.vircadia_lod_mode,
+            vircadia_lod_auto: metadata?.vircadia_lod_auto,
+            vircadia_lod_distance: metadata?.vircadia_lod_distance,
+            vircadia_lod_size: metadata?.vircadia_lod_size,
+            vircadia_lod_hide: metadata?.vircadia_lod_hide,
+            vircadia_billboard_mode: metadata?.vircadia_billboard_mode,
         };
-
         return meshMetadata;
     }
 
@@ -200,7 +190,7 @@ export class LODManager {
             if (meta.vircadia_lod_auto === true) {
                 const simplificationSettings: ISimplificationSettings[] = [];
 
-                Object.entries(AutoTargets).forEach(([level, autoTarget]) => {
+                Object.values(AutoTargets).forEach((autoTarget) => {
                     if (autoTarget) {
                         simplificationSettings.push({
                             quality: autoTarget.quality,
