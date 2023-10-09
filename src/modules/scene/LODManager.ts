@@ -13,9 +13,8 @@ import {
     AbstractMesh,
     ISimplificationSettings,
     InstancedMesh,
-    Mesh,
+    Mesh
 } from "@babylonjs/core";
-import _ from "lodash";
 import Log from "../debugging/log";
 
 // TODO: Move these types and consts to a central types file for Vircadia: vircadia/types (repo)
@@ -275,7 +274,7 @@ export class LODManager {
                 roots[root].metadata.vircadia_billboard_mode
             );
 
-            _.forEach(meshes, (mesh, index) => {
+            for (const mesh of meshes) {
                 const typedMesh = mesh as Mesh;
 
                 const parse = LODManager.parseMeshName(typedMesh.name);
@@ -301,7 +300,7 @@ export class LODManager {
                             !(level in AutoTargets)) ||
                         level === LODLevels.LOD0
                     ) {
-                        return;
+                        continue;
                     }
 
                     if (metadata.vircadia_lod_mode) {
@@ -348,7 +347,7 @@ export class LODManager {
                         }
                     }
                 }
-            });
+            }
         }
 
         return meshes;
