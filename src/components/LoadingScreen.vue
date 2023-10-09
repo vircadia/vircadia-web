@@ -19,6 +19,7 @@
     justify-content: center;
     align-items: center;
     gap: 6rem;
+    color: white;
     background-color: #000;
     user-select: none;
 
