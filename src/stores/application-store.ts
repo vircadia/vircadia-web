@@ -129,6 +129,7 @@ export const useApplicationStore = defineStore("application", {
             url: process.env.VRCA_HOSTED_URL,
             globalServiceTerm: process.env.VRCA_GLOBAL_SERVICE_TERM,
             versionWatermark: process.env.VRCA_VERSION_WATERMARK,
+            showLoadingScreenHints: process.env.VRCA_SHOW_LOADING_SCREEN_HINTS,
             colors: {
                 primary: process.env.VRCA_COLORS_PRIMARY,
                 secondary: process.env.VRCA_COLORS_SECONDARY,

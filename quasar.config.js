@@ -102,6 +102,7 @@ module.exports = configure(function(ctx) {
                 VRCA_BANNER_ALT: process.env.VRCA_BANNER_ALT ?? packageJSON.productName,
                 VRCA_GLOBAL_SERVICE_TERM: process.env.VRCA_GLOBAL_SERVICE_TERM ?? "Metaverse",
                 VRCA_VERSION_WATERMARK: process.env.VRCA_VERSION_WATERMARK ?? "Early Developer Alpha",
+                VRCA_SHOW_LOADING_SCREEN_HINTS: process.env.VRCA_SHOW_LOADING_SCREEN_HINTS ?? "true",
                 // Theme > Colors
                 VRCA_COLORS_PRIMARY: process.env.VRCA_COLORS_PRIMARY ?? "#0c71c3",
                 VRCA_COLORS_SECONDARY: process.env.VRCA_COLORS_SECONDARY ?? "#8300e9",
