@@ -135,7 +135,7 @@
                         <q-item-section>
                             <q-item-label
                                 style="display: flex;flex-direction: row;justify-content: flex-start;align-items: center;"
-                                :style="{ fontSize: isMobile ? '0.8em' : 'inherit' }"
+                                :style="{ fontSize: isMobile ? '0.75em' : '0.9em' }"
                             >
                                 {{ domainServerState }}
                                 <Transition>
@@ -170,13 +170,13 @@
                     </q-toolbar-title>
 
                     <template v-if="isDesktop">
-                        <q-item clickable v-ripple
+                        <q-item clickable dense v-ripple
                             class="non-selectable"
                             @click="userStore.account.isLoggedIn ?
                             onClickOpenOverlay('Account') : openDialog('Login', true)"
                         >
                             <q-item-section side>
-                                <q-avatar size="48px">
+                                <q-avatar :size="isDesktop ? '38px' : '32px'">
                                     <q-img
                                         :src="profilePicture"
                                     />
@@ -205,9 +205,11 @@
                             class="q-mr-sm q-ml-sm"
                         />
 
-                        <q-separator dark vertical/>
+                        <q-separator dark vertical inset />
+
                         <q-btn
                             flat
+                            round
                             stretch
                             icon="settings"
                             aria-label="Settings Menu"
@@ -260,7 +262,7 @@
                         @show="aMenuIsOpen = true"
                     >
                         <template v-slot:label>
-                            <q-avatar rounded :size="isDesktop ? '48px' : '32px'">
+                            <q-avatar rounded :size="isDesktop ? '38px' : '32px'">
                                 <img :src="applicationStore.theme.logo">
                             </q-avatar>
                         </template>
