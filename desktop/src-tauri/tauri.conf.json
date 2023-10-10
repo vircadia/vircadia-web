@@ -3,11 +3,11 @@
         "beforeDevCommand": "cd ../ && npm run dev",
         "beforeBuildCommand": "cd ../ && npm run build",
         "devPath": "http://localhost:9000",
-        "distDir": "../../dist",
+        "distDir": "../../dist/spa",
         "withGlobalTauri": false
     },
     "package": {
-        "productName": "vircadia-desktop",
+        "productName": "Vircadia",
         "version": "0.0.0"
     },
     "tauri": {
