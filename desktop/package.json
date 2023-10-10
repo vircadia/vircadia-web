@@ -5,6 +5,7 @@
     "scripts": {
         "dev": "tauri dev",
         "build": "tauri build",
+        "make-icon": "tauri icon ../public/assets/vircadia-icon-256.png",
         "tauri": "tauri"
     },
     "dependencies": {
