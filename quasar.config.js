@@ -9,6 +9,7 @@
 const path = require("path");
 const { configure } = require("quasar/wrappers");
 const packageJSON = require("./package.json");
+const desktopMode = process.env.TAURI_MODE;
 
 module.exports = configure(function(ctx) {
     return {
@@ -125,7 +126,9 @@ module.exports = configure(function(ctx) {
         // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#devServer
         devServer: {
             https: false,
-            open: true // opens browser window automatically
+            port: 9000,
+            strictPort: Boolean(desktopMode), // desktop mode must use a strict port
+            open: !Boolean(desktopMode) // opens browser window automatically
         },
 
         // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#framework

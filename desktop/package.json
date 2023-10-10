@@ -3,8 +3,8 @@
     "version": "0.0.0",
     "type": "module",
     "scripts": {
-        "dev": "tauri dev",
-        "build": "tauri build",
+        "dev": "SET TAURI_MODE=dev && tauri dev",
+        "build": "SET TAURI_MODE=build && tauri build",
         "make-icon": "tauri icon ../public/assets/vircadia-icon-256.png",
         "tauri": "tauri"
     },
