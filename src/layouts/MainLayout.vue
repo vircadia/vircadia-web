@@ -37,7 +37,7 @@
                         dense
                         icon="menu"
                         aria-label="User Menu"
-                        @click="toggleUserMenu"
+                        @click="toggleOverlay('Menu')"
                         :class="{
                             'q-mr-sm': isDesktop,
                             'q-mr-xs': isMobile
@@ -52,7 +52,7 @@
                         dense
                         icon="travel_explore"
                         aria-label="Explore"
-                        @click="onClickOpenOverlay('Explore')"
+                        @click="toggleOverlay('Explore')"
                         class="q-mr-sm q-ml-sm"
                     />
 
@@ -628,8 +628,8 @@ export default defineComponent({
 
     methods: {
         // Drawers
-        toggleUserMenu(): void {
-            (this.$refs as ComponentTemplateRefs).OverlayManager?.toggleOverlay("Menu");
+        toggleOverlay(overlay = "Menu"): void {
+            (this.$refs as ComponentTemplateRefs).OverlayManager?.toggleOverlay(overlay);
         },
         // Settings & Help menus clickaway
         hideSettingsAndHelpMenus(): void {
@@ -684,7 +684,7 @@ export default defineComponent({
         },
         joinConferenceRoom(room: JitsiRoomInfo) {
             this.applicationStore.joinConferenceRoom(room);
-            (this.$refs as ComponentTemplateRefs).OverlayManager?.toggleOverlay("Jitsi");
+            this.toggleOverlay("Jitsi");
         },
         openUrl(pUrl: string) {
             openURL(pUrl);
@@ -752,11 +752,11 @@ export default defineComponent({
             ) {
                 // Toggle the menu.
                 if (event.code === this.userStore.controls.keyboard.other.toggleMenu?.keycode) {
-                    (this.$refs as ComponentTemplateRefs).OverlayManager?.toggleOverlay("Menu");
+                    this.toggleOverlay("Menu");
                 }
                 // Open the chat.
                 if (event.code === this.userStore.controls.keyboard.other.openChat?.keycode) {
-                    (this.$refs as ComponentTemplateRefs).OverlayManager?.toggleOverlay("Chat");
+                    this.toggleOverlay("Chat");
                 }
             }
         });
