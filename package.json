@@ -8,6 +8,9 @@
   "scripts": {
     "build": "npm run create-version && npm run copy-workers && npm run build-quasar",
     "dev": "npm run create-version && npm run copy-workers && npm run build-quasar-dev",
+    "install-desktop": "cd desktop && npm i",
+    "build-desktop": "cd desktop && npm run build",
+    "dev-desktop": "cd desktop && npm run dev",
     "build-quasar": "quasar build",
     "build-quasar-dev": "quasar dev",
     "lint": "eslint --ext .js,.ts,.vue ./",

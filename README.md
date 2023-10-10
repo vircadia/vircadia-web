@@ -95,6 +95,25 @@ npm run test
 npm run build
 ```
 
+## Desktop
+
+The web client can also be compiled to a standalone desktop app.
+
+To install the desktop wrapper dependencies:
+```sh
+npm run install-desktop
+```
+
+To run the desktop wrapper in development mode:
+```sh
+npm run dev-desktop
+```
+
+To build the desktop executable:
+```sh
+npm run build-desktop
+```
+
 ## To Update Contributors
 
 ```sh
