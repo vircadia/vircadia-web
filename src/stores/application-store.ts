@@ -49,7 +49,8 @@ export const useApplicationStore = defineStore("application", {
             APP_VERSION: packageInfo.version,
             APP_VERSION_TAG: versionInfo["version-tag"],
             SDK_VERSION_TAG: Vircadia.verboseVersion ?? "probably 0.0.4",
-            SAFETY_BEFORE_SESSION_TIMEOUT: 21600 // If a token has 6 or less hours left on its life, refresh it.
+            SAFETY_BEFORE_SESSION_TIMEOUT: 21600, // If a token has 6 or less hours left on its life, refresh it.
+            TAURI_MODE: process.env.TAURI_MODE
         },
         defaultConnectionConfig: {
             DEFAULT_METAVERSE_URL: process.env.VRCA_DEFAULT_METAVERSE_URL,

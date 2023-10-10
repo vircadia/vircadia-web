@@ -119,7 +119,9 @@ module.exports = configure(function(ctx) {
                 VRCA_WIZARD_TITLE: process.env.VRCA_WIZARD_TITLE ?? packageJSON.productName,
                 VRCA_WIZARD_WELCOME_TEXT: process.env.VRCA_WIZARD_WELCOME_TEXT ?? "Welcome to",
                 VRCA_WIZARD_TAGLINE: process.env.VRCA_WIZARD_TAGLINE ?? "Explore virtual worlds.",
-                VRCA_WIZARD_BUTTON_TEXT: process.env.VRCA_WIZARD_BUTTON_TEXT ?? "Get Started"
+                VRCA_WIZARD_BUTTON_TEXT: process.env.VRCA_WIZARD_BUTTON_TEXT ?? "Get Started",
+                // Desktop App
+                TAURI_MODE: process.env.TAURI_MODE
             }
         },
 

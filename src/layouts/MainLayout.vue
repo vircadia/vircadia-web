@@ -738,7 +738,7 @@ export default defineComponent({
             this.userStore.updateAccountInfo(pPayload);
         });
 
-        if (this.isDesktop) {
+        if (this.isDesktop && !applicationStore.globalConsts.TAURI_MODE) {
             (this.$refs as ComponentTemplateRefs).OverlayManager?.openOverlay("Menu");
             (this.$refs as ComponentTemplateRefs).OverlayManager?.openOverlay("Chat");
         }
