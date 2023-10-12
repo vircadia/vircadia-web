@@ -30,7 +30,7 @@
             :style="{background: headerStyle}"
         >
             <div class="row no-wrap">
-                <q-toolbar :style="{ padding: isMobile ? '0px 0px 0px 8px' : '0px 12px' }">
+                <q-toolbar :style="{ padding: isMobile ? '0 0 0 8px' : '0 0 0 12px' }">
                     <q-btn
                         flat
                         round
