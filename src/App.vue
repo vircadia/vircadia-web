@@ -35,7 +35,7 @@ export default defineComponent({
         // Hide the preloader.
         const preloader = document.getElementById("preloader");
         if (preloader) {
-            preloader.style.opacity = "0";
+            preloader.classList.add("hide");
         }
     }
 });

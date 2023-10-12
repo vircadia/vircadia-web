@@ -10,6 +10,14 @@
 -->
 
 <style lang="scss">
+#mainLayout {
+    animation: mainLayoutFadeIn 0.5s ease forwards;
+}
+@keyframes mainLayoutFadeIn {
+    0%   { opacity: 0; }
+    100% { opacity: 1; }
+}
+
 .v-enter-active,
 .v-leave-active {
   transition: opacity 0.2s ease;
