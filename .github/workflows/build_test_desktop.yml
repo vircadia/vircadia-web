@@ -1,7 +1,5 @@
 name: '🖥️ Desktop Build Test'
 on:
-  push:
-    branches-ignore: [ "master" ]
   pull_request:
     branches: [ "master" ]
 
@@ -32,4 +30,5 @@ jobs:
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run build && cd desktop && tauri build
+          TAURI_MODE: build
+        run: npm run build && cd desktop && npm run tauri build
