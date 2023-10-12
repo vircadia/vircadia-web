@@ -1,5 +1,9 @@
-name: 'test-on-pr'
-on: [pull_request]
+name: '🖥️ Desktop Build Test'
+on:
+  push:
+    branches-ignore: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
 
 jobs:
   test-tauri:
@@ -22,8 +26,10 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
-      - name: install frontend dependencies
+      - name: Install Frontend Dependencies
         run: npm ci && npm run install-desktop
-      - uses: tauri-apps/tauri-action@v0
+      - name: Build
         env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run build && cd desktop && tauri build
