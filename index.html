@@ -37,8 +37,58 @@
     <meta name="twitter:description" content="<%= process.env.VRCA_PRODUCT_DESCRIPTION %>" />
     <meta name="twitter:image" content="<%= process.env.VRCA_BANNER %>" />
     <meta name="twitter:image:alt" content="<%= process.env.VRCA_BANNER_ALT %>" />
+
+    <style>
+      html {
+        background-color: black;
+      }
+      #preloader {
+        position: fixed;
+        z-index: 0;
+        inset: 0;
+        background-color: black;
+        opacity: 1;
+        transition: 0.2s ease opacity;
+      }
+      #preloader::before {
+        content: '';
+        position: absolute;
+        right: 0.5rem;
+        bottom: 0.5rem;
+        display: block;
+        width: 1.2rem;
+        height: 1.2rem;
+        box-sizing: border-box;
+        border: 0.2rem solid white;
+        border-right-color: transparent;
+        border-radius: 50%;
+        -webkit-mask-image: linear-gradient(180deg, #000 30%, transparent 80%);
+        mask-image: linear-gradient(180deg, #000 30%, transparent 80%);
+        transform-origin: center;
+        animation: preloaderSpinner 0.8s linear infinite;
+      }
+      @keyframes preloaderSpinner {
+        0%   { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      #preloader > video {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        margin: auto;
+        animation: preloaderFadeOut 9s ease forwards;
+      }
+      @keyframes preloaderFadeOut {
+        0%   { opacity: 1; }
+        95%  { opacity: 1; }
+        100% { opacity: 0; }
+      }
+    </style>
   </head>
   <body>
+    <div id="preloader">
+        <video src="/assets/Digisomni_Intro_9-13-2022.webm" autoplay muted></video>
+    </div>
     <!-- quasar:entry-point -->
   </body>
 </html>

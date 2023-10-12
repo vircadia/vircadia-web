@@ -32,6 +32,11 @@ export default defineComponent({
         // Called after the APP is visible. This starts the engines doing things.
         // Start connections if we are restoring the session
         void Utility.initialConnectionSetup();
+        // Hide the preloader.
+        const preloader = document.getElementById("preloader");
+        if (preloader) {
+            preloader.style.opacity = "0";
+        }
     }
 });
 </script>
