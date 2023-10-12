@@ -38,26 +38,15 @@ jobs:
           TAURI_MODE: build
         run: cd desktop && npm run tauri build
 
-      - name: Upload MacOS Build
-        if: matrix.platform == 'macos-latest'
+      - name: Upload Build
         uses: actions/upload-artifact@v3
         with:
           name: build-desktop-${{ matrix.platform }}-${{ github.event.number }}
-          path: ${{ runner.workspace }}/vircadia-web/desktop/src-tauri/target/release/bundle/macos/Vircadia.app
-          if-no-files-found: error
-
-      - name: Upload Linux Build
-        if: matrix.platform == 'ubuntu-20.04'
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-desktop-${{ matrix.platform }}-${{ github.event.number }}
-          path: ${{ runner.workspace }}/vircadia-web/desktop/src-tauri/target/release/bundle/*/Vircadia?.*
-          if-no-files-found: error
-
-      - name: Upload Windows Build
-        if: matrix.platform == 'windows-latest'
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-desktop-${{ matrix.platform }}-${{ github.event.number }}
-          path: ${{ runner.workspace }}/vircadia-web/desktop/src-tauri/target/release/bundle/*/Vircadia?.*
+          path: |
+            ${{ runner.workspace }}/vircadia-web/desktop/src-tauri/target/release/bundle/**/*.app
+            ${{ runner.workspace }}/vircadia-web/desktop/src-tauri/target/release/bundle/**/*.dmg
+            ${{ runner.workspace }}/vircadia-web/desktop/src-tauri/target/release/bundle/**/*.deb
+            ${{ runner.workspace }}/vircadia-web/desktop/src-tauri/target/release/bundle/**/*.AppImage
+            ${{ runner.workspace }}/vircadia-web/desktop/src-tauri/target/release/bundle/**/*.msi
+            ${{ runner.workspace }}/vircadia-web/desktop/src-tauri/target/release/bundle/**/*.exe
           if-no-files-found: error
