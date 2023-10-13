@@ -11,7 +11,7 @@
 // Allow getters to be compact.
 /* eslint-disable @typescript-eslint/brace-style */
 
-import { SignalEmitter } from "@vircadia/web-sdk";
+import { SignalEmitter, DomainServer } from "@vircadia/web-sdk";
 import { Config, DEFAULT_METAVERSE_URL } from "@Base/config";
 import { API } from "@Modules/metaverse/API";
 import type { MetaverseInfoResponse } from "@Modules/metaverse/APIInfo";
@@ -99,6 +99,10 @@ export class Metaverse {
 
         // Remove any trailing slashes from the URL.
         const newUrl = API.normalizeMetaverseUrl(url);
+
+        // Update the Web SDK to use the new URL.
+        // @ts-expect-error This does exist.
+        DomainServer.metaverseServerURL = newUrl;
 
         // Access the Metaverse server and get its configuration info.
         try {
