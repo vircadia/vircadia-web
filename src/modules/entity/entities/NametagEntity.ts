@@ -11,7 +11,6 @@
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
-
 import {
     type AbstractMesh,
     Color3,
@@ -22,7 +21,7 @@ import {
     Scene,
     StandardMaterial,
     TransformNode,
-    Vector3
+    Vector3,
 } from "@babylonjs/core";
 import { DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { Renderer } from "@Modules/scene";
@@ -49,9 +48,17 @@ const backgroundMaterialMemo = new Map<string, StandardMaterial>();
  * @param scene The hosting scene.
  * @returns The new sector mesh.
  */
-function createSector(name: string, vector1: Vector3, vector2: Vector3, radius = 1, scene?: Scene): Mesh {
+function createSector(
+    name: string,
+    vector1: Vector3,
+    vector2: Vector3,
+    radius = 1,
+    scene?: Scene
+): Mesh {
     // Get the angle between the two vectors.
-    const sectorAngle = Math.acos(Vector3.Dot(vector1, vector2) / (vector1.length() * vector2.length()));
+    const sectorAngle = Math.acos(
+        Vector3.Dot(vector1, vector2) / (vector1.length() * vector2.length())
+    );
     const minNumberOfSegments = 5;
     const diameter = radius * 2;
     const origin = Vector3.Zero();
@@ -59,13 +66,19 @@ function createSector(name: string, vector1: Vector3, vector2: Vector3, radius =
     const lastPoint = Vector3.Normalize(vector2).scale(radius);
 
     // Divide the sector angle into a number of segments angles.
-    const segments = Math.max(Math.floor(diameter * sectorAngle), minNumberOfSegments);
+    const segments = Math.max(
+        Math.floor(diameter * sectorAngle),
+        minNumberOfSegments
+    );
     const segmentAngle = sectorAngle / segments;
 
     // Create points to connect each segment.
     const points = new Array<Vector3>();
     for (let i = 0; i < segments; i++) {
-        const matrix = Matrix.RotationAxis(Vector3.Cross(vector1, vector2), segmentAngle * i);
+        const matrix = Matrix.RotationAxis(
+            Vector3.Cross(vector1, vector2),
+            segmentAngle * i
+        );
         const rotated = Vector3.TransformCoordinates(firstPoint, matrix);
         points.push(rotated.add(origin));
     }
@@ -82,7 +95,7 @@ function createSector(name: string, vector1: Vector3, vector2: Vector3, radius =
         name,
         {
             pathArray: [points, originPoints],
-            offset: 0
+            offset: 0,
         },
         scene
     );
@@ -96,7 +109,7 @@ export class NametagEntity {
         size: 70,
         characterWidth: 38.5,
         characterRatio: 1.43,
-        contentRatio: 0.1
+        contentRatio: 0.1,
     };
 
     private static _iconFont = {
@@ -104,7 +117,7 @@ export class NametagEntity {
         size: 100,
         characterWidth: 100,
         characterRatio: 1,
-        contentRatio: 0.16
+        contentRatio: 0.16,
     };
 
     /**
@@ -127,22 +140,28 @@ export class NametagEntity {
         icon = false,
         color?: Color3,
         popDistance = 20,
-        popOverride?: ((distance: number) => boolean)
+        popOverride?: (distance: number) => boolean
     ): Mesh | undefined {
         const scene = object.getScene();
         const font = icon ? this._iconFont : this._textFont;
-        const tagTextureWidth = icon ? font.characterWidth * 1.2 : (name.length + 1) * font.characterWidth;
+        const tagTextureWidth = icon
+            ? font.characterWidth * 1.2
+            : (name.length + 1) * font.characterWidth;
         const tagTextureHeight = font.size * font.characterRatio;
-        const tagWidth = font.contentRatio * tagTextureWidth / tagTextureHeight;
+        const tagWidth =
+            (font.contentRatio * tagTextureWidth) / tagTextureHeight;
         const tagHeight = font.contentRatio;
         const tagCornerRadius = tagHeight / 6;
         const nametagArrowSize = 0.02;
         const tagBackgroundColor = color ?? new Color3(0.07, 0.07, 0.07);
         const tagBackgroundColorString = tagBackgroundColor.toHexString();
-        const memoName = `${name}${icon ? "-i" : ""}-${tagBackgroundColorString}`;
+        const memoName = `${name}${icon ? "-i" : ""
+            }-${tagBackgroundColorString}`;
 
         // Attempt to reuse a memoized mesh, if one exists.
-        let mesh = meshMemo.get(memoName)?.clone("Nametag", object, false, false);
+        let mesh = meshMemo
+            .get(memoName)
+            ?.clone("Nametag", object, false, false);
 
         // If a matching mesh doesn't already exist, create a new one.
         if (!mesh) {
@@ -151,11 +170,16 @@ export class NametagEntity {
             // If a matching texture doesn't already exist, create a new one.
             if (!foregroundTexture) {
                 // Create the texture.
-                const newForegroundTexture = new DynamicTexture(`NametagTexture-${memoName}`, { width: tagTextureWidth, height: tagTextureHeight }, scene);
+                const newForegroundTexture = new DynamicTexture(
+                    `NametagTexture-${memoName}`,
+                    { width: tagTextureWidth, height: tagTextureHeight },
+                    scene
+                );
                 // Center the name on the tag.
                 const textPosition = icon
                     ? tagTextureWidth / 2 - font.characterWidth / 2
-                    : tagTextureWidth / 2 - name.length / 2 * font.characterWidth;
+                    : tagTextureWidth / 2 -
+                    (name.length / 2) * font.characterWidth;
                 newForegroundTexture.drawText(
                     name,
                     textPosition,
@@ -172,7 +196,9 @@ export class NametagEntity {
                 foregroundTexture = newForegroundTexture;
             }
 
-            let backgroundTexture = backgroundTextureMemo.get(tagBackgroundColorString);
+            let backgroundTexture = backgroundTextureMemo.get(
+                tagBackgroundColorString
+            );
             // If a matching texture doesn't already exist, create a new one.
             if (!backgroundTexture) {
                 // Create the texture.
@@ -181,10 +207,22 @@ export class NametagEntity {
                     { width: tagTextureWidth, height: tagTextureHeight },
                     scene
                 );
-                newBackgroundTexture.drawText("", 0, 0, `${font.size}px ${font.name}`, "white", tagBackgroundColorString, true, true);
+                newBackgroundTexture.drawText(
+                    "",
+                    0,
+                    0,
+                    `${font.size}px ${font.name}`,
+                    "white",
+                    tagBackgroundColorString,
+                    true,
+                    true
+                );
                 newBackgroundTexture.getAlphaFromRGB = true;
                 // Memoize the texture.
-                backgroundTextureMemo.set(tagBackgroundColorString, newBackgroundTexture);
+                backgroundTextureMemo.set(
+                    tagBackgroundColorString,
+                    newBackgroundTexture
+                );
                 backgroundTexture = newBackgroundTexture;
             }
 
@@ -193,7 +231,10 @@ export class NametagEntity {
             // If a matching material doesn't already exist, create a new one.
             if (!foregroundMaterial) {
                 // Create the material.
-                const newForegroundMaterial = new StandardMaterial(`NametagMaterial-${memoName}`, scene);
+                const newForegroundMaterial = new StandardMaterial(
+                    `NametagMaterial-${memoName}`,
+                    scene
+                );
                 newForegroundMaterial.diffuseTexture = foregroundTexture;
                 newForegroundMaterial.specularTexture = foregroundTexture;
                 newForegroundMaterial.emissiveTexture = foregroundTexture;
@@ -203,27 +244,39 @@ export class NametagEntity {
                 foregroundMaterial = newForegroundMaterial;
             }
 
-            let backgroundMaterial = backgroundMaterialMemo.get(tagBackgroundColorString);
+            let backgroundMaterial = backgroundMaterialMemo.get(
+                tagBackgroundColorString
+            );
             // If a matching material doesn't already exist, create a new one.
             if (!backgroundMaterial) {
                 // Create the material.
-                const newBackgroundMaterial = new StandardMaterial(`NametagBackgroundMaterial-${tagBackgroundColorString}`, scene);
+                const newBackgroundMaterial = new StandardMaterial(
+                    `NametagBackgroundMaterial-${tagBackgroundColorString}`,
+                    scene
+                );
                 newBackgroundMaterial.diffuseTexture = backgroundTexture;
                 newBackgroundMaterial.specularTexture = backgroundTexture;
                 newBackgroundMaterial.emissiveTexture = backgroundTexture;
                 newBackgroundMaterial.disableLighting = true;
                 // Memoize the material.
-                backgroundMaterialMemo.set(tagBackgroundColorString, newBackgroundMaterial);
+                backgroundMaterialMemo.set(
+                    tagBackgroundColorString,
+                    newBackgroundMaterial
+                );
                 backgroundMaterial = newBackgroundMaterial;
             }
 
             // Meshes.
-            const plane = MeshBuilder.CreatePlane("Nametag", {
-                width: tagWidth,
-                height: tagHeight,
-                sideOrientation: Mesh.DOUBLESIDE,
-                updatable: true
-            }, scene);
+            const plane = MeshBuilder.CreatePlane(
+                "Nametag",
+                {
+                    width: tagWidth,
+                    height: tagHeight,
+                    sideOrientation: Mesh.DOUBLESIDE,
+                    updatable: true,
+                },
+                scene
+            );
             plane.material = foregroundMaterial;
 
             // Rounded corners.
@@ -232,7 +285,7 @@ export class NametagEntity {
                 new Vector3(-tagWidth / 2, tagHeight / 2 - tagCornerRadius, 0),
                 new Vector3(tagWidth / 2, tagHeight / 2 - tagCornerRadius, 0),
                 new Vector3(tagWidth / 2, -tagHeight / 2 + tagCornerRadius, 0),
-                new Vector3(-tagWidth / 2, -tagHeight / 2 + tagCornerRadius, 0)
+                new Vector3(-tagWidth / 2, -tagHeight / 2 + tagCornerRadius, 0),
             ];
             const sector = createSector(
                 "NametagCorner",
@@ -259,14 +312,18 @@ export class NametagEntity {
                 width: tagCornerRadius,
                 height: tagHeight - tagCornerRadius * 2,
                 sideOrientation: Mesh.DOUBLESIDE,
-                updatable: true
+                updatable: true,
             };
             const edgePositions = [
                 new Vector3(-tagWidth / 2 - tagCornerRadius / 2, 0, 0),
-                new Vector3(tagWidth / 2 + tagCornerRadius / 2, 0, 0)
+                new Vector3(tagWidth / 2 + tagCornerRadius / 2, 0, 0),
             ];
-            edges.push(MeshBuilder.CreatePlane("NametagLeftEdge", edgeOptions, scene));
-            edges.push(MeshBuilder.CreatePlane("NametagRightEdge", edgeOptions, scene));
+            edges.push(
+                MeshBuilder.CreatePlane("NametagLeftEdge", edgeOptions, scene)
+            );
+            edges.push(
+                MeshBuilder.CreatePlane("NametagRightEdge", edgeOptions, scene)
+            );
             index = 0;
             for (const edgeMesh of edges) {
                 edgeMesh.material = backgroundMaterial;
@@ -275,24 +332,34 @@ export class NametagEntity {
             }
 
             // Arrow mesh.
-            const arrow = MeshBuilder.CreateDisc("NametagArrow", {
-                radius: nametagArrowSize,
-                tessellation: 3,
-                sideOrientation: Mesh.DOUBLESIDE,
-                updatable: true
-            }, scene);
+            const arrow = MeshBuilder.CreateDisc(
+                "NametagArrow",
+                {
+                    radius: nametagArrowSize,
+                    tessellation: 3,
+                    sideOrientation: Mesh.DOUBLESIDE,
+                    updatable: true,
+                },
+                scene
+            );
             arrow.material = backgroundMaterial;
-            arrow.position = new Vector3(0, -(tagHeight / 2 + nametagArrowSize / 4), 0);
+            arrow.position = new Vector3(
+                0,
+                -(tagHeight / 2 + nametagArrowSize / 4),
+                0
+            );
             arrow.rotation.z = -Math.PI / 2;
             arrow.scaling.x = 0.5;
 
             // Merge the nametag meshes.
-            const mergedMesh = Mesh.MergeMeshes([
-                plane,
-                ...corners,
-                ...edges,
-                arrow
-            ], true, true, undefined, false, true);
+            const mergedMesh = Mesh.MergeMeshes(
+                [plane, ...corners, ...edges, arrow],
+                true,
+                true,
+                undefined,
+                false,
+                true
+            );
 
             if (!mergedMesh) {
                 return undefined;
@@ -319,17 +386,25 @@ export class NametagEntity {
             h = height + positionOffset.y;
         } else {
             h = height() + positionOffset.y;
-            heightHysteresis = new Hysteresis(() => height() + positionOffset.y, 100, positionOffset.y);
+            heightHysteresis = new Hysteresis(
+                () => height() + positionOffset.y,
+                100,
+                positionOffset.y
+            );
         }
         mesh.position = new Vector3(positionOffset.x, h, positionOffset.z);
 
-        const scaleAdjustmentFactorX = object.scaling.x > 0 ? 1 / object.scaling.x : 1;
-        const scaleAdjustmentFactorY = object.scaling.y > 0 ? 1 / object.scaling.y : 1;
-        const scaleAdjustmentFactorZ = object.scaling.z > 0 ? 1 / object.scaling.z : 1;
+        const scaleAdjustmentFactorX =
+            object.scaling.x > 0 ? 1 / object.scaling.x : 1;
+        const scaleAdjustmentFactorY =
+            object.scaling.y > 0 ? 1 / object.scaling.y : 1;
+        const scaleAdjustmentFactorZ =
+            object.scaling.z > 0 ? 1 / object.scaling.z : 1;
         mesh.scaling.x = scaleAdjustmentFactorX;
         mesh.scaling.y = scaleAdjustmentFactorY;
         mesh.scaling.z = scaleAdjustmentFactorZ;
 
+        mesh.scaling.x *= -1;
         mesh.billboardMode = Mesh.BILLBOARDMODE_Y;
         mesh.parent = object;
         mesh.isPickable = false;
@@ -351,11 +426,21 @@ export class NametagEntity {
             if (avatar) {
                 const avatarPosition = avatar.getAbsolutePosition().clone();
                 const nametagPosition = mesh.getAbsolutePosition();
-                const distance = avatarPosition.subtract(nametagPosition).length();
+                const distance = avatarPosition
+                    .subtract(nametagPosition)
+                    .length();
                 // Clamp the opacity between 0 and 0.94.
                 // Max opacity of 0.94 reduces the chance that the nametag will be affected by bloom.
-                const opacity = Math.min(Math.max(popDistance + 1 - distance, 0), 0.94);
-                mesh.visibility = opacity * Number(userStore.avatar.showNametags && (popOverride?.(distance) ?? true));
+                const opacity = Math.min(
+                    Math.max(popDistance + 1 - distance, 0),
+                    0.94
+                );
+                mesh.visibility =
+                    opacity *
+                    Number(
+                        userStore.avatar.showNametags &&
+                        (popOverride?.(distance) ?? true)
+                    );
                 mesh.isVisible = true;
             }
         });
@@ -367,8 +452,10 @@ export class NametagEntity {
      * Remove a nametag entity from an object.
      * @param nametagMesh The nametag mesh to remove.
      */
-    public static remove(nametagMesh: Mesh | AbstractMesh | TransformNode | undefined | null): void {
-        if (!nametagMesh || !(/^Nametag/ui).test(nametagMesh.name)) {
+    public static remove(
+        nametagMesh: Mesh | AbstractMesh | TransformNode | undefined | null
+    ): void {
+        if (!nametagMesh || !(/^Nametag/iu).test(nametagMesh.name)) {
             return;
         }
         nametagMesh.dispose(false, true);
@@ -378,11 +465,17 @@ export class NametagEntity {
      * Remove all nametag entities from an object.
      * @param object The object to remove all nametags from.
      */
-    public static removeAll(object: Mesh | AbstractMesh | TransformNode | undefined | null): void {
+    public static removeAll(
+        object: Mesh | AbstractMesh | TransformNode | undefined | null
+    ): void {
         if (!object) {
             return;
         }
-        const nametagMeshes = object.getChildMeshes(false, (node) => (/^Nametag/ui).test(node.name));
-        nametagMeshes.forEach((nametagMesh) => nametagMesh.dispose(false, true));
+        const nametagMeshes = object.getChildMeshes(false, (node) =>
+            (/^Nametag/iu).test(node.name)
+        );
+        nametagMeshes.forEach((nametagMesh) =>
+            nametagMesh.dispose(false, true)
+        );
     }
 }
