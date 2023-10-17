@@ -67,7 +67,7 @@ export class Domain {
     private _messageClient: Nullable<DomainMessageClient>;
     private _avatarClient: Nullable<DomainAvatarClient>;
     private _entityClient: Nullable<EntityServer>;
-    private _camera:Nullable<Camera>;
+    private _camera: Nullable<Camera>;
     private _location = new Location("");
 
     public onStateChange: SignalEmitter;
