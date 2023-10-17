@@ -142,6 +142,7 @@ export class LODManager {
     ): void {
         if (modeAsString !== undefined) {
             const mode = StringsAsBillboardModes[modeAsString];
+            mesh.scaling.x *= -1;
             mesh.billboardMode = mode;
             Log.debug(
                 Log.types.ENTITIES,
@@ -251,8 +252,7 @@ export class LODManager {
             } else {
                 Log.debug(
                     Log.types.ENTITIES,
-                    `Root mesh ${mesh.name} not added.\nMesh type ${
-                        mesh.constructor.name
+                    `Root mesh ${mesh.name} not added.\nMesh type ${mesh.constructor.name
                     }.\nLOD level ${parse?.lodLevel ?? "Unknown"}.`
                 );
                 continue;
@@ -313,7 +313,7 @@ export class LODManager {
                         case LODModes.DISTANCE: {
                             let distanceTarget =
                                 DistanceTargets[
-                                    level as keyof typeof DistanceTargets
+                                level as keyof typeof DistanceTargets
                                 ];
 
                             if (metadata.vircadia_lod_distance) {
