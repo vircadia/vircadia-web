@@ -21,7 +21,7 @@
         "@babylonjs/inspector": "^6.24.0",
         "@babylonjs/loaders": "^6.24.0",
         "@quasar/extras": "^1.0.0",
-        "@vircadia/web-sdk": "^2023.1.1",
+        "@vircadia/web-sdk": "^2023.1.2",
         "@vueuse/core": "^10.1.2",
         "ammojs-typed": "^1.0.6",
         "dompurify": "^3.0.3",
