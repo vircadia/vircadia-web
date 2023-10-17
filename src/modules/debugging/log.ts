@@ -10,7 +10,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
-type UnknownError = { error?: string; message?: string; };
+type UnknownError = { error?: string; message?: string };
 
 enum LogType {
     ACCOUNT = "[ACCOUNT]",
@@ -23,14 +23,14 @@ enum LogType {
     OTHER = "[OTHER]",
     PEOPLE = "[PEOPLE]",
     PLACES = "[PLACES]",
-    UI = "[UI]"
+    UI = "[UI]",
 }
 
 enum LogLevel {
     ERROR = "[ERROR]",
     DEBUG = "[DEBUG]",
     WARN = "[WARN]",
-    INFO = "[INFO]"
+    INFO = "[INFO]",
 }
 
 /**
@@ -86,10 +86,25 @@ export default class Log {
      * @param level
      * @param message
      */
-    public static print(type: LogType, level: LogLevel, message: string, ...optionalMessages: string[]): void {
-        console.info(type, level, message, ...optionalMessages);
+    public static print(
+        type: LogType,
+        level: LogLevel,
+        message: string,
+        ...optionalMessages: string[]
+    ): void {
+        if (level === LogLevel.ERROR) {
+            console.error(type, level, message, ...optionalMessages);
+        } else if (level === LogLevel.WARN) {
+            console.warn(type, level, message, ...optionalMessages);
+        } else if (level === LogLevel.DEBUG) {
+            console.info(type, level, message, ...optionalMessages);
+        } else {
+            console.log(type, level, message, ...optionalMessages);
+        }
         const time = new Date().toISOString();
-        this._logHistory.push([time, type, level, message, ...optionalMessages].join(" "));
+        this._logHistory.push(
+            [time, type, level, message, ...optionalMessages].join(" ")
+        );
     }
 
     /**
@@ -98,7 +113,11 @@ export default class Log {
      * @param type
      * @param message
      */
-    public static debug(type: LogType, message: string, ...optionalMessages: string[]): void {
+    public static debug(
+        type: LogType,
+        message: string,
+        ...optionalMessages: string[]
+    ): void {
         if (this._logLevel === LogLevel.DEBUG) {
             this.print(type, LogLevel.DEBUG, message, ...optionalMessages);
         }
@@ -109,7 +128,11 @@ export default class Log {
      * @param type
      * @param message
      */
-    public static error(type: LogType, message: string, ...optionalMessages: string[]): void {
+    public static error(
+        type: LogType,
+        message: string,
+        ...optionalMessages: string[]
+    ): void {
         this.print(type, LogLevel.ERROR, message, ...optionalMessages);
     }
 
@@ -119,7 +142,11 @@ export default class Log {
      * @param type
      * @param message
      */
-    public static warn(type: LogType, message: string, ...optionalMessages: string[]): void {
+    public static warn(
+        type: LogType,
+        message: string,
+        ...optionalMessages: string[]
+    ): void {
         if (this._logLevel in [LogLevel.WARN, LogLevel.DEBUG, LogLevel.ERROR]) {
             this.print(type, LogLevel.WARN, message, ...optionalMessages);
         }
@@ -130,7 +157,11 @@ export default class Log {
      * @param type
      * @param message
      */
-    public static info(type: LogType, message: string, ...optionalMessages: string[]): void {
+    public static info(
+        type: LogType,
+        message: string,
+        ...optionalMessages: string[]
+    ): void {
         this.print(type, LogLevel.INFO, message, ...optionalMessages);
     }
 
@@ -140,16 +171,35 @@ export default class Log {
      */
     public static setLogLevel(level: LogLevel | string): void {
         switch (level.toLowerCase()) {
-            case "none": this._logLevel = LogLevel.INFO; break;
-            case "info": this._logLevel = LogLevel.INFO; break;
-            case "[info]": this._logLevel = LogLevel.INFO; break;
-            case "warn": this._logLevel = LogLevel.WARN; break;
-            case "[warn]": this._logLevel = LogLevel.WARN; break;
-            case "debug": this._logLevel = LogLevel.DEBUG; break;
-            case "[debug]": this._logLevel = LogLevel.DEBUG; break;
-            case "error": this._logLevel = LogLevel.DEBUG; break;
-            case "[error]": this._logLevel = LogLevel.DEBUG; break;
-            default: this._logLevel = LogLevel.DEBUG;
+            case "none":
+                this._logLevel = LogLevel.INFO;
+                break;
+            case "info":
+                this._logLevel = LogLevel.INFO;
+                break;
+            case "[info]":
+                this._logLevel = LogLevel.INFO;
+                break;
+            case "warn":
+                this._logLevel = LogLevel.WARN;
+                break;
+            case "[warn]":
+                this._logLevel = LogLevel.WARN;
+                break;
+            case "debug":
+                this._logLevel = LogLevel.DEBUG;
+                break;
+            case "[debug]":
+                this._logLevel = LogLevel.DEBUG;
+                break;
+            case "error":
+                this._logLevel = LogLevel.DEBUG;
+                break;
+            case "[error]":
+                this._logLevel = LogLevel.DEBUG;
+                break;
+            default:
+                this._logLevel = LogLevel.DEBUG;
         }
         this.info(LogType.OTHER, `Logging level set to ${this._logLevel}`);
     }

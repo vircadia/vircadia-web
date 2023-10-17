@@ -9,8 +9,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable new-cap */
-/* eslint-disable class-methods-use-this */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 
 import { Vector3, Ray } from "@babylonjs/core";
@@ -37,7 +35,7 @@ export class SceneController extends ScriptComponent {
     public applyGravity(): void {
         const physicsEngine = this._scene.getPhysicsEngine();
         if (physicsEngine) {
-            Log.info(Log.types.OTHER, `Apply gravity: ${DEFAULT_GRAVITY}`);
+            Log.debug(Log.types.OTHER, `Apply gravity: ${DEFAULT_GRAVITY}`);
             physicsEngine.setGravity(new Vector3(0, -DEFAULT_GRAVITY, 0));
             const avatar = this._vscene.getMyAvatar();
             // TODO: Update to the V2 (Havok) physics engine, which provides improved methods for updating physics properties.
@@ -50,7 +48,7 @@ export class SceneController extends ScriptComponent {
     public removeGravity(): void {
         const physicsEngine = this._scene.getPhysicsEngine();
         if (physicsEngine) {
-            Log.info(Log.types.OTHER, "Remove gravity");
+            Log.debug(Log.types.OTHER, "Remove gravity");
             physicsEngine.setGravity(new Vector3(0, 0, 0));
             const avatar = this._vscene.getMyAvatar();
             // TODO: Update to the V2 (Havok) physics engine, which provides improved methods for updating physics properties.
@@ -69,11 +67,14 @@ export class SceneController extends ScriptComponent {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    public onInitialize(): void {
-    }
+    public onInitialize(): void {}
 
     public onUpdate(): void {
-        if (this._scene.isReady() && !this.isGravityApplied && this._detectGround()) {
+        if (
+            this._scene.isReady() &&
+            !this.isGravityApplied &&
+            this._detectGround()
+        ) {
             this.applyGravity();
         }
     }
@@ -92,11 +93,22 @@ export class SceneController extends ScriptComponent {
         if (avatar) {
             // Position the raycast from the bottom center of the mesh.
             const raycastPosition = avatar.position.clone();
-            const ray = new Ray(raycastPosition, Vector3.Down(), GROUND_DETECTION_LENGTH);
-            const pick = this._scene.pickWithRay(ray, (mesh) => mesh.isPickable);
+            const ray = new Ray(
+                raycastPosition,
+                Vector3.Down(),
+                GROUND_DETECTION_LENGTH
+            );
+            const pick = this._scene.pickWithRay(
+                ray,
+                (mesh) => mesh.isPickable
+            );
 
-            if (pick && pick.hit && pick.pickedPoint && pick.pickedMesh) { // Grounded.
-                Log.info(Log.types.OTHER, `Ground detected. Ground: ${pick.pickedMesh.name}.`);
+            if (pick && pick.hit && pick.pickedPoint && pick.pickedMesh) {
+                // Grounded.
+                Log.info(
+                    Log.types.OTHER,
+                    `Ground detected. Ground: ${pick.pickedMesh.name}.`
+                );
                 return true;
             }
         }

@@ -10,7 +10,7 @@
 //
 
 // This is disabled because TS complains about BABYLON's use of capitalized function names.
-/* eslint-disable new-cap */
+
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
 import {
@@ -109,9 +109,11 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
             }, false);
             // Prevent keys from getting stuck when the window loses focus.
             Tools.RegisterTopRootEvents(window, [
-                { name: "blur", handler: () => {
-                    this._onLostFocus();
-                } }
+                {
+                    name: "blur", handler: () => {
+                        this._onLostFocus();
+                    }
+                }
             ]);
         }
     }
@@ -134,9 +136,11 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
             });
             this._onKeyUp = undefined;
             Tools.UnregisterTopRootEvents(window, [
-                { name: "blur", handler: () => {
-                    this._onLostFocus();
-                } }
+                {
+                    name: "blur", handler: () => {
+                        this._onLostFocus();
+                    }
+                }
             ]);
             this._keysPressed = [];
         }

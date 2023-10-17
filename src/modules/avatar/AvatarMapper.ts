@@ -9,7 +9,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable new-cap */
+
 
 import { Quaternion, TransformNode, Vector3 } from "@babylonjs/core";
 import { SkeletonJoint, vec3, quat } from "@vircadia/web-sdk";

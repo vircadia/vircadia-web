@@ -9,7 +9,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable new-cap */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
 import Log from "@Modules/debugging/log";
@@ -20,15 +19,13 @@ import { Utility } from "@Modules/utility";
 import { GameObject } from "@Modules/object";
 import { InputController } from "@Modules/avatar";
 
-
 type ScriptParameters = {
-    destination?: string | undefined
+    destination?: string | undefined;
 };
-
 
 export class TeleportController extends EntityScriptComponent {
     @inspector()
-        _destination = "";
+    _destination = "";
 
     private _vscene: VScene;
 
@@ -39,9 +36,9 @@ export class TeleportController extends EntityScriptComponent {
     }
 
     /**
-    * Gets a string identifying the type of this Component
-    * @returns "EntityController" string
-    */
+     * Gets a string identifying the type of this Component
+     * @returns "EntityController" string
+     */
     // eslint-disable-next-line class-methods-use-this
     public get componentType(): string {
         return TeleportController.typeName;
@@ -59,7 +56,10 @@ export class TeleportController extends EntityScriptComponent {
             if (param.destination) {
                 this._destination = param.destination;
             } else {
-                Log.error(Log.types.ENTITIES, "No Teleport destination of TeleportController");
+                Log.error(
+                    Log.types.ENTITIES,
+                    "No Teleport destination of TeleportController"
+                );
             }
         }
 

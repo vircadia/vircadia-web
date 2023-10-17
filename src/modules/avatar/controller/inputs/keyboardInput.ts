@@ -10,7 +10,7 @@
 //
 
 // This is disabled because TS complains about BABYLON's use of capitalized function names.
-/* eslint-disable new-cap */
+
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
 import { IInputHandler } from "./inputHandler";

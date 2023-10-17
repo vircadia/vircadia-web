@@ -10,10 +10,12 @@
 //
 
 // This is disabled because TS complains about BABYLON's use of capitalized function names.
-/* eslint-disable new-cap */
 
-import { AnimationGroup, Scene, SceneLoader, AssetsManager,
-    AbstractMesh, Vector3, Quaternion, MeshBuilder, StandardMaterial, Color3, Skeleton } from "@babylonjs/core";
+
+import {
+    AnimationGroup, Scene, SceneLoader, AssetsManager,
+    AbstractMesh, Vector3, Quaternion, MeshBuilder, StandardMaterial, Color3, Skeleton
+} from "@babylonjs/core";
 import { DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { updateContentLoadingProgress } from "@Modules/scene/LoadingScreen";
 import { Uuid } from "@vircadia/web-sdk";
