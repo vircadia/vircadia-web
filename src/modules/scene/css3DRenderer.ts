@@ -9,7 +9,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable new-cap */
+
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Matrix, Camera, Vector3, Quaternion, AbstractMesh, Scene, Observable } from "@babylonjs/core";
 import { Renderer } from "./renderer";

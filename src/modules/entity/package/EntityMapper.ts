@@ -9,7 +9,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable new-cap */
+
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
 import {
@@ -18,14 +18,18 @@ import {
     Vector3
 } from "@babylonjs/core";
 
-import { IVector3Property, IQuaternionProperty, IColorProperty,
+import {
+    IVector3Property, IQuaternionProperty, IColorProperty,
     ShapeType, IAmbientLightProperty, IHazeProperty, IBloomProperty,
-    ComponentMode, MaterialMappingMode, BillboardMode } from "../EntityProperties";
+    ComponentMode, MaterialMappingMode, BillboardMode
+} from "../EntityProperties";
 import { IEntity } from "../EntityInterfaces";
 
-import { ShapeType as PackageShapeType,
+import {
+    ShapeType as PackageShapeType,
     ComponentMode as PackageComponentMode,
-    MaterialMappingMode as PackageMaterialMappingMode } from "./DomainProperties";
+    MaterialMappingMode as PackageMaterialMappingMode
+} from "./DomainProperties";
 import { HazeProperties, BloomProperties, AmbientLightProperties } from "@vircadia/web-sdk";
 
 

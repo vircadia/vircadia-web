@@ -10,7 +10,7 @@
 //
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-/* eslint-disable new-cap */
+
 
 import { watch } from "vue";
 import { EntityController } from "./EntityController";
