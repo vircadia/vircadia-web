@@ -193,7 +193,7 @@ export class WebEntityController extends EntityController {
     } */
 
     // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-empty-function
-    protected _updateWebProperties(): void {}
+    protected _updateWebProperties(): void { }
 
     protected _updateUserData(): void {
         this._webExtensions = this._webEntity.userData
