@@ -124,15 +124,34 @@ export class LODManager {
     }
 
     private static getMetadataFromMesh(mesh: AbstractMesh | Mesh | InstancedMesh) {
-        const metadata: Nullable<MeshMetadata> = mesh.metadata?.gltf?.extras;
+        const meshExtras = mesh.metadata?.gltf?.extras;
+        const parentExtras = mesh.parent?.metadata?.gltf?.extras;
+
         const meshMetadata: MeshMetadata = {
-            vircadia_lod_mode: metadata?.vircadia_lod_mode,
-            vircadia_lod_auto: metadata?.vircadia_lod_auto,
-            vircadia_lod_distance: metadata?.vircadia_lod_distance,
-            vircadia_lod_size: metadata?.vircadia_lod_size,
-            vircadia_lod_hide: metadata?.vircadia_lod_hide,
-            vircadia_billboard_mode: metadata?.vircadia_billboard_mode,
+            vircadia_lod_mode: undefined,
+            vircadia_lod_auto: undefined,
+            vircadia_lod_distance: undefined,
+            vircadia_lod_size: undefined,
+            vircadia_lod_hide: undefined,
+            vircadia_billboard_mode: undefined
         };
+
+        if (meshExtras === null || meshExtras === undefined && parentExtras !== null || parentExtras !== undefined) {
+            meshMetadata.vircadia_lod_mode = parentExtras?.vircadia_lod_mode;
+            meshMetadata.vircadia_lod_auto = parentExtras?.vircadia_lod_auto;
+            meshMetadata.vircadia_lod_distance = parentExtras?.vircadia_lod_distance;
+            meshMetadata.vircadia_lod_size = parentExtras?.vircadia_lod_size;
+            meshMetadata.vircadia_lod_hide = parentExtras?.vircadia_lod_hide;
+            meshMetadata.vircadia_billboard_mode = parentExtras?.vircadia_billboard_mode;
+        } else {
+            meshMetadata.vircadia_lod_mode = meshExtras?.vircadia_lod_mode;
+            meshMetadata.vircadia_lod_auto = meshExtras?.vircadia_lod_auto;
+            meshMetadata.vircadia_lod_distance = meshExtras?.vircadia_lod_distance;
+            meshMetadata.vircadia_lod_size = meshExtras?.vircadia_lod_size;
+            meshMetadata.vircadia_lod_hide = meshExtras?.vircadia_lod_hide;
+            meshMetadata.vircadia_billboard_mode = meshExtras?.vircadia_billboard_mode;
+        }
+
         return meshMetadata;
     }
 
