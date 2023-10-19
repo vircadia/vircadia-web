@@ -106,6 +106,7 @@ export class DomainController extends ScriptComponent {
             void this._handleDomainConnected(domain);
 
         } else if (state === ConnectionState.DISCONNECTED) {
+            console.warn("$$$ Domain disconnected. Unloading scene.");
             this._vscene?.unloadAllAvatars();
 
             const myAvatarController = this._vscene?._myAvatar?.getComponent(MyAvatarController.typeName);
@@ -118,6 +119,8 @@ export class DomainController extends ScriptComponent {
                 avatarList.avatarAdded.disconnect(this._handleAvatarAdded);
                 avatarList.avatarRemoved.disconnect(this._handleAvatarRemoved);
             }
+
+            this._entityManager?.clear();
 
             this._avatarMixer = null;
             this._entityServer = null;
@@ -206,7 +209,7 @@ export class DomainController extends ScriptComponent {
 
     };
 
-    private _handleAvatarSkeletonModelURLChanged(sessionID: Uuid, domain:ScriptAvatar): void {
+    private _handleAvatarSkeletonModelURLChanged(sessionID: Uuid, domain: ScriptAvatar): void {
         Log.debug(Log.types.AVATAR,
             `handleAvatarSkeletonModelURLChanged. Session ID: ${sessionID.stringify()}, ${domain.skeletonModelURL}`);
 

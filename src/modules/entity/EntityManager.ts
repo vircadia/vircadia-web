@@ -16,7 +16,7 @@ import { EntityType as PackageEntityType } from "./package/DomainProperties";
 import { Entity, ShapeEntity, ModelEntity, LightEntity, ZoneEntity, ImageEntity, MaterialEntity, WebEntity } from "./entities";
 import Log from "@Modules/debugging/log";
 
-type EntityFactory = (id:string) => Entity;
+type EntityFactory = (id: string) => Entity;
 
 export class EntityManager {
     _entityServer: EntityServer;
@@ -74,7 +74,11 @@ export class EntityManager {
     }
 
     public clear(): void {
-        this.clear();
+        console.info(Log.types.ENTITIES, "$$$ Clear all entities.");
+        this._entities.forEach((entity) => {
+            this.removeEntity(entity.id);
+        });
+        console.info(Log.types.ENTITIES, "$$$ Clear all entities done.");
     }
 
     public createEntity(props: EntityProperties): IEntity | undefined {

@@ -22,7 +22,7 @@ export class Renderer {
     private static _engine = <Engine><unknown>undefined;
     private static _renderingScenes = <VScene[]><unknown>undefined;
     private static _webgpuSupported = false;
-    private static _intervalId = <Nullable<NodeJS.Timeout>> null;
+    private static _intervalId = <Nullable<NodeJS.Timeout>>null;
 
     /**
      * Initialize the rendering engine.
@@ -140,6 +140,9 @@ export class Renderer {
      * Render one frame from all scenes in the render queue.
      */
     private static _render(): void {
+        if (this._renderingScenes.length > 1) {
+            console.warn("$$$ Multiple scenes are not supported yet.");
+        }
         this._renderingScenes.forEach((vscene) => {
             vscene.render();
         });
@@ -154,5 +157,6 @@ export class Renderer {
         });
         this._renderingScenes = [];
         this._engine.stopRenderLoop();
+        console.log("$$$ Renderer disposed.");
     }
 }

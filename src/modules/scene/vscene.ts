@@ -179,7 +179,7 @@ export class VScene {
         if (sceneUrl !== "" && this._currentSceneURL === sceneUrl) {
             return;
         }
-
+        console.info("$$$ reloading");
         this._currentSceneURL = sceneUrl ?? "";
 
         this.showLoadingUI();
@@ -226,8 +226,10 @@ export class VScene {
     }
 
     public dispose(): void {
+        console.info("$$$ disposing");
         this._scene.dispose();
         this._css3DRenderer?.removeAllCSS3DObjects();
+        console.info("$$$ disposed");
     }
 
     public resetMyAvatarPositionAndOrientation(): void {
@@ -244,8 +246,8 @@ export class VScene {
         const q =
             location.orientation.length > 0
                 ? AvatarMapper.mapToLocalOrientation(
-                      DataMapper.stringToQuaternion(location.orientation)
-                  )
+                    DataMapper.stringToQuaternion(location.orientation)
+                )
                 : undefined;
 
         this._teleportMyAvatar(
@@ -310,6 +312,7 @@ export class VScene {
         const mesh = this._scene.getMeshById(id);
         if (mesh) {
             this._scene.removeMesh(mesh, true);
+            console.info(Log.types.ENTITIES, `$$$ SCENE Remove entity: ${id}`);
         }
     }
 
@@ -436,12 +439,12 @@ export class VScene {
                 (boundingVectors.max.x -
                     boundingVectors.min.x +
                     (boundingVectors.max.z - boundingVectors.min.z)) /
-                    4 || defaultColliderProperties.radius,
+                4 || defaultColliderProperties.radius,
                 avatarHeight || defaultColliderProperties.height,
                 new Vector3(
                     defaultColliderProperties.offset.x,
                     (avatarHeight || defaultColliderProperties.height) / 2 +
-                        defaultColliderProperties.offset.y,
+                    defaultColliderProperties.offset.y,
                     defaultColliderProperties.offset.z
                 )
             );
@@ -492,8 +495,8 @@ export class VScene {
                 (value: boolean) => {
                     nametagColor = value
                         ? Color3.FromHexString(
-                              applicationStore.theme.colors.primary
-                          )
+                            applicationStore.theme.colors.primary
+                        )
                         : undefined;
                     NametagEntity.removeAll(this._myAvatar);
                     if (this._myAvatar) {
@@ -611,8 +614,8 @@ export class VScene {
                 (value: boolean) => {
                     nametagColor = value
                         ? Color3.FromHexString(
-                              applicationStore.theme.colors.primary
-                          )
+                            applicationStore.theme.colors.primary
+                        )
                         : undefined;
                     const nametagAvatar = this._avatarList.get(stringId);
                     NametagEntity.removeAll(nametagAvatar);
@@ -664,7 +667,9 @@ export class VScene {
     private async _createScene(): Promise<void> {
         if (!this._scene) {
             this._scene = new Scene(this._engine);
+            console.info("$$$ NULL create scene");
         }
+        console.info("$$$ THINKS IT FOUND create scene");
         // use right handed system to match vircadia coordinate system
         this._scene.useRightHandedSystem = true;
         this._resourceManager = new ResourceManager(this._scene);
