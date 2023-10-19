@@ -179,7 +179,6 @@ export class VScene {
         if (sceneUrl !== "" && this._currentSceneURL === sceneUrl) {
             return;
         }
-        console.info("$$$ reloading");
         this._currentSceneURL = sceneUrl ?? "";
 
         this.showLoadingUI();
@@ -226,10 +225,8 @@ export class VScene {
     }
 
     public dispose(): void {
-        console.info("$$$ disposing");
         this._scene.dispose();
         this._css3DRenderer?.removeAllCSS3DObjects();
-        console.info("$$$ disposed");
     }
 
     public resetMyAvatarPositionAndOrientation(): void {
@@ -312,7 +309,6 @@ export class VScene {
         const mesh = this._scene.getMeshById(id);
         if (mesh) {
             this._scene.removeMesh(mesh, true);
-            console.info(Log.types.ENTITIES, `$$$ SCENE Remove entity: ${id}`);
         }
     }
 
@@ -667,9 +663,7 @@ export class VScene {
     private async _createScene(): Promise<void> {
         if (!this._scene) {
             this._scene = new Scene(this._engine);
-            console.info("$$$ NULL create scene");
         }
-        console.info("$$$ THINKS IT FOUND create scene");
         // use right handed system to match vircadia coordinate system
         this._scene.useRightHandedSystem = true;
         this._resourceManager = new ResourceManager(this._scene);
