@@ -576,7 +576,6 @@ export default defineComponent({
          * The state of the connection to the Domain server.
          */
         domainServerState(): string {
-            console.info("$$$ MAINLAYOUT domainServerState: ", this.applicationStore.domain.connectionState);
             return this.applicationStore.domain.connectionState ?? "DISCONNECTED";
         },
         /**

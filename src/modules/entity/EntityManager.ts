@@ -74,11 +74,10 @@ export class EntityManager {
     }
 
     public clear(): void {
-        console.info(Log.types.ENTITIES, "$$$ Clear all entities.");
+        Log.info(Log.types.ENTITIES, "Clearing all entities.");
         this._entities.forEach((entity) => {
             this.removeEntity(entity.id);
         });
-        console.info(Log.types.ENTITIES, "$$$ Clear all entities done.");
     }
 
     public createEntity(props: EntityProperties): IEntity | undefined {
@@ -126,7 +125,7 @@ export class EntityManager {
 
     private _handleOnEntityData(data: EntityProperties[]): void {
         if (data.length > 0) {
-            console.log(Log.types.ENTITIES,
+            Log.info(Log.types.ENTITIES,
                 `Receive entity data:`, data);
 
             this._entityPropertiesArray = this._entityPropertiesArray.concat(data);

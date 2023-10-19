@@ -220,7 +220,6 @@ export default defineComponent({
          * Connect to the Domain server.
          */
         async connect(): Promise<void> {
-            console.log("$$$ Connecting to domain...");
             let location: string | undefined = Array.isArray(this.$route.params.location)
                 ? this.$route.params.location.join("/")
                 : this.$route.params.location;

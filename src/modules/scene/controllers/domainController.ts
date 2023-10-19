@@ -106,7 +106,6 @@ export class DomainController extends ScriptComponent {
             void this._handleDomainConnected(domain);
 
         } else if (state === ConnectionState.DISCONNECTED) {
-            console.warn("$$$ Domain disconnected. Unloading scene.");
             this._vscene?.unloadAllAvatars();
 
             const myAvatarController = this._vscene?._myAvatar?.getComponent(MyAvatarController.typeName);

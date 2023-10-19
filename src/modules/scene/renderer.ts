@@ -140,9 +140,6 @@ export class Renderer {
      * Render one frame from all scenes in the render queue.
      */
     private static _render(): void {
-        if (this._renderingScenes.length > 1) {
-            console.warn("$$$ Multiple scenes are not supported yet.");
-        }
         this._renderingScenes.forEach((vscene) => {
             vscene.render();
         });
@@ -157,6 +154,5 @@ export class Renderer {
         });
         this._renderingScenes = [];
         this._engine.stopRenderLoop();
-        console.log("$$$ Renderer disposed.");
     }
 }
