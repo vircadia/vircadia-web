@@ -136,6 +136,7 @@ export class Domain {
 
         Log.debug(Log.types.NETWORK, `Creating a new DomainServer.`);
         this._domain = new DomainServer();
+        this._domain.metaverseServerURL = this.getMetaverseUrl();
         this._domain.account.authRequired.connect(() => {
             console.debug("AUTH REQUIRED: Open login dialog");
             applicationStore.dialog.show = true;
