@@ -179,7 +179,6 @@ export class VScene {
         if (sceneUrl !== "" && this._currentSceneURL === sceneUrl) {
             return;
         }
-
         this._currentSceneURL = sceneUrl ?? "";
 
         this.showLoadingUI();
@@ -244,8 +243,8 @@ export class VScene {
         const q =
             location.orientation.length > 0
                 ? AvatarMapper.mapToLocalOrientation(
-                      DataMapper.stringToQuaternion(location.orientation)
-                  )
+                    DataMapper.stringToQuaternion(location.orientation)
+                )
                 : undefined;
 
         this._teleportMyAvatar(
@@ -436,12 +435,12 @@ export class VScene {
                 (boundingVectors.max.x -
                     boundingVectors.min.x +
                     (boundingVectors.max.z - boundingVectors.min.z)) /
-                    4 || defaultColliderProperties.radius,
+                4 || defaultColliderProperties.radius,
                 avatarHeight || defaultColliderProperties.height,
                 new Vector3(
                     defaultColliderProperties.offset.x,
                     (avatarHeight || defaultColliderProperties.height) / 2 +
-                        defaultColliderProperties.offset.y,
+                    defaultColliderProperties.offset.y,
                     defaultColliderProperties.offset.z
                 )
             );
@@ -492,8 +491,8 @@ export class VScene {
                 (value: boolean) => {
                     nametagColor = value
                         ? Color3.FromHexString(
-                              applicationStore.theme.colors.primary
-                          )
+                            applicationStore.theme.colors.primary
+                        )
                         : undefined;
                     NametagEntity.removeAll(this._myAvatar);
                     if (this._myAvatar) {
@@ -611,8 +610,8 @@ export class VScene {
                 (value: boolean) => {
                     nametagColor = value
                         ? Color3.FromHexString(
-                              applicationStore.theme.colors.primary
-                          )
+                            applicationStore.theme.colors.primary
+                        )
                         : undefined;
                     const nametagAvatar = this._avatarList.get(stringId);
                     NametagEntity.removeAll(nametagAvatar);

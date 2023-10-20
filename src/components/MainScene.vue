@@ -89,6 +89,14 @@ export default defineComponent({
         interactive: {
             type: Boolean,
             required: true
+        },
+        domainServerConnected: {
+            type: String,
+            required: true
+        },
+        metaverseServerConnected: {
+            type: String,
+            required: true
         }
     },
 
@@ -119,10 +127,52 @@ export default defineComponent({
 
     watch: {
         // call again the method if the route changes
-        "$route": "connect"
+        "$route": "connect",
+        // async domainServerConnected(newVal, oldVal) {
+        //     if (newVal !== oldVal) {
+        //         this.handleDomainServerConnectedChange(newVal);
+        //     }
+        // }
     },
 
     methods: {
+        // handleDomainServerConnectedChange(state: string) {
+        // },
+        async boot(): Promise<void> {
+            // Initialize the graphics display.
+            const canvas = (this.$refs as ComponentTemplateRefs).renderCanvas;
+            const loadingScreenComponent = (this.$refs as ComponentTemplateRefs).LoadingScreen;
+            const loadingScreenElement = loadingScreenComponent.$el as HTMLElement;
+            await Renderer.initialize(canvas, loadingScreenElement);
+            this.applicationStore.renderer.focusSceneId = 0;
+
+            DomainManager.startGameLoop();
+
+            // Initialize the audio for the scene.
+            await AudioManager.initialize((stream) => {
+                const element = (this.$refs as ComponentTemplateRefs).mainSceneAudioElement;
+                if (stream) {
+                    element.srcObject = stream;
+                    void element.play();
+                } else {
+                    element.pause();
+                    element.srcObject = null;
+                }
+            });
+
+            const scene = Renderer.createScene();
+            // Handle web entity events.
+            scene.onEntityEventObservable.add((entityEvent) => {
+                if (entityEvent.type === EntityEventType.JOIN_CONFERENCE_ROOM) {
+                    this.$emit("join-conference-room", entityEvent.data);
+                }
+            });
+            // NOTE: The scene must be loaded to register domain events before connecting to the Domain server.
+            await scene.load(undefined, AvatarStoreInterface.getActiveModelData("file"));
+            await this.connect();
+
+            Renderer.startRenderLoop([scene]);
+        },
         /**
          * Update the size of the scene canvas.
          * @param newSize
@@ -211,42 +261,7 @@ export default defineComponent({
 
     // Called after MainScene is loaded onto the page.
     mounted() {
-        const boot = async () => {
-            // Initialize the graphics display.
-            const canvas = (this.$refs as ComponentTemplateRefs).renderCanvas;
-            const loadingScreenComponent = (this.$refs as ComponentTemplateRefs).LoadingScreen;
-            const loadingScreenElement = loadingScreenComponent.$el as HTMLElement;
-            await Renderer.initialize(canvas, loadingScreenElement);
-            this.applicationStore.renderer.focusSceneId = 0;
-
-            DomainManager.startGameLoop();
-
-            // Initialize the audio for the scene.
-            await AudioManager.initialize((stream) => {
-                const element = (this.$refs as ComponentTemplateRefs).mainSceneAudioElement;
-                if (stream) {
-                    element.srcObject = stream;
-                    void element.play();
-                } else {
-                    element.pause();
-                    element.srcObject = null;
-                }
-            });
-
-            const scene = Renderer.createScene();
-            // Handle web entity events.
-            scene.onEntityEventObservable.add((entityEvent) => {
-                if (entityEvent.type === EntityEventType.JOIN_CONFERENCE_ROOM) {
-                    this.$emit("join-conference-room", entityEvent.data);
-                }
-            });
-            // NOTE: The scene must be loaded to register domain events before connecting to the Domain server.
-            await scene.load(undefined, AvatarStoreInterface.getActiveModelData("file"));
-            await this.connect();
-
-            Renderer.startRenderLoop([scene]);
-        };
-        void boot();
+        void this.boot();
     },
 
     beforeUnmount() {

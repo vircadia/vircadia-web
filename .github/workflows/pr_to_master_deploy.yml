@@ -26,6 +26,7 @@ jobs:
     - name: ⚒️ Build the project
       env:
         NODE_OPTIONS: "--max_old_space_size=4096"
+        VRCA_HOSTED_URL: "https://app.vircadia.com/staging/${{ github.head_ref }}/"
       run: npm run build
 
     - name: 📂 Sync files

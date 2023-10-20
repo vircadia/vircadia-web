@@ -417,6 +417,8 @@
         <q-page-container class="full-height">
             <MainScene
                 :interactive="!aMenuIsOpen"
+                :domain-server-connected="domainServerState"
+                :metaverse-server-connected="metaverseServerState"
                 @click.prevent="hideSettingsAndHelpMenus()"
                 @join-conference-room="joinConferenceRoom($event)"
             >
@@ -526,7 +528,7 @@ export default defineComponent({
             helpMenu: [
                 {
                     icon: "chat",
-                    label: "Discord",
+                    label: "Community Chat",
                     link: "https://discord.com/invite/Pvx2vke"
                 },
                 {
