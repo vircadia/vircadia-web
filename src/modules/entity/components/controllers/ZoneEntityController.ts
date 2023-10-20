@@ -233,6 +233,12 @@ export class ZoneEntityController extends EntityController {
 
             } else if (url.fileExtension === "env") {
                 this._scene.environmentTexture = new CubeTexture(userData.environment.environmentTexture, this._scene);
+            } else {
+                this._scene.environmentTexture = new CubeTexture(
+                    userData.environment.environmentTexture,
+                    this._scene,
+                    ["jpg", "jpeg", "png"]
+                );
             }
         }
     }
