@@ -124,8 +124,8 @@ export class LODManager {
     }
 
     private static getMetadataFromMesh(mesh: AbstractMesh | Mesh | InstancedMesh) {
-        const meshExtras = mesh.metadata?.gltf?.extras;
-        const parentExtras = mesh.parent?.metadata?.gltf?.extras;
+        const meshExtras = mesh.metadata?.gltf?.extras as MeshMetadata | undefined;
+        const parentExtras = mesh.parent?.metadata?.gltf?.extras as MeshMetadata | undefined;
 
         const meshMetadata: MeshMetadata = {
             vircadia_lod_mode: undefined,

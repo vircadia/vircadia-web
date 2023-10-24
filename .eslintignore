@@ -5,6 +5,7 @@ quasar.config.js
 /build_scripts
 /dist
 /node_modules
+/public/assets
 /src/*.d.ts
 /src-bex/www
 /src-capacitor

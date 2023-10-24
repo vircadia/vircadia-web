@@ -45,6 +45,7 @@ export interface JitsiRoomInfo {
 export const useApplicationStore = defineStore("application", {
     state: () => ({
         globalConsts: {
+            APP_DESKTOP_MODE: process.env.VRCA_DESKTOP_MODE,
             APP_NAME: process.env.VRCA_PRODUCT_NAME,
             APP_VERSION: packageInfo.version,
             APP_VERSION_TAG: versionInfo["version-tag"],
@@ -124,7 +125,7 @@ export const useApplicationStore = defineStore("application", {
             productDescription: process.env.VRCA_PRODUCT_DESCRIPTION,
             tagline: process.env.VRCA_TAGLINE,
             logo: process.env.VRCA_LOGO ?? "/icons/favicon.svg",
-            banner: process.env.VRCA_BANNER ?? "/assets/OpenGraph_banner.png",
+            banner: process.env.VRCA_BANNER ?? "/assets/images/branding/og_banner.png",
             bannerAlt: process.env.VRCA_BANNER_ALT,
             url: process.env.VRCA_HOSTED_URL,
             globalServiceTerm: process.env.VRCA_GLOBAL_SERVICE_TERM,

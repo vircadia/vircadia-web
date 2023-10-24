@@ -23,7 +23,7 @@
     background-color: #000;
     user-select: none;
 
-    &>.inner {
+    & > .inner {
         display: flex;
         flex-flow: column nowrap;
         justify-content: center;
@@ -35,8 +35,8 @@
 
     img {
         display: block;
-        width: 200px;
-        height: 200px;
+        width: 170px;
+        height: 170px;
         aspect-ratio: 1;
     }
 
@@ -97,8 +97,8 @@
 <template>
     <div id="loadingScreen" @click.stop="">
         <div class="inner">
-            <img :src="applicationStore.theme.logo" draggable="false" alt="" width="200" height="200">
-            <q-spinner-tail size="xl" />
+            <img :src="applicationStore.theme.logo" draggable="false" alt="" width="170" height="170">
+            <q-spinner-tail size="lg" />
         </div>
         <div v-if="applicationStore.theme.showLoadingScreenHints !== 'false'" class="hint" :class="{ showNext }">
             <div v-html="hint"></div>

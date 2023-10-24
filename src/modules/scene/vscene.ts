@@ -65,7 +65,7 @@ import { applicationStore, userStore } from "@Stores/index";
 import Log from "@Modules/debugging/log";
 
 // File containing all avatar animations.
-const AvatarAnimationUrl = "assets/AnimationsBasic.glb";
+const AvatarAnimationUrl = "/assets/animations/AnimationsBasic.glb";
 
 /**
  * VScene is the interface to a single scene's state, entities, and operations.
@@ -335,16 +335,13 @@ export class VScene {
 
     /**
      * Load an avatar model for the current player.
-     * @param modelURL The URL to load the model from.
+     * @param url The URL to load the model from.
      * @param reload Whether the model is required to be re-downloaded
      * (otherwise repeated attempts to load the same model will be ignored).
      * @returns A reference to the player's avatar.
      */
-    public async loadMyAvatar(
-        modelURL?: string,
-        reload?: boolean
-    ): Promise<Nullable<GameObject>> {
-        this._avatarLoadQueue.push(modelURL); // Queue load requests.
+    public async loadMyAvatar(url?: string, reload?: boolean): Promise<Nullable<GameObject>> {
+        this._avatarLoadQueue.push(url); // Queue load requests.
         if (!this._avatarIsLoading && this._resourceManager) {
             this._avatarIsLoading = true;
             const lastQueuedModelURL = this._avatarLoadQueue.pop(); // Only load the last model in the request queue.
