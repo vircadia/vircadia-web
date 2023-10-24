@@ -34,7 +34,7 @@ import { applicationStore, userStore } from "@Stores/index";
 import Log from "@Modules/debugging/log";
 
 // File containing all avatar animations.
-const AvatarAnimationUrl = "assets/AnimationsBasic.glb";
+const AvatarAnimationUrl = "/assets/animations/AnimationsBasic.glb";
 
 /**
  * VScene is the interface to a single scene's state, entities, and operations.
