@@ -1,6 +1,6 @@
 # Vircadia Desktop
 
-This is a desktop wrapper around the Vircadia Web interface, made using Tauri.
+This is a desktop wrapper around the Vircadia Web interface, made using [Tauri](https://tauri.app/).
 
 
 ## Recommended IDE Setup
