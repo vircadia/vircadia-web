@@ -99,6 +99,8 @@ npm run build
 
 The web client can also be compiled to a standalone desktop app. When doing so, the `VRCA_DESKTOP_MODE` environment variable must be set to either `dev` or `build`.
 
+After installing the base Node dependencies with `npm i`, you will also need to install [Tauri's Rust dependencies](https://tauri.app/v1/guides/getting-started/prerequisites).
+
 To run the desktop wrapper in development mode:
 ```sh
 npm run dev-desktop
