@@ -429,7 +429,7 @@ export class LabelEntity {
         if (!labelMesh || !(/^Label/iu).test(labelMesh.name)) {
             return;
         }
-        labelMesh.dispose(false, true);
+        labelMesh.dispose(false, false);
     }
 
     /**
@@ -441,6 +441,6 @@ export class LabelEntity {
             return;
         }
         const labelMeshes = object.getChildMeshes(false, (node) => (/^Label/iu).test(node.name));
-        labelMeshes.forEach((labelMesh) => labelMesh.dispose(false, true));
+        labelMeshes.forEach((labelMesh) => labelMesh.dispose(false, false));
     }
 }
