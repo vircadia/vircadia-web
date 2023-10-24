@@ -6,9 +6,9 @@
   "author": "DigiSomni LLC | Vircadia Contributors",
   "license": "Apache-2.0",
   "scripts": {
+    "postinstall": "cd desktop && npm i",
     "build": "npm run create-version && npm run copy-workers && npm run build-quasar",
     "dev": "npm run create-version && npm run copy-workers && npm run build-quasar-dev",
-    "install-desktop": "cd desktop && npm i",
     "build-desktop": "cd desktop && npm run build",
     "dev-desktop": "cd desktop && npm run dev",
     "build-quasar": "quasar build",
