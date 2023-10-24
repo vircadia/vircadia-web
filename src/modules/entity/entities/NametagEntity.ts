@@ -96,6 +96,7 @@ function createSector(
         {
             pathArray: [points, originPoints],
             offset: 0,
+            sideOrientation: Mesh.DOUBLESIDE
         },
         scene
     );
@@ -295,9 +296,9 @@ export class NametagEntity {
                 scene
             );
             corners.push(sector);
-            corners.push(sector.clone());
-            corners.push(sector.clone());
-            corners.push(sector.clone());
+            corners.push(sector.clone("NametagCorner"));
+            corners.push(sector.clone("NametagCorner"));
+            corners.push(sector.clone("NametagCorner"));
             let index = 0;
             for (const cornerMesh of corners) {
                 cornerMesh.material = backgroundMaterial;
