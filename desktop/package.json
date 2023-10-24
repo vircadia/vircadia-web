@@ -5,7 +5,7 @@
     "scripts": {
         "dev": "SET VRCA_DESKTOP_MODE=dev && tauri dev",
         "build": "SET VRCA_DESKTOP_MODE=build && tauri build",
-        "make-icon": "tauri icon ../public/assets/vircadia-icon-256.png",
+        "make-icon": "tauri icon ../public/assets/images/branding/vircadia-icon-256.png",
         "tauri": "tauri"
     },
     "dependencies": {

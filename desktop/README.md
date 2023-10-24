@@ -26,7 +26,7 @@ New app icons can be generated with:
 ```sh
 npm run make-icon
 ```
-The icons are generated from the Vircadia logo image: `../public/assets/vircadia-icon-256.png`
+The icons are generated from the Vircadia logo image: `../public/assets/images/branding/vircadia-icon-256.png`
 
 
 ## Building

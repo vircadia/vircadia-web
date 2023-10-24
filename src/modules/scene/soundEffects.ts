@@ -9,7 +9,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import SFXMessageNotification from "@Base/assets/audio/bubblepop.ogg";
+import SFXMessageNotification from "@Public/assets/audio/sound effects/bubblepop.ogg";
 
 const SFX = {
     SFXMessageNotification

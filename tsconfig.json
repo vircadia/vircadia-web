@@ -9,6 +9,7 @@
             "@Base/*": ["./src/*"],
             "@Components/*": ["./src/components/*"],
             "@Modules/*": ["./src/modules/*"],
+            "@Public/*": ["./public/*"],
             "@Stores/*": ["./src/stores/*"]
         }
     }
