@@ -18,7 +18,7 @@ import {
     Node,
 } from "@babylonjs/core";
 import { IModelEntity } from "../../EntityInterfaces";
-import { NametagEntity } from "@Modules/entity/entities";
+import { LabelEntity } from "@Modules/entity/entities";
 import { updateContentLoadingProgress } from "@Modules/scene/LoadingScreen";
 import { applicationStore } from "@Stores/index";
 import Log from "@Modules/debugging/log";
@@ -74,10 +74,10 @@ export class ModelComponent extends MeshComponent {
                 this.mesh = meshes[0];
                 this.renderGroupId = DEFAULT_MESH_RENDER_GROUP_ID;
 
-                // Add a nametag to any of the model's children if they match any of the InteractiveModelTypes.
-                const defaultNametagHeight = 0.6;
-                const nametagOffset = 0.25;
-                const nametagPopDistance =
+                // Add a label to any of the model's children if they match any of the InteractiveModelTypes.
+                const defaultLabelHeight = 0.6;
+                const labelOffset = 0.25;
+                const labelPopDistance =
                     applicationStore.interactions.interactionDistance;
                 const childNodes = this.mesh.getChildren(
                     (node) => "getBoundingInfo" in node,
@@ -96,13 +96,13 @@ export class ModelComponent extends MeshComponent {
                     const boundingInfo = childNode.getBoundingInfo();
                     const height =
                         boundingInfo.maximum.y - boundingInfo.minimum.y;
-                    NametagEntity.create(
+                    LabelEntity.create(
                         childNode,
-                        height + nametagOffset,
+                        height + labelOffset,
                         genericModelType.name,
                         true,
                         undefined,
-                        nametagPopDistance,
+                        labelPopDistance,
                         () => !applicationStore.interactions.isInteracting
                     );
                 });
@@ -113,29 +113,29 @@ export class ModelComponent extends MeshComponent {
                     if (!genericModelType) {
                         return;
                     }
-                    NametagEntity.create(
+                    LabelEntity.create(
                         childNode,
-                        defaultNametagHeight,
+                        defaultLabelHeight,
                         genericModelType.name,
                         true,
                         undefined,
-                        nametagPopDistance,
+                        labelPopDistance,
                         () => !applicationStore.interactions.isInteracting
                     );
                 });
 
-                // Add a nametag to the model itself if it matches any of the InteractiveModelTypes.
+                // Add a label to the model itself if it matches any of the InteractiveModelTypes.
                 const genericModelType = InteractiveModelTypes.find((type) =>
                     type.condition.test(this.mesh?.name ?? "")
                 );
                 if (genericModelType) {
-                    NametagEntity.create(
+                    LabelEntity.create(
                         this.mesh,
-                        defaultNametagHeight,
+                        defaultLabelHeight,
                         genericModelType.name,
                         true,
                         undefined,
-                        nametagPopDistance,
+                        labelPopDistance,
                         () => !applicationStore.interactions.isInteracting
                     );
                 }

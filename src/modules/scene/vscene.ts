@@ -56,7 +56,7 @@ import {
     EntityBuilder,
     EntityEvent,
 } from "@Modules/entity";
-import { NametagEntity } from "@Modules/entity/entities";
+import { LabelEntity } from "@Modules/entity/entities";
 import { DomainManager } from "@Modules/domain";
 import { Location } from "@Modules/domain/location";
 import { DataMapper } from "@Modules/domain/dataMapper";
@@ -454,7 +454,7 @@ export class VScene {
             avatarController.avatarRoot =
                 myAvatarController.skeletonRootPosition;
             avatarController.camera = this._camera as ArcRotateCamera;
-            const nametagHeightGetter = () =>
+            const labelHeightGetter = () =>
                 myAvatarController.skeletonRootPosition.y + avatarHeight / 2;
             this._myAvatar.addComponent(avatarController);
             this._myAvatar.addComponent(myAvatarController);
@@ -471,50 +471,50 @@ export class VScene {
                 this._myAvatar
             );
 
-            // Add a nametag to the avatar.
-            let nametagColor = userStore.account.isAdmin
+            // Add a label to the avatar.
+            let labelColor = userStore.account.isAdmin
                 ? Color3.FromHexString(applicationStore.theme.colors.primary)
                 : undefined;
-            NametagEntity.create(
+            LabelEntity.create(
                 this._myAvatar,
-                nametagHeightGetter,
+                labelHeightGetter,
                 userStore.avatar.displayName,
                 false,
-                nametagColor
+                labelColor
             );
-            // Update the nametag color when the player's admin state is changed in the Store.
+            // Update the label color when the player's admin state is changed in the Store.
             watch(
                 () => userStore.account.isAdmin,
                 (value: boolean) => {
-                    nametagColor = value
+                    labelColor = value
                         ? Color3.FromHexString(
                             applicationStore.theme.colors.primary
                         )
                         : undefined;
-                    NametagEntity.removeAll(this._myAvatar);
+                    LabelEntity.removeAll(this._myAvatar);
                     if (this._myAvatar) {
-                        NametagEntity.create(
+                        LabelEntity.create(
                             this._myAvatar,
-                            nametagHeightGetter,
+                            labelHeightGetter,
                             userStore.avatar.displayName,
                             false,
-                            nametagColor
+                            labelColor
                         );
                     }
                 }
             );
-            // Update the nametag when the displayName is changed in the Store.
+            // Update the label when the displayName is changed in the Store.
             watch(
                 () => userStore.avatar.displayName,
                 (value: string) => {
-                    NametagEntity.removeAll(this._myAvatar);
+                    LabelEntity.removeAll(this._myAvatar);
                     if (this._myAvatar) {
-                        NametagEntity.create(
+                        LabelEntity.create(
                             this._myAvatar,
-                            nametagHeightGetter,
+                            labelHeightGetter,
                             value,
                             false,
-                            nametagColor
+                            labelColor
                         );
                     }
                 }
@@ -581,59 +581,59 @@ export class VScene {
                 (bone) => bone.name === "Hips"
             );
             const hipPosition = hipBone?.position;
-            const nametagHeight = () =>
+            const labelHeight = () =>
                 (hipPosition?.y ?? avatarHeight / 2) + avatarHeight / 2;
 
             this._avatarList.set(stringId, avatar);
 
-            // Add a nametag to the avatar.
-            let nametagColor = applicationStore.avatars.avatarsInfo.get(id)
+            // Add a label to the avatar.
+            let labelColor = applicationStore.avatars.avatarsInfo.get(id)
                 ?.isAdmin
                 ? Color3.FromHexString(applicationStore.theme.colors.primary)
                 : undefined;
-            NametagEntity.create(
+            LabelEntity.create(
                 avatar,
-                nametagHeight,
+                labelHeight,
                 domain.displayName,
                 false,
-                nametagColor
+                labelColor
             );
-            // Update the nametag color when the player's admin state is changed.
+            // Update the label color when the player's admin state is changed.
             watch(
                 () =>
                     Boolean(
                         applicationStore.avatars.avatarsInfo.get(id)?.isAdmin
                     ),
                 (value: boolean) => {
-                    nametagColor = value
+                    labelColor = value
                         ? Color3.FromHexString(
                             applicationStore.theme.colors.primary
                         )
                         : undefined;
-                    const nametagAvatar = this._avatarList.get(stringId);
-                    NametagEntity.removeAll(nametagAvatar);
-                    if (nametagAvatar) {
-                        NametagEntity.create(
-                            nametagAvatar,
-                            nametagHeight,
+                    const labelAvatar = this._avatarList.get(stringId);
+                    LabelEntity.removeAll(labelAvatar);
+                    if (labelAvatar) {
+                        LabelEntity.create(
+                            labelAvatar,
+                            labelHeight,
                             domain.displayName,
                             false,
-                            nametagColor
+                            labelColor
                         );
                     }
                 }
             );
-            // Update the nametag when the displayName is changed.
+            // Update the label when the displayName is changed.
             domain.displayNameChanged.connect(() => {
-                const nametagAvatar = this._avatarList.get(stringId);
-                NametagEntity.removeAll(nametagAvatar);
-                if (nametagAvatar) {
-                    NametagEntity.create(
-                        nametagAvatar,
-                        nametagHeight,
+                const labelAvatar = this._avatarList.get(stringId);
+                LabelEntity.removeAll(labelAvatar);
+                if (labelAvatar) {
+                    LabelEntity.create(
+                        labelAvatar,
+                        labelHeight,
                         domain.displayName,
                         false,
-                        nametagColor
+                        labelColor
                     );
                 }
             });
