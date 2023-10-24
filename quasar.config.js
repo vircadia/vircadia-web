@@ -9,7 +9,7 @@
 const path = require("path");
 const { configure } = require("quasar/wrappers");
 const packageJSON = require("./package.json");
-const desktopMode = process.env.TAURI_MODE;
+const desktopMode = process.env.VRCA_DESKTOP_MODE;
 
 module.exports = configure(function(ctx) {
     return {
@@ -121,7 +121,7 @@ module.exports = configure(function(ctx) {
                 VRCA_WIZARD_TAGLINE: process.env.VRCA_WIZARD_TAGLINE ?? "Explore virtual worlds.",
                 VRCA_WIZARD_BUTTON_TEXT: process.env.VRCA_WIZARD_BUTTON_TEXT ?? "Get Started",
                 // Desktop App
-                TAURI_MODE: process.env.TAURI_MODE
+                VRCA_DESKTOP_MODE: process.env.VRCA_DESKTOP_MODE
             }
         },
 

@@ -97,7 +97,7 @@ npm run build
 
 ## Desktop
 
-The web client can also be compiled to a standalone desktop app.
+The web client can also be compiled to a standalone desktop app. When doing so, the `VRCA_DESKTOP_MODE` environment variable must be set to either `dev` or `build`.
 
 To install the desktop wrapper dependencies:
 ```sh

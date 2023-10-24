@@ -45,12 +45,12 @@ export interface JitsiRoomInfo {
 export const useApplicationStore = defineStore("application", {
     state: () => ({
         globalConsts: {
+            APP_DESKTOP_MODE: process.env.VRCA_DESKTOP_MODE,
             APP_NAME: process.env.VRCA_PRODUCT_NAME,
             APP_VERSION: packageInfo.version,
             APP_VERSION_TAG: versionInfo["version-tag"],
             SDK_VERSION_TAG: Vircadia.verboseVersion ?? "probably 0.0.4",
-            SAFETY_BEFORE_SESSION_TIMEOUT: 21600, // If a token has 6 or less hours left on its life, refresh it.
-            TAURI_MODE: process.env.TAURI_MODE
+            SAFETY_BEFORE_SESSION_TIMEOUT: 21600 // If a token has 6 or less hours left on its life, refresh it.
         },
         defaultConnectionConfig: {
             DEFAULT_METAVERSE_URL: process.env.VRCA_DEFAULT_METAVERSE_URL,
