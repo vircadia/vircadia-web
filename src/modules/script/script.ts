@@ -24,7 +24,6 @@ import {
 
 import Log from "@Modules/debugging/log";
 
-/* eslint-disable class-methods-use-this */
 /* eslint-disable @typescript-eslint/no-empty-function */
 
 /**
@@ -46,7 +45,7 @@ export abstract class ScriptComponent extends TransformNode implements IComponen
         }
     }
 
-    public detach():void {
+    public detach(): void {
         this.parent = null;
         this._gameObject = null;
     }
@@ -83,21 +82,21 @@ export abstract class ScriptComponent extends TransformNode implements IComponen
      * Called on the node is being initialized.
      */
     public onInitialize(): void {
-    // ...
+        // ...
     }
 
     /**
      * Called on the scene starts.
      */
     public onStart(): void {
-    // ...
+        // ...
     }
 
     /**
      * Called each frame.
      */
     public onUpdate(): void {
-    // ...
+        // ...
     }
 
     /**
@@ -105,7 +104,7 @@ export abstract class ScriptComponent extends TransformNode implements IComponen
      * Object can be disposed manually or when the editor stops running the scene.
      */
     public onStop(): void {
-    // ...
+        // ...
     }
 
     /**

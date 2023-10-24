@@ -22,7 +22,7 @@ export class Renderer {
     private static _engine = <Engine><unknown>undefined;
     private static _renderingScenes = <VScene[]><unknown>undefined;
     private static _webgpuSupported = false;
-    private static _intervalId = <Nullable<NodeJS.Timeout>> null;
+    private static _intervalId = <Nullable<NodeJS.Timeout>>null;
 
     /**
      * Initialize the rendering engine.

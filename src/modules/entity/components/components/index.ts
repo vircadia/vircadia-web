@@ -9,11 +9,11 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-export { KeyLightComponent } from "./KeyLight";
-export { HazeComponent } from "./haze";
-export { SkyboxComponent } from "./skybox";
-export { ModelComponent } from "./model";
-export { ImageComponent } from "./image";
-export { MaterialComponent } from "./materialComponent";
-export { ShapeComponent } from "./shapeComponent";
-export { LightEntityComponent } from "./lightComponent";
+export { KeyLightComponent } from "./KeyLightComponent";
+export { HazeComponent } from "./HazeComponent";
+export { SkyboxComponent } from "./SkyboxComponent";
+export { ModelComponent } from "./ModelComponent";
+export { ImageComponent } from "./ImageComponent";
+export { MaterialComponent } from "./MaterialComponent";
+export { ShapeComponent } from "./ShapeComponent";
+export { LightEntityComponent } from "./LightComponent";

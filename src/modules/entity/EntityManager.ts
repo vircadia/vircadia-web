@@ -16,7 +16,7 @@ import { EntityType as PackageEntityType } from "./package/DomainProperties";
 import { Entity, ShapeEntity, ModelEntity, LightEntity, ZoneEntity, ImageEntity, MaterialEntity, WebEntity } from "./entities";
 import Log from "@Modules/debugging/log";
 
-type EntityFactory = (id:string) => Entity;
+type EntityFactory = (id: string) => Entity;
 
 export class EntityManager {
     _entityServer: EntityServer;
@@ -74,7 +74,10 @@ export class EntityManager {
     }
 
     public clear(): void {
-        this.clear();
+        Log.info(Log.types.ENTITIES, "Clearing all entities.");
+        this._entities.forEach((entity) => {
+            this.removeEntity(entity.id);
+        });
     }
 
     public createEntity(props: EntityProperties): IEntity | undefined {
@@ -122,7 +125,7 @@ export class EntityManager {
 
     private _handleOnEntityData(data: EntityProperties[]): void {
         if (data.length > 0) {
-            console.log(Log.types.ENTITIES,
+            Log.info(Log.types.ENTITIES,
                 `Receive entity data:`, data);
 
             this._entityPropertiesArray = this._entityPropertiesArray.concat(data);

@@ -9,7 +9,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable class-methods-use-this */
 
 import type { AbstractMesh, AnimationGroup, Nullable, Skeleton } from "@babylonjs/core";
 import { GenericNodeComponent } from "../component";

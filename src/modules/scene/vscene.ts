@@ -9,22 +9,53 @@
 //
 
 // This is disabled because TS complains about BABYLON's use of capitalized function names.
-/* eslint-disable new-cap */
+
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
 import { ScriptAvatar, Uuid } from "@vircadia/web-sdk";
-import { AnimationGroup, Engine, Scene, Color3, ArcRotateCamera, Camera,
-    Observable, Nullable, AmmoJSPlugin, Quaternion, Vector3, Color4 } from "@babylonjs/core";
+import {
+    AnimationGroup,
+    Engine,
+    Scene,
+    Color3,
+    ArcRotateCamera,
+    Camera,
+    Observable,
+    Nullable,
+    AmmoJSPlugin,
+    Quaternion,
+    Vector3,
+    Color4,
+} from "@babylonjs/core";
 import Ammo from "ammojs-typed";
 import "@babylonjs/loaders/glTF";
 import { watch } from "vue";
 import { DomainController, SceneController } from "./controllers";
 import { CSS3DRenderer } from "./css3DRenderer";
 import { ResourceManager } from "./resource";
-import { GameObject, MeshComponent, CapsuleColliderComponent, DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
-import { ScriptComponent, requireScript, requireScripts } from "@Modules/script";
-import { InputController, MyAvatarController, ScriptAvatarController, AvatarMapper } from "@Modules/avatar";
-import { IEntity, IEntityDescription, EntityBuilder, EntityEvent } from "@Modules/entity";
+import {
+    GameObject,
+    MeshComponent,
+    CapsuleColliderComponent,
+    DEFAULT_MESH_RENDER_GROUP_ID,
+} from "@Modules/object";
+import {
+    ScriptComponent,
+    requireScript,
+    requireScripts,
+} from "@Modules/script";
+import {
+    InputController,
+    MyAvatarController,
+    ScriptAvatarController,
+    AvatarMapper,
+} from "@Modules/avatar";
+import {
+    IEntity,
+    IEntityDescription,
+    EntityBuilder,
+    EntityEvent,
+} from "@Modules/entity";
 import { NametagEntity } from "@Modules/entity/entities";
 import { DomainManager } from "@Modules/domain";
 import { Location } from "@Modules/domain/location";
@@ -51,14 +82,17 @@ export class VScene {
     _avatarIsLoading = false;
     _avatarLoadQueue: (string | undefined)[] = [];
     _camera: Nullable<Camera> = null;
-    _avatarAnimationGroups : AnimationGroup[] = [];
+    _avatarAnimationGroups: AnimationGroup[] = [];
     _resourceManager: Nullable<ResourceManager> = null;
     _domainController: Nullable<DomainController> = null;
     _sceneController: Nullable<SceneController> = null;
     _sceneManager: Nullable<GameObject> = null;
     _currentSceneURL = "";
-    private _onMyAvatarModelChangedObservable: Observable<GameObject> = new Observable<GameObject>();
-    private _onEntityEventObservable: Observable<EntityEvent> = new Observable<EntityEvent>();
+    private _onMyAvatarModelChangedObservable: Observable<GameObject> =
+        new Observable<GameObject>();
+
+    private _onEntityEventObservable: Observable<EntityEvent> =
+        new Observable<EntityEvent>();
 
     constructor(pEngine: Engine, pSceneId = 0) {
         if (process.env.NODE_ENV === "development") {
@@ -70,7 +104,10 @@ export class VScene {
         this._scene = new Scene(this._engine);
         this._sceneId = pSceneId;
         this._avatarList = new Map<string, GameObject>();
-        this._css3DRenderer = new CSS3DRenderer(this._engine.getRenderingCanvas() as HTMLCanvasElement, this._scene);
+        this._css3DRenderer = new CSS3DRenderer(
+            this._engine.getRenderingCanvas() as HTMLCanvasElement,
+            this._scene
+        );
     }
 
     getSceneId(): number {
@@ -131,12 +168,17 @@ export class VScene {
         this._engine.hideLoadingUI();
     }
 
-    public async load(sceneUrl?: string, avatarModelURL?: string, avatarPos?: Vector3, avatarQuat?: Quaternion,
-        beforeLoading?: () => void, afterLoading?: () => void): Promise<void> {
+    public async load(
+        sceneUrl?: string,
+        avatarModelURL?: string,
+        avatarPos?: Vector3,
+        avatarQuat?: Quaternion,
+        beforeLoading?: () => void,
+        afterLoading?: () => void
+    ): Promise<void> {
         if (sceneUrl !== "" && this._currentSceneURL === sceneUrl) {
             return;
         }
-
         this._currentSceneURL = sceneUrl ?? "";
 
         this.showLoadingUI();
@@ -150,7 +192,14 @@ export class VScene {
             const defaultBeta = Math.PI / 2;
             const defaultRadius = 6;
             const defaultTarget = new Vector3(0, 1, 0);
-            this._camera = new ArcRotateCamera("MainCamera", defaultAlpha, defaultBeta, defaultRadius, defaultTarget, this._scene);
+            this._camera = new ArcRotateCamera(
+                "MainCamera",
+                defaultAlpha,
+                defaultBeta,
+                defaultRadius,
+                defaultTarget,
+                this._scene
+            );
             this._scene.activeCamera = this._camera;
         }
 
@@ -158,7 +207,8 @@ export class VScene {
         await this.loadMyAvatar(avatarModelURL);
         if (this._myAvatar) {
             this._myAvatar.position = avatarPos ?? new Vector3(0, 1, 0);
-            this._myAvatar.rotationQuaternion = avatarQuat ?? Quaternion.Identity();
+            this._myAvatar.rotationQuaternion =
+                avatarQuat ?? Quaternion.Identity();
         }
 
         if (sceneUrl) {
@@ -190,11 +240,19 @@ export class VScene {
 
     public teleportMyAvatar(location: Location): void {
         // keep the avatar's orientation when orientation is empty
-        const q = location.orientation.length > 0
-            ? AvatarMapper.mapToLocalOrientation(DataMapper.stringToQuaternion(location.orientation))
-            : undefined;
+        const q =
+            location.orientation.length > 0
+                ? AvatarMapper.mapToLocalOrientation(
+                    DataMapper.stringToQuaternion(location.orientation)
+                )
+                : undefined;
 
-        this._teleportMyAvatar(AvatarMapper.mapToLocalPosition(DataMapper.stringToVec3(location.position)), q);
+        this._teleportMyAvatar(
+            AvatarMapper.mapToLocalPosition(
+                DataMapper.stringToVec3(location.position)
+            ),
+            q
+        );
     }
 
     public teleportMyAvatarToOtherPeople(sessionId: string): void {
@@ -210,7 +268,9 @@ export class VScene {
     }
 
     public stopMyAvatar(): void {
-        const controller = this._myAvatar?.getComponent(InputController.typeName);
+        const controller = this._myAvatar?.getComponent(
+            InputController.typeName
+        );
         if (controller instanceof InputController) {
             controller.isStopped = true;
         }
@@ -219,7 +279,10 @@ export class VScene {
     // Note:
     // The position and orientation coordinate of babylon.js and domain are different.
     // Replace this function with teleportMyAvatar with location to prevent mess.
-    private _teleportMyAvatar(position: Vector3 | undefined, rotation?: Quaternion | undefined): void {
+    private _teleportMyAvatar(
+        position: Vector3 | undefined,
+        rotation?: Quaternion | undefined
+    ): void {
         if (this._myAvatar) {
             if (position) {
                 this._myAvatar.position = position;
@@ -229,7 +292,9 @@ export class VScene {
                 this._myAvatar.rotationQuaternion = rotation;
             }
 
-            const controller = this._myAvatar.getComponent(InputController.typeName);
+            const controller = this._myAvatar.getComponent(
+                InputController.typeName
+            );
             if (controller instanceof InputController) {
                 controller.isTeleported = true;
             }
@@ -249,13 +314,15 @@ export class VScene {
 
     public async loadEntities(url: string): Promise<void> {
         const response = await fetch(url);
-        const json = await response.json() as IEntityDescription;
+        const json = (await response.json()) as IEntityDescription;
         const entityDescription = json;
         Log.info(Log.types.ENTITIES, `Load Entities from ${url}`);
-        Log.info(Log.types.ENTITIES,
+        Log.info(
+            Log.types.ENTITIES,
             `DataVersion: ${entityDescription.DataVersion}
              Id: ${entityDescription.Id}
-             Version: ${entityDescription.Version}`);
+             Version: ${entityDescription.Version}`
+        );
 
         Log.info(Log.types.ENTITIES, "Create Entities.");
         // create entities
@@ -280,7 +347,11 @@ export class VScene {
             const lastQueuedModelURL = this._avatarLoadQueue.pop(); // Only load the last model in the request queue.
             if (lastQueuedModelURL) {
                 // Ignore repeated attempts to load the same model, unless required.
-                if (this._myAvatarModelURL === lastQueuedModelURL && this._myAvatar && !reload) {
+                if (
+                    this._myAvatarModelURL === lastQueuedModelURL &&
+                    this._myAvatar &&
+                    !reload
+                ) {
                     // Prevent multiple avatar models from being equipped.
                     this._avatarIsLoading = false;
                     if (this._avatarLoadQueue.length > 1) {
@@ -294,19 +365,25 @@ export class VScene {
                 this._myAvatarModelURL = lastQueuedModelURL;
             }
 
-            Log.info(Log.types.AVATAR, `Load MyAvatar: ${this._myAvatarModelURL}`);
+            Log.info(
+                Log.types.AVATAR,
+                `Load MyAvatar: ${this._myAvatarModelURL}`
+            );
             const previousAvatar = this._myAvatar;
             this._myAvatar = new GameObject("MyAvatar", this._scene);
             if (previousAvatar) {
                 this._myAvatar.position = previousAvatar.position;
-                this._myAvatar.rotationQuaternion = previousAvatar.rotationQuaternion;
+                this._myAvatar.rotationQuaternion =
+                    previousAvatar.rotationQuaternion;
                 previousAvatar.dispose();
             }
 
-            const result = await this._resourceManager.loadMyAvatar(this._myAvatarModelURL);
+            const result = await this._resourceManager.loadMyAvatar(
+                this._myAvatarModelURL
+            );
             let boundingVectors = {
                 max: Vector3.Zero(),
-                min: Vector3.Zero()
+                min: Vector3.Zero(),
             };
             if (result.mesh) {
                 // Initialize the avatar mesh.
@@ -314,19 +391,26 @@ export class VScene {
                 meshComponent.mesh = result.mesh;
                 meshComponent.skeleton = result.skeleton;
                 // Get the bounding vectors of the avatar mesh.
-                const boundingMesh = meshComponent.mesh.refreshBoundingInfo(Boolean(meshComponent.skeleton));
+                const boundingMesh = meshComponent.mesh.refreshBoundingInfo(
+                    Boolean(meshComponent.skeleton)
+                );
                 boundingVectors = boundingMesh.getHierarchyBoundingVectors();
                 meshComponent.mesh.position = Vector3.Zero();
                 this._myAvatar.addComponent(meshComponent);
             }
             const avatarHeight = boundingVectors.max.y - boundingVectors.min.y;
 
-            const hipBone = result.skeleton?.bones.find((bone) => bone.name === "Hips");
+            const hipBone = result.skeleton?.bones.find(
+                (bone) => bone.name === "Hips"
+            );
             const hipPosition = hipBone?.position;
 
             // Reload the avatar animations file in case the new avatar is a different size than the previous one.
             // The browser cache will prevent this from being fetched over the network if the avatar is switched frequently.
-            const animResult = await this._resourceManager.loadAvatarAnimations(AvatarAnimationUrl, hipPosition);
+            const animResult = await this._resourceManager.loadAvatarAnimations(
+                AvatarAnimationUrl,
+                hipPosition
+            );
             this._avatarAnimationGroups = animResult.animGroups;
 
             const defaultColliderProperties = {
@@ -334,7 +418,7 @@ export class VScene {
                 height: 1.8,
                 offset: new Vector3(0, 0, -0.04), // Offset coordinates are local (relative to the avatar).
                 mass: 1,
-                friction: 3
+                friction: 3,
             };
             const capsuleCollider = new CapsuleColliderComponent(
                 this._scene,
@@ -345,12 +429,15 @@ export class VScene {
             // Create a collider based on the dimensions of the avatar model.
             capsuleCollider.createCollider(
                 // eslint-disable-next-line @typescript-eslint/no-extra-parens
-                ((boundingVectors.max.x - boundingVectors.min.x) + (boundingVectors.max.z - boundingVectors.min.z)) / 4
-                || defaultColliderProperties.radius,
+                (boundingVectors.max.x -
+                    boundingVectors.min.x +
+                    (boundingVectors.max.z - boundingVectors.min.z)) /
+                4 || defaultColliderProperties.radius,
                 avatarHeight || defaultColliderProperties.height,
                 new Vector3(
                     defaultColliderProperties.offset.x,
-                    (avatarHeight || defaultColliderProperties.height) / 2 + defaultColliderProperties.offset.y,
+                    (avatarHeight || defaultColliderProperties.height) / 2 +
+                    defaultColliderProperties.offset.y,
                     defaultColliderProperties.offset.z
                 )
             );
@@ -364,36 +451,74 @@ export class VScene {
             const avatarController = new InputController();
             avatarController.animGroups = this._avatarAnimationGroups;
             avatarController.avatarHeight = avatarHeight;
-            avatarController.avatarRoot = myAvatarController.skeletonRootPosition;
+            avatarController.avatarRoot =
+                myAvatarController.skeletonRootPosition;
             avatarController.camera = this._camera as ArcRotateCamera;
-            const nametagHeightGetter = () => myAvatarController.skeletonRootPosition.y + avatarHeight / 2;
+            const nametagHeightGetter = () =>
+                myAvatarController.skeletonRootPosition.y + avatarHeight / 2;
             this._myAvatar.addComponent(avatarController);
             this._myAvatar.addComponent(myAvatarController);
-            if (DomainManager.ActiveDomain && DomainManager.ActiveDomain.AvatarClient?.MyAvatar) {
-                myAvatarController.myAvatar = DomainManager.ActiveDomain.AvatarClient?.MyAvatar;
+            if (
+                DomainManager.ActiveDomain &&
+                DomainManager.ActiveDomain.AvatarClient?.MyAvatar
+            ) {
+                myAvatarController.myAvatar =
+                    DomainManager.ActiveDomain.AvatarClient?.MyAvatar;
             }
             myAvatarController.skeletonModelURL = lastQueuedModelURL;
 
-            this._onMyAvatarModelChangedObservable.notifyObservers(this._myAvatar);
+            this._onMyAvatarModelChangedObservable.notifyObservers(
+                this._myAvatar
+            );
 
             // Add a nametag to the avatar.
-            let nametagColor = userStore.account.isAdmin ? Color3.FromHexString(applicationStore.theme.colors.primary) : undefined;
-            NametagEntity.create(this._myAvatar, nametagHeightGetter, userStore.avatar.displayName, false, nametagColor);
+            let nametagColor = userStore.account.isAdmin
+                ? Color3.FromHexString(applicationStore.theme.colors.primary)
+                : undefined;
+            NametagEntity.create(
+                this._myAvatar,
+                nametagHeightGetter,
+                userStore.avatar.displayName,
+                false,
+                nametagColor
+            );
             // Update the nametag color when the player's admin state is changed in the Store.
-            watch(() => userStore.account.isAdmin, (value: boolean) => {
-                nametagColor = value ? Color3.FromHexString(applicationStore.theme.colors.primary) : undefined;
-                NametagEntity.removeAll(this._myAvatar);
-                if (this._myAvatar) {
-                    NametagEntity.create(this._myAvatar, nametagHeightGetter, userStore.avatar.displayName, false, nametagColor);
+            watch(
+                () => userStore.account.isAdmin,
+                (value: boolean) => {
+                    nametagColor = value
+                        ? Color3.FromHexString(
+                            applicationStore.theme.colors.primary
+                        )
+                        : undefined;
+                    NametagEntity.removeAll(this._myAvatar);
+                    if (this._myAvatar) {
+                        NametagEntity.create(
+                            this._myAvatar,
+                            nametagHeightGetter,
+                            userStore.avatar.displayName,
+                            false,
+                            nametagColor
+                        );
+                    }
                 }
-            });
+            );
             // Update the nametag when the displayName is changed in the Store.
-            watch(() => userStore.avatar.displayName, (value: string) => {
-                NametagEntity.removeAll(this._myAvatar);
-                if (this._myAvatar) {
-                    NametagEntity.create(this._myAvatar, nametagHeightGetter, value, false, nametagColor);
+            watch(
+                () => userStore.avatar.displayName,
+                (value: string) => {
+                    NametagEntity.removeAll(this._myAvatar);
+                    if (this._myAvatar) {
+                        NametagEntity.create(
+                            this._myAvatar,
+                            nametagHeightGetter,
+                            value,
+                            false,
+                            nametagColor
+                        );
+                    }
                 }
-            });
+            );
 
             // Prevent multiple avatar models from being equipped.
             this._avatarIsLoading = false;
@@ -407,7 +532,10 @@ export class VScene {
         return this._myAvatar;
     }
 
-    public async loadAvatar(id: Uuid, domain: ScriptAvatar): Promise<Nullable<GameObject>> {
+    public async loadAvatar(
+        id: Uuid,
+        domain: ScriptAvatar
+    ): Promise<Nullable<GameObject>> {
         if (!this._resourceManager || domain.skeletonModelURL === "") {
             return null;
         }
@@ -418,7 +546,9 @@ export class VScene {
         avatar = new GameObject("ScriptAvatar_" + stringId, this._scene);
         avatar.id = stringId;
 
-        const { mesh, skeleton } = await this._resourceManager.loadAvatar(domain.skeletonModelURL);
+        const { mesh, skeleton } = await this._resourceManager.loadAvatar(
+            domain.skeletonModelURL
+        );
 
         if (mesh) {
             // Initialize the avatar mesh.
@@ -428,13 +558,18 @@ export class VScene {
 
             let boundingVectors = {
                 max: Vector3.Zero(),
-                min: Vector3.Zero()
+                min: Vector3.Zero(),
             };
             let avatarHeight = 1.8;
 
-            if (meshComponent.mesh && "refreshBoundingInfo" in meshComponent.mesh) {
+            if (
+                meshComponent.mesh &&
+                "refreshBoundingInfo" in meshComponent.mesh
+            ) {
                 // Get the bounding vectors of the avatar mesh.
-                const boundingMesh = meshComponent.mesh.refreshBoundingInfo(Boolean(meshComponent.skeleton));
+                const boundingMesh = meshComponent.mesh.refreshBoundingInfo(
+                    Boolean(meshComponent.skeleton)
+                );
                 boundingVectors = boundingMesh.getHierarchyBoundingVectors();
                 avatarHeight = boundingVectors.max.y - boundingVectors.min.y;
                 meshComponent.mesh.position = Vector3.Zero();
@@ -442,32 +577,64 @@ export class VScene {
             avatar.addComponent(meshComponent);
             avatar.addComponent(new ScriptAvatarController(domain));
 
-            const hipBone = meshComponent.skeleton?.bones.find((bone) => bone.name === "Hips");
+            const hipBone = meshComponent.skeleton?.bones.find(
+                (bone) => bone.name === "Hips"
+            );
             const hipPosition = hipBone?.position;
-            const nametagHeight = () => (hipPosition?.y ?? avatarHeight / 2) + avatarHeight / 2;
+            const nametagHeight = () =>
+                (hipPosition?.y ?? avatarHeight / 2) + avatarHeight / 2;
 
             this._avatarList.set(stringId, avatar);
 
             // Add a nametag to the avatar.
-            let nametagColor = applicationStore.avatars.avatarsInfo.get(id)?.isAdmin
+            let nametagColor = applicationStore.avatars.avatarsInfo.get(id)
+                ?.isAdmin
                 ? Color3.FromHexString(applicationStore.theme.colors.primary)
                 : undefined;
-            NametagEntity.create(avatar, nametagHeight, domain.displayName, false, nametagColor);
+            NametagEntity.create(
+                avatar,
+                nametagHeight,
+                domain.displayName,
+                false,
+                nametagColor
+            );
             // Update the nametag color when the player's admin state is changed.
-            watch(() => Boolean(applicationStore.avatars.avatarsInfo.get(id)?.isAdmin), (value: boolean) => {
-                nametagColor = value ? Color3.FromHexString(applicationStore.theme.colors.primary) : undefined;
-                const nametagAvatar = this._avatarList.get(stringId);
-                NametagEntity.removeAll(nametagAvatar);
-                if (nametagAvatar) {
-                    NametagEntity.create(nametagAvatar, nametagHeight, domain.displayName, false, nametagColor);
+            watch(
+                () =>
+                    Boolean(
+                        applicationStore.avatars.avatarsInfo.get(id)?.isAdmin
+                    ),
+                (value: boolean) => {
+                    nametagColor = value
+                        ? Color3.FromHexString(
+                            applicationStore.theme.colors.primary
+                        )
+                        : undefined;
+                    const nametagAvatar = this._avatarList.get(stringId);
+                    NametagEntity.removeAll(nametagAvatar);
+                    if (nametagAvatar) {
+                        NametagEntity.create(
+                            nametagAvatar,
+                            nametagHeight,
+                            domain.displayName,
+                            false,
+                            nametagColor
+                        );
+                    }
                 }
-            });
+            );
             // Update the nametag when the displayName is changed.
             domain.displayNameChanged.connect(() => {
                 const nametagAvatar = this._avatarList.get(stringId);
                 NametagEntity.removeAll(nametagAvatar);
                 if (nametagAvatar) {
-                    NametagEntity.create(nametagAvatar, nametagHeight, domain.displayName, false, nametagColor);
+                    NametagEntity.create(
+                        nametagAvatar,
+                        nametagHeight,
+                        domain.displayName,
+                        false,
+                        nametagColor
+                    );
                 }
             });
         }
@@ -481,7 +648,6 @@ export class VScene {
             avatar.dispose();
             this._avatarList.delete(stringId);
         }
-
     }
 
     public unloadAllAvatars(): void {
@@ -520,11 +686,17 @@ export class VScene {
 
         // Enable physics
         const ammoReference = await Ammo.apply(window);
-        this._scene.enablePhysics(Vector3.Zero(), new AmmoJSPlugin(true, ammoReference));
+        this._scene.enablePhysics(
+            Vector3.Zero(),
+            new AmmoJSPlugin(true, ammoReference)
+        );
         /* const hk = await HavokPhysics();
         this._scene.enablePhysics(Vector3.Zero(), new HavokPlugin(true, hk)); */
         // Don't clear the buffer for the default mesh render group.
-        this._scene.setRenderingAutoClearDepthStencil(DEFAULT_MESH_RENDER_GROUP_ID, false);
+        this._scene.setRenderingAutoClearDepthStencil(
+            DEFAULT_MESH_RENDER_GROUP_ID,
+            false
+        );
         // Needs to be transparent for web entity to be seen.
         this._scene.clearColor = new Color4(0, 0, 0, 0);
 

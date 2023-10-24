@@ -30,7 +30,6 @@ export class ShapeEntityController extends EntityController {
     * Gets a string identifying the type of this Component
     * @returns "ShapeEntityController" string
     */
-    // eslint-disable-next-line class-methods-use-this
     public get componentType(): string {
         return ShapeEntityController.typeName;
     }

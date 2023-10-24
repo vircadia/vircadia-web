@@ -9,7 +9,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable new-cap */
+
 
 import { TransformNode, Vector3 } from "@babylonjs/core";
 import { AvatarMapper, BoneType } from "../AvatarMapper";
