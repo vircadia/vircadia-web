@@ -125,7 +125,7 @@ export const useApplicationStore = defineStore("application", {
             productDescription: process.env.VRCA_PRODUCT_DESCRIPTION,
             tagline: process.env.VRCA_TAGLINE,
             logo: process.env.VRCA_LOGO ?? "/icons/favicon.svg",
-            banner: process.env.VRCA_BANNER ?? "/assets/OpenGraph_banner.png",
+            banner: process.env.VRCA_BANNER ?? "/assets/images/branding/og_banner.png",
             bannerAlt: process.env.VRCA_BANNER_ALT,
             url: process.env.VRCA_HOSTED_URL,
             globalServiceTerm: process.env.VRCA_GLOBAL_SERVICE_TERM,
