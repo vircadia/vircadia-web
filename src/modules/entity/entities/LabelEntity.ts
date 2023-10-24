@@ -86,9 +86,7 @@ function createSector(
 
     // Connect each segment point back to the origin.
     const originPoints = new Array<Vector3>();
-    points.forEach(() => {
-        originPoints.push(origin);
-    });
+    points.forEach(() => originPoints.push(origin));
 
     // Create a ribbon mesh from the points.
     const sector = MeshBuilder.CreateRibbon(
@@ -156,13 +154,10 @@ export class LabelEntity {
         const tagArrowSize = 0.02;
         const tagBackgroundColor = color ?? new Color3(0.07, 0.07, 0.07);
         const tagBackgroundColorString = tagBackgroundColor.toHexString();
-        const memoName = `${name}${icon ? "-i" : ""
-            }-${tagBackgroundColorString}`;
+        const memoName = `${name}${icon ? "-i" : ""}-${tagBackgroundColorString}`;
 
         // Attempt to reuse a memoized mesh, if one exists.
-        let mesh = meshMemo
-            .get(memoName)
-            ?.clone("Label", object, false, false);
+        let mesh = meshMemo.get(memoName)?.clone("Label", object, false, false);
 
         // If a matching mesh doesn't already exist, create a new one.
         if (!mesh) {
@@ -197,9 +192,7 @@ export class LabelEntity {
                 foregroundTexture = newForegroundTexture;
             }
 
-            let backgroundTexture = backgroundTextureMemo.get(
-                tagBackgroundColorString
-            );
+            let backgroundTexture = backgroundTextureMemo.get(tagBackgroundColorString);
             // If a matching texture doesn't already exist, create a new one.
             if (!backgroundTexture) {
                 // Create the texture.
@@ -220,10 +213,7 @@ export class LabelEntity {
                 );
                 newBackgroundTexture.getAlphaFromRGB = true;
                 // Memoize the texture.
-                backgroundTextureMemo.set(
-                    tagBackgroundColorString,
-                    newBackgroundTexture
-                );
+                backgroundTextureMemo.set(tagBackgroundColorString, newBackgroundTexture);
                 backgroundTexture = newBackgroundTexture;
             }
 
@@ -245,9 +235,7 @@ export class LabelEntity {
                 foregroundMaterial = newForegroundMaterial;
             }
 
-            let backgroundMaterial = backgroundMaterialMemo.get(
-                tagBackgroundColorString
-            );
+            let backgroundMaterial = backgroundMaterialMemo.get(tagBackgroundColorString);
             // If a matching material doesn't already exist, create a new one.
             if (!backgroundMaterial) {
                 // Create the material.
@@ -260,10 +248,7 @@ export class LabelEntity {
                 newBackgroundMaterial.emissiveTexture = backgroundTexture;
                 newBackgroundMaterial.disableLighting = true;
                 // Memoize the material.
-                backgroundMaterialMemo.set(
-                    tagBackgroundColorString,
-                    newBackgroundMaterial
-                );
+                backgroundMaterialMemo.set(tagBackgroundColorString, newBackgroundMaterial);
                 backgroundMaterial = newBackgroundMaterial;
             }
 
@@ -319,12 +304,8 @@ export class LabelEntity {
                 new Vector3(-tagWidth / 2 - tagCornerRadius / 2, 0, 0),
                 new Vector3(tagWidth / 2 + tagCornerRadius / 2, 0, 0),
             ];
-            edges.push(
-                MeshBuilder.CreatePlane("LabelLeftEdge", edgeOptions, scene)
-            );
-            edges.push(
-                MeshBuilder.CreatePlane("LabelRightEdge", edgeOptions, scene)
-            );
+            edges.push(MeshBuilder.CreatePlane("LabelLeftEdge", edgeOptions, scene));
+            edges.push(MeshBuilder.CreatePlane("LabelRightEdge", edgeOptions, scene));
             index = 0;
             for (const edgeMesh of edges) {
                 edgeMesh.material = backgroundMaterial;
@@ -344,11 +325,7 @@ export class LabelEntity {
                 scene
             );
             arrow.material = backgroundMaterial;
-            arrow.position = new Vector3(
-                0,
-                -(tagHeight / 2 + tagArrowSize / 4),
-                0
-            );
+            arrow.position = new Vector3(0, -(tagHeight / 2 + tagArrowSize / 4), 0);
             arrow.rotation.z = -Math.PI / 2;
             arrow.scaling.x = 0.5;
 
@@ -395,12 +372,9 @@ export class LabelEntity {
         }
         mesh.position = new Vector3(positionOffset.x, h, positionOffset.z);
 
-        const scaleAdjustmentFactorX =
-            object.scaling.x > 0 ? 1 / object.scaling.x : 1;
-        const scaleAdjustmentFactorY =
-            object.scaling.y > 0 ? 1 / object.scaling.y : 1;
-        const scaleAdjustmentFactorZ =
-            object.scaling.z > 0 ? 1 / object.scaling.z : 1;
+        const scaleAdjustmentFactorX = object.scaling.x > 0 ? 1 / object.scaling.x : 1;
+        const scaleAdjustmentFactorY = object.scaling.y > 0 ? 1 / object.scaling.y : 1;
+        const scaleAdjustmentFactorZ = object.scaling.z > 0 ? 1 / object.scaling.z : 1;
         mesh.scaling.x = scaleAdjustmentFactorX;
         mesh.scaling.y = scaleAdjustmentFactorY;
         mesh.scaling.z = scaleAdjustmentFactorZ;
@@ -427,9 +401,7 @@ export class LabelEntity {
             if (avatar) {
                 const avatarPosition = avatar.getAbsolutePosition().clone();
                 const labelPosition = mesh.getAbsolutePosition();
-                const distance = avatarPosition
-                    .subtract(labelPosition)
-                    .length();
+                const distance = avatarPosition.subtract(labelPosition).length();
                 // Clamp the opacity between 0 and 0.94.
                 // Max opacity of 0.94 reduces the chance that the label will be affected by bloom.
                 const opacity = Math.min(
@@ -453,9 +425,7 @@ export class LabelEntity {
      * Remove a label entity from an object.
      * @param labelMesh The label mesh to remove.
      */
-    public static remove(
-        labelMesh: Mesh | AbstractMesh | TransformNode | undefined | null
-    ): void {
+    public static remove(labelMesh: Mesh | AbstractMesh | TransformNode | undefined | null): void {
         if (!labelMesh || !(/^Label/iu).test(labelMesh.name)) {
             return;
         }
@@ -466,17 +436,11 @@ export class LabelEntity {
      * Remove all label entities from an object.
      * @param object The object to remove all labels from.
      */
-    public static removeAll(
-        object: Mesh | AbstractMesh | TransformNode | undefined | null
-    ): void {
+    public static removeAll(object: Mesh | AbstractMesh | TransformNode | undefined | null): void {
         if (!object) {
             return;
         }
-        const labelMeshes = object.getChildMeshes(false, (node) =>
-            (/^Label/iu).test(node.name)
-        );
-        labelMeshes.forEach((labelMesh) =>
-            labelMesh.dispose(false, true)
-        );
+        const labelMeshes = object.getChildMeshes(false, (node) => (/^Label/iu).test(node.name));
+        labelMeshes.forEach((labelMesh) => labelMesh.dispose(false, true));
     }
 }

@@ -906,9 +906,7 @@ export class InputController extends ScriptComponent {
 
         // Set the visibility of the avatar's label.
         const meshes = this._gameObject.getChildMeshes(true, (mesh) => mesh.name === "Label");
-        if (meshes.length > 0) {
-            meshes[0].isVisible = visible;
-        }
+        meshes.forEach((mesh) => (mesh.isVisible = visible));
 
         // Set the visibility of the avatar's mesh.
         const meshComponent = this._gameObject.getComponent("Mesh");
