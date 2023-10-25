@@ -514,14 +514,14 @@ export default defineComponent({
                 },
                 {
                     icon: "badge",
-                    label: "Nametags",
+                    label: "Labels",
                     action: () => {
-                        userStore.avatar.showNametags = !userStore.avatar.showNametags;
-                        Log.info(Log.types.OTHER, "Toggle Avatar Nametags");
+                        userStore.avatar.showLabels = !userStore.avatar.showLabels;
+                        Log.info(Log.types.OTHER, "Toggle Labels");
                     },
                     isCategory: false,
                     separator: true,
-                    caption: "nametag_setting"
+                    caption: "boolean"
                 },
                 {
                     icon: "lightbulb",
@@ -722,8 +722,8 @@ export default defineComponent({
         },
         formatMenuItemCaption(caption: string) {
             switch (caption) {
-                case "nametag_setting":
-                    return this.userStore.avatar.showNametags ? "On" : "Off";
+                case "boolean":
+                    return this.userStore.avatar.showLabels ? "On" : "Off";
                 default:
                     return caption;
             }

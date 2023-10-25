@@ -81,7 +81,7 @@ export const useUserStore = defineStore("user", {
             "userAvatarSettings",
             {
                 displayName: "anonymous",
-                showNametags: true,
+                showLabels: true,
                 position: Vec3.ZERO,
                 location: "0,0,0",
                 models: defaultAvatars(),

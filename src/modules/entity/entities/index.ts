@@ -17,4 +17,4 @@ export { ZoneEntity } from "./ZoneEntity";
 export { ImageEntity } from "./ImageEntity";
 export { MaterialEntity } from "./materialEntity";
 export { WebEntity } from "./WebEntity";
-export { NametagEntity } from "./NametagEntity";
+export { LabelEntity } from "./LabelEntity";
