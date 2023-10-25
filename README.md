@@ -36,6 +36,12 @@ We currently use the following:
 
 First, clone the repository to your machine with Git. Then, open a terminal in that directory.
 
+Vircadia Web relies on the Vircadia Assets submodule, so you must pull recursively.
+
+```sh
+git clone --recursive https://github.com/vircadia/vircadia-web.git
+```
+
 ### Install the dependencies
 
 ```sh

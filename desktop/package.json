@@ -3,8 +3,8 @@
     "version": "0.0.0",
     "type": "module",
     "scripts": {
-        "dev": "SET VRCA_DESKTOP_MODE=dev && tauri dev",
-        "build": "SET VRCA_DESKTOP_MODE=build && tauri build",
+        "dev": "cross-env VRCA_DESKTOP_MODE=dev tauri dev",
+        "build": "cross-env VRCA_DESKTOP_MODE=build && tauri build",
         "make-icon": "tauri icon ../public/assets/images/branding/vircadia-icon-256.png",
         "tauri": "tauri"
     },
@@ -13,6 +13,7 @@
     },
     "devDependencies": {
         "@tauri-apps/cli": "^1.5.0",
+        "cross-env": "^7.0.3",
         "typescript": "^5.0.2"
     }
 }
