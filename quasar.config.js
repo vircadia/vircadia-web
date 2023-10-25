@@ -99,6 +99,7 @@ module.exports = configure(function(ctx) {
                 VRCA_TAGLINE: process.env.VRCA_TAGLINE ?? packageJSON.description,
                 VRCA_PRODUCT_DESCRIPTION: process.env.VRCA_PRODUCT_DESCRIPTION ?? packageJSON.description,
                 VRCA_LOGO: process.env.VRCA_LOGO ?? "assets/images/branding/vircadia-icon.svg",
+                VRCA_INTRO: process.env.VRCA_INTRO ?? "assets/video/Digisomni_Intro_9-13-2022.webm",
                 // NOTE: VRCA_BANNER should be an absolute URL for Open Graph support.
                 VRCA_BANNER: process.env.VRCA_BANNER ?? "assets/images/branding/og_banner.png",
                 VRCA_BANNER_ALT: process.env.VRCA_BANNER_ALT ?? packageJSON.productName,
