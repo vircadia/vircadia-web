@@ -59,7 +59,7 @@ function createSector(
     const sectorAngle = Math.acos(
         Vector3.Dot(vector1, vector2) / (vector1.length() * vector2.length())
     );
-    const minNumberOfSegments = 5;
+    const minNumberOfSegments = 3;
     const diameter = radius * 2;
     const origin = Vector3.Zero();
     const firstPoint = Vector3.Normalize(vector1).scale(radius);
@@ -94,7 +94,8 @@ function createSector(
         {
             pathArray: [points, originPoints],
             offset: 0,
-            sideOrientation: Mesh.DOUBLESIDE
+            sideOrientation: Mesh.BACKSIDE,
+            updatable: false
         },
         scene
     );
@@ -258,8 +259,8 @@ export class LabelEntity {
                 {
                     width: tagWidth,
                     height: tagHeight,
-                    sideOrientation: Mesh.DOUBLESIDE,
-                    updatable: true,
+                    sideOrientation: Mesh.FRONTSIDE,
+                    updatable: false,
                 },
                 scene
             );
@@ -297,8 +298,8 @@ export class LabelEntity {
             const edgeOptions = {
                 width: tagCornerRadius,
                 height: tagHeight - tagCornerRadius * 2,
-                sideOrientation: Mesh.DOUBLESIDE,
-                updatable: true,
+                sideOrientation: Mesh.FRONTSIDE,
+                updatable: false,
             };
             const edgePositions = [
                 new Vector3(-tagWidth / 2 - tagCornerRadius / 2, 0, 0),
@@ -319,8 +320,8 @@ export class LabelEntity {
                 {
                     radius: tagArrowSize,
                     tessellation: 3,
-                    sideOrientation: Mesh.DOUBLESIDE,
-                    updatable: true,
+                    sideOrientation: Mesh.FRONTSIDE,
+                    updatable: false,
                 },
                 scene
             );
