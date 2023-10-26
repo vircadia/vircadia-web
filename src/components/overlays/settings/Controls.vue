@@ -14,23 +14,6 @@
     padding: 2px 1ch;
     border: 2px dashed currentColor;
 }
-kbd {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: fit-content;
-    min-width: 3.5ch;
-    padding: 2px 1ch;
-    color: white;
-    font-family: inherit;
-    font-size: 1.0rem;
-    text-align: center;
-    background: radial-gradient(circle at center, #888 20%, #556);
-    background-position: center;
-    background-size: 170%;
-    border-radius: 5px;
-    box-shadow: 0px 3px 0px #444;
-}
 </style>
 
 <template>

@@ -9,6 +9,7 @@
 const path = require("path");
 const { configure } = require("quasar/wrappers");
 const packageJSON = require("./package.json");
+const desktopMode = process.env.VRCA_DESKTOP_MODE;
 
 module.exports = configure(function(ctx) {
     return {
@@ -51,7 +52,7 @@ module.exports = configure(function(ctx) {
         build: {
             target: {
                 browser: ["es2020", "edge88", "firefox78", "chrome87", "safari14"],
-                node: "node16"
+                node: "node18"
             },
 
             vueRouterMode: "hash", // available values: 'hash', 'history'
@@ -69,7 +70,9 @@ module.exports = configure(function(ctx) {
             // polyfillModulePreload: true,
             // distDir
 
-            // extendViteConf (viteConf) {},
+            extendViteConf (viteConf) {
+                if (process.env.VRCA_HOSTED_URL) viteConf.base = process.env.VRCA_HOSTED_URL
+            },
             // viteVuePluginOptions: {},
 
             // vitePlugins: [
@@ -80,6 +83,7 @@ module.exports = configure(function(ctx) {
                 "@Base": path.resolve(__dirname, "./src"),
                 "@Components": path.resolve(__dirname, "./src/components"),
                 "@Modules": path.resolve(__dirname, "./src/modules"),
+                "@Public": path.resolve(__dirname, "./public"),
                 "@Stores": path.resolve(__dirname, "./src/stores")
             },
 
@@ -94,12 +98,14 @@ module.exports = configure(function(ctx) {
                 VRCA_PRODUCT_NAME: process.env.VRCA_PRODUCT_NAME ?? packageJSON.productName,
                 VRCA_TAGLINE: process.env.VRCA_TAGLINE ?? packageJSON.description,
                 VRCA_PRODUCT_DESCRIPTION: process.env.VRCA_PRODUCT_DESCRIPTION ?? packageJSON.description,
-                VRCA_LOGO: process.env.VRCA_LOGO ?? "assets/vircadia-icon.svg",
+                VRCA_LOGO: process.env.VRCA_LOGO ?? "assets/images/branding/vircadia-icon.svg",
+                VRCA_INTRO: process.env.VRCA_INTRO ?? "assets/video/Digisomni_Intro_9-13-2022.webm",
                 // NOTE: VRCA_BANNER should be an absolute URL for Open Graph support.
-                VRCA_BANNER: process.env.VRCA_BANNER ?? "assets/og_banner.png",
+                VRCA_BANNER: process.env.VRCA_BANNER ?? "assets/images/branding/og_banner.png",
                 VRCA_BANNER_ALT: process.env.VRCA_BANNER_ALT ?? packageJSON.productName,
                 VRCA_GLOBAL_SERVICE_TERM: process.env.VRCA_GLOBAL_SERVICE_TERM ?? "Metaverse",
                 VRCA_VERSION_WATERMARK: process.env.VRCA_VERSION_WATERMARK ?? "Early Developer Alpha",
+                VRCA_SHOW_LOADING_SCREEN_HINTS: process.env.VRCA_SHOW_LOADING_SCREEN_HINTS ?? "true",
                 // Theme > Colors
                 VRCA_COLORS_PRIMARY: process.env.VRCA_COLORS_PRIMARY ?? "#0c71c3",
                 VRCA_COLORS_SECONDARY: process.env.VRCA_COLORS_SECONDARY ?? "#8300e9",
@@ -115,14 +121,18 @@ module.exports = configure(function(ctx) {
                 VRCA_WIZARD_TITLE: process.env.VRCA_WIZARD_TITLE ?? packageJSON.productName,
                 VRCA_WIZARD_WELCOME_TEXT: process.env.VRCA_WIZARD_WELCOME_TEXT ?? "Welcome to",
                 VRCA_WIZARD_TAGLINE: process.env.VRCA_WIZARD_TAGLINE ?? "Explore virtual worlds.",
-                VRCA_WIZARD_BUTTON_TEXT: process.env.VRCA_WIZARD_BUTTON_TEXT ?? "Get Started"
+                VRCA_WIZARD_BUTTON_TEXT: process.env.VRCA_WIZARD_BUTTON_TEXT ?? "Get Started",
+                // Desktop App
+                VRCA_DESKTOP_MODE: process.env.VRCA_DESKTOP_MODE
             }
         },
 
         // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#devServer
         devServer: {
             https: false,
-            open: true // opens browser window automatically
+            port: 9000,
+            strictPort: Boolean(desktopMode), // desktop mode must use a strict port
+            open: !Boolean(desktopMode) // opens browser window automatically
         },
 
         // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#framework

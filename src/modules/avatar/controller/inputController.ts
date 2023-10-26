@@ -10,7 +10,7 @@
 //
 
 // This is disabled because TS complains about BABYLON's use of capitalized function names.
-/* eslint-disable new-cap */
+
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
 import {
@@ -105,9 +105,11 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
             }, false);
             // Prevent keys from getting stuck when the window loses focus.
             Tools.RegisterTopRootEvents(window, [
-                { name: "blur", handler: () => {
-                    this._onLostFocus();
-                } }
+                {
+                    name: "blur", handler: () => {
+                        this._onLostFocus();
+                    }
+                }
             ]);
         }
     }
@@ -126,9 +128,11 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
             });
             this._onKeyUp = undefined;
             Tools.UnregisterTopRootEvents(window, [
-                { name: "blur", handler: () => {
-                    this._onLostFocus();
-                } }
+                {
+                    name: "blur", handler: () => {
+                        this._onLostFocus();
+                    }
+                }
             ]);
             this._keysPressed = [];
         }
@@ -889,11 +893,9 @@ export class InputController extends ScriptComponent {
         // Set the visibility of the avatar.
         this._gameObject.isVisible = visible;
 
-        // Set the visibility of the avatar's nametag.
-        const meshes = this._gameObject.getChildMeshes(true, (mesh) => mesh.name === "Nametag");
-        if (meshes.length > 0) {
-            meshes[0].isVisible = visible;
-        }
+        // Set the visibility of the avatar's label.
+        const meshes = this._gameObject.getChildMeshes(true, (mesh) => mesh.name === "Label");
+        meshes.forEach((mesh) => (mesh.isVisible = visible));
 
         // Set the visibility of the avatar's mesh.
         const meshComponent = this._gameObject.getComponent("Mesh");

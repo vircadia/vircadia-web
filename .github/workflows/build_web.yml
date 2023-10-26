@@ -1,0 +1,34 @@
+# Test the latest changes.
+name: ⚙️ Web Build
+on:
+  # Triggers the workflow on PRs in "master" and push events in every branch except "master".
+  push:
+    branches-ignore:
+      - master
+  pull_request:
+    branches: [ "master" ]
+
+  # Allows this workflow to be run manually from the Actions tab.
+  workflow_dispatch:
+
+jobs:
+  web-build:
+    name: ⚒️ Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - uses: actions/setup-node@master
+      with:
+        node-version: 20.x
+
+    - name: 📥 Install project dependencies
+      run: npm install
+
+    - name: ⚒️ Build the project
+      env:
+        NODE_OPTIONS: "--max_old_space_size=4096"
+      run: npm run build

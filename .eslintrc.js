@@ -101,7 +101,7 @@ module.exports = {
         "brace-style": "off",
         "@typescript-eslint/brace-style": ["error"],
         "comma-dangle": "off",
-        "@typescript-eslint/comma-dangle": ["error", "never"],
+        "@typescript-eslint/comma-dangle": ["off", "never"],
         "comma-spacing": "off",
         "@typescript-eslint/comma-spacing": ["error"],
         "default-param-last": "off",
@@ -112,7 +112,7 @@ module.exports = {
         "@typescript-eslint/func-call-spacing": ["error", "never"],
         "indent": "off",
         // Warning: https://github.com/typescript-eslint/typescript-eslint/issues/1824
-        "@typescript-eslint/indent": ["error", 4, { "SwitchCase": 1, "outerIIFEBody": 1 }],
+        "@typescript-eslint/indent": ["off", 4, { "SwitchCase": 1, "outerIIFEBody": 1 }],
         "init-declarations": "off",
         "@typescript-eslint/init-declarations": ["error", "always"],
         "keyword-spacing": "off",
@@ -128,7 +128,7 @@ module.exports = {
         "no-empty-function": "off",
         "@typescript-eslint/no-empty-function": ["error"],
         "no-extra-parens": "off",
-        "@typescript-eslint/no-extra-parens": ["error"],
+        "@typescript-eslint/no-extra-parens": ["off"],
         "no-extra-semi": "off",
         "@typescript-eslint/no-extra-semi": ["error"],
         "no-implied-eval": "off",
@@ -141,7 +141,7 @@ module.exports = {
         "@typescript-eslint/no-loss-of-precision": ["error"],
         "no-magic-numbers": "off",
         "@typescript-eslint/no-magic-numbers": [
-            "error",
+            "off",
             {
                 "ignore": [-1, 0, 1, 2],
                 "ignoreEnums": true,
@@ -171,7 +171,7 @@ module.exports = {
         "no-unused-expressions": "off",
         "@typescript-eslint/no-unused-expressions": ["error"],
         "no-unused-vars": "off",
-        "@typescript-eslint/no-unused-vars": ["error"],
+        "@typescript-eslint/no-unused-vars": ["warn"],
         "no-use-before-define": "off",
         "@typescript-eslint/no-use-before-define": ["error"],
         "no-useless-constructor": "off",
@@ -188,7 +188,7 @@ module.exports = {
         "@typescript-eslint/semi": ["error", "always"],
         "space-before-function-paren": "off",
         "@typescript-eslint/space-before-function-paren": [
-            "error",
+            "warn",
             {
                 "anonymous": "never",
                 "named": "never",
@@ -198,6 +198,7 @@ module.exports = {
         "space-infix-ops": "off",
         "@typescript-eslint/space-infix-ops": ["error", { "int32Hint": false }],
         "@typescript-eslint/no-floating-promises": ["error", { "ignoreIIFE": true }],
+        "@typescript-eslint/no-namespace": 'off',
 
 
         // "no-extra-semi": "error",  // TypeScript extension overrides.
@@ -211,6 +212,11 @@ module.exports = {
         "no-template-curly-in-string": "error",
         "no-unreachable-loop": "error",
         "no-unsafe-optional-chaining": "error",
+        "no-unsafe-call": "off",
+        "@typescript-eslint/no-unsafe-assignment": ["warn"],
+        "@typescript-eslint/no-unsafe-member-access": ["warn"],
+        "@typescript-eslint/no-unsafe-argument": ["warn"],
+        "@typescript-eslint/no-unsafe-call": ["warn"],
         "no-useless-backreference": "error",
         "require-atomic-updates": "error",
 
@@ -218,7 +224,7 @@ module.exports = {
         // "accessor-pairs": "error",
         "array-callback-return": "error",
         "block-scoped-var": "error",
-        "class-methods-use-this": "error",
+        "class-methods-use-this": "off",
         "consistent-return": "error",
         "curly": "error",
         "default-case": "error",
@@ -293,7 +299,7 @@ module.exports = {
         "array-element-newline": ["error", "consistent"],
         "block-spacing": "error",
         // "brace-style": "error",  // TypeScript extension overrides.
-        "camelcase": "error",
+        "camelcase": "off",
         // "comma-dangle": ["error", "never"],  // TypeScript extension overrides.
         // "comma-spacing": "error",  // TypeScript extension overrides.
         "comma-style": "error",
@@ -302,23 +308,23 @@ module.exports = {
         "eol-last": "error",
         // "func-call-spacing": ["error", "never"],  // TypeScript extension overrides.
         "func-style": ["error", "declaration", { "allowArrowFunctions": true }],
-        "implicit-arrow-linebreak": ["error", "beside"],
+        "implicit-arrow-linebreak": ["off", "beside"],
         // "indent": ["error", 4, { "SwitchCase": 1, "outerIIFEBody": 1 }],  // TypeScript extension overrides.
         "jsx-quotes": ["error", "prefer-double"],
         "key-spacing": "error",
         // "keyword-spacing": "error",  // TypeScript extension overrides.
         "max-len": ["error", { "code": 160, "tabWidth": 4 }],
         "multiline-ternary": ["error", "always-multiline"],
-        "new-cap": "error",
+        "new-cap": "off",
         "new-parens": "error",
         "newline-per-chained-call": ["error", { "ignoreChainWithDepth": 2 }],
         // "no-array-constructor": "error",  // TypeScript extension overrides.
-        "no-continue": "error",
+        "no-continue": "off",
         "no-lonely-if": "error",
-        "no-multiple-empty-lines": ["error", { "max": 2, "maxBOF": 0, "maxEOF": 0 }],
+        "no-multiple-empty-lines": ["off", { "max": 2, "maxBOF": 0, "maxEOF": 0 }],
         "no-nested-ternary": "error",
         "no-new-object": "error",
-        "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
+        "no-plusplus": ["off", { "allowForLoopAfterthoughts": true }],
         "no-tabs": "error",
         "no-trailing-spaces": "error",
         "no-unneeded-ternary": "error",
@@ -326,7 +332,7 @@ module.exports = {
         "object-curly-newline": "error",
         // "object-curly-spacing": ["error", "always"],  // TypeScript extension overrides.
         "one-var": ["error", "never"],
-        "operator-linebreak": ["error", "before"],
+        "operator-linebreak": ["off", "before"],
         "prefer-exponentiation-operator": "error",
         "prefer-object-spread": "error",
         // "quotes": ["error", "double", { "allowTemplateLiterals": true }],  // TypeScript extension overrides.
@@ -344,7 +350,7 @@ module.exports = {
         "space-in-parens": "error",
         // "space-infix-ops": "error",  // TypeScript extension overrides.
         "space-unary-ops": [
-            "error", {
+            "off", {
                 "words": true,
                 "nonwords": false
             }

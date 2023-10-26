@@ -1,5 +1,7 @@
 # Vircadia Web
 
+![Alt](https://repobeats.axiom.co/api/embed/52cc737e78701f8a1302f7f9f3dd2fdaf8296f2d.svg "Repobeats analytics image")
+
 ## ⚠️ Early Developer Alpha ⚠️
 ### The Vircadia web client is in Early Developer Alpha! There will be unimplemented features and bugs.
 ***Please take a moment to check the list of issues and file an issue if one does not exist already.
@@ -33,6 +35,12 @@ We currently use the following:
 ### Clone the Repo
 
 First, clone the repository to your machine with Git. Then, open a terminal in that directory.
+
+Vircadia Web relies on the Vircadia Assets submodule, so you must pull recursively.
+
+```sh
+git clone --recursive https://github.com/vircadia/vircadia-web.git
+```
 
 ### Install the dependencies
 
@@ -91,6 +99,22 @@ npm run test
 
 ```sh
 npm run build
+```
+
+## Desktop
+
+The web client can also be compiled to a standalone desktop app. When doing so, the `VRCA_DESKTOP_MODE` environment variable must be set to either `dev` or `build`.
+
+After installing the base Node dependencies with `npm i`, you will also need to install [Tauri's Rust dependencies](https://tauri.app/v1/guides/getting-started/prerequisites).
+
+To run the desktop wrapper in development mode:
+```sh
+npm run dev-desktop
+```
+
+To build the desktop executable:
+```sh
+npm run build-desktop
 ```
 
 ## To Update Contributors

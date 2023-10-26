@@ -1,0 +1,46 @@
+{
+    "build": {
+        "beforeDevCommand": "cd ../ && npm run dev",
+        "beforeBuildCommand": "cd ../ && npm run build",
+        "devPath": "http://localhost:9000",
+        "distDir": "../../dist/spa",
+        "withGlobalTauri": false
+    },
+    "package": {
+        "productName": "Vircadia",
+        "version": "0.0.0"
+    },
+    "tauri": {
+        "allowlist": {
+            "all": false,
+            "shell": {
+                "all": false,
+                "open": true
+            }
+        },
+        "bundle": {
+            "active": true,
+            "targets": "all",
+            "identifier": "com.vircadia.web.desktop",
+            "icon": [
+                "icons/32x32.png",
+                "icons/128x128.png",
+                "icons/128x128@2x.png",
+                "icons/icon.icns",
+                "icons/icon.ico"
+            ]
+        },
+        "security": {
+            "csp": null
+        },
+        "windows": [
+            {
+                "fullscreen": false,
+                "resizable": true,
+                "title": "Vircadia",
+                "width": 1280,
+                "height": 720
+            }
+        ]
+    }
+}

@@ -10,6 +10,14 @@
 -->
 
 <style lang="scss">
+#mainLayout {
+    animation: mainLayoutFadeIn 0.5s ease forwards;
+}
+@keyframes mainLayoutFadeIn {
+    0%   { opacity: 0; }
+    100% { opacity: 1; }
+}
+
 .v-enter-active,
 .v-leave-active {
   transition: opacity 0.2s ease;
@@ -30,14 +38,14 @@
             :style="{background: headerStyle}"
         >
             <div class="row no-wrap">
-                <q-toolbar :style="{ padding: isMobile ? '0px 0px 0px 8px' : '0px 12px' }">
+                <q-toolbar :style="{ padding: isMobile ? '0 0 0 8px' : '0 0 0 12px' }">
                     <q-btn
                         flat
                         round
                         dense
                         icon="menu"
                         aria-label="User Menu"
-                        @click="toggleUserMenu"
+                        @click="toggleOverlay('Menu')"
                         :class="{
                             'q-mr-sm': isDesktop,
                             'q-mr-xs': isMobile
@@ -52,7 +60,7 @@
                         dense
                         icon="travel_explore"
                         aria-label="Explore"
-                        @click="onClickOpenOverlay('Explore')"
+                        @click="toggleOverlay('Explore')"
                         class="q-mr-sm q-ml-sm"
                     />
 
@@ -135,7 +143,7 @@
                         <q-item-section>
                             <q-item-label
                                 style="display: flex;flex-direction: row;justify-content: flex-start;align-items: center;"
-                                :style="{ fontSize: isMobile ? '0.8em' : 'inherit' }"
+                                :style="{ fontSize: isMobile ? '0.75em' : '0.9em' }"
                             >
                                 {{ domainServerState }}
                                 <Transition>
@@ -170,13 +178,13 @@
                     </q-toolbar-title>
 
                     <template v-if="isDesktop">
-                        <q-item clickable v-ripple
+                        <q-item clickable dense v-ripple
                             class="non-selectable"
                             @click="userStore.account.isLoggedIn ?
                             onClickOpenOverlay('Account') : openDialog('Login', true)"
                         >
                             <q-item-section side>
-                                <q-avatar size="48px">
+                                <q-avatar :size="isDesktop ? '38px' : '32px'">
                                     <q-img
                                         :src="profilePicture"
                                     />
@@ -205,9 +213,11 @@
                             class="q-mr-sm q-ml-sm"
                         />
 
-                        <q-separator dark vertical/>
+                        <q-separator dark vertical inset />
+
                         <q-btn
                             flat
+                            round
                             stretch
                             icon="settings"
                             aria-label="Settings Menu"
@@ -260,7 +270,7 @@
                         @show="aMenuIsOpen = true"
                     >
                         <template v-slot:label>
-                            <q-avatar rounded :size="isDesktop ? '48px' : '32px'">
+                            <q-avatar rounded :size="isDesktop ? '38px' : '32px'">
                                 <img :src="applicationStore.theme.logo">
                             </q-avatar>
                         </template>
@@ -417,6 +427,8 @@
         <q-page-container class="full-height">
             <MainScene
                 :interactive="!aMenuIsOpen"
+                :domain-server-connected="domainServerState"
+                :metaverse-server-connected="metaverseServerState"
                 @click.prevent="hideSettingsAndHelpMenus()"
                 @join-conference-room="joinConferenceRoom($event)"
             >
@@ -502,14 +514,14 @@ export default defineComponent({
                 },
                 {
                     icon: "badge",
-                    label: "Nametags",
+                    label: "Labels",
                     action: () => {
-                        userStore.avatar.showNametags = !userStore.avatar.showNametags;
-                        Log.info(Log.types.OTHER, "Toggle Avatar Nametags");
+                        userStore.avatar.showLabels = !userStore.avatar.showLabels;
+                        Log.info(Log.types.OTHER, "Toggle Labels");
                     },
                     isCategory: false,
                     separator: true,
-                    caption: "nametag_setting"
+                    caption: "boolean"
                 },
                 {
                     icon: "lightbulb",
@@ -526,7 +538,7 @@ export default defineComponent({
             helpMenu: [
                 {
                     icon: "chat",
-                    label: "Discord",
+                    label: "Community Chat",
                     link: "https://discord.com/invite/Pvx2vke"
                 },
                 {
@@ -626,8 +638,8 @@ export default defineComponent({
 
     methods: {
         // Drawers
-        toggleUserMenu(): void {
-            (this.$refs as ComponentTemplateRefs).OverlayManager?.toggleOverlay("Menu");
+        toggleOverlay(overlay = "Menu"): void {
+            (this.$refs as ComponentTemplateRefs).OverlayManager?.toggleOverlay(overlay);
         },
         // Settings & Help menus clickaway
         hideSettingsAndHelpMenus(): void {
@@ -682,7 +694,7 @@ export default defineComponent({
         },
         joinConferenceRoom(room: JitsiRoomInfo) {
             this.applicationStore.joinConferenceRoom(room);
-            (this.$refs as ComponentTemplateRefs).OverlayManager?.toggleOverlay("Jitsi");
+            this.toggleOverlay("Jitsi");
         },
         openUrl(pUrl: string) {
             openURL(pUrl);
@@ -710,8 +722,8 @@ export default defineComponent({
         },
         formatMenuItemCaption(caption: string) {
             switch (caption) {
-                case "nametag_setting":
-                    return this.userStore.avatar.showNametags ? "On" : "Off";
+                case "boolean":
+                    return this.userStore.avatar.showLabels ? "On" : "Off";
                 default:
                     return caption;
             }
@@ -736,7 +748,7 @@ export default defineComponent({
             this.userStore.updateAccountInfo(pPayload);
         });
 
-        if (this.isDesktop) {
+        if (this.isDesktop && !applicationStore.globalConsts.APP_DESKTOP_MODE) {
             (this.$refs as ComponentTemplateRefs).OverlayManager?.openOverlay("Menu");
             (this.$refs as ComponentTemplateRefs).OverlayManager?.openOverlay("Chat");
         }
@@ -750,11 +762,11 @@ export default defineComponent({
             ) {
                 // Toggle the menu.
                 if (event.code === this.userStore.controls.keyboard.other.toggleMenu?.keycode) {
-                    (this.$refs as ComponentTemplateRefs).OverlayManager?.toggleOverlay("Menu");
+                    this.toggleOverlay("Menu");
                 }
                 // Open the chat.
                 if (event.code === this.userStore.controls.keyboard.other.openChat?.keycode) {
-                    (this.$refs as ComponentTemplateRefs).OverlayManager?.toggleOverlay("Chat");
+                    this.toggleOverlay("Chat");
                 }
             }
         });

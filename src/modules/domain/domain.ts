@@ -67,7 +67,7 @@ export class Domain {
     private _messageClient: Nullable<DomainMessageClient>;
     private _avatarClient: Nullable<DomainAvatarClient>;
     private _entityClient: Nullable<EntityServer>;
-    private _camera:Nullable<Camera>;
+    private _camera: Nullable<Camera>;
     private _location = new Location("");
 
     public onStateChange: SignalEmitter;
@@ -136,6 +136,7 @@ export class Domain {
 
         Log.debug(Log.types.NETWORK, `Creating a new DomainServer.`);
         this._domain = new DomainServer();
+        this._domain.metaverseServerURL = this.getMetaverseUrl();
         this._domain.account.authRequired.connect(() => {
             console.debug("AUTH REQUIRED: Open login dialog");
             applicationStore.dialog.show = true;

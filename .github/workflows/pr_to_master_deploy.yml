@@ -14,7 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: 🚚 Get latest code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
 
     - uses: actions/setup-node@master
       with:
@@ -26,6 +28,7 @@ jobs:
     - name: ⚒️ Build the project
       env:
         NODE_OPTIONS: "--max_old_space_size=4096"
+        VRCA_HOSTED_URL: "https://app.vircadia.com/staging/${{ github.head_ref }}/"
       run: npm run build
 
     - name: 📂 Sync files

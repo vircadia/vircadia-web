@@ -119,6 +119,8 @@ export class DomainController extends ScriptComponent {
                 avatarList.avatarRemoved.disconnect(this._handleAvatarRemoved);
             }
 
+            this._entityManager?.clear();
+
             this._avatarMixer = null;
             this._entityServer = null;
             this._entityManager = null;
@@ -206,7 +208,7 @@ export class DomainController extends ScriptComponent {
 
     };
 
-    private _handleAvatarSkeletonModelURLChanged(sessionID: Uuid, domain:ScriptAvatar): void {
+    private _handleAvatarSkeletonModelURLChanged(sessionID: Uuid, domain: ScriptAvatar): void {
         Log.debug(Log.types.AVATAR,
             `handleAvatarSkeletonModelURLChanged. Session ID: ${sessionID.stringify()}, ${domain.skeletonModelURL}`);
 
