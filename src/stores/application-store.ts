@@ -80,14 +80,14 @@ export const useApplicationStore = defineStore("application", {
             avatarsInfo: new Map<Uuid, AvatarInfo>()
         },
         messages: {
-            messages: [] as Array<ChatMessage>,
+            messages: new Array<ChatMessage>(),
             nextMessageId: 22,
             maxMessages: 150
         },
         // Information about the audio system.
         audio: {
-            inputsList: [] as Array<MediaDeviceInfo>,
-            outputsList: [] as Array<MediaDeviceInfo>,
+            inputsList: new Array<MediaDeviceInfo>(),
+            outputsList: new Array<MediaDeviceInfo>(),
             user: {
                 connected: false,
                 hasInputAccess: false,
@@ -153,7 +153,7 @@ export const useApplicationStore = defineStore("application", {
         },
         // Conference data.
         conference: {
-            activeRooms: [] as Array<JitsiRoomInfo>,
+            activeRooms: new Array<JitsiRoomInfo>(),
             currentRoom: {} as JitsiRoomInfo
         },
         // State of interactions with the player's avatar.
