@@ -13,9 +13,13 @@ Vircadia Web (*codename Aether*) is an open source metaverse web client for acce
 
 This interface is tested and validated for the following browser platforms:
 * Mobile, Tablet, Desktop
-    * Chromium (Chrome, Brave, etc.)
+    * Chromium (Chrome, Brave, Edge etc.)
     * Webkit (Safari)
     * Gecko (Firefox)
+* Native
+    * Windows 10+
+    * MacOS Monterey
+    * Linux (Ubuntu 20+)
 * XR on Android *(COMING SOON!)*
     * Quest 2/Quest Pro
     * Pico 4
