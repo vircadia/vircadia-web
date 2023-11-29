@@ -45,10 +45,11 @@ import {
     requireScripts,
 } from "@Modules/script";
 import {
+    AvatarMapper,
     InputController,
+    InteractionController,
     MyAvatarController,
     ScriptAvatarController,
-    AvatarMapper,
 } from "@Modules/avatar";
 import {
     IEntity,
@@ -85,14 +86,12 @@ export class VScene {
     _avatarAnimationGroups: AnimationGroup[] = [];
     _resourceManager: Nullable<ResourceManager> = null;
     _domainController: Nullable<DomainController> = null;
+    _interactionController: Nullable<InteractionController> = null;
     _sceneController: Nullable<SceneController> = null;
     _sceneManager: Nullable<GameObject> = null;
     _currentSceneURL = "";
-    private _onMyAvatarModelChangedObservable: Observable<GameObject> =
-        new Observable<GameObject>();
-
-    private _onEntityEventObservable: Observable<EntityEvent> =
-        new Observable<EntityEvent>();
+    private _onMyAvatarModelChangedObservable = new Observable<GameObject>();
+    private _onEntityEventObservable = new Observable<EntityEvent>();
 
     constructor(pEngine: Engine, pSceneId = 0) {
         if (process.env.NODE_ENV === "development") {
@@ -144,6 +143,10 @@ export class VScene {
 
     public get css3DRenderer(): Nullable<CSS3DRenderer> {
         return this._css3DRenderer;
+    }
+
+    public get interactionController(): Nullable<InteractionController> {
+        return this._interactionController;
     }
 
     public get sceneController(): Nullable<SceneController> {
@@ -262,15 +265,12 @@ export class VScene {
             const positionOffset = avatar.calcMovePOV(0, 0, 1.5);
             const position = avatar.position.add(positionOffset);
             this._teleportMyAvatar(position);
-
             this._myAvatar?.lookAt(avatar.position, Math.PI);
         }
     }
 
     public stopMyAvatar(): void {
-        const controller = this._myAvatar?.getComponent(
-            InputController.typeName
-        );
+        const controller = this._myAvatar?.getComponent(InputController.typeName);
         if (controller instanceof InputController) {
             controller.isStopped = true;
         }
@@ -673,6 +673,9 @@ export class VScene {
 
             this._sceneController = new SceneController(this);
             this._sceneManager.addComponent(this._sceneController);
+
+            this._interactionController = new InteractionController(this);
+            this._sceneManager.addComponent(this._interactionController);
         }
 
         if (this._domainController) {

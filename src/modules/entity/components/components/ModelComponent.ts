@@ -11,11 +11,11 @@
 
 import { MeshComponent, DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import {
-    SceneLoader,
-    PhysicsImpostor,
     AbstractMesh,
-    TransformNode,
     Node,
+    PhysicsImpostor,
+    SceneLoader,
+    TransformNode,
 } from "@babylonjs/core";
 import { IModelEntity } from "../../EntityInterfaces";
 import { LabelEntity } from "@Modules/entity/entities";
@@ -23,14 +23,12 @@ import { updateContentLoadingProgress } from "@Modules/scene/LoadingScreen";
 import { applicationStore } from "@Stores/index";
 import Log from "@Modules/debugging/log";
 import { LODManager } from "@Modules/scene/LODManager";
-
-const InteractiveModelTypes = [
-    { name: "chair", condition: /^(?:animate_sitting|animate_seat)/iu },
-    { name: "emoji_people", condition: /^animate_/iu },
-];
+import { InteractionTarget, InteractiveModelTypes } from "@Modules/avatar/controller/InteractionController";
+import { Renderer } from "@Modules/scene";
 
 export class ModelComponent extends MeshComponent {
     private _modelURL = "";
+    private _interactionTargets = new Array<InteractionTarget>();
 
     public get componentType(): string {
         return ModelComponent.typeName;
@@ -76,36 +74,18 @@ export class ModelComponent extends MeshComponent {
 
                 // Add a label to any of the model's children if they match any of the InteractiveModelTypes.
                 const defaultLabelHeight = 0.6;
-                const labelOffset = 0.25;
-                const labelPopDistance =
-                    applicationStore.interactions.interactionDistance;
+                const labelPopDistance = applicationStore.interactions.interactionDistance;
                 const childNodes = this.mesh.getChildren(
-                    (node) => "getBoundingInfo" in node,
+                    (node) => "position" in node,
                     false
                 ) as (AbstractMesh | TransformNode | Node)[];
-                childNodes.forEach((childNode) => {
-                    const genericModelType = InteractiveModelTypes.find(
-                        (type) => type.condition.test(childNode.name)
-                    );
-                    if (
-                        !genericModelType ||
-                        !("getBoundingInfo" in childNode)
-                    ) {
-                        return;
+                for (const node of childNodes) {
+                    if (!("position" in node)) {
+                        continue;
                     }
-                    const boundingInfo = childNode.getBoundingInfo();
-                    const height =
-                        boundingInfo.maximum.y - boundingInfo.minimum.y;
-                    LabelEntity.create(
-                        childNode,
-                        height + labelOffset,
-                        genericModelType.name,
-                        true,
-                        undefined,
-                        labelPopDistance,
-                        () => !applicationStore.interactions.isInteracting
-                    );
-                });
+                    const controller = Renderer.getScene().interactionController;
+                    controller?.addTargets(InteractionTarget.fromMesh(node));
+                }
                 result.transformNodes.forEach((childNode) => {
                     const genericModelType = InteractiveModelTypes.find(
                         (type) => type.condition.test(childNode.name)
@@ -199,6 +179,11 @@ export class ModelComponent extends MeshComponent {
                     entity.restitution;
             }
         }
+    }
+
+    public dispose(): void {
+        Renderer.getScene().interactionController?.removeTargets(this._interactionTargets);
+        super.dispose();
     }
 
     protected _getMass(entity: IModelEntity): number {

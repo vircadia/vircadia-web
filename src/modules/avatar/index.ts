@@ -10,6 +10,7 @@
 //
 
 export { InputController } from "./controller/inputController";
+export { InteractionController } from "./controller/InteractionController";
 export { ScriptAvatarController } from "./controller/scriptAvatarController";
 export { MyAvatarController } from "./controller/myAvatarController";
 export { AvatarMapper } from "./AvatarMapper";

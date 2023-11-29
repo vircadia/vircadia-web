@@ -18,6 +18,7 @@ import { DomainAudioClient } from "@Modules/domain/audio";
 import { DomainAvatarClient } from "@Modules/domain/avatar";
 import { AssignmentClientState } from "@Modules/domain/client";
 import { ConnectionState, Domain } from "@Modules/domain/domain";
+import { InteractionTarget } from "@Modules/avatar/controller/InteractionController";
 import type { ChatMessage } from "@Modules/domain/message";
 import type { WebEntity } from "@Modules/entity/entities";
 import type { IWebEntity } from "@Modules/entity/EntityInterfaces";
@@ -159,7 +160,8 @@ export const useApplicationStore = defineStore("application", {
         // State of interactions with the player's avatar.
         interactions: {
             interactionDistance: 1.5,
-            isInteracting: false
+            isInteracting: false,
+            targets: new Array<InteractionTarget>()
         }
     }),
 
