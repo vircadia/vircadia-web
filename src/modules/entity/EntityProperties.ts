@@ -9,7 +9,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { WebInputMode } from "@vircadia/web-sdk";
+import type { WebInputMode } from "@vircadia/web-sdk";
 
 
 export type EntityType =
