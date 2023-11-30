@@ -14,7 +14,7 @@
 import { AvatarMixer, Uuid, DomainServer } from "@vircadia/web-sdk";
 import type { ScriptAvatar, EntityServer, Camera as DomainCamera } from "@vircadia/web-sdk";
 import type { Camera } from "@babylonjs/core";
-import { MyAvatarController } from "@Modules/avatar";
+import { InputController, MyAvatarController } from "@Modules/avatar";
 import { DomainManager } from "@Modules/domain";
 import { AssignmentClientState, Client } from "@Modules/domain/client";
 import { ConnectionState, Domain } from "@Modules/domain/domain";
@@ -107,11 +107,14 @@ export class DomainController extends ScriptComponent {
 
         } else if (state === ConnectionState.DISCONNECTED) {
             this._vscene?.unloadAllAvatars();
+            this._vscene?.unloadMyAvatar();
 
             const myAvatarController = this._vscene?._myAvatar?.getComponent(MyAvatarController.typeName);
             if (myAvatarController instanceof MyAvatarController) {
                 myAvatarController.myAvatar = null;
             }
+            this._vscene?._myAvatar?.removeComponent(MyAvatarController.typeName);
+            this._vscene?._myAvatar?.removeComponent(InputController.typeName);
 
             const avatarList = this._avatarMixer?.avatarList;
             if (avatarList) {

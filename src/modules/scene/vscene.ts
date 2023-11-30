@@ -76,6 +76,8 @@ export class VScene {
     _scene: Scene;
     private _css3DRenderer: Nullable<CSS3DRenderer> = null;
     _myAvatar: Nullable<GameObject> = null;
+    _myAvatarController: Nullable<MyAvatarController> = null;
+    _myAvatarInputController: Nullable<InputController> = null;
     _myAvatarModelURL = AvatarStoreInterface.getActiveModelData("file");
 
     _avatarList: Map<string, GameObject>;
@@ -204,9 +206,7 @@ export class VScene {
         }
 
         // setup avatar
-        if (!this._myAvatar) {
-            await this.loadMyAvatar(avatarModelURL);
-        }
+        await this.loadMyAvatar(avatarModelURL);
 
         if (this._myAvatar) {
             this._myAvatar.position = avatarPos ?? new Vector3(0, 1, 0);
@@ -373,6 +373,15 @@ export class VScene {
                 `Load MyAvatar: ${this._myAvatarModelURL}`
             );
             const previousAvatar = this._myAvatar;
+            this._myAvatarController?.detach();
+            this._myAvatarController?.onStop();
+            this._myAvatarController?.dispose();
+            this._myAvatarController = null;
+            this._myAvatarInputController?.detach();
+            this._myAvatarInputController?.onStop();
+            this._myAvatarInputController?.dispose();
+            this._myAvatarInputController = null;
+            this._myAvatar?.dispose();
             this._myAvatar = new GameObject("MyAvatar", this._scene);
             if (previousAvatar) {
                 this._myAvatar.position = previousAvatar.position;
@@ -450,25 +459,27 @@ export class VScene {
             }
             this._myAvatar.addComponent(capsuleCollider);
 
-            const myAvatarController = new MyAvatarController();
-            const avatarController = new InputController();
-            avatarController.animGroups = this._avatarAnimationGroups;
-            avatarController.avatarHeight = avatarHeight;
-            avatarController.avatarRoot =
-                myAvatarController.skeletonRootPosition;
-            avatarController.camera = this._camera as ArcRotateCamera;
+            this._myAvatarController = new MyAvatarController();
+            // if (!this._myAvatarInputController) {
+            this._myAvatarInputController = new InputController();
+            // }
+            this._myAvatarInputController.animGroups = this._avatarAnimationGroups;
+            this._myAvatarInputController.avatarHeight = avatarHeight;
+            this._myAvatarInputController.avatarRoot =
+                this._myAvatarController.skeletonRootPosition;
+            this._myAvatarInputController.camera = this._camera as ArcRotateCamera;
             const labelHeightGetter = () =>
-                myAvatarController.skeletonRootPosition.y + avatarHeight / 2;
-            this._myAvatar.addComponent(avatarController);
-            this._myAvatar.addComponent(myAvatarController);
+                this._myAvatarController!.skeletonRootPosition.y + avatarHeight / 2;
+            this._myAvatar.addComponent(this._myAvatarInputController);
+            this._myAvatar.addComponent(this._myAvatarController);
             if (
                 DomainManager.ActiveDomain &&
                 DomainManager.ActiveDomain.AvatarClient?.MyAvatar
             ) {
-                myAvatarController.myAvatar =
+                this._myAvatarController.myAvatar =
                     DomainManager.ActiveDomain.AvatarClient?.MyAvatar;
             }
-            myAvatarController.skeletonModelURL = lastQueuedModelURL;
+            this._myAvatarController.skeletonModelURL = lastQueuedModelURL;
 
             this._onMyAvatarModelChangedObservable.notifyObservers(
                 this._myAvatar
@@ -642,6 +653,16 @@ export class VScene {
             });
         }
         return avatar;
+    }
+
+    public unloadMyAvatar(): void {
+        if (this._myAvatar) {
+            this._myAvatar.removeComponent(MyAvatarController.typeName);
+            this._myAvatar.removeComponent(InputController.typeName);
+            this._myAvatar.dispose();
+            this._myAvatar = null;
+        }
+        this._myAvatarController?.unload();
     }
 
     public unloadAvatar(id: Uuid): void {

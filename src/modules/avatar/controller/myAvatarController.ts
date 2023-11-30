@@ -198,4 +198,10 @@ export class MyAvatarController extends ScriptComponent {
             }
         });
     }
+
+    public unload(): void {
+        if (this._myAvatar) {
+            this._myAvatar = null;
+        }
+    }
 }
