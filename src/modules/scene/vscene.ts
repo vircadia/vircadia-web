@@ -204,10 +204,7 @@ export class VScene {
         }
 
         // setup avatar
-        if (!this._myAvatar) {
-            await this.loadMyAvatar(avatarModelURL);
-        }
-
+        await this.loadMyAvatar(avatarModelURL);
         if (this._myAvatar) {
             this._myAvatar.position = avatarPos ?? new Vector3(0, 1, 0);
             this._myAvatar.rotationQuaternion =
@@ -381,7 +378,7 @@ export class VScene {
                 previousAvatar.dispose();
             }
 
-            const result = await this._resourceManager.loadAvatar(
+            const result = await this._resourceManager.loadMyAvatar(
                 this._myAvatarModelURL
             );
             let boundingVectors = {

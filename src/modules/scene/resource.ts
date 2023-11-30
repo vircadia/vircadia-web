@@ -52,6 +52,10 @@ export class ResourceManager {
         return { rootUrl, filename };
     }
 
+    public async loadMyAvatar(modelUrl: string): Promise<IAvatarResult> {
+        return this._loadAvatar(modelUrl);
+    }
+
     public async loadAvatar(modelUrl: string): Promise<IAvatarResult> {
         const avatar = await this._loadAvatar(modelUrl);
         return avatar;
