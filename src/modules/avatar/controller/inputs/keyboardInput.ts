@@ -22,9 +22,6 @@ import {
     ActionEvent,
     Scalar,
     IAction,
-    AbstractMesh,
-    Node,
-    TransformNode,
     Vector3,
     Quaternion
 } from "@babylonjs/core";
@@ -184,36 +181,12 @@ export class KeyboardInput implements IInputHandler {
         // Sit.
         if (sourceEvent.code === userStore.controls.keyboard.movement.sit?.keycode) {
             // Get the player's avatar mesh.
-            const avatarMesh = this._scene.meshes.find((mesh) => mesh.name === "MyAvatar");
-
+            const avatarMesh = Renderer.getScene().getMyAvatar();
             if (avatarMesh) {
-                // Check for sittable objects.
-                const sitObjects = this._scene.getNodes().filter((node) => (/^animate_/iu).test(node.name)) as (Node | TransformNode | AbstractMesh)[];
-
-                // Filter out any that are too far away, or don't have an absolute position.
-                const avatarAbsolutePosition = avatarMesh.getAbsolutePosition();
-                const distances = [] as [TransformNode | AbstractMesh, number][];
-                sitObjects.forEach((object) => {
-                    if (!("getAbsolutePosition" in object)) {
-                        return;
-                    }
-                    const distance = object.getAbsolutePosition()
-                        .subtract(avatarAbsolutePosition)
-                        .length();
-                    if (distance <= applicationStore.interactions.interactionDistance) {
-                        distances.push([object, distance]);
-                    }
-                });
-
-                // If there are some sittable objects in range, use the closest one.
-                if (distances.length > 0) {
-                    const selectedSitObject = distances.reduce((previousObject, currentObject) => {
-                        if (previousObject[1] <= currentObject[1]) {
-                            return previousObject;
-                        }
-                        return currentObject;
-                    });
-
+                // Get the nearest interactive target.
+                const controller = Renderer.getScene().interactionController;
+                const target = controller?.getNearestTarget();
+                if (target) {
                     // Clear the move direction state.
                     this._state.moveDir = Vector3.Zero();
 
@@ -222,7 +195,7 @@ export class KeyboardInput implements IInputHandler {
                     this._state.state = State.Pose;
                     let animation = Action.SitBeanbag;
                     for (const entry of AnimationMap.entries()) {
-                        if (selectedSitObject[0].name.includes(entry[1].name)) {
+                        if (target.animation.includes(entry[1].name)) {
                             animation = entry[0];
                             break;
                         }
@@ -233,10 +206,10 @@ export class KeyboardInput implements IInputHandler {
                     Renderer.getScene().sceneController?.removeGravity();
 
                     // Snap to the sittable object.
-                    avatarMesh.setAbsolutePosition(selectedSitObject[0].getAbsolutePosition());
-                    avatarMesh.rotationQuaternion = selectedSitObject[0].absoluteRotationQuaternion?.clone()
-                        .multiply(new Quaternion(0, -1, 0, 0))
-                        ?? avatarMesh.rotationQuaternion;
+                    avatarMesh.setAbsolutePosition(target.absolutePosition);
+                    avatarMesh.rotationQuaternion = target.rotation.clone()
+                        .toQuaternion()
+                        .multiply(new Quaternion(0, -1, 0, 0));
                 } else {
                     // Otherwise, sit on the ground.
                     this._state.duration = 0;

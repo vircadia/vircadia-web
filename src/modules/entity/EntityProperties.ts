@@ -9,24 +9,24 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { WebInputMode } from "@vircadia/web-sdk";
+import type { WebInputMode } from "@vircadia/web-sdk";
 
 
 export type EntityType =
-"Unknown" | "Box" | "Sphere" | "Shape" | "Model" |
-"Text" | "Image" | "Web" | "ParticleEffect" |
-"Line" | "PolyLine" | "PolyVox" | "Grid" | "Gizmo" |
-"Light" | "Zone" | "Material";
+    "Unknown" | "Box" | "Sphere" | "Shape" | "Model" |
+    "Text" | "Image" | "Web" | "ParticleEffect" |
+    "Line" | "PolyLine" | "PolyVox" | "Grid" | "Gizmo" |
+    "Light" | "Zone" | "Material";
 
 export type Shape =
-"Circle" | "Cone" | "Cube" | "Cylinder" | "Dodecahedron" |
-"Hexagon" | "Icosahedron" | "Octagon" | "Octahedron" |
-"Quad" | "Sphere" | "Tetrahedron" | "Torus" | "Triangle";
+    "Circle" | "Cone" | "Cube" | "Cylinder" | "Dodecahedron" |
+    "Hexagon" | "Icosahedron" | "Octagon" | "Octahedron" |
+    "Quad" | "Sphere" | "Tetrahedron" | "Torus" | "Triangle";
 
 export type ShapeType = "none" | "box" | "sphere" | "cylinder" |
-"capsule-x" | "capsule-y" | "capsule-z" | "cylinder-x" | "cylinder-y" | "cylinder-z" |
-"hull" | "compound" | "simple-hull" | "simple-compound" | "static-mesh" |
-"plane" | "ellipsoid" | "circle" | "multisphere";
+    "capsule-x" | "capsule-y" | "capsule-z" | "cylinder-x" | "cylinder-y" | "cylinder-z" |
+    "hull" | "compound" | "simple-hull" | "simple-compound" | "static-mesh" |
+    "plane" | "ellipsoid" | "circle" | "multisphere";
 
 export type MaterialMappingMode = "uv" | "projected";
 
@@ -74,7 +74,7 @@ export interface IColorProperty {
 
 export interface IAmbientLightProperty {
     ambientIntensity?: number | undefined;
-    ambientURL? : string | undefined;
+    ambientURL?: string | undefined;
 }
 
 export interface IKeyLightProperty {
@@ -88,7 +88,7 @@ export interface IKeyLightProperty {
 
 export interface ISkyboxProperty {
     color: IColorProperty | undefined;
-    url:string | undefined;
+    url: string | undefined;
 }
 
 export interface IHazeProperty {

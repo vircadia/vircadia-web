@@ -9,8 +9,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-/* eslint-disable @typescript-eslint/no-magic-numbers */
-
 import Log from "@Modules/debugging/log";
 import { inspector } from "@Modules/script";
 import { Renderer, VScene } from "@Modules/scene";

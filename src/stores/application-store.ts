@@ -18,6 +18,7 @@ import { DomainAudioClient } from "@Modules/domain/audio";
 import { DomainAvatarClient } from "@Modules/domain/avatar";
 import { AssignmentClientState } from "@Modules/domain/client";
 import { ConnectionState, Domain } from "@Modules/domain/domain";
+import { InteractionTarget } from "@Modules/avatar/controller/InteractionController";
 import type { ChatMessage } from "@Modules/domain/message";
 import type { WebEntity } from "@Modules/entity/entities";
 import type { IWebEntity } from "@Modules/entity/EntityInterfaces";
@@ -80,14 +81,14 @@ export const useApplicationStore = defineStore("application", {
             avatarsInfo: new Map<Uuid, AvatarInfo>()
         },
         messages: {
-            messages: [] as Array<ChatMessage>,
+            messages: new Array<ChatMessage>(),
             nextMessageId: 22,
             maxMessages: 150
         },
         // Information about the audio system.
         audio: {
-            inputsList: [] as Array<MediaDeviceInfo>,
-            outputsList: [] as Array<MediaDeviceInfo>,
+            inputsList: new Array<MediaDeviceInfo>(),
+            outputsList: new Array<MediaDeviceInfo>(),
             user: {
                 connected: false,
                 hasInputAccess: false,
@@ -153,13 +154,14 @@ export const useApplicationStore = defineStore("application", {
         },
         // Conference data.
         conference: {
-            activeRooms: [] as Array<JitsiRoomInfo>,
+            activeRooms: new Array<JitsiRoomInfo>(),
             currentRoom: {} as JitsiRoomInfo
         },
         // State of interactions with the player's avatar.
         interactions: {
             interactionDistance: 1.5,
-            isInteracting: false
+            isInteracting: false,
+            targets: new Array<InteractionTarget>()
         }
     }),
 
