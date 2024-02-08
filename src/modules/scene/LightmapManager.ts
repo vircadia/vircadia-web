@@ -9,9 +9,14 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+
 import {
     type AbstractMesh,
     type Scene,
+    PBRMaterial,
 } from "@babylonjs/core";
 import Log from "../debugging/log";
 import { glTF as MeshTypes } from "../../../types/vircadia_gameUse";
@@ -35,20 +40,18 @@ export class LightmapManager {
                     (m) => m.name === lightmapMaterialName
                 );
 
-                if (material && material.albedoTexture) {
-                    mesh.material.lightmapTexture = material.albedoTexture;
-                    mesh.material.useLightmapAsShadowmap = true;
-                    mesh.material.lightmapTexture.coordinatesIndex =
-                        mesh.metadata.gltf.extras.vircadia_lightmap_texcoord;
-                    Log.info(
-                        Log.types.ENTITIES,
-                        `Applied albedo texture as lightmap texture for: ${mesh.name}`
-                    );
+                if (!(mesh.material instanceof PBRMaterial)) {
+                    Log.error(Log.types.ENTITIES,
+                        `Material type of ${mesh.material} for: ${mesh.name} is not supported for lightmap application. Need PBRMaterial. Skipping...`);
+                }
+
+                const materialToUse = material as PBRMaterial;
+                if (materialToUse && materialToUse.albedoTexture && mesh.material) {
+                    (mesh.material as PBRMaterial).lightmapTexture = materialToUse.albedoTexture;
+                    (mesh.material as PBRMaterial).useLightmapAsShadowmap = true;
+                    (mesh.material as PBRMaterial).lightmapTexture!.coordinatesIndex = mesh.metadata.gltf.extras.vircadia_lightmap_texcoord;
                 } else {
-                    Log.error(
-                        Log.types.ENTITIES,
-                        `Could not find material or albedo texture for: ${mesh.name}`
-                    );
+                    Log.error(Log.types.ENTITIES, `Could not find material or albedo texture for: ${mesh.name}`);
                 }
             }
 
