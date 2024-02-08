@@ -1,14 +1,25 @@
-export namespace Mesh {
-    export interface Metadata {
-        vircadia_lod_mode?: LOD.Modes;
-        vircadia_lod_auto?: boolean;
-        vircadia_lod_distance?: number;
-        vircadia_lod_size?: number;
-        vircadia_lod_hide?: number;
-        vircadia_billboard_mode?: string;
+export namespace glTF {
+    export interface MetadataInterface {
+        vircadia_lod_mode: LOD.Modes | null;
+        vircadia_lod_auto: boolean | null;
+        vircadia_lod_distance: number | null;
+        vircadia_lod_size: number | null;
+        vircadia_lod_hide: number | null;
+        vircadia_billboard_mode: string | null;
         // Lightmap
-        vircadia_lightmap_default?: string,
-        vircadia_lightmap_texcoord?: number
+        vircadia_lightmap_default: string | null;
+        vircadia_lightmap_texcoord: number | null;
+    }
+
+    export class Metadata implements MetadataInterface {
+        public vircadia_lod_mode = null;
+        public vircadia_lod_auto = null;
+        public vircadia_lod_distance = null;
+        public vircadia_lod_size = null;
+        public vircadia_lod_hide = null;
+        public vircadia_billboard_mode = null;
+        public vircadia_lightmap_default = null;
+        public vircadia_lightmap_texcoord = null;
     }
 
     export namespace LOD {
@@ -35,6 +46,6 @@ export namespace Mesh {
     }
 
     export namespace Lightmap {
-        export const LightmapDataMesh = "vircadia_lightmapData_"; // + lightmap name
+        export const DATA_MESH_NAME = "vircadia_lightmapData";
     }
 }

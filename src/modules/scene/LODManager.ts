@@ -16,7 +16,7 @@ import {
     Mesh
 } from "@babylonjs/core";
 import Log from "../debugging/log";
-import { Mesh as MeshTypes } from "../../../types/vircadia_gameUse";
+import { glTF as MeshTypes } from "../../../types/vircadia_gameUse";
 
 export const StringsAsBillboardModes: { [key: string]: MeshTypes.BillboardModes } = {
     none: MeshTypes.BillboardModes.BILLBOARDMODE_NONE,
@@ -97,14 +97,7 @@ export class LODManager {
         const meshExtras = mesh.metadata?.gltf?.extras;
         const parentExtras = mesh.parent?.metadata?.gltf?.extras;
 
-        const meshMetadata: MeshTypes.Metadata = {
-            vircadia_lod_mode: undefined,
-            vircadia_lod_auto: undefined,
-            vircadia_lod_distance: undefined,
-            vircadia_lod_size: undefined,
-            vircadia_lod_hide: undefined,
-            vircadia_billboard_mode: undefined
-        };
+        const meshMetadata = new MeshTypes.Metadata();
 
         if (meshExtras === null || meshExtras === undefined && parentExtras !== null || parentExtras !== undefined) {
             meshMetadata.vircadia_lod_mode = parentExtras?.vircadia_lod_mode;
@@ -127,9 +120,9 @@ export class LODManager {
 
     private static setBillboardMode(
         mesh: Mesh | AbstractMesh | InstancedMesh,
-        modeAsString: string | undefined
+        modeAsString: string | null
     ): void {
-        if (modeAsString !== undefined) {
+        if (modeAsString !== null) {
             const mode = StringsAsBillboardModes[modeAsString];
             mesh.scaling.x *= -1;
             mesh.billboardMode = mode;
@@ -142,9 +135,9 @@ export class LODManager {
 
     private static setLODHide(
         mesh: Mesh,
-        hideAtDistance: number | undefined
+        hideAtDistance: number | null
     ): void {
-        if (hideAtDistance !== undefined) {
+        if (hideAtDistance !== null) {
             mesh.addLODLevel(hideAtDistance, null);
             Log.debug(
                 Log.types.ENTITIES,
@@ -282,7 +275,6 @@ export class LODManager {
                     );
 
                     const level = parse.lodLevel;
-                    let mode = MeshTypes.LOD.Modes.DISTANCE;
 
                     if (
                         !level ||
@@ -294,9 +286,7 @@ export class LODManager {
                         continue;
                     }
 
-                    if (metadata.vircadia_lod_mode) {
-                        mode = metadata.vircadia_lod_mode;
-                    }
+                    const mode = metadata.vircadia_lod_mode ?? MeshTypes.LOD.Modes.DISTANCE;
 
                     switch (mode) {
                         case MeshTypes.LOD.Modes.DISTANCE: {
@@ -317,6 +307,7 @@ export class LODManager {
 
                             break;
                         }
+                        // FIXME: ??? TS
                         case MeshTypes.LOD.Modes.SIZE: {
                             let sizeTarget =
                                 SizeTargets[level as keyof typeof SizeTargets];

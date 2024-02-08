@@ -23,6 +23,7 @@ import { updateContentLoadingProgress } from "@Modules/scene/LoadingScreen";
 import { applicationStore } from "@Stores/index";
 import Log from "@Modules/debugging/log";
 import { LODManager } from "@Modules/scene/LODManager";
+import { LightmapManager } from "@Modules/scene/LightmapManager";
 
 const InteractiveModelTypes = [
     { name: "chair", condition: /^(?:animate_sitting|animate_seat)/iu },
@@ -70,6 +71,10 @@ export class ModelComponent extends MeshComponent {
                 let meshes = result.meshes;
                 // LOD Handling
                 meshes = LODManager.setLODLevels(meshes);
+                // Lightmap Handling
+                if (this._gameObject?.getScene()) {
+                    meshes = LightmapManager.applySceneLightmapsToMeshes(meshes, this._gameObject.getScene());
+                }
 
                 this.mesh = meshes[0];
                 this.renderGroupId = DEFAULT_MESH_RENDER_GROUP_ID;
