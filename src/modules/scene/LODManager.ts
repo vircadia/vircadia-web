@@ -77,19 +77,19 @@ export const AutoTargets: { [key in MeshTypes.LOD.Levels]?: AutoTarget } = {
 
 export class LODManager {
     public static parseMeshName(name: string): {
-        prefix?: string;
-        lodLevel?: string;
-        name?: string;
-        suffix?: string;
+        prefix: string | null;
+        lodLevel: string | null;
+        name: string | null;
+        suffix: string | null;
     } {
         const lodPattern = /^(?<prefix>.*)_(?<lodLevel>LOD[0-4])(?<suffix>.*)?$/u;
         const match = name.match(lodPattern);
 
         return {
-            prefix: match?.groups?.prefix,
-            lodLevel: match?.groups?.lodLevel,
+            prefix: match?.groups?.prefix ?? null,
+            lodLevel: match?.groups?.lodLevel ?? null,
             name,
-            suffix: match?.groups?.suffix,
+            suffix: match?.groups?.suffix ?? null,
         };
     }
 
@@ -99,7 +99,8 @@ export class LODManager {
 
         const meshMetadata = new MeshTypes.Metadata();
 
-        if (meshExtras === null || meshExtras === undefined && parentExtras !== null || parentExtras !== undefined) {
+        if ((meshExtras === null || meshExtras === undefined)
+            && (parentExtras !== null && parentExtras !== undefined)) {
             meshMetadata.vircadia_lod_mode = parentExtras?.vircadia_lod_mode;
             meshMetadata.vircadia_lod_auto = parentExtras?.vircadia_lod_auto;
             meshMetadata.vircadia_lod_distance = parentExtras?.vircadia_lod_distance;
@@ -202,12 +203,12 @@ export class LODManager {
         }
 
         const roots: {
-            prefix: string | undefined;
-            suffix: string | undefined;
-            name: string | undefined;
+            prefix: string | null;
+            suffix: string | null;
+            name: string | null;
             mesh: Mesh;
             metadata: MeshTypes.Metadata;
-            lodLevel: string | undefined;
+            lodLevel: string | null;
             simplificationSettings: ISimplificationSettings[];
         }[] = [];
 
@@ -307,7 +308,6 @@ export class LODManager {
 
                             break;
                         }
-                        // FIXME: ??? TS
                         case MeshTypes.LOD.Modes.SIZE: {
                             let sizeTarget =
                                 SizeTargets[level as keyof typeof SizeTargets];

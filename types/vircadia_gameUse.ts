@@ -12,14 +12,14 @@ export namespace glTF {
     }
 
     export class Metadata implements MetadataInterface {
-        public vircadia_lod_mode = null;
-        public vircadia_lod_auto = null;
-        public vircadia_lod_distance = null;
-        public vircadia_lod_size = null;
-        public vircadia_lod_hide = null;
-        public vircadia_billboard_mode = null;
-        public vircadia_lightmap_default = null;
-        public vircadia_lightmap_texcoord = null;
+        public vircadia_lod_mode: LOD.Modes | null = null;
+        public vircadia_lod_auto: boolean | null = null;
+        public vircadia_lod_distance: number | null = null;
+        public vircadia_lod_size: number | null = null;
+        public vircadia_lod_hide: number | null = null;
+        public vircadia_billboard_mode: string | null = null;
+        public vircadia_lightmap_default: string | null = null;
+        public vircadia_lightmap_texcoord: number | null = null;
     }
 
     export namespace LOD {
