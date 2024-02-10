@@ -15,7 +15,7 @@ import {
     type InstancedMesh,
     Mesh
 } from "@babylonjs/core";
-import Log from "../debugging/log";
+// import Log from "../debugging/log";
 import { glTF as MeshTypes } from "../../../types/vircadia_gameUse";
 
 export const StringsAsBillboardModes: { [key: string]: MeshTypes.BillboardModes } = {
@@ -94,27 +94,9 @@ export class LODManager {
     }
 
     private static getMetadataFromMesh(mesh: AbstractMesh | Mesh | InstancedMesh) {
-        const meshExtras = mesh.metadata?.gltf?.extras;
-        const parentExtras = mesh.parent?.metadata?.gltf?.extras;
-
-        const meshMetadata = new MeshTypes.Metadata();
-
-        if ((meshExtras === null || meshExtras === undefined)
-            && (parentExtras !== null && parentExtras !== undefined)) {
-            meshMetadata.vircadia_lod_mode = parentExtras?.vircadia_lod_mode ?? null;
-            meshMetadata.vircadia_lod_auto = parentExtras?.vircadia_lod_auto ?? null;
-            meshMetadata.vircadia_lod_distance = parentExtras?.vircadia_lod_distance ?? null;
-            meshMetadata.vircadia_lod_size = parentExtras?.vircadia_lod_size ?? null;
-            meshMetadata.vircadia_lod_hide = parentExtras?.vircadia_lod_hide ?? null;
-            meshMetadata.vircadia_billboard_mode = parentExtras?.vircadia_billboard_mode ?? null;
-        } else {
-            meshMetadata.vircadia_lod_mode = meshExtras?.vircadia_lod_mode ?? null;
-            meshMetadata.vircadia_lod_auto = meshExtras?.vircadia_lod_auto ?? null;
-            meshMetadata.vircadia_lod_distance = meshExtras?.vircadia_lod_distance ?? null;
-            meshMetadata.vircadia_lod_size = meshExtras?.vircadia_lod_size ?? null;
-            meshMetadata.vircadia_lod_hide = meshExtras?.vircadia_lod_hide ?? null;
-            meshMetadata.vircadia_billboard_mode = meshExtras?.vircadia_billboard_mode ?? null;
-        }
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        const metadataExtras = mesh?.metadata?.gltf?.extras ?? mesh?.parent?.metadata?.gltf?.extras;
+        const meshMetadata = new MeshTypes.Metadata(metadataExtras as Partial<MeshTypes.MetadataInterface>);
 
         return meshMetadata;
     }
@@ -127,10 +109,10 @@ export class LODManager {
             const mode = StringsAsBillboardModes[modeAsString];
             mesh.scaling.x *= -1;
             mesh.billboardMode = mode;
-            Log.debug(
-                Log.types.ENTITIES,
-                `Set billboard mode to ${modeAsString} for mesh ${mesh.name}.`
-            );
+            // Log.debug(
+            //     Log.types.ENTITIES,
+            //     `Set billboard mode to ${modeAsString} for mesh ${mesh.name}.`
+            // );
         }
     }
 
@@ -140,29 +122,29 @@ export class LODManager {
     ): void {
         if (hideAtDistance !== null) {
             mesh.addLODLevel(hideAtDistance, null);
-            Log.debug(
-                Log.types.ENTITIES,
-                `Added LOD hide level ${hideAtDistance} to mesh ${mesh.name}.`
-            );
+            // Log.debug(
+            //     Log.types.ENTITIES,
+            //     `Added LOD hide level ${hideAtDistance} to mesh ${mesh.name}.`
+            // );
         }
     }
 
     private static setLODMode(mesh: Mesh, mode: MeshTypes.LOD.Modes): void {
         if (mode === MeshTypes.LOD.Modes.SIZE) {
             mesh.useLODScreenCoverage = true;
-            Log.debug(
-                Log.types.ENTITIES,
-                `Set LOD mode to ${mode} for mesh ${mesh.name}.`
-            );
+            // Log.debug(
+            //     Log.types.ENTITIES,
+            //     `Set LOD mode to ${mode} for mesh ${mesh.name}.`
+            // );
         }
     }
 
     private static setLODLevel(root: Mesh, lodMesh: Mesh, value: number): void {
         root.addLODLevel(value, lodMesh);
-        Log.debug(
-            Log.types.ENTITIES,
-            `Added LOD value ${value} with mesh ${lodMesh.name} to root ${root.name}.`
-        );
+        // Log.debug(
+        //     Log.types.ENTITIES,
+        //     `Added LOD value ${value} with mesh ${lodMesh.name} to root ${root.name}.`
+        // );
     }
 
     public static setLODLevels(meshes: AbstractMesh[]): AbstractMesh[] {
@@ -183,20 +165,20 @@ export class LODManager {
                     }
                 });
 
-                Log.debug(
-                    Log.types.ENTITIES,
-                    `Using auto LOD for ${mesh.name}.`
-                );
+                // Log.debug(
+                //     Log.types.ENTITIES,
+                //     `Using auto LOD for ${mesh.name}.`
+                // );
 
                 (mesh as Mesh)?.simplify(
                     simplificationSettings,
                     false,
                     undefined,
                     () => {
-                        Log.debug(
-                            Log.types.ENTITIES,
-                            `Added auto LOD level to root ${mesh.name}.`
-                        );
+                        // Log.debug(
+                        //     Log.types.ENTITIES,
+                        //     `Added auto LOD level to root ${mesh.name}.`
+                        // );
                     }
                 );
             }
@@ -233,11 +215,11 @@ export class LODManager {
                     simplificationSettings: [],
                 });
             } else {
-                Log.debug(
-                    Log.types.ENTITIES,
-                    `Root mesh ${mesh.name} not added.\nMesh type ${mesh.constructor.name
-                    }.\nLOD level ${parse?.lodLevel ?? "Unknown"}.`
-                );
+                // Log.debug(
+                //     Log.types.ENTITIES,
+                //     `Root mesh ${mesh.name} not added.\nMesh type ${mesh.constructor.name
+                //     }.\nLOD level ${parse?.lodLevel ?? "Unknown"}.`
+                // );
                 continue;
             }
         }

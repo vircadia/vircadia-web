@@ -12,6 +12,8 @@ export namespace glTF {
     }
 
     export class Metadata implements MetadataInterface {
+        [key: string]: LOD.Modes | boolean | number | string | null;
+
         public vircadia_lod_mode: LOD.Modes | null = null;
         public vircadia_lod_auto: boolean | null = null;
         public vircadia_lod_distance: number | null = null;
@@ -20,6 +22,12 @@ export namespace glTF {
         public vircadia_billboard_mode: string | null = null;
         public vircadia_lightmap_default: string | null = null;
         public vircadia_lightmap_texcoord: number | null = null;
+
+        constructor(metadata?: Partial<NonNullable<MetadataInterface>>) {
+            if (metadata) {
+                Object.assign(this, metadata);
+            }
+        }
     }
 
     export namespace LOD {
