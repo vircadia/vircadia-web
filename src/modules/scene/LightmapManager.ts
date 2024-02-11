@@ -27,14 +27,14 @@ export class LightmapManager {
             const metadata = new MeshTypes.Metadata(metadataExtras as Partial<MeshTypes.MetadataInterface>);
 
             if (
-                metadata.vircadia_lightmap_default
+                metadata.vircadia_lightmap
                 && metadata.vircadia_lightmap_texcoord
             ) {
                 // Log.debug(
                 //     Log.types.ENTITIES,
-                //     `Mesh ${mesh.name} has lightmap metadata: ${metadata.vircadia_lightmap_default}`
+                //     `Mesh ${mesh.name} has lightmap metadata: ${metadata.vircadia_lightmap}`
                 // );
-                const lightmapMaterialName = metadata.vircadia_lightmap_default;
+                const lightmapMaterialName = metadata.vircadia_lightmap;
                 // Search for the material by name
                 const material = scene.materials.find(
                     (m) => m.name === lightmapMaterialName
