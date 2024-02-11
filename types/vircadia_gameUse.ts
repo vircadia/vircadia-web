@@ -7,21 +7,28 @@ export namespace glTF {
         vircadia_lod_hide: number | null;
         vircadia_billboard_mode: string | null;
         // Lightmap
-        vircadia_lightmap_default: string | null;
+        vircadia_lightmap: string | null;
         vircadia_lightmap_texcoord: number | null;
+        vircadia_lightmap_use_as_shadowmap: boolean | null;
+        // Lightmap -> Lights
+        vircadia_lightmap_mode: Lightmap.Modes | null;
     }
 
     export class Metadata implements MetadataInterface {
-        [key: string]: LOD.Modes | boolean | number | string | null;
+        [key: string]: LOD.Modes | Lightmap.Modes | boolean | number | string | null;
 
-        public vircadia_lod_mode: LOD.Modes | null = null;
-        public vircadia_lod_auto: boolean | null = null;
-        public vircadia_lod_distance: number | null = null;
-        public vircadia_lod_size: number | null = null;
-        public vircadia_lod_hide: number | null = null;
-        public vircadia_billboard_mode: string | null = null;
-        public vircadia_lightmap_default: string | null = null;
-        public vircadia_lightmap_texcoord: number | null = null;
+        public vircadia_lod_mode = null;
+        public vircadia_lod_auto = null;
+        public vircadia_lod_distance = null;
+        public vircadia_lod_size = null;
+        public vircadia_lod_hide = null;
+        public vircadia_billboard_mode = null;
+        // Lightmap
+        public vircadia_lightmap = null;
+        public vircadia_lightmap_texcoord = null;
+        public vircadia_lightmap_use_as_shadowmap = null;
+        // Lightmap -> Lights
+        public vircadia_lightmap_mode = null;
 
         constructor(metadata?: Partial<NonNullable<MetadataInterface>>) {
             if (metadata) {
@@ -55,5 +62,11 @@ export namespace glTF {
 
     export namespace Lightmap {
         export const DATA_MESH_NAME = "vircadia_lightmapData";
+
+        export enum Modes {
+            DEFAULT = "default",
+            SHADOWSONLY = "shadowsOnly",
+            SPECULAR = "specular",
+        }
     }
 }

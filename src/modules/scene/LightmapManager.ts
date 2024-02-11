@@ -54,7 +54,7 @@ export class LightmapManager {
 
                     Texture.WhenAllReady([materialToUse.albedoTexture], () => {
                         (mesh.material as PBRMaterial).lightmapTexture = materialToUse.albedoTexture;
-                        (mesh.material as PBRMaterial).useLightmapAsShadowmap = true;
+                        (mesh.material as PBRMaterial).useLightmapAsShadowmap = metadata.vircadia_lightmap_use_as_shadowmap ?? true;
 
                         if ((mesh.material as PBRMaterial).lightmapTexture && metadata.vircadia_lightmap_texcoord) {
                             (mesh.material as PBRMaterial).lightmapTexture!.coordinatesIndex = metadata.vircadia_lightmap_texcoord;
