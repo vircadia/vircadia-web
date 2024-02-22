@@ -225,10 +225,12 @@ module.exports = {
         "no-unreachable-loop": "error",
         "no-unsafe-optional-chaining": "error",
         "no-unsafe-call": "off",
-        "@typescript-eslint/no-unsafe-assignment": ["warn"],
+        "@typescript-eslint/no-unsafe-assignment": ["off"],
         "@typescript-eslint/no-unsafe-member-access": ["warn"],
         "@typescript-eslint/no-unsafe-argument": ["warn"],
         "@typescript-eslint/no-unsafe-call": ["warn"],
+        "@typescript-eslint/restrict-template-expressions": ["off"],
+        "@typescript-eslint/no-use-before-define": ["off"],
         "no-useless-backreference": "error",
         "require-atomic-updates": "error",
 
