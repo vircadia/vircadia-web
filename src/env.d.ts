@@ -4,6 +4,7 @@ declare namespace NodeJS {
         VUE_ROUTER_MODE: "hash" | "history" | "abstract" | undefined;
         VUE_ROUTER_BASE: string | undefined;
         VRCA_DEFAULT_METAVERSE_URL: string;
+        VRCA_DEFAULT_ICE_SERVERS: string;
         VRCA_DEFAULT_DOMAIN_PROTOCOL: string;
         VRCA_DEFAULT_DOMAIN_PORT: string;
         VRCA_DEFAULT_DOMAIN_URL: string;
