@@ -87,9 +87,7 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
                 }
             };
             element?.addEventListener("keydown", (event) => {
-                if (this._onKeyDown) {
-                    this._onKeyDown(event);
-                }
+                this._onKeyDown?.(event);
             }, false);
             // Define the keyup event handler.
             this._onKeyUp = (event: KeyboardEvent) => {
@@ -103,9 +101,7 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
                 }
             };
             element?.addEventListener("keyup", (event) => {
-                if (this._onKeyUp) {
-                    this._onKeyUp(event);
-                }
+                this._onKeyUp?.(event);
             }, false);
             // Prevent keys from getting stuck when the window loses focus.
             Tools.RegisterTopRootEvents(window, [
@@ -124,15 +120,11 @@ class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
         if (this._onKeyDown || this._onKeyUp) {
             // Remove all event listeners.
             element?.removeEventListener("keydown", (event) => {
-                if (this._onKeyDown) {
-                    this._onKeyDown(event);
-                }
+                this._onKeyDown?.(event);
             });
             this._onKeyDown = undefined;
             element?.removeEventListener("keyup", (event) => {
-                if (this._onKeyUp) {
-                    this._onKeyUp(event);
-                }
+                this._onKeyUp?.(event);
             });
             this._onKeyUp = undefined;
             Tools.UnregisterTopRootEvents(window, [
@@ -188,7 +180,7 @@ export class InputController extends ScriptComponent {
     private _avatarRoot: Nullable<Vector3> = null;
     private _inputState = new InputState();
     private _input: Nullable<IInputHandler> = null;
-    private _isMobile = false;
+    private _touchInput: Nullable<IInputHandler | VirtualJoystickInput> = null;
 
     @inspector()
     private _defaultCameraTarget = new Vector3(0, 1.7, 0);
@@ -393,10 +385,6 @@ export class InputController extends ScriptComponent {
         this._avatarState.state = State.Idle;
         this._avatarState.action = Action.Idle;
 
-        // Test if browser is a mobile device.
-        const regexp = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/iu;
-        this._isMobile = regexp.test(navigator.userAgent);
-
         this._inputState.onCameraCheckCollisionChangedObservable.add(() => {
             if (this._camera) {
                 this._camera.checkCollisions = this._inputState.cameraCheckCollisions;
@@ -477,28 +465,29 @@ export class InputController extends ScriptComponent {
     }
 
     private _attachControl(): void {
-        // TODO: Make this configurable as a selected input type, influenced by mobile by default.
-        if (this._isMobile && !(this._input instanceof VirtualJoystickInput)) {
-            this._input?.detachControl();
-            this._input = new VirtualJoystickInput(this._avatarState, this._scene);
-            this._input.attachControl();
-        } else if (!(this._input instanceof KeyboardInput)) {
+        if (!(this._input instanceof KeyboardInput)) {
             this._input?.detachControl();
             this._input = new KeyboardInput(this._avatarState, this._inputState, this._scene);
             this._input.attachControl();
         }
-    }
-
-    private _detachControl(): void {
-        if (this._input) {
-            this._input.detachControl();
-            this._input = null;
+        if (!(this._touchInput instanceof VirtualJoystickInput)) {
+            this._touchInput?.detachControl();
+            this._touchInput = new VirtualJoystickInput(this._avatarState, this._scene);
+            this._touchInput.attachControl();
         }
     }
 
+    private _detachControl(): void {
+        this._input?.detachControl();
+        this._input = null;
+        this._touchInput?.detachControl();
+        this._touchInput = null;
+    }
+
     private _handleInput(delta: number): void {
-        if (this._input) {
-            this._input.handleInputs(delta);
+        const touchActive = this._touchInput?.handleInputs(delta); // Touch input should have control priority, so it must be handled first.
+        if (!touchActive) {
+            this._input?.handleInputs(delta);
         }
     }
 
