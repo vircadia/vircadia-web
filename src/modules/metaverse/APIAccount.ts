@@ -28,9 +28,11 @@ export interface GetAccountByIdResponse {
 // Create an account.
 export const PostUsersAPI = "/api/v1/users";
 export interface PostUsersRequest extends KeyedCollection {
-    "username": string,
-    "password": string,
-    "email": string
+    "user": {
+        "username": string,
+        "password": string,
+        "email": string
+    }
 }
 export interface PostUsersResponse {
     "accountId": string,
