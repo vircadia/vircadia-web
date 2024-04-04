@@ -113,7 +113,13 @@ export class API {
      */
     public static async post(path: string, body: FormData | KeyedCollection, metaverseUrl?: string): Promise<unknown> {
         const requestConfig = this.buildRequestConfig("POST");
-        requestConfig.body = body;
+        requestConfig.body = body instanceof FormData ? body : JSON.stringify(body);
+        if (!(body instanceof FormData)) {
+            requestConfig.headers = {
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            };
+        }
         const response = await fetch(this.buildUrl(path, metaverseUrl), requestConfig);
         const data = await response.json() as APIResponse;
         // The info and token endpoints do not return data in the usual format.
