@@ -35,7 +35,8 @@ export class CSS3DObject {
     constructor(element: HTMLElement, mesh: AbstractMesh) {
         this._element = element;
         this._element.style.position = "absolute";
-        this._element.style.pointerEvents = "auto";
+        this._element.style.pointerEvents = "none";
+        this._element.children[0].style.pointerEvents = "none"; // disable input on iframe tag
 
         this._mesh = mesh;
         this._mesh.onDisposeObservable.add(() => {
@@ -356,8 +357,10 @@ export class CSS3DRenderer {
      */
     private _pickObject(event: PointerEvent): CSS3DObject | undefined {
         if (this.scene) {
-            const pick = this.scene.pick(Math.round(event.offsetX), Math.round(event.offsetY));
+            console.log("Picking at: ", event.offsetX, event.offsetY, event);
+            const pick = this.scene.pick(event.offsetX, event.offsetY);
             if (pick && pick.hit && pick.pickedMesh) {
+                console.log("Picked mesh with id: ", pick.pickedMesh.id);
                 return this._css3DObjects.get(pick.pickedMesh.id);
             }
         }
@@ -374,6 +377,7 @@ export class CSS3DRenderer {
             object.setPicked();
             if (object.canGetFocus) {
                 this.attachControl();
+                console.debug("CSS 3D Object attached", object.element.children[0].src);
             }
         } else {
             this.detachControl();
@@ -398,8 +402,9 @@ export class CSS3DRenderer {
         if (this._isAttachControl) {
             // make babylon.js canvas and document body receive events
             document.body.style.pointerEvents = "auto";
-            this._canvas.style.pointerEvents = "all";
+            this._canvas.style.pointerEvents = "auto";
             this._isAttachControl = false;
+            console.debug("CSS 3D Object detached");
         }
     }
 }
