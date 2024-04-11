@@ -43,10 +43,10 @@
                 width: canvasWidth + 'px',
                 height: canvasHeight + 'px',
                 outline: 'none',
-                pointerEvents: $props.interactive ? 'all' : 'none'
             }"
             ref="renderCanvas"
             class="renderCanvas"
+            tabindex="0"
         ></canvas>
         <slot name="manager"></slot>
         <LoadingScreen ref="LoadingScreen" />
@@ -86,10 +86,6 @@ export default defineComponent({
     name: "MainScene",
 
     props: {
-        interactive: {
-            type: Boolean,
-            required: true
-        },
         domainServerConnected: {
             type: String,
             required: true

@@ -83,6 +83,17 @@ export class Renderer {
     }
 
     /**
+     * Get the count of Vircadia Scenes in the render queue.
+     * @returns The count of scenes.
+     */
+    public static getSceneCount(): number {
+        if (this._renderingScenes) {
+            return this._renderingScenes.length;
+        }
+        return 0;
+    }
+
+    /**
      * Get a particular Vircadia Scene from the render queue.
      * @param index `(Optional)` The index of the scene in the render queue. If not specified, retrieves the first scene in the queue.
      * @returns A reference to the requested scene.

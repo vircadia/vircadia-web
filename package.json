@@ -25,14 +25,14 @@
         "@babylonjs/loaders": "^6.24.0",
         "@quasar/extras": "^1.0.0",
         "@vircadia/web-sdk": "^2024.1.0",
-        "@vueuse/core": "^10.1.2",
+        "@vueuse/core": "^10.9.0",
         "ammojs-typed": "^1.0.6",
         "dompurify": "^3.0.3",
-        "pinia": "^2.0.11",
+        "pinia": "^2.1.7",
         "quasar": "^2.6.0",
         "unique-names-generator": "^4.7.1",
-        "vue": "^3.0.0",
-        "vue-router": "^4.0.0"
+        "vue": "^3.4.21",
+        "vue-router": "^4.3.0"
     },
     "devDependencies": {
         "@jitsi/vue-sdk": "^1.0.4",

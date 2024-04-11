@@ -34,7 +34,7 @@
         <q-header
             id="header"
             elevated
-            style="color: unset;background-color: unset;"
+            style="color: unset;background-color: unset; pointer-events: auto;"
             :style="{background: headerStyle}"
         >
             <div class="row no-wrap">
@@ -135,6 +135,24 @@
                             transition-hide="jump-up"
                         >Please allow microphone access.</q-tooltip>
                     </div>
+
+                    <q-separator v-if="webEntityInputAttached" dark vertical inset />
+
+                    <q-btn
+                        v-if="webEntityInputAttached"
+                        flat
+                        dense
+                        icon="close"
+                        label="Return to App"
+                        aria-label="Return to App"
+                        @click="releaseWebEntity()"
+                        :class="{
+                            'q-mr-sm': isDesktop,
+                            'q-mr-xs': isMobile
+                        }"
+                    />
+
+                    <q-separator v-if="webEntityInputAttached" dark vertical inset />
 
                     <q-toolbar-title
                         class="non-selectable"
@@ -426,7 +444,6 @@
 
         <q-page-container class="full-height">
             <MainScene
-                :interactive="!aMenuIsOpen"
                 :domain-server-connected="domainServerState"
                 :metaverse-server-connected="metaverseServerState"
                 @click.prevent="hideSettingsAndHelpMenus()"
@@ -456,6 +473,7 @@ import { openURL } from "quasar";
 import { applicationStore, userStore } from "@Stores/index";
 import { type JitsiRoomInfo } from "@Stores/application-store";
 import { Utility } from "@Modules/utility";
+import { Renderer, CSS3DRenderer } from "@Modules/scene";
 import { Account, type onAttributeChangePayload } from "@Modules/account";
 import { AudioManager } from "@Modules/scene/audio";
 import { AudioIO } from "@Modules/ui/audioIO";
@@ -574,7 +592,8 @@ export default defineComponent({
             aMenuIsOpen: false,
             lastConnectedDomain: undefined as string | undefined,
             domainLocationCopied: false,
-            metaverseLocationCopied: false
+            metaverseLocationCopied: false,
+            webEntityInputAttached: false
         };
     },
 
@@ -633,7 +652,7 @@ export default defineComponent({
                 return "red";
             }
             return "primary";
-        }
+        },
     },
 
     methods: {
@@ -704,6 +723,9 @@ export default defineComponent({
                 AudioManager.muteAudio();
             }
         },
+        releaseWebEntity(): void {
+            (Renderer.getScene().css3DRenderer as CSS3DRenderer).detachControl();
+        },
         async copyDomainLocationToClipboard(): Promise<void> {
             this.domainLocationCopied = true;
             await navigator.clipboard.writeText(this.location);
@@ -770,6 +792,11 @@ export default defineComponent({
                 }
             }
         });
+
+        setInterval(() => {
+            this.webEntityInputAttached = Renderer.getSceneCount() !== 0 &&
+                (Renderer.getScene().css3DRenderer as CSS3DRenderer).isControlAttached() as boolean;
+        }, 16);
     }
 });
 </script>
