@@ -34,7 +34,7 @@
         <q-header
             id="header"
             elevated
-            style="color: unset;background-color: unset;"
+            style="color: unset;background-color: unset; pointer-events: auto;"
             :style="{background: headerStyle}"
         >
             <div class="row no-wrap">
@@ -135,6 +135,22 @@
                             transition-hide="jump-up"
                         >Please allow microphone access.</q-tooltip>
                     </div>
+
+                    <q-separator v-if="webEntityInputAttached() || true" dark vertical inset />
+
+                    <q-btn
+                        v-if="webEntityInputAttached() || true"
+                        flat
+                        round
+                        dense
+                        icon="close"
+                        aria-label="Release Web Entity"
+                        @click="releaseWebEntity()"
+                        :class="{
+                            'q-mr-sm': isDesktop,
+                            'q-mr-xs': isMobile
+                        }"
+                    />
 
                     <q-toolbar-title
                         class="non-selectable"
@@ -456,6 +472,7 @@ import { openURL } from "quasar";
 import { applicationStore, userStore } from "@Stores/index";
 import { type JitsiRoomInfo } from "@Stores/application-store";
 import { Utility } from "@Modules/utility";
+import { Renderer, CSS3DRenderer } from "@Modules/scene";
 import { Account, type onAttributeChangePayload } from "@Modules/account";
 import { AudioManager } from "@Modules/scene/audio";
 import { AudioIO } from "@Modules/ui/audioIO";
@@ -703,6 +720,15 @@ export default defineComponent({
             if (this.applicationStore.audio.user.hasInputAccess) {
                 AudioManager.muteAudio();
             }
+        },
+        webEntityInputAttached(): boolean {
+            if (Renderer.getSceneCount() === 0) {
+                return false;
+            }
+            return (Renderer.getScene().css3DRenderer as CSS3DRenderer).isControlAttached() as boolean;
+        },
+        releaseWebEntity(): void {
+            (Renderer.getScene().css3DRenderer as CSS3DRenderer).detachControl();
         },
         async copyDomainLocationToClipboard(): Promise<void> {
             this.domainLocationCopied = true;

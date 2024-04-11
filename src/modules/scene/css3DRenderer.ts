@@ -381,6 +381,13 @@ export class CSS3DRenderer {
     }
 
     /**
+     * Indicates if the CSS 3D scene is receiving input events.
+     */
+    public isControlAttached(): boolean {
+        return this._isAttachControl;
+    }
+
+    /**
      * Allow the CSS 3D scene to receive input events.
      */
     public attachControl(): void {
@@ -400,6 +407,9 @@ export class CSS3DRenderer {
             document.body.style.pointerEvents = "auto";
             this._canvas.style.pointerEvents = "all";
             this._isAttachControl = false;
+            setTimeout(() => {
+                this._canvas.focus();
+            }, 250);
         }
     }
 }

@@ -47,6 +47,7 @@
             }"
             ref="renderCanvas"
             class="renderCanvas"
+            tabindex="0"
         ></canvas>
         <slot name="manager"></slot>
         <LoadingScreen ref="LoadingScreen" />
