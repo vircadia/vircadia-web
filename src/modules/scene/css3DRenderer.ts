@@ -35,7 +35,8 @@ export class CSS3DObject {
     constructor(element: HTMLElement, mesh: AbstractMesh) {
         this._element = element;
         this._element.style.position = "absolute";
-        this._element.style.pointerEvents = "auto";
+        this._element.style.pointerEvents = "none";
+        this._element.children[0].style.pointerEvents = "none"; // disable input on iframe tag
 
         this._mesh = mesh;
         this._mesh.onDisposeObservable.add(() => {
@@ -45,10 +46,7 @@ export class CSS3DObject {
         this._renderer = Renderer.getScene().css3DRenderer as CSS3DRenderer;
         this._renderer.addCSS3DObject(this);
 
-        // this._element.addEventListener("mouseout", this._renderer.detachControl.bind(this));
-        this._element.addEventListener("pointerdown", (event: PointerEvent) => {
-            event.stopPropagation();
-        });
+        this._element.addEventListener("mouseout", this._renderer.detachControl.bind(this));
     }
 
     public get mesh(): AbstractMesh {
