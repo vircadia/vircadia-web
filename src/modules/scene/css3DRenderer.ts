@@ -45,7 +45,23 @@ export class CSS3DObject {
         this._renderer = Renderer.getScene().css3DRenderer as CSS3DRenderer;
         this._renderer.addCSS3DObject(this);
 
-        this._element.addEventListener("mouseout", this._renderer.detachControl.bind(this));
+        this._element.addEventListener("pointerout", this._handlePointerOut.bind(this));
+    }
+
+    /**
+     * Handle a `pointerout` event on any CSS 3D object.
+     * @param event The pointer event.
+     */
+    private _handlePointerOut(event: PointerEvent): void {
+        // const object = this._pickObject(event);
+        // if (object) {
+        //     object.setPicked();
+        //     if (object.canGetFocus) {
+        //         this.attachControl();
+        //     }
+        // } else {
+        //     this.detachControl();
+        // }
     }
 
     public get mesh(): AbstractMesh {
@@ -132,6 +148,7 @@ export class CSS3DRenderer {
         });
 
         window.addEventListener("pointerdown", this._handlePointerDown.bind(this));
+        window.addEventListener("pointermove", this._handlePointerMove.bind(this));
     }
 
     /**
@@ -378,6 +395,22 @@ export class CSS3DRenderer {
         } else {
             this.detachControl();
         }
+    }
+
+    /**
+     * Handle a `pointermove` event on any CSS 3D object.
+     * @param event The pointer event.
+     */
+    private _handlePointerMove(event: PointerEvent): void {
+        // const object = this._pickObject(event);
+        // if (object) {
+        //     object.setPicked();
+        //     if (object.canGetFocus) {
+        //         this.attachControl();
+        //     }
+        // } else {
+        //     this.detachControl();
+        // }
     }
 
     /**
