@@ -141,17 +141,18 @@
                     <q-btn
                         v-if="webEntityInputAttached"
                         flat
-                        round
                         dense
                         icon="close"
-                        label="Focus"
-                        aria-label="Release Web Entity"
+                        label="Return to App"
+                        aria-label="Return to App"
                         @click="releaseWebEntity()"
                         :class="{
                             'q-mr-sm': isDesktop,
                             'q-mr-xs': isMobile
                         }"
                     />
+
+                    <q-separator v-if="webEntityInputAttached" dark vertical inset />
 
                     <q-toolbar-title
                         class="non-selectable"
