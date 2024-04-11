@@ -43,7 +43,6 @@
                 width: canvasWidth + 'px',
                 height: canvasHeight + 'px',
                 outline: 'none',
-                pointerEvents: $props.interactive ? 'all' : 'none'
             }"
             ref="renderCanvas"
             class="renderCanvas"
@@ -87,10 +86,6 @@ export default defineComponent({
     name: "MainScene",
 
     props: {
-        interactive: {
-            type: Boolean,
-            required: true
-        },
         domainServerConnected: {
             type: String,
             required: true

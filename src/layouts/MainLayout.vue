@@ -136,10 +136,10 @@
                         >Please allow microphone access.</q-tooltip>
                     </div>
 
-                    <q-separator v-if="webEntityInputAttached() || true" dark vertical inset />
+                    <q-separator v-if="webEntityInputAttached" dark vertical inset />
 
                     <q-btn
-                        v-if="webEntityInputAttached() || true"
+                        v-if="webEntityInputAttached"
                         flat
                         round
                         dense
@@ -442,7 +442,6 @@
 
         <q-page-container class="full-height">
             <MainScene
-                :interactive="!aMenuIsOpen"
                 :domain-server-connected="domainServerState"
                 :metaverse-server-connected="metaverseServerState"
                 @click.prevent="hideSettingsAndHelpMenus()"
@@ -650,7 +649,14 @@ export default defineComponent({
                 return "red";
             }
             return "primary";
-        }
+        },
+        webEntityInputAttached(): boolean {
+            console.log(Renderer.getSceneCount());
+            if (Renderer.getSceneCount() === 0) {
+                return false;
+            }
+            return (Renderer.getScene().css3DRenderer as CSS3DRenderer).isControlAttached() as boolean;
+        },
     },
 
     methods: {
@@ -720,12 +726,6 @@ export default defineComponent({
             if (this.applicationStore.audio.user.hasInputAccess) {
                 AudioManager.muteAudio();
             }
-        },
-        webEntityInputAttached(): boolean {
-            if (Renderer.getSceneCount() === 0) {
-                return false;
-            }
-            return (Renderer.getScene().css3DRenderer as CSS3DRenderer).isControlAttached() as boolean;
         },
         releaseWebEntity(): void {
             (Renderer.getScene().css3DRenderer as CSS3DRenderer).detachControl();
