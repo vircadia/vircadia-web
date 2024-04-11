@@ -54,6 +54,7 @@ export const useApplicationStore = defineStore("application", {
         },
         defaultConnectionConfig: {
             DEFAULT_METAVERSE_URL: process.env.VRCA_DEFAULT_METAVERSE_URL,
+            DEFAULT_ICE_SERVERS: process.env.VRCA_DEFAULT_ICE_SERVERS,
             DEFAULT_DOMAIN_PROTOCOL: process.env.VRCA_DEFAULT_DOMAIN_PROTOCOL,
             DEFAULT_DOMAIN_PORT: process.env.VRCA_DEFAULT_DOMAIN_PORT,
             DEFAULT_DOMAIN_URL: process.env.VRCA_DEFAULT_DOMAIN_URL

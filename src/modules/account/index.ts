@@ -182,9 +182,11 @@ export const Account = {
      */
     async createAccount(pUsername: string, pPassword: string, pEmail: string): Promise<PostUsersResponse | false> {
         const request = {
-            username: pUsername,
-            password: pPassword,
-            email: pEmail
+            user: {
+                username: pUsername,
+                password: pPassword,
+                email: pEmail
+            }
         } as PostUsersRequest;
         try {
             const response = await API.post(API.endpoints.users, request) as PostUsersResponse;

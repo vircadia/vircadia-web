@@ -126,3 +126,7 @@ npm run build-desktop
 ```sh
 npm run update-contributors
 ```
+
+## Development of Worlds
+
+To develop worlds faster, you may put local models into the `public/local-assets` folder, then reference them in your entity tree like so `/local-assets/yourModel.glb`. The asset should now be available to you in-world.

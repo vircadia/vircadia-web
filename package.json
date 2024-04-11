@@ -1,6 +1,6 @@
 {
     "name": "vircadia-web",
-    "version": "2023.1.5",
+    "version": "2024.1.0",
     "description": "Vircadia open source metaverse web interface for agent-based virtual worlds.",
     "productName": "Vircadia Web",
     "author": "DigiSomni LLC | Vircadia Contributors",
@@ -24,7 +24,7 @@
         "@babylonjs/inspector": "^6.24.0",
         "@babylonjs/loaders": "^6.24.0",
         "@quasar/extras": "^1.0.0",
-        "@vircadia/web-sdk": "^2023.1.2",
+        "@vircadia/web-sdk": "^2024.1.0",
         "@vueuse/core": "^10.1.2",
         "ammojs-typed": "^1.0.6",
         "dompurify": "^3.0.3",
@@ -73,4 +73,3 @@
         "Julien Merzoug <julien.merzoug@protonmail.com>"
     ]
 }
-

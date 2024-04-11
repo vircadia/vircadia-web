@@ -11,7 +11,7 @@
 // Allow getters to be compact.
 /* eslint-disable @typescript-eslint/brace-style */
 
-import { DomainServer, SignalEmitter, Camera, EntityServer } from "@vircadia/web-sdk";
+import { DomainServer, SignalEmitter, Camera, EntityServer, IceServerConfig } from "@vircadia/web-sdk";
 import { Account } from "@Modules/account";
 import { DomainAudioClient } from "@Modules/domain/audio";
 import { DomainMessageClient } from "@Modules/domain/message";
@@ -135,7 +135,8 @@ export class Domain {
         }
 
         Log.debug(Log.types.NETWORK, `Creating a new DomainServer.`);
-        this._domain = new DomainServer();
+        const iceServers = JSON.parse(applicationStore.defaultConnectionConfig.DEFAULT_ICE_SERVERS) as Array<IceServerConfig>;
+        this._domain = new DomainServer(iceServers);
         this._domain.metaverseServerURL = this.getMetaverseUrl();
         this._domain.account.authRequired.connect(() => {
             console.debug("AUTH REQUIRED: Open login dialog");
