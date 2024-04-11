@@ -144,6 +144,7 @@
                         round
                         dense
                         icon="close"
+                        label="Focus"
                         aria-label="Release Web Entity"
                         @click="releaseWebEntity()"
                         :class="{
@@ -590,7 +591,8 @@ export default defineComponent({
             aMenuIsOpen: false,
             lastConnectedDomain: undefined as string | undefined,
             domainLocationCopied: false,
-            metaverseLocationCopied: false
+            metaverseLocationCopied: false,
+            webEntityInputAttached: false
         };
     },
 
@@ -649,13 +651,6 @@ export default defineComponent({
                 return "red";
             }
             return "primary";
-        },
-        webEntityInputAttached(): boolean {
-            console.log(Renderer.getSceneCount());
-            if (Renderer.getSceneCount() === 0) {
-                return false;
-            }
-            return (Renderer.getScene().css3DRenderer as CSS3DRenderer).isControlAttached() as boolean;
         },
     },
 
@@ -796,6 +791,11 @@ export default defineComponent({
                 }
             }
         });
+
+        setInterval(() => {
+            this.webEntityInputAttached = Renderer.getSceneCount() !== 0 &&
+                (Renderer.getScene().css3DRenderer as CSS3DRenderer).isControlAttached() as boolean;
+        }, 16);
     }
 });
 </script>
