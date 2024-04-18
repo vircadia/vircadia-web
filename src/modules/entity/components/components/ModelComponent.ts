@@ -24,6 +24,7 @@ import { applicationStore } from "@Stores/index";
 import Log from "@Modules/debugging/log";
 import { LODManager } from "@Modules/scene/LODManager";
 import { LightmapManager } from "@Modules/scene/LightmapManager";
+import { LightManager } from "@Modules/scene/LightManager";
 
 const InteractiveModelTypes = [
     { name: "chair", condition: /^(?:animate_sitting|animate_seat)/iu },
@@ -74,6 +75,10 @@ export class ModelComponent extends MeshComponent {
                 // Lightmap Handling
                 if (this._gameObject?.getScene()) {
                     meshes = LightmapManager.applySceneLightmapsToMeshes(meshes, this._gameObject.getScene());
+                }
+                // Light Handling
+                if (this._gameObject?.getScene()) {
+                    LightManager.applyLightProperties(this._gameObject.getScene());
                 }
 
                 this.mesh = meshes[0];
