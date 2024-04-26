@@ -15,6 +15,7 @@ import {
     type Scene,
     PBRMaterial,
     Texture,
+    ImageProcessingConfiguration
 } from "@babylonjs/core";
 import Log from "../debugging/log";
 import { glTF as MeshTypes } from "../../../types/vircadia_gameUse";
@@ -24,6 +25,10 @@ export class LightmapManager {
         // ////
         // //// HANDLE MASTER LIGHTMAP DATA
         // ////
+
+        // const postprocess = scene.imageProcessingConfiguration;
+        // postprocess.toneMappingEnabled = true;
+        // postprocess.toneMappingType = ImageProcessingConfiguration.TONEMAPPING_ACES;
 
         let lightmapColorSpace = null;
         let lightmapLevel = null;
@@ -138,9 +143,13 @@ export class LightmapManager {
                                 Log.debug(Log.types.ENTITIES, `Setting color space for ${mesh.name} to gamma.`);
                                 texture.gammaSpace = true;
                                 break;
+                            case MeshTypes.Texture.ColorSpace.SRGB:
+                                Log.debug(Log.types.ENTITIES, `Setting color space for ${mesh.name} to sRGB.`);
+                                texture.gammaSpace = true;
+                                break;
                             default:
-                                Log.debug(Log.types.ENTITIES, `Setting color space for ${mesh.name} to linear.`);
-                                texture.gammaSpace = false;
+                                Log.debug(Log.types.ENTITIES, `Setting color space for ${mesh.name} to gamma.`);
+                                texture.gammaSpace = true;
                                 break;
                         }
                     }
