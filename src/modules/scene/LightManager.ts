@@ -11,6 +11,7 @@
 //
 
 import {
+    type AbstractMesh,
     type Scene,
 } from "@babylonjs/core";
 import Log from "../debugging/log";
@@ -29,11 +30,15 @@ export class LightManager {
 
     private static currentScene: Scene;
 
-    public static applyLightProperties(scene: Scene): void {
-        this.currentScene = scene; // Store the current scene reference
+    public static applyLightProperties(meshes: AbstractMesh[], scene: Scene): void {
+        // this.currentScene = scene; // Store the current scene reference
 
-        // Ensure we don't add the same event listener more than once
-        window.removeEventListener("keyup", this.handleKeyPress);
-        window.addEventListener("keyup", this.handleKeyPress);
+        // // Find all the lights in the meshes as they are imported.
+        // const lights = meshes.filter((mesh) => mesh instanceof AbstractMesh && mesh.name.startsWith("Light_"));
+        // console.info("##### LIGHTS", lights);
+
+        // // Ensure we don't add the same event listener more than once
+        // window.removeEventListener("keyup", this.handleKeyPress);
+        // window.addEventListener("keyup", this.handleKeyPress);
     }
 }

@@ -78,7 +78,7 @@ export class ModelComponent extends MeshComponent {
                 }
                 // Light Handling
                 if (this._gameObject?.getScene()) {
-                    LightManager.applyLightProperties(this._gameObject.getScene());
+                    LightManager.applyLightProperties(meshes, this._gameObject.getScene());
                 }
 
                 this.mesh = meshes[0];
