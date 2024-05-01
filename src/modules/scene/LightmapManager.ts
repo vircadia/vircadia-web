@@ -13,9 +13,9 @@
 import {
     type AbstractMesh,
     type Scene,
+    BaseTexture,
     PBRMaterial,
     Texture,
-    ImageProcessingConfiguration
 } from "@babylonjs/core";
 import Log from "../debugging/log";
 import { glTF as MeshTypes } from "../../../types/vircadia_gameUse";
@@ -25,10 +25,6 @@ export class LightmapManager {
         // ////
         // //// HANDLE MASTER LIGHTMAP DATA
         // ////
-
-        // const postprocess = scene.imageProcessingConfiguration;
-        // postprocess.toneMappingEnabled = true;
-        // postprocess.toneMappingType = ImageProcessingConfiguration.TONEMAPPING_ACES;
 
         let lightmapColorSpace = null;
         let lightmapLevel = null;
@@ -48,7 +44,7 @@ export class LightmapManager {
 
             if (metadata.vircadia_lightmap_level) {
                 Log.debug(Log.types.ENTITIES, `Found lightmap level for all meshes as ${metadata.vircadia_lightmap_level}`);
-                lightmapLevel = Number(metadata.vircadia_lightmap_level);
+                lightmapLevel = 2; // Number(metadata.vircadia_lightmap_level);
             }
 
             if (metadata.vircadia_lightmap_color_space) {
@@ -109,52 +105,68 @@ export class LightmapManager {
                 }
 
                 const materialToUse = material as PBRMaterial;
+
                 if (materialToUse
                     && materialToUse.albedoTexture
                     && mesh.material
-                    && metadata.vircadia_lightmap_texcoord) {
+                    && Boolean(metadata.vircadia_lightmap_texcoord)) {
 
                     Texture.WhenAllReady([materialToUse.albedoTexture], () => {
-                        (mesh.material as PBRMaterial).lightmapTexture = materialToUse.albedoTexture;
-                        (mesh.material as PBRMaterial).useLightmapAsShadowmap = metadata.vircadia_lightmap_use_as_shadowmap ?? true;
+                        try {
+                            const lightmapTexture: Nullable<BaseTexture> = materialToUse.albedoTexture;
 
-                        if ((mesh.material as PBRMaterial).lightmapTexture && metadata.vircadia_lightmap_texcoord) {
-                            (mesh.material as PBRMaterial).lightmapTexture!.coordinatesIndex = metadata.vircadia_lightmap_texcoord;
+                            if (lightmapTexture) {
+                                (mesh.material as PBRMaterial).lightmapTexture = lightmapTexture;
+                                (mesh.material as PBRMaterial).useLightmapAsShadowmap = metadata.vircadia_lightmap_use_as_shadowmap ?? true;
+
+                                if ((mesh.material as PBRMaterial).lightmapTexture && metadata.vircadia_lightmap_texcoord) {
+                                    (mesh.material as PBRMaterial).lightmapTexture!.coordinatesIndex = metadata.vircadia_lightmap_texcoord;
+                                }
+                            }
+                        } catch (e) {
+                            Log.error(Log.types.ENTITIES, `Error setting lightmap texture for: ${mesh.name}, error: ${e}`);
                         }
                     });
                 } else {
+
                     Log.error(Log.types.ENTITIES, `Could not find material or albedo texture for: ${mesh.name}`);
                 }
-            }
 
-            mesh.material?.getActiveTextures().forEach((texture) => {
-                if (texture instanceof Texture) {
-                    if (lightmapLevel) {
-                        texture.level = lightmapLevel;
-                    }
+                if (mesh.material) {
+                    mesh.material?.getActiveTextures().forEach((texture) => {
+                        if (texture instanceof Texture) {
+                            if (lightmapLevel) {
+                                texture.level = lightmapLevel;
+                            }
 
-                    if (lightmapColorSpace) {
-                        switch (lightmapColorSpace) {
-                            case MeshTypes.Texture.ColorSpace.LINEAR:
-                                Log.debug(Log.types.ENTITIES, `Setting color space for ${mesh.name} to linear.`);
-                                texture.gammaSpace = false;
-                                break;
-                            case MeshTypes.Texture.ColorSpace.GAMMA:
-                                Log.debug(Log.types.ENTITIES, `Setting color space for ${mesh.name} to gamma.`);
-                                texture.gammaSpace = true;
-                                break;
-                            case MeshTypes.Texture.ColorSpace.SRGB:
-                                Log.debug(Log.types.ENTITIES, `Setting color space for ${mesh.name} to sRGB.`);
-                                texture.gammaSpace = true;
-                                break;
-                            default:
-                                Log.debug(Log.types.ENTITIES, `Setting color space for ${mesh.name} to gamma.`);
-                                texture.gammaSpace = true;
-                                break;
+                            if (lightmapColorSpace) {
+                                switch (lightmapColorSpace) {
+                                    case MeshTypes.Texture.ColorSpace.LINEAR:
+                                        Log.debug(Log.types.ENTITIES, `Setting color space for ${mesh.name} to linear.`);
+                                        texture.gammaSpace = false;
+                                        break;
+                                    case MeshTypes.Texture.ColorSpace.GAMMA:
+                                        Log.debug(Log.types.ENTITIES, `Setting color space for ${mesh.name} to gamma.`);
+                                        texture.gammaSpace = true;
+                                        break;
+                                    case MeshTypes.Texture.ColorSpace.SRGB:
+                                        Log.debug(Log.types.ENTITIES, `Setting color space for ${mesh.name} to sRGB.`);
+                                        texture.gammaSpace = true;
+                                        break;
+                                    default:
+                                        Log.debug(Log.types.ENTITIES, `Setting color space for ${mesh.name} to gamma.`);
+                                        texture.gammaSpace = true;
+                                        break;
+                                }
+                            }
+
+                            if (lightmapLevel) {
+                                texture.level = lightmapLevel;
+                            }
                         }
-                    }
+                    });
                 }
-            });
+            }
         });
 
         return meshes;
