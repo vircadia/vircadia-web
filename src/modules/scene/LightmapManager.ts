@@ -13,6 +13,7 @@
 import {
     type AbstractMesh,
     type Scene,
+    BaseTexture,
     PBRMaterial,
     Texture,
 } from "@babylonjs/core";
@@ -21,6 +22,63 @@ import { glTF as MeshTypes } from "../../../types/vircadia_gameUse";
 
 export class LightmapManager {
     public static applySceneLightmapsToMeshes(meshes: AbstractMesh[], scene: Scene): AbstractMesh[] {
+        // ////
+        // //// HANDLE MASTER LIGHTMAP DATA
+        // ////
+
+        let lightmapColorSpace = null;
+        let lightmapLevel = null;
+        let lightmapMode = null;
+
+        const foundLightmapMesh = meshes.find((m) => m.name.startsWith(MeshTypes.Lightmap.DATA_MESH_NAME));
+        if (foundLightmapMesh) {
+            Log.debug(Log.types.ENTITIES, `Found lightmap mesh: ${foundLightmapMesh.name}`);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            const metadataExtras = foundLightmapMesh?.metadata?.gltf?.extras ?? foundLightmapMesh?.parent?.metadata?.gltf?.extras;
+            const metadata = new MeshTypes.Metadata(metadataExtras as Partial<MeshTypes.MetadataInterface>);
+
+            if (metadata.vircadia_lightmap_mode) {
+                Log.debug(Log.types.ENTITIES, `Found lightmap mode for all meshes as ${metadata.vircadia_lightmap_mode}`);
+                lightmapMode = String(metadata.vircadia_lightmap_mode) as unknown as MeshTypes.Light.LightmapMode;
+            }
+
+            if (metadata.vircadia_lightmap_level) {
+                Log.debug(Log.types.ENTITIES, `Found lightmap level for all meshes as ${metadata.vircadia_lightmap_level}`);
+                lightmapLevel = 2; // Number(metadata.vircadia_lightmap_level);
+            }
+
+            if (metadata.vircadia_lightmap_color_space) {
+                Log.debug(Log.types.ENTITIES, `Found lightmap color space for all meshes as ${metadata.vircadia_lightmap_color_space}`);
+                lightmapColorSpace = String(metadata.vircadia_lightmap_color_space) as unknown as MeshTypes.Texture.ColorSpace;
+            }
+
+            foundLightmapMesh.dispose(true, false);
+            Log.debug(Log.types.ENTITIES, `Deleting lightmap data mesh: ${foundLightmapMesh.name}`);
+        }
+
+        const lights = scene.lights;
+        lights.forEach((light) => {
+            switch (lightmapMode) {
+                case MeshTypes.Light.LightmapMode.DEFAULT:
+                    light.lightmapMode = 0;
+                    break;
+                case MeshTypes.Light.LightmapMode.SHADOWSONLY:
+                    light.lightmapMode = 1;
+                    break;
+                case MeshTypes.Light.LightmapMode.SPECULAR:
+                    light.lightmapMode = 2;
+                    break;
+                default:
+                    light.lightmapMode = 0;
+                    break;
+            }
+            Log.debug(Log.types.ENTITIES, `Setting lightmap mode for ${light.name}: ${light.lightmapMode}`);
+        });
+
+        // ////
+        // //// APPLY LIGHTMAPS TO MESHES FOR EACH MESH
+        // ////
+
         meshes.forEach((mesh) => {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             const metadataExtras = mesh?.metadata?.gltf?.extras ?? mesh?.parent?.metadata?.gltf?.extras;
@@ -43,31 +101,71 @@ export class LightmapManager {
                 if (!(mesh.material instanceof PBRMaterial)) {
                     Log.error(Log.types.ENTITIES,
                         `Material type of ${JSON.stringify(mesh.material)}
-                        for: ${mesh.name} is not supported for lightmap application. Need PBRMaterial. Skipping...`);
+                    for: ${mesh.name} is not supported for lightmap application. Need PBRMaterial. Skipping...`);
                 }
 
                 const materialToUse = material as PBRMaterial;
+
                 if (materialToUse
                     && materialToUse.albedoTexture
                     && mesh.material
-                    && metadata.vircadia_lightmap_texcoord) {
+                    && Boolean(metadata.vircadia_lightmap_texcoord)) {
 
                     Texture.WhenAllReady([materialToUse.albedoTexture], () => {
-                        (mesh.material as PBRMaterial).lightmapTexture = materialToUse.albedoTexture;
-                        (mesh.material as PBRMaterial).useLightmapAsShadowmap = metadata.vircadia_lightmap_use_as_shadowmap ?? true;
+                        try {
+                            const lightmapTexture: Nullable<BaseTexture> = materialToUse.albedoTexture;
 
-                        if ((mesh.material as PBRMaterial).lightmapTexture && metadata.vircadia_lightmap_texcoord) {
-                            (mesh.material as PBRMaterial).lightmapTexture!.coordinatesIndex = metadata.vircadia_lightmap_texcoord;
+                            if (lightmapTexture) {
+                                (mesh.material as PBRMaterial).lightmapTexture = lightmapTexture;
+                                (mesh.material as PBRMaterial).useLightmapAsShadowmap = metadata.vircadia_lightmap_use_as_shadowmap ?? true;
+
+                                if ((mesh.material as PBRMaterial).lightmapTexture && metadata.vircadia_lightmap_texcoord) {
+                                    (mesh.material as PBRMaterial).lightmapTexture!.coordinatesIndex = metadata.vircadia_lightmap_texcoord;
+                                }
+                            }
+                        } catch (e) {
+                            Log.error(Log.types.ENTITIES, `Error setting lightmap texture for: ${mesh.name}, error: ${e}`);
                         }
                     });
                 } else {
+
                     Log.error(Log.types.ENTITIES, `Could not find material or albedo texture for: ${mesh.name}`);
                 }
-            }
 
-            if (mesh.name.startsWith(MeshTypes.Lightmap.DATA_MESH_NAME)) {
-                mesh.dispose(true, false);
-                Log.debug(Log.types.ENTITIES, `Deleting lightmap data mesh: ${mesh.name}`);
+                if (mesh.material) {
+                    mesh.material?.getActiveTextures().forEach((texture) => {
+                        if (texture instanceof Texture) {
+                            if (lightmapLevel) {
+                                texture.level = lightmapLevel;
+                            }
+
+                            if (lightmapColorSpace) {
+                                switch (lightmapColorSpace) {
+                                    case MeshTypes.Texture.ColorSpace.LINEAR:
+                                        Log.debug(Log.types.ENTITIES, `Setting color space for ${mesh.name} to linear.`);
+                                        texture.gammaSpace = false;
+                                        break;
+                                    case MeshTypes.Texture.ColorSpace.GAMMA:
+                                        Log.debug(Log.types.ENTITIES, `Setting color space for ${mesh.name} to gamma.`);
+                                        texture.gammaSpace = true;
+                                        break;
+                                    case MeshTypes.Texture.ColorSpace.SRGB:
+                                        Log.debug(Log.types.ENTITIES, `Setting color space for ${mesh.name} to sRGB.`);
+                                        texture.gammaSpace = true;
+                                        break;
+                                    default:
+                                        Log.debug(Log.types.ENTITIES, `Setting color space for ${mesh.name} to gamma.`);
+                                        texture.gammaSpace = true;
+                                        break;
+                                }
+                            }
+
+                            if (lightmapLevel) {
+                                texture.level = lightmapLevel;
+                            }
+                        }
+                    });
+                }
             }
         });
 

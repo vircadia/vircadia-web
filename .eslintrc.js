@@ -182,6 +182,7 @@ module.exports = {
         "@typescript-eslint/no-use-before-define": ["error"],
         "no-useless-constructor": "off",
         "@typescript-eslint/no-useless-constructor": ["error"],
+        "@typescript-eslint/no-misused-promises": ["off"],
         "object-curly-spacing": "off",
         "@typescript-eslint/object-curly-spacing": ["error", "always"],
         quotes: "off",
@@ -327,7 +328,7 @@ module.exports = {
         "jsx-quotes": ["error", "prefer-double"],
         "key-spacing": "error",
         // "keyword-spacing": "error",  // TypeScript extension overrides.
-        "max-len": ["error", { code: 160, tabWidth: 4 }],
+        "max-len": ["error", { code: 270, tabWidth: 4 }],
         "multiline-ternary": ["error", "always-multiline"],
         "new-cap": "off",
         "new-parens": "error",

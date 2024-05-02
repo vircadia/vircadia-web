@@ -18,15 +18,15 @@ import {
 // import Log from "../debugging/log";
 import { glTF as MeshTypes } from "../../../types/vircadia_gameUse";
 
-export const StringsAsBillboardModes: { [key: string]: MeshTypes.BillboardModes } = {
-    none: MeshTypes.BillboardModes.BILLBOARDMODE_NONE,
-    x: MeshTypes.BillboardModes.BILLBOARDMODE_X,
-    y: MeshTypes.BillboardModes.BILLBOARDMODE_Y,
-    z: MeshTypes.BillboardModes.BILLBOARDMODE_Z,
-    all: MeshTypes.BillboardModes.BILLBOARDMODE_ALL,
+export const StringsAsBillboardModes: { [key: string]: MeshTypes.BillboardMode } = {
+    none: MeshTypes.BillboardMode.BILLBOARDMODE_NONE,
+    x: MeshTypes.BillboardMode.BILLBOARDMODE_X,
+    y: MeshTypes.BillboardMode.BILLBOARDMODE_Y,
+    z: MeshTypes.BillboardMode.BILLBOARDMODE_Z,
+    all: MeshTypes.BillboardMode.BILLBOARDMODE_ALL,
 };
 
-export const DistanceTargets: { [key in MeshTypes.LOD.Levels]: number } = {
+export const DistanceTargets: { [key in MeshTypes.LOD.Level]: number } = {
     LOD0: 0,
     LOD1: 15,
     LOD2: 30,
@@ -34,7 +34,7 @@ export const DistanceTargets: { [key in MeshTypes.LOD.Levels]: number } = {
     LOD4: 120,
 };
 
-export const SizeTargets: { [key in MeshTypes.LOD.Levels]: number } = {
+export const SizeTargets: { [key in MeshTypes.LOD.Level]: number } = {
     LOD0: 1.0,
     LOD1: 0.25,
     LOD2: 0.1,
@@ -47,7 +47,7 @@ export interface AutoTarget {
     distance: number;
     optimizeMesh: boolean;
 }
-export const AutoTargets: { [key in MeshTypes.LOD.Levels]?: AutoTarget } = {
+export const AutoTargets: { [key in MeshTypes.LOD.Level]?: AutoTarget } = {
     LOD0: {
         quality: 0.9,
         distance: DistanceTargets.LOD0,
@@ -129,8 +129,8 @@ export class LODManager {
         }
     }
 
-    private static setLODMode(mesh: Mesh, mode: MeshTypes.LOD.Modes): void {
-        if (mode === MeshTypes.LOD.Modes.SIZE) {
+    private static setLODMode(mesh: Mesh, mode: MeshTypes.LOD.Mode): void {
+        if (mode === MeshTypes.LOD.Mode.SIZE) {
             mesh.useLODScreenCoverage = true;
             // Log.debug(
             //     Log.types.ENTITIES,
@@ -203,7 +203,7 @@ export class LODManager {
             if (
                 // (mesh.constructor.name === "Mesh" ||
                 //     mesh.constructor.name === "AbstractMesh") &&
-                parse?.lodLevel === MeshTypes.LOD.Levels.LOD0
+                parse?.lodLevel === MeshTypes.LOD.Level.LOD0
             ) {
                 roots.push({
                     prefix: parse?.prefix,
@@ -228,7 +228,7 @@ export class LODManager {
             // Process metadata for root mesh.
             LODManager.setLODMode(
                 roots[root].mesh,
-                roots[root].metadata.vircadia_lod_mode ?? MeshTypes.LOD.Modes.DISTANCE
+                roots[root].metadata.vircadia_lod_mode ?? MeshTypes.LOD.Mode.DISTANCE
             );
             LODManager.setLODHide(
                 roots[root].mesh,
@@ -264,15 +264,15 @@ export class LODManager {
                         (!(level in DistanceTargets) &&
                             !(level in SizeTargets) &&
                             !(level in AutoTargets)) ||
-                        level === MeshTypes.LOD.Levels.LOD0
+                        level === MeshTypes.LOD.Level.LOD0
                     ) {
                         continue;
                     }
 
-                    const mode = metadata.vircadia_lod_mode ?? MeshTypes.LOD.Modes.DISTANCE;
+                    const mode = metadata.vircadia_lod_mode ?? MeshTypes.LOD.Mode.DISTANCE;
 
                     switch (mode) {
-                        case MeshTypes.LOD.Modes.DISTANCE: {
+                        case MeshTypes.LOD.Mode.DISTANCE: {
                             let distanceTarget =
                                 DistanceTargets[
                                 level as keyof typeof DistanceTargets
@@ -290,7 +290,7 @@ export class LODManager {
 
                             break;
                         }
-                        case MeshTypes.LOD.Modes.SIZE: {
+                        case MeshTypes.LOD.Mode.SIZE: {
                             let sizeTarget =
                                 SizeTargets[level as keyof typeof SizeTargets];
 
