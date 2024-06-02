@@ -6,6 +6,9 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
+// TODO:
+import { Client as WorldClient } from "../../vircadia-world/src/client/client";
+
 import { AudioMixer, SignalEmitter, Vec3, Quat, vec3, quat } from "@vircadia/web-sdk";
 import { AssignmentClientState, Client } from "@Modules/domain/client";
 import { Domain } from "@Modules/domain/domain";
@@ -40,14 +43,25 @@ export class DomainAudioClient extends Client {
             this.onStateChange.emit(this._domain, this, newState); // Signature: Domain, DomainAudio, AssignmentClientState.
         };
 
-        // eslint-disable-next-line arrow-body-style
-        this._audioMixer.positionGetter = (): vec3 => {
-            return domain.AvatarClient && domain.AvatarClient.MyAvatar ? domain.AvatarClient.MyAvatar.position : Vec3.ZERO;
-        };
-        // eslint-disable-next-line arrow-body-style
-        this._audioMixer.orientationGetter = (): quat => {
-            return domain.AvatarClient && domain.AvatarClient.MyAvatar ? domain.AvatarClient.MyAvatar.orientation : Quat.IDENTITY;
-        };
+        // // eslint-disable-next-line arrow-body-style
+        // this._audioMixer.positionGetter = (): vec3 => {
+        //     return domain.AvatarClient && domain.AvatarClient.MyAvatar ? domain.AvatarClient.MyAvatar.position : Vec3.ZERO;
+        // };
+        // // eslint-disable-next-line arrow-body-style
+        // this._audioMixer.orientationGetter = (): quat => {
+        //     return domain.AvatarClient && domain.AvatarClient.MyAvatar ? domain.AvatarClient.MyAvatar.orientation : Quat.IDENTITY;
+        // };
+
+        // TODO:
+        window.setInterval(() => {
+            if (WorldClient) {
+                WorldClient.TEMP_updateMetadata({
+                    userId: "lol",
+                    position: domain.AvatarClient && domain.AvatarClient.MyAvatar ? domain.AvatarClient.MyAvatar.position : Vec3.ZERO,
+                    orientation: domain.AvatarClient && domain.AvatarClient.MyAvatar ? domain.AvatarClient.MyAvatar.orientation : Quat.IDENTITY
+                });
+            }
+        }, 1000 / 5);
     }
 
     /**

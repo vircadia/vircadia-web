@@ -17,6 +17,9 @@ import { Config, USER_AUDIO_INPUT, USER_AUDIO_OUTPUT } from "@Base/config";
 import { Notify } from "quasar";
 import Log from "@Modules/debugging/log";
 
+// TODO:
+import { Client } from "../../vircadia-world/src/client/client";
+
 export type SetAudioOutputCallback = (pStream: Nullable<MediaStream>) => void;
 
 /**
@@ -93,7 +96,7 @@ export class AudioManager {
      */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private static _handleActiveDomainStateChange(pDomain: Domain, pState: ConnectionState, pInfo: string): void {
-        (async () => {
+        (() => {
             if (pState === ConnectionState.CONNECTED) {
                 Log.debug(Log.types.AUDIO, `AudioManager._handleActiveDomainStateChange: CONNECTED`);
                 // Domain is connected. Connect the inputs to the outputs
@@ -101,7 +104,7 @@ export class AudioManager {
                 pDomain.AudioClient?.onStateChange.connect(this._handleDomainAudioStateChange.bind(this));
                 // but, if already connected, connect the audio end points
                 if (pDomain.AudioClient?.clientState === AssignmentClientState.CONNECTED) {
-                    await this._setupDomainAudio(pDomain);
+                    this._setupDomainAudio(pDomain);
                 }
             } else {
                 Log.debug(Log.types.AUDIO, `AudioManager._handleActiveDomainStateChange: ${Domain.stateToString(pState)}`);
@@ -114,11 +117,11 @@ export class AudioManager {
 
     // The audio mixer state changed. If connected, try to connect inputs and outputs.
     private static _handleDomainAudioStateChange(pDomain: Domain, pAudio: DomainAudioClient, pState: AssignmentClientState): void {
-        (async () => {
+        (() => {
             Log.debug(Log.types.AUDIO, `AudioManager._handleAudioStateChange: ${DomainAudioClient.stateToString(pState)}`);
             // If the audio state is now connected, let the user hear things
             if (pState === AssignmentClientState.CONNECTED) {
-                await this._setupDomainAudio(pDomain);
+                this._setupDomainAudio(pDomain);
                 this._restoreMicrophoneMuteState();
             } else {
                 // Getting here means the audio connection to the domain is disconnected
@@ -137,11 +140,11 @@ export class AudioManager {
 
     // Utility routine called when DomainAudio is CONNECTED.
     // Copies audio information to Store and, if the user is ready, connects input and output streams.
-    private static async _setupDomainAudio(pDomain: Domain): Promise<void> {
+    private static _setupDomainAudio(pDomain: Domain): void {
         Log.debug(Log.types.AUDIO, `AudioManager._setupDomainAudio`);
         const mixer = pDomain.AudioClient?.Mixer;
         if (mixer) {
-            await AudioManager._connectInputStreamsToOutputStreams(pDomain);
+            AudioManager._connectInputStreamsToOutputStreams(pDomain);
             AudioManager._restoreMicrophoneMuteState();
             // Listen to mute requests from the domain.
             mixer.mutedByMixer.connect(() => {
@@ -158,12 +161,12 @@ export class AudioManager {
 
     // Assuming everything is connected, connect the user's input to the domain and
     // connect the domain's input to the user's output.
-    private static async _connectInputStreamsToOutputStreams(pDomain: Domain): Promise<void> {
+    private static _connectInputStreamsToOutputStreams(pDomain: Domain): void {
         Log.debug(Log.types.AUDIO, `AudioManager._connectInputAndOutputStreams`);
         if (pDomain.AudioClient && pDomain.AudioClient.Mixer) {
             if (applicationStore.audio.user.userInputStream) {
                 // The user has an input device. Give it to the domain
-                await AudioManager.setAudioToDomain(applicationStore.audio.user.userInputStream);
+                AudioManager.setAudioToDomain(applicationStore.audio.user.userInputStream);
             } else {
                 Log.debug(Log.types.AUDIO, `AudioManager._connectInputAndOutputStreams. Have mixer but no user mic`);
             }
@@ -198,7 +201,7 @@ export class AudioManager {
      * @param pStream stream for input. Can be 'null' if no input device.
      * @param pDeviceInfo information on the stream
      */
-    public static async setUserAudioInputStream(pStream: Nullable<MediaStream>, pDeviceInfo: Nullable<MediaDeviceInfo>): Promise<void> {
+    public static setUserAudioInputStream(pStream: Nullable<MediaStream>, pDeviceInfo: Nullable<MediaDeviceInfo>): void {
 
         applicationStore.audio.user.awaitingCapturePermissions = false;
         applicationStore.audio.user.connected = Boolean(pStream);
@@ -220,19 +223,33 @@ export class AudioManager {
         }
 
         // If there is a domain, set this stuff into the domain
-        await this.setAudioToDomain(pStream);
+        this.setAudioToDomain(pStream);
     }
 
     /**
      * Assign the passed user input stream (mic) to be sent to the domain.
      * @param pStream stream from user that should go to the domain
      */
-    public static async setAudioToDomain(pStream: Nullable<MediaStream>): Promise<void> {
-        const mixer = DomainManager.ActiveDomain?.AudioClient?.Mixer;
-        if (DomainManager.ActiveDomain?.AudioClient?.clientState === AssignmentClientState.CONNECTED && mixer) {
-            mixer.audioInput = pStream as MediaStream | null;
-            AudioManager.setDomainAudioMuted(mixer.inputMuted);
-            await AudioManager.setDomainAudioPlayPause(true);
+    public static setAudioToDomain(pStream: Nullable<MediaStream>): void {
+        // const mixer = DomainManager.ActiveDomain?.AudioClient?.Mixer;
+        // if (DomainManager.ActiveDomain?.AudioClient?.clientState === AssignmentClientState.CONNECTED && mixer) {
+        //     mixer.audioInput = pStream as MediaStream | null;
+        //     AudioManager.setDomainAudioMuted(mixer.inputMuted);
+        //     await AudioManager.setDomainAudioPlayPause(true);
+        // }
+
+        // TODO:
+        if (!Client.isConnected) {
+            Client.establishConnection({
+                host: "http://localhost",
+                port: 3000,
+            });
+        }
+
+        if (pStream) {
+            Client.streamAudio(pStream);
+        } else {
+            console.log("No stream to set to domain");
         }
     }
 
@@ -387,14 +404,14 @@ export class AudioManager {
         try {
             Log.debug(Log.types.AUDIO, `AudioManager: Set initial Input audio device.`);
             if (pInitial) {
-                await AudioManager.setUserAudioInputStream(pInitial, await AudioManager.getDeviceInfoForStream(pInitial));
+                AudioManager.setUserAudioInputStream(pInitial, await AudioManager.getDeviceInfoForStream(pInitial));
             } else if (applicationStore.audio.inputsList.length > 0) {
                 const firstInput = applicationStore.audio.inputsList[0];
-                await AudioManager.setUserAudioInputStream(await AudioManager.getStreamForDeviceInfo(firstInput), firstInput);
+                AudioManager.setUserAudioInputStream(await AudioManager.getStreamForDeviceInfo(firstInput), firstInput);
             }
         } catch (error) {
             Log.error(Log.types.AUDIO, `Exception setting initial audio device: ${(error as Error).message}`);
-            await AudioManager.setUserAudioInputStream(undefined, undefined);
+            AudioManager.setUserAudioInputStream(undefined, undefined);
         }
     }
 
