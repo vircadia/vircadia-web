@@ -1,4 +1,4 @@
-[submodule "public/assets"]
+[submodule "vircadia-assets"]
 	path = public/assets
 	url = https://github.com/vircadia/vircadia-assets.git
 [submodule "vircadia-world"]
