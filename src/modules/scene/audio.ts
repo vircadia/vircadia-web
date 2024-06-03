@@ -144,7 +144,7 @@ export class AudioManager {
         Log.debug(Log.types.AUDIO, `AudioManager._setupDomainAudio`);
         const mixer = pDomain.AudioClient?.Mixer;
         if (mixer) {
-            AudioManager._connectInputStreamsToOutputStreams(pDomain);
+            void AudioManager._connectInputStreamsToOutputStreams(pDomain);
             AudioManager._restoreMicrophoneMuteState();
             // Listen to mute requests from the domain.
             mixer.mutedByMixer.connect(() => {
@@ -161,12 +161,12 @@ export class AudioManager {
 
     // Assuming everything is connected, connect the user's input to the domain and
     // connect the domain's input to the user's output.
-    private static _connectInputStreamsToOutputStreams(pDomain: Domain): void {
+    private static async _connectInputStreamsToOutputStreams(pDomain: Domain): Promise<void> {
         Log.debug(Log.types.AUDIO, `AudioManager._connectInputAndOutputStreams`);
         if (pDomain.AudioClient && pDomain.AudioClient.Mixer) {
             if (applicationStore.audio.user.userInputStream) {
                 // The user has an input device. Give it to the domain
-                AudioManager.setAudioToDomain(applicationStore.audio.user.userInputStream);
+                await AudioManager.setAudioToDomain(applicationStore.audio.user.userInputStream);
             } else {
                 Log.debug(Log.types.AUDIO, `AudioManager._connectInputAndOutputStreams. Have mixer but no user mic`);
             }
@@ -201,7 +201,7 @@ export class AudioManager {
      * @param pStream stream for input. Can be 'null' if no input device.
      * @param pDeviceInfo information on the stream
      */
-    public static setUserAudioInputStream(pStream: Nullable<MediaStream>, pDeviceInfo: Nullable<MediaDeviceInfo>): void {
+    public static async setUserAudioInputStream(pStream: Nullable<MediaStream>, pDeviceInfo: Nullable<MediaDeviceInfo>): Promise<void> {
 
         applicationStore.audio.user.awaitingCapturePermissions = false;
         applicationStore.audio.user.connected = Boolean(pStream);
@@ -223,14 +223,14 @@ export class AudioManager {
         }
 
         // If there is a domain, set this stuff into the domain
-        this.setAudioToDomain(pStream);
+        await this.setAudioToDomain(pStream);
     }
 
     /**
      * Assign the passed user input stream (mic) to be sent to the domain.
      * @param pStream stream from user that should go to the domain
      */
-    public static setAudioToDomain(pStream: Nullable<MediaStream>): void {
+    public static async setAudioToDomain(pStream: Nullable<MediaStream>): Promise<void> {
         // const mixer = DomainManager.ActiveDomain?.AudioClient?.Mixer;
         // if (DomainManager.ActiveDomain?.AudioClient?.clientState === AssignmentClientState.CONNECTED && mixer) {
         //     mixer.audioInput = pStream as MediaStream | null;
@@ -239,17 +239,21 @@ export class AudioManager {
         // }
 
         // TODO:
-        if (!Client.isConnected) {
-            Client.establishConnection({
+        if (!Client.isConnected()) {
+            Client.Setup.initializeAndConnectTo({
                 host: "http://localhost",
                 port: 3000,
             });
+            console.info("#### Connected.");
+        } else {
+            console.info("#### Client is connected.", Client.isConnected());
         }
 
         if (pStream) {
-            Client.streamAudio(pStream);
+            Client.Audio.TEMP_streamAudio(pStream);
+            console.info("#### Streaming audio to domain");
         } else {
-            console.log("No stream to set to domain");
+            console.info("#### No stream to set to domain");
         }
     }
 
@@ -404,14 +408,14 @@ export class AudioManager {
         try {
             Log.debug(Log.types.AUDIO, `AudioManager: Set initial Input audio device.`);
             if (pInitial) {
-                AudioManager.setUserAudioInputStream(pInitial, await AudioManager.getDeviceInfoForStream(pInitial));
+                await AudioManager.setUserAudioInputStream(pInitial, await AudioManager.getDeviceInfoForStream(pInitial));
             } else if (applicationStore.audio.inputsList.length > 0) {
                 const firstInput = applicationStore.audio.inputsList[0];
-                AudioManager.setUserAudioInputStream(await AudioManager.getStreamForDeviceInfo(firstInput), firstInput);
+                await AudioManager.setUserAudioInputStream(await AudioManager.getStreamForDeviceInfo(firstInput), firstInput);
             }
         } catch (error) {
             Log.error(Log.types.AUDIO, `Exception setting initial audio device: ${(error as Error).message}`);
-            AudioManager.setUserAudioInputStream(undefined, undefined);
+            await AudioManager.setUserAudioInputStream(undefined, undefined);
         }
     }
 

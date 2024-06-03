@@ -1,7 +1,7 @@
 [submodule "vircadia-assets"]
 	path = public/assets
 	url = https://github.com/vircadia/vircadia-assets.git
-[submodule "vircadia-world"]
-    path = src/vircadia-world
-    url = https://github.com/vircadia/vircadia-world.git
 
+[submodule "src/vircadia-world"]
+	path = src/vircadia-world
+	url = https://github.com/vircadia/vircadia-world.git

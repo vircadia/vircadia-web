@@ -1,7 +1,7 @@
 /*
-* This file runs in a Node context (it's NOT transpiled by Babel), so use only
-* the ES6 features that are supported by your Node version. https://node.green/
-*/
+ * This file runs in a Node context (it's NOT transpiled by Babel), so use only
+ * the ES6 features that are supported by your Node version. https://node.green/
+ */
 
 // Configuration for your app
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js
@@ -11,15 +11,15 @@ const { configure } = require("quasar/wrappers");
 const packageJSON = require("./package.json");
 const desktopMode = process.env.VRCA_DESKTOP_MODE;
 
-module.exports = configure(function(ctx) {
+module.exports = configure(function (ctx) {
     return {
         eslint: {
             // fix: true,
             // include = [],
             // exclude = [],
             // rawOptions = {},
-            warnings: true,
-            errors: true
+            warnings: false,
+            errors: false,
         },
 
         // https://v2.quasar.dev/quasar-cli-vite/prefetch-feature
@@ -45,14 +45,20 @@ module.exports = configure(function(ctx) {
 
             "fontawesome-v5",
             // 'roboto-font', // optional, you are not bound to it
-            "material-icons" // optional, you are not bound to it
+            "material-icons", // optional, you are not bound to it
         ],
 
         // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#build
         build: {
             target: {
-                browser: ["es2020", "edge88", "firefox78", "chrome87", "safari14"],
-                node: "node18"
+                browser: [
+                    "es2020",
+                    "edge88",
+                    "firefox78",
+                    "chrome87",
+                    "safari14",
+                ],
+                node: "node18",
             },
 
             vueRouterMode: "hash", // available values: 'hash', 'history'
@@ -70,8 +76,9 @@ module.exports = configure(function(ctx) {
             // polyfillModulePreload: true,
             // distDir
 
-            extendViteConf (viteConf) {
-                if (process.env.VRCA_HOSTED_URL) viteConf.base = process.env.VRCA_HOSTED_URL
+            extendViteConf(viteConf) {
+                if (process.env.VRCA_HOSTED_URL)
+                    viteConf.base = process.env.VRCA_HOSTED_URL;
             },
             // viteVuePluginOptions: {},
 
@@ -84,48 +91,82 @@ module.exports = configure(function(ctx) {
                 "@Components": path.resolve(__dirname, "./src/components"),
                 "@Modules": path.resolve(__dirname, "./src/modules"),
                 "@Public": path.resolve(__dirname, "./public"),
-                "@Stores": path.resolve(__dirname, "./src/stores")
+                "@Stores": path.resolve(__dirname, "./src/stores"),
             },
 
             env: {
                 // Default Connection Config
-                VRCA_DEFAULT_METAVERSE_URL: process.env.VRCA_DEFAULT_METAVERSE_URL ?? "https://metaverse.vircadia.com/live",
-                VRCA_DEFAULT_ICE_SERVERS: process.env.VRCA_DEFAULT_ICE_SERVERS ?? '[ { "urls": ["stun:stun1.l.google.com:19302", "stun:stun4.l.google.com:19302"] } ]',
-                VRCA_DEFAULT_DOMAIN_PROTOCOL: process.env.VRCA_DEFAULT_DOMAIN_PROTOCOL ?? "wss:",
-                VRCA_DEFAULT_DOMAIN_PORT: process.env.VRCA_DEFAULT_DOMAIN_PORT ?? "40102",
-                VRCA_DEFAULT_DOMAIN_URL: process.env.VRCA_DEFAULT_DOMAIN_URL ?? "wss://antares.digisomni.com/0,0,0/0,0,0,1",
+                VRCA_DEFAULT_METAVERSE_URL:
+                    process.env.VRCA_DEFAULT_METAVERSE_URL ??
+                    "https://metaverse.vircadia.com/live",
+                VRCA_DEFAULT_ICE_SERVERS:
+                    process.env.VRCA_DEFAULT_ICE_SERVERS ??
+                    '[ { "urls": ["stun:stun1.l.google.com:19302", "stun:stun4.l.google.com:19302"] } ]',
+                VRCA_DEFAULT_DOMAIN_PROTOCOL:
+                    process.env.VRCA_DEFAULT_DOMAIN_PROTOCOL ?? "wss:",
+                VRCA_DEFAULT_DOMAIN_PORT:
+                    process.env.VRCA_DEFAULT_DOMAIN_PORT ?? "40102",
+                VRCA_DEFAULT_DOMAIN_URL:
+                    process.env.VRCA_DEFAULT_DOMAIN_URL ??
+                    "wss://antares.digisomni.com/0,0,0/0,0,0,1",
                 // Theme
-                VRCA_BRAND_NAME: process.env.VRCA_BRAND_NAME ?? packageJSON.productName,
-                VRCA_PRODUCT_NAME: process.env.VRCA_PRODUCT_NAME ?? packageJSON.productName,
-                VRCA_TAGLINE: process.env.VRCA_TAGLINE ?? packageJSON.description,
-                VRCA_PRODUCT_DESCRIPTION: process.env.VRCA_PRODUCT_DESCRIPTION ?? packageJSON.description,
-                VRCA_LOGO: process.env.VRCA_LOGO ?? "assets/images/branding/vircadia-icon.svg",
-                VRCA_INTRO: process.env.VRCA_INTRO ?? "assets/video/Digisomni_Intro_9-13-2022.webm",
+                VRCA_BRAND_NAME:
+                    process.env.VRCA_BRAND_NAME ?? packageJSON.productName,
+                VRCA_PRODUCT_NAME:
+                    process.env.VRCA_PRODUCT_NAME ?? packageJSON.productName,
+                VRCA_TAGLINE:
+                    process.env.VRCA_TAGLINE ?? packageJSON.description,
+                VRCA_PRODUCT_DESCRIPTION:
+                    process.env.VRCA_PRODUCT_DESCRIPTION ??
+                    packageJSON.description,
+                VRCA_LOGO:
+                    process.env.VRCA_LOGO ??
+                    "assets/images/branding/vircadia-icon.svg",
+                VRCA_INTRO:
+                    process.env.VRCA_INTRO ??
+                    "assets/video/Digisomni_Intro_9-13-2022.webm",
                 // NOTE: VRCA_BANNER should be an absolute URL for Open Graph support.
-                VRCA_BANNER: process.env.VRCA_BANNER ?? "assets/images/branding/og_banner.png",
-                VRCA_BANNER_ALT: process.env.VRCA_BANNER_ALT ?? packageJSON.productName,
-                VRCA_GLOBAL_SERVICE_TERM: process.env.VRCA_GLOBAL_SERVICE_TERM ?? "Metaverse",
-                VRCA_VERSION_WATERMARK: process.env.VRCA_VERSION_WATERMARK ?? "Early Developer Alpha",
-                VRCA_SHOW_LOADING_SCREEN_HINTS: process.env.VRCA_SHOW_LOADING_SCREEN_HINTS ?? "true",
+                VRCA_BANNER:
+                    process.env.VRCA_BANNER ??
+                    "assets/images/branding/og_banner.png",
+                VRCA_BANNER_ALT:
+                    process.env.VRCA_BANNER_ALT ?? packageJSON.productName,
+                VRCA_GLOBAL_SERVICE_TERM:
+                    process.env.VRCA_GLOBAL_SERVICE_TERM ?? "Metaverse",
+                VRCA_VERSION_WATERMARK:
+                    process.env.VRCA_VERSION_WATERMARK ??
+                    "Early Developer Alpha",
+                VRCA_SHOW_LOADING_SCREEN_HINTS:
+                    process.env.VRCA_SHOW_LOADING_SCREEN_HINTS ?? "true",
                 // Theme > Colors
-                VRCA_COLORS_PRIMARY: process.env.VRCA_COLORS_PRIMARY ?? "#0c71c3",
-                VRCA_COLORS_SECONDARY: process.env.VRCA_COLORS_SECONDARY ?? "#8300e9",
+                VRCA_COLORS_PRIMARY:
+                    process.env.VRCA_COLORS_PRIMARY ?? "#0c71c3",
+                VRCA_COLORS_SECONDARY:
+                    process.env.VRCA_COLORS_SECONDARY ?? "#8300e9",
                 VRCA_COLORS_ACCENT: process.env.VRCA_COLORS_ACCENT ?? "#01bdff",
                 // Theme > Styles
                 VRCA_DEFAULT_MODE: process.env.VRCA_DEFAULT_MODE ?? "dark",
                 VRCA_GLOBAL_STYLE: process.env.VRCA_GLOBAL_STYLE ?? "mica",
-                VRCA_HEADER_STYLE: process.env.VRCA_HEADER_STYLE ?? "gradient-right",
-                VRCA_WINDOW_STYLE: process.env.VRCA_WINDOW_STYLE ?? "gradient-right",
+                VRCA_HEADER_STYLE:
+                    process.env.VRCA_HEADER_STYLE ?? "gradient-right",
+                VRCA_WINDOW_STYLE:
+                    process.env.VRCA_WINDOW_STYLE ?? "gradient-right",
                 // Links
-                VRCA_HOSTED_URL: process.env.VRCA_HOSTED_URL ?? "https://app.vircadia.com",
+                VRCA_HOSTED_URL:
+                    process.env.VRCA_HOSTED_URL ?? "https://app.vircadia.com",
                 // First Time Wizard
-                VRCA_WIZARD_TITLE: process.env.VRCA_WIZARD_TITLE ?? packageJSON.productName,
-                VRCA_WIZARD_WELCOME_TEXT: process.env.VRCA_WIZARD_WELCOME_TEXT ?? "Welcome to",
-                VRCA_WIZARD_TAGLINE: process.env.VRCA_WIZARD_TAGLINE ?? "Explore virtual worlds.",
-                VRCA_WIZARD_BUTTON_TEXT: process.env.VRCA_WIZARD_BUTTON_TEXT ?? "Get Started",
+                VRCA_WIZARD_TITLE:
+                    process.env.VRCA_WIZARD_TITLE ?? packageJSON.productName,
+                VRCA_WIZARD_WELCOME_TEXT:
+                    process.env.VRCA_WIZARD_WELCOME_TEXT ?? "Welcome to",
+                VRCA_WIZARD_TAGLINE:
+                    process.env.VRCA_WIZARD_TAGLINE ??
+                    "Explore virtual worlds.",
+                VRCA_WIZARD_BUTTON_TEXT:
+                    process.env.VRCA_WIZARD_BUTTON_TEXT ?? "Get Started",
                 // Desktop App
-                VRCA_DESKTOP_MODE: process.env.VRCA_DESKTOP_MODE
-            }
+                VRCA_DESKTOP_MODE: process.env.VRCA_DESKTOP_MODE,
+            },
         },
 
         // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#devServer
@@ -133,13 +174,13 @@ module.exports = configure(function(ctx) {
             https: false,
             port: 9000,
             strictPort: Boolean(desktopMode), // desktop mode must use a strict port
-            open: !Boolean(desktopMode) // opens browser window automatically
+            open: !Boolean(desktopMode), // opens browser window automatically
         },
 
         // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#framework
         framework: {
             config: {
-                dark: "auto"
+                dark: "auto",
             },
 
             // iconSet: 'material-icons', // Quasar icon set
@@ -153,7 +194,7 @@ module.exports = configure(function(ctx) {
             // directives: [],
 
             // Quasar plugins
-            plugins: ["Notify"]
+            plugins: ["Notify"],
         },
 
         // animations: 'all', // --- includes all animations
@@ -193,8 +234,8 @@ module.exports = configure(function(ctx) {
 
             middlewares: [
                 ctx.prod ? "compression" : "",
-                "render" // keep this as last one
-            ]
+                "render", // keep this as last one
+            ],
         },
 
         // https://v2.quasar.dev/quasar-cli-vite/developing-pwa/configuring-pwa
@@ -213,7 +254,8 @@ module.exports = configure(function(ctx) {
             manifest: {
                 name: process.env.VRCA_PRODUCT_NAME ?? packageJSON.productName,
                 short_name: process.env.VRCA_PRODUCT_NAME ?? packageJSON.name,
-                description: process.env.VRCA_TAGLINE ?? packageJSON.description,
+                description:
+                    process.env.VRCA_TAGLINE ?? packageJSON.description,
                 display: "standalone",
                 orientation: "portrait",
                 background_color: "#ffffff",
@@ -222,30 +264,30 @@ module.exports = configure(function(ctx) {
                     {
                         src: "icons/icon-128x128.png",
                         sizes: "128x128",
-                        type: "image/png"
+                        type: "image/png",
                     },
                     {
                         src: "icons/icon-192x192.png",
                         sizes: "192x192",
-                        type: "image/png"
+                        type: "image/png",
                     },
                     {
                         src: "icons/icon-256x256.png",
                         sizes: "256x256",
-                        type: "image/png"
+                        type: "image/png",
                     },
                     {
                         src: "icons/icon-384x384.png",
                         sizes: "384x384",
-                        type: "image/png"
+                        type: "image/png",
                     },
                     {
                         src: "icons/icon-512x512.png",
                         sizes: "512x512",
-                        type: "image/png"
-                    }
-                ]
-            }
+                        type: "image/png",
+                    },
+                ],
+            },
         },
 
         // Full list of options: https://v2.quasar.dev/quasar-cli-vite/developing-cordova-apps/configuring-cordova
@@ -255,7 +297,7 @@ module.exports = configure(function(ctx) {
 
         // Full list of options: https://v2.quasar.dev/quasar-cli-vite/developing-capacitor-apps/configuring-capacitor
         capacitor: {
-            hideSplashscreen: true
+            hideSplashscreen: true,
         },
 
         // Full list of options: https://v2.quasar.dev/quasar-cli-vite/developing-electron-apps/configuring-electron
@@ -269,13 +311,11 @@ module.exports = configure(function(ctx) {
 
             packager: {
                 // https://github.com/electron-userland/electron-packager/blob/master/docs/api.md#options
-
                 // OS X / Mac App Store
                 // appBundleId: '',
                 // appCategoryType: '',
                 // osxSign: '',
                 // protocol: 'myapp://path',
-
                 // Windows only
                 // win32metadata: { ... }
             },
@@ -283,16 +323,16 @@ module.exports = configure(function(ctx) {
             builder: {
                 // https://www.electron.build/configuration/configuration
 
-                appId: "vircadia-web"
-            }
+                appId: "vircadia-web",
+            },
         },
 
         // Full list of options: https://v2.quasar.dev/quasar-cli-vite/developing-browser-extensions/configuring-bex
         bex: {
-            contentScripts: ["my-content-script"]
+            contentScripts: ["my-content-script"],
 
             // extendBexScriptsConf (esbuildConf) {}
             // extendBexManifestJson (json) {}
-        }
+        },
     };
 });
