@@ -56,7 +56,7 @@ export class DomainAudioClient extends Client {
         window.setInterval(() => {
             if (WorldClient) {
                 WorldClient.TEMP_updateMetadataLocally({
-                    agentId: "lol",
+                    agentId: "test" + Date.now().toString(),
                     position: domain.AvatarClient && domain.AvatarClient.MyAvatar ? domain.AvatarClient.MyAvatar.position : Vec3.ZERO,
                     orientation: domain.AvatarClient && domain.AvatarClient.MyAvatar ? domain.AvatarClient.MyAvatar.orientation : Quat.IDENTITY
                 });
