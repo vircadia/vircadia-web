@@ -226,6 +226,7 @@ module.exports = {
         "no-unreachable-loop": "error",
         "no-unsafe-optional-chaining": "error",
         "no-unsafe-call": "off",
+        "no-inner-declarations": "off",
         "@typescript-eslint/no-unsafe-assignment": ["off"],
         "@typescript-eslint/no-unsafe-member-access": ["warn"],
         "@typescript-eslint/no-unsafe-argument": ["warn"],
