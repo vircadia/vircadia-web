@@ -252,7 +252,7 @@ export class AudioManager {
 
         if (pStream) {
             Client.Agent.Audio.TEMP_mediaStream = pStream;
-            Client.Agent.Audio.TEMP_streamAudio();
+            Client.Agent.Audio.TEMP_broadcastAudioStreams();
             console.info("#### Streaming audio to domain");
         } else {
             console.info("#### No stream to set to domain");
