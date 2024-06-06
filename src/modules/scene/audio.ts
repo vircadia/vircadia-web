@@ -239,20 +239,22 @@ export class AudioManager {
         // }
 
         // TODO:
-        if (!Client.isConnected()) {
-            Client.Setup.initializeAndConnectTo({
+        if (!Client.worldConnected()) {
+            Client.Setup.InitializeWorldModule({
                 host: "http://localhost",
                 port: 3000,
                 agentId: "lol" + Date.now().toString(),
             });
             console.info("#### Connected.");
         } else {
-            console.info("#### Client is connected.", Client.isConnected());
+            console.info("#### Client is connected.", Client.worldConnected());
         }
 
         if (pStream) {
-            Client.Agent.Audio.TEMP_mediaStream = pStream;
-            Client.Agent.Audio.TEMP_broadcastAudioStreams();
+            Client.Agent.Media.updateLocalStream({
+                newStream: pStream,
+                kind: "audio"
+            });
             console.info("#### Streaming audio to domain");
         } else {
             console.info("#### No stream to set to domain");
