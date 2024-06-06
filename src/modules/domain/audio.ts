@@ -60,7 +60,7 @@ export class DomainAudioClient extends Client {
                     orientation: domain.AvatarClient && domain.AvatarClient.MyAvatar ? domain.AvatarClient.MyAvatar.orientation : Quat.IDENTITY
                 });
             }
-        }, 1000 / 5);
+        }, 2500);
     }
 
     /**
