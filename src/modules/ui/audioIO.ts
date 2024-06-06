@@ -19,7 +19,7 @@ export class AudioIO {
     private static _selectedInputDevice = applicationStore.audio.user.currentInputDevice as MediaDeviceInfo | undefined;
     private static _selectedOutputDevice = applicationStore.audio.user.currentOutputDevice as MediaDeviceInfo | undefined;
     private static _inputLevelContext = {
-        context: new AudioContext(),
+        context: {} as AudioContext,
         analyser: {} as AnalyserNode,
         microphone: {} as MediaStreamAudioSourceNode,
         scriptProcessor: {} as ScriptProcessorNode
@@ -174,7 +174,7 @@ export class AudioIO {
                 await AudioManager.getAvailableInputOutputDevices();
 
                 // Find the MediaDeviceInfo for the input device.
-                await AudioManager.setUserAudioInputStream(stream, this._selectedInputDevice);
+                AudioManager.setUserAudioInputStream(stream, this._selectedInputDevice);
 
                 this._createInputLevelContext();
 
@@ -183,7 +183,7 @@ export class AudioIO {
             return stream;
         } catch (error) {
             this.setAwaitingCapturePermissions(false);
-            await AudioManager.setUserAudioInputStream(undefined, undefined);
+            AudioManager.setUserAudioInputStream(undefined, undefined);
             Log.error(Log.types.AUDIO, `Error getting capture permissions: ${findErrorMessage(error)}`);
         }
         return null;
