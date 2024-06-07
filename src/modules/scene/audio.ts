@@ -231,12 +231,12 @@ export class AudioManager {
      * @param pStream stream from user that should go to the domain
      */
     public static setAudioToDomain(pStream: Nullable<MediaStream>): void {
-        const mixer = DomainManager.ActiveDomain?.AudioClient?.Mixer;
-        if (DomainManager.ActiveDomain?.AudioClient?.clientState === AssignmentClientState.CONNECTED && mixer) {
-            mixer.audioInput = pStream as MediaStream | null;
-            AudioManager.setDomainAudioMuted(mixer.inputMuted);
-            void AudioManager.setDomainAudioPlayPause(true);
-        }
+        // const mixer = DomainManager.ActiveDomain?.AudioClient?.Mixer;
+        // if (DomainManager.ActiveDomain?.AudioClient?.clientState === AssignmentClientState.CONNECTED && mixer) {
+        //     mixer.audioInput = pStream as MediaStream | null;
+        //     AudioManager.setDomainAudioMuted(mixer.inputMuted);
+        //     void AudioManager.setDomainAudioPlayPause(true);
+        // }
 
         // TODO:
         if (!Client.worldConnected()) {
@@ -251,7 +251,7 @@ export class AudioManager {
         }
 
         if (pStream) {
-            Client.Agent.Media.updateLocalStream({
+            void Client.Agent.Media.updateLocalStream({
                 newStream: pStream,
                 kind: "audio"
             });
