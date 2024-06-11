@@ -142,7 +142,8 @@ export const useApplicationStore = defineStore("application", {
             headerStyle: process.env.VRCA_HEADER_STYLE,
             windowStyle: process.env.VRCA_WINDOW_STYLE,
             // TODO: Move links to their own object (it's not theme related).
-            helpLinks: process.env.VRCA_HELP_LINKS
+            helpLinks: process.env.VRCA_HELP_LINKS,
+            hideInWorldLocation: process.env.VRCA_HIDE_IN_WORLD_LOCATION
         },
         // First Time Wizard configuration.
         firstTimeWizard: {
