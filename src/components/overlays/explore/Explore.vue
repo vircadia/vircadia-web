@@ -193,6 +193,7 @@
                     </q-popup-edit>
                 </p>
                 <p
+                    v-show="applicationStore.theme.hideInWorldLocation !== 'true'"
                     class="locationPosition text-no-wrap ellipsis cursor-pointer"
                     :title="'Position: ' + parseLocation(getLocation, 'position').toString().replace('{', '').replace('}', '')"
                 >
@@ -209,6 +210,7 @@
                     </q-popup-edit>
                 </p>
                 <p
+                    v-show="applicationStore.theme.hideInWorldLocation !== 'true'"
                     class="locationRotation text-no-wrap ellipsis cursor-pointer"
                     :title="'Rotation: ' + parseLocation(getLocation, 'rotation').toString().replace('{', '').replace('}', '')"
                 >
@@ -735,7 +737,12 @@ export default defineComponent({
 
         async copyLocationToClipboard(): Promise<void> {
             this.locationCopied = true;
-            await navigator.clipboard.writeText(this.getLocation);
+            let location = this.getLocation;
+            if (applicationStore.theme.hideInWorldLocation === "true") {
+                location = location.split("/").slice(0, 3)
+                    .join("/");
+            }
+            await navigator.clipboard.writeText(location);
             const transitionTime = 1700;
             window.setTimeout(() => {
                 this.locationCopied = false;

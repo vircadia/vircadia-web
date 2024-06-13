@@ -194,11 +194,15 @@ export default defineComponent({
             }
 
             // Remove the protocol from the displayed location.
-            const location = this.userStore.avatar.location
+            let location = this.userStore.avatar.location
                 .replace("ws://", "")
                 .replace("wss://", "")
                 .replace("http://", "")
                 .replace("https://", "");
+
+            if (applicationStore.theme.hideInWorldLocation === "true") {
+                location = location.split("/")[0];
+            }
 
             // Show the location in the URL.
             window.history.replaceState(null, "", `#/${location}`);
