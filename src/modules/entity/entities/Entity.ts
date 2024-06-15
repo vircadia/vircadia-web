@@ -108,7 +108,7 @@ export abstract class Entity implements IEntity {
         return this._name;
     }
 
-    public set name(value : string | undefined) {
+    public set name(value: string | undefined) {
         if (value && value !== this._name) {
             this._name = value;
             this._onCommonPropertiesChanged.isDirty = true;
