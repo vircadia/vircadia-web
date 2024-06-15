@@ -704,6 +704,7 @@ export class VScene {
             this._css3DRenderer.removeAllCSS3DObjects();
             this._css3DRenderer.scene = this._scene;
         }
+
         this._scene.collisionsEnabled = true;
     }
 
