@@ -45,6 +45,8 @@ export interface JitsiRoomInfo {
 export const useApplicationStore = defineStore("application", {
     state: () => ({
         globalConsts: {
+            APP_USER_DOCS_URL: process.env.VRCA_USER_DOCS_URL,
+            APP_COMMUNITY_CHAT_URL: process.env.VRCA_COMMUNITY_CHAT_URL,
             APP_DESKTOP_MODE: process.env.VRCA_DESKTOP_MODE,
             APP_NAME: process.env.VRCA_PRODUCT_NAME,
             APP_VERSION: packageInfo.version,

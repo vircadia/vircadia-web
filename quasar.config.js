@@ -156,6 +156,12 @@ module.exports = configure(function (ctx) {
                 // Links
                 VRCA_HOSTED_URL:
                     process.env.VRCA_HOSTED_URL ?? "https://app.vircadia.com",
+                VRCA_USER_DOCS_URL:
+                    process.env.VRCA_USER_DOCS_URL ??
+                    "https://docs.vircadia.com/",
+                VRCA_COMMUNITY_CHAT_URL:
+                    process.env.VRCA_COMMUNITY_CHAT_URL ??
+                    "https://discord.com/invite/Pvx2vke",
                 // First Time Wizard
                 VRCA_WIZARD_TITLE:
                     process.env.VRCA_WIZARD_TITLE ?? packageJSON.productName,
