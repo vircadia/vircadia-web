@@ -10,8 +10,8 @@
     <router-view />
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
+<script setup lang="ts">
+import { onMounted } from "vue";
 import { applicationStore } from "@Stores/index";
 import { Utility } from "@Modules/utility";
 import Log from "@Modules/debugging/log";
@@ -19,24 +19,20 @@ import Log from "@Modules/debugging/log";
 // FIXME: Apps - This should be handled properly.
 window.useIgloo = window.location.toString().includes("?igloo=1");
 
-export default defineComponent({
-    name: "App",
-    setup() {
-        // Fetch and initialize configuration info
-        Log.debug(Log.types.OTHER, `APP: Initialize`);
-        Utility.initializeConfig();
-    },
-    mounted() {
-        // Log the SDK version.
-        console.log("Starting Vircadia Web using SDK version:", applicationStore.globalConsts.SDK_VERSION_TAG);
-        // Called after the APP is visible. This starts the engines doing things.
-        // Start connections if we are restoring the session
-        void Utility.initialConnectionSetup();
-        // Hide the preloader.
-        const preloader = document.getElementById("preloader");
-        if (preloader) {
-            preloader.classList.add("hide");
-        }
+// Fetch and initialize configuration info
+Log.debug(Log.types.OTHER, `APP: Initialize`);
+Utility.initializeConfig();
+
+onMounted(() => {
+    // Log the SDK version.
+    console.log("Starting Vircadia Web using SDK version:", applicationStore.globalConsts.SDK_VERSION_TAG);
+    // Called after the APP is visible. This starts the engines doing things.
+    // Start connections if we are restoring the session
+    void Utility.initialConnectionSetup();
+    // Hide the preloader.
+    const preloader = document.getElementById("preloader");
+    if (preloader) {
+        preloader.classList.add("hide");
     }
 });
 </script>

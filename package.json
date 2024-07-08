@@ -20,18 +20,18 @@
         "copy-workers": "node build_scripts/copyWorkers.mjs"
     },
     "dependencies": {
-        "@babylonjs/core": "^6.24.0",
-        "@babylonjs/inspector": "^6.24.0",
-        "@babylonjs/loaders": "^6.24.0",
+        "@babylonjs/core": "^7.14.0",
+        "@babylonjs/inspector": "^7.14.0",
+        "@babylonjs/loaders": "^7.14.0",
         "@quasar/extras": "^1.16.11",
         "@vircadia/web-sdk": "^2024.1.0",
-        "@vueuse/core": "^10.9.0",
+        "@vueuse/core": "^10.11.0",
         "ammojs-typed": "^1.0.6",
         "dompurify": "^3.0.3",
         "pinia": "^2.1.7",
-        "quasar": "^2.16.4",
+        "quasar": "^2.16.5",
         "unique-names-generator": "^4.7.1",
-        "vue": "^3.4.21",
+        "vue": "^3.4.31",
         "vue-router": "^4.3.0"
     },
     "devDependencies": {
@@ -51,11 +51,11 @@
         "eslint-plugin-vue": "^9.0.0",
         "git-authors-cli": "^1.0.46",
         "micro-test-runner": "^1.5.1",
-        "typescript": "^4.5.4"
+        "typescript": "^5.4.0"
     },
     "engines": {
-        "node": "^18 || ^16 || ^14.19",
-        "npm": ">= 6.13.4",
+        "node": "^20 || ^18",
+        "npm": ">= 10.1.0",
         "yarn": ">= 1.21.1"
     },
     "contributors": [
