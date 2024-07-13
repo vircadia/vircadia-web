@@ -18,8 +18,8 @@ module.exports = configure(function (ctx) {
             // include = [],
             // exclude = [],
             // rawOptions = {},
-            warnings: false,
-            errors: false,
+            warnings: true,
+            errors: true,
         },
 
         // https://v2.quasar.dev/quasar-cli-vite/prefetch-feature
@@ -125,6 +125,8 @@ module.exports = configure(function (ctx) {
                 VRCA_INTRO:
                     process.env.VRCA_INTRO ??
                     "assets/video/Digisomni_Intro_9-13-2022.webm",
+                VRCA_HIDE_IN_WORLD_LOCATION:
+                    process.env.VRCA_HIDE_IN_WORLD_LOCATION ?? "false",
                 // NOTE: VRCA_BANNER should be an absolute URL for Open Graph support.
                 VRCA_BANNER:
                     process.env.VRCA_BANNER ??
@@ -154,6 +156,12 @@ module.exports = configure(function (ctx) {
                 // Links
                 VRCA_HOSTED_URL:
                     process.env.VRCA_HOSTED_URL ?? "https://app.vircadia.com",
+                VRCA_USER_DOCS_URL:
+                    process.env.VRCA_USER_DOCS_URL ??
+                    "https://docs.vircadia.com/",
+                VRCA_COMMUNITY_CHAT_URL:
+                    process.env.VRCA_COMMUNITY_CHAT_URL ??
+                    "https://discord.com/invite/Pvx2vke",
                 // First Time Wizard
                 VRCA_WIZARD_TITLE:
                     process.env.VRCA_WIZARD_TITLE ?? packageJSON.productName,

@@ -125,7 +125,7 @@ export class EntityMapper {
     }
 
 
-    public static mapToShapeType(shape: number | undefined): ShapeType {
+    public static mapToShapeType(shape: number | undefined): ShapeType | undefined {
         switch (shape) {
             case PackageShapeType.BOX:
                 return "box";
@@ -161,8 +161,10 @@ export class EntityMapper {
                 return "sphere";
             case PackageShapeType.STATIC_MESH:
                 return "static-mesh";
-            default:
+            case PackageShapeType.NONE:
                 return "none";
+            default:
+                return undefined;
         }
     }
 

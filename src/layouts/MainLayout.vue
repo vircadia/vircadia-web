@@ -557,17 +557,12 @@ export default defineComponent({
                 {
                     icon: "chat",
                     label: "Community Chat",
-                    link: "https://discord.com/invite/Pvx2vke"
-                },
-                {
-                    icon: "forum",
-                    label: "Forum",
-                    link: "https://forum.vircadia.com/"
+                    link: applicationStore.globalConsts.APP_COMMUNITY_CHAT_URL
                 },
                 {
                     icon: "support",
                     label: "User Documentation",
-                    link: "https://docs.vircadia.com/"
+                    link: applicationStore.globalConsts.APP_USER_DOCS_URL
                 },
                 {
                     icon: "delete_sweep",
