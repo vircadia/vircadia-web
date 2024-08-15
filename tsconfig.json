@@ -12,7 +12,9 @@
             "@Components/*": ["./src/components/*"],
             "@Modules/*": ["./src/modules/*"],
             "@Public/*": ["./public/*"],
-            "@Stores/*": ["./src/stores/*"]
+            "@Stores/*": ["./src/stores/*"],
+            "@World-Client/*": ["./src/vircadia-world/src/client/*"]
         }
-    }
+    },
+    "include": ["src/**/*", "src/vircadia-world/src/**/*"]
 }

@@ -19,7 +19,7 @@ module.exports = configure(function (ctx) {
             // exclude = [],
             // rawOptions = {},
             warnings: true,
-            errors: true,
+            errors: false,
         },
 
         // https://v2.quasar.dev/quasar-cli-vite/prefetch-feature
@@ -92,6 +92,10 @@ module.exports = configure(function (ctx) {
                 "@Modules": path.resolve(__dirname, "./src/modules"),
                 "@Public": path.resolve(__dirname, "./public"),
                 "@Stores": path.resolve(__dirname, "./src/stores"),
+                "@World-Client": path.resolve(
+                    __dirname,
+                    "./src/vircadia-world/src/client"
+                ),
             },
 
             env: {
