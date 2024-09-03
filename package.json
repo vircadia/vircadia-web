@@ -20,9 +20,9 @@
         "copy-workers": "node build_scripts/copyWorkers.mjs"
     },
     "dependencies": {
-        "@babylonjs/core": "^7.14.0",
-        "@babylonjs/inspector": "^7.14.0",
-        "@babylonjs/loaders": "^7.14.0",
+        "@babylonjs/core": "^7.21.4",
+        "@babylonjs/inspector": "^7.21.4",
+        "@babylonjs/loaders": "^7.21.4",
         "@quasar/extras": "^1.16.11",
         "@vircadia/web-sdk": "^2024.1.0",
         "@vueuse/core": "^10.11.0",

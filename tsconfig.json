@@ -13,7 +13,7 @@
             "@Modules/*": ["./src/modules/*"],
             "@Public/*": ["./public/*"],
             "@Stores/*": ["./src/stores/*"],
-            "@World-Client/*": ["./src/vircadia-world/src/client/*"]
+            "@World-Client/*": ["./src/vircadia-world/typescript/src/client/*"]
         }
     },
     "include": ["src/**/*", "src/vircadia-world/src/**/*"]

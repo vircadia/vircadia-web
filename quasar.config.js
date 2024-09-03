@@ -94,7 +94,7 @@ module.exports = configure(function (ctx) {
                 "@Stores": path.resolve(__dirname, "./src/stores"),
                 "@World-Client": path.resolve(
                     __dirname,
-                    "./src/vircadia-world/src/client"
+                    "./src/vircadia-world/typescript/src/client"
                 ),
             },
 
