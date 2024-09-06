@@ -17,9 +17,6 @@ import { Utility } from "@Modules/utility";
 import { Client } from "@World-Client/client";
 import Log from "@Modules/debugging/log";
 
-// FIXME: Apps - This should be handled properly.
-window.useIgloo = window.location.toString().includes("?igloo=1");
-
 // Fetch and initialize configuration info
 Log.debug(Log.types.OTHER, `APP: Initialize`);
 Utility.initializeConfig();
