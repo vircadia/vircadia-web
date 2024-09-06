@@ -137,7 +137,9 @@ export const useApplicationStore = defineStore("application", {
             colors: {
                 primary: process.env.VRCA_COLORS_PRIMARY,
                 secondary: process.env.VRCA_COLORS_SECONDARY,
-                accent: process.env.VRCA_COLORS_ACCENT
+                accent: process.env.VRCA_COLORS_ACCENT,
+                dark: process.env.VRCA_COLORS_DARK,
+                light: process.env.VRCA_COLORS_LIGHT
             },
             defaultMode: process.env.VRCA_DEFAULT_MODE,
             globalStyle: process.env.VRCA_GLOBAL_STYLE,

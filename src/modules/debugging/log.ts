@@ -10,6 +10,8 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
+import EC from 'eight-colors';
+
 type UnknownError = { error?: string; message?: string };
 
 enum LogType {
@@ -92,19 +94,74 @@ export default class Log {
         message: string,
         ...optionalMessages: string[]
     ): void {
-        if (level === LogLevel.ERROR) {
-            console.error(type, level, message, ...optionalMessages);
-        } else if (level === LogLevel.WARN) {
-            console.warn(type, level, message, ...optionalMessages);
-        } else if (level === LogLevel.DEBUG) {
-            console.info(type, level, message, ...optionalMessages);
-        } else {
-            console.log(type, level, message, ...optionalMessages);
-        }
         const time = new Date().toISOString();
-        this._logHistory.push(
-            [time, type, level, message, ...optionalMessages].join(" ")
-        );
+        const formattedMessage = this.formatMessage(type, level, message, ...optionalMessages);
+
+        switch (level) {
+            case LogLevel.ERROR:
+                console.error(EC.remove(formattedMessage));
+                break;
+            case LogLevel.WARN:
+                console.warn(EC.remove(formattedMessage));
+                break;
+            case LogLevel.DEBUG:
+                console.info(EC.remove(formattedMessage));
+                break;
+            default:
+                console.log(EC.remove(formattedMessage));
+        }
+
+        this._logHistory.push([time, formattedMessage].join(" "));
+    }
+
+    private static formatMessage(
+        type: LogType,
+        level: LogLevel,
+        message: string,
+        ...optionalMessages: string[]
+    ): string {
+        const typeColor = this.getTypeColor(type);
+        const levelColor = this.getLevelColor(level);
+        const formattedType = typeColor(type);
+        const formattedLevel = levelColor(level);
+        return `${formattedType} ${formattedLevel} ${message} ${optionalMessages.join(" ")}`;
+    }
+
+    private static getTypeColor(type: LogType): (str: string) => string {
+        switch (type) {
+            case LogType.ACCOUNT:
+            case LogType.MESSAGES:
+                return EC.cyan;
+            case LogType.AUDIO:
+            case LogType.NETWORK:
+                return EC.magenta;
+            case LogType.AVATAR:
+            case LogType.PEOPLE:
+                return EC.green;
+            case LogType.ENTITIES:
+            case LogType.PLACES:
+                return EC.yellow;
+            case LogType.METAVERSE:
+            case LogType.UI:
+                return EC.blue;
+            default:
+                return EC.white;
+        }
+    }
+
+    private static getLevelColor(level: LogLevel): (str: string) => string {
+        switch (level) {
+            case LogLevel.ERROR:
+                return EC.red;
+            case LogLevel.WARN:
+                return EC.yellow;
+            case LogLevel.DEBUG:
+                return EC.blue;
+            case LogLevel.INFO:
+                return EC.green;
+            default:
+                return EC.white;
+        }
     }
 
     /**
@@ -172,29 +229,17 @@ export default class Log {
     public static setLogLevel(level: LogLevel | string): void {
         switch (level.toLowerCase()) {
             case "none":
-                this._logLevel = LogLevel.INFO;
-                break;
             case "info":
-                this._logLevel = LogLevel.INFO;
-                break;
             case "[info]":
                 this._logLevel = LogLevel.INFO;
                 break;
             case "warn":
-                this._logLevel = LogLevel.WARN;
-                break;
             case "[warn]":
                 this._logLevel = LogLevel.WARN;
                 break;
             case "debug":
-                this._logLevel = LogLevel.DEBUG;
-                break;
             case "[debug]":
-                this._logLevel = LogLevel.DEBUG;
-                break;
             case "error":
-                this._logLevel = LogLevel.DEBUG;
-                break;
             case "[error]":
                 this._logLevel = LogLevel.DEBUG;
                 break;

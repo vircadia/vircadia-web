@@ -19,7 +19,7 @@ module.exports = configure(function (ctx) {
             // exclude = [],
             // rawOptions = {},
             warnings: true,
-            errors: true,
+            errors: false,
         },
 
         // https://v2.quasar.dev/quasar-cli-vite/prefetch-feature
@@ -92,6 +92,10 @@ module.exports = configure(function (ctx) {
                 "@Modules": path.resolve(__dirname, "./src/modules"),
                 "@Public": path.resolve(__dirname, "./public"),
                 "@Stores": path.resolve(__dirname, "./src/stores"),
+                "@World-Client": path.resolve(
+                    __dirname,
+                    "./src/vircadia-world/typescript/src/client"
+                ),
             },
 
             env: {
@@ -119,6 +123,9 @@ module.exports = configure(function (ctx) {
                 VRCA_PRODUCT_DESCRIPTION:
                     process.env.VRCA_PRODUCT_DESCRIPTION ??
                     packageJSON.description,
+                VRCA_PRODUCT_KEYWORDS:
+                    process.env.VRCA_PRODUCT_KEYWORDS ??
+                    "Vircadia, VR, virtual, reality, metaverse, game, 3D, open-world, open-source, open, future",
                 VRCA_LOGO:
                     process.env.VRCA_LOGO ??
                     "assets/images/branding/vircadia-icon.svg",
@@ -146,6 +153,8 @@ module.exports = configure(function (ctx) {
                 VRCA_COLORS_SECONDARY:
                     process.env.VRCA_COLORS_SECONDARY ?? "#8300e9",
                 VRCA_COLORS_ACCENT: process.env.VRCA_COLORS_ACCENT ?? "#01bdff",
+                VRCA_COLORS_DARK: process.env.VRCA_COLORS_DARK ?? "#282828",
+                VRCA_COLORS_LIGHT: process.env.VRCA_COLORS_LIGHT ?? "#e8e8e8",
                 // Theme > Styles
                 VRCA_DEFAULT_MODE: process.env.VRCA_DEFAULT_MODE ?? "dark",
                 VRCA_GLOBAL_STYLE: process.env.VRCA_GLOBAL_STYLE ?? "mica",

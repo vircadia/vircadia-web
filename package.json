@@ -1,6 +1,6 @@
 {
     "name": "vircadia-web",
-    "version": "2024.1.0",
+    "version": "2024.2.0",
     "description": "Vircadia open source metaverse web interface for agent-based virtual worlds.",
     "productName": "Vircadia Web",
     "author": "DigiSomni LLC | Vircadia Contributors",
@@ -20,25 +20,25 @@
         "copy-workers": "node build_scripts/copyWorkers.mjs"
     },
     "dependencies": {
-        "@babylonjs/core": "^7.14.0",
-        "@babylonjs/inspector": "^7.14.0",
-        "@babylonjs/loaders": "^7.14.0",
-        "@quasar/extras": "^1.16.11",
+        "@babylonjs/core": "^7.24.0",
+        "@babylonjs/inspector": "^7.24.0",
+        "@babylonjs/loaders": "^7.24.0",
+        "@quasar/extras": "^1.16.12",
         "@vircadia/web-sdk": "^2024.1.0",
-        "@vueuse/core": "^10.11.0",
+        "@vueuse/core": "^11.0.3",
         "ammojs-typed": "^1.0.6",
         "dompurify": "^3.0.3",
-        "pinia": "^2.1.7",
-        "quasar": "^2.16.5",
+        "eight-colors": "^1.3.0",
+        "pinia": "^2.2.2",
+        "quasar": "^2.16.10",
         "unique-names-generator": "^4.7.1",
-        "vue": "^3.4.31",
-        "vue-router": "^4.3.0"
+        "vue": "^3.5.3",
+        "vue-router": "^4.4.3"
     },
     "devDependencies": {
         "@jitsi/vue-sdk": "^1.0.4",
         "@quasar/app-vite": "^1.9.3",
         "@types/dompurify": "^3.0.2",
-        "@types/lodash": "^4.14.199",
         "@types/node": "^12.20.21",
         "@typescript-eslint/eslint-plugin": "^5.10.0",
         "@typescript-eslint/parser": "^5.10.0",
@@ -49,9 +49,9 @@
         "eslint-plugin-n": "^15.0.0",
         "eslint-plugin-promise": "^6.0.0",
         "eslint-plugin-vue": "^9.0.0",
-        "git-authors-cli": "^1.0.46",
+        "git-authors-cli": "^1.0.49",
         "micro-test-runner": "^1.5.1",
-        "typescript": "^5.4.0"
+        "typescript": "^5.5.4"
     },
     "engines": {
         "node": "^20 || ^18",

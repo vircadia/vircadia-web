@@ -14,16 +14,14 @@
 import { onMounted } from "vue";
 import { applicationStore } from "@Stores/index";
 import { Utility } from "@Modules/utility";
+import { Client } from "@World-Client/client";
 import Log from "@Modules/debugging/log";
-
-// FIXME: Apps - This should be handled properly.
-window.useIgloo = window.location.toString().includes("?igloo=1");
 
 // Fetch and initialize configuration info
 Log.debug(Log.types.OTHER, `APP: Initialize`);
 Utility.initializeConfig();
 
-onMounted(() => {
+onMounted(async () => {
     // Log the SDK version.
     console.log("Starting Vircadia Web using SDK version:", applicationStore.globalConsts.SDK_VERSION_TAG);
     // Called after the APP is visible. This starts the engines doing things.
@@ -34,5 +32,11 @@ onMounted(() => {
     if (preloader) {
         preloader.classList.add("hide");
     }
+
+    // await Client.Setup.InitializeVircadiaWorld({
+    //     host: "http://localhost",
+    //     port: 3000,
+    //     agentId: "1234567890",
+    // });
 });
 </script>

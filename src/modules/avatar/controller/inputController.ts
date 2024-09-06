@@ -36,7 +36,6 @@ import { applicationStore, userStore } from "@Stores/index";
 import { Renderer } from "@Modules/scene";
 import { MouseSettingsController } from "@Modules/avatar/controller/inputs/mouseSettings";
 import { Hysteresis } from "@Modules/utility/hysteresis";
-import { IglooCamera } from "@Modules/apps/igloo/Igloo.js";
 
 // Custom camera controls.
 class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
@@ -260,11 +259,6 @@ export class InputController extends ScriptComponent {
             // Bind the custom controls to the camera.
             this._camera.inputs.add(new ArcRotateCameraCustomInput(this._camera));
             this._camera.attachControl(this._scene.getEngine().getRenderingCanvas());
-
-            // FIXME: Toss this into an app module.
-            if (window.useIgloo) {
-                window.IglooCameraInstance = new IglooCamera(null, this._scene);
-            }
         }
     }
 
@@ -786,10 +780,6 @@ export class InputController extends ScriptComponent {
     private _snapCamera(delta: number): void {
         if (!this._camera || !this._camera.lowerRadiusLimit) {
             return;
-        }
-
-        if (window.useIgloo) {
-            window.IglooCameraInstance.setPosition(this._camera.position);
         }
 
         this._cameraObstacleDetectInfo.elapse += delta;
