@@ -123,6 +123,9 @@ module.exports = configure(function (ctx) {
                 VRCA_PRODUCT_DESCRIPTION:
                     process.env.VRCA_PRODUCT_DESCRIPTION ??
                     packageJSON.description,
+                VRCA_PRODUCT_KEYWORDS:
+                    process.env.VRCA_PRODUCT_KEYWORDS ??
+                    "Vircadia, VR, virtual, reality, metaverse, game, 3D, open-world, open-source, open, future",
                 VRCA_LOGO:
                     process.env.VRCA_LOGO ??
                     "assets/images/branding/vircadia-icon.svg",

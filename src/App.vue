@@ -33,10 +33,10 @@ onMounted(async () => {
         preloader.classList.add("hide");
     }
 
-    await Client.Setup.InitializeVircadiaWorld({
-        host: "http://localhost",
-        port: 3000,
-        agentId: "1234567890",
-    });
+    // await Client.Setup.InitializeVircadiaWorld({
+    //     host: "http://localhost",
+    //     port: 3000,
+    //     agentId: "1234567890",
+    // });
 });
 </script>
