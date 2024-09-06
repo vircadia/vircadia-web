@@ -10,6 +10,8 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
+import chalk, { ChalkInstance } from 'chalk';
+
 type UnknownError = { error?: string; message?: string };
 
 enum LogType {
@@ -92,19 +94,79 @@ export default class Log {
         message: string,
         ...optionalMessages: string[]
     ): void {
-        if (level === LogLevel.ERROR) {
-            console.error(type, level, message, ...optionalMessages);
-        } else if (level === LogLevel.WARN) {
-            console.warn(type, level, message, ...optionalMessages);
-        } else if (level === LogLevel.DEBUG) {
-            console.info(type, level, message, ...optionalMessages);
-        } else {
-            console.log(type, level, message, ...optionalMessages);
-        }
         const time = new Date().toISOString();
-        this._logHistory.push(
-            [time, type, level, message, ...optionalMessages].join(" ")
-        );
+        const formattedMessage = this.formatMessage(type, level, message, ...optionalMessages);
+
+        switch (level) {
+            case LogLevel.ERROR:
+                console.error(formattedMessage);
+                break;
+            case LogLevel.WARN:
+                console.warn(formattedMessage);
+                break;
+            case LogLevel.DEBUG:
+                console.info(formattedMessage);
+                break;
+            default:
+                console.log(formattedMessage);
+        }
+
+        this._logHistory.push([time, formattedMessage].join(" "));
+    }
+
+    private static formatMessage(
+        type: LogType,
+        level: LogLevel,
+        message: string,
+        ...optionalMessages: string[]
+    ): string {
+        const typeColor = this.getTypeColor(type);
+        const levelColor = this.getLevelColor(level);
+        const formattedType = typeColor(type);
+        const formattedLevel = levelColor(level);
+        return `${formattedType} ${formattedLevel} ${message} ${optionalMessages.join(" ")}`;
+    }
+
+    private static getTypeColor(type: LogType): ChalkInstance {
+        switch (type) {
+            case LogType.ACCOUNT:
+                return chalk.cyan;
+            case LogType.AUDIO:
+                return chalk.magenta;
+            case LogType.AVATAR:
+                return chalk.green;
+            case LogType.ENTITIES:
+                return chalk.yellow;
+            case LogType.METAVERSE:
+                return chalk.blue;
+            case LogType.MESSAGES:
+                return chalk.cyan;
+            case LogType.NETWORK:
+                return chalk.magenta;
+            case LogType.PEOPLE:
+                return chalk.green;
+            case LogType.PLACES:
+                return chalk.yellow;
+            case LogType.UI:
+                return chalk.blue;
+            default:
+                return chalk.white;
+        }
+    }
+
+    private static getLevelColor(level: LogLevel): ChalkInstance {
+        switch (level) {
+            case LogLevel.ERROR:
+                return chalk.red;
+            case LogLevel.WARN:
+                return chalk.yellow;
+            case LogLevel.DEBUG:
+                return chalk.blue;
+            case LogLevel.INFO:
+                return chalk.green;
+            default:
+                return chalk.white;
+        }
     }
 
     /**
