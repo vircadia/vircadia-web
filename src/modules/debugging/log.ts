@@ -10,7 +10,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 */
 
-import chalk, { ChalkInstance } from 'chalk';
+import EC from 'eight-colors';
 
 type UnknownError = { error?: string; message?: string };
 
@@ -99,16 +99,16 @@ export default class Log {
 
         switch (level) {
             case LogLevel.ERROR:
-                console.error(formattedMessage);
+                console.error(EC.remove(formattedMessage));
                 break;
             case LogLevel.WARN:
-                console.warn(formattedMessage);
+                console.warn(EC.remove(formattedMessage));
                 break;
             case LogLevel.DEBUG:
-                console.info(formattedMessage);
+                console.info(EC.remove(formattedMessage));
                 break;
             default:
-                console.log(formattedMessage);
+                console.log(EC.remove(formattedMessage));
         }
 
         this._logHistory.push([time, formattedMessage].join(" "));
@@ -127,45 +127,40 @@ export default class Log {
         return `${formattedType} ${formattedLevel} ${message} ${optionalMessages.join(" ")}`;
     }
 
-    private static getTypeColor(type: LogType): ChalkInstance {
+    private static getTypeColor(type: LogType): (str: string) => string {
         switch (type) {
             case LogType.ACCOUNT:
-                return chalk.cyan;
-            case LogType.AUDIO:
-                return chalk.magenta;
-            case LogType.AVATAR:
-                return chalk.green;
-            case LogType.ENTITIES:
-                return chalk.yellow;
-            case LogType.METAVERSE:
-                return chalk.blue;
             case LogType.MESSAGES:
-                return chalk.cyan;
+                return EC.cyan;
+            case LogType.AUDIO:
             case LogType.NETWORK:
-                return chalk.magenta;
+                return EC.magenta;
+            case LogType.AVATAR:
             case LogType.PEOPLE:
-                return chalk.green;
+                return EC.green;
+            case LogType.ENTITIES:
             case LogType.PLACES:
-                return chalk.yellow;
+                return EC.yellow;
+            case LogType.METAVERSE:
             case LogType.UI:
-                return chalk.blue;
+                return EC.blue;
             default:
-                return chalk.white;
+                return EC.white;
         }
     }
 
-    private static getLevelColor(level: LogLevel): ChalkInstance {
+    private static getLevelColor(level: LogLevel): (str: string) => string {
         switch (level) {
             case LogLevel.ERROR:
-                return chalk.red;
+                return EC.red;
             case LogLevel.WARN:
-                return chalk.yellow;
+                return EC.yellow;
             case LogLevel.DEBUG:
-                return chalk.blue;
+                return EC.blue;
             case LogLevel.INFO:
-                return chalk.green;
+                return EC.green;
             default:
-                return chalk.white;
+                return EC.white;
         }
     }
 
@@ -234,29 +229,17 @@ export default class Log {
     public static setLogLevel(level: LogLevel | string): void {
         switch (level.toLowerCase()) {
             case "none":
-                this._logLevel = LogLevel.INFO;
-                break;
             case "info":
-                this._logLevel = LogLevel.INFO;
-                break;
             case "[info]":
                 this._logLevel = LogLevel.INFO;
                 break;
             case "warn":
-                this._logLevel = LogLevel.WARN;
-                break;
             case "[warn]":
                 this._logLevel = LogLevel.WARN;
                 break;
             case "debug":
-                this._logLevel = LogLevel.DEBUG;
-                break;
             case "[debug]":
-                this._logLevel = LogLevel.DEBUG;
-                break;
             case "error":
-                this._logLevel = LogLevel.DEBUG;
-                break;
             case "[error]":
                 this._logLevel = LogLevel.DEBUG;
                 break;
