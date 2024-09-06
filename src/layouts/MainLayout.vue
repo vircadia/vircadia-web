@@ -35,7 +35,7 @@
             id="header"
             elevated
             style="color: unset;background-color: unset; pointer-events: auto;"
-            :style="{background: headerStyle}"
+            :style="{background: headerBackground}"
         >
             <div class="row no-wrap">
                 <q-toolbar :style="{ padding: isMobile ? '0 0 0 8px' : '0 0 0 12px' }">
@@ -51,7 +51,7 @@
                             'q-mr-xs': isMobile
                         }"
                     />
-                    <q-separator dark vertical inset />
+                    <q-separator vertical inset />
 
                     <q-btn
                         v-if="isDesktop"
@@ -125,7 +125,7 @@
                             @click="toggleMicrophoneMute"
                             class="q-mr-sm q-ml-sm"
                             :style="{
-                                backgroundColor: $q.dark.isActive ? '#282828' : '#e8e8e8'
+                                backgroundColor: $q.dark.isActive ? applicationStore.theme.colors.dark : applicationStore.theme.colors.light
                             }"
                         />
                         <q-tooltip
@@ -136,7 +136,7 @@
                         >Please allow microphone access.</q-tooltip>
                     </div>
 
-                    <q-separator v-if="webEntityInputAttached" dark vertical inset />
+                    <q-separator v-if="webEntityInputAttached" vertical inset />
 
                     <q-btn
                         v-if="webEntityInputAttached"
@@ -152,7 +152,7 @@
                         }"
                     />
 
-                    <q-separator v-if="webEntityInputAttached" dark vertical inset />
+                    <q-separator v-if="webEntityInputAttached" vertical inset />
 
                     <q-toolbar-title
                         class="non-selectable"
@@ -179,10 +179,6 @@
                                             {{ `${applicationStore.renderer.contentLoadingSpeed.toFixed(1)}MB&sol;s` }}
                                         </p>
                                         <q-tooltip
-                                            :class="{
-                                                'bg-black': $q.dark.isActive,
-                                                'text-white': $q.dark.isActive
-                                            }"
                                             :hide-delay="300"
                                         >
                                             {{ applicationStore.renderer.contentIsLoading
@@ -231,7 +227,7 @@
                             class="q-mr-sm q-ml-sm"
                         />
 
-                        <q-separator dark vertical inset />
+                        <q-separator vertical inset />
 
                         <q-btn
                             flat
@@ -276,7 +272,7 @@
                         </q-btn>
                     </template>
 
-                    <q-separator dark vertical inset />
+                    <q-separator vertical inset />
 
                     <q-btn-dropdown
                         stretch
@@ -546,7 +542,7 @@ export default defineComponent({
                     label: "Light / Dark",
                     action: () => {
                         this.$q.dark.toggle();
-                        Log.info(Log.types.OTHER, "Toggle Dark");
+                        Log.info(Log.types.OTHER, `Toggled UI mode to: ${this.$q.dark.isActive ? "Dark" : "Light"}`);
                     },
                     isCategory: false,
                     separator: false
@@ -617,17 +613,18 @@ export default defineComponent({
         /**
          * Style the header bar based on the Theme config.
          */
-        headerStyle(): string {
-            if (this.applicationStore.theme.globalStyle === "none") {
-                return "unset";
+        headerBackground(): string {
+            if (this.applicationStore.theme.globalStyle === "none"
+                || this.applicationStore.theme.headerStyle === "none"
+                || !this.$q.dark.isActive
+            ) {
+                return this.applicationStore.theme.colors.light;
             }
+
             const opacities = {
                 "aero": "5c",
                 "mica": "30"
             };
-            if (this.applicationStore.theme.headerStyle === "none") {
-                return "unset";
-            }
             const gradients = {
                 "gradient-left": "circle at 0% 50%",
                 "gradient-right": "circle at 100% 50%"

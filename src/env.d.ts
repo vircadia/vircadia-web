@@ -18,6 +18,8 @@ declare namespace NodeJS {
         VRCA_COLORS_PRIMARY: string;
         VRCA_COLORS_SECONDARY: string;
         VRCA_COLORS_ACCENT: string;
+        VRCA_COLORS_DARK: string;
+        VRCA_COLORS_LIGHT: string;
         VRCA_HIDE_IN_WORLD_LOCATION: "true" | "false";
     }
 }

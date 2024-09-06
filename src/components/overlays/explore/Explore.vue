@@ -11,7 +11,7 @@
 
 <style lang="scss" scoped>
     .q-field {
-        background-color: rgba(0, 0, 0, 0.4);
+        background-color: rgba(0, 0, 0, 0.1);
     }
 </style>
 <style lang="scss">
@@ -155,7 +155,10 @@
     >
         <q-card
             class="column no-wrap items-stretch full-height"
-            style="background: transparent; box-shadow: none;"
+            :style="{
+                background: $q.dark.isActive ? applicationStore.theme.colors.dark : applicationStore.theme.colors.light,
+                boxShadow: 'none'
+            }"
         >
             <div
                 class="exploreLocationInfo q-pa-sm"
@@ -319,7 +322,6 @@
                 v-model="tab"
                 no-caps
                 dense
-                class="text-white shadow-2"
             >
                 <q-tab name="all" label="All" />
                 <q-tab name="bookmarks" label="Bookmarks" />

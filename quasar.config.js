@@ -153,6 +153,8 @@ module.exports = configure(function (ctx) {
                 VRCA_COLORS_SECONDARY:
                     process.env.VRCA_COLORS_SECONDARY ?? "#8300e9",
                 VRCA_COLORS_ACCENT: process.env.VRCA_COLORS_ACCENT ?? "#01bdff",
+                VRCA_COLORS_DARK: process.env.VRCA_COLORS_DARK ?? "#282828",
+                VRCA_COLORS_LIGHT: process.env.VRCA_COLORS_LIGHT ?? "#e8e8e8",
                 // Theme > Styles
                 VRCA_DEFAULT_MODE: process.env.VRCA_DEFAULT_MODE ?? "dark",
                 VRCA_GLOBAL_STYLE: process.env.VRCA_GLOBAL_STYLE ?? "mica",
