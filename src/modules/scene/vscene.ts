@@ -26,6 +26,7 @@ import {
     Quaternion,
     Vector3,
     Color4,
+    WebGPUEngine,
 } from "@babylonjs/core";
 import Ammo from "ammojs-typed";
 import "@babylonjs/loaders/glTF";
@@ -72,7 +73,7 @@ const AvatarAnimationUrl = "/assets/animations/AnimationsBasic.glb";
  */
 export class VScene {
     _sceneId: number;
-    _engine: Engine;
+    _engine: Engine | WebGPUEngine;
     _scene: Scene;
     private _css3DRenderer: Nullable<CSS3DRenderer> = null;
     _myAvatar: Nullable<GameObject> = null;

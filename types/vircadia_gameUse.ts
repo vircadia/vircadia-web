@@ -15,6 +15,8 @@ export namespace glTF {
         vircadia_lightmap_texcoord: number | null;
         vircadia_lightmap_use_as_shadowmap: boolean | null;
         vircadia_lightmap_mode: Light.LightmapMode | null;
+        // Script
+        vircadia_script: string | null;
     }
 
     export class Metadata implements MetadataInterface {
@@ -35,6 +37,8 @@ export namespace glTF {
         public vircadia_lightmap_texcoord = null;
         public vircadia_lightmap_use_as_shadowmap = null;
         public vircadia_lightmap_mode = null;
+        // Script
+        public vircadia_script = null;
 
         constructor(metadata?: Partial<NonNullable<MetadataInterface>>) {
             if (metadata) {

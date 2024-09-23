@@ -14,14 +14,13 @@
 import { onMounted } from "vue";
 import { applicationStore } from "@Stores/index";
 import { Utility } from "@Modules/utility";
-import { Client } from "@World-Client/client";
 import Log from "@Modules/debugging/log";
 
 // Fetch and initialize configuration info
 Log.debug(Log.types.OTHER, `APP: Initialize`);
 Utility.initializeConfig();
 
-onMounted(async () => {
+onMounted(() => {
     // Log the SDK version.
     console.log("Starting Vircadia Web using SDK version:", applicationStore.globalConsts.SDK_VERSION_TAG);
     // Called after the APP is visible. This starts the engines doing things.
@@ -32,11 +31,5 @@ onMounted(async () => {
     if (preloader) {
         preloader.classList.add("hide");
     }
-
-    // await Client.Setup.InitializeVircadiaWorld({
-    //     host: "http://localhost",
-    //     port: 3000,
-    //     agentId: "1234567890",
-    // });
 });
 </script>

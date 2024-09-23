@@ -19,7 +19,7 @@ import { CustomLoadingScreen } from "@Modules/scene/LoadingScreen";
  * Static methods controlling the rendering of the scene(s).
  */
 export class Renderer {
-    private static _engine = <Engine><unknown>undefined;
+    private static _engine = <Engine | WebGPUEngine><unknown>undefined;
     private static _renderingScenes = <VScene[]><unknown>undefined;
     private static _webgpuSupported = false;
     private static _intervalId = <Nullable<NodeJS.Timeout>>null;
