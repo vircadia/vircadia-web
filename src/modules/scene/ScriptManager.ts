@@ -10,68 +10,50 @@
 //
 
 import {
-
     type AbstractMesh,
-
+    Scene,
+    ActionManager
 } from "@babylonjs/core";
+import * as BABYLON from "@babylonjs/core";
 import { transpile } from "typescript";
 import Log from "../debugging/log";
 import { glTF as MeshTypes } from "../../../types/vircadia_gameUse";
 
 export class ScriptManager {
-    public static executeScriptsOnMeshes(meshes: AbstractMesh[]): void {
+    public static executeScriptsOnMeshes(meshes: AbstractMesh[], scene: Scene): void {
         for (const mesh of meshes) {
             const metadataExtras = mesh?.metadata?.gltf?.extras ?? mesh?.parent?.metadata?.gltf?.extras;
 
             const meshMetadata = new MeshTypes.Metadata(metadataExtras as Partial<MeshTypes.MetadataInterface>);
 
-            let script: string = meshMetadata.vircadia_script;
+            const script: string = meshMetadata.vircadia_script;
 
             if (!script) {
-                // Create a test script default
-                script = `
-                        mesh.actionManager = new BABYLON.ActionManager(mesh._scene);
-
-                        mesh.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
-                            BABYLON.ActionManager.OnEveryFrameTrigger,
-                            function () {
-
-                                mesh.rotation.y += BABYLON.Tools.ToRadians(0.1);
-
-                            }
-                        ));
-                    `;
+                continue;
             }
 
             try {
-                this.executeWithContext(script, { mesh });
+                this.executeWithContext(script, { mesh, BABYLON, scene });
                 Log.debug(
-
                     Log.types.ENTITIES,
-                    `### Executed script for mesh ${mesh.name}.`
-
+                    `Executed script for mesh ${mesh.name}.`
                 );
-
             } catch (error) {
-
                 Log.error(
-
                     Log.types.ENTITIES,
-
                     `Failed to execute script for mesh ${mesh.name}: ${error}`
                 );
-
+                throw error;
             }
-
         }
     }
 
     private static transpile(script: string): string {
-        Log.info(Log.types.ENTITIES, `Transpiling script: ${script}`);
+        Log.debug(Log.types.ENTITIES, `Transpiling script: ${script}`);
 
         const transpiledScript: string = (transpile as (input: string) => string)(script);
 
-        Log.info(Log.types.ENTITIES, `Transpiled script: ${transpiledScript}`);
+        Log.debug(Log.types.ENTITIES, `Transpiled script: ${transpiledScript}`);
 
         return transpiledScript;
     }
@@ -91,7 +73,7 @@ export class ScriptManager {
         const contextKeys = Object.keys(context);
         const wrappedAndTranspiledScript = this.wrapAndTranspile(script, contextKeys);
 
-        Log.info(Log.types.ENTITIES, `Executing script with context: ${wrappedAndTranspiledScript}`);
+        Log.debug(Log.types.ENTITIES, `Executing script with context: ${wrappedAndTranspiledScript}`);
 
         // eslint-disable-next-line no-eval
         const scriptFunction = eval(wrappedAndTranspiledScript) as (...args: unknown[]) => unknown;

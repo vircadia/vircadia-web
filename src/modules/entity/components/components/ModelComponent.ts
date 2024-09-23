@@ -88,7 +88,7 @@ export class ModelComponent extends MeshComponent {
 
                 // Script Handling
                 if (scene) {
-                    ScriptManager.executeScriptsOnMeshes(meshes);
+                    ScriptManager.executeScriptsOnMeshes(meshes, scene);
                 }
 
                 this.mesh = meshes[0];
