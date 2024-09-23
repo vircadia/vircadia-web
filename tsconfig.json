@@ -13,8 +13,12 @@
             "@Modules/*": ["./src/modules/*"],
             "@Public/*": ["./public/*"],
             "@Stores/*": ["./src/stores/*"],
-            "@World-Client/*": ["./src/vircadia-world/typescript/src/client/*"]
+            "@World/*": ["./src/vircadia-world/src/*"]
         }
     },
-    "include": ["src/**/*", "src/vircadia-world/src/**/*"]
+    "include": [
+        "src/**/*",
+        "src/vircadia-world/src/**/*",
+        "src/vircadia-world/src/shared/modules/vircadia-world-meta/**/*"
+    ]
 }
