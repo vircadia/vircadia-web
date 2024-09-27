@@ -9,71 +9,71 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { fallbackAvatar, fallbackAvatarId, type AvatarModel } from "./DefaultModels";
 import { userStore } from "@Stores/index";
 import { Renderer } from "@Modules/scene";
+
+export interface AvatarModel {
+    name: string,
+    image: string,
+    file: string,
+    scale: number,
+    starred: boolean
+}
 
 /**
  * Static methods for interacting with the list of avatar models in the Store.
  */
 export class AvatarStoreInterface {
     /**
-     * Generate a random, alpha-numeric, 8 character long ID string that is unique within the avatar Store.
-     * @returns An ID string.
+     * @returns The default collection of avatar models.
+     * @throws {Error} If parsing VRCA_DEFAULT_AVATARS fails or the list is empty.
      */
-    private static _generateID(): string {
-        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        const idLength = 8;
-        function generate(): string {
-            let id = "";
-            for (let i = 0; i < idLength; i += 1) {
-                id += chars[Math.floor(Math.random() * chars.length)];
-            }
-            return id;
+    private static defaultAvatars(): AvatarModel[] {
+        if (!process.env.VRCA_DEFAULT_AVATARS) {
+            throw new Error("VRCA_DEFAULT_AVATARS is not defined in the environment");
         }
-        let uniqueId = generate();
-        // Ensure that the ID doesn't already exist in the Store.
-        while (uniqueId in userStore.avatar.models) {
-            uniqueId = generate();
+
+        const avatars = JSON.parse(process.env.VRCA_DEFAULT_AVATARS);
+        if (!Array.isArray(avatars) || avatars.length === 0) {
+            throw new Error("VRCA_DEFAULT_AVATARS is not a valid array or is empty");
         }
-        return uniqueId;
+
+        return avatars;
     }
 
     /**
-     * Retrieve the data (name, thumbnail, scale, etc) for a given avatar model.
-     * @param modelId The ID of the model to retrieve.
-     * @param key `(Optional)` A specific property of the model to retrieve.
-     * @returns The data for the requested avatar model, or the fallback model if the requested one doesn't exist.
-     * If a key was specified, only the value of that property is returned.
+     * @returns The URL of the default avatar model.
      */
-    public static getModelData(modelId: string | number): AvatarModel;
-    public static getModelData<T extends keyof AvatarModel>(modelId: string | number, key: T): AvatarModel[T];
-    public static getModelData<T extends keyof AvatarModel>(modelId: string | number, key?: T): AvatarModel | AvatarModel[T] {
-        const models = userStore.avatar.models;
-        if (key && key in (models[modelId] || fallbackAvatar())) {
-            return models[modelId][key];
-        }
-        return models[modelId] || fallbackAvatar();
+    public static defaultActiveAvatarUrl(): string {
+        return this.defaultAvatars()[0].file;
     }
 
     /**
-     * Retrieve the data (name, thumbnail, scale, etc) for the avatar model currently equipped by the user.
-     * @param key `(Optional)` A specific property of the model to retrieve.
-     * @returns The data for the currently equipped avatar model, or the fallback model if the currently equipped one doesn't exist.
-     * If a key was specified, only the value of that property is returned.
+     * @returns The name of the default avatar model.
      */
-    public static getActiveModelData(): AvatarModel;
-    public static getActiveModelData<T extends keyof AvatarModel>(key: T): AvatarModel[T];
-    public static getActiveModelData<T extends keyof AvatarModel>(key?: T): AvatarModel | AvatarModel[T] {
-        const activeModel = userStore.avatar.activeModel;
-        if (key) {
-            return this.getModelData(activeModel, key);
-        }
-        return this.getModelData(activeModel);
+    public static defaultActiveAvatarName(): string {
+        return this.defaultAvatars()[0].name;
     }
 
     /**
-     * @returns A stringified map of all the stored avatar models.
+     * Retrieve the data for a given avatar model.
+     * @param index The index of the model to retrieve.
+     * @returns The data for the requested avatar model, or undefined if the index is out of bounds.
+     */
+    public static getModelData(index: number): AvatarModel | undefined {
+        return userStore.avatar.models[index];
+    }
+
+    /**
+     * Retrieve the data for the avatar model currently equipped by the user.
+     * @returns The data for the currently equipped avatar model, or undefined if no model is equipped.
+     */
+    public static getActiveModelData(): AvatarModel | undefined {
+        return this.getModelData(userStore.avatar.activeModelIndex);
+    }
+
+    /**
+     * @returns A stringified array of all the stored avatar models.
      */
     public static getAllModelsJSON(): string {
         return JSON.stringify(userStore.avatar.models);
@@ -81,16 +81,16 @@ export class AvatarStoreInterface {
 
     /**
      * Set the value of a specific property of an avatar model.
-     * @param modelId The ID of the model to update.
+     * @param index The index of the model to update.
      * @param key The property to update.
      * @param value The new value for that property.
      */
-    public static setModelData<T extends keyof AvatarModel>(modelId: string | number, key: T, value: AvatarModel[T]): void {
-        if (modelId in userStore.avatar.models) {
-            userStore.avatar.models[modelId][key] = value;
+    public static setModelData<T extends keyof AvatarModel>(index: number, key: T, value: AvatarModel[T]): void {
+        if (index >= 0 && index < userStore.avatar.models.length) {
+            userStore.avatar.models[index][key] = value;
             // If the model's file was updated, make it the active model so there is immediate feedback on that change.
             if (key === "file") {
-                this.setActiveModel(modelId);
+                this.setActiveModel(index);
             }
         }
     }
@@ -100,60 +100,55 @@ export class AvatarStoreInterface {
      * @param key The property to update.
      * @param value The new value for that property.
      */
-    public static setActiveModelData(key: keyof AvatarModel, value: string | number | boolean): void {
-        const activeModel = userStore.avatar.activeModel;
-        this.setModelData(activeModel, key, value);
+    public static setActiveModelData<T extends keyof AvatarModel>(key: T, value: AvatarModel[T]): void {
+        this.setModelData(userStore.avatar.activeModelIndex, key, value);
     }
 
     /**
-     * Create an entry for a new avatar model in the Store.
-     * @param modelData The data (name, thumbnail, scale, etc) for the new avatar model.
-     * @param setToActive `(Optional)` Set equip this model.
-     * @returns The ID of the new model.
+     * Add a new avatar model to the Store.
+     * @param modelData The data for the new avatar model.
+     * @param setToActive `(Optional)` Set to equip this model.
+     * @returns The index of the new model.
      */
-    public static createNewModel(modelData: AvatarModel, setToActive = true): string {
-        const ID = this._generateID();
-        userStore.avatar.models[ID] = modelData;
+    public static addNewModel(modelData: AvatarModel, setToActive = true): number {
+        const newIndex = userStore.avatar.models.length;
+        userStore.avatar.models.push(modelData);
         if (setToActive) {
-            this.setActiveModel(ID);
+            this.setActiveModel(newIndex);
         }
-        return ID;
+        return newIndex;
     }
 
     /**
      * Remove a model from the Store.
-     * @param modelId The ID of the model to remove.
+     * @param index The index of the model to remove.
      */
-    public static removeModel(modelId: string | number): void {
-        // Prevent the fallback model from being deleted.
-        if (modelId === fallbackAvatarId()) {
-            return;
-        }
-
-        // Switch to the fallback model if the removed model is currently equipped.
-        if (modelId === userStore.avatar.activeModel) {
-            this.setActiveModel(fallbackAvatarId());
-        }
-
-        // Remove the requested model from the Store.
-        if (modelId in userStore.avatar.models) {
-            delete userStore.avatar.models[modelId];
+    public static removeModel(index: number): void {
+        if (index >= 0 && index < userStore.avatar.models.length) {
+            userStore.avatar.models.splice(index, 1);
+            // If the removed model was active, set the first model as active
+            if (index === userStore.avatar.activeModelIndex) {
+                this.setActiveModel(0);
+            } else if (index < userStore.avatar.activeModelIndex) {
+                // Adjust the active model index if a model before it was removed
+                userStore.avatar.activeModelIndex--;
+            }
         }
     }
 
     /**
      * Equip a particular model.
-     * @param modelId The ID of the model to equip.
+     * @param index The index of the model to equip.
      */
-    public static setActiveModel(modelId: string | number): void {
-        if (modelId in userStore.avatar.models) {
-            userStore.avatar.activeModel = typeof modelId === "number" ? modelId.toString() : modelId;
-        }
-        try {
-            const scene = Renderer.getScene();
-            scene.loadMyAvatar(AvatarStoreInterface.getModelData(modelId, "file")).catch((err) => console.warn("Failed to load avatar:", err));
-        } catch (error) {
-            console.warn("Cannot render active avatar model before the scene has been loaded.", error);
+    public static setActiveModel(index: number): void {
+        if (index >= 0 && index < userStore.avatar.models.length) {
+            userStore.avatar.activeModelIndex = index;
+            try {
+                const scene = Renderer.getScene();
+                scene.loadMyAvatar(userStore.avatar.models[index].file).catch((err) => console.warn("Failed to load avatar:", err));
+            } catch (error) {
+                console.warn("Cannot render active avatar model before the scene has been loaded.", error);
+            }
         }
     }
 }

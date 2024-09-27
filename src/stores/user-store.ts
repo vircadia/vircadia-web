@@ -84,8 +84,8 @@ export const useUserStore = defineStore("user", {
                 showLabels: true,
                 position: Vec3.ZERO,
                 location: "0,0,0",
-                models: defaultAvatars(),
-                activeModel: defaultActiveAvatarId()
+                avatars: defaultAvatars(),
+                activeAvatar: defaultActiveAvatarId()
             },
             persistentStorageMedium,
             { mergeDefaults: true, listenToStorageChanges: false }
