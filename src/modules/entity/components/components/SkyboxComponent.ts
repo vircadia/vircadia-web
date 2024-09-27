@@ -59,6 +59,9 @@ export class SkyboxComponent extends MeshComponent {
         }
         skyBox.infiniteDistance = true;
         skyBox.id = id;
+        skyBox.isPickable = false;
+        skyBox.isNearGrabbable = false;
+        skyBox.isNearPickable = false;
         skyBox.renderingGroupId = DEFAULT_MESH_RENDER_GROUP_ID;
 
         this.mesh = skyBox;
