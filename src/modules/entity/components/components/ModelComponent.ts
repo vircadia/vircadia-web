@@ -85,7 +85,6 @@ export class ModelComponent extends MeshComponent {
                 if (scene) {
                     LightManager.applyLightProperties(meshes, scene);
                 }
-
                 // Script Handling
                 if (scene) {
                     ScriptManager.executeScriptsOnMeshes(meshes, scene);
