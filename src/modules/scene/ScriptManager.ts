@@ -26,26 +26,76 @@ export class ScriptManager {
 
             const meshMetadata = new MeshTypes.Metadata(metadataExtras as Partial<MeshTypes.MetadataInterface>);
 
-            const script: string = meshMetadata.vircadia_script;
+            if (!scene.actionManager) {
+                scene.actionManager = new ActionManager(scene);
+            }
+
+            if (!mesh.actionManager) {
+                mesh.actionManager = new ActionManager(scene);
+            }
+
+            let script: string = meshMetadata.vircadia_script ?? '';
 
             if (!script) {
-                continue;
+                script = this.getDefaultScript();
             }
 
             try {
-                this.executeWithContext(script, { mesh, BABYLON, scene });
-                Log.debug(
-                    Log.types.ENTITIES,
-                    `Executed script for mesh ${mesh.name}.`
-                );
+                // Wrap the script execution in a setTimeout to ensure the mesh is fully initialized
+                setTimeout(() => {
+                    this.executeWithContext(script, { mesh, BABYLON, scene });
+                    Log.debug(
+                        Log.types.ENTITIES,
+                        `Executed script for mesh ${mesh.name}.`
+                    );
+                }, 0);
             } catch (error) {
                 Log.error(
                     Log.types.ENTITIES,
                     `Failed to execute script for mesh ${mesh.name}: ${error}`
                 );
-                throw error;
+                // Consider how you want to handle this error. Throwing might stop processing other meshes.
+                // throw error;
             }
         }
+    }
+
+    private static getDefaultScript(): string {
+        return `
+        if (mesh && mesh.actionManager) {
+            mesh.isPickable = true;
+            console.info('Mesh action manager: ' + mesh.actionManager + ', mesh is pickable: ' + mesh.isPickable);
+
+            // Hover to scale
+            try {
+                mesh.actionManager.registerAction(
+                    new BABYLON.ExecuteCodeAction(
+                        BABYLON.ActionManager.OnPointerOverTrigger,
+                        function() {
+                            console.info('Hovering over ' + mesh.name);
+                            mesh.scaling = new BABYLON.Vector3(1.2, 1.2, 1.2);
+                        }
+                    )
+                );
+
+                mesh.actionManager.registerAction(
+                    new BABYLON.ExecuteCodeAction(
+                        BABYLON.ActionManager.OnPointerOutTrigger,
+                        function() {
+                            console.info('Hovering left ' + mesh.name);
+                            mesh.scaling = BABYLON.Vector3.One();
+                        }
+                    )
+                );
+
+                console.log("Interactive script attached to " + mesh.name);
+            } catch (error) {
+                console.error("Failed to register hover actions for " + mesh.name + ": " + error);
+            }
+        } else {
+            console.warn("Mesh or action manager not available for " + (mesh ? mesh.name : "unknown mesh"));
+        }
+        `;
     }
 
     private static transpile(script: string): string {
