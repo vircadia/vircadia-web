@@ -46,6 +46,11 @@ Vircadia Web relies on the Vircadia Assets submodule, so you must pull recursive
 git clone --recursive https://github.com/vircadia/vircadia-web.git
 ```
 
+If you forget to pull recursively, you can initialize the submodule later with:
+```sh
+git submodule update --init --recursive
+```
+
 ### Install the dependencies
 
 ```sh
