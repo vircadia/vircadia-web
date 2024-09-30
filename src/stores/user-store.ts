@@ -13,13 +13,41 @@ import { defineStore } from "pinia";
 import { useStorage } from "@vueuse/core";
 import { Vec3 } from "@vircadia/web-sdk";
 import { onAttributeChangePayload } from "@Modules/account";
-import { defaultActiveAvatarId, defaultAvatars } from "@Modules/avatar/DefaultModels";
+import { defaultActiveAvatarId, defaultAvatars, type AvatarModelMap } from "@Modules/avatar/DefaultModels";
 import type { Domain } from "@Base/modules/domain/domain";
 import type { DomainAvatarClient } from "@Base/modules/domain/avatar";
 import { DataMapper } from "@Modules/domain/dataMapper";
 import type { vec3 } from "@vircadia/web-sdk";
 
 const persistentStorageMedium = localStorage;
+
+// Function to generate a hash of an object
+function generateHash(obj: object): string {
+    const str = JSON.stringify(obj);
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32-bit integer
+    }
+    return Math.abs(hash).toString(16);
+}
+
+// Function to get the current avatar settings with version hash
+function getCurrentAvatarSettings() {
+    const defaultModels = defaultAvatars();
+    const modelVersion = generateHash(defaultModels);
+
+    return {
+        displayName: process.env.VRCA_DEFAULT_AVATAR_DISPLAY_NAME ?? "anonymous",
+        showLabels: true,
+        position: Vec3.ZERO,
+        location: "0,0,0",
+        models: defaultModels,
+        activeModel: defaultActiveAvatarId(),
+        modelVersion
+    };
+}
 
 const defaultControls = {
     keyboard: {
@@ -79,16 +107,23 @@ export const useUserStore = defineStore("user", {
     state: () => ({
         avatar: useStorage(
             "userAvatarSettings",
-            {
-                displayName: "anonymous",
-                showLabels: true,
-                position: Vec3.ZERO,
-                location: "0,0,0",
-                models: defaultAvatars(),
-                activeModel: defaultActiveAvatarId()
-            },
+            getCurrentAvatarSettings(),
             persistentStorageMedium,
-            { mergeDefaults: true, listenToStorageChanges: false }
+            {
+                mergeDefaults: (storageValue, defaults) => {
+                    if (!storageValue || storageValue.modelVersion !== defaults.modelVersion) {
+                        // If the model version has changed, update models and reset active model
+                        return {
+                            ...storageValue,
+                            models: defaults.models,
+                            activeModel: defaults.activeModel,
+                            modelVersion: defaults.modelVersion
+                        };
+                    }
+                    return { ...defaults, ...storageValue };
+                },
+                listenToStorageChanges: false
+            }
         ),
         // Graphics configuration.
         graphics: useStorage(

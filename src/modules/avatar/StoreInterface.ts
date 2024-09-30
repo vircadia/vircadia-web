@@ -50,10 +50,12 @@ export class AvatarStoreInterface {
     public static getModelData<T extends keyof AvatarModel>(modelId: string | number, key: T): AvatarModel[T];
     public static getModelData<T extends keyof AvatarModel>(modelId: string | number, key?: T): AvatarModel | AvatarModel[T] {
         const models = userStore.avatar.models;
-        if (key && key in (models[modelId] || fallbackAvatar())) {
-            return models[modelId][key];
+        const model = models[modelId] || fallbackAvatar();
+
+        if (key && key in model) {
+            return model[key];
         }
-        return models[modelId] || fallbackAvatar();
+        return model;
     }
 
     /**
@@ -66,10 +68,7 @@ export class AvatarStoreInterface {
     public static getActiveModelData<T extends keyof AvatarModel>(key: T): AvatarModel[T];
     public static getActiveModelData<T extends keyof AvatarModel>(key?: T): AvatarModel | AvatarModel[T] {
         const activeModel = userStore.avatar.activeModel;
-        if (key) {
-            return this.getModelData(activeModel, key);
-        }
-        return this.getModelData(activeModel);
+        return this.getModelData(activeModel, key as T);
     }
 
     /**
