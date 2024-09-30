@@ -26,18 +26,18 @@ export class ScriptManager {
 
             const meshMetadata = new MeshTypes.Metadata(metadataExtras as Partial<MeshTypes.MetadataInterface>);
 
+            const script: string = meshMetadata.vircadia_script ?? '';
+
+            if (!script) {
+                continue;
+            }
+
             if (!scene.actionManager) {
                 scene.actionManager = new ActionManager(scene);
             }
 
             if (!mesh.actionManager) {
                 mesh.actionManager = new ActionManager(scene);
-            }
-
-            const script: string = meshMetadata.vircadia_script ?? '';
-
-            if (!script) {
-                continue;
             }
 
             try {
