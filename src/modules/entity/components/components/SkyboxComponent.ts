@@ -12,13 +12,16 @@
 
 
 import { MeshComponent, DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
-import { Scene, MeshBuilder, StandardMaterial, Texture, CubeTexture, EquiRectangularCubeTexture, BaseTexture } from "@babylonjs/core";
+import { Scene, MeshBuilder, StandardMaterial, Texture, CubeTexture, EquiRectangularCubeTexture, BaseTexture, Camera } from "@babylonjs/core";
 import { ISkyboxProperty, IVector3Property } from "../../EntityProperties";
 import { EntityMapper } from "../../package";
 import { AssetUrl } from "../../builders/asset";
 
 export class SkyboxComponent extends MeshComponent {
-    static readonly DefaultSkyBoxSize = 2000;
+    private _camera: Camera | null = null;
+    private _scene: Scene | null = null;
+
+    static readonly DefaultSkyBoxSize = 10000;
     static readonly DefaultCubeMapSize = 1024;
 
     /**
@@ -37,32 +40,33 @@ export class SkyboxComponent extends MeshComponent {
         return "Skybox";
     }
 
-    public load(props: ISkyboxProperty, dimensions: IVector3Property | undefined, id: string): void {
+    public load(props: ISkyboxProperty, dimensions: IVector3Property | undefined, id: string, camera: Camera): void {
         if (this._mesh) {
             this._mesh.dispose(false, true);
             this._mesh = null;
         }
 
-        if (!this._gameObject) {
-            return;
-        }
+        this._camera = camera;
+        this._scene = camera.getScene();
 
         let skyBox = null;
-        const scene = this._gameObject ? this._gameObject?.getScene() : null;
         if (dimensions) {
             skyBox = MeshBuilder.CreateBox(this.componentType,
                 { width: dimensions.x, height: dimensions.y, depth: dimensions.z },
-                scene);
+                this._scene);
         } else {
             skyBox = MeshBuilder.CreateBox(this.componentType,
-                { size: SkyboxComponent.DefaultSkyBoxSize }, scene);
+                { size: SkyboxComponent.DefaultSkyBoxSize }, this._scene);
         }
         skyBox.infiniteDistance = true;
         skyBox.id = id;
         skyBox.isPickable = false;
         skyBox.isNearGrabbable = false;
         skyBox.isNearPickable = false;
-        skyBox.renderingGroupId = DEFAULT_MESH_RENDER_GROUP_ID;
+        skyBox.renderingGroupId = 0; // Ensure it's rendered first
+
+        // Attach the skybox directly to the scene, not to the camera
+        skyBox.parent = null;
 
         this.mesh = skyBox;
 
@@ -70,12 +74,11 @@ export class SkyboxComponent extends MeshComponent {
     }
 
     public update(props: ISkyboxProperty): void {
-        if (this._mesh) {
-            const scene = this._mesh.getScene();
+        if (this._mesh && this._scene) {
             let material = this._mesh.material as StandardMaterial;
 
             if (!material) {
-                material = new StandardMaterial(`${this._mesh.name}_${this._mesh.id}`, scene);
+                material = new StandardMaterial(`${this._mesh.name}_${this._mesh.id}`, this._scene);
                 material.backFaceCulling = false;
                 material.disableLighting = true;
                 this._mesh.material = material;
@@ -86,7 +89,7 @@ export class SkyboxComponent extends MeshComponent {
 
             if (props.url && props.url !== material.reflectionTexture?.name) {
                 material.reflectionTexture?.dispose();
-                material.reflectionTexture = this._createReflectionTexture(props.url, scene);
+                material.reflectionTexture = this._createReflectionTexture(props.url, this._scene);
             }
         }
     }

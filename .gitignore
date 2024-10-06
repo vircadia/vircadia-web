@@ -36,3 +36,6 @@ yarn-error.log*
 *.njsproj
 *.sln
 VERSION.json
+
+# Ignore BabylonJS_Docs folder
+/BabylonJS_Docs/

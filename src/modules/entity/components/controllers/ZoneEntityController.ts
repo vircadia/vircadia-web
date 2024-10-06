@@ -142,18 +142,19 @@ export class ZoneEntityController extends EntityController {
 
         // reload sky box mesh
         if (this._skybox) {
-            this._skybox.load(this._zoneEntity.skybox, this._zoneEntity.dimensions, this._zoneEntity.id);
+            this._skybox.load(this._zoneEntity.skybox, this._zoneEntity.dimensions, this._zoneEntity.id, this._scene.activeCamera);
         }
 
         this._updateSkybox();
     }
 
     protected _updateSkybox(): void {
-        if (this._zoneEntity.skyboxMode === "enabled" && this._zoneEntity.skybox && this._gameObject) {
+        if (this._zoneEntity.skyboxMode === "enabled" && this._zoneEntity.skybox && this._scene.activeCamera) {
             if (!this._skybox) {
                 this._skybox = new SkyboxComponent();
-                this._gameObject.addComponent(this._skybox);
-                this._skybox.load(this._zoneEntity.skybox, this._zoneEntity.dimensions, this._zoneEntity.id);
+                // Create the skybox mesh and add it to the scene
+                this._skybox.load(this._zoneEntity.skybox, this._zoneEntity.dimensions, this._zoneEntity.id, this._scene.activeCamera);
+                // The mesh is now added to the scene in the load method
             }
             this._skybox.update(this._zoneEntity.skybox);
             this._skybox.enable = true;
