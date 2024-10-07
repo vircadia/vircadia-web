@@ -9,9 +9,11 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { ShapeType, IAmbientLightProperty, IKeyLightProperty,
+import {
+    ShapeType, IAmbientLightProperty, IKeyLightProperty,
     ISkyboxProperty, IHazeProperty, IBloomProperty, ComponentMode,
-    AvatarPriorityMode } from "../EntityProperties";
+    AvatarPriorityMode
+} from "../EntityProperties";
 import { IEntity, IZoneEntity } from "../EntityInterfaces";
 import { Entity, EntityPropertyChangeObservable } from "./Entity";
 import { EntityProperties, ZoneEntityProperties } from "@vircadia/web-sdk";
@@ -202,8 +204,8 @@ export class ZoneEntity extends Entity implements IZoneEntity {
         }
     }
 
-    public copyFormPacketData(props: EntityProperties): void {
-        super.copyFormPacketData(props);
+    public copyFromPacketData(props: EntityProperties): void {
+        super.copyFromPacketData(props);
 
         const zoneProps = props as ZoneEntityProperties;
 

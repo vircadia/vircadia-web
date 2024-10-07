@@ -157,8 +157,8 @@ export class MaterialEntity extends Entity implements IMaterialEntity {
     }
 
 
-    public copyFormPacketData(props: EntityProperties): void {
-        super.copyFormPacketData(props);
+    public copyFromPacketData(props: EntityProperties): void {
+        super.copyFromPacketData(props);
 
         const materialProps = props as MaterialEntityProperties;
 

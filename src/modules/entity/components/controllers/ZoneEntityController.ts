@@ -141,7 +141,7 @@ export class ZoneEntityController extends EntityController {
         }
 
         // reload sky box mesh
-        if (this._skybox) {
+        if (this._skybox && this._scene.activeCamera) {
             this._skybox.load(this._zoneEntity.skybox, this._zoneEntity.dimensions, this._zoneEntity.id, this._scene.activeCamera);
         }
 
