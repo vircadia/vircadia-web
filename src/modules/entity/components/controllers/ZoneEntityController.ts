@@ -21,11 +21,12 @@ import { AssetUrl } from "../../builders";
 import {
     HemisphericLight, Vector3, DefaultRenderingPipeline, CubeTexture, HDRCubeTexture,
     VolumetricLightScatteringPostProcess, Nullable,
-    Camera, Texture, StandardMaterial
+    Camera, Texture, StandardMaterial, SceneLoader, MeshBuilder, Mesh, Color3, Quaternion
 } from "@babylonjs/core";
 import { IVector3Property } from "../../EntityProperties";
 import { EntityMapper } from "../../package";
 import { userStore } from "@Stores/index";
+import { ShapeType } from "../../EntityProperties";
 
 type EnvironmentSettings = {
     environmentTexture?: string | undefined,
@@ -75,6 +76,7 @@ export class ZoneEntityController extends EntityController {
     private _haze: Nullable<HazeComponent> = null;
     private _vls: Nullable<VolumetricLightScatteringPostProcess> = null;
     private _watchingGraphicsSettings = false;
+    private _zoneMesh: Mesh | null = null;
 
     constructor(entity: IZoneEntity) {
         super(entity, ZoneEntityController.typeName);
@@ -108,13 +110,12 @@ export class ZoneEntityController extends EntityController {
     }
 
     public onStart(): void {
+        super.onStart();
         this._updateSkybox();
         this.updateAmbientLight();
         this.updateKeyLight();
         this.updateHaze();
         this._updateUserData();
-
-        super.onStart();
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function, class-methods-use-this
@@ -316,6 +317,88 @@ export class ZoneEntityController extends EntityController {
 
         } else if (this._vls) {
             this._vls.mesh.isVisible = false;
+        }
+    }
+
+    public createZoneMesh(): void {
+        if (this._zoneMesh) {
+            console.warn(`Zone mesh already exists for zone ${this._zoneEntity.id}`);
+            return;
+        }
+
+        if (this._zoneEntity.compoundShapeURL) {
+            this._createCompoundShapeMesh();
+        } else if (this._zoneEntity.shapeType) {
+            this._createShapeTypeMesh();
+        } else {
+            console.warn(`No shape type or compound shape URL specified for zone ${this._zoneEntity.id}`);
+        }
+    }
+
+    private _createShapeTypeMesh(): void {
+        if (!this._zoneEntity.shapeType) {
+            console.warn(`No shape type specified for zone entity ${this._zoneEntity.id}`);
+            return;
+        }
+
+        const meshName = `zoneMesh_${this._zoneEntity.id}`;
+
+        switch (this._zoneEntity.shapeType) {
+            case ShapeType.Box:
+                this._zoneMesh = MeshBuilder.CreateBox(meshName, { size: 1 }, this._scene);
+                break;
+            case ShapeType.Sphere:
+                this._zoneMesh = MeshBuilder.CreateSphere(meshName, { diameter: 1 }, this._scene);
+                break;
+            // Add other shape types as needed
+            default:
+                console.warn(`Unsupported shape type: ${this._zoneEntity.shapeType} for zone ${this._zoneEntity.id}`);
+                return;
+        }
+
+        this._setupZoneMesh();
+    }
+
+    private _createCompoundShapeMesh(): void {
+        const meshName = `zoneMesh_${this._zoneEntity.id}`;
+        SceneLoader.ImportMesh("", this._zoneEntity.compoundShapeURL, "", this._scene, (meshes) => {
+            if (meshes.length > 0) {
+                this._zoneMesh = meshes[0] as Mesh;
+                this._zoneMesh.name = meshName;
+                this._setupZoneMesh();
+            }
+        });
+    }
+
+    private _setupZoneMesh(): void {
+        if (this._zoneMesh && this._zoneEntity) {
+            this._zoneMesh.parent = this._gameObject;
+            this._zoneMesh.position = Vector3.Zero();
+            this._zoneMesh.rotationQuaternion = Quaternion.Identity();
+
+            if (this._zoneEntity.dimensions) {
+                this._zoneMesh.scaling = new Vector3(
+                    this._zoneEntity.dimensions.x,
+                    this._zoneEntity.dimensions.y,
+                    this._zoneEntity.dimensions.z
+                );
+            }
+
+            this._zoneMesh.isVisible = true;
+            const material = new StandardMaterial(`zoneMaterial_${this._zoneEntity.id}`, this._scene);
+            material.alpha = 0.3;
+            material.diffuseColor = new Color3(1, 0, 0);
+            this._zoneMesh.material = material;
+
+            this._zoneMesh.isPickable = true;
+
+            console.log(`Zone mesh setup complete for zone ${this._zoneEntity.id}.`);
+            console.log(`Zone mesh name: ${this._zoneMesh.name}`);
+            console.log(`Zone mesh parent: ${this._zoneMesh.parent?.name}`);
+            console.log(`Zone position: ${this._gameObject.position.toString()}`);
+            console.log(`Zone mesh local scaling: ${this._zoneMesh.scaling.toString()}`);
+        } else {
+            console.warn(`Zone mesh or zone entity is undefined in _setupZoneMesh for zone ${this._zoneEntity?.id}`);
         }
     }
 }

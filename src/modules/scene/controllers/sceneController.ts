@@ -67,7 +67,7 @@ export class SceneController extends ScriptComponent {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    public onInitialize(): void {}
+    public onInitialize(): void { }
 
     public onUpdate(): void {
         if (
@@ -113,5 +113,21 @@ export class SceneController extends ScriptComponent {
             }
         }
         return false;
+    }
+
+    private _checkZones(): void {
+        const avatar = this._vscene.getMyAvatar();
+        if (avatar) {
+            const avatarPosition = avatar.position;
+            console.log(`Checking zones for avatar at position: ${avatarPosition.toString()}`);
+            this._scene.meshes.forEach(mesh => {
+                const zoneController = mesh.getComponent(ZoneEntityController);
+                if (zoneController && zoneController.isInside(avatarPosition)) {
+                    console.log(`Avatar is inside zone: ${zoneController.zoneEntity.id}`);
+                    // Apply zone properties
+                    this._applyZoneProperties(zoneController.zoneEntity);
+                }
+            });
+        }
     }
 }

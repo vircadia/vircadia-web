@@ -77,7 +77,7 @@ export class Renderer {
      * @returns A reference to the new scene.
      */
     public static createScene(index = this._renderingScenes.length): VScene {
-        const scene = new VScene(this._engine, index);
+        const scene = new VScene(this._engine as Engine, index);
         this._renderingScenes[index] = scene;
         return scene;
     }

@@ -11,11 +11,19 @@
 
 import { IEntity, IZoneEntity } from "../EntityInterfaces";
 import { GameObject } from "@Base/modules/object";
-import { ZoneEntityController } from "../components";
+import { ZoneEntityController } from "../components/controllers/ZoneEntityController";
 
 export class ZoneEntityBuilder {
-    // eslint-disable-next-line class-methods-use-this
     public build(gameObject: GameObject, entity: IEntity): void {
-        gameObject.addComponent(new ZoneEntityController(entity as IZoneEntity));
+        const zoneEntity = entity as IZoneEntity;
+        const controller = new ZoneEntityController(zoneEntity);
+        gameObject.addComponent(controller);
+
+        // Explicitly create the zone mesh after adding the controller
+        controller.createZoneMesh();
+
+        console.log(`Zone entity built for zone ${zoneEntity.id}`);
+        console.log(`GameObject name: ${gameObject.name}`);
+        console.log(`Zone position: ${gameObject.position.toString()}`);
     }
 }

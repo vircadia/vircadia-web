@@ -39,3 +39,21 @@ VERSION.json
 
 # Ignore BabylonJS_Docs folder
 /BabylonJS_Docs/
+public/local-assets/cityscape2048f.png
+public/local-assets/Collisions_10-25-2023.glb
+public/local-assets/Decor_10-25-2023.glb
+public/local-assets/Foliage_10-25-2023.glb
+public/local-assets/FurnitureCulling_10-25-2023.glb
+public/local-assets/Headquarters_10-25-2023.glb
+public/local-assets/Hologram_10-25-2023.glb
+public/local-assets/LandscapeTilesLOD_10-25-2023.glb
+public/local-assets/LandscapeTrimLOD_10-25-2023.glb
+public/local-assets/LandscapeWalkwayLOD_10-25-2023.glb
+public/local-assets/OuterWrap_10-25-2023.glb
+public/local-assets/Path_10-25-2023.glb
+public/local-assets/Reflections1k.hdr
+public/local-assets/SitObjects_10-25-2023.glb
+public/local-assets/SitObjectsNoSit_10-25-2023.glb
+public/local-assets/Water_10-25-2023.glb
+public/local-assets/Waterfalls_10-25-2023.glb
+src/modules/directory_structure.txt
