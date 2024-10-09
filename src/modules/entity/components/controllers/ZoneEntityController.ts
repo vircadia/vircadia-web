@@ -98,6 +98,7 @@ export class ZoneEntityController extends EntityController {
         super.onInitialize();
 
         this._zoneEntity.onShapeTypeChanged?.add(this._handleShapeTypeChanged.bind(this));
+        this._zoneEntity.onCompoundShapeURLChanged?.add(this._handleCompoundShapeURLChanged.bind(this));
         this._zoneEntity.onSkyboxPropertiesChanged?.add(this._updateSkybox.bind(this));
         this._zoneEntity.onAmbientLightPropertiesChanged?.add(this.updateAmbientLight.bind(this));
         this._zoneEntity.onKeyLightPropertiesChanged?.add(this.updateKeyLight.bind(this));
@@ -105,6 +106,7 @@ export class ZoneEntityController extends EntityController {
         this._zoneEntity.onUserDataChanged?.add(this._updateUserData.bind(this));
 
         this._zoneEntity.onDimensionChanged?.add(this._updateDimensions.bind(this));
+        this._zoneEntity.onPositionAndRotationChanged?.add(this._updatePositionAndRotation.bind(this));
     }
 
     public onStart(): void {
@@ -129,10 +131,15 @@ export class ZoneEntityController extends EntityController {
     }
 
     protected _handleShapeTypeChanged(): void {
-        // eslint-disable-next-line no-empty
-        if (this._gameObject) {
+        console.log(`Zone shape type changed to: ${this._zoneEntity.shapeType}`);
+        // Here you could implement logic to change the zone's visual representation
+        // or behavior based on the new shape type, if needed in the future.
+    }
 
-        }
+    protected _handleCompoundShapeURLChanged(): void {
+        console.log(`Zone compound shape URL changed to: ${this._zoneEntity.compoundShapeURL}`);
+        // Here you could implement logic to load and apply the compound shape
+        // from the URL, if needed in the future.
     }
 
     protected _updateDimensions(): void {
