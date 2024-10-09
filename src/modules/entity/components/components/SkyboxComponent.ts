@@ -40,7 +40,7 @@ export class SkyboxComponent extends MeshComponent {
         return "Skybox";
     }
 
-    public load(props: ISkyboxProperty, dimensions: IVector3Property | undefined, id: string, camera: Camera): void {
+    public load(props: ISkyboxProperty, id: string, camera: Camera): void {
         if (this._mesh) {
             this._mesh.dispose(false, true);
             this._mesh = null;
@@ -49,15 +49,11 @@ export class SkyboxComponent extends MeshComponent {
         this._camera = camera;
         this._scene = camera.getScene();
 
-        let skyBox = null;
-        if (dimensions) {
-            skyBox = MeshBuilder.CreateBox(this.componentType,
-                { width: dimensions.x, height: dimensions.y, depth: dimensions.z },
-                this._scene);
-        } else {
-            skyBox = MeshBuilder.CreateBox(this.componentType,
-                { size: SkyboxComponent.DefaultSkyBoxSize }, this._scene);
-        }
+        // Always create the skybox with the default size
+        const skyBox = MeshBuilder.CreateBox(this.componentType,
+            { size: SkyboxComponent.DefaultSkyBoxSize },
+            this._scene);
+
         skyBox.infiniteDistance = true;
         skyBox.id = id;
         skyBox.isPickable = false;

@@ -143,25 +143,12 @@ export class ZoneEntityController extends EntityController {
         // from the URL, if needed in the future.
     }
 
-    protected _updateDimensions(): void {
-        if (!this._zoneEntity.skybox) {
-            return;
-        }
-
-        // reload sky box mesh
-        if (this._skybox && this._scene.activeCamera) {
-            this._skybox.load(this._zoneEntity.skybox, this._zoneEntity.dimensions, this._zoneEntity.id, this._scene.activeCamera);
-        }
-
-        this._updateSkybox();
-    }
-
     protected _updateSkybox(): void {
         if (this._zoneEntity.skyboxMode === "enabled" && this._zoneEntity.skybox && this._scene.activeCamera) {
             if (!this._skybox) {
                 this._skybox = new SkyboxComponent();
                 // Create the skybox mesh and add it to the scene
-                this._skybox.load(this._zoneEntity.skybox, this._zoneEntity.dimensions, this._zoneEntity.id, this._scene.activeCamera);
+                this._skybox.load(this._zoneEntity.skybox, this._zoneEntity.id, this._scene.activeCamera);
                 // The mesh is now added to the scene in the load method
             }
             this._skybox.update(this._zoneEntity.skybox);
@@ -368,7 +355,8 @@ export class ZoneEntityController extends EntityController {
 
     private _createCompoundShapeMesh(): void {
         const meshName = `zoneMesh_${this._zoneEntity.id}`;
-        SceneLoader.ImportMesh("", this._zoneEntity.compoundShapeURL, "", this._scene, (meshes) => {
+        const shapeURL = this._zoneEntity.compoundShapeURL || '';
+        SceneLoader.ImportMesh("", shapeURL, "", this._scene, (meshes) => {
             if (meshes.length > 0) {
                 this._zoneMesh = meshes[0] as Mesh;
                 this._zoneMesh.name = meshName;
@@ -407,5 +395,11 @@ export class ZoneEntityController extends EntityController {
         } else {
             console.warn(`Zone mesh or zone entity is undefined in _setupZoneMesh for zone ${this._zoneEntity?.id}`);
         }
+    }
+
+    // Remove or modify this method as it's no longer needed for skybox dimensions
+    protected _updateDimensions(): void {
+        // This method may still be needed for other zone-related updates,
+        // but remove any skybox-specific code
     }
 }
