@@ -189,8 +189,8 @@ module.exports = configure(function (ctx) {
                     JSON.stringify({
                         HTP45FSQ: {
                             name: "Sara",
-                            image: "https://staging.vircadia.com/O12OR634/UA92/sara-cropped-small.webp",
-                            file: "https://staging.vircadia.com/O12OR634/UA92/sara.glb",
+                            image: "/assets/models/avatars/sara-cropped-small.webp",
+                            file: "/assets/models/avatars/sara.glb",
                             scale: 1,
                             starred: true,
                         },
