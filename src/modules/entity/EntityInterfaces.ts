@@ -8,9 +8,11 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
-import { IEntityProperties, ISpatialProperties, IBehaviorProperties,
+import {
+    IEntityProperties, ISpatialProperties, IBehaviorProperties,
     IModelEProperties, IShapeProperties, ILightProperties,
-    IZoneProperties, IImageProperties, IMaterialProperties, IWebProperties } from "./EntityProperties";
+    IZoneProperties, IImageProperties, IMaterialProperties, IWebProperties
+} from "./EntityProperties";
 import { Observable } from "@babylonjs/core";
 
 export interface IEntity extends
@@ -76,6 +78,7 @@ export interface IZoneEntity extends
     IZoneProperties {
 
     onShapeTypeChanged: Observable<IEntity>;
+    onCompoundShapeURLChanged: Observable<IEntity>;
     onAmbientLightPropertiesChanged: Observable<IEntity>;
     onKeyLightPropertiesChanged: Observable<IEntity>;
     onSkyboxPropertiesChanged: Observable<IEntity>;
