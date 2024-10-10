@@ -1,12 +1,16 @@
-import { Scene, Vector3 } from "@babylonjs/core";
+import { Scene, Vector3, AbstractMesh } from "@babylonjs/core";
 import { ZoneEntityController } from "../entity/components/controllers/ZoneEntityController";
 import Log from "@Modules/debugging/log";
+
+interface ZoneMeshMetadata {
+    zoneController?: ZoneEntityController;
+}
 
 export class ZoneManager {
     private _scene: Scene;
     private _currentZone: ZoneEntityController | null = null;
-    private _lastUpdateTime: number = 0;
-    private _updateInterval: number = 200; // Update every 500ms
+    private _lastUpdateTime = 0;
+    private _updateInterval = 200; // Update every 200ms
 
     constructor(scene: Scene) {
         this._scene = scene;
@@ -22,13 +26,16 @@ export class ZoneManager {
         this._lastUpdateTime = currentTime;
 
         const camera = this._scene.activeCamera;
-        if (!camera) return;
+        if (!camera) {
+            return;
+        }
 
         const cameraPosition = camera.position;
         let newZone: ZoneEntityController | null = null;
 
-        this._scene.meshes.forEach(mesh => {
-            const zoneController = mesh.metadata?.zoneController as ZoneEntityController | undefined;
+        this._scene.meshes.forEach((mesh: AbstractMesh) => {
+            const metadata = mesh.metadata as ZoneMeshMetadata | undefined;
+            const zoneController = metadata?.zoneController;
             if (zoneController && this.isPointInside(cameraPosition, zoneController)) {
                 newZone = zoneController;
             }
@@ -49,7 +56,9 @@ export class ZoneManager {
 
     private isPointInside(point: Vector3, zoneController: ZoneEntityController): boolean {
         const zoneMesh = zoneController.zoneMesh;
-        if (!zoneMesh) return false;
+        if (!zoneMesh) {
+            return false;
+        }
         return zoneMesh.intersectsPoint(point);
     }
 }

@@ -16,6 +16,7 @@ import { ScriptComponent } from "@Modules/script";
 import type { VScene } from "@Modules/scene/vscene";
 import Log from "@Modules/debugging/log";
 import { ZoneManager } from "../ZoneManager";
+import { ZoneEntityController } from '../../entity/components/controllers/ZoneEntityController';
 
 const DEFAULT_GRAVITY = 9.81;
 const GROUND_DETECTION_LENGTH = 5; // FIXME: This is not a good system for detecting the ground.
@@ -127,12 +128,7 @@ export class SceneController extends ScriptComponent {
             const avatarPosition = avatar.position;
             console.log(`Checking zones for avatar at position: ${avatarPosition.toString()}`);
             this._scene.meshes.forEach(mesh => {
-                const zoneController = mesh.getComponent(ZoneEntityController);
-                if (zoneController && zoneController.isInside(avatarPosition)) {
-                    console.log(`Avatar is inside zone: ${zoneController.zoneEntity.id}`);
-                    // Apply zone properties
-                    this._applyZoneProperties(zoneController.zoneEntity);
-                }
+                // Consider adding "is avatar in zone?" check later if needed
             });
         }
     }

@@ -11,9 +11,13 @@
 
 
 
-import { MeshComponent, DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
+import { MeshComponent } from "@Modules/object";
+// TODO: Uncomment and use or remove the following import
+// import { DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { Scene, MeshBuilder, StandardMaterial, Texture, CubeTexture, EquiRectangularCubeTexture, BaseTexture, Camera } from "@babylonjs/core";
-import { ISkyboxProperty, IVector3Property } from "../../EntityProperties";
+import { ISkyboxProperty } from "../../EntityProperties";
+// TODO: Uncomment and use or remove the following import
+// import { IVector3Property } from "../../EntityProperties";
 import { EntityMapper } from "../../package";
 import { AssetUrl } from "../../builders/asset";
 
