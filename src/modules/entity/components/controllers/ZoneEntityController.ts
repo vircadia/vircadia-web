@@ -79,10 +79,15 @@ export class ZoneEntityController extends EntityController {
     private _zoneMesh: Mesh | null = null;
 
     constructor(entity: IZoneEntity) {
-        // Extract the numeric part from the zone's ID
-        const zoneNumber = entity.id.split('_')[1];
+        // Extract a unique identifier from the zone's ID
+        let uniqueId = "unknown";
+        if (entity.id) {
+            const parts = entity.id.split('_');
+            uniqueId = parts.length > 1 ? parts[1] : entity.id;
+        }
+
         // Create a unique ID for this controller
-        const controllerId = `ZoneEntityController_${zoneNumber}`;
+        const controllerId = `ZoneEntityController_${uniqueId}`;
 
         super(entity, controllerId);
         this._zoneEntity = entity;
