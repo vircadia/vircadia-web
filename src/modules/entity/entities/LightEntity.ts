@@ -107,8 +107,8 @@ export class LightEntity extends Entity implements ILightEntity {
         return this._onLightTypeChanged.observable;
     }
 
-    public copyFormPacketData(props: EntityProperties): void {
-        super.copyFormPacketData(props);
+    public copyFromPacketData(props: EntityProperties): void {
+        super.copyFromPacketData(props);
 
         const lightProps = props as LightEntityProperties;
 

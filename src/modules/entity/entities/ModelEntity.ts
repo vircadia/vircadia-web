@@ -98,8 +98,8 @@ export class ModelEntity extends Entity implements IModelEntity {
         return this._animation;
     }
 
-    public copyFormPacketData(props: EntityProperties): void {
-        super.copyFormPacketData(props);
+    public copyFromPacketData(props: EntityProperties): void {
+        super.copyFromPacketData(props);
 
         const modelProps = props as ModelEntityProperties;
         this.modelURL = modelProps.modelURL;

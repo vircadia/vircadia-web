@@ -377,7 +377,7 @@ export abstract class Entity implements IEntity {
         });
     }
 
-    public copyFormPacketData(props: EntityProperties): void {
+    public copyFromPacketData(props: EntityProperties): void {
         this.name = props.name;
         this.position = props.position;
         this.rotation = props.rotation;

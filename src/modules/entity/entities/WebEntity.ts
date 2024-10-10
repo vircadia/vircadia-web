@@ -170,8 +170,8 @@ export class WebEntity extends Entity implements IWebEntity {
         return this._onWebPropertiesChanged.observable;
     }
 
-    public copyFormPacketData(props: EntityProperties): void {
-        super.copyFormPacketData(props);
+    public copyFromPacketData(props: EntityProperties): void {
+        super.copyFromPacketData(props);
 
         const webProps = props as WebEntityProperties;
         this.sourceUrl = webProps.sourceURL;
