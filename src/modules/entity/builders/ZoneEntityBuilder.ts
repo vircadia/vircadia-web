@@ -19,8 +19,15 @@ export class ZoneEntityBuilder {
         const controller = new ZoneEntityController(zoneEntity);
         gameObject.addComponent(controller);
 
-        // Explicitly create the zone mesh after adding the controller
-        controller.createZoneMesh();
+        // Log the zone entity properties before creating the mesh
+        console.log(`Building zone entity ${zoneEntity.id}`);
+        console.log(`Shape type: ${zoneEntity.shapeType}`);
+        console.log(`Compound shape URL: ${zoneEntity.compoundShapeURL}`);
+
+        // Delay the mesh creation to ensure all properties are set
+        setTimeout(() => {
+            controller.createZoneMesh();
+        }, 0);
 
         console.log(`Zone entity built for zone ${zoneEntity.id}`);
         console.log(`GameObject name: ${gameObject.name}`);

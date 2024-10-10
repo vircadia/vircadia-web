@@ -6,7 +6,7 @@ export class ZoneManager {
     private _scene: Scene;
     private _currentZone: ZoneEntityController | null = null;
     private _lastUpdateTime: number = 0;
-    private _updateInterval: number = 200; // Update every 500ms
+    private _updateInterval: number = 200; // Update every 200ms
 
     constructor(scene: Scene) {
         this._scene = scene;
@@ -37,11 +37,14 @@ export class ZoneManager {
         if (newZone !== this._currentZone) {
             if (this._currentZone) {
                 Log.debug(Log.types.ENTITIES, `Exiting zone: ${this._currentZone.id}`);
+                this._currentZone.deactivateZoneSettings();
             }
             if (newZone) {
                 Log.debug(Log.types.ENTITIES, `Entering zone: ${newZone.id}`);
+                newZone.activateZoneSettings();
             } else {
                 Log.debug(Log.types.ENTITIES, "Not in any zone");
+                // Optionally, activate default scene settings here
             }
             this._currentZone = newZone;
         }

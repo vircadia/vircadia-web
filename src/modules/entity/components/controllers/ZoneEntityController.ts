@@ -419,4 +419,30 @@ export class ZoneEntityController extends EntityController {
     public get zoneMesh(): Mesh | null {
         return this._zoneMesh;
     }
+
+    public activateZoneSettings(): void {
+        this._updateSkybox();
+        this.updateAmbientLight();
+        this.updateKeyLight();
+        this.updateHaze();
+        this._updateUserData();
+        console.log(`Activated settings for zone ${this._zoneEntity.id}`);
+    }
+
+    public deactivateZoneSettings(): void {
+        if (this._skybox) {
+            this._skybox.enable = false;
+        }
+        if (this._ambientLight) {
+            this._ambientLight.light?.setEnabled(false);
+        }
+        if (this._keyLight) {
+            this._keyLight.enable = false;
+        }
+        if (this._haze) {
+            this._haze.enable = false;
+        }
+        // Revert any user data changes if necessary
+        console.log(`Deactivated settings for zone ${this._zoneEntity.id}`);
+    }
 }
