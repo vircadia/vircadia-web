@@ -15,17 +15,20 @@ import { Vector3, Ray } from "@babylonjs/core";
 import { ScriptComponent } from "@Modules/script";
 import type { VScene } from "@Modules/scene/vscene";
 import Log from "@Modules/debugging/log";
+import { ZoneManager } from "../ZoneManager";
 
 const DEFAULT_GRAVITY = 9.81;
 const GROUND_DETECTION_LENGTH = 5; // FIXME: This is not a good system for detecting the ground.
 
 export class SceneController extends ScriptComponent {
     private _vscene: VScene;
+    private _zoneManager: ZoneManager;
     public isGravityApplied = false;
 
     constructor(vscene: VScene) {
         super(SceneController.typeName);
         this._vscene = vscene;
+        this._zoneManager = new ZoneManager(this._scene);
     }
 
     public get componentType(): string {
@@ -77,6 +80,9 @@ export class SceneController extends ScriptComponent {
         ) {
             this.applyGravity();
         }
+
+        // Update zone detection
+        this._zoneManager.update();
     }
 
     public onSceneReady(): void {

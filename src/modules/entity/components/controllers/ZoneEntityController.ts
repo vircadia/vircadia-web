@@ -79,7 +79,12 @@ export class ZoneEntityController extends EntityController {
     private _zoneMesh: Mesh | null = null;
 
     constructor(entity: IZoneEntity) {
-        super(entity, ZoneEntityController.typeName);
+        // Extract the numeric part from the zone's ID
+        const zoneNumber = entity.id.split('_')[1];
+        // Create a unique ID for this controller
+        const controllerId = `ZoneEntityController_${zoneNumber}`;
+
+        super(entity, controllerId);
         this._zoneEntity = entity;
     }
 
@@ -89,11 +94,11 @@ export class ZoneEntityController extends EntityController {
     */
     // eslint-disable-next-line class-methods-use-this
     public get componentType(): string {
-        return ZoneEntityController.typeName;
+        return this.id; // This will now return the unique "ZoneEntityController_XXX" ID
     }
 
     static get typeName(): string {
-        return "ZoneEntityController";
+        return "ZoneEntityController"; // This remains the same for the class type
     }
 
     public onInitialize(): void {
@@ -387,13 +392,16 @@ export class ZoneEntityController extends EntityController {
 
             this._zoneMesh.isPickable = true;
 
-            console.log(`Zone mesh setup complete for zone ${this._zoneEntity.id}.`);
+            // Update the metadata to use the controller's ID
+            this._zoneMesh.metadata = { zoneController: this };
+
+            console.log(`Zone mesh setup complete for zone ${this.id}.`);
             console.log(`Zone mesh name: ${this._zoneMesh.name}`);
             console.log(`Zone mesh parent: ${this._zoneMesh.parent?.name}`);
             console.log(`Zone position: ${this._gameObject.position.toString()}`);
             console.log(`Zone mesh local scaling: ${this._zoneMesh.scaling.toString()}`);
         } else {
-            console.warn(`Zone mesh or zone entity is undefined in _setupZoneMesh for zone ${this._zoneEntity?.id}`);
+            console.warn(`Zone mesh or zone entity is undefined in _setupZoneMesh for zone ${this.id}`);
         }
     }
 
@@ -401,5 +409,9 @@ export class ZoneEntityController extends EntityController {
     protected _updateDimensions(): void {
         // This method may still be needed for other zone-related updates,
         // but remove any skybox-specific code
+    }
+
+    public get zoneMesh(): Mesh | null {
+        return this._zoneMesh;
     }
 }
