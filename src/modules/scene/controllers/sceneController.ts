@@ -136,4 +136,8 @@ export class SceneController extends ScriptComponent {
             });
         }
     }
+
+    private _applyZoneProperties(zoneEntity: any): void {
+        // Implement zone properties application logic here
+    }
 }

@@ -5,12 +5,22 @@ import Log from "@Modules/debugging/log";
 export class ZoneManager {
     private _scene: Scene;
     private _currentZone: ZoneEntityController | null = null;
+    private _lastUpdateTime: number = 0;
+    private _updateInterval: number = 200; // Update every 500ms
 
     constructor(scene: Scene) {
         this._scene = scene;
     }
 
     public update(): void {
+        const currentTime = Date.now();
+        // Only update if enough time has passed
+        if (currentTime - this._lastUpdateTime < this._updateInterval) {
+            return;
+        }
+
+        this._lastUpdateTime = currentTime;
+
         const camera = this._scene.activeCamera;
         if (!camera) return;
 
