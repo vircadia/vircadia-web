@@ -153,75 +153,90 @@ export class ZoneEntityController extends EntityController {
         // from the URL, if needed in the future.
     }
 
-    protected _updateSkybox(): void {
-        if (this._zoneEntity.skyboxMode === "enabled" && this._zoneEntity.skybox && this._scene.activeCamera) {
-            if (!this._skybox) {
-                this._skybox = new SkyboxComponent();
-                // Create the skybox mesh and add it to the scene
-                this._skybox.load(this._zoneEntity.skybox, this._zoneEntity.id, this._scene.activeCamera);
-                // The mesh is now added to the scene in the load method
-            }
-            this._skybox.update(this._zoneEntity.skybox);
-            this._skybox.enable = true;
-        } else if (this._skybox) {
-            this._skybox.enable = false;
-        }
-    }
-
-    protected updateAmbientLight(): void {
-        if (this._zoneEntity.ambientLightMode === "enabled" && this._zoneEntity.ambientLight && this._gameObject) {
-            if (!this._ambientLight) {
-                this._ambientLight = new AmbientLightComponent();
-                this._ambientLight.light = new HemisphericLight("AmbientLight", Vector3.Up(), this._gameObject.getScene());
-                this._gameObject.addComponent(this._ambientLight);
-            }
-
-            if (this._ambientLight.light) {
-                this._ambientLight.light.setEnabled(true);
-                if (typeof this._zoneEntity.ambientLight.ambientIntensity === "number") {
-                    this._ambientLight.light.intensity = this._zoneEntity.ambientLight.ambientIntensity;
-                    this._scene.environmentIntensity = this._zoneEntity.ambientLight.ambientIntensity;
+    protected _updateSkybox(): Promise<void> {
+        return new Promise((resolve) => {
+            if (this._zoneEntity.skyboxMode === "enabled" && this._zoneEntity.skybox && this._scene.activeCamera) {
+                if (!this._skybox) {
+                    this._skybox = new SkyboxComponent();
+                    // Create the skybox mesh and add it to the scene
+                    this._skybox.load(this._zoneEntity.skybox, this._zoneEntity.id, this._scene.activeCamera);
+                    // The mesh is now added to the scene in the load method
                 }
+                this._skybox.update(this._zoneEntity.skybox);
+                this._skybox.enable = true;
+            } else if (this._skybox) {
+                this._skybox.enable = false;
             }
-
-        } else if (this._ambientLight) {
-            this._ambientLight.light?.setEnabled(false);
-        }
+            resolve();
+        });
     }
 
-    protected updateKeyLight(): void {
-        if (this._zoneEntity.keyLightMode === "enabled" && this._zoneEntity.keyLight && this._gameObject) {
-            if (!this._keyLight) {
-                this._keyLight = new KeyLightComponent(this._zoneEntity.keyLight, this._gameObject.getScene());
-                this._gameObject.addComponent(this._keyLight);
+    protected updateAmbientLight(): Promise<void> {
+        return new Promise((resolve) => {
+            if (this._zoneEntity.ambientLightMode === "enabled" && this._zoneEntity.ambientLight && this._gameObject) {
+                if (!this._ambientLight) {
+                    this._ambientLight = new AmbientLightComponent();
+                    this._ambientLight.light = new HemisphericLight("AmbientLight", Vector3.Up(), this._gameObject.getScene());
+                    this._gameObject.addComponent(this._ambientLight);
+                }
+
+                if (this._ambientLight.light) {
+                    this._ambientLight.light.setEnabled(true);
+                    if (typeof this._zoneEntity.ambientLight.ambientIntensity === "number") {
+                        this._ambientLight.light.intensity = this._zoneEntity.ambientLight.ambientIntensity;
+                        this._scene.environmentIntensity = this._zoneEntity.ambientLight.ambientIntensity;
+                    }
+                }
+
+            } else if (this._ambientLight) {
+                this._ambientLight.light?.setEnabled(false);
             }
-            this._keyLight.update(this._zoneEntity.keyLight);
-            this._keyLight.enable = true;
-        } else if (this._keyLight) {
-            this._keyLight.enable = false;
-        }
+            resolve();
+        });
     }
 
-    protected updateHaze(): void {
-        if (this._zoneEntity.hazeMode === "enabled" && this._zoneEntity.haze && this._gameObject) {
-            if (!this._haze) {
-                this._haze = new HazeComponent(this._zoneEntity.haze, this._gameObject.getScene());
-                this._gameObject.addComponent(this._haze);
+    protected updateKeyLight(): Promise<void> {
+        return new Promise((resolve) => {
+            if (this._zoneEntity.keyLightMode === "enabled" && this._zoneEntity.keyLight && this._gameObject) {
+                if (!this._keyLight) {
+                    this._keyLight = new KeyLightComponent(this._zoneEntity.keyLight, this._gameObject.getScene());
+                    this._gameObject.addComponent(this._keyLight);
+                }
+                this._keyLight.update(this._zoneEntity.keyLight);
+                this._keyLight.enable = true;
+            } else if (this._keyLight) {
+                this._keyLight.enable = false;
             }
-            this._haze.update(this._zoneEntity.haze);
-            this._haze.enable = true;
-        } else if (this._haze) {
-            this._haze.enable = false;
-        }
+            resolve();
+        });
     }
 
-    protected _updateUserData(): void {
-        const userData = this._zoneEntity.userData
-            ? JSON.parse(this._zoneEntity.userData) as ZoneExtensions
-            : undefined;
-        this._updateEnvironment(userData);
-        this._updateDefaultRenderingPipeline(userData);
-        this._updateVolumetricLight(userData);
+    protected updateHaze(): Promise<void> {
+        return new Promise((resolve) => {
+            if (this._zoneEntity.hazeMode === "enabled" && this._zoneEntity.haze && this._gameObject) {
+                if (!this._haze) {
+                    this._haze = new HazeComponent(this._zoneEntity.haze, this._gameObject.getScene());
+                    this._gameObject.addComponent(this._haze);
+                }
+                this._haze.update(this._zoneEntity.haze);
+                this._haze.enable = true;
+            } else if (this._haze) {
+                this._haze.enable = false;
+            }
+            resolve();
+        });
+    }
+
+    protected _updateUserData(): Promise<void> {
+        return new Promise((resolve) => {
+            const userData = this._zoneEntity.userData
+                ? JSON.parse(this._zoneEntity.userData) as ZoneExtensions
+                : undefined;
+            this._updateEnvironment(userData);
+            this._updateDefaultRenderingPipeline(userData);
+            this._updateVolumetricLight(userData);
+            resolve();
+        });
     }
 
     protected _updateEnvironment(userData: ZoneExtensions | undefined): void {
@@ -421,12 +436,15 @@ export class ZoneEntityController extends EntityController {
     }
 
     public activateZoneSettings(): void {
-        this._updateSkybox();
-        this.updateAmbientLight();
-        this.updateKeyLight();
-        this.updateHaze();
-        this._updateUserData();
-        console.log(`Activated settings for zone ${this._zoneEntity.id}`);
+        Promise.all([
+            this._updateSkybox(),
+            this.updateAmbientLight(),
+            this.updateKeyLight(),
+            this.updateHaze(),
+            this._updateUserData()
+        ]).then(() => {
+            console.log(`Activated settings for zone ${this._zoneEntity.id}`);
+        });
     }
 
     public deactivateZoneSettings(): void {
