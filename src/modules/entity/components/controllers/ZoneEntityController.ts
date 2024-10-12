@@ -21,7 +21,7 @@ import { AssetUrl } from "../../builders";
 import {
     HemisphericLight, Vector3, DefaultRenderingPipeline, CubeTexture, HDRCubeTexture,
     VolumetricLightScatteringPostProcess, Nullable,
-    Camera, Texture, StandardMaterial, SceneLoader, MeshBuilder, Mesh, Color3, Quaternion
+    Camera, Texture, StandardMaterial, SceneLoader, MeshBuilder, Mesh, Color3, Quaternion, AbstractMesh
 } from "@babylonjs/core";
 import { IVector3Property } from "../../EntityProperties";
 import { EntityMapper } from "../../package";
@@ -76,7 +76,7 @@ export class ZoneEntityController extends EntityController {
     private _haze: Nullable<HazeComponent> = null;
     private _vls: Nullable<VolumetricLightScatteringPostProcess> = null;
     private _watchingGraphicsSettings = false;
-    private _zoneMesh: Mesh | null = null;
+    private _zoneMesh: Mesh | AbstractMesh | null = null;
 
     constructor(entity: IZoneEntity) {
         // Extract a unique identifier from the zone's ID
@@ -379,19 +379,47 @@ export class ZoneEntityController extends EntityController {
     }
 
     private _createCompoundShapeMesh(): void {
-        const meshName = `zoneMesh_${this._zoneEntity.id}`;
+        const zoneId = this._zoneEntity.id;
+        const meshName = `zoneMesh_${zoneId}`;
         const shapeURL = this._zoneEntity.compoundShapeURL || '';
         SceneLoader.ImportMesh("", shapeURL, "", this._scene, (meshes) => {
             if (meshes.length > 0) {
-                this._zoneMesh = meshes[0] as Mesh;
-                this._zoneMesh.name = meshName;
+                // Find the mesh that represents the compound shape
+                const compoundMesh = meshes.find(mesh => mesh.name !== "__root__") || meshes[0];
+
+                if (compoundMesh instanceof Mesh) {
+                    this._zoneMesh = compoundMesh;
+                    this._zoneMesh.name = meshName;
+                    this._zoneMesh.id = meshName;  // Set the ID to match the name
+
+                    // Remove any parent-child relationships
+                    this._zoneMesh.parent = null;
+                    this._zoneMesh.getChildMeshes().forEach(child => {
+                        if (child instanceof Mesh) {
+                            child.parent = null;
+                        }
+                    });
+                } else {
+                    console.warn(`Compound mesh for zone ${zoneId} is not a Mesh instance`);
+                    return;
+                }
+
+                // Dispose of all other imported meshes
+                meshes.forEach(mesh => {
+                    if (mesh !== this._zoneMesh) {
+                        mesh.dispose();
+                    }
+                });
+
                 this._setupZoneMesh();
+            } else {
+                console.error(`No meshes imported for zone ${zoneId}`);
             }
         });
     }
 
     private _setupZoneMesh(): void {
-        if (this._zoneMesh && this._zoneEntity) {
+        if (this._zoneMesh && this._zoneEntity && this._gameObject) {
             this._zoneMesh.parent = this._gameObject;
             this._zoneMesh.position = Vector3.Zero();
             this._zoneMesh.rotationQuaternion = Quaternion.Identity();
@@ -404,24 +432,23 @@ export class ZoneEntityController extends EntityController {
                 );
             }
 
-            this._zoneMesh.isVisible = true;
             const material = new StandardMaterial(`zoneMaterial_${this._zoneEntity.id}`, this._scene);
             material.alpha = 0.3;
             material.diffuseColor = new Color3(1, 0, 0);
             this._zoneMesh.material = material;
-
             this._zoneMesh.isPickable = true;
 
-            // Update the metadata to use the controller's ID
+            // Set metadata for the mesh
             this._zoneMesh.metadata = { zoneController: this };
 
-            console.log(`Zone mesh setup complete for zone ${this.id}.`);
+            console.log(`Zone mesh setup complete for zone ${this._zoneEntity.id}.`);
             console.log(`Zone mesh name: ${this._zoneMesh.name}`);
+            console.log(`Zone mesh ID: ${this._zoneMesh.id}`);
             console.log(`Zone mesh parent: ${this._zoneMesh.parent?.name}`);
             console.log(`Zone position: ${this._gameObject.position.toString()}`);
             console.log(`Zone mesh local scaling: ${this._zoneMesh.scaling.toString()}`);
         } else {
-            console.warn(`Zone mesh or zone entity is undefined in _setupZoneMesh for zone ${this.id}`);
+            console.warn(`Zone mesh or zone entity is undefined in _setupZoneMesh for zone ${this._zoneEntity.id}`);
         }
     }
 
@@ -431,7 +458,7 @@ export class ZoneEntityController extends EntityController {
         // but remove any skybox-specific code
     }
 
-    public get zoneMesh(): Mesh | null {
+    public get zoneMesh(): Mesh | AbstractMesh | null {
         return this._zoneMesh;
     }
 

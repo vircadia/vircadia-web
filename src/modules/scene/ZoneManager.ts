@@ -53,6 +53,13 @@ export class ZoneManager {
     private isPointInside(point: Vector3, zoneController: ZoneEntityController): boolean {
         const zoneMesh = zoneController.zoneMesh;
         if (!zoneMesh) return false;
-        return zoneMesh.intersectsPoint(point);
+
+        if (zoneMesh.getChildMeshes().length > 0) {
+            // For compound shapes, check if the point is inside any child mesh
+            return zoneMesh.getChildMeshes().some(childMesh => childMesh.intersectsPoint(point));
+        } else {
+            // For simple shapes, use the existing check
+            return zoneMesh.intersectsPoint(point);
+        }
     }
 }
