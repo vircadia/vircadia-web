@@ -22,6 +22,7 @@ import {
     StandardMaterial,
     TransformNode,
     Vector3,
+    Engine,
 } from "@babylonjs/core";
 import { DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { Renderer } from "@Modules/scene";
@@ -157,8 +158,9 @@ export class LabelEntity {
         const tagBackgroundColorString = tagBackgroundColor.toHexString();
         const memoName = `${name}${icon ? "-i" : ""}-${tagBackgroundColorString}`;
 
-        // Add this line at the beginning of the method:
-        const enableBevels = false; // Set to false to disable bevels
+        // Add these lines at the beginning of the method:
+        const enableBevels = false; // Set to false to disable bevels (large fps gain when false)
+        const enableAlpha = false; // Set to false to disable alpha transparency (minimal fps gain when false)
 
         // Declare corners and edges outside the conditional block
         const corners: Mesh[] = []
@@ -194,7 +196,9 @@ export class LabelEntity {
                     true,
                     true
                 );
-                newForegroundTexture.getAlphaFromRGB = true;
+                if (enableAlpha) {
+                    newForegroundTexture.getAlphaFromRGB = true;
+                }
                 // Memoize the texture.
                 foregroundTextureMemo.set(memoName, newForegroundTexture);
                 foregroundTexture = newForegroundTexture;
@@ -219,7 +223,9 @@ export class LabelEntity {
                     true,
                     true
                 );
-                newBackgroundTexture.getAlphaFromRGB = true;
+                if (enableAlpha) {
+                    newBackgroundTexture.getAlphaFromRGB = true;
+                }
                 // Memoize the texture.
                 backgroundTextureMemo.set(tagBackgroundColorString, newBackgroundTexture);
                 backgroundTexture = newBackgroundTexture;
@@ -238,6 +244,11 @@ export class LabelEntity {
                 newForegroundMaterial.specularTexture = foregroundTexture;
                 newForegroundMaterial.emissiveTexture = foregroundTexture;
                 newForegroundMaterial.disableLighting = true;
+                if (enableAlpha) {
+                    newForegroundMaterial.useAlphaFromDiffuseTexture = true;
+                } else {
+                    newForegroundMaterial.alphaMode = Engine.ALPHA_DISABLE;
+                }
                 // Memoize the material.
                 foregroundMaterialMemo.set(memoName, newForegroundMaterial);
                 foregroundMaterial = newForegroundMaterial;
@@ -255,6 +266,11 @@ export class LabelEntity {
                 newBackgroundMaterial.specularTexture = backgroundTexture;
                 newBackgroundMaterial.emissiveTexture = backgroundTexture;
                 newBackgroundMaterial.disableLighting = true;
+                if (enableAlpha) {
+                    newBackgroundMaterial.useAlphaFromDiffuseTexture = true;
+                } else {
+                    newBackgroundMaterial.alphaMode = Engine.ALPHA_DISABLE;
+                }
                 // Memoize the material.
                 backgroundMaterialMemo.set(tagBackgroundColorString, newBackgroundMaterial);
                 backgroundMaterial = newBackgroundMaterial;
@@ -401,37 +417,34 @@ export class LabelEntity {
         mesh.renderingGroupId = DEFAULT_MESH_RENDER_GROUP_ID;
         mesh.setEnabled(true);
 
-        // Hide the label if it is too far from the avatar,
-        // or if `showLabels` has been turned off in the Store.
-        scene.registerBeforeRender(() => {
+        // Modify the scene.registerBeforeRender section:
+        const updateFunction = () => {
             if (!mesh) {
                 return;
             }
-            // Update the label's position.
             if (heightHysteresis) {
                 mesh.position.y = heightHysteresis.get();
             }
-            // Update the label's opacity.
             const avatar = Renderer.getScene()?.getMyAvatar();
             if (avatar) {
                 const avatarPosition = avatar.getAbsolutePosition().clone();
                 const labelPosition = mesh.getAbsolutePosition();
-                const distance = avatarPosition.subtract(labelPosition).length();
-                // Clamp the opacity between 0 and 0.94.
-                // Max opacity of 0.94 reduces the chance that the label will be affected by bloom.
-                const opacity = Math.min(
-                    Math.max(popDistance + 1 - distance, 0),
-                    0.94
-                );
-                mesh.visibility =
-                    opacity *
-                    Number(
-                        userStore.avatar.showLabels &&
-                        (popOverride?.(distance) ?? true)
-                    );
-                mesh.isVisible = true;
+                const distance = Vector3.Distance(avatarPosition, labelPosition);
+                const isVisible = distance <= popDistance &&
+                    userStore.avatar.showLabels &&
+                    (popOverride?.(distance) ?? true);
+
+                if (enableAlpha) {
+                    const opacity = Math.min(Math.max(popDistance + 1 - distance, 0), 0.94);
+                    mesh.visibility = opacity * Number(isVisible);
+                } else {
+                    mesh.isVisible = isVisible;
+                }
             }
-        });
+        };
+
+        // Always use onBeforeRenderObservable to ensure the update function is called
+        scene.onBeforeRenderObservable.add(updateFunction);
 
         return mesh;
     }
