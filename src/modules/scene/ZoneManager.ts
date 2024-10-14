@@ -1,4 +1,4 @@
-import { Scene, Vector3 } from "@babylonjs/core";
+import { Scene, Vector3, AbstractMesh } from "@babylonjs/core";
 import { ZoneEntityController } from "../entity/components/controllers/ZoneEntityController";
 import Log from "@Modules/debugging/log";
 
@@ -54,11 +54,17 @@ export class ZoneManager {
         const zoneMesh = zoneController.zoneMesh;
         if (!zoneMesh) return false;
 
+        // Check if the zoneMesh is a compound shape (has child meshes)
         if (zoneMesh.getChildMeshes().length > 0) {
             // For compound shapes, check if the point is inside any child mesh
-            return zoneMesh.getChildMeshes().some(childMesh => childMesh.intersectsPoint(point));
+            return zoneMesh.getChildMeshes().some(childMesh => {
+                if (childMesh instanceof AbstractMesh) {
+                    return childMesh.intersectsPoint(point);
+                }
+                return false;
+            });
         } else {
-            // For simple shapes, use the existing check
+            // For simple shapes or single mesh compounds, use intersectsPoint
             return zoneMesh.intersectsPoint(point);
         }
     }

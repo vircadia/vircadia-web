@@ -192,7 +192,7 @@ module.exports = configure(function (ctx) {
                             image: "/assets/models/avatars/sara-cropped-small.webp",
                             file: "/assets/models/avatars/sara.glb",
                             scale: 1,
-                            starred: true,
+                            starred: false,
                         },
                         KLM23NOP: {
                             name: "Mark",
@@ -391,7 +391,7 @@ module.exports = configure(function (ctx) {
                         image: "/assets/models/avatars/Maria-small.webp",
                         file: "/assets/models/avatars/Maria.glb",
                         scale: 1,
-                        starred: false,
+                        starred: true,
                     }),
             },
         },

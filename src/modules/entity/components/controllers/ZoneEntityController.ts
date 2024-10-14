@@ -76,7 +76,7 @@ export class ZoneEntityController extends EntityController {
     private _haze: Nullable<HazeComponent> = null;
     private _vls: Nullable<VolumetricLightScatteringPostProcess> = null;
     private _watchingGraphicsSettings = false;
-    private _zoneMesh: Mesh | AbstractMesh | null = null;
+    private _zoneMesh: AbstractMesh | null = null;
 
     constructor(entity: IZoneEntity) {
         // Extract a unique identifier from the zone's ID
@@ -387,7 +387,7 @@ export class ZoneEntityController extends EntityController {
                 // Find the mesh that represents the compound shape
                 const compoundMesh = meshes.find(mesh => mesh.name !== "__root__") || meshes[0];
 
-                if (compoundMesh instanceof Mesh) {
+                if (compoundMesh instanceof AbstractMesh) {
                     this._zoneMesh = compoundMesh;
                     this._zoneMesh.name = meshName;
                     this._zoneMesh.id = meshName;  // Set the ID to match the name
@@ -395,18 +395,18 @@ export class ZoneEntityController extends EntityController {
                     // Remove any parent-child relationships
                     this._zoneMesh.parent = null;
                     this._zoneMesh.getChildMeshes().forEach(child => {
-                        if (child instanceof Mesh) {
-                            child.parent = null;
+                        if (child instanceof AbstractMesh) {
+                            child.parent = this._zoneMesh;
                         }
                     });
                 } else {
-                    console.warn(`Compound mesh for zone ${zoneId} is not a Mesh instance`);
+                    console.warn(`Compound mesh for zone ${zoneId} is not an AbstractMesh instance`);
                     return;
                 }
 
                 // Dispose of all other imported meshes
                 meshes.forEach(mesh => {
-                    if (mesh !== this._zoneMesh) {
+                    if (mesh !== this._zoneMesh && this._zoneMesh && !mesh.isDescendantOf(this._zoneMesh)) {
                         mesh.dispose();
                     }
                 });
@@ -458,7 +458,7 @@ export class ZoneEntityController extends EntityController {
         // but remove any skybox-specific code
     }
 
-    public get zoneMesh(): Mesh | AbstractMesh | null {
+    public get zoneMesh(): AbstractMesh | null {
         return this._zoneMesh;
     }
 
