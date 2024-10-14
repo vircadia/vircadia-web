@@ -157,6 +157,13 @@ export class LabelEntity {
         const tagBackgroundColorString = tagBackgroundColor.toHexString();
         const memoName = `${name}${icon ? "-i" : ""}-${tagBackgroundColorString}`;
 
+        // Add this line at the beginning of the method:
+        const enableBevels = false; // Set to false to disable bevels
+
+        // Declare corners and edges outside the conditional block
+        const corners: Mesh[] = []
+        const edges: Mesh[] = []
+
         // Attempt to reuse a memoized mesh, if one exists.
         let mesh = meshMemo.get(memoName)?.clone("Label", object, false, false);
 
@@ -266,52 +273,52 @@ export class LabelEntity {
             );
             plane.material = foregroundMaterial;
 
-            // Rounded corners.
-            const corners = new Array<Mesh>();
-            const cornerPositions = [
-                new Vector3(-tagWidth / 2, tagHeight / 2 - tagCornerRadius, 0),
-                new Vector3(tagWidth / 2, tagHeight / 2 - tagCornerRadius, 0),
-                new Vector3(tagWidth / 2, -tagHeight / 2 + tagCornerRadius, 0),
-                new Vector3(-tagWidth / 2, -tagHeight / 2 + tagCornerRadius, 0),
-            ];
-            const sector = createSector(
-                "LabelCorner",
-                Vector3.Up(),
-                Vector3.Left(),
-                tagCornerRadius,
-                scene
-            );
-            corners.push(sector);
-            corners.push(sector.clone("LabelCorner"));
-            corners.push(sector.clone("LabelCorner"));
-            corners.push(sector.clone("LabelCorner"));
-            let index = 0;
-            for (const cornerMesh of corners) {
-                cornerMesh.material = backgroundMaterial;
-                cornerMesh.position = cornerPositions[index];
-                cornerMesh.rotate(new Vector3(0, 0, 1), -index * (Math.PI / 2));
-                index += 1;
-            }
+            if (enableBevels) {
+                // Rounded corners.
+                const cornerPositions = [
+                    new Vector3(-tagWidth / 2, tagHeight / 2 - tagCornerRadius, 0),
+                    new Vector3(tagWidth / 2, tagHeight / 2 - tagCornerRadius, 0),
+                    new Vector3(tagWidth / 2, -tagHeight / 2 + tagCornerRadius, 0),
+                    new Vector3(-tagWidth / 2, -tagHeight / 2 + tagCornerRadius, 0),
+                ];
+                const sector = createSector(
+                    "LabelCorner",
+                    Vector3.Up(),
+                    Vector3.Left(),
+                    tagCornerRadius,
+                    scene
+                );
+                corners.push(sector);
+                corners.push(sector.clone("LabelCorner"));
+                corners.push(sector.clone("LabelCorner"));
+                corners.push(sector.clone("LabelCorner"));
+                let index = 0;
+                for (const cornerMesh of corners) {
+                    cornerMesh.material = backgroundMaterial;
+                    cornerMesh.position = cornerPositions[index];
+                    cornerMesh.rotate(new Vector3(0, 0, 1), -index * (Math.PI / 2));
+                    index += 1;
+                }
 
-            // Left and right edges.
-            const edges = new Array<Mesh>();
-            const edgeOptions = {
-                width: tagCornerRadius,
-                height: tagHeight - tagCornerRadius * 2,
-                sideOrientation: Mesh.FRONTSIDE,
-                updatable: false,
-            };
-            const edgePositions = [
-                new Vector3(-tagWidth / 2 - tagCornerRadius / 2, 0, 0),
-                new Vector3(tagWidth / 2 + tagCornerRadius / 2, 0, 0),
-            ];
-            edges.push(MeshBuilder.CreatePlane("LabelLeftEdge", edgeOptions, scene));
-            edges.push(MeshBuilder.CreatePlane("LabelRightEdge", edgeOptions, scene));
-            index = 0;
-            for (const edgeMesh of edges) {
-                edgeMesh.material = backgroundMaterial;
-                edgeMesh.position = edgePositions[index];
-                index += 1;
+                // Left and right edges.
+                const edgeOptions = {
+                    width: tagCornerRadius,
+                    height: tagHeight - tagCornerRadius * 2,
+                    sideOrientation: Mesh.FRONTSIDE,
+                    updatable: false,
+                };
+                const edgePositions = [
+                    new Vector3(-tagWidth / 2 - tagCornerRadius / 2, 0, 0),
+                    new Vector3(tagWidth / 2 + tagCornerRadius / 2, 0, 0),
+                ];
+                edges.push(MeshBuilder.CreatePlane("LabelLeftEdge", edgeOptions, scene));
+                edges.push(MeshBuilder.CreatePlane("LabelRightEdge", edgeOptions, scene));
+                index = 0;
+                for (const edgeMesh of edges) {
+                    edgeMesh.material = backgroundMaterial;
+                    edgeMesh.position = edgePositions[index];
+                    index += 1;
+                }
             }
 
             // Arrow mesh.
@@ -330,9 +337,16 @@ export class LabelEntity {
             arrow.rotation.z = -Math.PI / 2;
             arrow.scaling.x = 0.5;
 
+            // Modify the mesh merging section:
+            const meshesToMerge = [plane];
+            if (enableBevels) {
+                meshesToMerge.push(...corners, ...edges);
+            }
+            meshesToMerge.push(arrow);
+
             // Merge the label meshes.
             const mergedMesh = Mesh.MergeMeshes(
-                [plane, ...corners, ...edges, arrow],
+                meshesToMerge,
                 true,
                 true,
                 undefined,
