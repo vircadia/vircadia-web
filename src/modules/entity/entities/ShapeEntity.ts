@@ -75,8 +75,8 @@ export class ShapeEntity extends Entity implements IShapeEntity {
         return this._onColorChanged.observable;
     }
 
-    public copyFormPacketData(props: EntityProperties): void {
-        super.copyFormPacketData(props);
+    public copyFromPacketData(props: EntityProperties): void {
+        super.copyFromPacketData(props);
 
         const shapeProps = props as ShapeEntityProperties;
         this.shape = shapeProps.shape;

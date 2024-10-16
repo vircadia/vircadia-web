@@ -108,8 +108,8 @@ export class ImageEntity extends Entity implements IImageEntity {
         return this._onImageURLChanged.observable;
     }
 
-    public copyFormPacketData(props: EntityProperties): void {
-        super.copyFormPacketData(props);
+    public copyFromPacketData(props: EntityProperties): void {
+        super.copyFromPacketData(props);
 
         const imageProps = props as ImageEntityProperties;
         this.imageURL = imageProps.imageURL;

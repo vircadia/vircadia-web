@@ -9,9 +9,11 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 
-import { ShapeType, IAmbientLightProperty, IKeyLightProperty,
+import {
+    ShapeType, IAmbientLightProperty, IKeyLightProperty,
     ISkyboxProperty, IHazeProperty, IBloomProperty, ComponentMode,
-    AvatarPriorityMode } from "../EntityProperties";
+    AvatarPriorityMode
+} from "../EntityProperties";
 import { IEntity, IZoneEntity } from "../EntityInterfaces";
 import { Entity, EntityPropertyChangeObservable } from "./Entity";
 import { EntityProperties, ZoneEntityProperties } from "@vircadia/web-sdk";
@@ -38,6 +40,7 @@ export class ZoneEntity extends Entity implements IZoneEntity {
     _avatarPriority: AvatarPriorityMode | undefined;
     _screenshare: ComponentMode | undefined;
     protected _onShapeTypeChanged: EntityPropertyChangeObservable<IEntity>;
+    protected _onCompoundShapeURLChanged: EntityPropertyChangeObservable<IEntity>;
     protected _onAmbientLightPropertiesChanged: EntityPropertyChangeObservable<IEntity>;
     protected _onKeyLightPropertiesChanged: EntityPropertyChangeObservable<IEntity>;
     protected _onSkyboxPropertiesChanged: EntityPropertyChangeObservable<IEntity>;
@@ -48,6 +51,7 @@ export class ZoneEntity extends Entity implements IZoneEntity {
         super(id, "Zone");
 
         this._onShapeTypeChanged = this.createPropertyChangeObservable();
+        this._onCompoundShapeURLChanged = this.createPropertyChangeObservable();
         this._onAmbientLightPropertiesChanged = this.createPropertyChangeObservable();
         this._onKeyLightPropertiesChanged = this.createPropertyChangeObservable();
         this._onSkyboxPropertiesChanged = this.createPropertyChangeObservable();
@@ -63,6 +67,17 @@ export class ZoneEntity extends Entity implements IZoneEntity {
         if (this._shapeType !== value) {
             this._shapeType = value;
             this._onShapeTypeChanged.isDirty = true;
+        }
+    }
+
+    public get compoundShapeURL(): string | undefined {
+        return this._compoundShapeURL;
+    }
+
+    public set compoundShapeURL(value: string | undefined) {
+        if (this._compoundShapeURL !== value) {
+            this._compoundShapeURL = value;
+            this._onCompoundShapeURLChanged.isDirty = true;
         }
     }
 
@@ -90,6 +105,10 @@ export class ZoneEntity extends Entity implements IZoneEntity {
 
     public get onShapeTypeChanged(): Observable<IEntity> {
         return this._onShapeTypeChanged.observable;
+    }
+
+    public get onCompoundShapeURLChanged(): Observable<IEntity> {
+        return this._onCompoundShapeURLChanged.observable;
     }
 
     public get onAmbientLightPropertiesChanged(): Observable<IEntity> {
@@ -202,12 +221,13 @@ export class ZoneEntity extends Entity implements IZoneEntity {
         }
     }
 
-    public copyFormPacketData(props: EntityProperties): void {
-        super.copyFormPacketData(props);
+    public copyFromPacketData(props: EntityProperties): void {
+        super.copyFromPacketData(props);
 
         const zoneProps = props as ZoneEntityProperties;
 
         this.shapeType = EntityMapper.mapToShapeType(zoneProps.shapeType);
+        this.compoundShapeURL = zoneProps.compoundShapeURL;
 
         this.ambientLightMode = EntityMapper.mapToComponentMode(zoneProps.ambientLightMode);
         this.ambientLight = EntityMapper.mapToAmbientLightProperty(zoneProps.ambientLight);

@@ -189,10 +189,10 @@ module.exports = configure(function (ctx) {
                     JSON.stringify({
                         HTP45FSQ: {
                             name: "Sara",
-                            image: "https://staging.vircadia.com/O12OR634/UA92/sara-cropped-small.webp",
-                            file: "https://staging.vircadia.com/O12OR634/UA92/sara.glb",
+                            image: "/assets/models/avatars/sara-cropped-small.webp",
+                            file: "/assets/models/avatars/sara.glb",
                             scale: 1,
-                            starred: true,
+                            starred: false,
                         },
                         KLM23NOP: {
                             name: "Mark",
@@ -391,7 +391,7 @@ module.exports = configure(function (ctx) {
                         image: "/assets/models/avatars/Maria-small.webp",
                         file: "/assets/models/avatars/Maria.glb",
                         scale: 1,
-                        starred: false,
+                        starred: true,
                     }),
             },
         },

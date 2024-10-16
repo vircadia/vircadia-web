@@ -15,17 +15,21 @@ import { Vector3, Ray } from "@babylonjs/core";
 import { ScriptComponent } from "@Modules/script";
 import type { VScene } from "@Modules/scene/vscene";
 import Log from "@Modules/debugging/log";
+import { ZoneManager } from "../ZoneManager";
+import { ZoneEntityController } from "@Modules/entity/components/controllers/ZoneEntityController";
 
 const DEFAULT_GRAVITY = 9.81;
 const GROUND_DETECTION_LENGTH = 5; // FIXME: This is not a good system for detecting the ground.
 
 export class SceneController extends ScriptComponent {
     private _vscene: VScene;
+    private _zoneManager: ZoneManager;
     public isGravityApplied = false;
 
     constructor(vscene: VScene) {
         super(SceneController.typeName);
         this._vscene = vscene;
+        this._zoneManager = new ZoneManager(this._scene);
     }
 
     public get componentType(): string {
@@ -67,7 +71,7 @@ export class SceneController extends ScriptComponent {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    public onInitialize(): void {}
+    public onInitialize(): void { }
 
     public onUpdate(): void {
         if (
@@ -77,6 +81,9 @@ export class SceneController extends ScriptComponent {
         ) {
             this.applyGravity();
         }
+
+        // Update zone detection
+        this._zoneManager.update();
     }
 
     public onSceneReady(): void {
@@ -113,5 +120,25 @@ export class SceneController extends ScriptComponent {
             }
         }
         return false;
+    }
+
+    private _checkZones(): void {
+        const avatar = this._vscene.getMyAvatar();
+        if (avatar) {
+            const avatarPosition = avatar.position;
+            console.log(`Checking zones for avatar at position: ${avatarPosition.toString()}`);
+            this._scene.meshes.forEach(mesh => {
+                const zoneController = (mesh as any).zoneEntityController;
+                if (zoneController && zoneController.isInside(avatarPosition)) {
+                    console.log(`Avatar is inside zone: ${zoneController.zoneEntity.id}`);
+                    // Apply zone properties
+                    this._applyZoneProperties(zoneController.zoneEntity);
+                }
+            });
+        }
+    }
+
+    private _applyZoneProperties(zoneEntity: any): void {
+        // Implement zone properties application logic here
     }
 }

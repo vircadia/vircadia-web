@@ -87,7 +87,7 @@ export class EntityManager {
             return undefined;
         }
         const entity = factory(props.entityItemID.stringify());
-        entity.copyFormPacketData(props);
+        entity.copyFromPacketData(props);
         // prevent to emit change event
         entity.update();
 
@@ -99,7 +99,7 @@ export class EntityManager {
     public updateEntity(props: EntityProperties): void {
         const entity = this._entities.get(props.entityItemID.stringify());
         if (entity) {
-            entity.copyFormPacketData(props);
+            entity.copyFromPacketData(props);
         }
     }
 
@@ -114,7 +114,7 @@ export class EntityManager {
             this._entityPropertiesArray.forEach((props) => {
                 const entity = this._entities.get(props.entityItemID.stringify());
                 if (entity) {
-                    entity.copyFormPacketData(props);
+                    entity.copyFromPacketData(props);
                 } else {
                     this.createEntity(props);
                 }
@@ -124,9 +124,9 @@ export class EntityManager {
     }
 
     private _handleOnEntityData(data: EntityProperties[]): void {
-        if (data.length > 0) {
+        if (data && data.length > 0) {
             Log.info(Log.types.ENTITIES,
-                `Receive entity data:`, data);
+                "Receive entity data:", data.length.toString());
 
             this._entityPropertiesArray = this._entityPropertiesArray.concat(data);
         }

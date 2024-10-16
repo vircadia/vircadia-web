@@ -392,9 +392,11 @@ export class VScene {
                 meshComponent.mesh = result.mesh;
                 meshComponent.skeleton = result.skeleton;
                 // Get the bounding vectors of the avatar mesh.
-                const boundingMesh = meshComponent.mesh.refreshBoundingInfo(
-                    Boolean(meshComponent.skeleton)
-                );
+                const boundingMesh = meshComponent.mesh.refreshBoundingInfo({
+                    applySkeleton: Boolean(meshComponent.skeleton),
+                    applyMorph: false,
+                    updatePositionsArray: true
+                });
                 boundingVectors = boundingMesh.getHierarchyBoundingVectors();
                 meshComponent.mesh.position = Vector3.Zero();
                 this._myAvatar.addComponent(meshComponent);
