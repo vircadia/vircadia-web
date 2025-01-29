@@ -52,7 +52,7 @@
                     <template v-for="(msg, index) in sortedMessages" :key="index">
                         <q-chat-message
                             :text="msg.text"
-                            :text-html="true"
+                            :text-html="false"
                             :sent="msgIsFromThisClient(msg.root.senderId)"
                             :name="
                                 msgIsFromThisClient(msg.root.senderId) ? `${msgSender(msg.root)} (you)` : msgSender(msg.root)
