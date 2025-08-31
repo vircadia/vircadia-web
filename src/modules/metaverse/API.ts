@@ -115,10 +115,11 @@ export class API {
         const requestConfig = this.buildRequestConfig("POST");
         requestConfig.body = body instanceof FormData ? body : JSON.stringify(body);
         if (!(body instanceof FormData)) {
-            requestConfig.headers = {
-              "Accept": "application/json",
-              "Content-Type": "application/json"
-            };
+            // Preserve any existing headers (e.g., Authorization) and add JSON headers.
+            requestConfig.headers = Object.assign({}, requestConfig.headers, {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            });
         }
         const response = await fetch(this.buildUrl(path, metaverseUrl), requestConfig);
         const data = await response.json() as APIResponse;

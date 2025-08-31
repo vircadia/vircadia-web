@@ -336,7 +336,7 @@
                                         v-else
                                         clickable
                                         v-ripple
-                                        @click="menuItem.action ? menuItem.action() : onClickOpenOverlay(menuItem.link || menuItem.label)"
+                                        @click="(menuItem as any).onClick ? (menuItem as any).onClick() : onClickOpenOverlay(menuItem.link || menuItem.label)"
                                         @touch-end="helpMenuState = false"
                                     >
                                         <q-item-section avatar>
@@ -355,7 +355,7 @@
                                 clickable
                                 v-ripple
                                 class="non-selectable"
-                                @click="menuItem.action ? menuItem.action() : openUrl(menuItem.link)"
+                                @click="(menuItem as any).onClick ? (menuItem as any).onClick() : openUrl(menuItem.link || '')"
                             >
                                 <q-item-section avatar dense>
                                     <q-icon :name="menuItem.icon" />
@@ -460,6 +460,19 @@
             </q-card>
         </q-dialog>
 
+        <q-dialog v-model="domainDialogShow">
+            <q-card style="min-width: 720px; max-width: 90vw;">
+                <q-bar>
+                    <div class="text-subtitle1">Domains</div>
+                    <q-space />
+                    <q-btn dense flat icon="close" @click="domainDialogShow = false" />
+                </q-bar>
+                <q-card-section class="q-pt-none">
+                    <DomainManager />
+                </q-card-section>
+            </q-card>
+        </q-dialog>
+
     </q-layout>
 </template>
 
@@ -469,13 +482,15 @@ import { openURL } from "quasar";
 import { applicationStore, userStore } from "@Stores/index";
 import { type JitsiRoomInfo } from "@Stores/application-store";
 import { Utility } from "@Modules/utility";
-import { Renderer, CSS3DRenderer } from "@Modules/scene";
+import { Renderer } from "@Modules/scene";
+import { CSS3DRenderer } from "@Modules/scene/css3DRenderer";
 import { Account, type onAttributeChangePayload } from "@Modules/account";
 import { AudioManager } from "@Modules/scene/audio";
 import { AudioIO } from "@Modules/ui/audioIO";
 import Log from "@Modules/debugging/log";
 import MainScene from "@Components/MainScene.vue";
 import OverlayManager from "@Components/overlays/OverlayManager.vue";
+import DomainManager from "@Components/components/domain/Domain.vue";
 
 type ComponentTemplateRefs = {
     OverlayManager: typeof OverlayManager.methods
@@ -486,7 +501,8 @@ export default defineComponent({
 
     components: {
         MainScene,
-        OverlayManager
+        OverlayManager,
+        DomainManager
     },
 
     setup() {
@@ -523,6 +539,13 @@ export default defineComponent({
                     icon: "desktop_windows",
                     label: "Graphics",
                     link: "",
+                    isCategory: false,
+                    separator: true
+                },
+                {
+                    icon: "dns",
+                    label: "Domains",
+                    action: () => { this.domainDialogShow = true; },
                     isCategory: false,
                     separator: true
                 },
@@ -584,7 +607,8 @@ export default defineComponent({
             lastConnectedDomain: undefined as string | undefined,
             domainLocationCopied: false,
             metaverseLocationCopied: false,
-            webEntityInputAttached: false
+            webEntityInputAttached: false,
+            domainDialogShow: false
         };
     },
 
