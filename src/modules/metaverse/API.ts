@@ -39,6 +39,27 @@ export class API {
     } as const;
 
     /**
+     * Azure AD configuration consumed by the web client (MSAL) and, later, by the
+     * metaverse token exchange implementation.
+     */
+    public static readonly azure = (() => {
+        const tenantId = process.env.VRCA_AZURE_TENANT_ID ?? "";
+        const clientId = process.env.VRCA_AZURE_CLIENT_ID ?? "";
+        const redirectUri = process.env.VRCA_AZURE_REDIRECT_URI ?? "";
+        const authority = tenantId ? `https://login.microsoftonline.com/${tenantId}` : "";
+        const scopesEnv = process.env.VRCA_AZURE_SCOPES ?? "[\"openid\",\"profile\",\"email\"]";
+        let scopes: string[] = [];
+        try {
+            // Allow either JSON array or comma-delimited string.
+            scopes = JSON.parse(scopesEnv);
+            if (!Array.isArray(scopes)) throw new Error("Invalid scopes format");
+        } catch {
+            scopes = scopesEnv.split(",").map((s) => s.trim()).filter((s) => s.length > 0);
+        }
+        return { tenantId, clientId, redirectUri, authority, scopes };
+    })();
+
+    /**
      * Construct a complete URL from a Metaverse server API path.
      *
      * @param path The API path (for example, `"/api/v1/users"`).

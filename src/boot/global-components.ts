@@ -36,6 +36,7 @@ import Login from "@Components/dialogs/Login.vue";
 import AudioLevel from "@Components/AudioLevel.vue";
 import MetaverseLogin from "@Components/components/login/MetaverseLogin.vue";
 import MetaverseRegister from "@Components/components/login/MetaverseRegister.vue";
+import MetaverseAzureLogin from "@Components/components/login/MetaverseAzureLogin.vue";
 
 export default boot(({ app }) => {
     // Overlays:
@@ -61,4 +62,5 @@ export default boot(({ app }) => {
     app.component("AudioLevel", AudioLevel);
     app.component("MetaverseLogin", MetaverseLogin);
     app.component("MetaverseRegister", MetaverseRegister);
+    app.component("MetaverseAzureLogin", MetaverseAzureLogin);
 });

@@ -21,5 +21,10 @@ declare namespace NodeJS {
         VRCA_COLORS_DARK: string;
         VRCA_COLORS_LIGHT: string;
         VRCA_HIDE_IN_WORLD_LOCATION: "true" | "false";
+        // Azure AD
+        VRCA_AZURE_TENANT_ID: string;
+        VRCA_AZURE_CLIENT_ID: string;
+        VRCA_AZURE_REDIRECT_URI: string;
+        VRCA_AZURE_SCOPES: string;
     }
 }

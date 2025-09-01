@@ -62,3 +62,8 @@ public/local-assets/Reflections4.hdr
 public/local-assets/monkey.glb
 public/local-assets/Cylinder.glb
 public/local-assets/Meters.glb
+
+# Env files
+.env
+.env.*
+!.env.example

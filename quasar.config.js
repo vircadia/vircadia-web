@@ -6,6 +6,7 @@
 // Configuration for your app
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js
 
+require("dotenv").config();
 const path = require("path");
 const { configure } = require("quasar/wrappers");
 const packageJSON = require("./package.json");
@@ -393,6 +394,13 @@ module.exports = configure(function (ctx) {
                         scale: 1,
                         starred: true,
                     }),
+                // Azure AD (client-side)
+                VRCA_AZURE_TENANT_ID: process.env.VRCA_AZURE_TENANT_ID ?? "",
+                VRCA_AZURE_CLIENT_ID: process.env.VRCA_AZURE_CLIENT_ID ?? "",
+                VRCA_AZURE_REDIRECT_URI: process.env.VRCA_AZURE_REDIRECT_URI ?? "",
+                // Accept either JSON array string or comma-delimited list
+                VRCA_AZURE_SCOPES:
+                    process.env.VRCA_AZURE_SCOPES ?? "[\"openid\",\"profile\",\"email\"]",
             },
         },
 

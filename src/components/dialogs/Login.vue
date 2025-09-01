@@ -32,7 +32,10 @@
 
         <q-tab-panels v-model="tab" animated>
             <q-tab-panel name="metaverseLogin">
-                <MetaverseLogin @success="$emit('close')" />
+                <div class="column q-gutter-y-md">
+                    <MetaverseLogin @success="$emit('close')" />
+                    <MetaverseAzureLogin @azureSignedIn="$emit('close')" />
+                </div>
             </q-tab-panel>
 
             <q-tab-panel name="metaverseRegister">
