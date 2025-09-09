@@ -148,8 +148,8 @@ export const Account = {
         }
 
         try {
-            const body: AzureIdTokenExchangeRequest = { id_token: idToken };
-            const response = await API.post(API.endpoints.azureIdTokenExchange, body) as OAuthTokenResponse | OAuthTokenError;
+            const requestBody: KeyedCollection = { id_token: idToken };
+            const response = await API.post(API.endpoints.azureIdTokenExchange, requestBody) as OAuthTokenResponse | OAuthTokenError;
 
             if ("error" in response) {
                 Log.error(Log.types.ACCOUNT, `Azure ID token exchange failed. Error: ${response.error}`);
@@ -204,7 +204,10 @@ export const Account = {
         }
         // Fetch account profile information.
         try {
-            const response = await API.get(API.endpoints.account + "/" + Account.id) as GetAccountByIdResponse;
+            // Fetch account profile with Authorization header (JWT)
+            const response = await API.get(
+                API.endpoints.account + "/" + Account.id
+            ) as GetAccountByIdResponse;
             Account.accountInfo = response.account;
 
             // Update the Account local vars in case anything changed.

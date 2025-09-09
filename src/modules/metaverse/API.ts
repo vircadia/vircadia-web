@@ -79,15 +79,18 @@ export class API {
      * @param method `(Optional)` The REST method of the request. Defaults to GET.
      * @returns A configuration object for a GET or POST request.
      */
-    public static buildRequestConfig(method = "GET"): KeyedCollection {
+    public static buildRequestConfig(method = "GET", includeAuth = true): KeyedCollection {
         const config: KeyedCollection = {
             method
         };
-        const minAccessTokenLength = 10;
-        if (Account.accessToken && Account.accessToken.length > minAccessTokenLength) {
-            config.headers = {
-                "Authorization": (Account.accessTokenType ?? "Bearer") + " " + Account.accessToken
-            };
+        if (includeAuth) {
+            const token = Account.accessToken;
+            const looksLikeJwt = typeof token === "string" && token.includes(".") && token.split(".").length === 3;
+            if (looksLikeJwt) {
+                config.headers = {
+                    "Authorization": (Account.accessTokenType ?? "Bearer") + " " + token
+                };
+            }
         }
         return config;
     }
@@ -114,9 +117,18 @@ export class API {
      * @param metaverseUrl `(Optional)` URL to use for accessing the Metaverse server. Otherwise, the currently connected Metaverse server is used.
      * @returns The `data` section of the returned response as an `unknown` type.
      */
-    public static async get(path: string, metaverseUrl?: string): Promise<unknown> {
-        const response = await fetch(this.buildUrl(path, metaverseUrl), this.buildRequestConfig());
-        const data = await response.json() as APIResponse;
+    public static async get(path: string, metaverseUrl?: string, includeAuth = true): Promise<unknown> {
+        const response = await fetch(this.buildUrl(path, metaverseUrl), this.buildRequestConfig("GET", includeAuth));
+        let data: any = null;
+        try {
+            data = await response.json();
+        } catch {
+            data = null;
+        }
+        if (!response.ok) {
+            const message = (data && (data.message || data.error)) ? (data.message || data.error) : response.statusText;
+            throw new Error(`Vircadia API GET request to ${path} failed: ${response.status}: ${message}`);
+        }
         // The info, token, and azureIdTokenExchange endpoints do not return data in the usual format.
         if (data && (path === this.endpoints.info || path === this.endpoints.token || path === this.endpoints.azureIdTokenExchange)) {
             return data;
@@ -124,7 +136,7 @@ export class API {
         if (data && data.status === "success") {
             return data.data;
         }
-        throw new Error(`Vircadia API GET request to ${path} failed: ${response.status}: ${response.statusText}`);
+        throw new Error(`Vircadia API GET request to ${path} failed: ${response.status}: Unexpected response`);
     }
 
     /**
@@ -146,7 +158,16 @@ export class API {
             });
         }
         const response = await fetch(this.buildUrl(path, metaverseUrl), requestConfig);
-        const data = await response.json() as APIResponse;
+        let data: any = null;
+        try {
+            data = await response.json();
+        } catch {
+            data = null;
+        }
+        if (!response.ok) {
+            const message = (data && (data.message || data.error)) ? (data.message || data.error) : response.statusText;
+            throw new Error(`Vircadia API POST request to ${path} failed: ${response.status}: ${message}`);
+        }
         // The info, token, and azureIdTokenExchange endpoints do not return data in the usual format.
         if (data && (path === this.endpoints.info || path === this.endpoints.token || path === this.endpoints.azureIdTokenExchange)) {
             return data;
@@ -154,7 +175,7 @@ export class API {
         if (data && data.status === "success") {
             return data.data;
         }
-        throw new Error(`Vircadia API POST request to ${path} failed: ${response.status}: ${response.statusText}`);
+        throw new Error(`Vircadia API POST request to ${path} failed: ${response.status}: Unexpected response`);
     }
 
     /**
