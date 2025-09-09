@@ -1,4 +1,5 @@
 //
+/** biome-ignore-all lint/complexity/noStaticOnlyClass: <explanation> */
 //  API.ts
 //
 //  Refactored by Giga on June 28th, 2023.
@@ -14,7 +15,7 @@ import { Account } from "../account";
 import { GetAccountAPI, PostUsersAPI } from "@Modules/metaverse/APIAccount";
 import { MetaverseInfoAPI } from "@Modules/metaverse/APIInfo";
 import { GetPlacesAPI, type GetPlacesResponse, type PlaceEntry } from "@Modules/metaverse/APIPlaces";
-import { OAuthTokenAPI } from "@Modules/metaverse/APIToken";
+import { OAuthTokenAPI, AzureIdTokenExchangeAPI } from "@Modules/metaverse/APIToken";
 import Log, { findErrorMessage } from "@Modules/debugging/log";
 
 /**
@@ -35,6 +36,8 @@ export class API {
         info: MetaverseInfoAPI,
         places: GetPlacesAPI,
         token: OAuthTokenAPI,
+        // Exchange Azure AD ID token for a metaverse access token
+        azureIdTokenExchange: AzureIdTokenExchangeAPI,
         users: PostUsersAPI
     } as const;
 
@@ -114,8 +117,8 @@ export class API {
     public static async get(path: string, metaverseUrl?: string): Promise<unknown> {
         const response = await fetch(this.buildUrl(path, metaverseUrl), this.buildRequestConfig());
         const data = await response.json() as APIResponse;
-        // The info and token endpoints do not return data in the usual format.
-        if (data && (path === this.endpoints.info || path === this.endpoints.token)) {
+        // The info, token, and azureIdTokenExchange endpoints do not return data in the usual format.
+        if (data && (path === this.endpoints.info || path === this.endpoints.token || path === this.endpoints.azureIdTokenExchange)) {
             return data;
         }
         if (data && data.status === "success") {
@@ -144,8 +147,8 @@ export class API {
         }
         const response = await fetch(this.buildUrl(path, metaverseUrl), requestConfig);
         const data = await response.json() as APIResponse;
-        // The info and token endpoints do not return data in the usual format.
-        if (data && (path === this.endpoints.info || path === this.endpoints.token)) {
+        // The info, token, and azureIdTokenExchange endpoints do not return data in the usual format.
+        if (data && (path === this.endpoints.info || path === this.endpoints.token || path === this.endpoints.azureIdTokenExchange)) {
             return data;
         }
         if (data && data.status === "success") {

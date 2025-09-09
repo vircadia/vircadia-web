@@ -35,3 +35,11 @@ export interface OAuthTokenResponse {
 export interface OAuthTokenError {
     "error": string
 }
+
+// Azure AD (MSAL) ID token exchange
+// The frontend obtains an Azure AD ID token via MSAL and posts it to the
+// metaverse for exchange to a Vircadia access token.
+export const AzureIdTokenExchangeAPI = "/oauth/azure/id-token";
+export interface AzureIdTokenExchangeRequest {
+    id_token: string
+}

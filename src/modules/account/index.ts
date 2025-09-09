@@ -8,7 +8,7 @@
 
 import { MetaverseManager } from "@Modules/metaverse";
 import { API } from "@Modules/metaverse/API";
-import type { OAuthTokenResponse, OAuthTokenError } from "@Modules/metaverse/APIToken";
+import type { OAuthTokenResponse, OAuthTokenError, AzureIdTokenExchangeRequest } from "@Modules/metaverse/APIToken";
 import type { GetAccountByIdResponse, PostUsersRequest, PostUsersResponse } from "@Modules/metaverse/APIAccount";
 import type { AccountInfo } from "@Modules/metaverse/APIInfo";
 import { SignalEmitter } from "@vircadia/web-sdk";
@@ -125,6 +125,53 @@ export const Account = {
         } catch (error) {
             const errorMessage = findErrorMessage(error);
             Log.error(Log.types.ACCOUNT, `Exception while attempting to login user ${pUsername}: ${errorMessage}`);
+            return false;
+        }
+    },
+
+    /**
+     * Exchange an Azure AD ID token (obtained via MSAL) for a metaverse access token.
+     * Requires metaverse connection to be active. On success, populates Account fields
+     * and fetches account info, mirroring the password login flow.
+     *
+     * @param idToken Azure AD ID token string from MSAL AuthenticationResult.idToken
+     * @returns `true` if exchange succeeded and account is logged in, `false` otherwise.
+     */
+    async loginWithAzureIdToken(idToken: string): Promise<boolean> {
+        if (!MetaverseManager.activeMetaverse?.isConnected) {
+            Log.error(Log.types.ACCOUNT, "Exception: Attempted Azure token exchange when metaverse is not connected.");
+            return false;
+        }
+        if (Account.isLoggedIn) {
+            Log.error(Log.types.ACCOUNT, "Exception: Attempted Azure token exchange when an account is already logged in.");
+            return false;
+        }
+
+        try {
+            const body: AzureIdTokenExchangeRequest = { id_token: idToken };
+            const response = await API.post(API.endpoints.azureIdTokenExchange, body) as OAuthTokenResponse | OAuthTokenError;
+
+            if ("error" in response) {
+                Log.error(Log.types.ACCOUNT, `Azure ID token exchange failed. Error: ${response.error}`);
+                return false;
+            }
+
+            Account.accountName = response.account_name;
+            Account.id = response.account_id;
+            Account.accessToken = response.access_token;
+            Account.accessTokenType = response.token_type;
+            Account.accessTokenExpiration = new Date(Date.now() + response.expires_in * oneSecond);
+            Account.refreshToken = response.refresh_token;
+            Account.scope = response.scope;
+            Account.roles = response.account_roles ?? [];
+            Account.createdAt = new Date(Date.now() + response.created_at * oneSecond);
+            Account.isLoggedIn = true;
+
+            await Account.updateAccountInfo();
+            return true;
+        } catch (error) {
+            const errorMessage = findErrorMessage(error);
+            Log.error(Log.types.ACCOUNT, `Exception while exchanging Azure ID token: ${errorMessage}`);
             return false;
         }
     },

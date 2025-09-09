@@ -41,6 +41,7 @@ import { PublicClientApplication, type AuthenticationResult } from "@azure/msal-
 import { API } from "@Modules/metaverse/API";
 import { useQuasar } from "quasar";
 import { MetaverseManager } from "@Modules/metaverse";
+import { Account } from "@Modules/account";
 
 let msalInstance: Nullable<PublicClientApplication> = null;
 let msalInitPromise: Promise<void> | null = null;
@@ -99,30 +100,40 @@ export default defineComponent({
                     scopes: API.azure.scopes && API.azure.scopes.length > 0 ? API.azure.scopes : ["openid", "profile", "email"]
                 });
 
-                // Emit the ID token and account info for downstream use.
-                emit("azureSignedIn", {
-                    idToken: result.idToken,
-                    idTokenClaims: result.idTokenClaims,
-                    account: result.account,
-                    accessToken: result.accessToken,
-                    scopes: result.scopes
-                });
+                // Try to exchange the Azure ID token with the metaverse for a Vircadia token
+                const idToken = result.idToken;
+                if (!idToken) {
+                    throw new Error("Missing Azure ID token from MSAL result");
+                }
 
-                // Temporary UX feedback until token exchange with the metaverse server is implemented.
-                $q.notify({
-                    type: "positive",
-                    textColor: "white",
-                    icon: "cloud_done",
-                    message: "Microsoft sign-in successful."
-                });
-
-                // Inform if Metaverse is not connected yet (token exchange pending).
                 if (!MetaverseManager.activeMetaverse?.isConnected) {
+                    // Emit for parent to optionally queue, but inform user there's no exchange yet.
+                    emit("azureSignedIn", { idToken, idTokenClaims: result.idTokenClaims, account: result.account, accessToken: result.accessToken, scopes: result.scopes });
                     $q.notify({
                         type: "info",
                         textColor: "white",
                         icon: "info",
-                        message: "Metaverse is not connected yet; account linking will proceed once connected."
+                        message: "Signed in with Microsoft. Connect to a metaverse to complete login."
+                    });
+                    return;
+                }
+
+                const success = await Account.loginWithAzureIdToken(idToken);
+                if (success) {
+                    emit("azureSignedIn", { idToken, idTokenClaims: result.idTokenClaims, account: result.account, accessToken: result.accessToken, scopes: result.scopes });
+                    $q.notify({
+                        type: "positive",
+                        textColor: "white",
+                        icon: "verified_user",
+                        message: "Signed in with Microsoft and linked to metaverse account."
+                    });
+                } else {
+                    $q.notify({
+                        type: "warning",
+                        textColor: "white",
+                        icon: "link_off",
+                        message: "Microsoft sign-in succeeded, but metaverse login failed.",
+                        caption: "Please try again or use another method."
                     });
                 }
             } catch (error) {
