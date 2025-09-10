@@ -6,6 +6,13 @@
                 <div class="text-h6">Domains</div>
             </div>
             <div class="row items-center q-gutter-sm">
+                <q-btn
+                    v-if="isAdmin"
+                    color="primary"
+                    unelevated
+                    label="Create domain"
+                    @click="createNewDomainToken"
+                />
                 <q-input
                     v-model="search"
                     dense
@@ -79,8 +86,10 @@
                 </q-card-section>
                 <q-separator />
                 <q-card-section class="q-gutter-sm">
-                    <div class="text-caption text-grey">Domain</div>
-                    <div>{{ tokenDialog.domain?.name }} ({{ tokenDialog.domain?.domainID }})</div>
+                    <div v-if="tokenDialog.domain">
+                        <div class="text-caption text-grey">Domain</div>
+                        <div>{{ tokenDialog.domain?.name }} ({{ tokenDialog.domain?.domainID }})</div>
+                    </div>
                     <q-input v-model="tokenDialog.token" readonly type="textarea" autogrow />
                     <div class="row q-gutter-sm">
                         <q-btn color="primary" label="Copy" @click="copyToken" />
@@ -97,6 +106,8 @@ import { defineComponent } from "vue";
 import { API } from "@Modules/metaverse/API";
 import { applicationStore, userStore } from "@Stores/index";
 import type { QTableColumn } from "quasar";
+
+type TokenResponse = { token?: string, data?: { token?: string } };
 
 interface DomainRow {
     name: string;
@@ -150,6 +161,7 @@ export default defineComponent({
     },
     computed: {
         isLoggedIn(): boolean { return this.userStore.account.isLoggedIn; },
+        isAdmin(): boolean { return this.userStore.account.isAdmin; },
         filteredDomains(): DomainRow[] {
             const q = (this.search || "").toLowerCase();
             return this.rows.filter(r =>
@@ -164,6 +176,9 @@ export default defineComponent({
             this.loading = true;
             try {
                 const params = new URLSearchParams({ per_page: "300" });
+                if (this.userStore.account.isAdmin) {
+                    params.set("asAdmin", "true");
+                }
                 const data = await API.get("/api/v1/domains?" + params.toString()) as GetDomainsResponseV2;
                 this.rows = (data?.domains ?? []).map((item) => ({
                     name: item.name,
@@ -176,23 +191,34 @@ export default defineComponent({
                     sponsorAccountId: item.sponsor_account_id,
                     networkingMode: item.networking_mode
                 }));
-            } catch (e) {
+            } catch {
                 // noop; errors are surfaced by global handlers/logs
             } finally {
                 this.loading = false;
             }
         },
+        async createNewDomainToken(): Promise<void> {
+            try {
+                const tokenData = await API.post("/api/v1/token/new?scope=domain", {} as KeyedCollection) as TokenResponse;
+                const token = tokenData.token || tokenData.data?.token || "";
+                this.tokenDialog.domain = undefined;
+                this.tokenDialog.token = token;
+                this.tokenDialog.show = true;
+            } catch {
+                // noop
+            }
+        },
         async createDomainToken(row: DomainRow): Promise<void> {
             this.tokenLoadingId = row.domainID;
             try {
-                const tokenData = await API.post("/api/v1/token/new?scope=domain", {} as KeyedCollection) as any;
+                const tokenData = await API.post("/api/v1/token/new?scope=domain", {} as KeyedCollection) as TokenResponse;
                 // tokenData is wrapped in { status, data }, API.post unwraps data for standard endpoints
                 // tokens endpoint returns in standard format via Token.create -> buildSimpleResponse
-                const token = (tokenData as any)?.token || (tokenData as any)?.data?.token || "";
+                const token = tokenData.token || tokenData.data?.token || "";
                 this.tokenDialog.domain = row;
                 this.tokenDialog.token = token;
                 this.tokenDialog.show = true;
-            } catch (e) {
+            } catch {
                 // noop; global error handling/logs
             } finally {
                 this.tokenLoadingId = undefined;
