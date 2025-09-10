@@ -1,6 +1,6 @@
 //
-/** biome-ignore-all lint/complexity/noStaticOnlyClass: <explanation> */
-/** biome-ignore-all lint/complexity/noThisInStatic: <explanation> */
+/** biome-ignore-all lint/complexity/noStaticOnlyClass: static-only utility class by design */
+/** biome-ignore-all lint/complexity/noThisInStatic: intentional use of this in static context */
 //  renderer.ts
 //
 //  Copyright 2021 Vircadia contributors.
@@ -28,6 +28,21 @@ export class Renderer {
     private static _intervalId = <Nullable<NodeJS.Timeout>>null;
 
     /**
+     * Quick feature-detection for WebGL contexts.
+     */
+    private static _isWebGLSupported(): boolean {
+        try {
+            const testCanvas = document.createElement("canvas");
+            const gl2 = testCanvas.getContext("webgl2");
+            if (gl2) return true;
+            const gl1 = testCanvas.getContext("webgl") || testCanvas.getContext("experimental-webgl");
+            return !!gl1;
+        } catch {
+            return false;
+        }
+    }
+
+    /**
      * Initialize the rendering engine.
      * @param canvas The canvas element to render the scene onto.
      * @param loadingScreen The element to show when the scene is loading.
@@ -36,24 +51,37 @@ export class Renderer {
         try {
             const wantWebGPU = (process.env.VRCA_USE_WEBGPU === "true");
             this._webgpuSupported = wantWebGPU ? await WebGPUEngine.IsSupportedAsync : false;
+
             if (this._webgpuSupported) {
-                this._engine = new WebGPUEngine(canvas, {
-                    deviceDescriptor: {
-                        requiredFeatures: [
-                            "depth-clip-control",
-                            "depth32float-stencil8",
-                            "texture-compression-bc",
-                            "texture-compression-etc2",
-                            "texture-compression-astc",
-                            "timestamp-query",
-                            "indirect-first-instance"
-                        ]
-                    }
-                });
-                this._engine.loadingScreen = new CustomLoadingScreen(loadingScreen);
-                await (this._engine as WebGPUEngine).initAsync();
-                this._engine.displayLoadingUI();
-            } else {
+                try {
+                    this._engine = new WebGPUEngine(canvas, {
+                        deviceDescriptor: {
+                            requiredFeatures: [
+                                "depth-clip-control",
+                                "depth32float-stencil8",
+                                "texture-compression-bc",
+                                "texture-compression-etc2",
+                                "texture-compression-astc",
+                                "timestamp-query",
+                                "indirect-first-instance"
+                            ]
+                        }
+                    });
+                    this._engine.loadingScreen = new CustomLoadingScreen(loadingScreen);
+                    await (this._engine as WebGPUEngine).initAsync();
+                    this._engine.displayLoadingUI();
+                } catch (webgpuError) {
+                    // If WebGPU init fails (missing required features, drivers, etc.),
+                    // fall back to WebGL when available.
+                    Log.warn(Log.types.UI, `WebGPU init failed, falling back to WebGL: ${findErrorMessage(webgpuError)}`);
+                    this._webgpuSupported = false;
+                }
+            }
+
+            if (!this._webgpuSupported) {
+                if (!Renderer._isWebGLSupported()) {
+                    throw new Error("WebGL not supported or disabled in this browser");
+                }
                 this._engine = new Engine(canvas, true);
                 this._engine.renderEvenInBackground = true;
                 this._engine.loadingScreen = new CustomLoadingScreen(loadingScreen);
