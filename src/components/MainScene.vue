@@ -28,6 +28,15 @@
 .versionWatermark {
     bottom: 5px;
 }
+.joystick-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5; /* above render canvas (2) but below overlay UI (10) */
+    pointer-events: none; /* Let touches pass through except on actual joysticks */
+}
 </style>
 
 <template>
@@ -48,6 +57,8 @@
             class="renderCanvas"
             tabindex="0"
         ></canvas>
+        <!-- Container for overlaying input layers like VirtualJoystick -->
+        <div id="joystick-overlay" class="joystick-overlay"></div>
         <slot name="manager"></slot>
         <LoadingScreen ref="LoadingScreen" />
         <JitsiContainer ref="JitsiContainer" />
@@ -139,7 +150,12 @@ export default defineComponent({
             const canvas = (this.$refs as ComponentTemplateRefs).renderCanvas;
             const loadingScreenComponent = (this.$refs as ComponentTemplateRefs).LoadingScreen;
             const loadingScreenElement = loadingScreenComponent.$el as HTMLElement;
-            await Renderer.initialize(canvas, loadingScreenElement);
+            try {
+                await Renderer.initialize(canvas, loadingScreenElement);
+            } catch {
+                // Renderer will already have alerted; stop boot here.
+                return;
+            }
             this.applicationStore.renderer.focusSceneId = 0;
 
             DomainManager.startGameLoop();

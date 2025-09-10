@@ -12,14 +12,53 @@
 import { defineStore } from "pinia";
 import { useStorage } from "@vueuse/core";
 import { Vec3 } from "@vircadia/web-sdk";
-import { onAttributeChangePayload } from "@Modules/account";
-import { defaultActiveAvatarId, defaultAvatars, type AvatarModelMap } from "@Modules/avatar/DefaultModels";
+import type { onAttributeChangePayload } from "@Modules/account";
+import { defaultActiveAvatarId, defaultAvatars } from "@Modules/avatar/DefaultModels";
 import type { Domain } from "@Base/modules/domain/domain";
 import type { DomainAvatarClient } from "@Base/modules/domain/avatar";
 import { DataMapper } from "@Modules/domain/dataMapper";
 import type { vec3 } from "@vircadia/web-sdk";
 
 const persistentStorageMedium = localStorage;
+
+// Robust mobile/touch-first detection (covers iPadOS and similar devices).
+function isMobileLikeDevice(): boolean {
+    try {
+        const uaMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/iu
+            .test(typeof navigator !== "undefined" ? navigator.userAgent : "");
+        const hasTouch = (typeof navigator !== "undefined" && "maxTouchPoints" in navigator && (navigator as Navigator).maxTouchPoints > 0)
+            || (typeof window !== "undefined" && !!window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
+        return uaMobile || hasTouch;
+    } catch {
+        return false;
+    }
+}
+
+function getDefaultGraphicsSettings() {
+    const isMobile = isMobileLikeDevice();
+    if (isMobile) {
+        // Lower defaults for mobile/touch devices to improve performance and thermals.
+        return {
+            fieldOfView: 80,
+            bloom: false,
+            fxaaEnabled: true,
+            msaa: 1, // Off
+            sharpen: false,
+            fpsCounter: false,
+            cameraBobbing: false
+        };
+    }
+    // Desktop defaults
+    return {
+        fieldOfView: 85,
+        bloom: true,
+        fxaaEnabled: true,
+        msaa: 2,
+        sharpen: false,
+        fpsCounter: true,
+        cameraBobbing: true
+    };
+}
 
 // Function to generate a hash of an object
 function generateHash(obj: object): string {
@@ -105,6 +144,10 @@ export interface LocationBookmark {
 
 export const useUserStore = defineStore("user", {
     state: () => ({
+        // Device characteristics (non-persistent)
+        device: {
+            isMobile: isMobileLikeDevice()
+        },
         avatar: useStorage(
             "userAvatarSettings",
             getCurrentAvatarSettings(),
@@ -128,15 +171,7 @@ export const useUserStore = defineStore("user", {
         // Graphics configuration.
         graphics: useStorage(
             "userGraphicsSettings",
-            {
-                fieldOfView: 85,
-                bloom: true,
-                fxaaEnabled: true,
-                msaa: 2,
-                sharpen: false,
-                fpsCounter: true,
-                cameraBobbing: true
-            },
+            getDefaultGraphicsSettings(),
             persistentStorageMedium,
             { mergeDefaults: true, listenToStorageChanges: false }
         ),

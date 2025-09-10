@@ -29,8 +29,6 @@ export class VirtualJoystickInput implements IInputHandler {
     private _cameraAngularSpeed = 0.1;
     private _cameraJoystickThreshold = 0.2;
 
-    static readonly ZINDEX = "5";
-
     constructor(state: AvatarState, scene: Scene) {
         this._state = state;
         this._scene = scene;
@@ -47,11 +45,34 @@ export class VirtualJoystickInput implements IInputHandler {
         this._rightJoystick.setJoystickColor("yellow");
 
         if (VirtualJoystick.Canvas) {
-            VirtualJoystick.Canvas.style.zIndex = VirtualJoystickInput.ZINDEX;
+            // Remove the z-index since we're managing it via the parent container
+            VirtualJoystick.Canvas.style.zIndex = "";
+            VirtualJoystick.Canvas.style.pointerEvents = "auto";
+            // Ensure browser does not treat touches as scroll/pinch gestures over the joystick canvas.
+            (VirtualJoystick.Canvas.style as unknown as { touchAction?: string }).touchAction = "none";
+
+            // Reparent the joystick canvas under the overlay so it sits beneath main UI but above the 3D canvas.
+            // This ensures pointer events reach joysticks when not interacting with UI.
+            const overlay = document.getElementById("joystick-overlay");
+            if (overlay && VirtualJoystick.Canvas.parentElement !== overlay) {
+                overlay.appendChild(VirtualJoystick.Canvas);
+                // Stretch to fill overlay so joysticks can be placed anywhere.
+                VirtualJoystick.Canvas.style.position = "absolute";
+                VirtualJoystick.Canvas.style.top = "0";
+                VirtualJoystick.Canvas.style.left = "0";
+                VirtualJoystick.Canvas.style.width = "100%";
+                VirtualJoystick.Canvas.style.height = "100%";
+            }
         }
     }
 
     public detachControl(): void {
+        // Ensure the VirtualJoystick canvas is back under document.body before releasing,
+        // since Babylon's releaseCanvas removes from document.body.
+        if (VirtualJoystick.Canvas && VirtualJoystick.Canvas.parentElement && VirtualJoystick.Canvas.parentElement.id === "joystick-overlay") {
+            document.body.appendChild(VirtualJoystick.Canvas);
+        }
+
         if (this._leftJoystick) {
             this._leftJoystick.releaseCanvas();
             this._leftJoystick = null;

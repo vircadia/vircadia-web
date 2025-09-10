@@ -13,23 +13,15 @@
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
-import {
-    Vector3,
-    AnimationGroup,
-    Nullable,
-    ArcRotateCamera,
-    Quaternion,
-    Ray,
-    Scalar,
-    ICameraInput,
-    Tools
-} from "@babylonjs/core";
+import { Vector3, ArcRotateCamera, Quaternion, Ray, Scalar, Tools } from "@babylonjs/core";
+import type { AnimationGroup, Nullable, ICameraInput } from "@babylonjs/core";
 import { Animator } from "../animator";
-import { GameObject, MeshComponent } from "@Modules/object";
+import { MeshComponent } from "@Modules/object";
+import type { GameObject } from "@Modules/object";
 import { ScriptComponent, inspector, inspectorAccessor } from "@Modules/script";
 import { AvatarState, Action, JumpSubState, State, AnimationMap } from "./avatarState";
 import { InputState, CameraMode } from "./inputState";
-import { IInputHandler } from "./inputs/inputHandler";
+import type { IInputHandler } from "./inputs/inputHandler";
 import { KeyboardInput } from "./inputs/keyboardInput";
 import { VirtualJoystickInput } from "./inputs/virtualJoystickInput";
 import { applicationStore, userStore } from "@Stores/index";
@@ -387,9 +379,8 @@ export class InputController extends ScriptComponent {
         this._avatarState.state = State.Idle;
         this._avatarState.action = Action.Idle;
 
-        // Test if browser is a mobile device.
-        const regexp = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/iu;
-        this._isMobile = regexp.test(navigator.userAgent);
+        // Read device mode from centralized user store.
+        this._isMobile = userStore.device.isMobile;
 
         this._inputState.onCameraCheckCollisionChangedObservable.add(() => {
             if (this._camera) {
@@ -398,7 +389,7 @@ export class InputController extends ScriptComponent {
         });
 
         this._inputState.onCameraModeChangedObservable.add(() => {
-            if (this._camera && this._camera.lowerRadiusLimit) {
+            if (this._camera?.lowerRadiusLimit) {
                 if (this._inputState.cameraMode === CameraMode.FirstPerson) {
                     this._camera.radius = this._camera.lowerRadiusLimit;
                     this._cameraViewTransitionThreshold = this._camera.lowerRadiusLimit;
@@ -526,8 +517,7 @@ export class InputController extends ScriptComponent {
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    private _doIdle(delta: number): void {
+    private _doIdle(_delta: number): void {
         this._avatarState.moveDir.x = 0;
         this._avatarState.moveDir.z = 0;
         this._avatarState.currentSpeed = 0;
@@ -539,7 +529,7 @@ export class InputController extends ScriptComponent {
         }
 
         // Reset the avatar's rotation (so that it is standing up).
-        if (this._gameObject && this._gameObject.rotationQuaternion) {
+        if (this._gameObject?.rotationQuaternion) {
             this._gameObject.rotationQuaternion.x = 0;
             this._gameObject.rotationQuaternion.z = 0;
         }
@@ -561,12 +551,12 @@ export class InputController extends ScriptComponent {
             return;
         }
 
-        if (!this._gameObject || !this._gameObject.physicsImpostor) {
+        if (!this._gameObject?.physicsImpostor) {
             return;
         }
 
         // Reset the avatar's rotation (so that it is standing upright).
-        if (this._gameObject && this._gameObject.rotationQuaternion) {
+        if (this._gameObject?.rotationQuaternion) {
             this._gameObject.rotationQuaternion.x = 0;
             this._gameObject.rotationQuaternion.z = 0;
         }
@@ -789,7 +779,7 @@ export class InputController extends ScriptComponent {
         this._cameraObstacleDetectInfo.elapse -= this._cameraObstacleDetectInfo.detectDuration;
 
         let isCameraObstructed = false;
-        if (this._camera.radius > this._camera.lowerRadiusLimit) {
+        if (this._camera.radius > (this._camera.lowerRadiusLimit ?? 0)) {
             // detect whether camera obstructed
             const avatarToCamera = this._camera.position.subtract(this._camera.target);
             const length = avatarToCamera.length();
@@ -797,7 +787,7 @@ export class InputController extends ScriptComponent {
             const ray = new Ray(this._camera.target, dir, length);
 
             const pickInfo = this._scene.pickWithRay(ray);
-            if (pickInfo && pickInfo.hit && pickInfo.pickedPoint) {
+            if (pickInfo?.hit && pickInfo.pickedPoint) {
                 if (!this._cameraObstacleDetectInfo.isCameraSnapping) {
                     // store camera state before camera is snapped
                     this._camera.storeState();
@@ -806,7 +796,7 @@ export class InputController extends ScriptComponent {
                     this._cameraObstacleDetectInfo.isCameraSnapping = true;
                 }
 
-                if (this._camera.checkCollisions) {
+                if (this._camera?.checkCollisions) {
                     const newPos = this._camera.target.subtract(pickInfo.pickedPoint).normalize()
                         .scale(this._cameraSkin);
                     pickInfo.pickedPoint.addToRef(newPos, this._camera.position);
@@ -824,8 +814,8 @@ export class InputController extends ScriptComponent {
                 this._cameraObstacleDetectInfo.direction,
                 this._cameraObstacleDetectInfo.length + this._cameraSkin));
 
-            if (!pickInfo || !pickInfo.hit) {
-                if (this._camera.checkCollisions) {
+            if (!pickInfo?.hit) {
+                if (this._camera?.checkCollisions) {
                     // TODO: Determine if the line below is necessary.
                     // const cameraToAvatar = this._camera.target.subtract(this._camera.position).normalize();
                     this._camera.target.addToRef(
@@ -861,10 +851,10 @@ export class InputController extends ScriptComponent {
 
             // Cast the detection ray.
             const ray = new Ray(raycastPosition, Vector3.Down(), groundDetectionDistance);
-            const pick = this._scene.pickWithRay(ray, (mesh) => mesh.isPickable);
+            const pick = this._scene.pickWithRay(ray, (mesh) => mesh?.isPickable ?? false);
 
             // If the ray collided with a mesh, then the avatar is grounded.
-            if (pick && pick.hit && pick.pickedPoint && pick.pickedMesh) {
+            if (pick?.hit && pick.pickedPoint && pick.pickedMesh) {
                 return true;
             }
         }
@@ -896,7 +886,9 @@ export class InputController extends ScriptComponent {
 
         // Set the visibility of the avatar's label.
         const meshes = this._gameObject.getChildMeshes(true, (mesh) => mesh.name === "Label");
-        meshes.forEach((mesh) => (mesh.isVisible = visible));
+        meshes.forEach((mesh) => {
+            mesh.isVisible = visible;
+        });
 
         // Set the visibility of the avatar's mesh.
         const meshComponent = this._gameObject.getComponent("Mesh");

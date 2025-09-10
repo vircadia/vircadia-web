@@ -11,7 +11,7 @@
 
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-import { Matrix, Camera, Vector3, Quaternion, AbstractMesh, Scene, Observable } from "@babylonjs/core";
+import { Matrix, Camera, Vector3, Quaternion, AbstractMesh, Scene, Observable, VirtualJoystick } from "@babylonjs/core";
 import { Renderer } from "./renderer";
 
 export type Size = {
@@ -99,6 +99,7 @@ export class CSS3DRenderer {
     private _canvas: HTMLCanvasElement;
     private _isAttachControl = false;
     private _css3DObjects: Map<string, CSS3DObject> = new Map<string, CSS3DObject>();
+    private _container: HTMLElement;
     private _domElement: HTMLElement;
     private _cameraElement: HTMLElement;
     private _width = 0;
@@ -129,6 +130,7 @@ export class CSS3DRenderer {
 
         const canvasZone = canvas.parentElement as HTMLElement;
         canvasZone.insertBefore(container, canvasZone.firstChild);
+        this._container = container;
 
         this._domElement = document.createElement("div");
         this._domElement.style.overflow = "hidden";
@@ -147,8 +149,9 @@ export class CSS3DRenderer {
             this.setSize(canvasZone.offsetWidth, canvasZone.offsetHeight);
         });
 
-        window.addEventListener("pointerdown", this._handlePointerDown.bind(this));
-        window.addEventListener("pointermove", this._handlePointerMove.bind(this));
+        // Scope CSS3D input handling to its own container to avoid interfering with global overlays like VirtualJoystick.
+        this._container.addEventListener("pointerdown", this._handlePointerDown.bind(this));
+        this._container.addEventListener("pointermove", this._handlePointerMove.bind(this));
     }
 
     /**
@@ -386,6 +389,12 @@ export class CSS3DRenderer {
      * @param event The pointer event.
      */
     private _handlePointerDown(event: PointerEvent): void {
+        // If the pointer event originated on the Babylon VirtualJoystick canvas, do not change control state.
+        // This ensures joystick interactions are not broken when CSS3D takes focus.
+        if (VirtualJoystick.Canvas && (event.target === VirtualJoystick.Canvas ||
+            (event.target instanceof Node && VirtualJoystick.Canvas.contains(event.target)))) {
+            return;
+        }
         const object = this._pickObject(event);
         if (object) {
             object.setPicked();
@@ -425,7 +434,6 @@ export class CSS3DRenderer {
      */
     public attachControl(): void {
         if (!this._isAttachControl) {
-            document.body.style.pointerEvents = "none";
             this._canvas.style.pointerEvents = "none";
             this._isAttachControl = true;
         }
@@ -437,7 +445,6 @@ export class CSS3DRenderer {
     public detachControl(): void {
         if (this._isAttachControl) {
             // make babylon.js canvas and document body receive events
-            document.body.style.pointerEvents = "auto";
             this._canvas.style.pointerEvents = "all";
             this._isAttachControl = false;
             setTimeout(() => {
