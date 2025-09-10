@@ -1,4 +1,6 @@
 //
+/** biome-ignore-all lint/complexity/noStaticOnlyClass: <explanation> */
+/** biome-ignore-all lint/complexity/noThisInStatic: <explanation> */
 //  renderer.ts
 //
 //  Copyright 2021 Vircadia contributors.
@@ -14,6 +16,7 @@ import { Config } from "@Base/config";
 import { WebGPUEngine } from "@babylonjs/core/Engines/webgpuEngine";
 import { VScene } from "@Modules/scene/vscene";
 import { CustomLoadingScreen } from "@Modules/scene/LoadingScreen";
+import Log, { findErrorMessage } from "@Modules/debugging/log";
 
 /**
  * Static methods controlling the rendering of the scene(s).
@@ -30,45 +33,54 @@ export class Renderer {
      * @param loadingScreen The element to show when the scene is loading.
      */
     public static async initialize(canvas: HTMLCanvasElement, loadingScreen: HTMLElement): Promise<void> {
-        this._webgpuSupported = await WebGPUEngine.IsSupportedAsync;
-        // FIXME: Temporarily disable WebGPU on MacOS until update to a Babylon version that supports it.
-        this._webgpuSupported = false;
-        if (this._webgpuSupported) {
-            this._engine = new WebGPUEngine(canvas, {
-                deviceDescriptor: {
-                    requiredFeatures: [
-                        "depth-clip-control",
-                        "depth32float-stencil8",
-                        "texture-compression-bc",
-                        "texture-compression-etc2",
-                        "texture-compression-astc",
-                        "timestamp-query",
-                        "indirect-first-instance"
-                    ]
-                }
-            });
-            this._engine.loadingScreen = new CustomLoadingScreen(loadingScreen);
-            await (this._engine as WebGPUEngine).initAsync();
-            this._engine.displayLoadingUI();
-        } else {
-            this._engine = new Engine(canvas, true);
-            this._engine.renderEvenInBackground = true;
-            this._engine.loadingScreen = new CustomLoadingScreen(loadingScreen);
-            this._engine.displayLoadingUI();
-        }
-
-        this._renderingScenes = new Array<VScene>();
-
-        // Update renderer statistics for the UI.
-        setInterval(() => {
-            if (this._engine) {
-                if (this._renderingScenes.length > 0 && this._renderingScenes[0]) {
-                    applicationStore.renderer.fps = this._engine.getFps();
-                    applicationStore.renderer.cameraLocation = this._renderingScenes[0]._scene.activeCamera?.globalPosition.clone();
-                    applicationStore.renderer.cameraRotation = this._renderingScenes[0]._scene.activeCamera?.absoluteRotation.clone();
-                }
+        try {
+            const wantWebGPU = (process.env.VRCA_USE_WEBGPU === "true");
+            this._webgpuSupported = wantWebGPU ? await WebGPUEngine.IsSupportedAsync : false;
+            if (this._webgpuSupported) {
+                this._engine = new WebGPUEngine(canvas, {
+                    deviceDescriptor: {
+                        requiredFeatures: [
+                            "depth-clip-control",
+                            "depth32float-stencil8",
+                            "texture-compression-bc",
+                            "texture-compression-etc2",
+                            "texture-compression-astc",
+                            "timestamp-query",
+                            "indirect-first-instance"
+                        ]
+                    }
+                });
+                this._engine.loadingScreen = new CustomLoadingScreen(loadingScreen);
+                await (this._engine as WebGPUEngine).initAsync();
+                this._engine.displayLoadingUI();
+            } else {
+                this._engine = new Engine(canvas, true);
+                this._engine.renderEvenInBackground = true;
+                this._engine.loadingScreen = new CustomLoadingScreen(loadingScreen);
+                this._engine.displayLoadingUI();
             }
-        }, Number(Config.getItem("Renderer.StatUpdateSeconds", "1000")));
+
+            this._renderingScenes = new Array<VScene>();
+
+            // Update renderer statistics for the UI.
+            setInterval(() => {
+                if (this._engine) {
+                    if (this._renderingScenes.length > 0 && this._renderingScenes[0]) {
+                        applicationStore.renderer.fps = this._engine.getFps();
+                        applicationStore.renderer.cameraLocation = this._renderingScenes[0]._scene.activeCamera?.globalPosition.clone();
+                        applicationStore.renderer.cameraRotation = this._renderingScenes[0]._scene.activeCamera?.absoluteRotation.clone();
+                    }
+                }
+            }, Number(Config.getItem("Renderer.StatUpdateSeconds", "1000")));
+        } catch (error) {
+            const message = findErrorMessage(error);
+            Log.error(Log.types.UI, `Rendering engine failed to initialize: ${message}`);
+            try {
+                this._engine?.hideLoadingUI();
+            } catch { /* ignore */ }
+            window.alert(`Rendering engine failed to initialize.\n${message}\n\nPlease ensure your browser supports WebGL/WebGPU and hardware acceleration is enabled.`);
+            throw error;
+        }
     }
 
     /**

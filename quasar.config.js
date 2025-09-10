@@ -2,6 +2,7 @@
  * This file runs in a Node context (it's NOT transpiled by Babel), so use only
  * the ES6 features that are supported by your Node version. https://node.green/
  */
+/** biome-ignore-all lint/complexity/useArrowFunction: <explanation> */
 
 // Configuration for your app
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js
@@ -145,6 +146,9 @@ module.exports = configure(function (ctx) {
                     "Early Developer Alpha",
                 VRCA_SHOW_LOADING_SCREEN_HINTS:
                     process.env.VRCA_SHOW_LOADING_SCREEN_HINTS ?? "true",
+                // Graphics
+                VRCA_USE_WEBGPU:
+                    process.env.VRCA_USE_WEBGPU ?? "false",
                 // Theme > Colors
                 VRCA_COLORS_PRIMARY:
                     process.env.VRCA_COLORS_PRIMARY ?? "#0c71c3",
