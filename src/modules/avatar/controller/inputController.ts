@@ -28,6 +28,7 @@ import { applicationStore, userStore } from "@Stores/index";
 import { Renderer } from "@Modules/scene";
 import { MouseSettingsController } from "@Modules/avatar/controller/inputs/mouseSettings";
 import { Hysteresis } from "@Modules/utility/hysteresis";
+import Log from "@Modules/debugging/log";
 
 // Custom camera controls.
 class ArcRotateCameraCustomInput implements ICameraInput<ArcRotateCamera> {
@@ -245,10 +246,11 @@ export class InputController extends ScriptComponent {
                 0.1
             );
 
-            // Remove the default camera controls.
+            // Remove the default camera controls and any existing custom input to avoid duplicates.
             this._camera.inputs.removeByType("ArcRotateCameraKeyboardMoveInput");
+            this._camera.inputs.removeByType("ArcRotateCameraCustomInput");
 
-            // Bind the custom controls to the camera.
+            // Bind the custom controls to the camera (single instance).
             this._camera.inputs.add(new ArcRotateCameraCustomInput(this._camera));
             this._camera.attachControl(this._scene.getEngine().getRenderingCanvas());
         }
@@ -462,15 +464,25 @@ export class InputController extends ScriptComponent {
     }
 
     private _attachControl(): void {
-        // TODO: Make this configurable as a selected input type, influenced by mobile by default.
-        if (this._isMobile && !(this._input instanceof VirtualJoystickInput)) {
-            this._input?.detachControl();
-            this._input = new VirtualJoystickInput(this._avatarState, this._scene);
-            this._input.attachControl();
-        } else if (!(this._input instanceof KeyboardInput)) {
-            this._input?.detachControl();
-            this._input = new KeyboardInput(this._avatarState, this._inputState, this._scene);
-            this._input.attachControl();
+        // Choose desired input based on device; make idempotent to avoid flapping on repeated calls.
+        const useMobileInput = this._isMobile;
+        const alreadyVirtual = this._input instanceof VirtualJoystickInput;
+        const alreadyKeyboard = this._input instanceof KeyboardInput;
+
+        if (useMobileInput) {
+            if (!alreadyVirtual) {
+                console.info('[Input Controller] Using VirtualJoystickInput');
+                this._input?.detachControl();
+                this._input = new VirtualJoystickInput(this._avatarState, this._scene);
+                this._input.attachControl();
+            }
+        } else {
+            if (!alreadyKeyboard) {
+                console.info('[Input Controller] Using KeyboardInput');
+                this._input?.detachControl();
+                this._input = new KeyboardInput(this._avatarState, this._inputState, this._scene);
+                this._input.attachControl();
+            }
         }
     }
 

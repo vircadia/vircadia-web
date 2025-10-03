@@ -13,10 +13,6 @@ import { IInputHandler } from "./inputHandler";
 import { Scene, Nullable, VirtualJoystick, ArcRotateCamera } from "@babylonjs/core";
 import { AvatarState, Action, State } from "../avatarState";
 
-// This is disabled because TS complains about BABYLON's use of cap'ed function names
-
-/* eslint-disable @typescript-eslint/no-magic-numbers */
-
 export class VirtualJoystickInput implements IInputHandler {
 
     private _state: AvatarState;
