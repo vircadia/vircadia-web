@@ -16,15 +16,14 @@ import { ScriptComponent } from "@Modules/script";
 import type { VScene } from "@Modules/scene/vscene";
 import Log from "@Modules/debugging/log";
 import { ZoneManager } from "../ZoneManager";
-import { ZoneEntityController } from "@Modules/entity/components/controllers/ZoneEntityController";
 
-const DEFAULT_GRAVITY = 9.81;
-const GROUND_DETECTION_LENGTH = 5; // FIXME: This is not a good system for detecting the ground.
+// Character controller handles gravity automatically
+// The Havok physics character controller manages gravity, collision detection,
+// and ground detection internally. No manual physics body manipulation is needed.
 
 export class SceneController extends ScriptComponent {
     private _vscene: VScene;
     private _zoneManager: ZoneManager;
-    public isGravityApplied = false;
 
     constructor(vscene: VScene) {
         super(SceneController.typeName);
@@ -36,30 +35,14 @@ export class SceneController extends ScriptComponent {
         return SceneController.typeName;
     }
 
+    // Character controller manages its own gravity
+    // These methods are kept for compatibility but do nothing
     public applyGravity(): void {
-        const physicsEngine = this._scene.getPhysicsEngine();
-        if (physicsEngine) {
-            Log.debug(Log.types.OTHER, `Apply gravity: ${DEFAULT_GRAVITY}`);
-            physicsEngine.setGravity(new Vector3(0, -DEFAULT_GRAVITY, 0));
-            const avatar = this._vscene.getMyAvatar();
-            // TODO: Update to the V2 (Havok) physics engine, which provides improved methods for updating physics properties.
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-magic-numbers
-            avatar?.physicsImpostor?.physicsBody?.setDamping(0.3, 0.3);
-            this.isGravityApplied = true;
-        }
+        Log.debug(Log.types.OTHER, "Gravity is managed by character controller");
     }
 
     public removeGravity(): void {
-        const physicsEngine = this._scene.getPhysicsEngine();
-        if (physicsEngine) {
-            Log.debug(Log.types.OTHER, "Remove gravity");
-            physicsEngine.setGravity(new Vector3(0, 0, 0));
-            const avatar = this._vscene.getMyAvatar();
-            // TODO: Update to the V2 (Havok) physics engine, which provides improved methods for updating physics properties.
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            avatar?.physicsImpostor?.physicsBody?.setDamping(1, 1);
-            this.isGravityApplied = true;
-        }
+        Log.debug(Log.types.OTHER, "Gravity is managed by character controller");
     }
 
     /**
@@ -74,53 +57,15 @@ export class SceneController extends ScriptComponent {
     public onInitialize(): void { }
 
     public onUpdate(): void {
-        if (
-            this._scene.isReady() &&
-            !this.isGravityApplied &&
-            this._detectGround()
-        ) {
-            this.applyGravity();
-        }
-
         // Update zone detection
         this._zoneManager.update();
     }
 
     public onSceneReady(): void {
-        this.isGravityApplied = false;
-        const avatar = this._vscene.getMyAvatar();
-        // Stop the avatar bouncing or floating.
-        // TODO: Update to the V2 (Havok) physics engine, which provides improved methods for updating physics properties.
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        avatar?.physicsImpostor?.physicsBody?.setDamping(1, 1);
+        // Character controller handles physics properties
     }
 
-    private _detectGround(): boolean {
-        const avatar = this._vscene.getMyAvatar();
-        if (avatar) {
-            // Position the raycast from the bottom center of the mesh.
-            const raycastPosition = avatar.position.clone();
-            const ray = new Ray(
-                raycastPosition,
-                Vector3.Down(),
-                GROUND_DETECTION_LENGTH
-            );
-            const pick = this._scene.pickWithRay(
-                ray,
-                (mesh) => mesh.isPickable
-            );
-
-            if (pick && pick.hit && pick.pickedPoint && pick.pickedMesh) {
-                // Grounded.
-                Log.info(
-                    Log.types.OTHER,
-                    `Ground detected. Ground: ${pick.pickedMesh.name}.`
-                );
-                return true;
-            }
-        }
-        return false;
-    }
+    // Ground detection is handled by character controller
 
     private _checkZones(): void {
         const avatar = this._vscene.getMyAvatar();

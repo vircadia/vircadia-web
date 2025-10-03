@@ -33,6 +33,7 @@ import { InputState, CameraMode, InputMode } from "../inputState";
 import { applicationStore, userStore } from "@Stores/index";
 import { AudioManager as AudioMgr } from "@Modules/scene/audio";
 import { Renderer } from "@Modules/scene";
+import { PhysicsPrestepType } from "@babylonjs/core/Physics/v2/IPhysicsEnginePlugin";
 
 
 export class KeyboardInput implements IInputHandler {
@@ -145,6 +146,8 @@ export class KeyboardInput implements IInputHandler {
         // Babylon Inspector.
         if (process.env.NODE_ENV === "development" && sourceEvent.code === "Slash" && this._shiftKey) {
             void this._scene.debugLayer.show({ overlay: true });
+        } else {
+            console.log("Cannot open Babylon Inspector", sourceEvent.code, this._shiftKey, process.env.NODE_ENV);
         }
 
         // Reset position.
@@ -163,6 +166,15 @@ export class KeyboardInput implements IInputHandler {
             const sceneController = Renderer.getScene().sceneController;
 
             if (this._state.state === State.Fly) {
+                // Sync physics body to current transform to avoid snapping back when gravity is re-applied.
+                const avatar = Renderer.getScene().getMyAvatar();
+                if (avatar?.physicsBody) {
+                    avatar.physicsBody.setPrestepType(PhysicsPrestepType.TELEPORT);
+                    avatar.physicsBody.setTargetTransform(
+                        avatar.position.clone(),
+                        avatar.rotationQuaternion ?? Quaternion.Identity()
+                    );
+                }
                 this._state.action = Action.Jump;
                 this._state.state = State.Jump;
                 this._state.jumpSubstate = JumpSubState.Falling;

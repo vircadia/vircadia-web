@@ -12,7 +12,9 @@
 
 
 import { ColliderComponent } from "./collider";
-import { AbstractMesh, PhysicsImpostor, type Nullable } from "@babylonjs/core";
+import { AbstractMesh, type Nullable } from "@babylonjs/core";
+import { PhysicsAggregate } from "@babylonjs/core/Physics/v2/physicsAggregate";
+import { PhysicsShapeType } from "@babylonjs/core/Physics/v2/IPhysicsEnginePlugin";
 
 export class MeshColliderComponent extends ColliderComponent {
     /**
@@ -38,20 +40,21 @@ export class MeshColliderComponent extends ColliderComponent {
                 m.scaling.y = Math.abs(m.scaling.y);
                 m.scaling.z = Math.abs(m.scaling.z);
 
-                if (m.physicsImpostor) {
-                    m.physicsImpostor.dispose();
+                // dispose old v1 impostors if present
+                if (m.physicsImpostor && typeof (m.physicsImpostor as any).dispose === "function") {
+                    (m.physicsImpostor as any).dispose();
                 }
-
-                m.physicsImpostor = new PhysicsImpostor(m, PhysicsImpostor.BoxImpostor, { mass: 0 }, value.getScene());
+                const childAgg = new PhysicsAggregate(m, PhysicsShapeType.BOX, { mass: 0 }, value.getScene());
+                // do not expose v1 impostor; v2 body is available on mesh via childAgg.body if needed
             });
 
-            value.physicsImpostor = new PhysicsImpostor(value, PhysicsImpostor.BoxImpostor,
+            const agg = new PhysicsAggregate(value, PhysicsShapeType.BOX,
                 { mass: 0, friction: 0.5, restitution: 0.7 }, value.getScene());
 
         } else if (this.collider) {
             this.collider.getChildMeshes().forEach((m) => {
-                if (m.physicsImpostor) {
-                    m.physicsImpostor.dispose();
+                if (m.physicsImpostor && typeof (m.physicsImpostor as any).dispose === "function") {
+                    (m.physicsImpostor as any).dispose();
                 }
             });
         }

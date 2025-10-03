@@ -12,7 +12,9 @@
 
 
 import { MeshComponent, DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
-import { StandardMaterial, Mesh, MeshBuilder, PhysicsImpostor } from "@babylonjs/core";
+import { StandardMaterial, Mesh, MeshBuilder } from "@babylonjs/core";
+import { PhysicsAggregate } from "@babylonjs/core/Physics/v2/physicsAggregate";
+import { PhysicsShapeType } from "@babylonjs/core/Physics/v2/IPhysicsEnginePlugin";
 import { IShapeEntity } from "../../EntityInterfaces";
 import { EntityMapper } from "../../package";
 
@@ -101,31 +103,23 @@ export class ShapeComponent extends MeshComponent {
 
         if (props.shape === "Cube") {
             this._disposeCollider();
-            this._mesh.physicsImpostor = new PhysicsImpostor(this._mesh, PhysicsImpostor.BoxImpostor,
-                {
-                    mass: 0,
-                    restitution: 0
-                },
-                this._mesh.getScene());
+            // eslint-disable-next-line no-new
+            new PhysicsAggregate(this._mesh, PhysicsShapeType.BOX, { mass: 0, restitution: 0 }, this._mesh.getScene());
 
-            this._gameObject.physicsImpostor = new PhysicsImpostor(
-                this._gameObject, PhysicsImpostor.NoImpostor,
-                {
-                    mass: 0,
-                    restitution: 0
-                },
-                this._gameObject.getScene());
+            this._gameObject.physicsBody = new PhysicsAggregate(this._gameObject, PhysicsShapeType.BOX, { mass: 0, restitution: 0 }, this._gameObject.getScene()).body;
         }
     }
 
     protected _disposeCollider(): void {
         if (this._mesh && this._mesh.physicsImpostor) {
-            this._mesh.physicsImpostor.dispose();
+            const impostor: any = this._mesh.physicsImpostor;
+            if (typeof impostor.dispose === "function") impostor.dispose();
             this._mesh.physicsImpostor = null;
         }
 
         if (this._gameObject && this._gameObject.physicsImpostor) {
-            this._gameObject.physicsImpostor.dispose();
+            const impostor: any = this._gameObject.physicsImpostor;
+            if (typeof impostor.dispose === "function") impostor.dispose();
             this._gameObject.physicsImpostor = null;
         }
     }

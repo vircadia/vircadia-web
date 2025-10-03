@@ -11,7 +11,9 @@
 
 
 
-import { MeshBuilder, PhysicsImpostor } from "@babylonjs/core";
+import { MeshBuilder } from "@babylonjs/core";
+import { PhysicsAggregate } from "@babylonjs/core/Physics/v2/physicsAggregate";
+import { PhysicsShapeType } from "@babylonjs/core/Physics/v2/IPhysicsEnginePlugin";
 import type { Scene, Vector3 } from "@babylonjs/core";
 import { ColliderComponent } from "./collider";
 
@@ -40,7 +42,9 @@ export class BoxColliderComponent extends ColliderComponent {
         };
 
         this.collider = MeshBuilder.CreateBox(BoxColliderComponent.typeName, options, scene);
-        this.collider.physicsImpostor = new PhysicsImpostor(this.collider, PhysicsImpostor.BoxImpostor, { mass: 0 }, scene ?? undefined);
+        // create v2 aggregate for the collider mesh
+        // eslint-disable-next-line no-new
+        new PhysicsAggregate(this.collider, PhysicsShapeType.BOX, { mass: 0 }, scene ?? undefined);
 
         if (position) {
             this.collider.position = position;

@@ -11,11 +11,16 @@
 
 
 
-import { MeshBuilder, PhysicsImpostor } from "@babylonjs/core";
-import type { Vector3 } from "@babylonjs/core";
+import { MeshBuilder, Vector3 } from "@babylonjs/core";
+import { PhysicsAggregate } from "@babylonjs/core/Physics/v2/physicsAggregate";
+import { PhysicsShapeType } from "@babylonjs/core/Physics/v2/IPhysicsEnginePlugin";
+import type { Vector3 as Vector3Type } from "@babylonjs/core";
 import { ColliderComponent } from "./collider";
 
 export class CapsuleColliderComponent extends ColliderComponent {
+    private _radius = 0.3;
+    private _height = 1.8;
+    private _center = new Vector3(0, 0, 0);
     /**
      * A string identifying the type of this component.
      * @returns `"CapsuleCollider"`
@@ -32,14 +37,24 @@ export class CapsuleColliderComponent extends ColliderComponent {
         return "CapsuleCollider";
     }
 
-    public createCollider(radius?: number, height?: number, position?: Vector3): void {
+    public createCollider(radius?: number, height?: number, position?: Vector3Type): void {
         // This needs to be set before assigning the collider, as it determines how the assignment is handled.
         this._compoundBody = true;
 
-        this.collider = MeshBuilder.CreateCapsule(CapsuleColliderComponent.typeName, { radius, height }, this._scene);
+        if (radius) this._radius = radius;
+        if (height) this._height = height;
+
+        this.collider = MeshBuilder.CreateCapsule(
+            CapsuleColliderComponent.typeName,
+            { radius: this._radius, height: this._height },
+            this._scene
+        );
 
         if (position) {
-            this.collider.position = position;
+            this._center = position.clone();
+            this.collider.position = this._center.clone();
+        } else {
+            this._center.setAll(0);
         }
 
         this.collider.material = this._getMaterial();
@@ -47,10 +62,26 @@ export class CapsuleColliderComponent extends ColliderComponent {
         this.collider.checkCollisions = false;
     }
 
-    protected _createColliderImposter(): void {
-        if (this.collider) {
-            // Create CapsuleImpostor with zero mass.
-            this.collider.physicsImpostor = new PhysicsImpostor(this.collider, PhysicsImpostor.CapsuleImpostor, { mass: 0 }, this._scene);
+    protected _createAggregate(): void {
+        if (this._gameObject) {
+            this._aggregate?.dispose();
+            const half = Math.max(0, this._height / 2 - this._radius);
+            const pointA = new Vector3(0, half, 0);
+            const pointB = new Vector3(0, -half, 0);
+            this._aggregate = new PhysicsAggregate(
+                this._gameObject,
+                PhysicsShapeType.CAPSULE,
+                {
+                    mass: this._mass,
+                    friction: this._friction,
+                    restitution: this._restitution,
+                    radius: this._radius,
+                    pointA,
+                    pointB,
+                    center: this._center,
+                },
+                this._scene
+            );
         }
     }
 }

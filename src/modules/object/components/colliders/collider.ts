@@ -12,8 +12,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 
-import { PhysicsImpostor, StandardMaterial, Vector3 } from "@babylonjs/core";
+import { StandardMaterial, Vector3 } from "@babylonjs/core";
 import type { AbstractMesh, Material, Nullable, Scene } from "@babylonjs/core";
+import { PhysicsAggregate } from "@babylonjs/core/Physics/v2/physicsAggregate";
+import type { PhysicsBody } from "@babylonjs/core/Physics/v2/physicsBody";
 import { GenericNodeComponent } from "@Modules/object/component";
 import type { GameObject } from "@Modules/object/GameObject";
 
@@ -34,6 +36,8 @@ export abstract class ColliderComponent extends GenericNodeComponent<AbstractMes
     protected _restitution: number;
     protected _compoundBody = false;
     protected _angularFactor = new Vector3(1, 1, 1);
+    protected _aggregate: Nullable<PhysicsAggregate> = null;
+    protected _body: Nullable<PhysicsBody> = null;
 
     constructor(scene: Scene, mass?: number, friction?: number, restitution?: number) {
         super();
@@ -64,13 +68,11 @@ export abstract class ColliderComponent extends GenericNodeComponent<AbstractMes
     public set mass(value: number) {
         this._mass = value;
 
-        const impostor = this._getImpostor();
-        if (impostor) {
-            // NOTE:
-            // Changing the mass causes a strange issue.
-            // Re-create the importers to prevent this.
-            this._disposeImposters();
-            this._createImposters();
+        this._disposeAggregate();
+        this._createAggregate();
+        if (this._gameObject && this._aggregate) {
+            this._body = this._aggregate.body;
+            this._gameObject.physicsBody = this._body;
         }
     }
 
@@ -79,48 +81,34 @@ export abstract class ColliderComponent extends GenericNodeComponent<AbstractMes
         this._angularFactor.y = y;
         this._angularFactor.z = z;
 
-        const impostor = this._getImpostor();
-        if (impostor) {
-            impostor.physicsBody.setAngularFactor(x, y, z);
-        }
+        // TODO: Map angular factor to v2 constraints if needed.
     }
 
     public attach(gameObject: GameObject): void {
         super.attach(gameObject);
-        this._createImposters();
+        this._createAggregate();
+        if (this._gameObject && this._aggregate) {
+            this._body = this._aggregate.body;
+            this._gameObject.physicsBody = this._body;
+        }
     }
 
     public detach(): void {
-        this._disposeImposters();
+        this._disposeAggregate();
         super.detach();
     }
 
-    protected _createImposters(): void {
-        this._createColliderImposter();
+    protected _createAggregate(): void { /* no-op base */ }
 
-        // Create NoImposter and attach it to the game object.
-        if (this._gameObject && !this._gameObject.physicsImpostor) {
-            this._gameObject.physicsImpostor = new PhysicsImpostor(
-                this._gameObject, PhysicsImpostor.NoImpostor,
-                { mass: this._mass, restitution: this._restitution, friction: this._friction },
-                this._scene);
-            this._gameObject.physicsImpostor.physicsBody.setAngularFactor(
-                this._angularFactor.x, this._angularFactor.y, this._angularFactor.z);
+    protected _disposeAggregate(): void {
+        if (this._aggregate) {
+            this._aggregate.dispose();
+            this._aggregate = null;
         }
-    }
-
-    protected abstract _createColliderImposter(): void;
-
-    protected _disposeImposters(): void {
-        if (this._gameObject && this._gameObject.physicsImpostor) {
-            this._gameObject.physicsImpostor.dispose();
-            this._gameObject.physicsImpostor = null;
+        if (this._gameObject) {
+            this._gameObject.physicsBody = undefined;
         }
-
-        if (this.collider && this.collider.physicsImpostor) {
-            this.collider.physicsImpostor.dispose();
-            this.collider.physicsImpostor = null;
-        }
+        this._body = null;
     }
 
     protected _getMaterial(): Material {
@@ -133,10 +121,5 @@ export abstract class ColliderComponent extends GenericNodeComponent<AbstractMes
         return material;
     }
 
-    protected _getImpostor(): Nullable<PhysicsImpostor> {
-        if (this._gameObject && this._gameObject.physicsImpostor) {
-            return this._gameObject.physicsImpostor;
-        }
-        return null;
-    }
+    // V2 API does not expose impostors; using aggregates instead.
 }

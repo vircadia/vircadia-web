@@ -22,13 +22,14 @@ import {
     Camera,
     Observable,
     Nullable,
-    AmmoJSPlugin,
     Quaternion,
     Vector3,
     Color4,
     WebGPUEngine,
 } from "@babylonjs/core";
-import Ammo from "ammojs-typed";
+import { HavokPlugin } from "@babylonjs/core/Physics/v2/Plugins/havokPlugin";
+import { PhysicsCharacterController } from "@babylonjs/core";
+import HavokPhysics from "@babylonjs/havok";
 import "@babylonjs/loaders/glTF";
 import { watch } from "vue";
 import { DomainController, SceneController } from "./controllers";
@@ -37,7 +38,6 @@ import { ResourceManager } from "./resource";
 import {
     GameObject,
     MeshComponent,
-    CapsuleColliderComponent,
     DEFAULT_MESH_RENDER_GROUP_ID,
 } from "@Modules/object";
 import {
@@ -379,6 +379,9 @@ export class VScene {
                 previousAvatar.dispose();
             }
 
+            // Enable collision detection for the avatar
+            this._myAvatar.checkCollisions = true;
+
             const result = await this._resourceManager.loadMyAvatar(
                 this._myAvatarModelURL
             );
@@ -416,39 +419,41 @@ export class VScene {
             );
             this._avatarAnimationGroups = animResult.animGroups;
 
-            const defaultColliderProperties = {
-                radius: 0.3,
-                height: 1.8,
-                offset: new Vector3(0, 0, -0.04), // Offset coordinates are local (relative to the avatar).
-                mass: 1,
-                friction: 3,
-            };
-            const capsuleCollider = new CapsuleColliderComponent(
-                this._scene,
-                defaultColliderProperties.mass,
-                defaultColliderProperties.friction
-            );
-
-            // Create a collider based on the dimensions of the avatar model.
-            capsuleCollider.createCollider(
-                // eslint-disable-next-line @typescript-eslint/no-extra-parens
-                (boundingVectors.max.x -
+            // Create character controller instead of manual physics body
+            const physicsEngine = this._scene.getPhysicsEngine();
+            if (physicsEngine) {
+                const characterRadius = (boundingVectors.max.x -
                     boundingVectors.min.x +
                     (boundingVectors.max.z - boundingVectors.min.z)) /
-                4 || defaultColliderProperties.radius,
-                avatarHeight || defaultColliderProperties.height,
-                new Vector3(
-                    defaultColliderProperties.offset.x,
-                    (avatarHeight || defaultColliderProperties.height) / 2 +
-                    defaultColliderProperties.offset.y,
-                    defaultColliderProperties.offset.z
-                )
-            );
-            capsuleCollider.setAngularFactor(0, 1, 0);
-            if (capsuleCollider.collider) {
-                capsuleCollider.collider.isPickable = false;
+                    4 || 0.3;
+                const characterHeight = avatarHeight || 1.8;
+
+                // Create character controller using the same pattern as Babylon.js example
+                const characterController = new PhysicsCharacterController(
+                    this._myAvatar.position.add(new Vector3(0, characterHeight * 0.5, 0)),
+                    {
+                        capsuleHeight: characterHeight,
+                        capsuleRadius: characterRadius
+                    },
+                    this._scene
+                );
+
+                // Configure character controller properties
+                characterController.maxCharacterSpeedForSolver = 10.0;
+                characterController.maxSlopeCosine = Math.cos(Math.PI / 4); // 45 degrees
+                characterController.staticFriction = 0.2;
+                characterController.dynamicFriction = 0.1;
+                characterController.acceleration = 0.5;
+                characterController.maxAcceleration = 50.0;
+
+                // Store controller reference on avatar
+                (this._myAvatar as any).characterController = characterController;
+                // Store character state
+                (this._myAvatar as any).characterState = "ON_GROUND";
+                (this._myAvatar as any).characterGravity = new Vector3(0, -9.81, 0);
             }
-            this._myAvatar.addComponent(capsuleCollider);
+
+            // Character controller handles collision detection, no need for manual ellipsoid
 
             const myAvatarController = new MyAvatarController();
             const avatarController = new InputController();
@@ -461,10 +466,7 @@ export class VScene {
                 myAvatarController.skeletonRootPosition.y + avatarHeight / 2;
             this._myAvatar.addComponent(avatarController);
             this._myAvatar.addComponent(myAvatarController);
-            if (
-                DomainManager.ActiveDomain &&
-                DomainManager.ActiveDomain.AvatarClient?.MyAvatar
-            ) {
+            if (DomainManager.ActiveDomain?.AvatarClient?.MyAvatar) {
                 myAvatarController.myAvatar =
                     DomainManager.ActiveDomain.AvatarClient?.MyAvatar;
             }
@@ -570,9 +572,11 @@ export class VScene {
                 "refreshBoundingInfo" in meshComponent.mesh
             ) {
                 // Get the bounding vectors of the avatar mesh.
-                const boundingMesh = meshComponent.mesh.refreshBoundingInfo(
-                    Boolean(meshComponent.skeleton)
-                );
+                const boundingMesh = meshComponent.mesh.refreshBoundingInfo({
+                    applySkeleton: Boolean(meshComponent.skeleton),
+                    applyMorph: false,
+                    updatePositionsArray: true,
+                });
                 boundingVectors = boundingMesh.getHierarchyBoundingVectors();
                 avatarHeight = boundingVectors.max.y - boundingVectors.min.y;
                 meshComponent.mesh.position = Vector3.Zero();
@@ -687,14 +691,15 @@ export class VScene {
             this._sceneController?.onSceneReady();
         });
 
-        // Enable physics
-        const ammoReference = await Ammo.apply(window);
+        // Enable physics (Havok)
+        const baseUrl = (import.meta as any).env?.BASE_URL ?? "/";
+        const hk = await HavokPhysics({
+            locateFile: (file) => `${baseUrl}wasm/${file}`,
+        });
         this._scene.enablePhysics(
             Vector3.Zero(),
-            new AmmoJSPlugin(true, ammoReference)
+            new HavokPlugin(true, hk)
         );
-        /* const hk = await HavokPhysics();
-        this._scene.enablePhysics(Vector3.Zero(), new HavokPlugin(true, hk)); */
         // Don't clear the buffer for the default mesh render group.
         this._scene.setRenderingAutoClearDepthStencil(
             DEFAULT_MESH_RENDER_GROUP_ID,

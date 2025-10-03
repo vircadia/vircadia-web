@@ -23,10 +23,15 @@ const workers = [
 ];
 // The destination for the worker files.
 const destination = "public/js/";
+// The destination for physics WASM files.
+const wasmDestination = "public/wasm/";
 
-// Ensure the destination exists.
+// Ensure the destinations exist.
 if (!existsSync(destination)) {
     mkdirSync(destination, { recursive: true });
+}
+if (!existsSync(wasmDestination)) {
+    mkdirSync(wasmDestination, { recursive: true });
 }
 
 // Copy the worker files to the destination.
@@ -34,5 +39,14 @@ console.log("Copying workers...");
 for (const worker of workers) {
     copyFileSync(`node_modules/@vircadia/web-sdk/dist/${worker}`, `${destination}${worker}`);
     console.log("  »\x1b[32m", worker, "\x1b[0m");
+}
+// Copy Havok WASM file
+try {
+    const havokWasm = "HavokPhysics.wasm";
+    copyFileSync(`node_modules/@babylonjs/havok/lib/esm/${havokWasm}`, `${wasmDestination}${havokWasm}`);
+    console.log("Copying wasm...");
+    console.log("  »\x1b[32m", havokWasm, "\x1b[0m");
+} catch (e) {
+    console.warn("Havok wasm not found. Ensure @babylonjs/havok is installed.");
 }
 console.log("Done.\n");

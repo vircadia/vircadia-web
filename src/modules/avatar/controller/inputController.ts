@@ -428,6 +428,13 @@ export class InputController extends ScriptComponent {
 
         this._updateAvatar(delta);
 
+        // Sync GameObject position with character controller
+        const characterController = (this._gameObject as any)?.characterController;
+        if (characterController && this._gameObject) {
+            const controllerPosition = characterController.getPosition();
+            this._gameObject.position.copyFrom(controllerPosition);
+        }
+
         this._updateCamera(delta);
     }
 
@@ -504,7 +511,8 @@ export class InputController extends ScriptComponent {
                 return;
             }
             this._avatarState.state = State.Idle;
-            Renderer.getScene().sceneController?.applyGravity();
+            // Re-enable gravity for ground movement
+            (this._gameObject as any).characterState = "ON_GROUND";
         }
     }
 
@@ -521,6 +529,12 @@ export class InputController extends ScriptComponent {
         this._avatarState.moveDir.x = 0;
         this._avatarState.moveDir.z = 0;
         this._avatarState.currentSpeed = 0;
+
+        // Stop character controller motion when idle.
+        const characterController = (this._gameObject as any)?.characterController;
+        if (characterController) {
+            characterController.setVelocity(Vector3.Zero());
+        }
 
         if (this._avatarState.action !== Action.Idle) {
             this._avatarState.action = Action.Idle;
@@ -551,7 +565,8 @@ export class InputController extends ScriptComponent {
             return;
         }
 
-        if (!this._gameObject?.physicsImpostor) {
+        const characterController = (this._gameObject as any)?.characterController;
+        if (!characterController) {
             return;
         }
 
@@ -585,12 +600,11 @@ export class InputController extends ScriptComponent {
                 this._avatarState.jumpSubstate = JumpSubState.Jumping;
                 break;
             case JumpSubState.Jumping:
-                // Boost the avatar into the air.
+                // Set character state to jump.
                 if (this._avatarState.canImpulse) {
-                    this._gameObject.physicsImpostor.applyImpulse(Vector3.Up().scale(this._avatarState.jumpImpulse),
-                        this._gameObject.getAbsolutePosition());
+                    (this._gameObject as any).characterState = "START_JUMP";
                 }
-                // Prevent the impulse from firing more than once.
+                // Prevent the jump from firing more than once.
                 this._avatarState.canImpulse = false;
                 // Change to the next jump substate.
                 this._avatarState.jumpSubstate = JumpSubState.Rising;
@@ -599,23 +613,27 @@ export class InputController extends ScriptComponent {
                 {
                     // Allow the avatar to move in the air.
                     this._doMoveInJumping(delta);
-                    const velocity = this._gameObject.physicsImpostor.getLinearVelocity();
-                    // Change to the next jump substate once the avatar has started falling.
+                    // Check if character is falling
+                    const velocity = characterController?.getVelocity();
                     if (velocity && velocity.y < 0) {
                         this._avatarState.jumpSubstate = JumpSubState.Falling;
-                        this._avatarState.previousPosY = this.position.y;
+                        this._avatarState.previousPosY = this._gameObject?.position.y || 0;
                     }
                 }
                 break;
             case JumpSubState.Falling:
-                // Allow the avatar to move in the air.
-                this._doMoveInJumping(delta);
-                // Move to the next jump substate once the avatar touches the ground or stops falling.
-                if (this._detectGround() || Math.abs(this._avatarState.previousPosY - this._gameObject.position.y) < 0.001) {
-                    this._avatarState.jumpSubstate = JumpSubState.Landing;
-                    this._avatarState.action = Action.Land;
+                {
+                    // Allow the avatar to move in the air.
+                    this._doMoveInJumping(delta);
+                    // Check if character is on ground using checkSupport
+                    const support = characterController?.checkSupport(delta, Vector3.Down());
+                    if (support && support.supportedState === 1) { // SUPPORTED state
+                        this._avatarState.jumpSubstate = JumpSubState.Landing;
+                        this._avatarState.action = Action.Land;
+                        (this._gameObject as any).characterState = "ON_GROUND";
+                    }
+                    this._avatarState.previousPosY = this._gameObject?.position.y || 0;
                 }
-                this._avatarState.previousPosY = this._gameObject.position.y;
                 break;
             case JumpSubState.Landing:
                 this._avatarState.landingDuration += delta;
@@ -640,32 +658,62 @@ export class InputController extends ScriptComponent {
             return;
         }
 
+        const characterController = (this._gameObject as any)?.characterController;
+        if (!characterController) {
+            return;
+        }
+
         this._avatarState.jumpSubstate = JumpSubState.None;
+        (this._gameObject as any).characterState = "FLYING";
 
         // Rotate the avatar relative to the yaw direction of the camera.
         const yawRotation = this._defaultCameraAlpha - this._camera.alpha;
         // Rotate the avatar relative to the pitch direction of the camera.
         const pitchRotation = this._camera.beta - this._defaultCameraBeta;
-        Quaternion.FromEulerAnglesToRef(pitchRotation, yawRotation, 0, this._gameObject.rotationQuaternion as Quaternion);
+        const characterOrientation = Quaternion.FromEulerAngles(pitchRotation, yawRotation, 0);
+        this._gameObject.rotationQuaternion = characterOrientation;
 
-        if (this._avatarState.moveDir.x !== 0 || this._avatarState.moveDir.y !== 0 || this._avatarState.moveDir.z !== 0) {
-            this._getCurrentSpeed();
-            // Move on the X-Z plane, relative to the camera angle.
-            const velocity = this._gameObject
-                .calcMovePOV(this._avatarState.moveDir.x, 0, -this._avatarState.moveDir.z)
-                .normalize()
-                .scale(this._avatarState.currentSpeed * delta);
-            this._gameObject.position.addInPlace(velocity);
-            // Move on the Y axis, regardless of camera angle.
-            const verticalSpeed = this._avatarState.action === Action.FlyFast
-                ? this._avatarState.fastAscendSpeed
-                : this._avatarState.ascendSpeed;
-            this._gameObject.moveWithCollisions(new Vector3(0, this._avatarState.moveDir.y * verticalSpeed, 0));
-        }
+        this._getCurrentSpeed();
+
+        // Get current velocity
+        const currentVelocity = characterController.getVelocity();
+
+        // Calculate desired velocity for flying (including Y movement)
+        const inputDirection = new Vector3(
+            this._avatarState.moveDir.x,
+            this._avatarState.moveDir.y,
+            this._avatarState.moveDir.z
+        );
+        const desiredVelocity = inputDirection.scale(this._avatarState.currentSpeed).applyRotationQuaternion(characterOrientation);
+
+        // For flying, we don't use gravity and allow free movement
+        const upWorld = Vector3.Up();
+        const forwardWorld = Vector3.Forward(true).applyRotationQuaternion(characterOrientation);
+
+        // Calculate movement without gravity
+        const outputVelocity = characterController.calculateMovement(
+            delta,
+            forwardWorld,
+            upWorld,
+            currentVelocity,
+            Vector3.Zero(),
+            desiredVelocity,
+            upWorld
+        );
+
+        // Set velocity and integrate without gravity
+        characterController.setVelocity(outputVelocity);
+        const support = characterController.checkSupport(delta, Vector3.Down());
+        characterController.integrate(delta, support, Vector3.Zero()); // No gravity while flying
     }
 
     private _doMove(delta: number): void {
         if (!this._gameObject || !this._camera) {
+            return;
+        }
+
+        const characterController = (this._gameObject as any)?.characterController;
+        if (!characterController) {
             return;
         }
 
@@ -676,12 +724,54 @@ export class InputController extends ScriptComponent {
             Vector3.Up()
         );
         const rotation = this._defaultCameraAlpha + angle - this._camera.alpha;
-        Quaternion.FromEulerAnglesToRef(0, rotation, 0, this._gameObject.rotationQuaternion as Quaternion);
+        const characterOrientation = Quaternion.FromEulerAngles(0, rotation, 0);
+        this._gameObject.rotationQuaternion = characterOrientation;
 
         this._getCurrentSpeed();
-        const velocity = this._gameObject.calcMovePOV(0, 0, 1).normalize()
-            .scale(this._avatarState.currentSpeed * delta);
-        this._gameObject.position.addInPlace(velocity);
+
+        // Get current velocity and support info
+        const currentVelocity = characterController.getVelocity();
+        const gravity = (this._gameObject as any).characterGravity || new Vector3(0, -9.81, 0);
+        const support = characterController.checkSupport(delta, Vector3.Down());
+
+        // Calculate desired velocity based on input
+        const inputDirection = new Vector3(this._avatarState.moveDir.x, 0, this._avatarState.moveDir.z);
+        const desiredVelocity = inputDirection.scale(this._avatarState.currentSpeed).applyRotationQuaternion(characterOrientation);
+
+        // Use calculateMovement to get the output velocity
+        const upWorld = Vector3.Up();
+        const forwardWorld = Vector3.Forward(true).applyRotationQuaternion(characterOrientation);
+
+        let outputVelocity: Vector3;
+        if ((this._gameObject as any).characterState === "ON_GROUND" && support.supportedState === 1) {
+            outputVelocity = characterController.calculateMovement(
+                delta,
+                forwardWorld,
+                support.averageSurfaceNormal,
+                currentVelocity,
+                support.averageSurfaceVelocity,
+                desiredVelocity,
+                upWorld
+            );
+        } else {
+            // In air movement
+            (this._gameObject as any).characterState = "IN_AIR";
+            outputVelocity = characterController.calculateMovement(
+                delta,
+                forwardWorld,
+                upWorld,
+                currentVelocity,
+                Vector3.Zero(),
+                desiredVelocity,
+                upWorld
+            );
+            // Add gravity
+            outputVelocity.addInPlace(gravity.scale(delta));
+        }
+
+        // Set the velocity and integrate
+        characterController.setVelocity(outputVelocity);
+        characterController.integrate(delta, support, gravity);
     }
 
     private _doMoveInJumping(delta: number): void {
@@ -835,30 +925,16 @@ export class InputController extends ScriptComponent {
     }
 
     /**
-     * Check if there is a ground surface directly below the player's avatar.
-     * @returns `true` if ground was detected, `false` if not.
+     * Check if the character controller is grounded.
+     * @returns `true` if grounded, `false` if not.
      */
     private _detectGround(): boolean {
-        if (this._gameObject) {
-            // The avatar's root position is at the bottom center of the mesh.
-            // Project the ray from just above this point in case the mesh has clipped into the ground slightly.
-            const raycastVerticalOffset = 0.2;
-            const raycastPosition = this._gameObject.position.clone();
-            raycastPosition.y = raycastPosition.y + raycastVerticalOffset;
-
-            // Make the ray long enough to cover this extra distance and extend into the expected ground surface slightly.
-            const groundDetectionDistance = raycastVerticalOffset + 0.2;
-
-            // Cast the detection ray.
-            const ray = new Ray(raycastPosition, Vector3.Down(), groundDetectionDistance);
-            const pick = this._scene.pickWithRay(ray, (mesh) => mesh?.isPickable ?? false);
-
-            // If the ray collided with a mesh, then the avatar is grounded.
-            if (pick?.hit && pick.pickedPoint && pick.pickedMesh) {
-                return true;
-            }
+        const characterController = (this._gameObject as any)?.characterController;
+        if (characterController) {
+            const delta = this._scene.getEngine().getDeltaTime() / 1000;
+            const support = characterController.checkSupport(delta, Vector3.Down());
+            return support && support.supportedState === 1; // SUPPORTED state
         }
-
         return false;
     }
 

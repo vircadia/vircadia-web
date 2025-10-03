@@ -16,6 +16,8 @@ import {
     AbstractMesh,
     TransformNode,
     Node,
+    Mesh,
+    PhysicsAggregate
 } from "@babylonjs/core";
 import { IModelEntity } from "../../EntityInterfaces";
 import { LabelEntity } from "@Modules/entity/entities";
@@ -26,6 +28,7 @@ import { LODManager } from "@Modules/scene/LODManager";
 import { LightmapManager } from "@Modules/scene/LightmapManager";
 import { LightManager } from "@Modules/scene/LightManager";
 import { ScriptManager } from "@Modules/scene/ScriptManager";
+import { PhysicsShapeType, PhysicsMotionType } from "@babylonjs/core/Physics/v2/IPhysicsEnginePlugin";
 
 const InteractiveModelTypes = [
     { name: "chair", condition: /^(?:animate_sitting|animate_seat)/iu },
@@ -90,7 +93,9 @@ export class ModelComponent extends MeshComponent {
                     ScriptManager.executeScriptsOnMeshes(meshes, scene);
                 }
 
-                this.mesh = meshes[0];
+                // Prefer a mesh with geometry (has vertices) to avoid physics errors.
+                const firstMeshWithGeometry = meshes.find((m) => (m as AbstractMesh).getTotalVertices() > 0) ?? meshes[0];
+                this.mesh = firstMeshWithGeometry;
                 this.renderGroupId = DEFAULT_MESH_RENDER_GROUP_ID;
 
                 // Add a label to any of the model's children if they match any of the InteractiveModelTypes.
@@ -199,24 +204,19 @@ export class ModelComponent extends MeshComponent {
                 this.pickable = false;
                 this.checkCollisions = false;
             } else if (entity.collisionMask && entity.shapeType) {
-                if (!this._gameObject.physicsImpostor) {
+                if (!this._gameObject.physicsBody) {
                     this._createColliders(entity);
-                    this.pickable = true;
-                    this.checkCollisions = true;
                 }
+                this.pickable = true;
+                this.checkCollisions = true;
             }
         }
     }
 
     public updatePhysicsProperties(entity: IModelEntity): void {
-        if (this._gameObject && this._gameObject.physicsImpostor) {
-            if (entity.friction) {
-                this._gameObject.physicsImpostor.friction = entity.friction;
-            }
-            if (entity.restitution) {
-                this._gameObject.physicsImpostor.restitution =
-                    entity.restitution;
-            }
+        if (this._gameObject && this._gameObject.physicsBody) {
+            // In v2, friction/restitution are on materials configured during aggregate creation.
+            // If needed we can recreate the aggregate with new material values.
         }
     }
 
@@ -232,41 +232,46 @@ export class ModelComponent extends MeshComponent {
         return 0;
     }
 
-    protected _createColliders(entity: IModelEntity): void {
+    protected async _createColliders(entity: IModelEntity): Promise<void> {
         if (!this._gameObject || !this._mesh) {
             return;
         }
         this._disposeColliders();
 
         if (entity.shapeType === "static-mesh") {
-            this._gameObject.physicsImpostor = new PhysicsImpostor(
+            // Ensure we pass a mesh with valid geometry to the aggregate to avoid errors.
+            let targetMesh: Mesh | undefined = undefined;
+            if (this._mesh instanceof Mesh) {
+                targetMesh = this._mesh;
+            } else {
+                const child = this._mesh.getChildMeshes().find((m) => m instanceof Mesh) as Mesh | undefined;
+                targetMesh = child;
+            }
+            if (!targetMesh) {
+                return; // No valid mesh; skip collider creation.
+            }
+            const agg = new PhysicsAggregate(
                 this._gameObject,
-                PhysicsImpostor.MeshImpostor,
+                PhysicsShapeType.MESH,
                 {
                     mass: this._getMass(entity),
                     restitution: entity.restitution,
                     friction: entity.friction,
+                    mesh: targetMesh
                 },
                 this._gameObject.getScene()
             );
+            this._gameObject.physicsBody = agg.body;
+            // Ensure static colliders are static motion type for stable contacts.
+            if (this._getMass(entity) === 0) {
+                this._gameObject.physicsBody.setMotionType(PhysicsMotionType.STATIC);
+            }
         }
     }
 
     protected _disposeColliders(): void {
-        if (this._mesh && this._mesh.physicsImpostor) {
-            this._mesh.physicsImpostor.dispose();
-            this._mesh.physicsImpostor = null;
-
-            this._mesh.getChildMeshes().forEach((m) => {
-                if (m.physicsImpostor) {
-                    m.physicsImpostor.dispose();
-                }
-            });
-        }
-
-        if (this._gameObject && this._gameObject.physicsImpostor) {
-            this._gameObject.physicsImpostor.dispose();
-            this._gameObject.physicsImpostor = null;
+        if (this._gameObject) {
+            this._gameObject.physicsBody = null;
         }
     }
 }
