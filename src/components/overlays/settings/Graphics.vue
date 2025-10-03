@@ -28,6 +28,27 @@
                 <q-list class="q-pb-md">
                     <q-item>
                         <q-item-section
+                            title="Render Scale"
+                        >
+                            Render Scale
+                        </q-item-section>
+                        <q-item-section class="q-pl-xl">
+                            <q-slider
+                                name="renderScale"
+                                thumbSize="26px"
+                                :min="25"
+                                :max="100"
+                                :step="5"
+                                snap
+                                v-model="renderScalePercent"
+                            />
+                        </q-item-section>
+                        <q-item-section side style="min-width: 5ch;">
+                            <output for="renderScale">{{ renderScalePercent }}%</output>
+                        </q-item-section>
+                    </q-item>
+                    <q-item>
+                        <q-item-section
                             title="FPS Counter"
                         >
                             FPS Counter
@@ -157,6 +178,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { userStore } from "@Stores/index";
+import { Renderer } from "@Modules/scene/renderer";
 import OverlayShell from "../OverlayShell.vue";
 
 export default defineComponent({
@@ -174,6 +196,20 @@ export default defineComponent({
         };
     },
     computed: {
+        renderScalePercent: {
+            get(): number {
+                const scale = this.userStore.graphics.renderScale ?? 1;
+                const percent = Math.round(scale * 100);
+                return Math.min(100, Math.max(25, percent));
+            },
+            set(value: number | string) {
+                const numeric = typeof value === "string" ? parseInt(value, 10) : value;
+                const clampedPercent = Math.min(100, Math.max(25, numeric));
+                const scale = clampedPercent / 100;
+                this.userStore.graphics.renderScale = scale;
+                Renderer.setRenderScale(scale);
+            }
+        },
         fieldOfView: {
             get(): number {
                 return this.userStore.graphics.fieldOfView;

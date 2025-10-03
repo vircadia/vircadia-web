@@ -241,19 +241,30 @@ export class ZoneEntityController extends EntityController {
 
     protected _updateEnvironment(userData: ZoneExtensions | undefined): void {
         if (userData && userData.environment && userData.environment.environmentTexture) {
-            if (this._scene.environmentTexture
-                && this._scene.environmentTexture.name !== userData.environment.environmentTexture) {
-                this._scene.environmentTexture.dispose();
-            }
+            const newEnvUrl = userData.environment.environmentTexture;
+            const url = new AssetUrl(newEnvUrl);
 
-            const url = new AssetUrl(userData.environment.environmentTexture);
+            const oldEnv = (this._scene.environmentTexture && this._scene.environmentTexture.name !== newEnvUrl)
+                ? this._scene.environmentTexture
+                : undefined;
 
             if (url.fileExtension === "hdr") {
-                this._scene.environmentTexture = new HDRCubeTexture(userData.environment.environmentTexture,
-                    this._scene, 512, false, true, false, true);
-
+                // Reduce cube size to lower memory, configurable via graphics settings.
+                const configuredSize = Number(userStore.graphics.envHdrCubeSize) || 256;
+                const size = configuredSize;
+                this._scene.environmentTexture = new HDRCubeTexture(newEnvUrl, this._scene, size, false, true, false, true);
             } else if (url.fileExtension === "env") {
-                this._scene.environmentTexture = new CubeTexture(userData.environment.environmentTexture, this._scene);
+                this._scene.environmentTexture = new CubeTexture(newEnvUrl, this._scene);
+            }
+
+            if (oldEnv) {
+                if (userStore.graphics.deferTextureDisposal) {
+                    this._scene.onAfterRenderObservable.addOnce(() => {
+                        try { oldEnv.dispose(); } catch { /* ignore */ }
+                    });
+                } else {
+                    try { oldEnv.dispose(); } catch { /* ignore */ }
+                }
             }
         }
     }

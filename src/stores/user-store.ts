@@ -39,24 +39,46 @@ function getDefaultGraphicsSettings() {
     if (isMobile) {
         // Lower defaults for mobile/touch devices to improve performance and thermals.
         return {
+            renderScale: 0.5,
             fieldOfView: 80,
             bloom: false,
             fxaaEnabled: true,
             msaa: 1, // Off
             sharpen: false,
             fpsCounter: false,
-            cameraBobbing: false
+            cameraBobbing: false,
+            // Performance/compatibility toggles
+            enableSceneOptimizer: true,
+            textureClampEnabled: true,
+            textureMaxSize: 512,
+            reduceSkyboxCubeSize: true,
+            skyboxCubeSize: 256,
+            envHdrCubeSize: 256,
+            deferTextureDisposal: true,
+            webgpuOnMobile: false,
+            forceWebGL: false
         };
     }
     // Desktop defaults
     return {
+        renderScale: 1.0,
         fieldOfView: 85,
         bloom: true,
         fxaaEnabled: true,
         msaa: 2,
         sharpen: false,
         fpsCounter: true,
-        cameraBobbing: true
+        cameraBobbing: true,
+        // Performance/compatibility toggles
+        enableSceneOptimizer: false,
+        textureClampEnabled: false,
+        textureMaxSize: 1024,
+        reduceSkyboxCubeSize: false,
+        skyboxCubeSize: 1024,
+        envHdrCubeSize: 512,
+        deferTextureDisposal: true,
+        webgpuOnMobile: false,
+        forceWebGL: false
     };
 }
 

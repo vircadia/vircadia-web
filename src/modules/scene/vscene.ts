@@ -28,6 +28,7 @@ import {
     Color4,
     WebGPUEngine,
 } from "@babylonjs/core";
+import { SceneOptimizer, SceneOptimizerOptions, TextureOptimization } from "@babylonjs/core/Misc/sceneOptimizer";
 import Ammo from "ammojs-typed";
 import "@babylonjs/loaders/glTF";
 import { watch } from "vue";
@@ -565,15 +566,9 @@ export class VScene {
             };
             let avatarHeight = 1.8;
 
-            if (
-                meshComponent.mesh &&
-                "refreshBoundingInfo" in meshComponent.mesh
-            ) {
+            if (meshComponent.mesh) {
                 // Get the bounding vectors of the avatar mesh.
-                const boundingMesh = meshComponent.mesh.refreshBoundingInfo(
-                    Boolean(meshComponent.skeleton)
-                );
-                boundingVectors = boundingMesh.getHierarchyBoundingVectors();
+                boundingVectors = meshComponent.mesh.getHierarchyBoundingVectors();
                 avatarHeight = boundingVectors.max.y - boundingVectors.min.y;
                 meshComponent.mesh.position = Vector3.Zero();
             }
@@ -709,6 +704,23 @@ export class VScene {
         }
 
         this._scene.collisionsEnabled = true;
+
+        // Attach SceneOptimizer for mobile to reduce GPU/VRAM pressure with minimal impact.
+        try {
+            if (userStore.device.isMobile && userStore.graphics.enableSceneOptimizer) {
+                // Use low-degradation preset then tweak a bit if needed.
+                const options = SceneOptimizerOptions.LowDegradationAllowed(60);
+                // Prefer reducing post-processes and texture sizes early.
+                // options.addOptimization(new PostProcessesOptimization(0)); // defaults included in preset
+                // Extensively clamp texture sizes to reduce VRAM usage on mobile devices.
+                if (userStore.graphics.textureClampEnabled) {
+                    const maxSize = Number(userStore.graphics.textureMaxSize) || 512;
+                    options.addOptimization(new TextureOptimization(0, maxSize));
+                }
+                // Clamp target 60fps but optimizer will apply steps if below.
+                SceneOptimizer.OptimizeAsync(this._scene, options);
+            }
+        } catch { /* ignore */ }
     }
 
     private _onSceneReady(): void {

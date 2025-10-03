@@ -13,6 +13,7 @@
 
 import { MeshComponent, DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { Scene, MeshBuilder, StandardMaterial, Texture, CubeTexture, EquiRectangularCubeTexture, BaseTexture, Camera } from "@babylonjs/core";
+import { userStore } from "@Stores/index";
 import { ISkyboxProperty, IVector3Property } from "../../EntityProperties";
 import { EntityMapper } from "../../package";
 import { AssetUrl } from "../../builders/asset";
@@ -84,8 +85,20 @@ export class SkyboxComponent extends MeshComponent {
             material.specularColor = EntityMapper.mapToColor3(props.color);
 
             if (props.url && props.url !== material.reflectionTexture?.name) {
-                material.reflectionTexture?.dispose();
+                const oldReflection = material.reflectionTexture ?? undefined;
                 material.reflectionTexture = this._createReflectionTexture(props.url, this._scene);
+                if (oldReflection && userStore.graphics.deferTextureDisposal) {
+                    const sceneRef = this._scene;
+                    if (sceneRef) {
+                        sceneRef.onAfterRenderObservable.addOnce(() => {
+                            try { oldReflection.dispose(); } catch { /* ignore */ }
+                        });
+                    } else {
+                        try { oldReflection.dispose(); } catch { /* ignore */ }
+                    }
+                } else if (oldReflection) {
+                    try { oldReflection.dispose(); } catch { /* ignore */ }
+                }
             }
         }
     }
@@ -98,9 +111,12 @@ export class SkyboxComponent extends MeshComponent {
         if (assetUrl.fileExtension === "") {
             reflectionTexture = new CubeTexture(url, scene);
         } else {
-
+            // Prefer a smaller cube size on mobile to reduce VRAM pressure (configurable).
+            const cubeSize = (userStore.graphics.reduceSkyboxCubeSize && userStore.graphics.skyboxCubeSize)
+                ? Number(userStore.graphics.skyboxCubeSize)
+                : (userStore.device.isMobile ? 256 : SkyboxComponent.DefaultCubeMapSize);
             // TODO: support Cubemaps with one image
-            reflectionTexture = new EquiRectangularCubeTexture(url, scene, SkyboxComponent.DefaultCubeMapSize);
+            reflectionTexture = new EquiRectangularCubeTexture(url, scene, cubeSize);
         }
 
         reflectionTexture.coordinatesMode = Texture.SKYBOX_MODE;

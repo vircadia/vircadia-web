@@ -11,7 +11,7 @@
 //
 
 import { Engine, type Nullable } from "@babylonjs/core";
-import { applicationStore } from "@Stores/index";
+import { applicationStore, userStore } from "@Stores/index";
 import { Config } from "@Base/config";
 import { WebGPUEngine } from "@babylonjs/core/Engines/webgpuEngine";
 import { VScene } from "@Modules/scene/vscene";
@@ -49,7 +49,11 @@ export class Renderer {
      */
     public static async initialize(canvas: HTMLCanvasElement, loadingScreen: HTMLElement): Promise<void> {
         try {
-            const wantWebGPU = (process.env.VRCA_USE_WEBGPU === "true");
+            // Gate WebGPU on mobile/tablet via graphics flags; allow forceWebGL override.
+            const envWantsWebGPU = (process.env.VRCA_USE_WEBGPU === "true");
+            const allowWebGPUOnMobile = Boolean(userStore.graphics?.webgpuOnMobile);
+            const forceWebGL = Boolean(userStore.graphics?.forceWebGL);
+            const wantWebGPU = envWantsWebGPU && !forceWebGL && (!userStore.device.isMobile || allowWebGPUOnMobile);
             this._webgpuSupported = wantWebGPU ? await WebGPUEngine.IsSupportedAsync : false;
 
             if (this._webgpuSupported) {
@@ -65,10 +69,17 @@ export class Renderer {
                                 "timestamp-query",
                                 "indirect-first-instance"
                             ]
-                        }
+                        },
+                        doNotHandleContextLost: true
                     });
                     this._engine.loadingScreen = new CustomLoadingScreen(loadingScreen);
                     await (this._engine as WebGPUEngine).initAsync();
+                    // Apply user-configured render scale (maps to hardware scaling level).
+                    try {
+                        const scale = userStore.graphics?.renderScale ?? (userStore.device.isMobile ? 0.5 : 1.0);
+                        const clamped = Math.max(0.25, Math.min(1, Number(scale)));
+                        this._engine.setHardwareScalingLevel(1 / clamped);
+                    } catch { /* ignore */ }
                     this._engine.displayLoadingUI();
                 } catch (webgpuError) {
                     // If WebGPU init fails (missing required features, drivers, etc.),
@@ -82,9 +93,15 @@ export class Renderer {
                 if (!Renderer._isWebGLSupported()) {
                     throw new Error("WebGL not supported or disabled in this browser");
                 }
-                this._engine = new Engine(canvas, true);
+                this._engine = new Engine(canvas, true, { doNotHandleContextLost: true });
                 this._engine.renderEvenInBackground = true;
                 this._engine.loadingScreen = new CustomLoadingScreen(loadingScreen);
+                // Apply user-configured render scale (maps to hardware scaling level).
+                try {
+                    const scale = userStore.graphics?.renderScale ?? (userStore.device.isMobile ? 0.5 : 1.0);
+                    const clamped = Math.max(0.25, Math.min(1, Number(scale)));
+                    this._engine.setHardwareScalingLevel(1 / clamped);
+                } catch { /* ignore */ }
                 this._engine.displayLoadingUI();
             }
 
@@ -205,5 +222,16 @@ export class Renderer {
         });
         this._renderingScenes = [];
         this._engine.stopRenderLoop();
+    }
+
+    /**
+     * Set render scale at runtime. 1.0 = native resolution, 0.5 = half-res.
+     * Values are clamped to [0.25, 1.0].
+     */
+    public static setRenderScale(scale: number): void {
+        if (!this._engine) return;
+        const numeric = Number(scale);
+        const clamped = Math.max(0.25, Math.min(1, isNaN(numeric) ? 1 : numeric));
+        this._engine.setHardwareScalingLevel(1 / clamped);
     }
 }
