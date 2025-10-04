@@ -7,7 +7,7 @@ ua92-web.vircadia.com {
 	encode zstd gzip
 
 	# Serve the built SPA from dist/spa
-	root * dist/spa
+	root * /home/ec2-user/vircadia-web/dist/spa
 
 	# SPA fallback to index.html
 	try_files {path} /index.html

@@ -98,6 +98,8 @@ Notes:
 - The configured ACME CA is ZeroSSL only.
 - The Caddyfile provides SPA routing via `try_files` to `index.html` and serves static assets from `dist/spa`.
 
+*Note: You will want to use a systemd service or similar to run Caddy persistently.*
+
 ## Desktop
 
 The web client can also be compiled to a standalone desktop app. When doing so, the `VRCA_DESKTOP_MODE` environment variable must be set to either `dev` or `build`.
