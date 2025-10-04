@@ -123,3 +123,16 @@ bun run update-contributors
 ## Local Assets
 
 To enable faster loading, you may put local models into the `public/local-assets` folder, then reference them in your entity tree like so `/local-assets/yourModel.glb`. The asset should now be available to you in-world.
+
+## Custom Operation
+
+For custom operation, be sure to set 
+
+* `VRCA_DEFAULT_METAVERSE_URL`
+* `VRCA_DEFAULT_DOMAIN_PROTOCOL`
+* `VRCA_DEFAULT_DOMAIN_PORT`
+* `VRCA_DEFAULT_DOMAIN_URL` 
+
+in the `.env` file.
+
+You should also check `quasar.config.cjs` for other customization options.

@@ -52,6 +52,8 @@ module.exports = configure(function (ctx) {
 
         // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#build
         build: {
+            sourcemap: false,
+            minify: "esbuild",
             target: {
                 browser: [
                     "es2020",
@@ -81,6 +83,29 @@ module.exports = configure(function (ctx) {
             extendViteConf(viteConf) {
                 if (process.env.VRCA_HOSTED_URL)
                     viteConf.base = process.env.VRCA_HOSTED_URL;
+
+                // Reduce memory pressure by avoiding pre-bundling of large native libs
+                viteConf.optimizeDeps = viteConf.optimizeDeps || {};
+                viteConf.optimizeDeps.exclude = [
+                    ...(viteConf.optimizeDeps.exclude || []),
+                    "ammojs-typed",
+                ];
+
+                // Split heavy libs into dedicated chunks to minimize rollup's working set
+                viteConf.build = viteConf.build || {};
+                viteConf.build.rollupOptions = viteConf.build.rollupOptions || {};
+                const rollupOptions = viteConf.build.rollupOptions;
+                rollupOptions.output = rollupOptions.output || {};
+                if (!Array.isArray(rollupOptions.output)) {
+                    const prevManualChunks = rollupOptions.output.manualChunks;
+                    if (typeof prevManualChunks !== "function" && typeof prevManualChunks !== "object") {
+                        rollupOptions.output.manualChunks = (id) => {
+                            if (id.includes("node_modules/ammojs-typed")) return "vendor_ammo";
+                            if (id.includes("node_modules/@babylonjs")) return "vendor_babylon";
+                            return undefined;
+                        };
+                    }
+                }
             },
             // viteVuePluginOptions: {},
 
@@ -101,7 +126,7 @@ module.exports = configure(function (ctx) {
                 // Default Connection Config
                 VRCA_DEFAULT_METAVERSE_URL:
                     process.env.VRCA_DEFAULT_METAVERSE_URL ??
-                    "https://metaverse.vircadia.com/live",
+                    "https://ua92-metaverse.vircadia.com",
                 VRCA_DEFAULT_ICE_SERVERS:
                     process.env.VRCA_DEFAULT_ICE_SERVERS ??
                     '[ { "urls": ["stun:stun1.l.google.com:19302", "stun:stun4.l.google.com:19302"] } ]',
@@ -111,7 +136,7 @@ module.exports = configure(function (ctx) {
                     process.env.VRCA_DEFAULT_DOMAIN_PORT ?? "40102",
                 VRCA_DEFAULT_DOMAIN_URL:
                     process.env.VRCA_DEFAULT_DOMAIN_URL ??
-                    "wss://antares.digisomni.com/0,0,0/0,0,0,1",
+                    "wss://ua92-1.vircadia.com/0,0,0/0,0,0,1",
                 // Theme
                 VRCA_BRAND_NAME:
                     process.env.VRCA_BRAND_NAME ?? packageJSON.productName,

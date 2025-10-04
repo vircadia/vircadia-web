@@ -7,7 +7,7 @@
     "license": "Apache-2.0",
     "scripts": {
         "postinstall": "cd desktop && npm i",
-        "build": "npm run create-version && npm run copy-workers && npm run build-quasar",
+        "build": "npm run create-version && npm run copy-workers && NODE_OPTIONS=--max-old-space-size=6144 npm run build-quasar",
         "dev": "npm run create-version && npm run copy-workers && npm run build-quasar-dev",
         "build-desktop": "cd desktop && npm run build",
         "serve": "serve -s dist/spa",
