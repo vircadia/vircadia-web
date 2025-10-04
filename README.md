@@ -9,11 +9,10 @@ Vircadia Web (*codename Aether*) is an open source metaverse web client for acce
 
 ### Prerequisites
 
-Vircadia Web has been tested to work with:
+You need to have the following prerequisites installed:
 
-* Bun.sh `1.2.23` *(recommended)*
-* Node versions `16` - `20`
-* NPM versions `8.19` - `10.1`
+* Bun.sh `1.2.23` 
+* Node version `20`
 
 *(Use of versions other than stated is untested and may not work correctly.)*
 
