@@ -57,37 +57,47 @@ See [Configuring quasar.conf.js](https://v2.quasar.dev/quasar-cli/quasar-conf-js
 
 Development mode benefits from features like hot-code reloading, error reporting, etc.
 
-```sh
-npm run dev
 ```
-or
-```
-yarn run dev
+bun run dev
 ```
 
 ### Lint the files
 
 ```sh
-npm run lint
+bun run lint
 ```
 
 And fix lint issues automatically with
 
 ```sh
-npm run lint -- --fix
+bun run lint -- --fix
 ```
 
 ### Run tests
 
 ```sh
-npm run test
+bun run test
 ```
 
 ### Deploy the app for production
 
 ```sh
-npm run build
+bun run build
+# Built files at dist/spa
 ```
+
+This repository includes a `caddy/Caddyfile` preconfigured to use ZeroSSL for automatic certificates and to serve the built SPA from `dist/spa`.
+
+#### Caddy (ZeroSSL) Deployment
+
+Run Caddy
+```sh
+caddy run --config caddy/Caddyfile
+```
+
+Notes:
+- The configured ACME CA is ZeroSSL only.
+- The Caddyfile provides SPA routing via `try_files` to `index.html` and serves static assets from `dist/spa`.
 
 ## Desktop
 
@@ -97,18 +107,18 @@ After installing the base Node dependencies with `npm i`, you will also need to 
 
 To run the desktop wrapper in development mode:
 ```sh
-npm run dev-desktop
+bun run dev-desktop
 ```
 
 To build the desktop executable:
 ```sh
-npm run build-desktop
+bun run build-desktop
 ```
 
 ## To Update Contributors
 
 ```sh
-npm run update-contributors
+bun run update-contributors
 ```
 
 ## Local Assets

@@ -1,0 +1,16 @@
+{
+    email hello@vircadia.com
+    acme_ca https://acme.zerossl.com/v2/DV90
+}
+
+ua92-web.vircadia.com {
+    encode zstd gzip
+
+    # Serve the built SPA from dist/spa
+    root * dist/spa
+
+    # SPA fallback to index.html
+    try_files {path} /index.html
+
+    file_server
+}
