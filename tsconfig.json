@@ -17,8 +17,6 @@
         }
     },
     "include": [
-        "src/**/*",
-        "src/vircadia-world/src/**/*",
-        "src/vircadia-world/src/shared/modules/vircadia-world-meta/**/*"
+        "src/**/*"
     ]
 }
