@@ -80,14 +80,34 @@ bun run test
 
 ### Deploy the app for production
 
+#### Configure
+
+First, be sure to set in the `.env` file:
+
+* `VRCA_DEFAULT_METAVERSE_URL`
+* `VRCA_DEFAULT_DOMAIN_PROTOCOL`
+* `VRCA_DEFAULT_DOMAIN_PORT`
+* `VRCA_DEFAULT_DOMAIN_URL` 
+
+Also consider for Auzre Entra ID support:
+
+* `VRCA_AZURE_TENANT_ID`
+* `VRCA_AZURE_CLIENT_ID`
+* `VRCA_AZURE_REDIRECT_URI`
+* `VRCA_AZURE_SCOPES` (or you can keep the default value `["openid","profile","email"]`)
+
+You should also check `quasar.config.cjs` for other customization options.
+
+#### Build the app
+
 ```sh
 bun run build
 # Built files at dist/spa
 ```
 
-This repository includes a `caddy/Caddyfile` preconfigured to use ZeroSSL for automatic certificates and to serve the built SPA from `dist/spa`.
+#### Deploy with Caddy (ZeroSSL)
 
-#### Caddy (ZeroSSL) Deployment
+This repository includes a `caddy/Caddyfile` preconfigured to use ZeroSSL for automatic certificates and to serve the built SPA from `dist/spa`.
 
 Run Caddy
 ```sh
@@ -125,16 +145,3 @@ bun run update-contributors
 ## Local Assets
 
 To enable faster loading, you may put local models into the `public/local-assets` folder, then reference them in your entity tree like so `/local-assets/yourModel.glb`. The asset should now be available to you in-world.
-
-## Custom Operation
-
-For custom operation, be sure to set 
-
-* `VRCA_DEFAULT_METAVERSE_URL`
-* `VRCA_DEFAULT_DOMAIN_PROTOCOL`
-* `VRCA_DEFAULT_DOMAIN_PORT`
-* `VRCA_DEFAULT_DOMAIN_URL` 
-
-in the `.env` file.
-
-You should also check `quasar.config.cjs` for other customization options.
