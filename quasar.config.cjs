@@ -126,7 +126,7 @@ module.exports = configure(function (ctx) {
                 // Default Connection Config
                 VRCA_DEFAULT_METAVERSE_URL:
                     process.env.VRCA_DEFAULT_METAVERSE_URL ??
-                    "https://ua92-metaverse.vircadia.com",
+                    "https://ua92-metaverse.vircadia.com/live",
                 VRCA_DEFAULT_ICE_SERVERS:
                     process.env.VRCA_DEFAULT_ICE_SERVERS ??
                     '[ { "urls": ["stun:stun1.l.google.com:19302", "stun:stun4.l.google.com:19302"] } ]',

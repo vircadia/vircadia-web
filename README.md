@@ -109,9 +109,14 @@ bun run build
 
 This repository includes a `caddy/Caddyfile` preconfigured to use ZeroSSL for automatic certificates and to serve the built SPA from `dist/spa`.
 
-Run Caddy
+Run Caddy directly
 ```sh
 caddy run --config caddy/Caddyfile
+```
+or if you have Caddy installed as a service:
+
+```sh
+caddy reload --config caddy/Caddyfile
 ```
 
 Notes:
@@ -145,3 +150,33 @@ bun run update-contributors
 ## Local Assets
 
 To enable faster loading, you may put local models into the `public/local-assets` folder, then reference them in your entity tree like so `/local-assets/yourModel.glb`. The asset should now be available to you in-world.
+
+## Admin Account
+
+### Creating an Admin Account
+
+Your metaverse requires an admin account to manage domains. Create this account using the default admin username `vircadia` and set a secure password.
+
+### Setting Up Domain Access
+
+1. **Create Domain Access Tokens**:
+   - Log in with your admin account (`vircadia`)
+   - Navigate to Settings (cog icon) → "Domains" → "Create Domain"
+   - Generate and copy the access token
+
+2. **Connect to Your Domain**:
+   - Open your Domain server's admin panel at `:40100`
+   - Enter your metaverse URL (e.g., `https://ua92-metaverse.vircadia.com/live`) found under `:40100/settings/#metaverse_group`
+   - Paste the access token you created
+
+3. **Register Your Domain**:
+   - In the domain server panel, select "Create new domain ID" or "Choose from my domains" if you've already created one
+   - Enter a label for your server
+   - Click "Create" to establish the connection
+
+4. **Configure Permissions**:
+   - Set connection permissions in your domain settings
+   - Options include:
+     - Allow "Logged In" users to connect
+     - Allow "Anonymous" users to connect
+     - Restrict access to specific accounts (e.g., only the `vircadia` admin account)
