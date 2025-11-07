@@ -14,6 +14,7 @@ import { createPinia } from "pinia";
 import { Router } from "vue-router";
 import { useApplicationStore } from "@Stores/application-store";
 import { useUserStore } from "@Stores/user-store";
+import { Account } from "@Modules/account";
 
 /*
  * When adding new properties to stores, you should also
@@ -31,6 +32,40 @@ export const pinia = createPinia();
 export const applicationStore = useApplicationStore(pinia);
 
 export const userStore = useUserStore(pinia);
+
+// Hydrate runtime Account singleton from persisted userStore after refresh
+// so API requests include Authorization immediately.
+(() => {
+    const persisted = userStore.account;
+    const hasToken = typeof persisted?.accessToken === "string" && persisted.accessToken.length > 0;
+    if (persisted?.isLoggedIn && hasToken) {
+        Account.isLoggedIn = true;
+        Account.accountName = persisted.username ?? Account.accountName;
+        Account.id = persisted.id ?? Account.id;
+        Account.accessToken = persisted.accessToken;
+        Account.accessTokenType = persisted.tokenType ?? "Bearer";
+        Account.scope = persisted.scope ?? Account.scope;
+        // Reflect admin flag into roles array best-effort (roles not persisted in userStore)
+        if (persisted.isAdmin) {
+            if (!Account.roles.includes("admin")) Account.roles.push("admin");
+        }
+        // Notify listeners that Account is ready after hydration
+        Account.onAttributeChange.emit({
+            isLoggedIn: Account.isLoggedIn,
+            isAdmin: Account.roles.includes("admin"),
+            accountName: Account.accountName,
+            id: Account.id,
+            accessToken: Account.accessToken,
+            accessTokenType: Account.accessTokenType,
+            accessTokenExpiration: Account.accessTokenExpiration,
+            refreshToken: Account.refreshToken,
+            scope: Account.scope as string,
+            roles: Account.roles,
+            createdAt: Account.createdAt,
+            accountInfo: Account.accountInfo
+        });
+    }
+})();
 
 /*
  * If not building with SSR mode, you can
