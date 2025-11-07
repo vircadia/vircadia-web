@@ -126,7 +126,7 @@ module.exports = configure(function (ctx) {
                 // Default Connection Config
                 VRCA_DEFAULT_METAVERSE_URL:
                     process.env.VRCA_DEFAULT_METAVERSE_URL ??
-                    "https://ua92-metaverse.vircadia.com/live",
+                    "https://metaverse-server.ua92.ac.uk/live",
                 VRCA_DEFAULT_ICE_SERVERS:
                     process.env.VRCA_DEFAULT_ICE_SERVERS ??
                     '[ { "urls": ["stun:stun1.l.google.com:19302", "stun:stun4.l.google.com:19302"] } ]',
@@ -136,7 +136,7 @@ module.exports = configure(function (ctx) {
                     process.env.VRCA_DEFAULT_DOMAIN_PORT ?? "40102",
                 VRCA_DEFAULT_DOMAIN_URL:
                     process.env.VRCA_DEFAULT_DOMAIN_URL ??
-                    "wss://ua92-1.vircadia.com/0,0,0/0,0,0,1",
+                    "wss://metaverse-world-1.ua92.ac.uk/0,0,0/0,0,0,1",
                 // Theme
                 VRCA_BRAND_NAME:
                     process.env.VRCA_BRAND_NAME ?? packageJSON.productName,
@@ -191,7 +191,7 @@ module.exports = configure(function (ctx) {
                     process.env.VRCA_WINDOW_STYLE ?? "gradient-right",
                 // Links
                 VRCA_HOSTED_URL:
-                    process.env.VRCA_HOSTED_URL ?? "https://app.vircadia.com",
+                    process.env.VRCA_HOSTED_URL ?? "https://metaverse-app.ua92.ac.uk",
                 VRCA_USER_DOCS_URL:
                     process.env.VRCA_USER_DOCS_URL ??
                     "https://docs.vircadia.com/",

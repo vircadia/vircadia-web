@@ -1,13 +1,17 @@
 {
+	# Email for SSL certificate, use your own email if possible
 	email hello@vircadia.com
 	acme_ca https://acme.zerossl.com/v2/DV90
 }
 
-ua92-web.vircadia.com {
+# Your hostname
+metaverse-app.ua92.ac.uk {
 	encode zstd gzip
 
-	# Serve the built SPA from dist/spa
+	# Serve the built SPA from dist/spa, for EC2 instance
 	root * /home/ec2-user/vircadia-web/dist/spa
+	# For other instances, specify the path to the built SPA
+	# root * /path/to/built/spa
 
 	# SPA fallback to index.html
 	try_files {path} /index.html
