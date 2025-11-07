@@ -180,3 +180,9 @@ Your metaverse requires an admin account to manage domains. Create this account 
      - Allow "Logged In" users to connect
      - Allow "Anonymous" users to connect
      - Restrict access to specific accounts (e.g., only the `vircadia` admin account)
+
+:::warning
+
+When changing a Domain server's hosted URL for SSL, you can only use one URL at a time (remove all others), and you must change the certificate name e.g. `vircadia-cert.*` -> `vircadia-cert-1.*`.
+
+:::
