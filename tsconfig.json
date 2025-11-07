@@ -1,6 +1,8 @@
 {
     "extends": "./.quasar/tsconfig.json",
     "compilerOptions": {
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
         "experimentalDecorators": true,
         "baseUrl": ".",
         "target": "ES2020",

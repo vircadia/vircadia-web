@@ -205,7 +205,9 @@ export const useUserStore = defineStore("user", {
                 username: "Guest",
                 isLoggedIn: false,
                 accessToken: "UNKNOWN",
+                refreshToken: null as string | null,
                 tokenType: "Bearer",
+                accessTokenExpiration: 0,
                 scope: "UNKNOWN",
                 isAdmin: false,
                 useAsAdmin: false,
@@ -253,6 +255,11 @@ export const useUserStore = defineStore("user", {
             this.account.scope = data.scope;
             this.account.tokenType = data.accessTokenType;
             this.account.username = data.accountInfo.username;
+            this.account.id = data.id;
+            this.account.refreshToken = data.refreshToken ?? null;
+            if (data.accessTokenExpiration instanceof Date) {
+                this.account.accessTokenExpiration = data.accessTokenExpiration.getTime();
+            }
             Object.assign(this.account.images, data.accountInfo.images ?? {});
         },
         /**

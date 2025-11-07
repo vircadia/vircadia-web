@@ -29,8 +29,8 @@ export interface onAttributeChangePayload {
     id: string,
     accessToken: string,
     accessTokenType: string,
-    accessTokenExpiration: Date,
-    refreshToken: string,
+    accessTokenExpiration: Nullable<Date>,
+    refreshToken: Nullable<string>,
     scope: string,
     roles: string[],
     createdAt: Date,
@@ -49,7 +49,7 @@ export const Account = {
     id: "UNKNOWN",
     accessToken: undefined as Nullable<string>,
     accessTokenType: undefined as Nullable<string>,
-    accessTokenExpiration: undefined as unknown as Date,
+    accessTokenExpiration: undefined as Nullable<Date>,
     refreshToken: undefined as Nullable<string>,
     accountAwaitingVerification: false,
     scope: undefined as unknown as string,
@@ -260,6 +260,8 @@ export const Account = {
         Account.accountInfo = {} as AccountInfo;
         Account.isLoggedIn = false;
         Account.accessToken = "UNKNOWN";
+        Account.refreshToken = undefined;
+        Account.accessTokenExpiration = undefined;
         Account._emitAttributeChange();
         Log.info(Log.types.ACCOUNT, `Logged out of account: ${accountName}`);
     }

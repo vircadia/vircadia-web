@@ -249,7 +249,17 @@ export class Domain {
         if (Account.isLoggedIn) {
             const MS_PER_SECOND = 1000;
             /* eslint-disable camelcase */
-            assert(Account.accessToken !== null && Account.accessTokenType !== null && Account.refreshToken !== null);
+            if (!Account.accessToken || !Account.accessTokenType || !Account.refreshToken) {
+                console.error("Missing account information",
+                    Account.accountName,
+                    Account.id,
+                    Account.accessToken,
+                    Account.accessTokenType,
+                    Account.refreshToken,
+                    Account.accessTokenExpiration
+                );
+                return;
+            }
             this._domain.account.login(Account.accountName, {
                 access_token: Account.accessToken,
                 token_type: Account.accessTokenType,

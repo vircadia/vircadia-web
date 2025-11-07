@@ -45,6 +45,18 @@ export const userStore = useUserStore(pinia);
         Account.accessToken = persisted.accessToken;
         Account.accessTokenType = persisted.tokenType ?? "Bearer";
         Account.scope = persisted.scope ?? Account.scope;
+        if (typeof persisted.refreshToken === "string" && persisted.refreshToken.length > 0) {
+            Account.refreshToken = persisted.refreshToken;
+        }
+        const persistedExpiration = persisted.accessTokenExpiration;
+        if (typeof persistedExpiration === "number" && persistedExpiration > 0) {
+            Account.accessTokenExpiration = new Date(persistedExpiration);
+        } else if (typeof persistedExpiration === "string") {
+            const parsedExpiration = Date.parse(persistedExpiration);
+            if (!Number.isNaN(parsedExpiration)) {
+                Account.accessTokenExpiration = new Date(parsedExpiration);
+            }
+        }
         // Reflect admin flag into roles array best-effort (roles not persisted in userStore)
         if (persisted.isAdmin) {
             if (!Account.roles.includes("admin")) Account.roles.push("admin");
