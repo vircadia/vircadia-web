@@ -88,7 +88,7 @@ module.exports = configure(function (ctx) {
                 viteConf.optimizeDeps = viteConf.optimizeDeps || {};
                 viteConf.optimizeDeps.exclude = [
                     ...(viteConf.optimizeDeps.exclude || []),
-                    "ammojs-typed",
+                    // "ammojs-typed",
                 ];
 
                 // Split heavy libs into dedicated chunks to minimize rollup's working set
@@ -100,7 +100,7 @@ module.exports = configure(function (ctx) {
                     const prevManualChunks = rollupOptions.output.manualChunks;
                     if (typeof prevManualChunks !== "function" && typeof prevManualChunks !== "object") {
                         rollupOptions.output.manualChunks = (id) => {
-                            if (id.includes("node_modules/ammojs-typed")) return "vendor_ammo";
+                            // if (id.includes("node_modules/ammojs-typed")) return "vendor_ammo";
                             if (id.includes("node_modules/@babylonjs")) return "vendor_babylon";
                             return undefined;
                         };
@@ -137,6 +137,10 @@ module.exports = configure(function (ctx) {
                 VRCA_DEFAULT_DOMAIN_URL:
                     process.env.VRCA_DEFAULT_DOMAIN_URL ??
                     "wss://metaverse-world-1.ua92.ac.uk/0,0,0/0,0,0,1",
+                VRCA_DEFAULT_DOMAIN_SILENT_TRAFFIC_DROP_MIN:
+                    process.env.VRCA_DEFAULT_DOMAIN_SILENT_TRAFFIC_DROP_MIN ?? "10",
+                VRCA_DEFAULT_DOMAIN_MAX_SILENT_CHECK_INS:
+                    process.env.VRCA_DEFAULT_DOMAIN_MAX_SILENT_CHECK_INS ?? "20",
                 // Theme
                 VRCA_BRAND_NAME:
                     process.env.VRCA_BRAND_NAME ?? packageJSON.productName,

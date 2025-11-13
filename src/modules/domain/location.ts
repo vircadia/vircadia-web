@@ -132,6 +132,15 @@ export class Location {
         this._href = this._protocol.length > 0
             ? this._protocol + "//" + this.host + this.pathname
             : this.host + this.pathname;
+
+        // Normalize the URL if it has a protocol
+        if (this._protocol.length > 0) {
+            try {
+                this._href = new URL(this._href).href;
+            } catch {
+                // If URL construction fails, keep the original href
+            }
+        }
     }
 
     private _updateHost(): void {

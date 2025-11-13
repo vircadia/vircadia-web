@@ -12,6 +12,7 @@
 /* eslint-disable @typescript-eslint/brace-style */
 
 import { DomainServer, SignalEmitter, Camera, EntityServer, IceServerConfig } from "@vircadia/web-sdk";
+import type { DomainHandlerOptions, DomainServerOptions } from "@vircadia/web-sdk";
 import { Account } from "@Modules/account";
 import { DomainAudioClient } from "@Modules/domain/audio";
 import { DomainMessageClient } from "@Modules/domain/message";
@@ -134,9 +135,48 @@ export class Domain {
             this._location.port = applicationStore.defaultConnectionConfig.DEFAULT_DOMAIN_PORT;
         }
 
+        // Validate the final URL to ensure it's properly formatted
+        try {
+            new URL(this._location.href);
+        } catch (error) {
+            Log.error(Log.types.NETWORK, `Invalid domain URL: ${this._location.href}`);
+            throw new Error(`Invalid domain URL: ${this._location.href}`);
+        }
+
         Log.debug(Log.types.NETWORK, `Creating a new DomainServer.`);
         const iceServers = JSON.parse(applicationStore.defaultConnectionConfig.DEFAULT_ICE_SERVERS) as Array<IceServerConfig>;
-        this._domain = new DomainServer(iceServers);
+
+        const parseOptionalNumber = (value?: string): number | undefined => {
+            if (typeof value !== "string") {
+                return undefined;
+            }
+            const trimmed = value.trim();
+            if (trimmed === "") {
+                return undefined;
+            }
+            const parsed = Number(trimmed);
+            return Number.isFinite(parsed) ? parsed : undefined;
+        };
+
+        const domainHandlerOptions: DomainHandlerOptions = {};
+        const silentTrafficDropMin = parseOptionalNumber(
+            applicationStore.defaultConnectionConfig.DEFAULT_DOMAIN_SILENT_TRAFFIC_DROP_MIN
+        );
+        if (silentTrafficDropMin !== undefined) {
+            domainHandlerOptions.silentDomainTrafficDropMin = silentTrafficDropMin;
+        }
+        const maxSilentCheckIns = parseOptionalNumber(
+            applicationStore.defaultConnectionConfig.DEFAULT_DOMAIN_MAX_SILENT_CHECK_INS
+        );
+        if (maxSilentCheckIns !== undefined) {
+            domainHandlerOptions.maxSilentDomainServerCheckIns = maxSilentCheckIns;
+        }
+
+        const domainOptions: DomainServerOptions | undefined = Object.keys(domainHandlerOptions).length > 0
+            ? { domainHandler: domainHandlerOptions }
+            : undefined;
+
+        this._domain = domainOptions ? new DomainServer(iceServers, domainOptions) : new DomainServer(iceServers);
         this._domain.metaverseServerURL = this.getMetaverseUrl();
         this._domain.account.authRequired.connect(() => {
             console.debug("AUTH REQUIRED: Open login dialog");
