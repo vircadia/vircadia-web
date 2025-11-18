@@ -138,9 +138,9 @@ module.exports = configure(function (ctx) {
                     process.env.VRCA_DEFAULT_DOMAIN_URL ??
                     "wss://metaverse-world-1.ua92.ac.uk/0,0,0/0,0,0,1",
                 VRCA_DEFAULT_DOMAIN_SILENT_TRAFFIC_DROP_MIN:
-                    process.env.VRCA_DEFAULT_DOMAIN_SILENT_TRAFFIC_DROP_MIN ?? "10",
+                    process.env.VRCA_DEFAULT_DOMAIN_SILENT_TRAFFIC_DROP_MIN ?? "20",
                 VRCA_DEFAULT_DOMAIN_MAX_SILENT_CHECK_INS:
-                    process.env.VRCA_DEFAULT_DOMAIN_MAX_SILENT_CHECK_INS ?? "20",
+                    process.env.VRCA_DEFAULT_DOMAIN_MAX_SILENT_CHECK_INS ?? "60",
                 // Theme
                 VRCA_BRAND_NAME:
                     process.env.VRCA_BRAND_NAME ?? packageJSON.productName,
