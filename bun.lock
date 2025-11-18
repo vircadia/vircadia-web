@@ -1,5 +1,6 @@
 {
   "lockfileVersion": 1,
+  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "vircadia-web",
@@ -10,7 +11,7 @@
         "@babylonjs/loaders": "^8.30.1",
         "@quasar/extras": "^1.16.2",
         "@supabase/supabase-js": "^2.45.4",
-        "@vircadia/web-sdk": "^2024.1.0",
+        "@vircadia/web-sdk": "^2024.1.1",
         "@vueuse/core": "^11.0.3",
         "ammojs-typed": "^1.0.6",
         "console-log-colors": "^0.5.0",
@@ -355,7 +356,7 @@
 
     "@ungap/structured-clone": ["@ungap/structured-clone@1.3.0", "", {}, "sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g=="],
 
-    "@vircadia/web-sdk": ["@vircadia/web-sdk@2024.1.0", "", { "dependencies": { "axios": "1.2.2", "core-js": "^3.19.1", "crypto-js": "^4.1.1", "form-data": "^4.0.0", "pako": "^2.0.4", "regenerator-runtime": "^0.13.7" } }, "sha512-8b14FwScKM8niOtlO2FNKHYjJ1EHT4ZCX2wjekywaRU56wIfYdYF1J/kpvxjDQM3LTSB71BVBbU5aXRWmNYWDw=="],
+    "@vircadia/web-sdk": ["@vircadia/web-sdk@2024.1.1", "", { "dependencies": { "axios": "1.2.2", "core-js": "^3.19.1", "crypto-js": "^4.1.1", "form-data": "^4.0.0", "pako": "^2.0.4", "regenerator-runtime": "^0.13.7" } }, "sha512-o7s4k0rbmj7kK1ASeLak7R1tA5bnOU5XfHE2CHhcsu7JEDdB9q1+grpABjp62/FP2snGyaCFqyiY1Az4brvLhQ=="],
 
     "@vitejs/plugin-vue": ["@vitejs/plugin-vue@6.0.1", "", { "dependencies": { "@rolldown/pluginutils": "1.0.0-beta.29" }, "peerDependencies": { "vite": "^5.0.0 || ^6.0.0 || ^7.0.0", "vue": "^3.2.25" } }, "sha512-+MaE752hU0wfPFJEUAIxqw18+20euHHdxVtMvbFcOEpjEyfqXH/5DCoTHiVJ0J29EhTJdoTkjEv5YBKU9dnoTw=="],
 

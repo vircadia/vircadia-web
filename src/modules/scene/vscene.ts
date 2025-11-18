@@ -80,6 +80,9 @@ export class VScene {
     _myAvatar: Nullable<GameObject> = null;
     _myAvatarModelURL = AvatarStoreInterface.getActiveModelData("file");
 
+    // Ensure heavy physics initialization only happens once per scene lifecycle.
+    private _physicsInitialized = false;
+
     _avatarList: Map<string, GameObject>;
     _avatarIsLoading = false;
     _avatarLoadQueue: (string | undefined)[] = [];
@@ -683,13 +686,16 @@ export class VScene {
         });
 
         // Enable physics
-        const ammoReference = await Ammo.apply(window);
-        this._scene.enablePhysics(
-            Vector3.Zero(),
-            new AmmoJSPlugin(true, ammoReference)
-        );
-        /* const hk = await HavokPhysics();
-        this._scene.enablePhysics(Vector3.Zero(), new HavokPlugin(true, hk)); */
+        if (!this._physicsInitialized) {
+            const ammoReference = await Ammo.apply(window);
+            this._scene.enablePhysics(
+                Vector3.Zero(),
+                new AmmoJSPlugin(true, ammoReference)
+            );
+            /* const hk = await HavokPhysics();
+            this._scene.enablePhysics(Vector3.Zero(), new HavokPlugin(true, hk)); */
+            this._physicsInitialized = true;
+        }
         // Don't clear the buffer for the default mesh render group.
         this._scene.setRenderingAutoClearDepthStencil(
             DEFAULT_MESH_RENDER_GROUP_ID,

@@ -141,7 +141,10 @@ export class DomainController extends ScriptComponent {
             this._entityServer.onStateChanged = this._handleOnEntityServerStateChanged.bind(this);
         }
 
-        await this._vscene.load();
+        // Avoid re-running a heavy scene load if the scene is already initialized.
+        if (!this._vscene.sceneController) {
+            await this._vscene.load();
+        }
         this._vscene.teleportMyAvatar(domain.Location);
 
         if (domain.DomainClient) {
