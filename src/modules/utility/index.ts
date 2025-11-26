@@ -81,7 +81,7 @@ export class Utility {
 
                 // Connect to the new Domain server.
                 Log.debug(Log.types.NETWORK, `connectionSetup: connecting to domain ${domainUrl}`);
-                const domain = DomainManager.domainFactory(location.href, true);
+                const domain = await DomainManager.domainFactory(location.href, true);
                 if (domainStateChangeCallback) {
                     domain.onStateChange.connect(domainStateChangeCallback);
                 }

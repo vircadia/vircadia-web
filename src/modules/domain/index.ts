@@ -87,11 +87,11 @@ export class DomainManager {
      * @returns A new Domain connection instance.
      * @throws If there are any connection errors.
      */
-    public static domainFactory(url: string, setToActive = false): Domain {
+    public static async domainFactory(url: string, setToActive = false): Promise<Domain> {
         Log.debug(Log.types.NETWORK, `DomainManager.domainFactory: Creating Domain ${url}`);
         const domain = new Domain();
         try {
-            domain.connect(url);
+            await domain.connect(url);
             // this._domains.set(aDomain.DomainUrl, aDomain);
             this._domains.set(domain.Location.href, domain);
             // Remember the last connected domain for potential restarts

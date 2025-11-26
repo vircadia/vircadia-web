@@ -11,7 +11,7 @@
 // Allow getters to be compact.
 /* eslint-disable @typescript-eslint/brace-style */
 
-import { DomainServer, SignalEmitter, Camera, EntityServer, IceServerConfig } from "@vircadia/web-sdk";
+import { DomainServer, SignalEmitter, Camera, EntityServer, IceServerConfig, TurnCredentials } from "@vircadia/web-sdk";
 import type { DomainHandlerOptions, DomainServerOptions } from "@vircadia/web-sdk";
 import { Account } from "@Modules/account";
 import { DomainAudioClient } from "@Modules/domain/audio";
@@ -120,7 +120,7 @@ export class Domain {
      * @param url The URL of the Domain server.
      * @returns A reference to this Domain instance for easy chaining.
      */
-    public connect(url: string): Domain {
+    public async connect(url: string): Promise<Domain> {
         if (this._domain) {
             const errorMessage = "Attempted to connect to a Domain when already connected.";
             Log.error(Log.types.NETWORK, errorMessage);
@@ -144,7 +144,24 @@ export class Domain {
         }
 
         Log.debug(Log.types.NETWORK, `Creating a new DomainServer.`);
-        const iceServers = JSON.parse(applicationStore.defaultConnectionConfig.DEFAULT_ICE_SERVERS) as Array<IceServerConfig>;
+        let iceServers = JSON.parse(applicationStore.defaultConnectionConfig.DEFAULT_ICE_SERVERS) as Array<IceServerConfig>;
+
+        // Fetch TURN credentials if logged in
+        Log.debug(Log.types.NETWORK, `Checking login status for TURN: LoggedIn=${Account.isLoggedIn}, HasToken=${!!Account.accessToken}`);
+        if (Account.isLoggedIn && Account.accessToken) {
+            const metaverseUrl = this.getMetaverseUrl();
+            try {
+                const fetchedIceServers = await TurnCredentials.fetchIceServers(metaverseUrl, Account.accessToken);
+                if (fetchedIceServers && fetchedIceServers.length > 0) {
+                    iceServers = fetchedIceServers;
+                    Log.debug(Log.types.NETWORK, `Using TURN credentials from metaverse.`);
+                } else {
+                    Log.debug(Log.types.NETWORK, `No TURN credentials returned from metaverse.`);
+                }
+            } catch {
+                Log.warn(Log.types.NETWORK, `Failed to fetch TURN credentials, using default.`);
+            }
+        }
 
         const parseOptionalNumber = (value?: string): number | undefined => {
             if (typeof value !== "string") {
