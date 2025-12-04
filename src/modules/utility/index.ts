@@ -89,6 +89,22 @@ export class Utility {
                 // Connect to the Metaverse server.
                 const metaverseUrl = domain.getMetaverseUrl();
                 await Utility.metaverseConnectionSetup(metaverseUrl, metaverseStateChangeCallback);
+
+                // Force teleport to the requested location after connection
+                if (location.position && location.position.length > 0) {
+                    if (domain.DomainState === ConnectionState.CONNECTED) {
+                        Renderer.getScene().teleportMyAvatar(location);
+                    } else {
+                        const onConnected = (d: Domain, state: ConnectionState, info: string) => {
+                            if (state === ConnectionState.CONNECTED) {
+                                Log.info(Log.types.NETWORK, `Connected! Teleporting to requested location: ${location.pathname}`);
+                                Renderer.getScene().teleportMyAvatar(location);
+                                d.onStateChange.disconnect(onConnected);
+                            }
+                        };
+                        domain.onStateChange.connect(onConnected);
+                    }
+                }
             }
         } catch (error) {
             Log.error(Log.types.NETWORK, `Exception connecting: ${(error as Error).message}`);
