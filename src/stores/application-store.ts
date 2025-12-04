@@ -61,7 +61,8 @@ export const useApplicationStore = defineStore("application", {
             DEFAULT_DOMAIN_PORT: process.env.VRCA_DEFAULT_DOMAIN_PORT,
             DEFAULT_DOMAIN_URL: process.env.VRCA_DEFAULT_DOMAIN_URL,
             DEFAULT_DOMAIN_SILENT_TRAFFIC_DROP_MIN: process.env.VRCA_DEFAULT_DOMAIN_SILENT_TRAFFIC_DROP_MIN,
-            DEFAULT_DOMAIN_MAX_SILENT_CHECK_INS: process.env.VRCA_DEFAULT_DOMAIN_MAX_SILENT_CHECK_INS
+            DEFAULT_DOMAIN_MAX_SILENT_CHECK_INS: process.env.VRCA_DEFAULT_DOMAIN_MAX_SILENT_CHECK_INS,
+            DEFAULT_ICE_TRANSPORT_POLICY: process.env.VRCA_DEFAULT_ICE_TRANSPORT_POLICY
         },
         debugging: {},
         notifications: {},

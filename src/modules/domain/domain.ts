@@ -147,20 +147,18 @@ export class Domain {
         let iceServers = JSON.parse(applicationStore.defaultConnectionConfig.DEFAULT_ICE_SERVERS) as Array<IceServerConfig>;
 
         // Fetch TURN credentials if logged in
-        Log.debug(Log.types.NETWORK, `Checking login status for TURN: LoggedIn=${Account.isLoggedIn}, HasToken=${!!Account.accessToken}`);
-        if (Account.isLoggedIn && Account.accessToken) {
-            const metaverseUrl = this.getMetaverseUrl();
-            try {
-                const fetchedIceServers = await TurnCredentials.fetchIceServers(metaverseUrl, Account.accessToken);
-                if (fetchedIceServers && fetchedIceServers.length > 0) {
-                    iceServers = fetchedIceServers;
-                    Log.debug(Log.types.NETWORK, `Using TURN credentials from metaverse.`);
-                } else {
-                    Log.debug(Log.types.NETWORK, `No TURN credentials returned from metaverse.`);
-                }
-            } catch {
-                Log.warn(Log.types.NETWORK, `Failed to fetch TURN credentials, using default.`);
-            }
+        Log.debug(Log.types.NETWORK, `Checking login status for ICE: LoggedIn=${Account.isLoggedIn}, HasToken=${Boolean(Account.accessToken)}`);
+        const metaverseUrl = this.getMetaverseUrl();
+        try {
+            console.log("[DEBUG] Attempting to fetch ICE servers from metaverse...");
+            const fetchedIceServers = await TurnCredentials.fetchIceServers(metaverseUrl, Account.accessToken);
+            iceServers = fetchedIceServers;
+            console.log("[DEBUG] Successfully fetched ICE servers:", iceServers);
+            Log.debug(Log.types.NETWORK, `Using ICE servers from metaverse.`);
+        } catch (error) {
+            const reason = error instanceof Error ? error.message : String(error);
+            console.warn("[DEBUG] Failed to fetch ICE servers:", reason);
+            Log.warn(Log.types.NETWORK, `Failed to fetch ICE servers: ${reason}`);
         }
 
         const parseOptionalNumber = (value?: string): number | undefined => {
@@ -189,11 +187,17 @@ export class Domain {
             domainHandlerOptions.maxSilentDomainServerCheckIns = maxSilentCheckIns;
         }
 
-        const domainOptions: DomainServerOptions | undefined = Object.keys(domainHandlerOptions).length > 0
-            ? { domainHandler: domainHandlerOptions }
-            : undefined;
+        // Get the ICE transport policy from the store.
+        const iceTransportPolicy = applicationStore.defaultConnectionConfig.DEFAULT_ICE_TRANSPORT_POLICY as RTCIceTransportPolicy;
+        console.log("[DEBUG] Domain.connect: iceTransportPolicy =", iceTransportPolicy);
 
-        this._domain = domainOptions ? new DomainServer(iceServers, domainOptions) : new DomainServer(iceServers);
+        const domainOptions: DomainServerOptions = {
+            domainHandler: Object.keys(domainHandlerOptions).length > 0 ? domainHandlerOptions : undefined,
+            iceTransportPolicy
+        };
+
+        console.log("[DEBUG] Domain.connect: Creating DomainServer with iceServers:", JSON.stringify(iceServers, null, 2));
+        this._domain = new DomainServer(iceServers, domainOptions);
         this._domain.metaverseServerURL = this.getMetaverseUrl();
         this._domain.account.authRequired.connect(() => {
             console.debug("AUTH REQUIRED: Open login dialog");

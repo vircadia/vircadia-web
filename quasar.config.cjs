@@ -136,11 +136,14 @@ module.exports = configure(function (ctx) {
                     process.env.VRCA_DEFAULT_DOMAIN_PORT ?? "40102",
                 VRCA_DEFAULT_DOMAIN_URL:
                     process.env.VRCA_DEFAULT_DOMAIN_URL ??
-                    "wss://metaverse-world-1.ua92.ac.uk/0,0,0/0,0,0,1",
+                    "wss://metaverse-world-1.ua92.ac.uk:40102/-24.60,-0.00,23.38/0.00,1.00,0.00,-0.01",
                 VRCA_DEFAULT_DOMAIN_SILENT_TRAFFIC_DROP_MIN:
                     process.env.VRCA_DEFAULT_DOMAIN_SILENT_TRAFFIC_DROP_MIN ?? "20",
                 VRCA_DEFAULT_DOMAIN_MAX_SILENT_CHECK_INS:
                     process.env.VRCA_DEFAULT_DOMAIN_MAX_SILENT_CHECK_INS ?? "60",
+                VRCA_DEFAULT_ICE_TRANSPORT_POLICY:
+                    process.env.VRCA_DEFAULT_ICE_TRANSPORT_POLICY ?? "all",
+                    // "relay" or "all"
                 // Theme
                 VRCA_BRAND_NAME:
                     process.env.VRCA_BRAND_NAME ?? packageJSON.productName,
