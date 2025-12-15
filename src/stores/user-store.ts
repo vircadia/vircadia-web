@@ -10,7 +10,7 @@
 //
 
 import { defineStore } from "pinia";
-import { useStorage } from "@vueuse/core";
+import { useStorage, useMediaQuery } from "@vueuse/core";
 import { Vec3 } from "@vircadia/web-sdk";
 import type { onAttributeChangePayload } from "@Modules/account";
 import { defaultActiveAvatarId, defaultAvatars } from "@Modules/avatar/DefaultModels";
@@ -23,15 +23,15 @@ const persistentStorageMedium = localStorage;
 
 // Robust mobile/touch-first detection (covers iPadOS and similar devices).
 function isMobileLikeDevice(): boolean {
-    try {
-        const uaMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/iu
-            .test(typeof navigator !== "undefined" ? navigator.userAgent : "");
-        const hasTouch = (typeof navigator !== "undefined" && "maxTouchPoints" in navigator && (navigator as Navigator).maxTouchPoints > 0)
-            || (typeof window !== "undefined" && !!window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
-        return uaMobile || hasTouch;
-    } catch {
-        return false;
-    }
+    const isTouch = useMediaQuery("(pointer: coarse)").value
+        || (typeof navigator !== "undefined" && navigator.maxTouchPoints > 0);
+    const isMobileUA = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/iu)
+        .test(typeof navigator !== "undefined" ? navigator.userAgent : "");
+    const isIpadOS = typeof navigator !== "undefined"
+        && navigator.userAgent.includes("Macintosh")
+        && navigator.maxTouchPoints > 2;
+
+    return isTouch || isMobileUA || isIpadOS;
 }
 
 function getDefaultGraphicsSettings() {
