@@ -9,7 +9,7 @@
 import { MetaverseManager } from "@Modules/metaverse";
 import type { Metaverse, MetaverseState } from "@Modules/metaverse/metaverse";
 import { DomainManager } from "@Modules/domain";
-import type { Domain } from "@Modules/domain/domain";
+import { ConnectionState, type Domain } from "@Modules/domain/domain";
 import { Location } from "@Modules/domain/location";
 import { applicationStore } from "@Stores/index";
 import { Config, TrueValue, FalseValue, RECONNECT_ON_STARTUP, LAST_DOMAIN_SERVER, LOG_LEVEL } from "@Base/config";
